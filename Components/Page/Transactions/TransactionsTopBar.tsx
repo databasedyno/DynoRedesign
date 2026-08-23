@@ -6,6 +6,7 @@ import ExportIcon from "@/assets/Icons/export-icon.svg";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
 import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
+import useEdgeFade from "@/hooks/useEdgeFade";
 import { ALLCRYPTOCURRENCIES } from "@/hooks/useWalletData";
 import { DateRange } from "@/utils/types/dashboard";
 import {
@@ -255,17 +256,23 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
     [selectedWallet, walletOptions, tTransactions],
   );
 
+  // Swipe affordance for the horizontally-scrolling source filter chips —
+  // softly fades whichever edge still has chips off-screen (§ Scroll Hints).
+  const chipsFade = useEdgeFade<HTMLDivElement>();
+
   return (
     <TransactionsTopBarContainer sx={{ px: { xs: "16px", md: "0px" } }}>
       {/* Source filter chips — added Session 48 UX. Lets the merchant slice
           transactions by revenue source (payment link / contribution / tip /
           product order / direct). Horizontal scroll on mobile. */}
       <SourceChipsRow
+        ref={chipsFade.ref}
         role="tablist"
         aria-label={tTransactions("sourceFilterLabel", {
           defaultValue: "Filter by transaction source",
         }) as string}
         data-testid="transactions-source-chips"
+        sx={{ WebkitMaskImage: chipsFade.WebkitMaskImage, maskImage: chipsFade.maskImage }}
       >
         {sourceChips.map((chip) => {
           const isSelected = selectedSource === chip.value;

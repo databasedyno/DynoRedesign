@@ -719,13 +719,7 @@ export const SourceChipsRow = styled(Box)(({ theme }) => ({
     marginBottom: "8px",
     paddingLeft: "0px",
     paddingRight: "0px",
-    // Swipe hint: fade the trailing edge so it's obvious more filters
-    // (Tips / Product orders / Direct) are reachable by scrolling right.
     scrollSnapType: "x proximity",
-    WebkitMaskImage:
-      "linear-gradient(to right, #000 calc(100% - 24px), transparent)",
-    maskImage:
-      "linear-gradient(to right, #000 calc(100% - 24px), transparent)",
   },
 }));
 

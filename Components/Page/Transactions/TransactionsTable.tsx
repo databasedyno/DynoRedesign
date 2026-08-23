@@ -18,7 +18,7 @@ import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CryptoIcon from "@/assets/Icons/crypto-icon.svg";
@@ -78,6 +78,17 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const [selectedTransaction, setSelectedTransaction] =
     useState<ExtendedTransaction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Frozen-column support: the desktop/tablet table is a single scroll
+  // container so the first column (Transaction ID) can be pinned with
+  // position: sticky; left: 0. We only paint the freeze shadow once the user
+  // actually scrolls sideways (scrolledX) so wide screens stay flat/clean.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [scrolledX, setScrolledX] = useState(false);
+  const handleTableScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const isScrolled = e.currentTarget.scrollLeft > 0;
+    setScrolledX((prev) => (prev === isScrolled ? prev : isScrolled));
+  }, []);
 
   const isMobile = useTableCardView();
   const fx = useDisplayFx();
@@ -398,51 +409,73 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     </Box>
   );
 
-  // Desktop table layout
-  const renderDesktopTable = () => (
-    <Box
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        overflowX: "auto",
-        overflowY: "hidden",
-        // Thin visible scrollbar — hidden before, so cut-off Status/Date
-        // columns on narrower screens looked broken (UI/UX audit P1 fix).
-        scrollbarWidth: "thin",
-        scrollbarColor:
-          theme.palette.mode === "dark"
-            ? "rgba(255,255,255,0.28) transparent"
-            : "rgba(15,15,20,0.28) transparent",
-        "&::-webkit-scrollbar": { height: 8 },
-        "&::-webkit-scrollbar-track": { background: "transparent" },
-        "&::-webkit-scrollbar-thumb": {
-          borderRadius: 8,
-          backgroundColor:
-            theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.22)"
-              : "rgba(15,15,20,0.22)",
-        },
-      }}
-    >
+  // Desktop / tablet table layout — ONE scroll container (both axes) so the
+  // first column (Transaction ID) can be frozen with position: sticky; left: 0
+  // while the remaining columns scroll sideways on tablets. The header stays
+  // pinned via position: sticky; top: 0. A soft edge shadow on the frozen
+  // column only appears once the user actually scrolls right (scrolledX).
+  const renderDesktopTable = () => {
+    const frozenEdgeShadow = scrolledX
+      ? theme.palette.mode === "dark"
+        ? "8px 0 12px -8px rgba(0,0,0,0.6)"
+        : "8px 0 12px -8px rgba(15,15,20,0.22)"
+      : "none";
+    const stickyFirstHeaderSx = {
+      position: "sticky" as const,
+      left: 0,
+      zIndex: 4,
+      backgroundColor: theme.palette.primary.light,
+      boxShadow: frozenEdgeShadow,
+      transition: "box-shadow 160ms ease",
+    };
+    const stickyFirstCellSx = {
+      position: "sticky" as const,
+      left: 0,
+      zIndex: 1,
+      backgroundColor: theme.palette.background.paper,
+      boxShadow: frozenEdgeShadow,
+      transition: "box-shadow 160ms ease",
+    };
+
+    return (
       <Box
+        ref={scrollRef}
+        onScroll={handleTableScroll}
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          minWidth: "max-content",
-          height: "100%",
+          flex: 1,
+          minHeight: 0,
+          overflow: "auto",
+          backgroundColor: theme.palette.background.paper,
+          // Thin visible scrollbar so it's obvious the table scrolls sideways.
+          scrollbarWidth: "thin",
+          scrollbarColor:
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.28) transparent"
+              : "rgba(15,15,20,0.28) transparent",
+          "&::-webkit-scrollbar": { height: 8, width: 8 },
+          "&::-webkit-scrollbar-track": { background: "transparent" },
+          "&::-webkit-scrollbar-thumb": {
+            borderRadius: 8,
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.22)"
+                : "rgba(15,15,20,0.22)",
+          },
         }}
       >
-        {/* Header Section */}
-        <Box sx={{ display: "flex", height: 56 }}>
-          <TransactionsTableHeader>
-            {HeaderData.map((item) => (
+        <Box sx={{ minWidth: "max-content" }}>
+          {/* Header Section — sticky top (stays on vertical scroll); the first
+              item is also sticky left so it freezes with the ID column. */}
+          <TransactionsTableHeader sx={{ position: "sticky", top: 0, zIndex: 3 }}>
+            {HeaderData.map((item, idx) => (
               <TransactionsTableHeaderItem
                 key={item.key}
-                sx={
-                  item.key === "amount" || item.key === "usdValue"
+                sx={{
+                  ...(idx === 0 ? stickyFirstHeaderSx : {}),
+                  ...(item.key === "amount" || item.key === "usdValue"
                     ? { justifyContent: "flex-end" }
-                    : undefined
-                }
+                    : {}),
+                }}
               >
                 <Image
                   src={item.icon}
@@ -454,27 +487,17 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               </TransactionsTableHeaderItem>
             ))}
           </TransactionsTableHeader>
-        </Box>
 
-        {/* Body Section */}
-        <Box
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            overflowY: "auto",
-            overflowX: "hidden",
-            backgroundColor: theme.palette.background.paper,
-          }}
-        >
-          <TransactionsTableBody>
+          {/* Body Section — no inner scroll; the single outer container scrolls
+              both axes so the frozen first column resolves correctly. */}
+          <TransactionsTableBody sx={{ overflow: "visible", flex: "0 0 auto", minHeight: 0 }}>
             {isDataEmpty ? (
               <Box
                 sx={{
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  height: "100%",
-                  mt: 3,
+                  py: 6,
                 }}
               >
                 {t("transactionsNotAvailable", { ns: "common" })}
@@ -489,7 +512,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     cursor: "pointer",
                   }}
                 >
-                  <TransactionsTableCell>
+                  <TransactionsTableCell sx={stickyFirstCellSx}>
                     <Box
                       sx={{
                         display: "flex",
@@ -634,8 +657,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           </TransactionsTableBody>
         </Box>
       </Box>
-    </Box>
-  );
+    );
+  };
 
   return (
     <Box

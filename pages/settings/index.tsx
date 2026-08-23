@@ -24,6 +24,7 @@ import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
 import UserDisplayCurrencySelector from "@/Components/UI/UserDisplayCurrencySelector";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
+import useEdgeFade from "@/hooks/useEdgeFade";
 import useTokenData from "@/hooks/useTokenData";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { UserAction } from "@/Redux/Actions";
@@ -421,6 +422,10 @@ const SettingsPage = ({
 
   const [active, setActive] = useState<SectionKey>(resolveInitialSection());
 
+  // Swipe affordance for the settings rail when it scrolls horizontally on
+  // mobile (self-disables on the md+ vertical layout where it doesn't overflow).
+  const railFade = useEdgeFade<HTMLDivElement>();
+
   // Sync from URL (back/forward navigation, external links)
   useEffect(() => {
     if (!router.isReady) return;
@@ -479,6 +484,7 @@ const SettingsPage = ({
       >
         {/* Settings navigation rail */}
         <Box
+          ref={railFade.ref}
           sx={{
             width: { xs: "100%", md: 248 },
             flexShrink: 0,
@@ -490,6 +496,8 @@ const SettingsPage = ({
             overflowX: { xs: "auto", md: "visible" },
             pb: { xs: 0.5, md: 0 },
             "&::-webkit-scrollbar": { display: "none" },
+            WebkitMaskImage: { xs: railFade.WebkitMaskImage, md: "none" },
+            maskImage: { xs: railFade.maskImage, md: "none" },
           }}
           data-testid="settings-rail"
         >

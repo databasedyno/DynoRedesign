@@ -10,12 +10,29 @@ import { EMAIL_TOKENS as T } from "./brandTokens";
 // Public CDN-hosted PNG logo for maximum email client compatibility
 const DYNOPAY_LOGO_CDN = "https://files.catbox.moe/9wq2et.png";
 
+/**
+ * Brand logo for emails. Uses an "inversion-proof" PNG: the white wordmark is
+ * baked onto a solid #050505 chip (matching the always-dark header/footer) so
+ * it stays visible even when a mail client force-adapts the dark footer into a
+ * white card. Served via /api/static (no external CDN dependency in prod).
+ */
 export const getDynopayLogoUrl = (): string => {
   const serverUrl = config.serverUrl;
   if (serverUrl) {
-    return `${serverUrl}/api/static/dynopay-white-logo.png`;
+    return `${serverUrl}/api/static/dynopay-email-logo.png`;
   }
   return DYNOPAY_LOGO_CDN;
+};
+
+/**
+ * Absolute URL for an email social icon (PNG). SVG images and `data:` URIs do
+ * NOT render in Gmail/Outlook/Yahoo/most mobile mail clients, so we serve real
+ * PNGs over HTTPS. Returns null when no server URL is configured, in which case
+ * the caller renders a text label instead (never a broken image).
+ */
+export const getEmailIconUrl = (name: string): string | null => {
+  const serverUrl = config.serverUrl;
+  return serverUrl ? `${serverUrl}/api/static/email/${name}.png` : null;
 };
 
 /**
@@ -52,6 +69,28 @@ export const baseEmailTemplate = (
         </a>
       </td></tr></table>`
     : '';
+
+  // Social icons: real PNGs over HTTPS (SVG/data: URIs don't render in email).
+  // Falls back to a text label if no server URL is configured — never a broken image.
+  const socials: Array<{ name: string; url: string; label: string }> = [
+    { name: 'facebook', url: 'https://www.facebook.com/dynopay', label: 'Facebook' },
+    { name: 'instagram', url: 'https://www.instagram.com/dynopay', label: 'Instagram' },
+    { name: 'x', url: 'https://x.com/dynopaycom', label: 'X' },
+    { name: 'linkedin', url: 'https://www.linkedin.com/company/dynopay/', label: 'LinkedIn' },
+    { name: 'telegram', url: 'https://t.me/Dynopay_Announcements', label: 'Telegram' },
+  ];
+  const socialCells = socials.map((s) => {
+    const icon = getEmailIconUrl(s.name);
+    const inner = icon
+      ? `<img src="${icon}" alt="${s.label}" width="24" height="24" style="display: block; border: 0; outline: none; text-decoration: none; opacity: 0.75;" />`
+      : `<span style="color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${s.label}</span>`;
+    return `<td style="padding: 0 8px;"><a href="${s.url}" target="_blank" style="display: inline-block; text-decoration: none;">${inner}</a></td>`;
+  }).join('');
+  const socialIconsBlock = `<tr>
+                  <td align="center" style="padding-bottom: 16px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0"><tr>${socialCells}</tr></table>
+                  </td>
+                </tr>`;
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
@@ -200,20 +239,7 @@ export const baseEmailTemplate = (
                     Secure Crypto Payment Gateway
                   </td>
                 </tr>
-                <!-- Social icons (inline SVG data URIs — no external CDN dependency) -->
-                <tr>
-                  <td align="center" style="padding-bottom: 16px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="padding: 0 6px;"><a href="https://www.facebook.com/dynopay" target="_blank" style="display: inline-block; width: 24px; height: 24px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj48cGF0aCBkPSJNMjQgMTIuMDczYzAtNi42MjctNS4zNzMtMTItMTItMTJzLTEyIDUuMzczLTEyIDEyYzAgNS45OSA0LjM4OCAxMC45NTQgMTAuMTI1IDExLjg1NHYtOC4zODVINy4wNzh2LTMuNDdoMy4wNDdWOS40M2MwLTMuMDA3IDEuNzkyLTQuNjY5IDQuNTMzLTQuNjY5IDEuMzEyIDAgMi42ODYuMjM1IDIuNjg2LjIzNXYyLjk1M0gxNS44M2MtMS40OTEgMC0xLjk1Ni45MjYtMS45NTYgMS44NzR2Mi4yNWgzLjMyOGwtLjUzMiAzLjQ3aC0yLjc5NnY4LjM4NUMxOS42MTIgMjMuMDI3IDI0IDE4LjA2MiAyNCAxMi4wNzN6Ii8+PC9zdmc+" alt="Facebook" width="24" height="24" style="display: block; opacity: 0.7;" /></a></td>
-                        <td style="padding: 0 6px;"><a href="https://www.instagram.com/dynopay" target="_blank" style="display: inline-block; width: 24px; height: 24px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj48cGF0aCBkPSJNMTIgMi4xNjNjMy4yMDQgMCAzLjU4NC4wMTIgNC44NS4wNyAzLjI1Mi4xNDggNC43NzEgMS42OTEgNC45MTkgNC45MTkuMDU4IDEuMjY1LjA2OSAxLjY0NS4wNjkgNC44NDkgMCAzLjIwNS0uMDEyIDMuNTg0LS4wNjkgNC44NDktLjE0OSAzLjIyNS0xLjY2NCA0Ljc3MS00LjkxOSA0LjkxOS0xLjI2Ni4wNTgtMS42NDQuMDctNC44NS4wNy0zLjIwNCAwLTMuNTg0LS4wMTItNC44NDktLjA3LTMuMjYtLjE0OS00Ljc3MS0xLjY5OS00LjkxOS00LjkyLS4wNTgtMS4yNjUtLjA3LTEuNjQ0LS4wNy00Ljg0OSAwLTMuMjA0LjAxMy0zLjU4My4wNy00Ljg0OS4xNDktMy4yMjcgMS42NjQtNC43NzEgNC45MTktNC45MTkgMS4yNjYtLjA1NyAxLjY0NS0uMDY5IDQuODQ5LS4wNjl6TTEyIDBoLTMuNTk0Yy0xLjMgMC0yLjEyLjA1OC0yLjg2LjEyQzMuMjUyLjMyNyAxLjUwMiAxLjg2LjMyMiA0LjE2LjEyIDUuMzcyLjA1OCA2LjA5NCAwIDEyIDAgMTcuOTA2LjA1OCAxOC42MjcuMTIgMTkuODQuMzI3IDIyLjUwOCAxLjg2IDIzLjY3MyA0LjE2IDIzLjg4IDUuMzcyIDI0IDE3LjkwNiAyNGMtNS45MDYgMC02LjYyNy0uMDU4LTcuODQtLjEyLTIuNTQ4LS4yMDctNC43NzEtMS42OTctNC45MTktNC45MTktLjA1OC0xLjI2NS0uMDctMS42NDQtLjA3LTQuODQ5IDAtMy4yMDQuMDEyLTMuNTg0LjA3LTQuODQ5LjE0OS0zLjIyNyAxLjY2NC00Ljc3MSA0LjkxOS00LjkxOUMxLjM2Mi4wNjEgMi4xNC4wMDkgNS4zNzMgMEgxMnptMCA1LjgzOGEtNi4xNjIgNi4xNjIgMCAxIDAgMCAxMi4zMjQgNi4xNjIgNi4xNjIgMCAwIDAgMC0xMi4zMjR6TTEyIDE2YTQgNCAwIDEgMSAwLTggNCA0IDAgMCAxIDAgOHptNi40MDYtMTEuODQ1YTEuNDQgMS40NCAwIDEgMCAwIDIuODggMS40NCAxLjQ0IDAgMCAwIDAtMi44OHoiLz48L3N2Zz4=" alt="Instagram" width="24" height="24" style="display: block; opacity: 0.7;" /></a></td>
-                        <td style="padding: 0 6px;"><a href="https://x.com/dynopaycom" target="_blank" style="display: inline-block; width: 24px; height: 24px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj48cGF0aCBkPSJNMTguMjQ0IDIuMjVoMy4zMDhsLTcuMjI3IDguMjYgOC41MDIgMTEuMjRIMTYuMTdsLTUuMjE0LTYuODE3TDQuOTkgMjEuNzVIMS42OGw3LjczLTguODM1TDEuMjU0IDIuMjVINy44bDQuNzEzIDYuMjMxem0tMS4xNjEgMTcuNTJoMS44MzNMNy4wODQgNC4xMjZINS4xMTd6Ii8+PC9zdmc+" alt="X" width="24" height="24" style="display: block; opacity: 0.7;" /></a></td>
-                        <td style="padding: 0 6px;"><a href="https://www.linkedin.com/company/dynopay/" target="_blank" style="display: inline-block; width: 24px; height: 24px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj48cGF0aCBkPSJNMjAuNDQ3IDIwLjQ1MmgtMy41NTR2LTUuNTY5YzAtMS4zMjgtLjAyNy0zLjAzNy0xLjg1Mi0zLjAzNy0xLjg1MyAwLTIuMTM2IDEuNDQ1LTIuMTM2IDIuOTM5djUuNjY3SDkuMzUxVjloMy40MTR2MS41NjFoLjA0NmMuNDc3LS45IDEuNjM3LTEuODUgMy4zNy0xLjg1IDMuNjAxIDAgNC4yNjcgMi4zNyA0LjI2NyA1LjQ1NXY2LjI4NnpNNS4zMzcgNy40MzNhMi4wNjIgMi4wNjIgMCAwIDEtMi4wNjMtMi4wNjUgMi4wNjQgMi4wNjQgMCAxIDEgMi4wNjMgMi4wNjV6bTEuNzgyIDEzLjAxOUgzLjU1NVY5aDMuNTY0djExLjQ1MnpNMjIuMjI1IDBIMS43NzFDLjc5MiAwIDAgLjc3NCAwIDEuNzI5djIwLjU0MkMwIDIzLjIyNy43OTIgMjQgMS43NzEgMjRoMjAuNDUxQzIzLjIgMjQgMjQgMjMuMjI3IDI0IDIyLjI3MVYxLjcyOUMyNCAgLjc3NCAyMy4yIDAgMjIuMjIyIDBoLjAwM3oiLz48L3N2Zz4=" alt="LinkedIn" width="24" height="24" style="display: block; opacity: 0.7;" /></a></td>
-                        <td style="padding: 0 6px;"><a href="https://t.me/Dynopay_Announcements" target="_blank" style="display: inline-block; width: 24px; height: 24px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj48cGF0aCBkPSJNMTEuOTQ0IDBBMTIgMTIgMCAwIDAgMCAxMmExMiAxMiAwIDAgMCAxMiAxMiAxMiAxMiAwIDAgMCAxMi0xMkExMiAxMiAwIDAgMCAxMi4wNTYgMGgtLjExMnpNMTcuMTIgOC4xMjFsLTEuOTYgOS4yMTdjLS4xNDUuNjU4LS41MzcuODE4LTEuMDkyLjUwOWwtMy4wMTUtMi4yMjItMS40NTYgMS40Yy0uMTYuMTU4LS4yOTIuMjktLjU5OS4yOWwtLjIxNy0zLjA0OCA1LjYxLTUuMDcyYy4yNDQtLjIxMy0uMDU0LS4zMzMtLjM3My0uMTIxbC02LjkzNSA0LjM2OC0yLjk4OC0uOTMzYy0uNjQ5LS4yMDMtLjY2Mi0uNjQ5LjEzNi0uOTYybDExLjY5LTQuNTAyYy41NC0uMTk2IDEuMDE1LjEzLjgzOC45NjJ6Ii8+PC9zdmc+" alt="Telegram" width="24" height="24" style="display: block; opacity: 0.7;" /></a></td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
+                ${socialIconsBlock}
                 <tr>
                   <td align="center" class="ftr-text" style="color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;">
                     &copy; ${year} Dynotech Innovations, LDA. All rights reserved.

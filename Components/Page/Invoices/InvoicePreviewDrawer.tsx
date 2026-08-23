@@ -1,5 +1,6 @@
 import {
   Box,
+  CircularProgress,
   Drawer,
   IconButton,
   Skeleton,
@@ -75,12 +76,17 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errored, setErrored] = useState(false);
+  // True once the <iframe> has finished rendering the PDF — used to keep a
+  // "Rendering preview…" overlay up during the (often 300-800ms) gap between
+  // the blob being ready and the browser's PDF viewer actually painting it.
+  const [iframeReady, setIframeReady] = useState(false);
 
   // Fetch the PDF blob whenever the drawer opens on a different invoice
   useEffect(() => {
     if (!open || !invoice) {
       setBlobUrl(null);
       setErrored(false);
+      setIframeReady(false);
       return;
     }
     let mounted = true;
@@ -88,6 +94,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
     const load = async () => {
       setLoading(true);
       setErrored(false);
+      setIframeReady(false);
       try {
         const blob = await getInvoicePdf(invoice.invoice_id);
         objectUrl = window.URL.createObjectURL(blob);
@@ -105,6 +112,21 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
       if (objectUrl) window.URL.revokeObjectURL(objectUrl);
     };
   }, [open, invoice?.invoice_id]);
+
+  // Esc closes the drawer. MUI's Modal handles Esc while focus is inside the
+  // trap, but a document-level listener makes it reliable in every state
+  // (e.g. immediately after opening, or after interacting with the actions).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   const handleDownload = () => {
     if (!invoice || !blobUrl) return;
@@ -269,17 +291,42 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
           </Box>
         )}
         {!loading && !errored && blobUrl && (
-          <Box
-            component="iframe"
-            title={`Invoice ${invoice?.invoice_number || ""}`}
-            src={blobUrl}
-            sx={{
-              width: "100%",
-              height: "100%",
-              border: "none",
-              display: "block",
-            }}
-          />
+          <>
+            {!iframeReady && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1.25,
+                  zIndex: 1,
+                  backgroundColor: dark ? "#0B0B0F" : "#F4F4F7",
+                }}
+              >
+                <CircularProgress size={26} sx={{ color: dark ? "#818CF8" : BRAND_ACCENT }} />
+                <Typography sx={{ fontFamily: "var(--font-body)", fontSize: 12, color: theme.palette.text.secondary }}>
+                  Rendering preview…
+                </Typography>
+              </Box>
+            )}
+            <Box
+              component="iframe"
+              title={`Invoice ${invoice?.invoice_number || ""}`}
+              src={blobUrl}
+              onLoad={() => setIframeReady(true)}
+              sx={{
+                width: "100%",
+                height: "100%",
+                border: "none",
+                display: "block",
+                position: "relative",
+                zIndex: 0,
+              }}
+            />
+          </>
         )}
       </Box>
     </Drawer>
