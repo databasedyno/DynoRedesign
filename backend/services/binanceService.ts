@@ -11,9 +11,17 @@
  */
 
 import crypto from "crypto";
+import http from "http";
+import https from "https";
 import { cronLogger } from "../utils/loggers";
 import axios, { AxiosError } from "axios";
 import { SocksProxyAgent } from "socks-proxy-agent";
+
+// P3 perf: reuse TCP/TLS connections to Binance on the direct (non-proxy) path.
+// When a SOCKS proxy is active the proxy agent manages its own sockets, so these
+// keep-alive agents are used only when no proxy is needed.
+const keepAliveHttpAgent = new http.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 15000 });
+const keepAliveHttpsAgent = new https.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 15000 });
 
 const BINANCE_API_KEY = process.env.BINANCE_API_KEY || "";
 const BINANCE_API_SECRET = process.env.BINANCE_API_SECRET || "";
@@ -195,7 +203,7 @@ const makeSignedRequest = async (
       url,
       headers,
       timeout: 30000,
-      ...(() => { const agent = getEffectiveProxyAgent(); return agent ? { httpAgent: agent, httpsAgent: agent } : {}; })(),
+      ...(() => { const agent = getEffectiveProxyAgent(); return agent ? { httpAgent: agent, httpsAgent: agent } : { httpAgent: keepAliveHttpAgent, httpsAgent: keepAliveHttpsAgent }; })(),
     });
     return response.data;
   } catch (error) {
@@ -218,7 +226,7 @@ const makePublicRequest = async (
     const response = await axios.get(url, {
       timeout: 15000,
       headers: { "User-Agent": "Mozilla/5.0 (compatible; Dynopay/1.0)" },
-      ...(() => { const agent = getEffectiveProxyAgent(); return agent ? { httpAgent: agent, httpsAgent: agent } : {}; })(),
+      ...(() => { const agent = getEffectiveProxyAgent(); return agent ? { httpAgent: agent, httpsAgent: agent } : { httpAgent: keepAliveHttpAgent, httpsAgent: keepAliveHttpsAgent }; })(),
     });
     return response.data;
   } catch (error) {

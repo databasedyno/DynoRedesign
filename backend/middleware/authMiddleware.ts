@@ -4,6 +4,42 @@ import jwt from "jsonwebtoken";
 import { errorResponseHelper, getErrorMessage } from "../helper";
 import { userModel } from "../models";
 import { IUserType } from "../utils/types";
+import { getRedisItem, setRedisItemWithTTL, deleteRedisItem } from "../utils/redisInstance";
+
+// P1 perf: cache the per-request "does this user still exist?" check in Redis
+// (60s TTL) so authenticated requests skip a userModel.findOne DB round-trip.
+// Existence-only (matches the check below); invalidated on account deletion.
+const AUTH_CACHE_TTL_SECONDS = 60;
+const authCacheKey = (userId: number | string) => `auth:user:${userId}`;
+
+const userAccountExists = async (userId: number | string): Promise<boolean> => {
+  const key = authCacheKey(userId);
+  try {
+    const cached = await getRedisItem(key);
+    if (cached && cached.exists) return true;
+  } catch {
+    // Redis unavailable — fall through to DB so auth never depends on cache.
+  }
+
+  const userExists = await userModel.findOne({ where: { user_id: userId } });
+  if (!userExists) return false;
+
+  try {
+    await setRedisItemWithTTL(key, { exists: true }, AUTH_CACHE_TTL_SECONDS);
+  } catch {
+    // Non-critical — proceed without caching.
+  }
+  return true;
+};
+
+/** Invalidate the cached existence entry (call on account deletion). */
+export const invalidateUserAuthCache = async (userId: number | string): Promise<void> => {
+  try {
+    await deleteRedisItem(authCacheKey(userId));
+  } catch {
+    // Non-critical.
+  }
+};
 
 const authMiddleware = async (
   req: express.Request,
@@ -40,12 +76,8 @@ const authMiddleware = async (
         return errorResponseHelper(res, 401, "Invalid token format. Please login again.");
       }
       
-      // Check if user exists in database
-      const userExists = await userModel.findOne({
-        where: {
-          user_id: decoded.user_id,
-        },
-      });
+      // Check if user exists (Redis-cached, 60s TTL — see userAccountExists)
+      const userExists = await userAccountExists(decoded.user_id);
 
       if (!userExists) {
         return errorResponseHelper(res, 401, "User account does not exist. Please login again.");

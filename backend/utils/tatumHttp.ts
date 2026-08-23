@@ -30,6 +30,8 @@ import axios, {
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from "axios";
+import http from "http";
+import https from "https";
 import { cronLogger } from "./loggers";
 
 // ── Tunables (env-overridable, sane defaults) ───────────────────────────
@@ -124,7 +126,16 @@ function computeDelay(attempt: number, error: AxiosError): number {
   return Math.round(delay * (0.7 + Math.random() * 0.6));
 }
 
-const tatumHttp: AxiosInstance = axios.create();
+// P3 perf: reuse TCP/TLS connections across Tatum / mempool.space / fastforex
+// reads instead of a fresh handshake per call. keepAlive amortises the ~1 RTT
+// TLS setup, cutting latency on the hot blockchain-read paths.
+const keepAliveHttpAgent = new http.Agent({ keepAlive: true, maxSockets: 100, keepAliveMsecs: 15000 });
+const keepAliveHttpsAgent = new https.Agent({ keepAlive: true, maxSockets: 100, keepAliveMsecs: 15000 });
+
+const tatumHttp: AxiosInstance = axios.create({
+  httpAgent: keepAliveHttpAgent,
+  httpsAgent: keepAliveHttpsAgent,
+});
 
 // Give auto-retryable reads a bounded timeout (writes keep caller's timeout).
 tatumHttp.interceptors.request.use((config) => {

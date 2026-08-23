@@ -2,6 +2,7 @@ import express from "express";
 import { apiLogger } from "./utils/loggers";
 import dotenv from "dotenv";
 import cors from "cors";
+import compression from "compression";
 import helmet from "helmet";
 import path from "path";
 import router from "./routes";
@@ -245,6 +246,20 @@ app.use(helmet({
   },
   crossOriginEmbedderPolicy: false, // Required for Swagger UI assets
 }));
+
+// P2 perf: gzip/deflate compression for API + static responses. Skips SSE
+// (text/event-stream) so the real-time /api/events stream is never buffered,
+// and honours an x-no-compression escape hatch. Behind nginx in production the
+// already-encoded response is passed through untouched (no double-compression).
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers["x-no-compression"]) return false;
+    const type = res.getHeader("Content-Type");
+    if (typeof type === "string" && type.includes("text/event-stream")) return false;
+    return compression.filter(req, res);
+  },
+}));
+
 // Preflight handler — reuse the same CORS config so OPTIONS responses
 // respect the same origin whitelist as actual requests.
 //

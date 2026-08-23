@@ -100,6 +100,7 @@ export const deleteAccount = async (req: express.Request, res: express.Response)
       await deleteRedisItem(`dashboard:${userId}:all`);
       await deleteRedisItem(`profile:${userId}`);
       await deleteRedisItem(`wallets:${userId}`);
+      await deleteRedisItem(`auth:user:${userId}`);
       await deleteRedisItem(userData.email + "-withdrawal-otp");
       
       userLogger.info(`Redis cleanup completed for user ${userId}`);

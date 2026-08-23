@@ -1,3 +1,44 @@
+# PERF (2026-08-23 fork) — Production-launch performance trio (P1+P2+P3) — VERIFIED
+
+User approved "P1 (auth cache) + P2 (gzip) + P3 (keep-alive agent)" after a read-only
+architecture review. All three implemented on the LIVE Railway prod DB pod in SAFE MODE
+(ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary — no fund movement). Backend-only changes.
+
+- P1 Auth-lookup cache (Redis, 60s TTL) — `backend/middleware/authMiddleware.ts`
+  authMiddleware previously ran userModel.findOne on EVERY authenticated request. Added
+  `userAccountExists(userId)`: reads `auth:user:{id}:json` from Redis (existence-only, matches the
+  old check), falls back to DB on any cache miss/Redis error (auth never depends on cache). Exports
+  `invalidateUserAuthCache`. Invalidated on account deletion in
+  `backend/controller/user/accountLifecycle.ts` (added `deleteRedisItem('auth:user:${userId}')`).
+  NOTE: authMiddleware only checks EXISTENCE (not status), so ban/suspend is unaffected by this cache.
+  VERIFIED: login → GET /api/user/profile 200; Redis key `auth:user:1:json = {"exists":true}` ttl≈60s.
+
+- P2 gzip/deflate compression — `backend/server.ts` (+ `nginx.conf`)
+  Added `compression` middleware early in the chain with a filter that SKIPS `text/event-stream`
+  (so the /api/events SSE stream is never buffered) and honours `x-no-compression`. Also added gzip
+  directives to nginx.conf (production; skips already-encoded backend responses → no double-compress).
+  PREVIEW CAVEAT: the Python proxy (server.py) strips content-encoding and httpx auto-decompresses,
+  so gzip is only observable in PRODUCTION (nginx passes it through). Verified `Content-Encoding: gzip`
+  directly against Express :3300; proxy output confirmed valid plaintext JSON (no corruption).
+  deps added: compression@1.8.1 + @types/compression (via yarn).
+
+- P3 outbound HTTP keep-alive agents — `backend/utils/tatumHttp.ts` + `backend/services/binanceService.ts`
+  tatumHttp axios instance now uses http/https Agent({keepAlive:true, maxSockets:100}) — covers all
+  Tatum/mempool.space/fastforex reads. binanceService uses keepAlive agents (maxSockets:50) on the
+  DIRECT path only (SOCKS proxy path unchanged). Reuses TCP/TLS, saves ~1 RTT handshake per call.
+  VERIFIED: backend boots clean, 40 Tatum rates fetched via the keep-alive client on startup.
+
+SAFETY: read-only verification only (targeted curl + Redis inspect). Did NOT run the broad testing
+agent because it could create/mutate rows on the LIVE production DB. deleteAccount invalidation path
+was code-reviewed, NOT executed (would delete a real user).
+
+Backlog (recommended for launch, NOT yet approved/built): Sentry/APM + external uptime monitoring,
+rotate secrets shared during setup, verify backups/PITR + restore drill, load-test checkout/payment,
+rate-limit login/register/OTP, split worker/cron from the API process, public status page + on-call.
+
+---
+
+
 # FEATURE (2026-06 fork) — Storefront i18n (Page tab FULLY localized) — VERIFIED iter74/75/76 100%
 
 User asked to translate the Storefront page (title, tabs, "Page theme" labels), then said "continue"
