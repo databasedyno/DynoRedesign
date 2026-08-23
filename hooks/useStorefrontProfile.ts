@@ -9,6 +9,10 @@ export interface StorefrontProfile {
   creator_page_enabled: boolean;
   cover_image: string | null;
   company_id: number | null;
+  /** Legacy (flag OFF) + non-primary company: no own storefront yet. */
+  storefront_pending?: boolean;
+  account_handle?: string | null;
+  primary_company_id?: number | null;
   [k: string]: unknown;
 }
 

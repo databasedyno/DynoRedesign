@@ -61,6 +61,8 @@ const ClaimHandleBanner: React.FC = () => {
   // already has a handle, or dismissed.
   if (!profile?.user_id) return null;
   if (storefront === undefined) return null;
+  // Non-primary company pre-migration: it can't claim a handle yet — no nudge.
+  if (storefront?.storefront_pending) return null;
   if (handle) return null;
   if (dismissed) return null;
 

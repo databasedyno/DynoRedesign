@@ -9,6 +9,7 @@ import { buildCreatorUrl, prettyCreatorUrl } from "@/helpers/creatorUrl";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { brandFg } from "@/constants/theme";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
+import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendingCard";
 
 const MONO = 'ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace';
 
@@ -79,6 +80,10 @@ const ShareTab: React.FC = () => {
         </Box>
       </PanelCard>
     );
+  }
+
+  if (profile?.storefront_pending) {
+    return <StorefrontPendingCard />;
   }
 
   if (!handle) {

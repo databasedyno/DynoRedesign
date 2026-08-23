@@ -95,3 +95,52 @@ selector instead of matching by visible text.
 3. Landing 1280 CTA clip — HomeHeader `LeftGroup` gap 72→36px + `StatusPillWrap` hidden <1360px.
 4. `pages/payment/failed.tsx` 390 buttons — stacked full-width + `minHeight:44`.
 5. Sidebar section-label dark contrast — `text.disabled`→`text.secondary` (3.67:1 → 6.91:1, WCAG AA).
+
+---
+
+# PRODUCT BACKLOG (2026-08-23, post storefront-per-company)
+
+## Next actions (carried from session summaries)
+1. **Go Live Storefronts (P0, USER action)** — run `backend/migrations/010_storefront_per_company.sql`
+   in the prod window, then set `STOREFRONT_PER_COMPANY=true`. Runbook:
+   `docs/STOREFRONT_PER_COMPANY_RUNBOOK.md`.
+2. **Analytics Split (P1)** — per-company views / tips / sales so owners can compare storefronts.
+3. **Handle Availability Nudge (P2)** — on company creation, prompt the owner to claim that
+   company's handle right away (flag-ON only).
+4. **Legacy File Trim (P2, eng health)** — 12 grandfathered backend files grew past their
+   file-size baselines (cryptoCheckout.ts, cronJobs.ts, companyController.ts…). Split the fastest
+   growers so the pre-commit size gate never blocks a save again (creatorProfile.ts already split
+   → creatorAnalytics.ts, 2026-08-23j).
+
+## New (from user, 2026-08-23k)
+5. **New-company storefront leak (BUG — fixed 2026-08-23k, pending verification)** — a freshly
+   created company (KLOSE, id 62) showed the FIRST company's storefront URL + stats/analytics as its
+   own, because with `STOREFRONT_PER_COMPANY=false` everything storefront is account-scoped.
+   Fix shipped: flag-OFF requests acting in a NON-primary company now get an explicit
+   `storefront_pending` shell (profile) / empty shells (stats, analytics), writes are blocked with a
+   clear 400, and the Storefront tabs (Page/Products/Share), dashboard ClaimHandleBanner render a
+   dedicated "no storefront yet — switch to <primary>" state. Flag-ON + single-company accounts:
+   byte-for-byte unchanged. Files: backend `controller/storefrontScope.ts`
+   (resolveLegacyStorefrontHolder), `controller/user/creatorProfile.ts`, `creatorAnalytics.ts`;
+   frontend `Components/Page/Storefront/{StorefrontPendingCard,PageTab,ProductsTab,ShareTab}.tsx`,
+   `Components/Page/Dashboard/ClaimHandleBanner.tsx`, `hooks/useStorefrontProfile.ts`.
+6. **Settings: account-level vs company-level (RECOMMENDATION, awaiting user decision)**
+   Current architecture audit:
+   - ACCOUNT-scoped today (tbl_user / per-user tables): Profile (name/email/photo/password/2FA),
+     Notifications prefs, Language, Referrals, **Payout wallets** (reusable across companies —
+     correct, keep), **Tax defaults** (`default_apply_tax`, `default_tax_inclusive`,
+     `merchant_vat_id` live on tbl_user), dashboard quick actions.
+   - COMPANY-scoped today (tbl_company): Account/Business details (name, country, logo),
+     display_currency, webhook URL + webhook_events, **API keys** (tbl_api has company_id+user_id),
+     payment links / transactions / customers data. Storefront becomes company-scoped at migration.
+   RECOMMENDED target split (matches the user's instinct "settings account level, certain functions
+   per company"):
+   - Keep ACCOUNT: profile/security, notifications, language, referrals, wallets (with per-company
+     payout selection later), plan/fee tier.
+   - Move to COMPANY: **Tax settings** (VAT id + defaults are legally per business entity — today
+     they silently apply across all companies; migrate tbl_user tax cols → tbl_company, feature-flag
+     like storefront), and post-migration: storefront, products.
+   - /settings UI already groups rails as Account · Business · Payments — add a "applies to
+     <company>" scope chip on company-scoped sections (like the storefront switcher hint) so users
+     always know which tenant they're editing. No breaking change required.
+

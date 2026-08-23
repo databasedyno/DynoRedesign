@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
 import { userLogger } from "../../utils/loggers";
 import { redis } from "../../utils/redisInstance";
-import { STOREFRONT_PER_COMPANY, resolveActiveCompanyId } from "../storefrontScope";
+import { STOREFRONT_PER_COMPANY, resolveActiveCompanyId, resolveLegacyStorefrontHolder } from "../storefrontScope";
 
 /** GET /api/user/creator/stats — total + this-week visits, supporters count */
 export const getCreatorStats = async (req: express.Request, res: express.Response) => {
@@ -23,11 +23,16 @@ export const getCreatorStats = async (req: express.Request, res: express.Respons
         handleRaw = (c?.dataValues as { handle?: string } | undefined)?.handle || null;
       }
     } else {
-      const user = await userModel.findOne({
-        where: { user_id: userData.user_id },
-        attributes: ["handle"],
-      });
-      handleRaw = user?.dataValues?.handle || null;
+      // Legacy (flag OFF): the shared storefront's stats belong to the PRIMARY
+      // company only — a newly created company shows the empty state instead.
+      const holder = await resolveLegacyStorefrontHolder(req, userData.user_id);
+      if (holder.isPrimary) {
+        const user = await userModel.findOne({
+          where: { user_id: userData.user_id },
+          attributes: ["handle"],
+        });
+        handleRaw = user?.dataValues?.handle || null;
+      }
     }
     const handle = handleRaw ? String(handleRaw).toLowerCase() : null;
 
@@ -143,13 +148,18 @@ export const getCreatorAnalytics = async (req: express.Request, res: express.Res
         publicEnabled = d.public_analytics_enabled !== false;
       }
     } else {
-      const user = await userModel.findOne({
-        where: { user_id: userData.user_id },
-        attributes: ["handle", "support_widget_currency", "public_analytics_enabled"],
-      });
-      handle = user?.dataValues?.handle || null;
-      currency = user?.dataValues?.support_widget_currency || "USD";
-      publicEnabled = user?.dataValues?.public_analytics_enabled !== false;
+      // Legacy (flag OFF): analytics for the shared storefront belong to the
+      // PRIMARY company only (see getCreatorStats).
+      const holder = await resolveLegacyStorefrontHolder(req, userData.user_id);
+      if (holder.isPrimary) {
+        const user = await userModel.findOne({
+          where: { user_id: userData.user_id },
+          attributes: ["handle", "support_widget_currency", "public_analytics_enabled"],
+        });
+        handle = user?.dataValues?.handle || null;
+        currency = user?.dataValues?.support_widget_currency || "USD";
+        publicEnabled = user?.dataValues?.public_analytics_enabled !== false;
+      }
     }
 
     if (!handle) {

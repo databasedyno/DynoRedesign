@@ -80,6 +80,39 @@ export async function resolveActiveCompanyId(req: express.Request, userId: numbe
   return owned[0];
 }
 
+export interface LegacyStorefrontHolder {
+  activeCompanyId: number | null;
+  primaryCompanyId: number | null;
+  isPrimary: boolean;
+}
+
+/**
+ * Flag-OFF only: the account storefront (tbl_user.handle) is presented as
+ * belonging to the PRIMARY company (lowest company_id — the same company
+ * migration 010 backfills it to). Acting inside any OTHER company must not
+ * show or edit the account storefront, so a freshly created company never
+ * inherits the first company's URL, stats or catalog.
+ */
+export async function resolveLegacyStorefrontHolder(
+  req: express.Request,
+  userId: number
+): Promise<LegacyStorefrontHolder> {
+  const owned = await ownedCompanyIds(userId);
+  if (owned.length === 0) return { activeCompanyId: null, primaryCompanyId: null, isPrimary: true };
+  const primary = owned[0];
+  if (owned.length === 1) return { activeCompanyId: primary, primaryCompanyId: primary, isPrimary: true };
+  const requested = getRequestedCompanyId(req);
+  let active: number | null = requested != null && owned.includes(requested) ? requested : null;
+  if (active == null) {
+    const user = (await userModel.findByPk(userId, { attributes: ["last_company_id"] })) as
+      | { dataValues: { last_company_id: number | null } }
+      | null;
+    const last = Number(user?.dataValues?.last_company_id);
+    active = Number.isFinite(last) && owned.includes(last) ? last : primary;
+  }
+  return { activeCompanyId: active, primaryCompanyId: primary, isPrimary: active === primary };
+}
+
 export interface StorefrontOwner {
   user_id: number;
   company_id: number | null;

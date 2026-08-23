@@ -20,6 +20,8 @@ import axiosBaseApi from "@/axiosConfig";
 import useSWR from "swr";
 import SkeletonList from "@/Components/UI/SkeletonList";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
+import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendingCard";
 
 interface ProductRow {
   product_id: number;
@@ -53,6 +55,9 @@ const ProductsTab = () => {
   // switching companies reloads that company's products (X-Company-Id header
   // is attached automatically by axiosConfig).
   const selectedCompanyId = useSelectedCompanyId();
+  // Pre-migration: a non-primary company has no own catalog — don't show the
+  // account's products (they belong to the primary company's storefront).
+  const { profile: storefrontProfile } = useStorefrontProfile();
 
   const { data: productsResp, error: productsError, isLoading: productsLoading, mutate: mutateProducts } = useSWR(
     ["products-list", statusFilter, categoryFilter, q, selectedCompanyId],
@@ -96,6 +101,14 @@ const ProductsTab = () => {
       alert(e?.response?.data?.message || "Delete failed");
     }
   };
+
+  if (storefrontProfile?.storefront_pending) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }} data-testid="products-list">
+        <StorefrontPendingCard />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }} data-testid="products-list">

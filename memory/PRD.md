@@ -1,3 +1,27 @@
+# FOLLOW-UPS (2026-08-23k) — New-company storefront leak FIXED + settings scope recommendation
+BUG (user): a freshly created company (KLOSE id=62 on hostbay account) showed the FIRST company's
+storefront URL + stats as its own (flag OFF = everything account-scoped). FIX (flag-OFF path only;
+flag-ON + single-company accounts byte-for-byte unchanged): storefrontScope.ts gained
+resolveLegacyStorefrontHolder (primary = lowest company_id — same company migration 010 backfills to).
+Non-primary company now gets: GET creator/profile → storefront_pending shell {handle:null,
+account_handle, primary_company_id, company_id}; creator/stats + creator/analytics → has_handle:false
+empty shells; PUT creator/profile → 400 blocked (protects the live @hostbay URL from accidental
+rename). FRONTEND: new Components/Page/Storefront/StorefrontPendingCard.tsx (testids
+storefront-pending / storefront-pending-switch-btn with selectCompany CTA) gates PageTab, ProductsTab,
+ShareTab; ClaimHandleBanner hidden when pending; useStorefrontProfile types extended.
+VERIFIED: testing agent iteration_63 = 100% (backend 8/8 pytest vs LIVE DB read-only, frontend
+playwright: pending card on all 3 tabs under KLOSE, no storefront-open-page action, no claim banner,
+switch CTA restores hostbay view, 0 console errors; session left on hostbay). Pre-commit gate re-ran
+clean after the new test file (backend/tests/test_storefront_scope_iter63.py).
+ALSO: product backlog + SETTINGS ACCOUNT-vs-COMPANY architecture recommendation documented in
+memory/RESPONSIVE_BACKLOG_2026-08.md (items 5–6): keep account = profile/security/notifications/
+wallets/plan; move to company = tax settings (VAT id currently on tbl_user — legally per entity),
+storefront+products post-migration; add "applies to <company>" scope chips on company-scoped settings.
+Awaiting user decision on the settings split before building.
+
+---
+
+
 # FOLLOW-UPS (2026-08-23j) — GitHub Save UNBLOCKED (pre-commit file-size gate fix)
 ROOT CAUSE (found by user): .husky/pre-commit runs backend/scripts/check-file-size.mjs which HARD-FAILS
 any new backend .ts file >500 lines not in file-size-baseline.json. controller/user/creatorProfile.ts

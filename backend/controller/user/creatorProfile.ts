@@ -30,7 +30,7 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
-import { STOREFRONT_PER_COMPANY, STOREFRONT_COLUMNS, isHandleTaken, resolveActiveCompanyId } from "../storefrontScope";
+import { STOREFRONT_PER_COMPANY, STOREFRONT_COLUMNS, isHandleTaken, resolveActiveCompanyId, resolveLegacyStorefrontHolder } from "../storefrontScope";
 
 export const updateCreatorProfile = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -73,6 +73,17 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
     if (perCompany) {
       activeCompanyId = await resolveActiveCompanyId(req, userData.user_id);
       if (!activeCompanyId) return errorResponseHelper(res, 400, "No company selected");
+    } else {
+      // Legacy (flag OFF): the shared account storefront belongs to the PRIMARY
+      // company. Editing it while acting inside another company would silently
+      // rename/repoint the first company's live URL — block with a clear message.
+      const holder = await resolveLegacyStorefrontHolder(req, userData.user_id);
+      if (!holder.isPrimary) {
+        return errorResponseHelper(
+          res, 400,
+          "This company doesn't have its own storefront yet — switch to your primary company to edit the shared storefront"
+        );
+      }
     }
 
     if (rawHandle !== undefined) {
@@ -356,6 +367,24 @@ export const getCreatorProfileSettings = async (req: express.Request, res: expre
         ...d,
         name: (d.company_name as string) || u?.dataValues?.name || null,
         company_id: companyId,
+      });
+    }
+    // Legacy (flag OFF): only the PRIMARY company presents the shared account
+    // storefront. Any other selected company gets an explicit "pending" shell so
+    // a new company never shows the first company's URL/settings as its own.
+    const holder = await resolveLegacyStorefrontHolder(req, userData.user_id);
+    if (!holder.isPrimary) {
+      const u = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
+      const shell: Record<string, unknown> = {};
+      for (const col of STOREFRONT_COLUMNS) shell[col] = null;
+      shell.creator_page_enabled = false;
+      return successResponseHelper(res, 200, "Creator profile", {
+        ...shell,
+        name: null,
+        company_id: holder.activeCompanyId,
+        storefront_pending: true,
+        account_handle: u?.dataValues?.handle || null,
+        primary_company_id: holder.primaryCompanyId,
       });
     }
     const user = await userModel.findOne({

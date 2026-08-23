@@ -8,6 +8,8 @@ import axiosBaseApi from "@/axiosConfig";
 import { rootReducer } from "@/utils/types";
 import CreatorPageSettings, { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
+import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendingCard";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import PanelCard from "@/Components/UI/PanelCard";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import { buildCreatorUrl } from "@/helpers/creatorUrl";
@@ -35,6 +37,9 @@ const PageTab = () => {
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
   const publicUrl = buildCreatorUrl(profile?.handle);
+  // Storefront-per-company: a non-primary company (pre-migration) has no own
+  // storefront — never show the account's page/settings as if it were its own.
+  const { profile: storefront } = useStorefrontProfile();
 
   // Redux is client-only; gate profile-dependent blocks so SSR and the first
   // client paint agree (this used to cause a hydration mismatch).
@@ -94,6 +99,14 @@ const PageTab = () => {
       icon: "mdi:heart-outline",
     },
   ]), [stats, t]);
+
+  if (storefront?.storefront_pending) {
+    return (
+      <Box sx={{ width: "100%" }} data-testid="creator-page">
+        <StorefrontPendingCard />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%" }} data-testid="creator-page">
