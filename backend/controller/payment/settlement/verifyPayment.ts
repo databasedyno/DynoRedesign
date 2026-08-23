@@ -70,6 +70,7 @@ import { isVolatileCrypto } from "../../../services/binanceService";
 import { createConversionRecord } from "../../../services/conversionService";
 import { PaymentState, parseState, toRedisStatus } from "../../../services/paymentStateMachine";
 import { emitPaymentOverpaid } from "../../../services/webhookEvents";
+import { notifyOverpayment } from "../../../services/overpaymentNotifier";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 
 import { cryptoVerification } from "./chainVerification";
@@ -322,6 +323,23 @@ export const verifyCryptoPayment = async (
             link_id: customerData?.link_id || tempData?.link_id || null,
           }
         ).catch(() => { /* emitters never throw; guard for safety */ });
+
+        // Overpayment Alert: email the merchant + admin (and an in-app merchant
+        // notification) that a customer overpaid and the excess was routed to
+        // the admin. Deduped once per payment inside the notifier, so this
+        // polled endpoint can call it repeatedly without spamming. Never throws.
+        notifyOverpayment({
+          paymentId: String(tempData?.payment_id || tempData?.unique_tx_id || ""),
+          companyId: customerData?.company_id || tempData?.company_id || null,
+          txId: tempData?.txId || null,
+          currency,
+          amountReceived: parseFloat(totalReceived.toFixed(8)),
+          amountExpected: parseFloat(originalExpected.toFixed(8)),
+          excessAmount: parseFloat(overpaymentAmount.toFixed(8)),
+          excessAmountUsd: parseFloat(overpaymentUsd.toFixed(2)),
+          baseCurrency,
+          linkId: customerData?.link_id || tempData?.link_id || null,
+        }).catch(() => { /* notifier never throws; guard for safety */ });
       }
 
       // DEBUG: Log the exact response being sent

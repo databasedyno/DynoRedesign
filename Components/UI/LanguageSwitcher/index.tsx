@@ -137,36 +137,8 @@ function LanguageSwitcher({ showBig = false }: Props) {
         close();
         return;
       }
-      // Pre-load language bundle before switching (lazy i18n)
-      try {
-        const { loadLanguageAsync } = await import("@/i18n");
-        await loadLanguageAsync(lng);
-      } catch { /* non-blocking: fall back to already-loaded bundle */ }
-      i18n.changeLanguage(lng);
-      try {
-        localStorage.setItem("lang", lng);
-        localStorage.setItem("lang_manual", "true"); // Mark as manual choice — prevents IP auto-override
-      } catch { /* localStorage unavailable (private mode) — ignore */ }
-      // If a merchant is signed in, persist the choice so their emails match their UI language.
-      // BUT — never fire this API from the public checkout / payment surfaces. On those pages the
-      // "language" belongs to the customer's checkout session (stored client-side above), not to
-      // the merchant's account profile. Firing PUT /user/profile from /pay?d=... caused a class
-      // of bugs where a stale merchant token → 401 → axios interceptor bounced the visitor to
-      // /auth/login mid-checkout (Session 43 bug report, 2026-07-13).
-      try {
-        if (typeof window !== "undefined" && localStorage.getItem("token")) {
-          const path = window.location.pathname || "";
-          const isCheckoutSurface =
-            path === "/pay" ||
-            path.startsWith("/pay/") ||
-            path.startsWith("/pay-links/") ||
-            path.startsWith("/payment");
-          if (!isCheckoutSurface) {
-            const { default: axiosBaseApi } = await import("@/axiosConfig");
-            axiosBaseApi.put("user/profile", { language: lng }).catch(() => {});
-          }
-        }
-      } catch { /* profile sync is best-effort — ignore failures */ }
+      const { setAppLanguage } = await import("@/helpers/setAppLanguage");
+      await setAppLanguage(lng);
       close();
     },
     [close, current],

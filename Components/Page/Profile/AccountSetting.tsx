@@ -234,16 +234,8 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
 
   const handleLanguageChange = async (lng: string) => {
     setSelectedLanguage(lng);
-    try {
-      const { loadLanguageAsync } = await import("@/i18n");
-      await loadLanguageAsync(lng);
-    } catch {}
-    i18n.changeLanguage(lng);
-    try {
-      localStorage.setItem("lang", lng);
-      localStorage.setItem("lang_manual", "true");
-    } catch {}
-    axiosBaseApi.put("user/profile", { language: lng }).catch(() => {});
+    const { setAppLanguage } = await import("@/helpers/setAppLanguage");
+    await setAppLanguage(lng);
     dispatch({ type: TOAST_SHOW, payload: { message: t("communicationLanguageSaved", { ns: "profile" }) } });
   };
 

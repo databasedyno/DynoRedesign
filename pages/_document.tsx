@@ -66,24 +66,8 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
 (function(){
   try {
     var SUPPORTED = ['en','pt','fr','es','de','nl'];
-    var TZ_MAP = {
-      'America/Sao_Paulo':'pt','America/Fortaleza':'pt','America/Recife':'pt',
-      'America/Bahia':'pt','America/Belem':'pt','America/Manaus':'pt','Europe/Lisbon':'pt',
-      'Europe/Madrid':'es','America/Mexico_City':'es','America/Bogota':'es',
-      'America/Lima':'es','America/Santiago':'es','America/Argentina/Buenos_Aires':'es',
-      'Europe/Paris':'fr','Africa/Dakar':'fr','Africa/Abidjan':'fr',
-      'Europe/Berlin':'de','Europe/Vienna':'de','Europe/Zurich':'de',
-      'Europe/Amsterdam':'nl','Europe/Brussels':'nl'
-    };
     var lang = localStorage.getItem('lang');
-    if (!lang || SUPPORTED.indexOf(lang) === -1) {
-      var bl = (navigator.language || '').split('-')[0];
-      lang = SUPPORTED.indexOf(bl) !== -1 ? bl : null;
-      if (!lang) {
-        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        lang = (tz && TZ_MAP[tz]) || 'en';
-      }
-    }
+    if (!lang || SUPPORTED.indexOf(lang) === -1) { lang = 'en'; }
     document.documentElement.lang = lang;
   } catch(e) {
     document.documentElement.lang = 'en';

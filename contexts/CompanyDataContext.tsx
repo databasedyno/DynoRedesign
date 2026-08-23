@@ -109,8 +109,26 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
     };
   }, [router.events]);
 
+  // Buyer-facing public routes (payment checkout / creator / store / order)
+  // never use merchant company data. Skipping the fetch here keeps these
+  // pages clean and error-free for anonymous OR stale-/expired-token visitors
+  // (no pointless 401 on /company/getCompany). router.pathname is the route
+  // PATTERN (e.g. "/[handle]/checkout"), so this safely excludes the in-app
+  // "/pay-links" surface.
+  const isBuyerRoute = (() => {
+    const p = router.pathname;
+    return (
+      p === "/pay" ||
+      p.startsWith("/pay/") ||
+      p.startsWith("/payment") ||
+      p === "/[handle]" ||
+      p.startsWith("/[handle]/") ||
+      p.startsWith("/order/")
+    );
+  })();
+
   const { data, error, isLoading, mutate } = useSWR(
-    hasToken ? COMPANIES_KEY : null,
+    hasToken && !isBuyerRoute ? COMPANIES_KEY : null,
     companyFetcher
   );
 

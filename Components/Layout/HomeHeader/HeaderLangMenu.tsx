@@ -90,35 +90,8 @@ function HeaderLangMenu({
         close();
         return;
       }
-      try {
-        const { loadLanguageAsync } = await import("@/i18n");
-        await loadLanguageAsync(lng);
-      } catch {
-        /* non-blocking: fall back to already-loaded bundle */
-      }
-      i18n.changeLanguage(lng);
-      try {
-        localStorage.setItem("lang", lng);
-        localStorage.setItem("lang_manual", "true");
-      } catch {
-        /* private mode — ignore */
-      }
-      try {
-        if (typeof window !== "undefined" && localStorage.getItem("token")) {
-          const path = window.location.pathname || "";
-          const isCheckoutSurface =
-            path === "/pay" ||
-            path.startsWith("/pay/") ||
-            path.startsWith("/pay-links/") ||
-            path.startsWith("/payment");
-          if (!isCheckoutSurface) {
-            const { default: axiosBaseApi } = await import("@/axiosConfig");
-            axiosBaseApi.put("user/profile", { language: lng }).catch(() => {});
-          }
-        }
-      } catch {
-        /* best-effort profile sync — ignore */
-      }
+      const { setAppLanguage } = await import("@/helpers/setAppLanguage");
+      await setAppLanguage(lng);
       close();
     },
     [close, current],

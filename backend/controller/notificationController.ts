@@ -25,6 +25,7 @@ export const NOTIFICATION_TYPES = {
   PAYMENT_CONFIRMING: "payment_confirming",     // Payment confirmation in progress
   PAYMENT_PARTIAL: "payment_partial",           // Partial payment received
   PAYMENT_PARTIAL_EXPIRED: "payment_partial_expired", // Partial payment expired
+  PAYMENT_OVERPAID: "payment_overpaid",         // Customer paid more than due (excess routed to admin)
   WEEKLY_SUMMARY: "weekly_summary",
   SECURITY_ALERT: "security_alert",
   KYC_REQUIRED: "kyc_required",

@@ -6,82 +6,16 @@ const isServer = typeof window === "undefined";
 const SUPPORTED_LANGUAGES = ["en", "pt", "fr", "es", "de", "nl"];
 const DEFAULT_LANGUAGE = "en";
 
-// Timezone → language mapping for fallback detection
-const TIMEZONE_TO_LANG = {
-  "America/Sao_Paulo": "pt", "America/Fortaleza": "pt", "America/Recife": "pt",
-  "America/Bahia": "pt", "America/Belem": "pt", "America/Manaus": "pt",
-  "Europe/Lisbon": "pt",
-  "Europe/Madrid": "es", "America/Mexico_City": "es", "America/Bogota": "es",
-  "America/Lima": "es", "America/Santiago": "es", "America/Argentina/Buenos_Aires": "es",
-  "America/Caracas": "es", "America/Guatemala": "es", "America/Guayaquil": "es",
-  "Europe/Paris": "fr", "Africa/Dakar": "fr", "Africa/Abidjan": "fr",
-  "Africa/Douala": "fr", "America/Port-au-Prince": "fr",
-  "Europe/Berlin": "de", "Europe/Vienna": "de", "Europe/Zurich": "de",
-  "Europe/Amsterdam": "nl", "Europe/Brussels": "nl",
-};
-
-/**
- * Detect language from browser locale and timezone (synchronous fallback)
- */
-function detectFromBrowser() {
-  try {
-    const browserLang = (navigator.language || "").split("-")[0];
-    if (SUPPORTED_LANGUAGES.includes(browserLang)) return browserLang;
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz && TIMEZONE_TO_LANG[tz]) return TIMEZONE_TO_LANG[tz];
-  } catch {}
-  return DEFAULT_LANGUAGE;
-}
-
 function getInitialLanguage() {
   if (isServer) return DEFAULT_LANGUAGE;
   try {
     const saved = localStorage.getItem("lang");
     if (saved && SUPPORTED_LANGUAGES.includes(saved)) return saved;
   } catch {}
-  return detectFromBrowser();
-}
-
-/**
- * Async IP-based geolocation detection.
- *
- * @returns {Promise<boolean>} true when the geo lookup SUCCEEDED (a country
- *   was resolved and its locale applied/confirmed) — callers use this to
- *   decide whether to fall back to browser-language detection. Returns
- *   false on manual user choice, network failure, or lookup failure.
- */
-async function detectAndApplyGeoLocale() {
-  if (isServer) return false;
-  try {
-    const userChoseManually = localStorage.getItem("lang_manual") === "true";
-    if (userChoseManually) return false;
-
-    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '');
-    const resp = await fetch(`${baseUrl}/api/geo-detect`, {
-      signal: AbortSignal.timeout(4000),
-    });
-    if (!resp.ok) return false;
-    const data = await resp.json();
-    if (data.status !== "success") return false;
-
-    const { getLocaleFromCountry } = await import("./utils/geoLocale");
-    const detectedLang = getLocaleFromCountry(data.countryCode);
-
-    if (!detectedLang || !SUPPORTED_LANGUAGES.includes(detectedLang)) return false;
-
-    if (detectedLang !== i18n.language) {
-      await loadLanguageAsync(detectedLang);
-      await i18n.changeLanguage(detectedLang);
-      console.log("[i18n] IP-based language detected →", detectedLang, `(${data.countryCode})`);
-    }
-    // Persist even when no switch was needed so subsequent visits are
-    // deterministic (returning-visitor fast path, no detection round-trip).
-    localStorage.setItem("lang", detectedLang);
-    return true;
-  } catch (err) {
-    console.log("[i18n] IP geo-detection skipped:", err?.message || err);
-    return false;
-  }
+  // English by default — no browser/timezone/IP auto-detection. A non-English
+  // language is only ever applied because the user explicitly chose one (which
+  // is what writes the localStorage "lang" key).
+  return DEFAULT_LANGUAGE;
 }
 
 // ─── Namespace list (must match files under langs/locales/{lang}/) ───
@@ -389,66 +323,24 @@ if (!isServer) {
 }
 
 /**
- * Apply the user's detected language AFTER React hydration completes.
- * Call this from `_app.tsx` / `LanguageBootstrap` inside `useEffect`.
+ * Apply the user's SAVED language after React hydration completes.
+ * Called from `LanguageBootstrap` inside `useEffect`.
  *
- * Order of work (all runs POST-hydration so it cannot cause SSR mismatch):
- * 1. RETURNING visitors: switch to the saved localStorage language
- *    immediately (synchronous — resources pre-loaded), then refine via IP
- *    geo-detection in the background (skipped for manual choices).
- * 2. FIRST-TIME visitors: IP-based country detection WINS over the
- *    browser/OS language. We await the geo lookup (stays on SSR English
- *    meanwhile) and only fall back to `clientDetectedLang`
- *    (browser locale → timezone) when the lookup fails.
+ * English is the default. i18n initialises with "en" on BOTH server and client
+ * (so SSR and the first client paint match — no hydration mismatch); once
+ * hydrated we switch to the language the user previously CHOSE (persisted in
+ * localStorage, pre-loaded into the initial bundle so the switch is instant).
+ * There is NO browser/timezone/IP auto-detection: a non-English language only
+ * appears because the user explicitly selected it.
  */
 async function applyDetectedLanguage() {
   if (isServer) return;
-
-  const userChoseManually = (() => {
-    try { return localStorage.getItem("lang_manual") === "true"; } catch { return false; }
-  })();
-  // NOTE: uses savedLangAtBoot (module-load-time snapshot), NOT a live
-  // localStorage read — init() has already cached "en" into localStorage
-  // by the time this function runs.
   const savedLang = savedLangAtBoot;
-
-  // ── RETURNING visitor (has a saved language) ─────────────────────────
-  // Apply the saved language immediately (synchronous — resources were
-  // pre-loaded into the initial bundle), then let IP geo-detection refine
-  // it in the background (unless the user manually picked a language —
-  // manual choices are never overridden).
-  if (savedLang) {
-    if (savedLang !== i18n.language) {
-      if (!_loadedLanguages.has(savedLang)) {
-        await loadLanguageAsync(savedLang);
-      }
-      await i18n.changeLanguage(savedLang);
+  if (savedLang && savedLang !== i18n.language) {
+    if (!_loadedLanguages.has(savedLang)) {
+      await loadLanguageAsync(savedLang);
     }
-    if (!userChoseManually) {
-      detectAndApplyGeoLocale(); // fire-and-forget refinement
-    }
-    return;
-  }
-
-  // ── FIRST-TIME visitor (no saved language) ───────────────────────────
-  // IP-based country detection WINS over the browser/OS language: stay on
-  // the SSR-rendered English while we ask the server (~200-800ms typical,
-  // 4s max). Only if the geo lookup fails do we fall back to the
-  // browser-locale/timezone guess (clientDetectedLang).
-  const geoApplied = await detectAndApplyGeoLocale();
-  if (!geoApplied) {
-    if (
-      clientDetectedLang !== i18n.language &&
-      SUPPORTED_LANGUAGES.includes(clientDetectedLang)
-    ) {
-      // Ensure resources for the detected language exist (they should — we
-      // pre-loaded them above — but this is defensive).
-      if (!_loadedLanguages.has(clientDetectedLang)) {
-        await loadLanguageAsync(clientDetectedLang);
-      }
-      await i18n.changeLanguage(clientDetectedLang);
-      console.log("[i18n] geo unavailable — using browser language →", clientDetectedLang);
-    }
+    await i18n.changeLanguage(savedLang);
   }
 }
 

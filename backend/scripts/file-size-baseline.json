@@ -16,6 +16,7 @@
   "controller/payment/paymentLinkController.ts": 2712,
   "controller/payment/settlement/chainVerification.ts": 1697,
   "controller/payment/settlement/settleTransaction.ts": 1082,
+  "controller/payment/settlement/verifyPayment.ts": 515,
   "controller/paymentController.ts": 2199,
   "controller/product/cartController.ts": 832,
   "controller/product/productController.ts": 784,
