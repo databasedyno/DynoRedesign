@@ -17,7 +17,7 @@ import subprocess
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://dynopay-setup-2.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-43.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 LOGIN_EMAIL = "hostbay@moxx.co"
 LOGIN_PASSWORD = "Katiekendra123@"
