@@ -3,6 +3,8 @@ import React, { useMemo } from 'react'
 import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Box, Chip, Skeleton, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
+import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 
 /**
@@ -68,9 +70,9 @@ const INDIGO_LIGHT = BRAND_ACCENT
 const INDIGO_DARK = '#818CF8'
 
 const formatDayLabel = (ymd: string) => {
-  // "2026-08-05" → "Aug 5"
+  // "2026-08-05" → "Aug 5" (follows the app language, not the browser locale)
   const d = new Date(ymd + 'T00:00:00Z')
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })
+  return d.toLocaleDateString(i18n.language || undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })
 }
 
 const CustomTooltip = ({ active, payload, currency }: {
@@ -79,6 +81,7 @@ const CustomTooltip = ({ active, payload, currency }: {
   currency: string
 }) => {
   const theme = useTheme()
+  const { t } = useTranslation('common')
   if (!active || !payload?.length) return null
   const p = payload[0].payload
   return (
@@ -99,7 +102,7 @@ const CustomTooltip = ({ active, payload, currency }: {
         {formatWithSeparators(p.amount, currency, 2)}
       </Typography>
       <Typography fontSize={11.5} color={theme.palette.text.secondary}>
-        {p.count === 1 ? '1 tip' : `${p.count} tips`}
+        {t('storefront.tipCount', { count: p.count, defaultValue: `${p.count} tips` })}
       </Typography>
     </Box>
   )
@@ -109,6 +112,7 @@ const AnalyticsWidget: React.FC<Props> = ({
   variant, data, loading, accentColor, onToggle, toggleState, toggleBusy,
 }) => {
   const theme = useTheme()
+  const { t } = useTranslation('common')
   const isDark = theme.palette.mode === 'dark'
   const indigo = isDark ? INDIGO_DARK : INDIGO_LIGHT
   const barColor = accentColor || indigo
@@ -159,29 +163,29 @@ const AnalyticsWidget: React.FC<Props> = ({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <Icon icon="mdi:chart-line" width={16} color={indigo} />
             <Typography fontSize={13} fontWeight={700} color={theme.palette.text.primary}>
-              Momentum
+              {t('storefront.analytics.momentum', { defaultValue: 'Momentum' })}
             </Typography>
           </Box>
           <Typography fontSize={11.5} color={theme.palette.text.secondary}>
-            Last {data?.window_days ?? 30} days
+            {t('storefront.analytics.lastDays', { days: data?.window_days ?? 30, defaultValue: `Last ${data?.window_days ?? 30} days` })}
           </Typography>
         </Box>
 
         <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
           <Box>
-            <Typography fontSize={11} color={theme.palette.text.secondary}>Total tips</Typography>
+            <Typography fontSize={11} color={theme.palette.text.secondary}>{t('storefront.analytics.totalTips', { defaultValue: 'Total tips' })}</Typography>
             <Typography fontSize={16} fontWeight={800} color={theme.palette.text.primary} data-testid="analytics-total-30d">
               {formatWithSeparators(data?.totals.amount_30d || 0, currency, 2)}
             </Typography>
           </Box>
           <Box>
-            <Typography fontSize={11} color={theme.palette.text.secondary}>Tips</Typography>
+            <Typography fontSize={11} color={theme.palette.text.secondary}>{t('storefront.analytics.tips', { defaultValue: 'Tips' })}</Typography>
             <Typography fontSize={16} fontWeight={800} color={theme.palette.text.primary} data-testid="analytics-count-30d">
               {data?.totals.count_30d || 0}
             </Typography>
           </Box>
           <Box>
-            <Typography fontSize={11} color={theme.palette.text.secondary}>Supporters</Typography>
+            <Typography fontSize={11} color={theme.palette.text.secondary}>{t('storefront.analytics.supporters', { defaultValue: 'Supporters' })}</Typography>
             <Typography fontSize={16} fontWeight={800} color={theme.palette.text.primary} data-testid="analytics-supporters-30d">
               {data?.totals.supporters_30d || 0}
             </Typography>
@@ -252,11 +256,11 @@ const AnalyticsWidget: React.FC<Props> = ({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <Icon icon="mdi:chart-timeline-variant" width={18} color={indigo} />
             <Typography fontSize={14.5} fontWeight={800} color={theme.palette.text.primary}>
-              Tips & supporters
+              {t('storefront.analytics.tipsSupporters', { defaultValue: 'Tips & supporters' })}
             </Typography>
           </Box>
           <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
-            Last 30 days of activity across your tip jar and donation campaigns.
+            {t('storefront.analytics.lastActivity', { defaultValue: 'Last 30 days of activity across your tip jar and donation campaigns.' })}
           </Typography>
         </Box>
         {onToggle && (
@@ -276,17 +280,17 @@ const AnalyticsWidget: React.FC<Props> = ({
             }}
           >
             <Icon icon={toggleState === 'shown' ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} width={14} />
-            {toggleState === 'shown' ? 'Shown on public page' : 'Hidden from public'}
+            {toggleState === 'shown' ? t('storefront.analytics.shownPublic', { defaultValue: 'Shown on public page' }) : t('storefront.analytics.hiddenPublic', { defaultValue: 'Hidden from public' })}
           </Box>
         )}
       </Box>
 
       {/* KPI strip */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(4, 1fr)' }, gap: 1.25, mt: 2 }}>
-        <KpiTile label="Tips (30d)" value={formatWithSeparators(data?.totals.amount_30d || 0, currency, 2)} border={border} testid="analytics-kpi-30d-amount" />
-        <KpiTile label="# tips (30d)" value={String(data?.totals.count_30d || 0)} border={border} testid="analytics-kpi-30d-count" />
-        <KpiTile label="Lifetime tips" value={formatWithSeparators(data?.totals.amount_lifetime || 0, currency, 2)} border={border} testid="analytics-kpi-lifetime-amount" />
-        <KpiTile label="Lifetime supporters" value={String(data?.totals.supporters_lifetime || 0)} border={border} testid="analytics-kpi-lifetime-count" />
+        <KpiTile label={t('storefront.analytics.kpiTips30d', { defaultValue: 'Tips (30d)' })} value={formatWithSeparators(data?.totals.amount_30d || 0, currency, 2)} border={border} testid="analytics-kpi-30d-amount" />
+        <KpiTile label={t('storefront.analytics.kpiTipsCount30d', { defaultValue: '# tips (30d)' })} value={String(data?.totals.count_30d || 0)} border={border} testid="analytics-kpi-30d-count" />
+        <KpiTile label={t('storefront.analytics.kpiLifetimeTips', { defaultValue: 'Lifetime tips' })} value={formatWithSeparators(data?.totals.amount_lifetime || 0, currency, 2)} border={border} testid="analytics-kpi-lifetime-amount" />
+        <KpiTile label={t('storefront.analytics.kpiLifetimeSupporters', { defaultValue: 'Lifetime supporters' })} value={String(data?.totals.supporters_lifetime || 0)} border={border} testid="analytics-kpi-lifetime-count" />
       </Box>
 
       {/* Chart */}
@@ -334,8 +338,8 @@ const AnalyticsWidget: React.FC<Props> = ({
             }}
           >
             <Icon icon="mdi:chart-timeline-variant-shimmer" width={32} />
-            <Typography fontSize={13} fontWeight={600}>No tips yet in the last 30 days.</Typography>
-            <Typography fontSize={12}>When someone tips you, you&apos;ll see the momentum here.</Typography>
+            <Typography fontSize={13} fontWeight={600}>{t('storefront.analytics.noTips30d', { defaultValue: 'No tips yet in the last 30 days.' })}</Typography>
+            <Typography fontSize={12}>{t('storefront.analytics.noTipsHint', { defaultValue: "When someone tips you, you'll see the momentum here." })}</Typography>
           </Box>
         )}
       </Box>
@@ -343,11 +347,11 @@ const AnalyticsWidget: React.FC<Props> = ({
       {/* Top supporters list */}
       <Box sx={{ mt: 2 }}>
         <Typography fontSize={12.5} fontWeight={700} color={theme.palette.text.secondary} mb={1} sx={{ textTransform: 'uppercase', letterSpacing: 0.4 }}>
-          Top supporters
+          {t('storefront.analytics.topSupporters', { defaultValue: 'Top supporters' })}
         </Typography>
         {supporterRows.length === 0 ? (
           <Typography fontSize={13} color={theme.palette.text.secondary}>
-            Supporters who leave a name will appear here. Anonymous tips still count in the chart.
+            {t('storefront.analytics.supportersHint', { defaultValue: 'Supporters who leave a name will appear here. Anonymous tips still count in the chart.' })}
           </Typography>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
@@ -376,7 +380,7 @@ const AnalyticsWidget: React.FC<Props> = ({
                   {s.name}
                 </Typography>
                 <Typography fontSize={12} color={theme.palette.text.secondary} sx={{ whiteSpace: 'nowrap' }}>
-                  {s.count === 1 ? '1 tip' : `${s.count} tips`}
+                  {t('storefront.tipCount', { count: s.count, defaultValue: `${s.count} tips` })}
                 </Typography>
                 <Typography fontSize={13.5} fontWeight={800} color={theme.palette.text.primary} sx={{ whiteSpace: 'nowrap' }}>
                   {formatWithSeparators(s.amount, s.currency, s.amount % 1 === 0 ? 0 : 2)}

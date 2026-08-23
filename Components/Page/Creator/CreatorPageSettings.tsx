@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
@@ -474,12 +474,12 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         >
           <Box sx={{ minWidth: 0 }}>
             {profile?.creator_page_enabled ? (
-              <Typography fontSize={11.5} color={theme.palette.text.secondary}>Your public page</Typography>
+              <Typography fontSize={11.5} color={theme.palette.text.secondary}>{t("storefront.yourPublicPage", { defaultValue: "Your public page" })}</Typography>
             ) : (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }} data-testid="creator-reserved-confirm">
                 <Icon icon="mdi:check-decagram" width={15} color="#22B573" />
                 <Typography fontSize={11.5} sx={{ fontWeight: 800, color: "#22B573" }}>
-                  Reserved — it&apos;s yours
+                  {t("storefront.form.reservedYours", { defaultValue: "Reserved — it's yours" })}
                 </Typography>
               </Box>
             )}
@@ -497,12 +497,12 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
               data-testid="creator-edit-handle-btn"
               startIcon={<Icon icon="mdi:pencil-outline" width={15} />}
               sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.text.primary }}
-              title="Edit your handle"
+              title={t("storefront.form.editHandleTitle", { defaultValue: "Edit your handle" })}
             >
-              Edit
+              {t("storefront.form.edit", { defaultValue: "Edit" })}
             </Button>
             <Button size="small" onClick={copyUrl} data-testid="creator-copy-url" startIcon={<Icon icon={copied ? "mdi:check" : "mdi:content-copy"} width={16} />} sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.text.primary }}>
-              {copied ? "Copied" : "Copy"}
+              {copied ? t("storefront.form.copied", { defaultValue: "Copied" }) : t("storefront.form.copy", { defaultValue: "Copy" })}
             </Button>
             <Button
               size="small"
@@ -510,12 +510,12 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
               data-testid="creator-qr-btn"
               startIcon={<Icon icon="mdi:qrcode" width={16} />}
               sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.text.primary }}
-              title="Show QR code"
+              title={t("storefront.form.qrTitle", { defaultValue: "Show QR code" })}
             >
               QR
             </Button>
             <Button size="small" href={publicUrl} target="_blank" rel="noopener" data-testid="creator-view-page" endIcon={<Icon icon="mdi:open-in-new" width={15} />} sx={{ textTransform: "none", fontSize: 12.5, color: brandFg(theme.palette.mode === "dark") }}>
-              View
+              {t("storefront.form.view", { defaultValue: "View" })}
             </Button>
           </Box>
         </Box>
@@ -532,10 +532,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
           <Box>
             <Typography sx={{ fontSize: 15, fontWeight: 700, color: theme.palette.text.primary }}>
-              Page theme
+              {t("storefront.pageTheme", { defaultValue: "Page theme" })}
             </Typography>
             <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
-              Colors and cover style for your dynopay.me page — make it feel on-brand.
+              {t("storefront.pageThemeDesc", {
+                defaultValue:
+                  "Colors and cover style for your dynopay.me page — make it feel on-brand.",
+              })}
             </Typography>
             {/* Storefront-per-company scope hint: makes it obvious the palette
                 applies to the ACTIVE company only, not the whole account. */}
@@ -587,7 +590,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       >
         <DialogTitle sx={{ pb: 1, display: "flex", alignItems: "center", gap: 1 }}>
           <Icon icon="mdi:qrcode-scan" width={20} />
-          Your QR code
+          {t("storefront.form.qrDialogTitle", { defaultValue: "Your QR code" })}
         </DialogTitle>
         <DialogContent sx={{ pt: 1 }}>
           <HandleQrCode
@@ -597,13 +600,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setQrOpen(false)} sx={{ textTransform: "none" }}>Close</Button>
+          <Button onClick={() => setQrOpen(false)} sx={{ textTransform: "none" }}>{t("storefront.form.close", { defaultValue: "Close" })}</Button>
         </DialogActions>
       </Dialog>
 
       {/* Cover image */}
       <Box>
-        <Typography sx={labelSx}>Cover image <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional, recommended 1200×400)</Typography></Typography>
+        <Typography sx={labelSx}>{t("storefront.form.coverImage", { defaultValue: "Cover image" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.coverHint", { defaultValue: "(optional, recommended 1200×400)" })}</Typography></Typography>
         <Box
           data-testid="creator-cover-preview"
           onClick={() => { if (!uploadingCover) coverFileRef.current?.click(); }}
@@ -633,7 +636,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             <Box sx={{ textAlign: "center", color: theme.palette.text.secondary, px: 2, pointerEvents: "none" }}>
               <Icon icon="mdi:image-plus-outline" width={26} />
               <Typography fontSize={12.5} mt={0.5}>
-                {coverDragActive ? "Drop image to upload" : "Drag & drop an image here, or click to upload (up to 10 MB)"}
+                {coverDragActive ? t("storefront.form.dropToUpload", { defaultValue: "Drop image to upload" }) : t("storefront.form.dragDrop", { defaultValue: "Drag & drop an image here, or click to upload (up to 10 MB)" })}
               </Typography>
             </Box>
           )}
@@ -647,7 +650,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 onClick={(e: React.MouseEvent) => { e.stopPropagation(); setCoverImage(null); }}
                 sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
               >
-                Remove
+                {t("storefront.form.remove", { defaultValue: "Remove" })}
               </Button>
             </Box>
           )}
@@ -668,13 +671,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           sx={{ mt: 1, textTransform: "none", fontSize: 12.5 }}
           data-testid="creator-cover-upload-btn"
         >
-          {coverImage ? "Replace image" : "Upload image"}
+          {coverImage ? t("storefront.form.replaceImage", { defaultValue: "Replace image" }) : t("storefront.form.uploadImage", { defaultValue: "Upload image" })}
         </Button>
       </Box>
 
       {/* Display name (shown as the header on your public /{handle} page) */}
       <Box>
-        <Typography sx={labelSx}>Display name <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(shown at the top of your public page)</Typography></Typography>
+        <Typography sx={labelSx}>{t("storefront.form.displayName", { defaultValue: "Display name" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.shownAtTop", { defaultValue: "(shown at the top of your public page)" })}</Typography></Typography>
         <Box
           component="input"
           ref={nameInputRef}
@@ -685,13 +688,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           sx={inputSx}
         />
         <Typography fontSize={11.5} color={theme.palette.text.secondary} mt={0.5}>
-          Buyers see this above your handle. Leave blank to use your handle as the name.
+          {t("storefront.form.nameHelp", { defaultValue: "Buyers see this above your handle. Leave blank to use your handle as the name." })}
         </Typography>
       </Box>
 
       {/* Handle */}
       <Box>
-        <Typography sx={labelSx}>Handle</Typography>
+        <Typography sx={labelSx}>{t("storefront.form.handle", { defaultValue: "Handle" })}</Typography>
         <Box sx={{ display: "flex", alignItems: "stretch", border: `1px solid ${availability && !availability.available ? theme.palette.error.main : border}`, borderRadius: "10px", overflow: "hidden", backgroundColor: theme.palette.background.default }}>
           <Box sx={{ display: "flex", alignItems: "center", px: 1.5, backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", fontFamily: "ui-monospace, monospace", fontSize: 13, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
             {siteUrl.replace(/^https?:\/\//, "")}/
@@ -712,13 +715,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           </Box>
         </Box>
         <Typography fontSize={11.5} color={formatError || (availability && !availability.available) ? theme.palette.error.main : theme.palette.text.secondary} mt={0.5} data-testid="creator-handle-hint">
-          {formatError || (availability && !availability.available ? availability.reason : "This is your unique, shareable Dynopay address.")}
+          {formatError || (availability && !availability.available ? availability.reason : t("storefront.form.handleHelp", { defaultValue: "This is your unique, shareable Dynopay address." }))}
         </Typography>
       </Box>
 
       {/* Bio */}
       <Box>
-        <Typography sx={labelSx}>Bio <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional)</Typography></Typography>
+        <Typography sx={labelSx}>{t("storefront.form.bio", { defaultValue: "Bio" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
         <Box
           component="textarea"
           rows={3}
@@ -726,7 +729,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           data-testid="creator-bio-input"
           value={bio}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBio(e.target.value)}
-          placeholder="Tell visitors who you are and what you're raising for…"
+          placeholder={t("storefront.form.bioPlaceholder", { defaultValue: "Tell visitors who you are and what you're raising for…" })}
           sx={{ ...inputSx, resize: "vertical", minHeight: 74, display: "block" }}
         />
         <Typography fontSize={10.5} color={theme.palette.text.disabled} textAlign="right" mt={0.25}>{bio.length}/500</Typography>
@@ -734,7 +737,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
       {/* Social links */}
       <Box>
-        <Typography sx={labelSx}>Social links <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional)</Typography></Typography>
+        <Typography sx={labelSx}>{t("storefront.form.socialLinks", { defaultValue: "Social links" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           {SOCIAL_PLATFORMS.map((p) => (
             <Box key={p.key} sx={{ display: "flex", alignItems: "stretch", border: `1px solid ${border}`, borderRadius: "10px", overflow: "hidden", backgroundColor: theme.palette.background.default }}>
@@ -766,9 +769,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       <Box id="support-widget" sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }} data-testid="support-widget-settings">
         <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
           <Box sx={{ pr: 1 }}>
-            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>Support widget</Typography>
+            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>{t("storefront.form.supportWidget", { defaultValue: "Support widget" })}</Typography>
             <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
-              An always-on “Buy me a coffee” / tip box at the top of your page. Supporters pick an amount and pay with crypto — no account needed.
+              {t("storefront.form.supportWidgetDesc", { defaultValue: 'An always-on "Buy me a coffee" / tip box at the top of your page. Supporters pick an amount and pay with crypto — no account needed.' })}
             </Typography>
           </Box>
           <Switch
@@ -783,7 +786,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, mt: 2.5, pt: 2.5, borderTop: `1px solid ${border}` }}>
             {/* Style */}
             <Box>
-              <Typography sx={labelSx}>Style</Typography>
+              <Typography sx={labelSx}>{t("storefront.form.style", { defaultValue: "Style" })}</Typography>
               <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 1 }}>
                 {SUPPORT_STYLES.map((s) => {
                   const active = swStyle === s.key;
@@ -812,7 +815,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
             {/* Custom label */}
             <Box>
-              <Typography sx={labelSx}>Custom label <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional)</Typography></Typography>
+              <Typography sx={labelSx}>{t("storefront.form.customLabel", { defaultValue: "Custom label" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
               <Box
                 component="input"
                 data-testid="support-widget-label"
@@ -826,7 +829,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
             {/* Preset amounts */}
             <Box>
-              <Typography sx={labelSx}>Preset amounts <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(up to 5)</Typography></Typography>
+              <Typography sx={labelSx}>{t("storefront.form.presetAmounts", { defaultValue: "Preset amounts" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.upTo5", { defaultValue: "(up to 5)" })}</Typography></Typography>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }} data-testid="support-preset-chips">
                 {swPresets.map((p) => (
                   <Box
@@ -870,7 +873,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                         }
                       }
                     }}
-                    placeholder="e.g. 5"
+                    placeholder={t("storefront.form.presetPlaceholder", { defaultValue: "e.g. 5" })}
                     sx={{ ...inputSx, maxWidth: 140 }}
                   />
                   <Button
@@ -886,19 +889,19 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                     }}
                     sx={{ textTransform: "none", fontSize: 12.5, borderRadius: "10px" }}
                   >
-                    Add
+                    {t("storefront.form.add", { defaultValue: "Add" })}
                   </Button>
                 </Box>
               )}
               {swPresets.length === 0 && (
-                <Typography fontSize={11.5} color={theme.palette.error.main} mt={0.5}>Add at least one preset amount.</Typography>
+                <Typography fontSize={11.5} color={theme.palette.error.main} mt={0.5}>{t("storefront.form.addPresetHint", { defaultValue: "Add at least one preset amount." })}</Typography>
               )}
             </Box>
 
             {/* Currency + Min amount */}
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
               <Box>
-                <Typography sx={labelSx}>Currency</Typography>
+                <Typography sx={labelSx}>{t("storefront.form.currency", { defaultValue: "Currency" })}</Typography>
                 <Box
                   component="select"
                   data-testid="support-widget-currency"
@@ -912,7 +915,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 </Box>
               </Box>
               <Box>
-                <Typography sx={labelSx}>Minimum amount</Typography>
+                <Typography sx={labelSx}>{t("storefront.form.minAmount", { defaultValue: "Minimum amount" })}</Typography>
                 <Box
                   component="input"
                   type="number"
@@ -928,7 +931,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
             {/* Thanks message */}
             <Box>
-              <Typography sx={labelSx}>Welcome / thank-you message <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional)</Typography></Typography>
+              <Typography sx={labelSx}>{t("storefront.form.thanksMessage", { defaultValue: "Welcome / thank-you message" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
               <Box
                 component="textarea"
                 rows={2}
@@ -936,14 +939,14 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 data-testid="support-widget-thanks"
                 value={swThanks}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSwThanks(e.target.value)}
-                placeholder="e.g. Thanks for keeping the coffee flowing! ☕"
+                placeholder={t("storefront.form.thanksPlaceholder", { defaultValue: "e.g. Thanks for keeping the coffee flowing! ☕" })}
                 sx={{ ...inputSx, resize: "vertical", minHeight: 60, display: "block" }}
               />
             </Box>
 
             {/* Toggles */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Typography fontSize={13.5} color={theme.palette.text.primary}>Let supporters leave a message</Typography>
+              <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.allowMessage", { defaultValue: "Let supporters leave a message" })}</Typography>
               <Switch
                 checked={swAllowMessage}
                 onChange={(e) => setSwAllowMessage(e.target.checked)}
@@ -952,7 +955,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
               />
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Typography fontSize={13.5} color={theme.palette.text.primary}>Show supporter count &amp; total raised</Typography>
+              <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.showSupporters", { defaultValue: "Show supporter count & total raised" })}</Typography>
               <Switch
                 checked={swShowSupporters}
                 onChange={(e) => setSwShowSupporters(e.target.checked)}
@@ -972,9 +975,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       >
         <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mb: 1 }}>
           <Box sx={{ pr: 1 }}>
-            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>Analytics</Typography>
+            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>{t("storefront.form.analytics", { defaultValue: "Analytics" })}</Typography>
             <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
-              A 30-day view of your tips and top supporters. Toggle to hide it from your public creator page — you&apos;ll still see it here.
+              {t("storefront.form.analyticsDesc", { defaultValue: "A 30-day view of your tips and top supporters. Toggle to hide it from your public creator page — you'll still see it here." })}
             </Typography>
           </Box>
           <Switch
@@ -997,8 +1000,8 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       {/* Enable toggle */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 2, borderRadius: "12px", border: `1px solid ${border}` }}>
         <Box sx={{ pr: 2 }}>
-          <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>Publish my creator page</Typography>
-          <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>When on, anyone with your link can view your page and support you.</Typography>
+          <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>{t("storefront.form.publishPage", { defaultValue: "Publish my creator page" })}</Typography>
+          <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>{t("storefront.form.publishDesc", { defaultValue: "When on, anyone with your link can view your page and support you." })}</Typography>
         </Box>
         <Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} data-testid="creator-enabled-switch" sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }} />
       </Box>
@@ -1012,7 +1015,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           data-testid="creator-save-btn"
           sx={{ textTransform: "none", fontWeight: 700, borderRadius: "10px", px: 3, py: 1.1, fontSize: 14 }}
         >
-          {saving ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : "Save changes"}
+          {saving ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : t("storefront.form.saveChanges", { defaultValue: "Save changes" })}
         </Button>
       </Box>
 
@@ -1026,23 +1029,25 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         fullWidth
         data-testid="handle-change-warning"
       >
-        <DialogTitle sx={{ fontWeight: 700 }}>Change your handle?</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>{t("storefront.form.changeHandleTitle", { defaultValue: "Change your handle?" })}</DialogTitle>
         <DialogContent>
           <Typography fontSize={13.5} color={theme.palette.text.secondary} sx={{ mb: 1.5 }}>
-            You&apos;re about to change your public URL from{" "}
-            <Box component="span" sx={{ fontFamily: "ui-monospace, monospace" }}>
-              {siteUrl.replace(/^https?:\/\//, "")}/{savedHandle}
-            </Box>{" "}
-            to{" "}
-            <Box component="span" sx={{ fontFamily: "ui-monospace, monospace", fontWeight: 700 }}>
-              {siteUrl.replace(/^https?:\/\//, "")}/{handle}
-            </Box>
-            .
+            <Trans
+              i18nKey="storefront.form.changeHandleBody"
+              ns="common"
+              values={{
+                oldUrl: `${siteUrl.replace(/^https?:\/\//, "")}/${savedHandle}`,
+                newUrl: `${siteUrl.replace(/^https?:\/\//, "")}/${handle}`,
+              }}
+              defaults="You're about to change your public URL from <old>{{oldUrl}}</old> to <new>{{newUrl}}</new>."
+              components={{
+                old: <Box component="span" sx={{ fontFamily: "ui-monospace, monospace" }} />,
+                new: <Box component="span" sx={{ fontFamily: "ui-monospace, monospace", fontWeight: 700 }} />,
+              }}
+            />
           </Typography>
           <Typography fontSize={13} color={theme.palette.warning.main}>
-            Any existing shared links, QR codes, or social bios pointing at
-            the old URL will stop working. Nobody will be redirected — they&apos;ll
-            just see a 404.
+            {t("storefront.form.changeHandleWarn", { defaultValue: "Any existing shared links, QR codes, or social bios pointing at the old URL will stop working. Nobody will be redirected — they'll just see a 404." })}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -1051,7 +1056,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             data-testid="handle-warning-cancel"
             sx={{ textTransform: "none" }}
           >
-            Keep old handle
+            {t("storefront.form.keepOldHandle", { defaultValue: "Keep old handle" })}
           </Button>
           <Button
             variant="contained"
@@ -1061,7 +1066,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             data-testid="handle-warning-confirm"
             sx={{ textTransform: "none", fontWeight: 700 }}
           >
-            {saving ? "Saving…" : "Change my handle"}
+            {saving ? t("storefront.form.savingEllipsis", { defaultValue: "Saving…" }) : t("storefront.form.changeMyHandle", { defaultValue: "Change my handle" })}
           </Button>
         </DialogActions>
       </Dialog>

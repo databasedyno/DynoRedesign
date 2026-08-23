@@ -1,3 +1,52 @@
+# FEATURE (2026-06 fork) — Storefront i18n (Page tab FULLY localized) — VERIFIED iter74/75/76 100%
+
+User asked to translate the Storefront page (title, tabs, "Page theme" labels), then said "continue"
+twice — so the ENTIRE Storefront > Page tab is now localized across all 6 locales (en/pt/fr/es/de/nl).
+Buyer-facing widget style tiles (Buy me a coffee / Send a tip / Support me) and sample placeholders
+("Alice Cooper", "yourname") intentionally kept English.
+
+KEYS ADDED to common.json (always-loaded ns; no new namespace registered):
+- storefront.* (chrome): title, subtitle, editingHint (<b>{{company}}</b> via Trans), tabPage/
+  tabProducts/tabShare, viewMyPage, yourPublicPage, pageTheme, pageThemeDesc, accentButton,
+  accentColor, coverStyle, coverSolid/Gradient/Image/Pattern, uploadCoverFirst/Hint, gradientPreset,
+  resetDefault, samplePaymentLink, sampleReusable  (23 keys — iter74)
+- storefront.form.* (50 keys — iter75): URL row (reservedYours/edit/editHandleTitle/copy/copied/
+  qrTitle/view/close), cover upload, displayName/shownAtTop/nameHelp, handle/handleHelp, bio/optional/
+  bioPlaceholder, socialLinks, supportWidget(+Desc), style/customLabel/presetAmounts/upTo5/add/
+  addPresetHint/presetPlaceholder/currency/minAmount/thanksMessage/thanksPlaceholder/allowMessage/
+  showSupporters, analytics/analyticsDesc, publishPage/publishDesc, saveChanges, changeHandleTitle/
+  changeHandleBody(<old>/<new> Trans)/changeHandleWarn/keepOldHandle/savingEllipsis/changeMyHandle
+- storefront.compare.* (9 keys — iter75): title/subtitle/colCompany/colViews/colTips/colSales/
+  colRevenue/noStorefront/companyN
+- storefront.form.qrDialogTitle/copyLink/linkCopied/downloadPng, storefront.analytics.* (17 keys:
+  tipsSupporters/lastActivity/shownPublic/hiddenPublic/kpiTips30d/kpiTipsCount30d/kpiLifetimeTips/
+  kpiLifetimeSupporters/noTips30d/noTipsHint/topSupporters/supportersHint/momentum/lastDays/totalTips/
+  tips/supporters), storefront.noData, storefront.tipCount_one/_other, storefront.orderCount_one/_other
+  (26 keys — iter76)
+PLACEHOLDERS: periodVsPrevious/volumeOver keep SINGLE-brace {count}/{range} (manual .replace);
+everything else uses i18next {{...}} incl. count plurals (tipCount/orderCount, i18next v25 _one/_other).
+
+CODE (frontend-only, no backend/DB): pages/storefront/index.tsx (Trans editingHint, tabs, viewMyPage);
+CreatorPageSettings.tsx (useTranslation('common') + Trans for changeHandleBody; whole form + QR dialog);
+CreatorThemePicker.tsx (theme labels + styleLabel()); CreatorLivePreview.tsx (sample link);
+StorefrontComparePanel.tsx (title/headers/plurals/noStorefront + Sparkline noDataLabel prop);
+AnalyticsWidget.tsx (full+compact variants + CustomTooltip via t(); formatDayLabel now uses
+i18n.language so chart dates follow the app language); HandleQrCode.tsx (2nd hook tc for QR buttons);
+Sparkline.tsx (new optional noDataLabel prop, default "no data").
+
+VERIFIED (testing_agent, LIVE account, set FR then RESTORED to 'en' + asserted via
+/app/tests/verify_language_en.py): iter74 chrome+theme 100%, iter75 full form+compare+handle-modal
+Trans+QR 100%, iter76 analytics card + QR dialog + compare sub-labels + no-data 100%. 0 raw key leaks,
+0 console errors. tsc clean each round.
+
+REMAINING (out of scope / future pass): Storefront > Products tab body + Share tab body still English.
+The public compact analytics variant now shares the same keys (localized). Toasts in CreatorPageSettings
+were not localized this pass (transient).
+
+---
+
+
+
 # FEATURE (2026-06 fork) — Language Auto-Suggest banner (merchant first-login) — VERIFIED iter73 100%
 
 USER picked the "Language Auto-Suggest" next-action item: gently offer a SIGNED-IN merchant their

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation, Trans } from "react-i18next";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
@@ -67,6 +68,7 @@ const TABS: Array<{ id: TabId; label: string; icon: string }> = [
  */
 const OpenPageAction: React.FC<{ handle: string }> = ({ handle }) => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const open = () => window.open(buildCreatorUrl(handle), "_blank");
   return (
     <Box
@@ -98,7 +100,7 @@ const OpenPageAction: React.FC<{ handle: string }> = ({ handle }) => {
       }}
     >
       <Icon name="external-link" size={15} />
-      View my page
+      {t("storefront.viewMyPage", { defaultValue: "View my page" })}
     </Box>
   );
 };
@@ -108,6 +110,7 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t } = useTranslation("common");
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
   // Storefront-per-company: the header "View my page" + switcher hint reflect the
   // ACTIVE company (resolves per-company when the flag is on, else the account).
@@ -138,15 +141,18 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
   useEffect(() => setActive(initialTab), [initialTab]);
 
   useEffect(() => {
-    setPageName?.("Storefront");
+    setPageName?.(t("storefront.title", { defaultValue: "Storefront" }));
     setPageDescription?.(
-      "Your Dynopay page — tips, products and payment links behind one link.",
+      t("storefront.subtitle", {
+        defaultValue:
+          "Your Dynopay page — tips, products and payment links behind one link.",
+      }),
     );
     return () => {
       setPageName?.("");
       setPageDescription?.("");
     };
-  }, [setPageName, setPageDescription]);
+  }, [setPageName, setPageDescription, t]);
 
   // Header action: jump straight to the live page once a handle exists.
   useEffect(() => {
@@ -173,7 +179,7 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
   return (
     <>
       <Head>
-        <title>Storefront · Dynopay</title>
+        <title>{`${t("storefront.title", { defaultValue: "Storefront" })} · Dynopay`}</title>
       </Head>
 
       <Box
@@ -208,11 +214,20 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
                 textOverflow: "ellipsis",
               }}
             >
-              Editing{" "}
-              <Box component="span" sx={{ color: theme.palette.text.primary, fontWeight: 700 }}>
-                {selectedCompanyName}
-              </Box>
-              &apos;s storefront
+              <Trans
+                i18nKey="storefront.editingHint"
+                ns="common"
+                values={{ company: selectedCompanyName }}
+                defaults="Editing <b>{{company}}</b>'s storefront"
+                components={{
+                  b: (
+                    <Box
+                      component="span"
+                      sx={{ color: theme.palette.text.primary, fontWeight: 700 }}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </Box>
         )}
@@ -276,7 +291,10 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
                 }}
               >
                 <Icon name={tab.icon} size={15} />
-                {tab.label}
+                {t(
+                  `storefront.tab${tab.id.charAt(0).toUpperCase()}${tab.id.slice(1)}`,
+                  { defaultValue: tab.label },
+                )}
               </Box>
             );
           })}

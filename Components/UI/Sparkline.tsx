@@ -12,6 +12,8 @@ interface SparklineProps {
   color?: string;
   /** Label read by screen readers (defaults to point count + total sum). */
   ariaLabel?: string;
+  /** Text shown when all datapoints are zero (defaults to "no data"). */
+  noDataLabel?: string;
   "data-testid"?: string;
 }
 
@@ -29,6 +31,7 @@ const Sparkline: React.FC<SparklineProps> = ({
   height = 32,
   color,
   ariaLabel,
+  noDataLabel = "no data",
   "data-testid": testId,
 }) => {
   const theme = useTheme();
@@ -107,7 +110,7 @@ const Sparkline: React.FC<SparklineProps> = ({
             whiteSpace: "nowrap",
           }}
         >
-          no data
+          {noDataLabel}
         </Typography>
       </Box>
     );

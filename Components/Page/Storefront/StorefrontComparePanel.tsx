@@ -2,6 +2,7 @@ import React from "react";
 import useSWR from "swr";
 import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
 import Sparkline from "@/Components/UI/Sparkline";
 import axiosBaseApi from "@/axiosConfig";
@@ -36,6 +37,7 @@ interface SplitData {
  */
 const StorefrontComparePanel: React.FC = () => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const isDark = theme.palette.mode === "dark";
   const { companyList, selectedCompanyId } = useCompanyStore();
   const { data } = useSWR(
@@ -83,8 +85,8 @@ const StorefrontComparePanel: React.FC = () => {
   return (
     <Box sx={{ mt: 3 }} data-testid="storefront-compare-panel">
       <PanelCard
-        title="Compare storefronts"
-        subTitle="Views, tips and product sales per company — last 30 days."
+        title={t("storefront.compare.title", { defaultValue: "Compare storefronts" })}
+        subTitle={t("storefront.compare.subtitle", { defaultValue: "Views, tips and product sales per company — last 30 days." })}
       >
         {!data ? (
           <Skeleton
@@ -97,11 +99,11 @@ const StorefrontComparePanel: React.FC = () => {
           <Box sx={{ overflowX: "auto" }}>
             <Box sx={{ minWidth: 620 }}>
               <Box sx={{ display: "grid", gridTemplateColumns: GRID, gap: 1.5, px: 1.5, pb: 1 }}>
-                <Typography sx={HEAD_SX}>Company</Typography>
-                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Views · 30d trend</Typography>
-                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Tips</Typography>
-                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Sales</Typography>
-                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Revenue</Typography>
+                <Typography sx={HEAD_SX}>{t("storefront.compare.colCompany", { defaultValue: "Company" })}</Typography>
+                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>{t("storefront.compare.colViews", { defaultValue: "Views · 30d trend" })}</Typography>
+                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>{t("storefront.compare.colTips", { defaultValue: "Tips" })}</Typography>
+                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>{t("storefront.compare.colSales", { defaultValue: "Sales" })}</Typography>
+                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>{t("storefront.compare.colRevenue", { defaultValue: "Revenue" })}</Typography>
               </Box>
               {data.companies.map((row) => {
                 const isSelected = Number(row.company_id) === Number(selectedCompanyId);
@@ -136,7 +138,7 @@ const StorefrontComparePanel: React.FC = () => {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {row.company_name || `Company ${row.company_id}`}
+                          {row.company_name || t("storefront.compare.companyN", { defaultValue: "Company {{n}}", n: row.company_id })}
                         </Typography>
                         {isSelected && (
                           <Iconify icon="mdi:check-circle" width={14} color={brandFg(isDark)} />
@@ -152,7 +154,7 @@ const StorefrontComparePanel: React.FC = () => {
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {row.handle ? `@${row.handle}` : "No storefront yet"}
+                        {row.handle ? `@${row.handle}` : t("storefront.compare.noStorefront", { defaultValue: "No storefront yet" })}
                       </Typography>
                     </Box>
                     {/* Views + inline 30-day sparkline */}
@@ -171,6 +173,7 @@ const StorefrontComparePanel: React.FC = () => {
                         height={26}
                         color={isSelected ? brandFg(isDark) : undefined}
                         data-testid={`storefront-compare-sparkline-${row.company_id}`}
+                        noDataLabel={t("storefront.noData", { defaultValue: "no data" })}
                         ariaLabel={`${row.company_name || "Company"} — 30 day views trend, total ${row.views_30d}`}
                       />
                       <Typography sx={{ ...NUM_SX, minWidth: 40 }}>
@@ -180,13 +183,13 @@ const StorefrontComparePanel: React.FC = () => {
                     <Box sx={{ textAlign: "right" }}>
                       <Typography sx={NUM_SX}>{fmtMoney(row.tips_amount_30d)}</Typography>
                       <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary }}>
-                        {row.tips_count_30d} tip{row.tips_count_30d === 1 ? "" : "s"}
+                        {t("storefront.tipCount", { count: row.tips_count_30d, defaultValue: `${row.tips_count_30d} tips` })}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "right" }}>
                       <Typography sx={NUM_SX}>{fmtMoney(row.sales_amount_30d)}</Typography>
                       <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary }}>
-                        {row.sales_count_30d} order{row.sales_count_30d === 1 ? "" : "s"}
+                        {t("storefront.orderCount", { count: row.sales_count_30d, defaultValue: `${row.sales_count_30d} orders` })}
                       </Typography>
                     </Box>
                     <Typography sx={{ ...NUM_SX, fontWeight: 800 }}>{fmtMoney(revenue)}</Typography>

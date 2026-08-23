@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Box, Button, Typography, useTheme, InputBase } from "@mui/material";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { BRAND_ACCENT } from "@/constants/theme";
 import {
   ACCENT_PRESETS,
@@ -35,8 +36,12 @@ const HEX_RE = /^#([0-9a-fA-F]{6})$/;
 
 const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage }) => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const border = theme.palette.divider;
   const isDark = theme.palette.mode === "dark";
+
+  const styleLabel = (s: CoverStyle) =>
+    t(`storefront.cover${s.charAt(0).toUpperCase()}${s.slice(1)}`, { defaultValue: s });
 
   const currentAccent = value.accentColor || BRAND_ACCENT;
   const currentStyle: CoverStyle = value.coverStyle || "solid";
@@ -101,13 +106,13 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
             fontWeight: 700, fontSize: 12,
           }}
         >
-          Accent button
+          {t("storefront.accentButton", { defaultValue: "Accent button" })}
         </Box>
       </Box>
 
       {/* ACCENT COLOR */}
       <Box>
-        {sectionLabel("mdi:palette-outline", "Accent color")}
+        {sectionLabel("mdi:palette-outline", t("storefront.accentColor", { defaultValue: "Accent color" }))}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
           {ACCENT_PRESETS.map((p) => {
             const active = currentAccent.toUpperCase() === p.hex.toUpperCase();
@@ -163,7 +168,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
 
       {/* COVER STYLE */}
       <Box>
-        {sectionLabel("mdi:image-frame", "Cover style")}
+        {sectionLabel("mdi:image-frame", t("storefront.coverStyle", { defaultValue: "Cover style" }))}
         <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 1 }}>
           {(["solid", "gradient", "image", "pattern"] as CoverStyle[]).map((s) => {
             const active = currentStyle === s;
@@ -186,11 +191,11 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
                   transition: "transform 120ms",
                   "&:hover": disabled ? {} : { transform: "translateY(-2px)" },
                 }}
-                title={disabled ? "Upload a cover image first" : ""}
+                title={disabled ? t("storefront.uploadCoverFirst", { defaultValue: "Upload a cover image first" }) : ""}
               >
                 <Box sx={{ height: 44, background: previewSmall }} />
                 <Box sx={{ px: 1, py: 0.5, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: theme.palette.background.paper }}>
-                  <Typography sx={{ fontSize: 11.5, fontWeight: 600, textTransform: "capitalize" }}>{s}</Typography>
+                  <Typography sx={{ fontSize: 11.5, fontWeight: 600 }}>{styleLabel(s)}</Typography>
                   {active && <Icon icon="mdi:check-circle" width={14} color={currentAccent} />}
                 </Box>
               </Box>
@@ -199,7 +204,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
         </Box>
         {currentStyle === "image" && !hasCoverImage && (
           <Typography sx={{ mt: 0.5, fontSize: 11, color: theme.palette.warning.main }}>
-            Upload a cover image below to use &quot;Image&quot; style.
+            {t("storefront.uploadCoverHint", { defaultValue: 'Upload a cover image below to use "Image" style.' })}
           </Typography>
         )}
       </Box>
@@ -207,7 +212,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
       {/* GRADIENT PRESETS — only when style=gradient */}
       {currentStyle === "gradient" && (
         <Box>
-          {sectionLabel("mdi:gradient-vertical", "Gradient preset")}
+          {sectionLabel("mdi:gradient-vertical", t("storefront.gradientPreset", { defaultValue: "Gradient preset" }))}
           <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 1 }}>
             {GRADIENT_PRESETS.map((g) => {
               const active = currentGradient === g.key;
@@ -249,7 +254,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
           data-testid="theme-reset"
           sx={{ textTransform: "none", fontSize: 12, color: theme.palette.text.secondary }}
         >
-          Reset to default
+          {t("storefront.resetDefault", { defaultValue: "Reset to default" })}
         </Button>
       </Box>
     </Box>

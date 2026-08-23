@@ -27,6 +27,7 @@ interface Props {
 
 const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) => {
   const { t } = useTranslation("landing");
+  const { t: tc } = useTranslation("common");
   const theme = useTheme();
   const border = theme.palette.divider;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -162,7 +163,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
           startIcon={<Icon icon={copied ? "mdi:check" : "mdi:content-copy"} width={14} />}
           sx={{ textTransform: "none", fontSize: 12.5, fontWeight: 600, borderRadius: "10px" }}
         >
-          {copied ? "Copied!" : "Copy link"}
+          {copied ? tc("storefront.form.linkCopied", { defaultValue: "Copied!" }) : tc("storefront.form.copyLink", { defaultValue: "Copy link" })}
         </Button>
         <Button
           fullWidth
@@ -180,7 +181,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
             "&:hover": { backgroundColor: accentColor || BRAND_ACCENT, filter: "brightness(1.05)" },
           }}
         >
-          {downloading ? "Saving…" : "Download PNG"}
+          {downloading ? tc("storefront.form.savingEllipsis", { defaultValue: "Saving…" }) : tc("storefront.form.downloadPng", { defaultValue: "Download PNG" })}
         </Button>
       </Box>
 

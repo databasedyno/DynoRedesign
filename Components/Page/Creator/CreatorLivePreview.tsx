@@ -3,6 +3,7 @@ import { Box, LinearProgress, Typography, useTheme } from "@mui/material";
 import { alpha, darken } from "@mui/material/styles";
 import { Icon } from "@iconify/react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { rootReducer } from "@/utils/types";
 import type { CreatorFormState } from "./CreatorPageSettings";
 import { prettyCreatorDomain } from "@/helpers/creatorUrl";
@@ -41,6 +42,7 @@ interface Props {
  */
 const CreatorLivePreview: React.FC<Props> = ({ state }) => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const isDark = theme.palette.mode === "dark";
   const border = theme.palette.divider;
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
@@ -286,10 +288,10 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
           </Box>
           <Box flex={1} minWidth={0}>
             <Typography fontSize={12.5} fontWeight={700} color={theme.palette.text.primary} noWrap>
-              Your payment links appear here
+              {t("storefront.samplePaymentLink", { defaultValue: "Your payment links appear here" })}
             </Typography>
             <Typography fontSize={11} color={theme.palette.text.secondary} noWrap>
-              Reusable link · any amount
+              {t("storefront.sampleReusable", { defaultValue: "Reusable link · any amount" })}
             </Typography>
           </Box>
           <Icon icon="mdi:arrow-top-right" width={16} color={theme.palette.text.secondary} />
