@@ -146,6 +146,30 @@ const companyModel = sequelize.define(
       defaultValue: null,
       comment: "Dashboard display currency (USD/EUR/GBP/NGN/CAD/AUD). Display-only preference.",
     },
+    // Per-Company Tax (2026-08-23, migrations/addCompanyTaxSettings.ts).
+    // tax_configured=false → company inherits the account values on tbl_user;
+    // true → these company values are authoritative. See services/companyTaxService.ts.
+    default_apply_tax: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    default_tax_inclusive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    merchant_country_code: {
+      type: DataTypes.STRING(2),
+      allowNull: true,
+    },
+    merchant_vat_id: {
+      type: DataTypes.STRING(32),
+      allowNull: true,
+    },
+    tax_configured: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     email: {
       type: DataTypes.STRING,
       validate: {

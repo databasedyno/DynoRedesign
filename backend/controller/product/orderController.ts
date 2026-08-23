@@ -31,6 +31,7 @@ import {
 } from "../../services/orderFulfillmentService";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
 import { getSpacesObjectStream } from "../../services/objectStorage";
+import { resolveTaxSettings } from "../../services/companyTaxService";
 import sequelize from "../../utils/dbInstance";
 import {
   sendOrderReceiptEmail,
@@ -67,6 +68,12 @@ export const getOrderByPublicRef = async (
 
     // Merchant meta (for the receipt heading)
     const merchant: any = await userModel.findByPk(order.dataValues.merchant_user_id);
+    // Per-company tax: the receipt shows the OWNING company's VAT ID (falls
+    // back to the account value for unconfigured/legacy companies).
+    const orderTax = await resolveTaxSettings(
+      Number(order.dataValues.merchant_user_id),
+      (order.dataValues as any).company_id ?? null
+    );
 
     return successResponseHelper(res, 200, "Order fetched.", {
       order: order.dataValues,
@@ -78,7 +85,7 @@ export const getOrderByPublicRef = async (
               merchant.dataValues.name ||
               merchant.dataValues.username ||
               merchant.dataValues.handle,
-            vat_id: merchant.dataValues.merchant_vat_id || null,
+            vat_id: orderTax.merchant_vat_id,
           }
         : null,
     });

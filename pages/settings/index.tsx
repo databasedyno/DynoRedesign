@@ -329,6 +329,7 @@ const SettingsPage = ({
         label: t("settingsPage.profile"),
         description: t("settingsPage.profileDesc"),
         icon: <PersonRounded sx={{ fontSize: 19 }} />,
+        scope: "account" as const,
       },
       {
         // F11: "Company" is the wrong word for an individual creator — the
@@ -343,12 +344,14 @@ const SettingsPage = ({
               defaultValue: "Business profile, logo, and company details",
             }),
         icon: <BusinessRounded sx={{ fontSize: 19 }} />,
+        scope: "company" as const,
       },
       {
         key: "payments" as SectionKey,
         label: t("settingsPage.payments"),
         description: t("settingsPage.paymentsDesc"),
         icon: <CurrencyExchangeRounded sx={{ fontSize: 19 }} />,
+        scope: "company" as const,
       },
       {
         key: "tax" as SectionKey,
@@ -357,12 +360,14 @@ const SettingsPage = ({
           defaultValue: "Default VAT/tax behavior for checkouts and payment links.",
         }),
         icon: <ReceiptLongRounded sx={{ fontSize: 19 }} />,
+        scope: "company" as const,
       },
       {
         key: "notifications" as SectionKey,
         label: t("settingsPage.notifications"),
         description: t("settingsPage.notificationsDesc"),
         icon: <NotificationsRounded sx={{ fontSize: 19 }} />,
+        scope: "account" as const,
       },
     ],
     [t, isIndividual],
@@ -444,6 +449,12 @@ const SettingsPage = ({
   };
 
   const activeMeta = sections.find((s) => s.key === active) || sections[0];
+  // Scope chip (2026-08-23): which tenant does the active section apply to?
+  const scopeStore = useCompanyStore();
+  const scopeCompany = (scopeStore?.companyList || []).find(
+    (c: any) => Number(c.company_id) === Number((scopeStore as any)?.selectedCompanyId),
+  ) as any;
+  const scopeCompanyName = scopeCompany?.company_name || scopeCompany?.name || "";
 
   const railItemSx = (isActive: boolean) => ({
     display: "flex",
@@ -672,6 +683,56 @@ const SettingsPage = ({
             >
               {activeMeta.description}
             </Typography>
+            {/* Scope chip — account-wide vs per-company section */}
+            <Box
+              data-testid="settings-scope-chip"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.65,
+                mt: 1,
+                px: 1.25,
+                py: 0.45,
+                borderRadius: 999,
+                border: `1px solid ${
+                  activeMeta.scope === "company"
+                    ? isDark
+                      ? "rgba(129,140,248,0.35)"
+                      : "rgba(79,70,229,0.28)"
+                    : theme.palette.divider
+                }`,
+                backgroundColor:
+                  activeMeta.scope === "company"
+                    ? isDark
+                      ? "rgba(129,140,248,0.10)"
+                      : "rgba(79,70,229,0.06)"
+                    : "transparent",
+              }}
+            >
+              {activeMeta.scope === "company" ? (
+                <BusinessRounded sx={{ fontSize: 13, color: theme.palette.text.secondary }} />
+              ) : (
+                <PersonRounded sx={{ fontSize: 13, color: theme.palette.text.secondary }} />
+              )}
+              <Typography
+                sx={{
+                  fontSize: "11.5px",
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
+                  fontFamily: "var(--font-sans)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {activeMeta.scope === "company"
+                  ? t("settingsPage.scopeCompany", {
+                      defaultValue: `Applies to ${scopeCompanyName || "the selected company"}`,
+                      company: scopeCompanyName,
+                    })
+                  : t("settingsPage.scopeAccount", {
+                      defaultValue: "Applies to your whole account",
+                    })}
+              </Typography>
+            </Box>
           </Box>
 
           {active === "profile" && <ProfileSection />}

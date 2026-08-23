@@ -35,7 +35,7 @@ import { STOREFRONT_PER_COMPANY, resolveStorefrontByHandle } from "../storefront
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Statuses that count as "money received" (legacy + state machine values)
-const DONATION_COMPLETED_STATUSES = [
+export const DONATION_COMPLETED_STATUSES = [
   "successful",
   "completed",
   "confirmed",

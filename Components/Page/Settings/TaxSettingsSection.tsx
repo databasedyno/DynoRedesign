@@ -21,6 +21,7 @@ import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { brandFg } from "@/constants/theme";
+import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 
 /* ------------------------------------------------------------------ */
 /* Structural VAT-ID validation — mirrors backend taxService regexes   */
@@ -95,6 +96,10 @@ const TaxSettingsSection: React.FC = () => {
   const [countryCode, setCountryCode] = useState<string | null>(null);
   const [vatId, setVatId] = useState("");
   const [initial, setInitial] = useState<TaxSettings | null>(null);
+  // Per-Company Tax: "account" = inheriting account-wide defaults; "company" =
+  // this company has its own settings. Reloaded on company switch.
+  const [source, setSource] = useState<"company" | "account" | null>(null);
+  const selectedCompanyId = useSelectedCompanyId();
   const csc = useCountryStateCity();
 
   const countryOptions = useMemo<CountryOption[]>(
@@ -109,15 +114,17 @@ const TaxSettingsSection: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
+    setLoading(true);
     (async () => {
       try {
         const res = await axiosBaseApi.get("user/tax-settings");
-        const d: TaxSettings = res?.data?.data || {};
+        const d: TaxSettings & { source?: "company" | "account" } = res?.data?.data || {};
         if (!mounted) return;
         setApplyTax(!!d.default_apply_tax);
         setTaxInclusive(!!d.default_tax_inclusive);
         setCountryCode(d.merchant_country_code || null);
         setVatId(d.merchant_vat_id || "");
+        setSource(d.source || null);
         setInitial({
           default_apply_tax: !!d.default_apply_tax,
           default_tax_inclusive: !!d.default_tax_inclusive,
@@ -141,7 +148,9 @@ const TaxSettingsSection: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+    // Re-fetch when the active company changes (per-company tax settings).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompanyId]);
 
   const vatDirty = normalizeVat(vatId) !== normalizeVat(initial?.merchant_vat_id || "");
   const isDirty =
@@ -163,11 +172,12 @@ const TaxSettingsSection: React.FC = () => {
         merchant_vat_id: vatId.trim() ? normalizeVat(vatId) : null,
       };
       const res = await axiosBaseApi.patch("user/tax-settings", payload);
-      const d: TaxSettings = res?.data?.data || payload;
+      const d: TaxSettings & { source?: "company" | "account" } = res?.data?.data || payload;
       setApplyTax(!!d.default_apply_tax);
       setTaxInclusive(!!d.default_tax_inclusive);
       setCountryCode(d.merchant_country_code || null);
       setVatId(d.merchant_vat_id || "");
+      setSource(d.source || "company");
       setInitial({
         default_apply_tax: !!d.default_apply_tax,
         default_tax_inclusive: !!d.default_tax_inclusive,
@@ -257,6 +267,30 @@ const TaxSettingsSection: React.FC = () => {
           })}
         </Typography>
       </Box>
+
+      {/* Per-Company Tax: inheriting account defaults until first save */}
+      {source === "account" && (
+        <Box
+          data-testid="tax-scope-inherit-note"
+          sx={{
+            display: "flex",
+            gap: 1,
+            alignItems: "center",
+            px: 1.5,
+            py: 1,
+            borderRadius: "10px",
+            border: `1px dashed ${theme.palette.divider}`,
+          }}
+        >
+          <ErrorOutlineRounded sx={{ fontSize: 16, color: theme.palette.text.secondary }} />
+          <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
+            {t("taxSettings.inheritNote", {
+              defaultValue:
+                "Showing your account-wide defaults — saving here creates tax settings specific to the selected company.",
+            })}
+          </Typography>
+        </Box>
+      )}
 
       {/* Main settings card */}
       <Box sx={cardSx}>

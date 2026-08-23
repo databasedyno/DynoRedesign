@@ -1,3 +1,32 @@
+# FOLLOW-UPS (2026-08-23l) — Analytics Split + Per-Company Tax + Settings Scope Chips (ALL VERIFIED)
+Built the 3 user-approved features (testing agent iteration_64 = 100% backend 9/9 + frontend, 0 console errors):
+1. ANALYTICS SPLIT — GET /api/user/creator/analytics/split (creatorAnalytics.ts::getCreatorAnalyticsSplit):
+   per owned company → views_30d (Redis creator-visits daily buckets), tips 30d (contribution links
+   GROUP BY COALESCE(parent.company_id, primary)), paid product sales 30d (tbl_product_order
+   payment_status='paid'; company_id only referenced when STOREFRONT_PER_COMPANY=true). Frontend:
+   Components/Page/Storefront/StorefrontComparePanel.tsx rendered at the bottom of /storefront on ALL
+   tabs, multi-company accounts only (testids storefront-compare-panel / storefront-compare-row-<id>).
+   Live data verified: hostbay 31 views / $10 tips; KLOSE zeros + "No storefront yet".
+2. PER-COMPANY TAX — 5 nullable columns APPLIED TO LIVE DB via migrations/addCompanyTaxSettings.ts
+   (default_apply_tax, default_tax_inclusive, merchant_country_code, merchant_vat_id, tax_configured
+   DEFAULT FALSE; all 29 companies untouched = inherit). NEW services/companyTaxService.ts::
+   resolveTaxSettings(userId, companyId): tax_configured→company values authoritative, else tbl_user
+   fallback. GET/PATCH /api/user/tax-settings now company-scoped (preferences.ts, resolveActiveCompanyId;
+   PATCH seeds unspecified fields from resolved values + sets tax_configured=true; response adds
+   source+company_id). Consumers switched: cartController startCheckout (merchantCompanyId) + quoteTax
+   (product company when flag ON, else primary), orderController receipt vat_id. TaxSettingsSection.tsx
+   refetches on selectedCompanyId + shows inherit note (testid tax-scope-inherit-note). Isolation
+   verified (KLOSE PATCH never leaks to hostbay); KLOSE test rows RESET to inherit after both test runs.
+3. SETTINGS SCOPE CHIPS — pages/settings/index.tsx sections carry scope (profile/notifications=account;
+   company/payments/tax=company); chip under the section header (testid settings-scope-chip):
+   "Applies to <Company>" vs "Applies to your whole account". Verified in both company contexts.
+NOTE: user's account currently has NO account-level tax values set, so everything shows inherit/defaults.
+Pre-commit gate re-verified clean (new test file backend/tests/test_iter64_split_and_tax.py is .py — not
+scanned by the .ts size budget; secrets OK). Regressions intact: storefront pending state, /shop/hostbay.
+
+---
+
+
 # FOLLOW-UPS (2026-08-23k) — New-company storefront leak FIXED + settings scope recommendation
 BUG (user): a freshly created company (KLOSE id=62 on hostbay account) showed the FIRST company's
 storefront URL + stats as its own (flag OFF = everything account-scoped). FIX (flag-OFF path only;

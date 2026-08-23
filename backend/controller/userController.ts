@@ -57,7 +57,7 @@ import { deleteAccount, unsubscribeFromReminders, unsubscribeFromPaymentReminder
 import { getOnboardingStatus, verifyEmail, resendVerification } from "./user/onboarding";
 import { checkHandle, checkHandlePublic, reserveHandle } from "./user/creatorHandle";
 import { updateCreatorProfile, uploadCoverImage, getCreatorProfileSettings } from "./user/creatorProfile";
-import { getCreatorStats, getCreatorAnalytics } from "./user/creatorAnalytics";
+import { getCreatorStats, getCreatorAnalytics, getCreatorAnalyticsSplit } from "./user/creatorAnalytics";
 import { getUserDisplayCurrency, updateUserDisplayCurrency, getMerchantTaxSettings, updateMerchantTaxSettings } from "./user/preferences";
 
 export default {
@@ -115,6 +115,7 @@ export default {
   uploadCoverImage,
   getCreatorStats,
   getCreatorAnalytics,
+  getCreatorAnalyticsSplit,
   getUserDisplayCurrency,
   updateUserDisplayCurrency,
   getMerchantTaxSettings,

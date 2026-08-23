@@ -27,6 +27,10 @@ const ShareTab = dynamic(() => import("@/Components/Page/Storefront/ShareTab"), 
   ssr: false,
   loading: () => tabFallback,
 });
+const StorefrontComparePanel = dynamic(
+  () => import("@/Components/Page/Storefront/StorefrontComparePanel"),
+  { ssr: false },
+);
 
 /**
  * Storefront — one place for everything a merchant sells behind ONE link.
@@ -281,6 +285,9 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
         {active === "page" && <PageTab />}
         {active === "products" && <ProductsTab />}
         {active === "share" && <ShareTab />}
+
+        {/* Analytics Split — per-company views/tips/sales (multi-company only) */}
+        <StorefrontComparePanel />
       </Box>
     </>
   );

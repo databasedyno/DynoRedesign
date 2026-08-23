@@ -28,6 +28,8 @@ import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../..
 import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
+import { resolveActiveCompanyId } from "../storefrontScope";
+import { resolveTaxSettings } from "../../services/companyTaxService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 
@@ -159,21 +161,17 @@ export const getMerchantTaxSettings = async (
     if (!userData?.user_id) {
       return errorResponseHelper(res, 401, "Authentication required.");
     }
-    const user: any = await userModel.findByPk(Number(userData.user_id), {
-      attributes: [
-        "user_id",
-        "default_apply_tax",
-        "default_tax_inclusive",
-        "merchant_country_code",
-        "merchant_vat_id",
-      ],
-    });
-    if (!user) return errorResponseHelper(res, 404, "User not found.");
+    // Per-Company Tax (2026-08-23): resolve for the ACTIVE company —
+    // company values when configured, else the legacy account defaults.
+    const activeCompanyId = await resolveActiveCompanyId(req, Number(userData.user_id));
+    const resolved = await resolveTaxSettings(Number(userData.user_id), activeCompanyId);
     return successResponseHelper(res, 200, "Tax settings fetched.", {
-      default_apply_tax: !!user.dataValues.default_apply_tax,
-      default_tax_inclusive: !!user.dataValues.default_tax_inclusive,
-      merchant_country_code: user.dataValues.merchant_country_code || null,
-      merchant_vat_id: user.dataValues.merchant_vat_id || null,
+      default_apply_tax: resolved.default_apply_tax,
+      default_tax_inclusive: resolved.default_tax_inclusive,
+      merchant_country_code: resolved.merchant_country_code,
+      merchant_vat_id: resolved.merchant_vat_id,
+      source: resolved.source,
+      company_id: resolved.company_id,
     });
   } catch (e) {
     userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));
@@ -216,20 +214,35 @@ export const updateMerchantTaxSettings = async (
     if (Object.keys(patch).length === 0) {
       return errorResponseHelper(res, 400, "No settings provided to update.");
     }
-    await userModel.update(patch, { where: { user_id: Number(userData.user_id) } });
-    const user: any = await userModel.findByPk(Number(userData.user_id), {
-      attributes: [
-        "default_apply_tax",
-        "default_tax_inclusive",
-        "merchant_country_code",
-        "merchant_vat_id",
-      ],
-    });
+    // Per-Company Tax (2026-08-23): writes go to the ACTIVE company. On first
+    // configure, unspecified fields are seeded from the currently-resolved
+    // values so the company becomes self-contained (tax_configured=true).
+    const uid = Number(userData.user_id);
+    const activeCompanyId = await resolveActiveCompanyId(req, uid);
+    if (!activeCompanyId) {
+      return errorResponseHelper(res, 400, "No company selected.");
+    }
+    const current = await resolveTaxSettings(uid, activeCompanyId);
+    const full = {
+      default_apply_tax:
+        "default_apply_tax" in patch ? patch.default_apply_tax : current.default_apply_tax,
+      default_tax_inclusive:
+        "default_tax_inclusive" in patch ? patch.default_tax_inclusive : current.default_tax_inclusive,
+      merchant_country_code:
+        "merchant_country_code" in patch ? patch.merchant_country_code : current.merchant_country_code,
+      merchant_vat_id:
+        "merchant_vat_id" in patch ? patch.merchant_vat_id : current.merchant_vat_id,
+      tax_configured: true,
+    };
+    await companyModel.update(full, { where: { company_id: activeCompanyId, user_id: uid } });
+    const resolved = await resolveTaxSettings(uid, activeCompanyId);
     return successResponseHelper(res, 200, "Tax settings updated.", {
-      default_apply_tax: !!user.dataValues.default_apply_tax,
-      default_tax_inclusive: !!user.dataValues.default_tax_inclusive,
-      merchant_country_code: user.dataValues.merchant_country_code || null,
-      merchant_vat_id: user.dataValues.merchant_vat_id || null,
+      default_apply_tax: resolved.default_apply_tax,
+      default_tax_inclusive: resolved.default_tax_inclusive,
+      merchant_country_code: resolved.merchant_country_code,
+      merchant_vat_id: resolved.merchant_vat_id,
+      source: resolved.source,
+      company_id: resolved.company_id,
     });
   } catch (e) {
     userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));

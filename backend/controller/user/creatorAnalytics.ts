@@ -1,4 +1,4 @@
-import { getCreatorAnalyticsData } from "../payment/paymentLinkController";
+import { getCreatorAnalyticsData, DONATION_COMPLETED_STATUSES } from "../payment/paymentLinkController";
 import express from "express";
 import { successResponseHelper } from "../../helper/index";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
@@ -10,6 +10,123 @@ import { IUserType } from "../../utils/types";
 import { userLogger } from "../../utils/loggers";
 import { redis } from "../../utils/redisInstance";
 import { STOREFRONT_PER_COMPANY, resolveActiveCompanyId, resolveLegacyStorefrontHolder } from "../storefrontScope";
+
+const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+
+/**
+ * GET /api/user/creator/analytics/split — "Compare storefronts".
+ * One row per owned company: 30-day page views, tips and paid product sales.
+ * Flag OFF: the shared storefront's traffic/tips/sales are attributed to the
+ * PRIMARY company (matching what migration 010 will backfill); other companies
+ * report zeros until they exist per-company.
+ */
+export const getCreatorAnalyticsSplit = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const uid = userData.user_id;
+    const companies = (await companyModel.findAll({
+      where: { user_id: uid },
+      attributes: STOREFRONT_PER_COMPANY
+        ? ["company_id", "company_name", "handle"]
+        : ["company_id", "company_name"],
+      order: [["company_id", "ASC"]],
+    })) as Array<{ dataValues: { company_id: number; company_name: string | null; handle?: string | null } }>;
+    if (!companies.length) {
+      return successResponseHelper(res, 200, "Storefront comparison", {
+        window_days: 30, currency: "USD", companies: [],
+      });
+    }
+    const primaryId = Number(companies[0].dataValues.company_id);
+    const user = await userModel.findOne({
+      where: { user_id: uid },
+      attributes: ["handle", "support_widget_currency"],
+    });
+    const accountHandle = user?.dataValues?.handle || null;
+    const currency = user?.dataValues?.support_widget_currency || "USD";
+
+    // Tips (30d) per company — legacy links without a company stamp roll up to primary.
+    const tipRows = (await sequelize.query(
+      `SELECT COALESCE(p.company_id, :primaryId)::int AS company_id,
+              COUNT(*)::int AS tips_count,
+              COALESCE(SUM(c.base_amount), 0)::float AS tips_amount
+         FROM tbl_payment_link c
+         JOIN tbl_payment_link p ON p.link_id = c.parent_link_id
+        WHERE c.link_type = 'contribution'
+          AND LOWER(c.status) IN (:statuses)
+          AND p.user_id = :uid
+          AND p.link_type = 'donation'
+          AND c."createdAt" >= NOW() - INTERVAL '30 days'
+        GROUP BY 1`,
+      { replacements: { uid, primaryId, statuses: DONATION_COMPLETED_STATUSES }, type: QueryTypes.SELECT }
+    )) as Array<{ company_id: number; tips_count: number; tips_amount: number }>;
+
+    // Paid product sales (30d) per company. tbl_product_order.company_id only
+    // exists post-migration — never reference it while the flag is OFF.
+    const salesSql = STOREFRONT_PER_COMPANY
+      ? `SELECT COALESCE(company_id, :primaryId)::int AS company_id,
+                COUNT(*)::int AS sales_count,
+                COALESCE(SUM(total_cents), 0)::bigint AS sales_cents
+           FROM tbl_product_order
+          WHERE merchant_user_id = :uid AND payment_status = 'paid'
+            AND "createdAt" >= NOW() - INTERVAL '30 days'
+          GROUP BY 1`
+      : `SELECT :primaryId::int AS company_id,
+                COUNT(*)::int AS sales_count,
+                COALESCE(SUM(total_cents), 0)::bigint AS sales_cents
+           FROM tbl_product_order
+          WHERE merchant_user_id = :uid AND payment_status = 'paid'
+            AND "createdAt" >= NOW() - INTERVAL '30 days'`;
+    const salesRows = (await sequelize.query(salesSql, {
+      replacements: { uid, primaryId },
+      type: QueryTypes.SELECT,
+    })) as Array<{ company_id: number; sales_count: number; sales_cents: string | number }>;
+
+    const now = Date.now();
+    const results = [];
+    for (const comp of companies) {
+      const d = comp.dataValues;
+      const cid = Number(d.company_id);
+      const handle = STOREFRONT_PER_COMPANY
+        ? (d.handle ? String(d.handle).toLowerCase() : null)
+        : (cid === primaryId && accountHandle ? String(accountHandle).toLowerCase() : null);
+
+      let views = 0;
+      if (handle) {
+        try {
+          const vals = await Promise.all(
+            Array.from({ length: 30 }, (_, i) => {
+              const ymd = new Date(now - i * 86400000).toISOString().slice(0, 10);
+              return redis.get(`creator-visits:${handle}:day:${ymd}`);
+            })
+          );
+          views = vals.reduce((a: number, b) => a + Number(b || 0), 0);
+        } catch { /* redis best-effort */ }
+      }
+
+      const tips = tipRows.find((r) => Number(r.company_id) === cid);
+      const sales = salesRows.find((r) => Number(r.company_id) === cid);
+      results.push({
+        company_id: cid,
+        company_name: d.company_name || null,
+        handle,
+        is_primary: cid === primaryId,
+        views_30d: views,
+        tips_count_30d: tips?.tips_count || 0,
+        tips_amount_30d: round2(tips?.tips_amount || 0),
+        sales_count_30d: sales?.sales_count || 0,
+        sales_amount_30d: round2(Number(sales?.sales_cents || 0) / 100),
+      });
+    }
+
+    return successResponseHelper(res, 200, "Storefront comparison", {
+      window_days: 30,
+      currency,
+      companies: results,
+    });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
 
 /** GET /api/user/creator/stats — total + this-week visits, supporters count */
 export const getCreatorStats = async (req: express.Request, res: express.Response) => {

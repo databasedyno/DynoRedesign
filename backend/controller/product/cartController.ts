@@ -41,6 +41,7 @@ import { apiLogger } from "../../utils/loggers";
 import { calculateTax } from "../payment/taxService";
 import { getClientIP, getCountryFromIP, getCountryFromTimezone } from "../../utils/geolocation";
 import { STOREFRONT_PER_COMPANY, resolveStorefrontByHandle } from "../storefrontScope";
+import { resolveTaxSettings } from "../../services/companyTaxService";
 
 type CartItemIn = {
   product_id: number | string;
@@ -393,13 +394,12 @@ export const startCheckout = async (
     ];
 
     // ---------- Atomic order + stock decrement + payment link ----------
-    // ── Resolve merchant tax settings (session 57) ──────────────────
+    // ── Resolve merchant tax settings (per-company since 2026-08-23) ──
     const mv = merchant.dataValues;
-    const merchantCountry: string | null = mv.merchant_country_code
-      ? String(mv.merchant_country_code).toUpperCase()
-      : null;
-    const merchantDefaultApplyTax: boolean = !!mv.default_apply_tax;
-    const merchantDefaultTaxInclusive: boolean = !!mv.default_tax_inclusive;
+    const taxDefaults = await resolveTaxSettings(merchantUserId, merchantCompanyId);
+    const merchantCountry: string | null = taxDefaults.merchant_country_code;
+    const merchantDefaultApplyTax: boolean = taxDefaults.default_apply_tax;
+    const merchantDefaultTaxInclusive: boolean = taxDefaults.default_tax_inclusive;
 
     // Determine effective apply_tax:
     //   - If ANY item has apply_tax_override === true → tax on
@@ -760,11 +760,20 @@ export const quoteTax = async (
     }
 
     const mv = merchant.dataValues;
-    const merchantCountry: string | null = mv.merchant_country_code
-      ? String(mv.merchant_country_code).toUpperCase()
-      : null;
-    const merchantDefaultApplyTax: boolean = !!mv.default_apply_tax;
-    const merchantDefaultTaxInclusive: boolean = !!mv.default_tax_inclusive;
+    // Per-company tax: quote with the owning company's rules (the product's
+    // company when storefronts are per-company; primary company otherwise).
+    let quoteCompanyId: number | null = null;
+    if (STOREFRONT_PER_COMPANY) {
+      const p: any = await productModel.findOne({
+        where: { product_id: Number(itemsIn[0].product_id) },
+        attributes: ["company_id"],
+      });
+      if (p?.dataValues?.company_id != null) quoteCompanyId = Number(p.dataValues.company_id);
+    }
+    const taxDefaults = await resolveTaxSettings(merchantUserId, quoteCompanyId);
+    const merchantCountry: string | null = taxDefaults.merchant_country_code;
+    const merchantDefaultApplyTax: boolean = taxDefaults.default_apply_tax;
+    const merchantDefaultTaxInclusive: boolean = taxDefaults.default_tax_inclusive;
 
     const items = validated.normalized;
     const anyOverrideOn = items.some((it: any) => it.apply_tax_override === true);

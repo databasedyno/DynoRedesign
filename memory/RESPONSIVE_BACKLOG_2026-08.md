@@ -104,7 +104,8 @@ selector instead of matching by visible text.
 1. **Go Live Storefronts (P0, USER action)** — run `backend/migrations/010_storefront_per_company.sql`
    in the prod window, then set `STOREFRONT_PER_COMPANY=true`. Runbook:
    `docs/STOREFRONT_PER_COMPANY_RUNBOOK.md`.
-2. **Analytics Split (P1)** — per-company views / tips / sales so owners can compare storefronts.
+2. **Analytics Split (P1)** — ✅ DONE 2026-08-23l (iteration_64 100%). "Compare storefronts" panel on
+   /storefront: per-company views/tips/sales/revenue, 30 days, multi-company accounts only.
 3. **Handle Availability Nudge (P2)** — on company creation, prompt the owner to claim that
    company's handle right away (flag-ON only).
 4. **Legacy File Trim (P2, eng health)** — 12 grandfathered backend files grew past their
@@ -113,7 +114,7 @@ selector instead of matching by visible text.
    → creatorAnalytics.ts, 2026-08-23j).
 
 ## New (from user, 2026-08-23k)
-5. **New-company storefront leak (BUG — fixed 2026-08-23k, pending verification)** — a freshly
+5. **New-company storefront leak (BUG — FIXED + VERIFIED, iteration_63 100%)** — a freshly
    created company (KLOSE, id 62) showed the FIRST company's storefront URL + stats/analytics as its
    own, because with `STOREFRONT_PER_COMPANY=false` everything storefront is account-scoped.
    Fix shipped: flag-OFF requests acting in a NON-primary company now get an explicit
@@ -124,7 +125,11 @@ selector instead of matching by visible text.
    (resolveLegacyStorefrontHolder), `controller/user/creatorProfile.ts`, `creatorAnalytics.ts`;
    frontend `Components/Page/Storefront/{StorefrontPendingCard,PageTab,ProductsTab,ShareTab}.tsx`,
    `Components/Page/Dashboard/ClaimHandleBanner.tsx`, `hooks/useStorefrontProfile.ts`.
-6. **Settings: account-level vs company-level (RECOMMENDATION, awaiting user decision)**
+6. **Settings: account-level vs company-level — ✅ SHIPPED 2026-08-23l (iteration_64 100%)**
+   Per-Company Tax: 5 nullable cols applied to live tbl_company (tax_configured=false → inherit account);
+   GET/PATCH /api/user/tax-settings company-scoped; checkout/quote/receipt resolve company-first.
+   Scope chips on every /settings section ("Applies to <Company>" / "Applies to your whole account").
+   Original architecture audit kept below for reference:
    Current architecture audit:
    - ACCOUNT-scoped today (tbl_user / per-user tables): Profile (name/email/photo/password/2FA),
      Notifications prefs, Language, Referrals, **Payout wallets** (reusable across companies —
