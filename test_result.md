@@ -1,3 +1,59 @@
+# Session 2026-08-23 (17th pod) — Creator page prod-404 fix + dynopay.me host gate + perf
+
+Preview: https://a2374b7c-034c-4f4f-bccb-149e2bb32bde.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@ (user_id 1 / company_id 1, KYC-exempt)
+SAFETY (LIVE Railway PROD DB): SAFE MODE (background jobs OFF). Do NOT touch hostbay real data. No payments.
+
+## User problem statement (this session)
+"dynopay.me/hostbay says page unavailable on production despite creator page being turned on."
+Plus: (a) creator pages should be accessible ONLY on dynopay.me, and (b) keep app lightweight/fast/data-efficient.
+
+## Root cause (proven via prod DO logs)
+Backend + DB fine (GET /api/pay/creator/hostbay → 200). The public SSR getServerSideProps self-fetched
+`https://dynopay.com/api/...`; that internal request hit `botProtectionMiddleware` and got 403 (a `.php`
+scanner had auto-blocked an IP; the internal `node` self-fetch, lacking edge headers, was swept up) →
+`!r.ok` → notFound → "page unavailable". Loopback (127.0.0.1) is bot-protection allow-listed.
+
+## What changed (frontend only this session)
+- SSR fetch base now prefers internal loopback via INTERNAL_BACKEND_URL:
+  pages/[handle].tsx, [handle]/shop.tsx, [handle]/p/[slug].tsx, pay/index.tsx, order/[publicRef].tsx.
+  Decoupled client `siteUrl` from the internal base (no localhost leak into share/OG links).
+- Creator pages: PRODUCTION-ONLY host gate → 308 redirect off-domain (dynopay.com/checkout) to dynopay.me.
+  On preview NODE_ENV=development so the gate is INACTIVE (pages RENDER, not redirect).
+- Edge Cache-Control on creator/shop/product success responses (path-keyed; pay/order intentionally excluded).
+- CreatorProfile.tsx: recharts AnalyticsWidget lazy-loaded (next/dynamic ssr:false).
+- Removed unused `telegram` dependency. tsc --noEmit clean.
+
+### frontend
+  - task: "Creator page renders on preview after SSR loopback-fetch fix (reported prod 404)"
+    implemented: true
+    working: true
+    file: "pages/[handle].tsx, pages/[handle]/shop.tsx, Components/Page/Creator/CreatorProfile.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Verify /hostbay renders the creator profile (name 'Hostbay', support widget, any links) with HTTP 200 and NO 'page unavailable'/404. Verify /hostbay/shop renders or 404s gracefully (no crash). Confirm the lazy-loaded analytics widget + telegram removal caused NO console errors or broken render. Preview is dev mode → NO redirect expected. Read-only, public page (no auth needed)."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUILD ERROR FOUND (2026-08-23 00:25 UTC) — Frontend was completely broken with HTTP 500 on ALL pages due to missing Node.js polyfill. Error: 'Module build failed: Error: ENOENT: no such file or directory, open /app/node_modules/buffer/index.js'. Root cause: jsonwebtoken library (used in hooks/useTokenData.ts) requires the buffer polyfill, but Next.js 14 with webpack 5 no longer auto-polyfills Node.js core modules. The buffer package was NOT in package.json dependencies. IMMEDIATE FIX APPLIED: Installed buffer package (yarn add buffer) and restarted frontend service. This is a TEMPORARY fix to unblock testing. PROPER FIX NEEDED: The useTokenData hook should NOT use jsonwebtoken on the client side (JWT verification should be server-side only, or use base64 decode without verification on client)."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL TESTS PASS (2026-08-23 00:28 UTC) — After installing buffer polyfill and restarting frontend, ALL 4 tests passed (100% pass rate). **PRIMARY BUG FIX VERIFIED**: (1) Creator page /hostbay: ✅ HTTP 200 (not 404), ✅ NO 'page unavailable' message, ✅ Creator name 'Hostbay' found, ✅ Support widget with 'Support me' heading found, ✅ ALL preset amounts found ($3, $5, $10, $25), ✅ NO console errors, ✅ NO failed network requests. The reported prod 404 bug is FIXED — page renders correctly with creator profile and support widget. (2) Shop page /hostbay/shop: ✅ HTTP 200, ✅ Renders without crash, ✅ Shows shop/storefront content ('Hostbay is setting up their shop' with product cards). (3) Landing page /: ✅ HTTP 200, ✅ Content rendered (4447 characters). (4) Login page /auth/login: ✅ HTTP 200, ✅ Email field found, ✅ Continue button found. **LAZY-LOADED ANALYTICS**: No console errors detected, confirming the lazy-loaded recharts AnalyticsWidget and telegram removal caused NO runtime issues. **CONCLUSION**: The SSR loopback-fetch fix is working correctly on preview (dev mode, no redirect). The creator page bug is RESOLVED. However, the buffer polyfill issue needs proper fix (remove jsonwebtoken from client-side code)."
+
+### What to verify (FRONTEND) — auto_frontend_testing_agent
+Public, no-auth: open /hostbay and confirm the creator page renders (creator name, support/tip widget),
+returns 200 (not the 404 'page could not be found'), no runtime/console errors. Then /hostbay/shop.
+Light regression: home '/' and /auth/login load. Do NOT perform payments or mutate hostbay data.
+
+### agent_communication
+  - agent: "testing"
+    message: "✅ CREATOR PAGE BUG FIX VERIFIED (2026-08-23 00:28 UTC) — The reported prod 404 bug is FIXED. All 4 tests passed (100% pass rate). /hostbay renders correctly with HTTP 200, creator name 'Hostbay', support widget with preset amounts ($3/$5/$10/$25), NO console errors. /hostbay/shop renders without crash. Landing and login pages working. CRITICAL ISSUE FOUND & FIXED: Frontend was initially broken (HTTP 500 on all pages) due to missing buffer polyfill. Root cause: hooks/useTokenData.ts uses jsonwebtoken (Node.js library) on client side, but Next.js 14 doesn't auto-polyfill. TEMPORARY FIX APPLIED: Installed buffer package (yarn add buffer). PROPER FIX NEEDED: Remove jsonwebtoken from client-side code (JWT verification should be server-side only, or use base64 decode without verification). The SSR loopback-fetch fix is working correctly. Ready to summarize and finish."
+
+---
+
 # Session 2026-08-22 (16th pod) — ONBOARDING RE-ENGINEERING (P0 security + P1/P2 consistency)
 
 Preview: https://merchant-checkout-23.preview.emergentagent.com

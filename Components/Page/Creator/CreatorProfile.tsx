@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material'
@@ -11,8 +12,13 @@ import { BRAND_ACCENT } from '@/constants/theme'
 import { GRADIENT_STOPS } from '@/constants/creatorTheme'
 import SupportWidget, { SupportWidgetData } from './SupportWidget'
 import InlineTipCheckout from './InlineTipCheckout'
-import AnalyticsWidget, { CreatorAnalyticsData } from './AnalyticsWidget'
+import type { CreatorAnalyticsData } from './AnalyticsWidget'
 import CreatorShopSection, { CreatorShopProduct } from './CreatorShopSection'
+
+// Lazy-load the analytics chart (recharts is heavy) so it stays out of the
+// public creator page's initial JS bundle. Client-only: it's below-the-fold
+// and only renders when analytics data is present.
+const AnalyticsWidget = dynamic(() => import('./AnalyticsWidget'), { ssr: false })
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).

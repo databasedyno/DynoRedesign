@@ -107,6 +107,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       }
     } catch { /* analytics fetch is best-effort — never blocks the page */ }
 
+    // Public content — let DO's edge/CDN serve repeat hits so the backend + DB
+    // are barely touched (60s fresh, 5min stale-while-revalidate). Set only on
+    // the successful render path (not on notFound / redirect).
+    ctx.res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
     return {
       props: {
         creator: data.creator,
