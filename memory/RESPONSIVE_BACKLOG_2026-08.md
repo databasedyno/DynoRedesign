@@ -101,9 +101,9 @@ selector instead of matching by visible text.
 # PRODUCT BACKLOG (2026-08-23, post storefront-per-company)
 
 ## Next actions (carried from session summaries)
-1. **Go Live Storefronts (P0, USER action)** — run `backend/migrations/010_storefront_per_company.sql`
-   in the prod window, then set `STOREFRONT_PER_COMPANY=true`. Runbook:
-   `docs/STOREFRONT_PER_COMPANY_RUNBOOK.md`.
+1. **Go Live Storefronts (P0)** — ✅ MIGRATION 010 EXECUTED on live DB 2026-08-23m + flag ON in preview,
+   verified end-to-end (iteration_65). ONLY REMAINING: user adds STOREFRONT_PER_COMPANY=true on the
+   DigitalOcean app env and redeploys.
 2. **Analytics Split (P1)** — ✅ DONE 2026-08-23l (iteration_64 100%). "Compare storefronts" panel on
    /storefront: per-company views/tips/sales/revenue, 30 days, multi-company accounts only.
 3. **Handle Availability Nudge (P2)** — on company creation, prompt the owner to claim that

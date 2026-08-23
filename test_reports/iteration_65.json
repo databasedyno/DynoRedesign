@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 65: STOREFRONT_PER_COMPANY=true (flag-ON) end-to-end verification against LIVE prod (SAFE MODE). Backend 13/13 pytest PASS: profile reads for company 1 (hostbay) and company 62 (KLOSE) return company-scoped fields with NO storefront_pending; public /api/shop/hostbay + /api/pay/creator/hostbay both 200; PUT profile under X-Company-Id:62 with {handle:'hostbay'} correctly returns 409; KLOSE claim of 'klose-qa-8x3' succeeds (200), immediately public GET /api/pay/creator/klose-qa-8x3 → 200 with KLOSE identity, and hostbay stays isolated (200, no leakage of klose-qa-8x3); analytics/split shows both companies with correct handles + hostbay's real 30d data (views=31, tips_amount=10, tips_count=1); products endpoint returns 200 for both companies; tax + wallet regression PASS. Frontend Playwright PASS with ONE UI BUG found: the storefront status banner ([data-testid='creator-status-banner']) displays scoped-shop.preview.emergentagent.com/hostbay under BOTH company contexts — even under KLOSE (where every other UI element correctly shows klose-qa-8x3: page title 'Editing KLOSE's storefront', 'Your public page' URL, Share tab URL, QR, Live Preview, handle input). The banner appears to still read the user-level (primary company) handle instead of the flag-ON per-company handle. Public /hostbay renders the creator page correctly (title 'hostbay (@hostbay) · Dynopay', supporters/tips visible). Zero console errors on /storefront (both contexts) and /hostbay. Compare panel renders under KLOSE. Session restored to last_company_id='1'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "CreatorStatusBanner (/storefront Page tab)",
+        "issue": "Status banner shows the primary-company handle URL (scoped-shop.preview.emergentagent.com/hostbay) even when the active company context is KLOSE with its own handle 'klose-qa-8x3'. All other UI elements on the same page (title 'Editing KLOSE's storefront', 'Your public page' row, Share tab URL, QR link, Live Preview, creator-handle-input value) correctly use klose-qa-8x3. The banner is not consuming the flag-ON per-company profile — likely reading from the user-level (primary) creator profile.",
+        "selector": "[data-testid=\"creator-status-banner\"]",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter65_storefront_flag_on.py",
+    "/app/test_reports/pytest/iter65_results.xml"
+  ],
+  "action_items": [
+    "Main agent (pre-declared cleanup): reset tbl_company.handle and creator_page_enabled for company_id=62 (KLOSE) — this run claimed handle='klose-qa-8x3' with creator_page_enabled=true as pre-approved.",
+    "FIX: CreatorStatusBanner on /storefront should source its display URL/handle from the company-scoped creator profile (the same source that populates the Share tab URL and creator-handle-input) rather than the user-level primary handle. Reproduces under KLOSE context: banner shows /hostbay while all other tiles correctly show /klose-qa-8x3."
+  ],
+  "critical_code_review_comments": [
+    "flag-ON reads: getCreatorProfileSettings correctly drops storefront_pending and returns company_id + company handle from tbl_company for both hostbay and KLOSE.",
+    "Handle uniqueness across companies is enforced (409 on hostbay claim attempt by KLOSE) — isHandleTaken cross-company check works.",
+    "Public storefront resolution (resolveStorefrontByHandle company path) returns correct identity for both hostbay and the newly-claimed klose-qa-8x3 with no 'column does not exist' errors — migration 010 columns/index all in place.",
+    "Analytics split endpoint uses per-company handles under flag-ON (company 62 shows klose-qa-8x3, company 1 shows hostbay with live 30d counters).",
+    "Frontend: /storefront pending card is correctly gone under flag-ON for company 62; CreatorPageSettings + all editing controls render — only the top status banner is inconsistent (see UI bug)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter65_storefront_flag_on.py (new)"
+  ],
+  "success_rate": {"backend": "100% (13/13)", "frontend": "~90% — all flag-ON UI states verified; 1 medium banner-consistency bug"},
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (from /app/memory/test_credentials.md). Login route is /auth/login (NOT /login — /login is caught by the creator-handle route and shows 'This page isn't available').",
+  "seed_data_creation": "Pre-approved SAFE-MODE write: PUT /api/user/creator/profile with X-Company-Id:62 body {handle:'klose-qa-8x3', creator_page_enabled:true} was executed. Also verified 409 by attempting {handle:'hostbay'} under the same X-Company-Id:62 (no write took effect on 409). Main agent will reset KLOSE handle → NULL and creator_page_enabled → false per pre-declared cleanup.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "STOREFRONT_PER_COMPANY=true is set in /app/backend/.env. Backend cold-start 503 window ~15-20s (login retry loop in the test file handles it). Login page path is /auth/login. To scope requests to a company use header X-Company-Id (or set localStorage 'last_company_id' + reload in the browser). At the time of writing, company 62 handle was still 'klose-qa-8x3' from this run — main agent's cleanup will null it back; adjust assertions accordingly. Test file test_iter65_storefront_flag_on.py includes the entire flag-ON regression matrix (profile reads, public resolution, uniqueness 409, KLOSE claim, isolation, analytics split, products scoping, tax + wallet regression).",
+  "rca of the issue": "CreatorStatusBanner banner-URL bug: Under STOREFRONT_PER_COMPANY=true, GET /api/user/creator/profile correctly returns the company-scoped handle (hostbay for co=1, klose-qa-8x3 for co=62). The frontend Share tab and creator-handle-input consume this API. However, the top status banner (data-testid='creator-status-banner' in Components/Page/Storefront/PageTab.tsx or CreatorStatusBanner) still binds its URL to the user-level/primary handle (probably from an older useUser or /api/user/profile source that predates the per-company flag). Fix: switch the banner to read handle/URL from the same useStorefrontProfile / getCreatorProfileSettings response that already drives the surrounding tiles. Reproduction: login as hostbay@moxx.co, switch to KLOSE (localStorage.last_company_id='62' + reload), open /storefront — banner reads '.../hostbay' while page title says 'Editing KLOSE' and Share tab reads '.../klose-qa-8x3'."
+}

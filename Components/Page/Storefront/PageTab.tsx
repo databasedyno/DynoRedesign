@@ -2,10 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
-import { rootReducer } from "@/utils/types";
 import CreatorPageSettings, { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendingCard";
@@ -35,11 +33,11 @@ const PageTab = () => {
   const router = useRouter();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"), { noSsr: true });
   const { t } = useTranslation(["dashboardLayout", "common"]);
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
-  const publicUrl = buildCreatorUrl(profile?.handle);
-  // Storefront-per-company: a non-primary company (pre-migration) has no own
-  // storefront — never show the account's page/settings as if it were its own.
+  // Company-scoped storefront profile: the single source of truth for the
+  // banner handle/URL + publish state (account-level Redux profile would show
+  // the primary company's handle under other companies when the flag is ON).
   const { profile: storefront } = useStorefrontProfile();
+  const publicUrl = buildCreatorUrl(storefront?.handle);
 
   // Redux is client-only; gate profile-dependent blocks so SSR and the first
   // client paint agree (this used to cause a hydration mismatch).
@@ -77,10 +75,10 @@ const PageTab = () => {
       } catch { /* silent */ }
     })();
     return () => { cancelled = true; };
-  }, [profile?.handle, profile?.creator_page_enabled]);
+  }, [storefront?.handle, storefront?.creator_page_enabled]);
 
-  const hasHandle = mounted && Boolean(profile?.handle);
-  const isPublished = mounted && Boolean(profile?.handle && profile?.creator_page_enabled);
+  const hasHandle = mounted && Boolean(storefront?.handle);
+  const isPublished = mounted && Boolean(storefront?.handle && storefront?.creator_page_enabled);
 
   const statTiles = useMemo(() => ([
     {

@@ -1,3 +1,28 @@
+# FOLLOW-UPS (2026-08-23m) — MIGRATION 010 EXECUTED ON LIVE DB + FLAG ON (per-company storefronts LIVE in preview)
+User asked to check the DO deployment + add STOREFRONT_PER_COMPANY=true. Findings: DO deploy healthy
+(fresh redeploy — GitHub save works now), BUT migration 010 had NOT been run → flag would have crashed
+prod. With user approval (option a): PRE-FLIGHT (no case-insensitive handle dupes, no handle-users
+without companies; 4 handles / 29 companies / 6 products / 3 orders) → EXECUTED
+migrations/010_storefront_per_company.sql on the LIVE Railway DB (transactional, idempotent). Result:
+handles backfilled to primary companies (hostbay→1, csvcleanroom→36, tree→49, ratanakses→51), 6/6
+products + 3/3 orders stamped company_id, uniq_tbl_company_handle_lower index created, KLOSE(62) clean.
+Then set STOREFRONT_PER_COMPANY=true in /app/backend/.env (preview now runs FLAG ON).
+VERIFIED flag-ON: testing agent iteration_65 backend 13/13 (per-company profile reads, public
+/shop/hostbay + /pay/creator/hostbay 200, cross-company handle uniqueness 409, KLOSE claim
+'klose-qa-8x3' → own public page 200 + hostbay isolation, analytics split w/ company handles, products
+scoping, tax+wallet regression) + frontend (pending card gone flag-ON, claim UI under KLOSE, share/QR,
+public /hostbay renders, 0 console errors). ONE bug found & FIXED: PageTab status banner read the
+account-level Redux handle → now sourced from useStorefrontProfile (company-scoped); redux
+useSelector/rootReducer imports removed from PageTab; fix verified via screenshot in BOTH contexts
+(KLOSE banner showed /klose-qa-8x3, hostbay /hostbay). CLEANUP done: KLOSE handle→NULL, page disabled.
+USER ACTION REMAINING: add env var STOREFRONT_PER_COMPANY=true on the DigitalOcean app (Settings →
+App-Level Environment Variables) and redeploy — the DB is ready, code is ready, nothing else missing
+(other flags ENABLE_LEDGER/LEDGER_* etc. all optional-with-safe-defaults). iter63's pending-state tests
+assume flag OFF — superseded flag-ON (do not treat as regression).
+
+---
+
+
 # FOLLOW-UPS (2026-08-23l) — Analytics Split + Per-Company Tax + Settings Scope Chips (ALL VERIFIED)
 Built the 3 user-approved features (testing agent iteration_64 = 100% backend 9/9 + frontend, 0 console errors):
 1. ANALYTICS SPLIT — GET /api/user/creator/analytics/split (creatorAnalytics.ts::getCreatorAnalyticsSplit):
