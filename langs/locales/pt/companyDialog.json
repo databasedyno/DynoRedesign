@@ -133,5 +133,7 @@
   "addCompanyBtn": "Adicionar empresa",
   "noCompaniesYet": "Nenhuma empresa ainda",
   "createFirstCompanyBody": "Crie o perfil da sua primeira empresa para começar a aceitar pagamentos e gerenciar seu negócio.",
-  "noResultsFound": "Nenhum resultado encontrado"
+  "noResultsFound": "Nenhum resultado encontrado",
+  "optional": "opcional",
+  "validateTax": "Validar NIF"
 }

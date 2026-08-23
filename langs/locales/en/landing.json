@@ -114,7 +114,9 @@
       "livePill": "LIVE",
       "sendTipLabel": "Send a tip",
       "sendTipBtn": "Send tip",
-      "metaSettle": "Lands in <b>your wallet</b> in ~4s · from <b>1.5%</b>"
+      "metaSettle": "Lands in <b>your wallet</b> in ~4s · from <b>1.5%</b>",
+      "handleAvailable": "is available",
+      "handleTaken": "That handle isn't available — try another."
     },
     "story": {
       "eyebrow": "[ How it works ]",
@@ -361,8 +363,8 @@
     "strip": {
       "pending": {
         "pill": "WAITING",
-        "title": "Waiting for your wallet",
-        "caption": "Send the exact amount below. Confirmation is automatic once it hits the mempool."
+        "title": "Waiting for your payment",
+        "caption": "Send the exact amount below. Confirmation is automatic once we detect the transaction."
       },
       "confirming": {
         "pill": "CONFIRMING",
@@ -400,7 +402,17 @@
       "compactHeader": "Compact strip (used in the live /pay checkout)",
       "totalDue": "Total due",
       "mockBlurb": "This block simulates the checkout body (QR, address, timer). The animation, headline and status pill above are all provided by <code>&lt;CheckoutShell&gt;</code>."
-    }
+    },
+    "supportFallbackTitle": "Support this campaign",
+    "completePaymentTitle": "Complete your payment",
+    "receipt": {
+      "preparing": "Preparing receipt…",
+      "downloaded": "Receipt downloaded",
+      "download": "Download receipt",
+      "error": "Could not fetch the receipt — please try again."
+    },
+    "processingFee": "Processing fee",
+    "totalYouPay": "Total you pay"
   },
   "creator": {
     "card": {

@@ -26,7 +26,8 @@
     "label": "Company Name"
   },
   "currency": {
-    "baseCurrency": "Base Currency"
+    "baseCurrency": "Base Currency",
+    "updateFailed": "Failed to update currency"
   },
   "toast": {
     "copied": "Copied!"
@@ -70,7 +71,10 @@
   "actions": {
     "cancel": "Cancel",
     "generate": "Generate Key",
-    "done": "Done"
+    "done": "Done",
+    "regenerate": "Regenerate",
+    "disable": "Disable",
+    "enable": "Enable"
   },
   "apiKeyTitle": "{{currency}} API Key",
   "keys": {

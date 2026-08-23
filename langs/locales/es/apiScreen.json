@@ -26,7 +26,8 @@
     "label": "Nombre de la Empresa"
   },
   "currency": {
-    "baseCurrency": "Moneda Base"
+    "baseCurrency": "Moneda Base",
+    "updateFailed": "Error al actualizar la moneda"
   },
   "toast": {
     "copied": "Copiado!"
@@ -70,7 +71,10 @@
   "actions": {
     "cancel": "Cancelar",
     "generate": "Generar Clave",
-    "done": "Hecho"
+    "done": "Hecho",
+    "regenerate": "Regenerar",
+    "disable": "Desactivar",
+    "enable": "Activar"
   },
   "apiKeyTitle": "Clave API {{currency}}",
   "keys": {

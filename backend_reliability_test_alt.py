@@ -9,7 +9,7 @@ import requests
 import json
 
 # Configuration
-BASE_URL = "https://dynopay-demo.preview.emergentagent.com"
+BASE_URL = "https://payment-config-dev.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class DynoPayReliabilityTesterAlternative:

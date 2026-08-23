@@ -97,5 +97,14 @@
   "hoursAgo": "{{count}}h ago",
   "daysAgo": "{{count}}d ago",
   "flagged": "Flagged",
-  "noLoginActivity": "No login activity recorded yet."
+  "noLoginActivity": "No login activity recorded yet.",
+  "sessionSignedOut": "Device signed out",
+  "sessionSignOutFailed": "Couldn't sign out that device",
+  "otherSessionsSignedOut": "All other devices signed out",
+  "activeSessions": "Active devices",
+  "signOutAllOthers": "Sign out all others",
+  "noActiveSessions": "No active sessions found.",
+  "thisDevice": "This device",
+  "activeLabel": "active",
+  "signOut": "Sign out"
 }

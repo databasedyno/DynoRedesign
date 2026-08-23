@@ -133,5 +133,7 @@
   "addCompanyBtn": "Ajouter une entreprise",
   "noCompaniesYet": "Aucune entreprise pour le moment",
   "createFirstCompanyBody": "Créez le profil de votre première entreprise pour commencer à accepter des paiements et gérer votre activité.",
-  "noResultsFound": "Aucun résultat trouvé"
+  "noResultsFound": "Aucun résultat trouvé",
+  "optional": "optionnel",
+  "validateTax": "Valider le numéro de taxe"
 }

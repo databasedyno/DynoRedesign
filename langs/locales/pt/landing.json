@@ -114,7 +114,9 @@
       "livePill": "AO VIVO",
       "sendTipLabel": "Enviar uma gorjeta",
       "sendTipBtn": "Enviar gorjeta",
-      "metaSettle": "Cai na <b>sua carteira</b> em ~4s · a partir de <b>1,5%</b>"
+      "metaSettle": "Cai na <b>sua carteira</b> em ~4s · a partir de <b>1,5%</b>",
+      "handleAvailable": "está disponível",
+      "handleTaken": "Esse identificador não está disponível — tente outro."
     },
     "story": {
       "eyebrow": "[ Como funciona ]",
@@ -361,7 +363,7 @@
     "strip": {
       "pending": {
         "pill": "AGUARDA",
-        "title": "À espera da sua carteira",
+        "title": "À espera do seu pagamento",
         "caption": "Envie o valor exato indicado. A confirmação é automática assim que a transação for detetada."
       },
       "confirming": {
@@ -400,7 +402,17 @@
       "compactHeader": "Faixa compacta (usada no checkout /pay em produção)",
       "totalDue": "Total a pagar",
       "mockBlurb": "Este bloco simula o corpo do checkout (QR, endereço, temporizador). A animação, o título e o selo acima vêm todos do <code>&lt;CheckoutShell&gt;</code>."
-    }
+    },
+    "supportFallbackTitle": "Apoie esta campanha",
+    "completePaymentTitle": "Complete o seu pagamento",
+    "receipt": {
+      "preparing": "A preparar recibo…",
+      "downloaded": "Recibo descarregado",
+      "download": "Descarregar recibo",
+      "error": "Não foi possível obter o recibo — por favor, tente novamente."
+    },
+    "processingFee": "Taxa de processamento",
+    "totalYouPay": "Total que paga"
   },
   "creator": {
     "card": {

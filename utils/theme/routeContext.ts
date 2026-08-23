@@ -88,6 +88,43 @@ export function isAuthPath(pathname: string | undefined | null): boolean {
   return false;
 }
 
+/**
+ * Help & Support is DUAL-PURPOSE: a public help centre when logged out, but
+ * for signed-in merchants it lives inside the app shell. Its theme should
+ * therefore FOLLOW the in-app preference (so a merchant on dark mode keeps
+ * dark on /help-support instead of "flipping to light"), while still
+ * DEFAULTING to light for first-time / logged-out visitors.
+ *
+ * Implemented by reading the in-app theme storage key ("theme-mode-inapp")
+ * on these paths, but keeping the LIGHT default (see getDefaultThemeForPath).
+ * We deliberately do NOT add /help-support to INAPP_PREFIXES so the route
+ * *context* (and the shell resolver / everything else) is unaffected.
+ */
+const HELP_SUPPORT_PREFIXES = ["/help-support"];
+
+export function isHelpSupportPath(pathname: string | undefined | null): boolean {
+  if (!pathname) return false;
+  const path = pathname.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  for (const prefix of HELP_SUPPORT_PREFIXES) {
+    if (path === prefix || path.startsWith(`${prefix}/`)) return true;
+  }
+  return false;
+}
+
+/** Storage key to read the theme preference for a given PATH. Help & Support
+ *  reads the in-app key so it inherits the merchant's dashboard theme. */
+export function getStorageKeyForPath(pathname: string | undefined | null): string {
+  if (isHelpSupportPath(pathname)) return "theme-mode-inapp";
+  return getStorageKeyForContext(getRouteContext(pathname));
+}
+
+/** Default theme for a given PATH. Help & Support keeps the LIGHT public
+ *  default so logged-out visitors see the clean marketing look. */
+export function getDefaultThemeForPath(pathname: string | undefined | null): ThemeMode {
+  if (isHelpSupportPath(pathname)) return "light";
+  return getDefaultThemeForContext(getRouteContext(pathname));
+}
+
 export function getDefaultThemeForContext(context: ThemeContext): ThemeMode {
   return context === "inapp" ? "dark" : "light";
 }

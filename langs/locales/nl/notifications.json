@@ -24,5 +24,6 @@
   "activate": "Activeren",
   "saveChanges": "Wijzigingen opslaan",
   "noNotificationsYet": "Nog geen meldingen",
-  "notSupportedInBrowser": "Niet ondersteund in deze browser"
+  "notSupportedInBrowser": "Niet ondersteund in deze browser",
+  "noNotificationsDesc": "Betalingsbevestigingen, uitbetalingen en accountupdates verschijnen hier."
 }

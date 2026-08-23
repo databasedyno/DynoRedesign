@@ -133,5 +133,7 @@
   "addCompanyBtn": "Bedrijf toevoegen",
   "noCompaniesYet": "Nog geen bedrijven",
   "createFirstCompanyBody": "Maak uw eerste bedrijfsprofiel aan om betalingen te accepteren en uw bedrijf te beheren.",
-  "noResultsFound": "Geen resultaten gevonden"
+  "noResultsFound": "Geen resultaten gevonden",
+  "optional": "optioneel",
+  "validateTax": "Valideer belasting-ID"
 }

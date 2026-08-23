@@ -46,5 +46,11 @@
   "copiedToClipboard": "Copied to Clipboard",
   "totalFees": "Fee",
   "amountReceived": "Amount Received",
-  "settledTo": "Settled To"
+  "settledTo": "Settled To",
+  "sourcePaymentLinkShort": "Payment Link",
+  "sourceApiShort": "API",
+  "sourceTipShort": "Tip",
+  "sourceProductShort": "Store",
+  "sourceContributionShort": "Donation",
+  "sourceDirectShort": "Direct"
 }

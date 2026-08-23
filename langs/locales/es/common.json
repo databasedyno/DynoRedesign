@@ -75,7 +75,11 @@
     "subtitleContribution": "Contribuye a {{campaign}} con cripto. Cada contribución acerca la campaña a su meta.",
     "subtitleContributionDefault": "Aporta con cripto — cada contribución cuenta.",
     "donationDetails": "Detalles de la contribución",
-    "donateWithCrypto": "Contribuir con cripto"
+    "donateWithCrypto": "Contribuir con cripto",
+    "incompletePayment": "Pago incompleto",
+    "address": "Dirección",
+    "customerPaysFee": "El cliente paga la tarifa de procesamiento",
+    "pendingPayment": "Pago pendiente"
   },
   "crypto": {
     "title": "Criptomoneda",
@@ -116,7 +120,10 @@
     "copyMemo": "Copiar Memo",
     "memoCopied": "¡Memo/tag copiado!",
     "memoWarning": "Debes incluir este memo/tag, o tus fondos podrían perderse.",
-    "noRlusdNetworks": "No hay redes RLUSD configuradas"
+    "noRlusdNetworks": "No hay redes RLUSD configuradas",
+    "lowestFeeHint": "TRC-20 suele tener las tarifas de red más bajas.",
+    "generatingAddress": "Generando dirección…",
+    "trustNote": "Los fondos van directamente al comerciante · cantidad bloqueada hasta que termine el temporizador"
   },
   "underpayment": {
     "title": "Pago Parcial Recibido",
@@ -453,7 +460,8 @@
     "sourceApi": "API",
     "apiRecordHint": "Este registro agrupa los pagos recibidos a través de su integración API que no incluían información del cliente. Envíe los datos del cliente en sus llamadas API para ver perfiles reales aquí.",
     "countLabel_one": "{{count}} cliente",
-    "countLabel_other": "{{count}} clientes"
+    "countLabel_other": "{{count}} clientes",
+    "noCustomersCtaCreate": "Crear un enlace de pago"
   },
   "pleaseWait": "Por favor espere",
   "transferRate": "Tasa de cambio",
@@ -531,7 +539,16 @@
     "groupAccount": "Cuenta",
     "groupBusiness": "Empresa",
     "groupPayments": "Pagos",
-    "developers": "Desarrolladores"
+    "developers": "Desarrolladores",
+    "displayCurrencySaved": "Moneda del panel actualizada",
+    "displayCurrencyError": "No se pudo actualizar la moneda del panel. Por favor, inténtalo de nuevo.",
+    "displayCurrency": "Moneda de visualización del panel",
+    "displayCurrencyHint": "Elige la moneda en la que se muestran los saldos de tu panel y billetera. Esto es solo para visualización — no cambia tus precios de pago, pagos, facturas, ni cómo se cobra a los clientes.",
+    "userDisplayCurrencyTitle": "Mi moneda de visualización",
+    "userDisplayCurrencyHint": "Anula la moneda de visualización de tu equipo solo para ti. Nunca afecta precios ni exportaciones.",
+    "currentlyOverriding": "anulando la predeterminada del equipo",
+    "tax": "Impuesto",
+    "taxDesc": "Comportamiento predeterminado del IVA/impuesto para pagos y enlaces de pago."
   },
   "donation": {
     "defaultTitle": "Apoya esta campaña",
@@ -558,6 +575,46 @@
     "closedGoalReached": "¡Meta alcanzada — gracias!",
     "closedExpired": "Esta campaña ha finalizado",
     "closedSubtitle": "Esta campaña ya no acepta donaciones.",
-    "startError": "No pudimos iniciar tu donación — inténtalo de nuevo."
-  }
+    "startError": "No pudimos iniciar tu donación — inténtalo de nuevo.",
+    "supportersLabel": "apoyadores",
+    "funded": "financiado",
+    "toGo": "por ir",
+    "story": "Nuestra historia",
+    "gallery": "Fotos",
+    "updates": "Actualizaciones"
+  },
+  "taxSettings": {
+    "loadError": "No se pudieron cargar los ajustes de impuestos.",
+    "saved": "Ajustes de impuestos guardados.",
+    "saveError": "No se pudieron guardar los ajustes de impuestos.",
+    "intro": "Establece tu comportamiento predeterminado de IVA/impuesto para los pagos en la tienda y los enlaces de pago. Dynopay calcula y recauda impuestos en tu nombre; tú sigues siendo responsable de remitirlos. Las excepciones por producto y por enlace siempre tienen prioridad sobre estos valores predeterminados.",
+    "applyTaxLabel": "Cobrar impuestos en los pagos",
+    "applyTaxDesc": "Cuando está activado, se añade el impuesto a los pagos en la tienda y a los nuevos enlaces de pago por defecto (basado en la ubicación del comprador).",
+    "inclusiveLabel": "Los precios ya incluyen impuestos",
+    "inclusiveDesc": "Considera tus precios listados como incluidos en impuestos (brutos). La parte del impuesto se resta del precio en lugar de añadirse encima.",
+    "countryLabel": "Tu país de negocio",
+    "countryDesc": "Utilizado como respaldo de jurisdicción fiscal y para determinar el cargo inverso B2B en la UE.",
+    "countryPlaceholder": "Selecciona país",
+    "vatLabel": "Tu ID de IVA / Impuesto",
+    "vatDesc": "Mostrado en los recibos. Habilita la validación del cargo inverso en la UE cuando tus compradores proporcionan su propio ID de IVA.",
+    "vatInvalidHint": "Esto no coincide con un formato de IVA conocido de la UE/GB; aún así se guardará como se ingresó.",
+    "save": "Guardar ajustes de impuestos"
+  },
+  "accountTypeIndividual": "Individual",
+  "accountTypeBusiness": "Negocio",
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "EmptyNoResultsTitle": "Nada coincide con esos filtros",
+  "EmptyNoResultsDescription": "Prueba con un término de búsqueda, estado o rango de fechas diferente.",
+  "EmptyNoResultsCta": "Limpiar filtros",
+  "EmptyPaymentLinkQuickstart": "Prueba una plantilla",
+  "EmptyPLChipInvoice": "Facturar a un cliente",
+  "EmptyPLChipProduct": "Vender un producto",
+  "EmptyPLChipDonation": "Aceptar una donación",
+  "EmptyPLChipTip": "Propina",
+  "EmptyTransactionsExplore": "Explora otras formas de ganar",
+  "EmptyTxChipCreator": "Página del creador",
+  "EmptyTxChipProducts": "Vender productos",
+  "EmptyTxChipCrowdfund": "Financia una causa",
+  "loading": "Cargando…"
 }

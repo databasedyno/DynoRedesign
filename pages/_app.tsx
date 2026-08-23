@@ -57,7 +57,7 @@ import type { NextPage } from "next";
 import NextApp, { type AppProps, type AppContext } from "next/app";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import React, { ReactNode, useEffect, useMemo, useState } from "react";
+import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import NProgress from "nprogress";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
@@ -89,6 +89,13 @@ import { appThemeLight, appThemeDark } from "@/styles/appTheme";
 
 // Client-side emotion cache shared across the whole app (created once).
 const clientSideEmotionCache = createEmotionCache();
+
+// Run before paint on the client, fall back to useEffect on the server so SSR
+// doesn't warn. Used so the auth-shell decision (marketing "home" shell vs the
+// authenticated "client" shell — e.g. on a hard reload of /help-support) is
+// corrected BEFORE the browser paints: no visible marketing→app flash.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // Enforce "session-only" (Remember-me unchecked) login expiry as early as possible on
 // the client — this runs once when the _app module first loads, BEFORE any component
@@ -179,7 +186,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   // logged-in merchants instead of the public marketing shell (which made them
   // look logged out). Auth token lives in localStorage under "token".
   const [isAuthed, setIsAuthed] = useState(false);
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const check = () => {
       try {
         enforceSessionPersistence();
@@ -666,11 +673,16 @@ App.getInitialProps = async (appContext: AppContext) => {
   const {
     getRouteContext,
     getDefaultThemeForContext,
+    getDefaultThemeForPath,
     getCookieNameForContext,
     isAuthPath,
+    isHelpSupportPath,
   } = await import("@/utils/theme/routeContext");
   const routeCtx = getRouteContext(pathname);
-  const cookieName = getCookieNameForContext(routeCtx);
+  // Help & Support follows the in-app theme preference, so read its cookie.
+  const cookieName = isHelpSupportPath(pathname)
+    ? "theme-mode-inapp"
+    : getCookieNameForContext(routeCtx);
 
   const cookieHeader =
     reqHeaders.cookie ||
@@ -705,6 +717,8 @@ App.getInitialProps = async (appContext: AppContext) => {
     contextCookieValue ||
     inheritedMode ||
     legacyValue ||
-    getDefaultThemeForContext(routeCtx);
+    (isHelpSupportPath(pathname)
+      ? getDefaultThemeForPath(pathname)
+      : getDefaultThemeForContext(routeCtx));
   return { ...appProps, initialThemeMode };
 };

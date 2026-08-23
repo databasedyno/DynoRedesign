@@ -13,6 +13,7 @@ import confetti from "canvas-confetti";
 import { CelebrationRounded } from "@mui/icons-material";
 import CustomButton from "@/Components/UI/Buttons";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement<any, any> },
@@ -33,6 +34,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const router = useRouter();
+  const { t } = useTranslation("dashboardLayout");
 
   const goToCreateLink = useCallback(() => {
     onDismiss();
@@ -147,7 +149,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
             },
           }}
         >
-          {"You're all set!"}
+          {t("obAllSet")}
         </Typography>
 
         <Typography
@@ -161,8 +163,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
             animation: "celebrationFadeIn 0.6s ease-out 0.5s both",
           }}
         >
-          Your company and wallet are ready. Create your first payment link to
-          start accepting crypto in seconds.
+          {t("obCelebrationBody")}
         </Typography>
 
         <Box
@@ -178,7 +179,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
         >
           <CustomButton
             data-testid="celebration-create-link-btn"
-            label="Create your first payment link"
+            label={t("obLinkLabel")}
             variant="primary"
             size={isMobile ? "small" : "medium"}
             fullWidth
@@ -187,7 +188,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
           />
           <CustomButton
             data-testid="celebration-dismiss-btn"
-            label="Go to Dashboard"
+            label={t("obGoToDashboard")}
             variant="secondary"
             size={isMobile ? "small" : "medium"}
             fullWidth

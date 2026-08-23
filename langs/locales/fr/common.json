@@ -75,7 +75,11 @@
     "subtitleContribution": "Contribuez à {{campaign}} avec de la crypto. Chaque contribution rapproche la campagne de son objectif.",
     "subtitleContributionDefault": "Participez en crypto — chaque contribution compte.",
     "donationDetails": "Détails de la contribution",
-    "donateWithCrypto": "Contribuer en crypto"
+    "donateWithCrypto": "Contribuer en crypto",
+    "incompletePayment": "Paiement incomplet",
+    "address": "Adresse",
+    "customerPaysFee": "Le client paie les frais de traitement",
+    "pendingPayment": "Paiement en attente"
   },
   "crypto": {
     "title": "Cryptomonnaie",
@@ -116,7 +120,10 @@
     "copyMemo": "Copier le mémo",
     "memoCopied": "Mémo/tag copié !",
     "memoWarning": "Vous devez inclure ce mémo/tag, sinon vos fonds pourraient être perdus.",
-    "noRlusdNetworks": "Aucun réseau RLUSD configuré"
+    "noRlusdNetworks": "Aucun réseau RLUSD configuré",
+    "lowestFeeHint": "Le TRC-20 a généralement les frais de réseau les plus bas.",
+    "generatingAddress": "Génération de l'adresse…",
+    "trustNote": "Les fonds vont directement au marchand · montant bloqué jusqu'à la fin du minuteur"
   },
   "underpayment": {
     "title": "Paiement Partiel Reçu",
@@ -453,7 +460,8 @@
     "sourceApi": "API",
     "apiRecordHint": "Cet enregistrement regroupe les paiements reçus via votre intégration API sans informations client. Transmettez les données client dans vos appels API pour voir de vrais profils ici.",
     "countLabel_one": "{{count}} client",
-    "countLabel_other": "{{count}} clients"
+    "countLabel_other": "{{count}} clients",
+    "noCustomersCtaCreate": "Créer un lien de paiement"
   },
   "pleaseWait": "Veuillez patienter",
   "transferRate": "Taux de change",
@@ -531,7 +539,16 @@
     "groupAccount": "Compte",
     "groupBusiness": "Entreprise",
     "groupPayments": "Paiements",
-    "developers": "Développeurs"
+    "developers": "Développeurs",
+    "displayCurrencySaved": "Monnaie du tableau de bord mise à jour",
+    "displayCurrencyError": "Impossible de mettre à jour la monnaie du tableau de bord. Veuillez réessayer.",
+    "displayCurrency": "Monnaie d'affichage du tableau de bord",
+    "displayCurrencyHint": "Choisissez la monnaie dans laquelle votre tableau de bord et vos soldes de portefeuille sont affichés. Ceci est uniquement pour l'affichage — cela ne change pas vos prix de paiement, paiements, factures, ou la façon dont les clients sont facturés.",
+    "userDisplayCurrencyTitle": "Ma monnaie d'affichage",
+    "userDisplayCurrencyHint": "Remplace la monnaie d'affichage de votre équipe juste pour vous. N'affecte jamais les prix ou les exports.",
+    "currentlyOverriding": "remplaçant le défaut de l'équipe",
+    "tax": "Taxe",
+    "taxDesc": "Comportement par défaut de la TVA/taxe pour les paiements et les liens de paiement."
   },
   "donation": {
     "defaultTitle": "Soutenez cette campagne",
@@ -558,6 +575,46 @@
     "closedGoalReached": "Objectif atteint — merci !",
     "closedExpired": "Cette campagne est terminée",
     "closedSubtitle": "Cette campagne n'accepte plus de dons.",
-    "startError": "Nous n'avons pas pu démarrer votre don — réessayez."
-  }
+    "startError": "Nous n'avons pas pu démarrer votre don — réessayez.",
+    "supportersLabel": "soutiens",
+    "funded": "financé",
+    "toGo": "à venir",
+    "story": "Notre histoire",
+    "gallery": "Photos",
+    "updates": "Mises à jour"
+  },
+  "taxSettings": {
+    "loadError": "Impossible de charger les paramètres de taxe.",
+    "saved": "Paramètres de taxe enregistrés.",
+    "saveError": "Impossible d'enregistrer les paramètres de taxe.",
+    "intro": "Définissez votre comportement par défaut en matière de TVA/taxe pour les paiements en boutique et les liens de paiement. Dynopay calcule et collecte la taxe en votre nom — vous restez responsable de son versement. Les remises par produit et par lien ont toujours la priorité sur ces paramètres par défaut.",
+    "applyTaxLabel": "Appliquer la taxe sur les paiements",
+    "applyTaxDesc": "Lorsque activé, la taxe est ajoutée par défaut aux paiements en boutique et aux nouveaux liens de paiement (en fonction de la localisation de l'acheteur).",
+    "inclusiveLabel": "Les prix incluent déjà la taxe",
+    "inclusiveDesc": "Considérez vos prix affichés comme incluant la taxe (brut). La portion de taxe est déduite du prix au lieu d'être ajoutée en plus.",
+    "countryLabel": "Votre pays d'entreprise",
+    "countryDesc": "Utilisé comme secours pour la juridiction fiscale et pour déterminer le reverse-charge B2B transfrontalier dans l'UE.",
+    "countryPlaceholder": "Sélectionnez un pays",
+    "vatLabel": "Votre ID TVA / Taxe",
+    "vatDesc": "Affiché sur les reçus. Permet la validation du reverse-charge dans l'UE lorsque vos acheteurs fournissent leur propre ID TVA.",
+    "vatInvalidHint": "Cela ne correspond pas à un format de TVA connu de l'UE/GB — il sera tout de même enregistré tel qu'entré.",
+    "save": "Enregistrer les paramètres de taxe"
+  },
+  "accountTypeIndividual": "Individuel",
+  "accountTypeBusiness": "Entreprise",
+  "cancel": "Annuler",
+  "save": "Enregistrer",
+  "EmptyNoResultsTitle": "Aucun résultat ne correspond à ces filtres",
+  "EmptyNoResultsDescription": "Essayez un autre terme de recherche, statut ou plage de dates.",
+  "EmptyNoResultsCta": "Effacer les filtres",
+  "EmptyPaymentLinkQuickstart": "Essayez un modèle",
+  "EmptyPLChipInvoice": "Facturer un client",
+  "EmptyPLChipProduct": "Vendre un produit",
+  "EmptyPLChipDonation": "Accepter un don",
+  "EmptyPLChipTip": "Pourboire",
+  "EmptyTransactionsExplore": "Explorez d'autres moyens de gagner",
+  "EmptyTxChipCreator": "Page du créateur",
+  "EmptyTxChipProducts": "Vendre des produits",
+  "EmptyTxChipCrowdfund": "Financer une cause",
+  "loading": "Chargement…"
 }

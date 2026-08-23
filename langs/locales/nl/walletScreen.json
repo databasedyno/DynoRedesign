@@ -57,5 +57,9 @@
   "noActiveWalletsTitle": "U heeft geen actieve wallets",
   "noActiveWalletsBody": "U moet minstens één walletadres hebben toegevoegd om door te gaan.",
   "goToWallets": "Naar wallets",
-  "alreadyAdded": "Toegevoegd"
+  "alreadyAdded": "Toegevoegd",
+  "totalProcessedEyebrow": "Totaal verwerkt · alle ketens",
+  "activeChains": "Actieve ketens",
+  "supported": "Ondersteund",
+  "coverage": "Dekking"
 }

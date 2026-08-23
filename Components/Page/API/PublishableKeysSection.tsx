@@ -1156,16 +1156,49 @@ const PublishableKeysSection = () => {
         ) : sortedKeys.length === 0 ? (
           <Box
             sx={{
-              p: 3,
+              p: 4,
               textAlign: "center",
               border: `1px dashed ${theme.palette.border.main}`,
               borderRadius: "12px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1.25,
             }}
             data-testid="pk-empty"
           >
-            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-              No publishable keys yet. Create one to embed a Buy Button on your site.
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: "14px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: theme.palette.action.hover,
+                color: brandFg(theme.palette.mode === "dark"),
+                mb: 0.5,
+              }}
+            >
+              <Icon name="code-xml" size={24} />
+            </Box>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: theme.palette.text.primary }}>
+              No publishable keys yet
             </Typography>
+            <Typography sx={{ fontSize: 13.5, color: theme.palette.text.secondary, maxWidth: 340, lineHeight: 1.55 }}>
+              Publishable keys let you embed a Buy Button or checkout on your own
+              site. Create one to get your first embeddable snippet.
+            </Typography>
+            <Box sx={{ mt: 1 }}>
+              <CustomButton
+                label="Create publishable key"
+                variant="primary"
+                size="small"
+                startIcon={<Icon name="plus" size={15} />}
+                onClick={openCreate}
+                data-testid="pk-empty-cta"
+              />
+            </Box>
           </Box>
         ) : (
           <Stack spacing={1.25} data-testid="pk-list">

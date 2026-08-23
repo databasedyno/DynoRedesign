@@ -11,7 +11,7 @@ import sys
 from typing import Dict, List, Tuple
 
 # Backend base URL (external)
-BASE_URL = "https://c1eb6151-3c7a-435a-8a42-15de110bfc9d.preview.emergentagent.com"
+BASE_URL = "https://payment-config-dev.preview.emergentagent.com"
 
 def test_email_brand_logo() -> Tuple[bool, str]:
     """

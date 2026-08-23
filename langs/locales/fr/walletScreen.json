@@ -57,5 +57,9 @@
   "noActiveWalletsTitle": "Vous n'avez pas de wallets actifs",
   "noActiveWalletsBody": "Vous devez avoir ajouté au moins une adresse de wallet pour continuer.",
   "goToWallets": "Aller aux wallets",
-  "alreadyAdded": "Ajouté"
+  "alreadyAdded": "Ajouté",
+  "totalProcessedEyebrow": "Total traité · toutes les chaînes",
+  "activeChains": "Chaînes actives",
+  "supported": "Pris en charge",
+  "coverage": "Couverture"
 }

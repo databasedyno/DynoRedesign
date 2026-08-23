@@ -114,7 +114,9 @@
       "livePill": "LIVE",
       "sendTipLabel": "Stuur een tip",
       "sendTipBtn": "Stuur tip",
-      "metaSettle": "Staat in ~4s in <b>je wallet</b> · vanaf <b>1,5%</b>"
+      "metaSettle": "Staat in ~4s in <b>je wallet</b> · vanaf <b>1,5%</b>",
+      "handleAvailable": "is beschikbaar",
+      "handleTaken": "Die naam is niet beschikbaar — probeer een andere."
     },
     "story": {
       "eyebrow": "[ Hoe het werkt ]",
@@ -361,7 +363,7 @@
     "strip": {
       "pending": {
         "pill": "WACHTEN",
-        "title": "Wachten op je wallet",
+        "title": "Wachten op je betaling",
         "caption": "Stuur het exacte bedrag hieronder. Bevestiging is automatisch zodra we de transactie zien."
       },
       "confirming": {
@@ -400,7 +402,17 @@
       "compactHeader": "Compacte balk (gebruikt in de live /pay-checkout)",
       "totalDue": "Totaal te betalen",
       "mockBlurb": "Dit blok simuleert de checkout-body (QR, adres, timer). De animatie, kop en badge hierboven komen allemaal uit <code>&lt;CheckoutShell&gt;</code>."
-    }
+    },
+    "supportFallbackTitle": "Steun deze campagne",
+    "completePaymentTitle": "Voltooi je betaling",
+    "receipt": {
+      "preparing": "Ontvangst aan het voorbereiden…",
+      "downloaded": "Ontvangst gedownload",
+      "download": "Download ontvangst",
+      "error": "Kon de ontvangst niet ophalen — probeer het opnieuw."
+    },
+    "processingFee": "Verwerkingskosten",
+    "totalYouPay": "Totaal dat je betaalt"
   },
   "creator": {
     "card": {

@@ -114,7 +114,9 @@
       "livePill": "LIVE",
       "sendTipLabel": "Tip senden",
       "sendTipBtn": "Tip senden",
-      "metaSettle": "Landet in ~4s in <b>deiner Wallet</b> · ab <b>1,5 %</b>"
+      "metaSettle": "Landet in ~4s in <b>deiner Wallet</b> · ab <b>1,5 %</b>",
+      "handleAvailable": "ist verfügbar",
+      "handleTaken": "Dieser Handle ist nicht verfügbar — versuchen Sie einen anderen."
     },
     "story": {
       "eyebrow": "[ So funktioniert's ]",
@@ -361,7 +363,7 @@
     "strip": {
       "pending": {
         "pill": "WARTEN",
-        "title": "Warten auf deine Wallet",
+        "title": "Warten auf deine Zahlung",
         "caption": "Sende den genauen Betrag unten. Die Bestätigung erfolgt automatisch, sobald wir die Transaktion sehen."
       },
       "confirming": {
@@ -400,7 +402,17 @@
       "compactHeader": "Kompakter Streifen (im Live-Checkout /pay verwendet)",
       "totalDue": "Zu zahlen",
       "mockBlurb": "Dieser Block simuliert den Checkout-Body (QR, Adresse, Timer). Animation, Titel und Status-Badge oben stammen alle aus <code>&lt;CheckoutShell&gt;</code>."
-    }
+    },
+    "supportFallbackTitle": "Unterstützen Sie diese Kampagne",
+    "completePaymentTitle": "Zahlung abschließen",
+    "receipt": {
+      "preparing": "Beleg wird vorbereitet…",
+      "downloaded": "Beleg heruntergeladen",
+      "download": "Beleg herunterladen",
+      "error": "Beleg konnte nicht abgerufen werden — bitte versuchen Sie es erneut."
+    },
+    "processingFee": "Bearbeitungsgebühr",
+    "totalYouPay": "Gesamtbetrag, den Sie zahlen"
   },
   "creator": {
     "card": {

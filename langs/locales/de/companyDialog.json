@@ -133,5 +133,7 @@
   "addCompanyBtn": "Unternehmen hinzufügen",
   "noCompaniesYet": "Noch keine Unternehmen",
   "createFirstCompanyBody": "Erstellen Sie Ihr erstes Unternehmensprofil, um Zahlungen zu akzeptieren und Ihr Geschäft zu verwalten.",
-  "noResultsFound": "Keine Ergebnisse gefunden"
+  "noResultsFound": "Keine Ergebnisse gefunden",
+  "optional": "optional",
+  "validateTax": "Steuer-ID validieren"
 }

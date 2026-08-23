@@ -45,5 +45,12 @@
   "settled": "liquidado",
   "processing": "procesando",
   "settlement_failed": "fallido",
-  "settledTo": "Liquidado a"
+  "settledTo": "Liquidado a",
+  "value": "Valor",
+  "sourcePaymentLinkShort": "Enlace de Pago",
+  "sourceApiShort": "API",
+  "sourceTipShort": "Propina",
+  "sourceProductShort": "Tienda",
+  "sourceContributionShort": "Donación",
+  "sourceDirectShort": "Directo"
 }

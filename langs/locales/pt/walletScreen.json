@@ -57,5 +57,9 @@
   "noActiveWalletsTitle": "Você não tem carteiras ativas",
   "noActiveWalletsBody": "Você precisa ter pelo menos um endereço de carteira adicionado para continuar.",
   "goToWallets": "Ir para carteiras",
-  "alreadyAdded": "Adicionado"
+  "alreadyAdded": "Adicionado",
+  "totalProcessedEyebrow": "Total processado · todas as cadeias",
+  "activeChains": "Cadeias ativas",
+  "supported": "Suportado",
+  "coverage": "Cobertura"
 }

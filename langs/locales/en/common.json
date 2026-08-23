@@ -76,7 +76,11 @@
     "subtitleContribution": "Contribute to {{campaign}} with crypto. Every contribution moves the campaign closer to its goal.",
     "subtitleContributionDefault": "Chip in with crypto — every contribution counts.",
     "donationDetails": "Contribution Details",
-    "donateWithCrypto": "Contribute with crypto"
+    "donateWithCrypto": "Contribute with crypto",
+    "incompletePayment": "Incomplete Payment",
+    "address": "Address",
+    "customerPaysFee": "Customer pays processing fee",
+    "pendingPayment": "Pending payment"
   },
   "crypto": {
     "title": "Cryptocurrency",
@@ -117,7 +121,10 @@
     "copyMemo": "Copy Memo",
     "memoCopied": "Memo/tag copied!",
     "memoWarning": "You must include this memo/tag, or your funds may be lost.",
-    "noRlusdNetworks": "No RLUSD networks configured"
+    "noRlusdNetworks": "No RLUSD networks configured",
+    "lowestFeeHint": "TRC-20 usually has the lowest network fees.",
+    "generatingAddress": "Generating address…",
+    "trustNote": "Funds go directly to the merchant · amount locked until the timer ends"
   },
   "underpayment": {
     "title": "Partial Payment Received",
@@ -453,7 +460,8 @@
     "sourceApi": "API",
     "apiRecordHint": "This record groups payments received through your API integration that didn't include customer information. Pass customer details in your API calls to see real customer profiles here.",
     "countLabel_one": "{{count}} customer",
-    "countLabel_other": "{{count}} customers"
+    "countLabel_other": "{{count}} customers",
+    "noCustomersCtaCreate": "Create a payment link"
   },
   "pleaseWait": "Please wait",
   "transferRate": "Transfer Rate",
@@ -531,7 +539,16 @@
     "groupAccount": "Account",
     "groupBusiness": "Business",
     "groupPayments": "Payments",
-    "developers": "Developers"
+    "developers": "Developers",
+    "displayCurrencySaved": "Dashboard currency updated",
+    "displayCurrencyError": "Could not update dashboard currency. Please try again.",
+    "displayCurrency": "Dashboard display currency",
+    "displayCurrencyHint": "Choose the currency your dashboard and wallet balances are shown in. This is display-only — it does not change your payment pricing, payouts, invoices, or how customers are charged.",
+    "userDisplayCurrencyTitle": "My display currency",
+    "userDisplayCurrencyHint": "Overrides your team's display currency just for you. Never affects pricing or exports.",
+    "currentlyOverriding": "overriding team default",
+    "tax": "Tax",
+    "taxDesc": "Default VAT/tax behavior for checkouts and payment links."
   },
   "donation": {
     "defaultTitle": "Support this campaign",
@@ -558,6 +575,46 @@
     "closedGoalReached": "Goal reached — thank you!",
     "closedExpired": "This campaign has ended",
     "closedSubtitle": "This campaign is no longer accepting donations.",
-    "startError": "We couldn't start your donation — please try again."
-  }
+    "startError": "We couldn't start your donation — please try again.",
+    "supportersLabel": "supporters",
+    "funded": "funded",
+    "toGo": "to go",
+    "story": "Our story",
+    "gallery": "Photos",
+    "updates": "Updates"
+  },
+  "taxSettings": {
+    "loadError": "Couldn't load tax settings.",
+    "saved": "Tax settings saved.",
+    "saveError": "Couldn't save tax settings.",
+    "intro": "Set your default VAT/tax behavior for storefront checkouts and payment links. Dynopay computes and collects tax on your behalf — you remain responsible for remitting it. Per-product and per-link overrides always take precedence over these defaults.",
+    "applyTaxLabel": "Charge tax on checkouts",
+    "applyTaxDesc": "When on, tax is added to store checkouts and new payment links by default (based on the buyer's location).",
+    "inclusiveLabel": "Prices already include tax",
+    "inclusiveDesc": "Treat your listed prices as tax-inclusive (gross). The tax portion is backed out of the price instead of added on top.",
+    "countryLabel": "Your business country",
+    "countryDesc": "Used as the tax jurisdiction fallback and to determine EU cross-border B2B reverse-charge.",
+    "countryPlaceholder": "Select country",
+    "vatLabel": "Your VAT / Tax ID",
+    "vatDesc": "Shown on receipts. Enables EU reverse-charge validation when your buyers provide their own VAT ID.",
+    "vatInvalidHint": "This doesn't match a known EU/GB VAT format — it will still be saved as entered.",
+    "save": "Save tax settings"
+  },
+  "accountTypeIndividual": "Individual",
+  "accountTypeBusiness": "Business",
+  "cancel": "Cancel",
+  "save": "Save",
+  "EmptyNoResultsTitle": "Nothing matches those filters",
+  "EmptyNoResultsDescription": "Try a different search term, status or date range.",
+  "EmptyNoResultsCta": "Clear filters",
+  "EmptyPaymentLinkQuickstart": "Try a template",
+  "EmptyPLChipInvoice": "Invoice a client",
+  "EmptyPLChipProduct": "Sell a product",
+  "EmptyPLChipDonation": "Accept a donation",
+  "EmptyPLChipTip": "Tip jar",
+  "EmptyTransactionsExplore": "Explore other ways to earn",
+  "EmptyTxChipCreator": "Creator page",
+  "EmptyTxChipProducts": "Sell products",
+  "EmptyTxChipCrowdfund": "Crowdfund a cause",
+  "loading": "Loading…"
 }

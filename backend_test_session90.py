@@ -17,7 +17,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Base URL from review request
-BASE_URL = "https://dynopay-demo.preview.emergentagent.com"
+BASE_URL = "https://payment-config-dev.preview.emergentagent.com"
 
 # Test credentials (NO 2FA according to review request)
 MERCHANT_EMAIL = "hostbay@moxx.co"

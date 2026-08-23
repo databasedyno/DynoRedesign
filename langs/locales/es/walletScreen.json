@@ -57,5 +57,9 @@
   "noActiveWalletsTitle": "No tienes billeteras activas",
   "noActiveWalletsBody": "Debes tener al menos una dirección de billetera añadida para continuar.",
   "goToWallets": "Ir a billeteras",
-  "alreadyAdded": "Añadido"
+  "alreadyAdded": "Añadido",
+  "totalProcessedEyebrow": "Total procesado · todas las cadenas",
+  "activeChains": "Cadenas activas",
+  "supported": "Soportado",
+  "coverage": "Cobertura"
 }

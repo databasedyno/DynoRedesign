@@ -94,5 +94,7 @@
   "authSecureAccount_title": "Beveilig je account · Dynopay",
   "authSecureAccount_desc": "Bekijk recente inlogactiviteit en beveilig je Dynopay-account.",
   "authGithubCallback_title": "Je wordt aangemeld · Dynopay",
-  "authGithubCallback_desc": "Je GitHub-aanmelding wordt voltooid."
+  "authGithubCallback_desc": "Je GitHub-aanmelding wordt voltooid.",
+  "about_title": "Over Dynopay — onze missie & ons bedrijf",
+  "about_desc": "Ontdek Dynopay: onze missie om cryptobetalingen eenvoudig te maken, hoe het platform werkt, de waarden waarop we bouwen en hoe je contact opneemt of ons team komt versterken."
 }

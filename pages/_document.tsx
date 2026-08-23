@@ -118,35 +118,49 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
     }
     return false;
   }
-  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/pay-links','/referrals','/developer-keys','/company','/fees','/admin','/creator','/payouts'];
+  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/pay-links','/referrals','/developer-keys','/company','/fees','/admin','/creator','/storefront','/payouts'];
   var AUTH  = ['/auth','/reset-password'];
+  var HELP  = ['/help-support'];
+  function readCk(name){ try { var m = document.cookie.match(new RegExp('(?:^|;\\\\s*)' + name + '=([^;]+)')); return m ? m[1] : null; } catch(e){ return null; } }
   var path = stripPath();
   var context = matchPrefix(path, INAPP) ? 'inapp' : 'public';
   var isAuth = matchPrefix(path, AUTH);
-  var storageKey = context === 'inapp' ? 'theme-mode-inapp' : 'theme-mode-public';
-  var defaultMode = context === 'inapp' ? 'dark' : 'light';
+  var isHelp = matchPrefix(path, HELP);
+  // Help & Support is dual-purpose: FOLLOW the in-app theme preference (so a
+  // dark merchant keeps dark) but DEFAULT to light for logged-out visitors.
+  var storageKey = (context === 'inapp' || isHelp) ? 'theme-mode-inapp' : 'theme-mode-public';
+  var defaultMode = (context === 'inapp' && !isHelp) ? 'dark' : 'light';
 
   // Start from the ROUTE default. Only a stored preference (or auth-path
   // inheritance) may override it — and reading storage is isolated so its
   // failure leaves the correct route default intact.
   var mode = defaultMode;
   try {
-    var saved = localStorage.getItem(storageKey);
-    // One-time migration from the legacy single 'theme-mode' key.
-    if (saved !== 'light' && saved !== 'dark') {
-      var legacy = localStorage.getItem('theme-mode');
-      if (legacy === 'light' || legacy === 'dark') {
-        saved = legacy;
-        try { localStorage.setItem(storageKey, legacy); } catch (e) {}
+    if (isHelp) {
+      // Follow the in-app preference: localStorage first, then the cookie
+      // (covers default-dark merchants who never manually toggled). Otherwise
+      // keep the light marketing default for logged-out visitors.
+      var hSaved = localStorage.getItem('theme-mode-inapp');
+      if (hSaved !== 'light' && hSaved !== 'dark') hSaved = readCk('theme-mode-inapp');
+      if (hSaved === 'light' || hSaved === 'dark') mode = hSaved;
+    } else {
+      var saved = localStorage.getItem(storageKey);
+      // One-time migration from the legacy single 'theme-mode' key.
+      if (saved !== 'light' && saved !== 'dark') {
+        var legacy = localStorage.getItem('theme-mode');
+        if (legacy === 'light' || legacy === 'dark') {
+          saved = legacy;
+          try { localStorage.setItem(storageKey, legacy); } catch (e) {}
+        }
       }
-    }
-    if (saved === 'light' || saved === 'dark') {
-      mode = saved;
-    } else if (isAuth) {
-      // Auth-path inheritance: mirror an explicit in-app DARK preference so a
-      // link from a dark email doesn't jarringly flash the login card white.
-      var inappSaved = localStorage.getItem('theme-mode-inapp');
-      if (inappSaved === 'dark') mode = 'dark';
+      if (saved === 'light' || saved === 'dark') {
+        mode = saved;
+      } else if (isAuth) {
+        // Auth-path inheritance: mirror an explicit in-app DARK preference so a
+        // link from a dark email doesn't jarringly flash the login card white.
+        var inappSaved = localStorage.getItem('theme-mode-inapp');
+        if (inappSaved === 'dark') mode = 'dark';
+      }
     }
   } catch (e) {
     // Storage unavailable/blocked — keep the route-aware default (dark for
@@ -159,7 +173,12 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
     document.documentElement.style.backgroundColor = mode === 'light' ? '#F2F3F8' : '#0B0D17';
   } catch (e) {}
   try {
-    document.cookie = storageKey + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
+    // Never auto-persist the theme cookie on /help-support (see ThemeContext):
+    // it would pollute either the public cookie (dark bleeds onto marketing)
+    // or the in-app cookie (a visitor's light default bleeds into the app).
+    if (!isHelp) {
+      document.cookie = storageKey + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
+    }
   } catch (e) {}
 })();
 `,

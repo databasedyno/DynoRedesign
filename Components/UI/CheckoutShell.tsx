@@ -82,7 +82,7 @@ const voltFadeIn = keyframes`
  * locales alongside the compact strip variant.
  */
 const STATE_META: Record<CheckoutState, { icon: string; pillTone: "settled" | "pending" | "failed" | "info"; label: string; title: string; caption: string }> = {
-  pending:    { icon: "mdi:clock-outline",        pillTone: "pending", label: "PENDING",    title: "Waiting for your wallet",       caption: "Send the exact amount to the address below. We'll confirm automatically once it hits the mempool." },
+  pending:    { icon: "mdi:clock-outline",        pillTone: "pending", label: "PENDING",    title: "Waiting for your payment",      caption: "Send the exact amount to the address below. We'll confirm automatically once it hits the mempool." },
   confirming: { icon: "mdi:progress-clock",       pillTone: "pending", label: "CONFIRMING", title: "Broadcasting on-chain",         caption: "Your transaction is in the mempool. Confirmations usually take under a minute." },
   confirmed:  { icon: "mdi:check-decagram",       pillTone: "info",    label: "CONFIRMED",  title: "Payment confirmed",             caption: "The network confirmed your transaction. Funds are being settled to the merchant right now." },
   settled:    { icon: "mdi:check-circle-outline", pillTone: "settled", label: "SETTLED",    title: "You're all set 🎉",             caption: "Funds have cleared. A receipt is on its way to your email." },

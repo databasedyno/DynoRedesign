@@ -97,5 +97,14 @@
   "hoursAgo": "vor {{count}} Std.",
   "daysAgo": "vor {{count}} T.",
   "flagged": "Markiert",
-  "noLoginActivity": "Noch keine Anmeldeaktivität aufgezeichnet."
+  "noLoginActivity": "Noch keine Anmeldeaktivität aufgezeichnet.",
+  "sessionSignedOut": "Gerät abgemeldet",
+  "sessionSignOutFailed": "Abmelden dieses Geräts fehlgeschlagen",
+  "otherSessionsSignedOut": "Alle anderen Geräte abgemeldet",
+  "activeSessions": "Aktive Geräte",
+  "signOutAllOthers": "Alle anderen abmelden",
+  "noActiveSessions": "Keine aktiven Sitzungen gefunden.",
+  "thisDevice": "Dieses Gerät",
+  "activeLabel": "aktiv",
+  "signOut": "Abmelden"
 }

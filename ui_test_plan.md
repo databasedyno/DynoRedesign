@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://dynopay-demo.preview.emergentagent.com
+- **Pod URL**: https://payment-config-dev.preview.emergentagent.com
 
 ---
 

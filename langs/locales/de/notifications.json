@@ -24,5 +24,6 @@
   "activate": "Aktivieren",
   "saveChanges": "Änderungen speichern",
   "noNotificationsYet": "Noch keine Benachrichtigungen",
-  "notSupportedInBrowser": "In diesem Browser nicht unterstützt"
+  "notSupportedInBrowser": "In diesem Browser nicht unterstützt",
+  "noNotificationsDesc": "Zahlungsbestätigungen, Auszahlungen und Kontoaktualisierungen erscheinen hier."
 }

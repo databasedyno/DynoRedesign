@@ -97,5 +97,14 @@
   "hoursAgo": "{{count}}u geleden",
   "daysAgo": "{{count}}d geleden",
   "flagged": "Gemarkeerd",
-  "noLoginActivity": "Nog geen inlogactiviteit geregistreerd."
+  "noLoginActivity": "Nog geen inlogactiviteit geregistreerd.",
+  "sessionSignedOut": "Apparaat afgemeld",
+  "sessionSignOutFailed": "Kon dat apparaat niet afmelden",
+  "otherSessionsSignedOut": "Alle andere apparaten afgemeld",
+  "activeSessions": "Actieve apparaten",
+  "signOutAllOthers": "Alle andere afmelden",
+  "noActiveSessions": "Geen actieve sessies gevonden.",
+  "thisDevice": "Dit apparaat",
+  "activeLabel": "actief",
+  "signOut": "Afmelden"
 }

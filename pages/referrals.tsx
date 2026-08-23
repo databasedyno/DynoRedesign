@@ -691,18 +691,45 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               <Skeleton width="100%" height={40} />
             </Box>
           ) : referrals.length === 0 ? (
-            <Typography
+            <Box
               sx={{
-                fontSize: "14px",
-                fontFamily: "var(--font-sans)",
-                fontWeight: 500,
-                color: theme.palette.text.secondary,
-                py: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1,
+                py: 4,
+                px: 2,
                 textAlign: "center",
               }}
+              data-testid="referrals-list-empty"
             >
-              {t("noReferralsYet")}
-            </Typography>
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: theme.palette.secondary.main,
+                  color: brandFg(theme.palette.mode === "dark"),
+                }}
+              >
+                <Icon name="user-plus" size={22} />
+              </Box>
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 500,
+                  color: theme.palette.text.secondary,
+                  maxWidth: 320,
+                  lineHeight: 1.5,
+                }}
+              >
+                {t("noReferralsYet")}
+              </Typography>
+            </Box>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               {referrals.map((r, i) => (
@@ -798,18 +825,45 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               <Skeleton width="100%" height={40} />
             </Box>
           ) : leaderboard.length === 0 ? (
-            <Typography
+            <Box
               sx={{
-                fontSize: "14px",
-                fontFamily: "var(--font-sans)",
-                fontWeight: 500,
-                color: theme.palette.text.secondary,
-                py: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1,
+                py: 4,
+                px: 2,
                 textAlign: "center",
               }}
+              data-testid="referrals-leaderboard-empty"
             >
-              {t("leaderboardEmpty")}
-            </Typography>
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: theme.palette.secondary.main,
+                  color: "#F59E0B",
+                }}
+              >
+                <Icon name="trophy" size={22} />
+              </Box>
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 500,
+                  color: theme.palette.text.secondary,
+                  maxWidth: 320,
+                  lineHeight: 1.5,
+                }}
+              >
+                {t("leaderboardEmpty")}
+              </Typography>
+            </Box>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               {leaderboard.map((entry, i) => (

@@ -54,7 +54,11 @@
     "subtitleContribution": "Unterstütze {{campaign}} mit Krypto. Jeder Beitrag bringt die Kampagne näher ans Ziel.",
     "subtitleContributionDefault": "Trag mit Krypto bei — jeder Beitrag zählt.",
     "donationDetails": "Beitragsdetails",
-    "donateWithCrypto": "Mit Krypto beitragen"
+    "donateWithCrypto": "Mit Krypto beitragen",
+    "incompletePayment": "Unvollständige Zahlung",
+    "address": "Adresse",
+    "customerPaysFee": "Kunde zahlt Bearbeitungsgebühr",
+    "pendingPayment": "Ausstehende Zahlung"
   },
   "crypto": {
     "title": "Kryptowährung",
@@ -95,7 +99,10 @@
     "copyMemo": "Memo kopieren",
     "memoCopied": "Memo/Tag kopiert!",
     "memoWarning": "Du musst dieses Memo/Tag angeben, sonst können deine Gelder verloren gehen.",
-    "noRlusdNetworks": "Keine RLUSD-Netzwerke konfiguriert"
+    "noRlusdNetworks": "Keine RLUSD-Netzwerke konfiguriert",
+    "lowestFeeHint": "TRC-20 hat normalerweise die niedrigsten Netzwerkgebühren.",
+    "generatingAddress": "Adresse wird generiert…",
+    "trustNote": "Gelder gehen direkt an den Händler · Betrag gesperrt, bis der Timer endet"
   },
   "underpayment": {
     "title": "Teilzahlung Erhalten",
@@ -453,7 +460,8 @@
     "sourceApi": "API",
     "apiRecordHint": "Dieser Eintrag bündelt Zahlungen über Ihre API-Integration, die keine Kundendaten enthielten. Übermitteln Sie Kundendaten in Ihren API-Aufrufen, um hier echte Kundenprofile zu sehen.",
     "countLabel_one": "{{count}} Kunde",
-    "countLabel_other": "{{count}} Kunden"
+    "countLabel_other": "{{count}} Kunden",
+    "noCustomersCtaCreate": "Zahlungslink erstellen"
   },
   "pleaseWait": "Bitte warten",
   "transferRate": "Wechselkurs",
@@ -531,7 +539,16 @@
     "groupAccount": "Konto",
     "groupBusiness": "Unternehmen",
     "groupPayments": "Zahlungen",
-    "developers": "Entwickler"
+    "developers": "Entwickler",
+    "displayCurrencySaved": "Dashboard-Währung aktualisiert",
+    "displayCurrencyError": "Konnte die Dashboard-Währung nicht aktualisieren. Bitte versuchen Sie es erneut.",
+    "displayCurrency": "Dashboard-Anzeigewährung",
+    "displayCurrencyHint": "Wählen Sie die Währung, in der Ihr Dashboard und Ihre Wallet-Bilanzen angezeigt werden. Dies ist nur zur Anzeige — es ändert nicht Ihre Zahlungsbeträge, Auszahlungen, Rechnungen oder wie Kunden belastet werden.",
+    "userDisplayCurrencyTitle": "Meine Anzeigewährung",
+    "userDisplayCurrencyHint": "Überschreibt die Anzeigewährung Ihres Teams nur für Sie. Beeinflusst niemals Preise oder Exporte.",
+    "currentlyOverriding": "überschreibt die Teamvorgabe",
+    "tax": "Steuer",
+    "taxDesc": "Standardverhalten für Mehrwertsteuer/Steuern bei Checkouts und Zahlungslinks."
   },
   "donation": {
     "defaultTitle": "Unterstütze diese Kampagne",
@@ -558,6 +575,46 @@
     "closedGoalReached": "Ziel erreicht — vielen Dank!",
     "closedExpired": "Diese Kampagne ist beendet",
     "closedSubtitle": "Diese Kampagne nimmt keine Spenden mehr an.",
-    "startError": "Wir konnten deine Spende nicht starten — bitte versuche es erneut."
-  }
+    "startError": "Wir konnten deine Spende nicht starten — bitte versuche es erneut.",
+    "supportersLabel": "Unterstützer",
+    "funded": "finanziert",
+    "toGo": "noch zu gehen",
+    "story": "Unsere Geschichte",
+    "gallery": "Fotos",
+    "updates": "Updates"
+  },
+  "taxSettings": {
+    "loadError": "Konnte die Steuereinstellungen nicht laden.",
+    "saved": "Steuereinstellungen gespeichert.",
+    "saveError": "Konnte die Steuereinstellungen nicht speichern.",
+    "intro": "Legen Sie Ihr standardmäßiges Mehrwertsteuer-/Steuerverhalten für Storefront-Checkouts und Zahlungslinks fest. Dynopay berechnet und erhebt die Steuer in Ihrem Namen – Sie bleiben verantwortlich für die Abführung.",
+    "applyTaxLabel": "Steuer bei Checkouts erheben",
+    "applyTaxDesc": "Wenn aktiviert, wird die Steuer standardmäßig zu Store-Checkouts und neuen Zahlungslinks hinzugefügt (basierend auf dem Standort des Käufers).",
+    "inclusiveLabel": "Preise enthalten bereits die Steuer",
+    "inclusiveDesc": "Behandeln Sie Ihre angegebenen Preise als steuerlich inklusive (brutto). Der Steueranteil wird vom Preis abgezogen, anstatt zusätzlich hinzuzufügt zu werden.",
+    "countryLabel": "Ihr Geschäftsland",
+    "countryDesc": "Wird als Rückfall für die Steuerhoheit verwendet und zur Bestimmung der EU-grenzüberschreitenden B2B-Umkehrbesteuerung.",
+    "countryPlaceholder": "Land auswählen",
+    "vatLabel": "Ihre VAT / Steuer-ID",
+    "vatDesc": "Auf Quittungen angezeigt. Ermöglicht die Validierung der EU-Umkehrbesteuerung, wenn Ihre Käufer ihre eigene VAT-ID angeben.",
+    "vatInvalidHint": "Dies entspricht nicht einem bekannten EU/GB VAT-Format – es wird dennoch wie eingegeben gespeichert.",
+    "save": "Steuereinstellungen speichern"
+  },
+  "accountTypeIndividual": "Einzelperson",
+  "accountTypeBusiness": "Unternehmen",
+  "cancel": "Abbrechen",
+  "save": "Speichern",
+  "EmptyNoResultsTitle": "Nichts entspricht diesen Filtern",
+  "EmptyNoResultsDescription": "Versuchen Sie einen anderen Suchbegriff, Status oder Datumsbereich.",
+  "EmptyNoResultsCta": "Filter zurücksetzen",
+  "EmptyPaymentLinkQuickstart": "Versuchen Sie eine Vorlage",
+  "EmptyPLChipInvoice": "Einen Kunden in Rechnung stellen",
+  "EmptyPLChipProduct": "Ein Produkt verkaufen",
+  "EmptyPLChipDonation": "Eine Spende annehmen",
+  "EmptyPLChipTip": "Trinkgeld",
+  "EmptyTransactionsExplore": "Entdecken Sie andere Möglichkeiten zu verdienen",
+  "EmptyTxChipCreator": "Erstellerseite",
+  "EmptyTxChipProducts": "Produkte verkaufen",
+  "EmptyTxChipCrowdfund": "Crowdfund eine Sache",
+  "loading": "Lade…"
 }

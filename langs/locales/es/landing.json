@@ -114,7 +114,9 @@
       "livePill": "EN VIVO",
       "sendTipLabel": "Enviar propina",
       "sendTipBtn": "Enviar propina",
-      "metaSettle": "Llega a <b>tu billetera</b> en ~4s · desde el <b>1,5 %</b>"
+      "metaSettle": "Llega a <b>tu billetera</b> en ~4s · desde el <b>1,5 %</b>",
+      "handleAvailable": "está disponible",
+      "handleTaken": "Ese identificador no está disponible — prueba con otro."
     },
     "story": {
       "eyebrow": "[ Cómo funciona ]",
@@ -361,7 +363,7 @@
     "strip": {
       "pending": {
         "pill": "ESPERANDO",
-        "title": "Esperando tu billetera",
+        "title": "Esperando tu pago",
         "caption": "Envía el importe exacto indicado. La confirmación es automática cuando detectemos la transacción."
       },
       "confirming": {
@@ -400,7 +402,17 @@
       "compactHeader": "Franja compacta (usada en el checkout /pay en producción)",
       "totalDue": "Total a pagar",
       "mockBlurb": "Este bloque simula el cuerpo del checkout (QR, dirección, temporizador). La animación, el titular y el sello proceden todos de <code>&lt;CheckoutShell&gt;</code>."
-    }
+    },
+    "supportFallbackTitle": "Apoya esta campaña",
+    "completePaymentTitle": "Completa tu pago",
+    "receipt": {
+      "preparing": "Preparando recibo…",
+      "downloaded": "Recibo descargado",
+      "download": "Descargar recibo",
+      "error": "No se pudo obtener el recibo — por favor intenta de nuevo."
+    },
+    "processingFee": "Tarifa de procesamiento",
+    "totalYouPay": "Total que pagas"
   },
   "creator": {
     "card": {

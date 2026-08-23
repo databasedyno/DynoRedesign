@@ -20,6 +20,7 @@ import AssetsCard from "./AssetsCard";
 import ActivationChecklist from "./ActivationChecklist";
 import RecentTransactionsWidget from "../RecentTransactionsWidget";
 import GrowSlot from "./GrowSlot";
+import ReferralCodeCard from "../ReferralCodeCard";
 
 /**
  * Dashboard2026 — the merchant command center (P4 "Quiet Money" re-layout).
@@ -190,6 +191,7 @@ const Dashboard2026: React.FC = () => {
             transactions={recentTransactions as any[]}
             loading={loading}
           />
+          <ReferralCodeCard />
         </Box>
       ) : isEmpty ? (
         <Box sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
@@ -199,6 +201,7 @@ const Dashboard2026: React.FC = () => {
             transactions={recentTransactions as any[]}
             loading={loading}
           />
+          <ReferralCodeCard />
         </Box>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
@@ -256,6 +259,7 @@ const Dashboard2026: React.FC = () => {
                 hasCompletedFeeFreeTrial={hasCompletedFeeFreeTrial}
                 isPremiumEligible={isPremiumEligible}
               />
+              <ReferralCodeCard />
             </Box>
           </Box>
 

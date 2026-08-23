@@ -114,7 +114,9 @@
       "livePill": "EN DIRECT",
       "sendTipLabel": "Envoyer un pourboire",
       "sendTipBtn": "Envoyer",
-      "metaSettle": "Arrive dans <b>votre portefeuille</b> en ~4s · à partir de <b>1,5 %</b>"
+      "metaSettle": "Arrive dans <b>votre portefeuille</b> en ~4s · à partir de <b>1,5 %</b>",
+      "handleAvailable": "est disponible",
+      "handleTaken": "Ce pseudo n'est pas disponible — essayez un autre."
     },
     "story": {
       "eyebrow": "[ Comment ça marche ]",
@@ -361,7 +363,7 @@
     "strip": {
       "pending": {
         "pill": "EN ATTENTE",
-        "title": "En attente de votre portefeuille",
+        "title": "En attente de votre paiement",
         "caption": "Envoyez le montant exact indiqué. La confirmation est automatique dès la détection."
       },
       "confirming": {
@@ -400,7 +402,17 @@
       "compactHeader": "Bandeau compact (utilisé dans le paiement /pay en production)",
       "totalDue": "Total à payer",
       "mockBlurb": "Ce bloc simule le corps du paiement (QR, adresse, minuteur). L'animation, le titre et le badge proviennent tous de <code>&lt;CheckoutShell&gt;</code>."
-    }
+    },
+    "supportFallbackTitle": "Soutenir cette campagne",
+    "completePaymentTitle": "Complétez votre paiement",
+    "receipt": {
+      "preparing": "Préparation du reçu…",
+      "downloaded": "Reçu téléchargé",
+      "download": "Télécharger le reçu",
+      "error": "Impossible de récupérer le reçu — veuillez réessayer."
+    },
+    "processingFee": "Frais de traitement",
+    "totalYouPay": "Total que vous payez"
   },
   "creator": {
     "card": {

@@ -24,5 +24,6 @@
   "activate": "Activer",
   "saveChanges": "Enregistrer les Modifications",
   "noNotificationsYet": "Aucune notification pour le moment",
-  "notSupportedInBrowser": "Non pris en charge par ce navigateur"
+  "notSupportedInBrowser": "Non pris en charge par ce navigateur",
+  "noNotificationsDesc": "Les confirmations de paiement, les versements et les mises à jour du compte apparaîtront ici."
 }

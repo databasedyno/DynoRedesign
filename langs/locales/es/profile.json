@@ -97,5 +97,14 @@
   "hoursAgo": "hace {{count}} h",
   "daysAgo": "hace {{count}} d",
   "flagged": "Marcado",
-  "noLoginActivity": "Aún no hay actividad de inicio de sesión registrada."
+  "noLoginActivity": "Aún no hay actividad de inicio de sesión registrada.",
+  "sessionSignedOut": "Dispositivo desconectado",
+  "sessionSignOutFailed": "No se pudo desconectar ese dispositivo",
+  "otherSessionsSignedOut": "Todos los otros dispositivos desconectados",
+  "activeSessions": "Dispositivos activos",
+  "signOutAllOthers": "Desconectar todos los demás",
+  "noActiveSessions": "No se encontraron sesiones activas.",
+  "thisDevice": "Este dispositivo",
+  "activeLabel": "activo",
+  "signOut": "Desconectar"
 }

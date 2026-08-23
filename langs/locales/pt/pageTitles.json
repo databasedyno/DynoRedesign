@@ -94,5 +94,7 @@
   "authSecureAccount_title": "Proteja a sua conta · Dynopay",
   "authSecureAccount_desc": "Revise a atividade de login recente e proteja a sua conta Dynopay.",
   "authGithubCallback_title": "Conectando você · Dynopay",
-  "authGithubCallback_desc": "Concluindo o seu login com o GitHub."
+  "authGithubCallback_desc": "Concluindo o seu login com o GitHub.",
+  "about_title": "Sobre a Dynopay — a nossa missão e empresa",
+  "about_desc": "Conheça a Dynopay: a nossa missão de tornar os pagamentos em cripto simples, como a plataforma funciona, os valores em que assentamos e como entrar em contacto ou juntar-se à equipa."
 }

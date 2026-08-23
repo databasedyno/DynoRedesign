@@ -111,7 +111,7 @@ const STATE_STYLE: Record<CheckoutState, { icon: string; pill: "settled" | "pend
 // English fallbacks — used when a locale file is missing the strip keys.
 // Should match `langs/locales/en/landing.json → checkout.strip.*`.
 const FALLBACK_COPY: Record<CheckoutState, { pill: string; title: string; caption: string }> = {
-  pending:    { pill: "WAITING",    title: "Waiting for your wallet",   caption: "Send the exact amount below. Confirmation is automatic once it hits the mempool." },
+  pending:    { pill: "WAITING",    title: "Waiting for your payment",  caption: "Send the exact amount below. Confirmation is automatic once we detect the transaction." },
   confirming: { pill: "CONFIRMING", title: "Broadcasting on-chain",     caption: "We saw your transaction. Confirmations usually take under a minute." },
   confirmed:  { pill: "CONFIRMED",  title: "Payment confirmed",         caption: "The network confirmed it. Settlement is in progress." },
   settled:    { pill: "SETTLED",    title: "You're all set",            caption: "Funds have cleared. A receipt is on its way." },

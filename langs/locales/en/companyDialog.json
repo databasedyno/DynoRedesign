@@ -133,5 +133,7 @@
   "addCompanyBtn": "Add Company",
   "noCompaniesYet": "No companies yet",
   "createFirstCompanyBody": "Create your first company profile to start accepting payments and managing your business.",
-  "noResultsFound": "No results found"
+  "noResultsFound": "No results found",
+  "optional": "optional",
+  "validateTax": "Validate Tax ID"
 }

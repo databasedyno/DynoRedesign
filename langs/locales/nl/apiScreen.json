@@ -26,7 +26,8 @@
     "label": "Bedrijfsnaam"
   },
   "currency": {
-    "baseCurrency": "Basisvaluta"
+    "baseCurrency": "Basisvaluta",
+    "updateFailed": "Kon valuta niet bijwerken"
   },
   "toast": {
     "copied": "Gekopieerd!"
@@ -70,7 +71,10 @@
   "actions": {
     "cancel": "Annuleren",
     "generate": "Sleutel genereren",
-    "done": "Klaar"
+    "done": "Klaar",
+    "regenerate": "Regenereren",
+    "disable": "Deactiveren",
+    "enable": "Activeren"
   },
   "apiKeyTitle": "{{currency}} API-sleutel",
   "keys": {

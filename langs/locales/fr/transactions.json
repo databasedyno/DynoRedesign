@@ -45,5 +45,12 @@
   "settled": "réglé",
   "processing": "en cours",
   "settlement_failed": "échoué",
-  "settledTo": "Réglé vers"
+  "settledTo": "Réglé vers",
+  "value": "Valeur",
+  "sourcePaymentLinkShort": "Lien de paiement",
+  "sourceApiShort": "API",
+  "sourceTipShort": "Pourboire",
+  "sourceProductShort": "Boutique",
+  "sourceContributionShort": "Don",
+  "sourceDirectShort": "Direct"
 }

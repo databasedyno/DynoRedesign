@@ -45,5 +45,12 @@
   "settled": "liquidado",
   "processing": "processando",
   "settlement_failed": "falhou",
-  "settledTo": "Liquidado para"
+  "settledTo": "Liquidado para",
+  "value": "Valor",
+  "sourcePaymentLinkShort": "Link de Pagamento",
+  "sourceApiShort": "API",
+  "sourceTipShort": "Gorjeta",
+  "sourceProductShort": "Loja",
+  "sourceContributionShort": "Donativo",
+  "sourceDirectShort": "Direto"
 }

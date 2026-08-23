@@ -6,7 +6,9 @@ import {
   getDefaultThemeForContext,
   getStorageKeyForContext,
   getCookieNameForContext,
+  getDefaultThemeForPath,
   isAuthPath,
+  isHelpSupportPath,
   type ThemeMode,
   type ThemeContext as ThemeCtxKind,
 } from '@/utils/theme/routeContext';
@@ -44,6 +46,39 @@ function currentRouteContext(): ThemeCtxKind {
   return getRouteContext(window.location.pathname);
 }
 
+/** Read a cookie value by name (client only). Used as a fallback signal for
+ *  the merchant's in-app theme on /help-support, since a default-DARK merchant
+ *  who never manually toggled has no `theme-mode-inapp` in localStorage but
+ *  DOES have the cookie (written on every in-app page visit). */
+function readCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  try {
+    const m = document.cookie.match(
+      new RegExp('(?:^|;\\s*)' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]+)'),
+    );
+    return m ? decodeURIComponent(m[1]) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Read the merchant's in-app theme preference from localStorage first, then
+ *  the cookie fallback. Returns null when there is no in-app signal at all
+ *  (e.g. a first-time visitor who has never opened the dashboard). */
+function readInappPreference(): ThemeMode | null {
+  try {
+    const ls = typeof window !== 'undefined'
+      ? window.localStorage.getItem('theme-mode-inapp')
+      : null;
+    if (ls === 'light' || ls === 'dark') return ls;
+  } catch {
+    /* ignore */
+  }
+  const ck = readCookie('theme-mode-inapp');
+  if (ck === 'light' || ck === 'dark') return ck;
+  return null;
+}
+
 /** Read the preferred mode for a context — localStorage first, else route default.
  *  Auth paths additionally inherit an explicit in-app DARK preference when
  *  they don't have their own public preference stored yet, so a merchant
@@ -51,12 +86,21 @@ function currentRouteContext(): ThemeCtxKind {
  *  when clicking a link back to the login card. */
 function readPreferredMode(ctx: ThemeCtxKind, pathname?: string): ThemeMode {
   if (typeof window === 'undefined') return getDefaultThemeForContext(ctx);
+  const resolvedPath = pathname ?? window.location.pathname;
+  // Help & Support (dual-purpose): FOLLOW the in-app theme preference so a
+  // signed-in merchant on dark keeps dark instead of flipping to light, but
+  // fall back to the LIGHT public default for first-time / logged-out visitors
+  // (who have no in-app signal at all).
+  if (isHelpSupportPath(resolvedPath)) {
+    const inapp = readInappPreference();
+    if (inapp) return inapp;
+    return getDefaultThemeForPath(resolvedPath); // light
+  }
   try {
     const key = getStorageKeyForContext(ctx);
     const saved = window.localStorage.getItem(key);
     if (saved === 'light' || saved === 'dark') return saved;
     // Auth-path inheritance (Public Auth Card feature, 2025-07 pass).
-    const resolvedPath = pathname ?? window.location.pathname;
     if (ctx === 'public' && isAuthPath(resolvedPath)) {
       const inappSaved = window.localStorage.getItem('theme-mode-inapp');
       if (inappSaved === 'dark') return 'dark';
@@ -117,7 +161,13 @@ export const ThemeProvider: React.FC<{
     const resolved = readPreferredMode(ctx);
     if (resolved !== mode) setMode(resolved);
     if (ctx !== routeCtx) setRouteCtx(ctx);
-    writeThemeCookie(ctx, resolved);
+    // Help & Support follows the in-app theme but must NOT auto-persist a
+    // cookie here: writing the public cookie would bleed dark onto the
+    // marketing site, and writing the in-app cookie would bleed a visitor's
+    // light default into the merchant app. It only persists on explicit toggle.
+    if (!isHelpSupportPath(window.location.pathname)) {
+      writeThemeCookie(ctx, resolved);
+    }
     // Record whether we picked up an explicit override.
     try {
       const stored = window.localStorage.getItem(getStorageKeyForContext(ctx));
@@ -143,7 +193,10 @@ export const ThemeProvider: React.FC<{
       // out when the value is referentially equal, but not for primitives.
       setRouteCtx((prev) => (prev === ctx ? prev : ctx));
       setMode((prev) => (prev === resolved ? prev : resolved));
-      writeThemeCookie(ctx, resolved);
+      // See mount-effect note: never auto-persist the theme cookie on /help-support.
+      if (!isHelpSupportPath(window.location.pathname)) {
+        writeThemeCookie(ctx, resolved);
+      }
     };
 
     // Patch history.pushState / replaceState to fire an event on each call.
@@ -200,12 +253,26 @@ export const ThemeProvider: React.FC<{
       const newMode: ThemeMode = prevMode === 'light' ? 'dark' : 'light';
       userOverrideRef.current = true;
       const ctx = currentRouteContext();
+      // On /help-support (dual-purpose) the theme follows the IN-APP
+      // preference, so an explicit toggle here persists to the in-app key +
+      // cookie — keeping Help & Support and the dashboard in lockstep.
+      const path = typeof window !== 'undefined' ? window.location.pathname : '';
+      const storageKey = isHelpSupportPath(path)
+        ? 'theme-mode-inapp'
+        : getStorageKeyForContext(ctx);
+      const cookieName = isHelpSupportPath(path)
+        ? ('theme-mode-inapp' as const)
+        : getCookieNameForContext(ctx);
       try {
-        window.localStorage.setItem(getStorageKeyForContext(ctx), newMode);
+        window.localStorage.setItem(storageKey, newMode);
       } catch (e) {
         console.log('Could not save theme preference');
       }
-      writeThemeCookie(ctx, newMode);
+      try {
+        document.cookie = `${cookieName}=${newMode}; path=/; max-age=31536000; samesite=lax`;
+      } catch {
+        /* ignore */
+      }
       return newMode;
     });
   }, []);

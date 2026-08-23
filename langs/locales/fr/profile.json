@@ -97,5 +97,14 @@
   "hoursAgo": "il y a {{count}} h",
   "daysAgo": "il y a {{count}} j",
   "flagged": "Signalé",
-  "noLoginActivity": "Aucune activité de connexion enregistrée pour le moment."
+  "noLoginActivity": "Aucune activité de connexion enregistrée pour le moment.",
+  "sessionSignedOut": "Appareil déconnecté",
+  "sessionSignOutFailed": "Échec de la déconnexion de cet appareil",
+  "otherSessionsSignedOut": "Tous les autres appareils déconnectés",
+  "activeSessions": "Appareils actifs",
+  "signOutAllOthers": "Déconnecter tous les autres",
+  "noActiveSessions": "Aucune session active trouvée.",
+  "thisDevice": "Cet appareil",
+  "activeLabel": "actif",
+  "signOut": "Déconnexion"
 }

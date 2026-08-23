@@ -24,5 +24,6 @@
   "activate": "Activar",
   "saveChanges": "Guardar Cambios",
   "noNotificationsYet": "Aún no hay notificaciones",
-  "notSupportedInBrowser": "No compatible con este navegador"
+  "notSupportedInBrowser": "No compatible con este navegador",
+  "noNotificationsDesc": "Aquí aparecerán las confirmaciones de pago, los pagos y las novedades de la cuenta."
 }

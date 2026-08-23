@@ -24,5 +24,6 @@
   "activate": "Activate",
   "saveChanges": "Save Changes",
   "noNotificationsYet": "No notifications yet",
-  "notSupportedInBrowser": "Not supported in this browser"
+  "notSupportedInBrowser": "Not supported in this browser",
+  "noNotificationsDesc": "Payment confirmations, payouts and account updates will show up here."
 }

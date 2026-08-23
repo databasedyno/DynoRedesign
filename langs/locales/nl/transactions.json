@@ -45,5 +45,12 @@
   "settled": "afgewikkeld",
   "processing": "wordt verwerkt",
   "settlement_failed": "mislukt",
-  "settledTo": "Afgewikkeld naar"
+  "settledTo": "Afgewikkeld naar",
+  "value": "Waarde",
+  "sourcePaymentLinkShort": "Betalingslink",
+  "sourceApiShort": "API",
+  "sourceTipShort": "Fooi",
+  "sourceProductShort": "Winkel",
+  "sourceContributionShort": "Donatie",
+  "sourceDirectShort": "Direct"
 }

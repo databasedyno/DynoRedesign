@@ -34,6 +34,7 @@ import {
   decrementUnreadCount,
 } from "@/hooks/useUnreadNotificationsCount";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import NotificationsNoneRounded from "@mui/icons-material/NotificationsNoneRounded";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import TransactionDetailsModal from "@/Components/Page/Transactions/TransactionDetailsModal";
 import { ExtendedTransaction } from "@/utils/types/transaction";
@@ -377,9 +378,36 @@ const NotificationPage = () => {
               <SkeletonList rows={5} rowHeight={72} testId="notifications-loading-skeleton" />
             </Box>
           ) : notifications.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 6 }}>
-              <Typography sx={{ fontSize: "15px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
+            <Box
+              sx={{
+                textAlign: "center",
+                py: 6,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1.25,
+              }}
+              data-testid="notifications-empty"
+            >
+              <Box
+                sx={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: theme.palette.action.hover,
+                  color: brandFg(theme.palette.mode === "dark"),
+                }}
+              >
+                <NotificationsNoneRounded sx={{ fontSize: 26 }} />
+              </Box>
+              <Typography sx={{ fontSize: "15px", fontWeight: 600, color: theme.palette.text.primary, fontFamily: "var(--font-sans)" }}>
                 {t("noNotificationsYet")}
+              </Typography>
+              <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", maxWidth: 300 }}>
+                {t("noNotificationsDesc", { defaultValue: "Payment confirmations, payouts and account updates will show up here." })}
               </Typography>
             </Box>
           ) : (

@@ -45,5 +45,12 @@
   "settled": "abgerechnet",
   "processing": "in Bearbeitung",
   "settlement_failed": "fehlgeschlagen",
-  "settledTo": "Abgerechnet an"
+  "settledTo": "Abgerechnet an",
+  "value": "Wert",
+  "sourcePaymentLinkShort": "Zahlungslink",
+  "sourceApiShort": "API",
+  "sourceTipShort": "Trinkgeld",
+  "sourceProductShort": "Shop",
+  "sourceContributionShort": "Spende",
+  "sourceDirectShort": "Direkt"
 }

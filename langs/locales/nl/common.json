@@ -54,7 +54,11 @@
     "subtitleContribution": "Draag bij aan {{campaign}} met crypto. Elke bijdrage brengt de campagne dichter bij het doel.",
     "subtitleContributionDefault": "Draag bij met crypto — elke bijdrage telt.",
     "donationDetails": "Bijdragedetails",
-    "donateWithCrypto": "Bijdragen met crypto"
+    "donateWithCrypto": "Bijdragen met crypto",
+    "incompletePayment": "Onvolledige betaling",
+    "address": "Adres",
+    "customerPaysFee": "Klant betaalt verwerkingskosten",
+    "pendingPayment": "In afwachting van betaling"
   },
   "crypto": {
     "title": "Cryptovaluta",
@@ -95,7 +99,10 @@
     "copyMemo": "Memo kopiëren",
     "memoCopied": "Memo/tag gekopieerd!",
     "memoWarning": "Voeg deze memo/tag toe, anders kunnen je fondsen verloren gaan.",
-    "noRlusdNetworks": "Geen RLUSD-netwerken geconfigureerd"
+    "noRlusdNetworks": "Geen RLUSD-netwerken geconfigureerd",
+    "lowestFeeHint": "TRC-20 heeft meestal de laagste netwerkkosten.",
+    "generatingAddress": "Adres aanmaken…",
+    "trustNote": "Fondsen gaan rechtstreeks naar de verkoper · bedrag vergrendeld totdat de timer eindigt"
   },
   "underpayment": {
     "title": "Gedeeltelijke Betaling Ontvangen",
@@ -453,7 +460,8 @@
     "sourceApi": "API",
     "apiRecordHint": "Dit record groepeert betalingen die via uw API-integratie zijn ontvangen zonder klantgegevens. Geef klantgegevens mee in uw API-aanroepen om hier echte klantprofielen te zien.",
     "countLabel_one": "{{count}} klant",
-    "countLabel_other": "{{count}} klanten"
+    "countLabel_other": "{{count}} klanten",
+    "noCustomersCtaCreate": "Maak een betalingslink aan"
   },
   "pleaseWait": "Even geduld",
   "transferRate": "Wisselkoers",
@@ -531,7 +539,16 @@
     "groupAccount": "Account",
     "groupBusiness": "Bedrijf",
     "groupPayments": "Betalingen",
-    "developers": "Ontwikkelaars"
+    "developers": "Ontwikkelaars",
+    "displayCurrencySaved": "Dashboardvaluta bijgewerkt",
+    "displayCurrencyError": "Kon dashboardvaluta niet bijwerken. Probeer het opnieuw.",
+    "displayCurrency": "Dashboardweergavevaluta",
+    "displayCurrencyHint": "Kies de valuta waarin je dashboard en wallet-saldi worden weergegeven. Dit is alleen voor weergave — het verandert je betalingsprijzen, uitbetalingen, facturen of hoe klanten worden belast niet.",
+    "userDisplayCurrencyTitle": "Mijn weergavevaluta",
+    "userDisplayCurrencyHint": "Overschrijft de weergavevaluta van je team alleen voor jou. Heeft nooit invloed op prijzen of exports.",
+    "currentlyOverriding": "overschrijft teamstandaard",
+    "tax": "Belasting",
+    "taxDesc": "Standaard BTW/belastinggedrag voor checkouts en betalingslinks."
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",
@@ -558,6 +575,46 @@
     "closedGoalReached": "Doel bereikt — bedankt!",
     "closedExpired": "Deze campagne is beëindigd",
     "closedSubtitle": "Deze campagne accepteert geen donaties meer.",
-    "startError": "We konden je donatie niet starten — probeer het opnieuw."
-  }
+    "startError": "We konden je donatie niet starten — probeer het opnieuw.",
+    "supportersLabel": "supporters",
+    "funded": "gefinancierd",
+    "toGo": "te gaan",
+    "story": "Ons verhaal",
+    "gallery": "Foto's",
+    "updates": "Updates"
+  },
+  "taxSettings": {
+    "loadError": "Kon de belastinginstellingen niet laden.",
+    "saved": "Belastinginstellingen opgeslagen.",
+    "saveError": "Kon de belastinginstellingen niet opslaan.",
+    "intro": "Stel je standaard BTW/belastinggedrag in voor winkelafrekeningen en betalingslinks. Dynopay berekent en int belasting namens jou — jij blijft verantwoordelijk voor het afdragen ervan. Per-product en per-link overrides hebben altijd voorrang op deze standaardinstellingen.",
+    "applyTaxLabel": "Belasting in rekening brengen bij afrekeningen",
+    "applyTaxDesc": "Wanneer ingeschakeld, wordt belasting standaard toegevoegd aan winkelafrekeningen en nieuwe betalingslinks (op basis van de locatie van de koper).",
+    "inclusiveLabel": "Prijzen zijn inclusief belasting",
+    "inclusiveDesc": "Behandel je vermelde prijzen als belasting-inclusief (bruto). Het belastingdeel wordt van de prijs afgetrokken in plaats van erbovenop toegevoegd.",
+    "countryLabel": "Jouw bedrijfsland",
+    "countryDesc": "Gebruikt als fallback voor belastingjurisdictie en om EU grensoverschrijdende B2B omgekeerde belastingheffing te bepalen.",
+    "countryPlaceholder": "Selecteer land",
+    "vatLabel": "Jouw BTW / Belasting ID",
+    "vatDesc": "Weergegeven op ontvangstbewijzen. Maakt EU omgekeerde belastingvalidatie mogelijk wanneer jouw kopers hun eigen BTW-ID verstrekken.",
+    "vatInvalidHint": "Dit komt niet overeen met een bekend EU/GB BTW-formaat — het zal nog steeds worden opgeslagen zoals ingevoerd.",
+    "save": "Belastinginstellingen opslaan"
+  },
+  "accountTypeIndividual": "Individu",
+  "accountTypeBusiness": "Bedrijf",
+  "cancel": "Annuleren",
+  "save": "Opslaan",
+  "EmptyNoResultsTitle": "Niets komt overeen met die filters",
+  "EmptyNoResultsDescription": "Probeer een andere zoekterm, status of datumbereik.",
+  "EmptyNoResultsCta": "Filters wissen",
+  "EmptyPaymentLinkQuickstart": "Probeer een sjabloon",
+  "EmptyPLChipInvoice": "Stuur een factuur naar een klant",
+  "EmptyPLChipProduct": "Verkoop een product",
+  "EmptyPLChipDonation": "Accepteer een donatie",
+  "EmptyPLChipTip": "Fooi pot",
+  "EmptyTransactionsExplore": "Verken andere manieren om te verdienen",
+  "EmptyTxChipCreator": "Maker pagina",
+  "EmptyTxChipProducts": "Verkoop producten",
+  "EmptyTxChipCrowdfund": "Crowdfund een doel",
+  "loading": "Laden…"
 }

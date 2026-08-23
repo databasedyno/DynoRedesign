@@ -57,5 +57,9 @@
   "noActiveWalletsTitle": "You Don't Have Active Wallets",
   "noActiveWalletsBody": "You have to have at least one wallet address added in order to proceed.",
   "goToWallets": "Go to Wallets",
-  "alreadyAdded": "Added"
+  "alreadyAdded": "Added",
+  "totalProcessedEyebrow": "Total processed · all chains",
+  "activeChains": "Active chains",
+  "supported": "Supported",
+  "coverage": "Coverage"
 }
