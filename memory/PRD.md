@@ -1,3 +1,38 @@
+# FEATURE (2026-06 fork) — Language Auto-Suggest banner (merchant first-login) — VERIFIED iter73 100%
+
+USER picked the "Language Auto-Suggest" next-action item: gently offer a SIGNED-IN merchant their
+browser language with a one-tap "Switch to X?" banner they can accept or dismiss. English stays the
+hard default (no auto-switch) — this only OFFERS the browser language.
+
+NEW COMPONENT: Components/UI/LanguageSuggestBanner/index.tsx — a slim, bottom-CENTERED floating card
+(distinct from the full-width anonymous LanguageOnboardingBar). Mounted globally in pages/_app.tsx
+right after <LanguageOnboardingBar/> (inside the providers). GATING (client-only, SSR-safe):
+- logged in (localStorage.token) AND not on a buyer/checkout route AND not previously dismissed
+  (localStorage `lang_suggest_dismissed` !== "1")
+- browser base lang (navigator.language + navigator.languages, first supported hit) is in
+  {pt,fr,es,de,nl} (EN excluded = default) AND differs from the current i18n.language.
+Re-evaluates on mount, route change, window focus, AND i18n "languageChanged" (the on-auth reconcile
+sets the account language AFTER this mounts). ACCEPT -> setAppLanguage(code) (switches UI + persists
+to localStorage + PUT /user/profile so it follows the account) + sets dismiss flag + hides. DISMISS
+(X) -> sets dismiss flag + hides (no language change, no account mutation). One-time only.
+COPY: rendered in the CURRENT app language with the native language NAME + flag badge (e.g. app EN,
+browser FR -> "Prefer Français?" / "Your browser is set to Français." / "Switch to Français" / X).
+Positioned bottom:{xs:88,sm:24} (clears the mobile bottom-nav pill), z-index 1400.
+
+I18N: added langSuggest.title/body/switch/dismiss (all with {{lang}} interpolation) to all 6
+common.json (en/pt/fr/es/de/nl).
+
+VERIFIED (testing_agent iter73, frontend-only, LIVE account, browser spoofed via add_init_script):
+SHOWS (fr banner correct copy), ACCEPT (UI -> French, html lang=fr, GET /user/profile=fr, banner
+gone), then RESTORED account to 'en' (verified via /app/tests/verify_language_en.py), DISMISS
+(persists across reload + route change, app stays EN, account untouched), NO-SUGGEST for en-US
+browser (banner count 0), mobile 390px no bottom-nav overlap, 0 console errors. 5/5 pass. tsc clean.
+Testids: language-suggest-banner / -title / -accept / -dismiss.
+
+---
+
+
+
 # FOLLOW-UPS (2026-06 fork) — i18n GAP CLOSURE (untranslated cosmetic strings) — VERIFIED iter72 100%
 
 Closed the residual i18n gaps flagged by iter71: UI strings that stayed English even when the app

@@ -621,5 +621,11 @@
   "EmptyTxChipProducts": "Verkoop producten",
   "EmptyTxChipCrowdfund": "Crowdfund een doel",
   "loading": "Laden…",
-  "appliesToThisCompanyOnly": "Geldt alleen voor dit bedrijf"
+  "appliesToThisCompanyOnly": "Geldt alleen voor dit bedrijf",
+  "langSuggest": {
+    "title": "Liever {{lang}}?",
+    "body": "Je browser staat op {{lang}}.",
+    "switch": "Overschakelen naar {{lang}}",
+    "dismiss": "Niet nu"
+  }
 }

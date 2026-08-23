@@ -621,5 +621,11 @@
   "EmptyTxChipProducts": "Sell products",
   "EmptyTxChipCrowdfund": "Crowdfund a cause",
   "loading": "Loading…",
-  "appliesToThisCompanyOnly": "Applies to this company only"
+  "appliesToThisCompanyOnly": "Applies to this company only",
+  "langSuggest": {
+    "title": "Prefer {{lang}}?",
+    "body": "Your browser is set to {{lang}}.",
+    "switch": "Switch to {{lang}}",
+    "dismiss": "Not now"
+  }
 }

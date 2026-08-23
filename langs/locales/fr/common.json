@@ -621,5 +621,11 @@
   "EmptyTxChipProducts": "Vendre des produits",
   "EmptyTxChipCrowdfund": "Financer une cause",
   "loading": "Chargement…",
-  "appliesToThisCompanyOnly": "S'applique uniquement à cette entreprise"
+  "appliesToThisCompanyOnly": "S'applique uniquement à cette entreprise",
+  "langSuggest": {
+    "title": "Vous préférez {{lang}} ?",
+    "body": "Votre navigateur est en {{lang}}.",
+    "switch": "Passer à {{lang}}",
+    "dismiss": "Plus tard"
+  }
 }

@@ -70,6 +70,7 @@ import { Provider } from "react-redux";
 
 import LanguageBootstrap from "@/helpers/LanguageBootstrap";
 import LanguageOnboardingBar from "@/Components/UI/LanguageOnboardingBar";
+import LanguageSuggestBanner from "@/Components/UI/LanguageSuggestBanner";
 import { enforceSessionPersistence } from "@/helpers/authPersistence";
 import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
@@ -632,6 +633,7 @@ export default function App({
                     <WalletDataProvider>
                       <AppInner {...(props as AppPropsWithLayout)} />
                       <LanguageOnboardingBar />
+                      <LanguageSuggestBanner />
                     </WalletDataProvider>
                   </CompanyDataProvider>
                 </SWRConfig>

@@ -621,5 +621,11 @@
   "EmptyTxChipProducts": "Produkte verkaufen",
   "EmptyTxChipCrowdfund": "Crowdfund eine Sache",
   "loading": "Lade…",
-  "appliesToThisCompanyOnly": "Gilt nur für dieses Unternehmen"
+  "appliesToThisCompanyOnly": "Gilt nur für dieses Unternehmen",
+  "langSuggest": {
+    "title": "Lieber {{lang}}?",
+    "body": "Ihr Browser ist auf {{lang}} eingestellt.",
+    "switch": "Zu {{lang}} wechseln",
+    "dismiss": "Nicht jetzt"
+  }
 }
