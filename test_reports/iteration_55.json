@@ -1,0 +1,45 @@
+{
+  "summary": "Frontend-only, read-only visual verification of the redesigned onboarding components (OnboardingChecklist + StepIndicator) on /ob-preview-temp, plus a /dashboard regression check. NO backend testing, NO data mutation (SAFE MODE respected: no accounts, no payment links, no writes). All 6 requested items verified. NOTE: /ob-preview-temp is NOT publicly reachable - it falls through _app.tsx's default layout resolver to the authenticated ClientLayout and redirects to /auth/login, so I logged in with the merchant account first and then navigated to it. Computed styles were read via getComputedStyle in BOTH light and dark theme. RESULT: 6/6 PASS, zero console errors on both routes.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "/ob-preview-temp - OnboardingChecklist (dark mode)",
+        "issues": [
+          "Locked step rows (link, payment) use opacity:0.6 on top of text.secondary rgb(161,161,170) over surface rgb(24,24,27) -> effective label colour ~#6E6E75, contrast ~3.2:1, below WCAG AA 4.5:1 for the 'Complete the step above first' helper text. The locked LockRounded icon lands at ~1.9:1. Consider dropping the row opacity to 0.75-0.8 and relying on text.disabled tokens instead of stacking opacity on an already-muted colour.",
+          "Completed row combines opacity:0.7 + text.secondary + line-through -> effective ~#7C7C83 on #18181B (~4.2:1). Borderline; readable but just under AA."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Delete the temporary page /app/pages/ob-preview-temp.tsx now that verification is complete (it is currently routable to any logged-in merchant and renders fake onboarding steps inside the real app shell).",
+    "OPTIONAL (a11y polish, not a redesign regression): raise the locked/completed step contrast in dark mode - stop stacking row opacity 0.6/0.7 on top of already-muted text tokens (see design_issues).",
+    "TESTABILITY (pre-existing, not from this refactor): data-testid=\"onboarding-step-indicator\" is duplicated in the DOM on every authenticated page. The second instance comes from CreateCompanyModal mounted by Components/UI/CompanySelector (MuiDialog content stays in the DOM while closed), which makes Playwright strict-mode locators fail. Suggest a distinct testid for the modal instance (e.g. create-company-step-indicator)."
+  ],
+  "critical_code_review_comments": [
+    "OnboardingChecklist.tsx L224-227 and StepIndicator.tsx L91: dead ternaries that return the same value on both branches (fontFamily: isDone||isLocked ? 'var(--font-sans)' : 'var(--font-sans)'). Harmless but should be collapsed to a plain value.",
+    "OnboardingChecklist.tsx L201 and L208 hardcode hex values (#34D399 / #047857 emerald, and the #9DA3AE fallback for text.disabled) instead of reading from the theme/token layer. The emerald check is deliberate per the blueprint, but it is the only remaining hardcoded colour pair in the file - consider promoting it to a theme token (palette.success or a semantic 'done' token) so dark/light stay in one place.",
+    "pages/ob-preview-temp.tsx is a temp QA page with no middleware/env gate. If any similar page is ever kept, add it to the DEV_ONLY_PATHS allow-list in /app/middleware.ts (which already gates /QA and the /pay/*-demo pages) so it cannot ship to production."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (per request)", "frontend": "100% (6/6 review items PASS)" },
+  "seed_data_creation": "None. Read-only session, SAFE MODE respected - no accounts, companies, wallets, payment links or payments were created or modified.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (2-step: fill Email textbox -> click 'Continue' -> fill password -> click 'Sign in', NOT 'Log in'). Redirects to /dashboard.",
+  "context_for_next_testing_agent": "Login recipe that works on this pod: goto /auth/login, page.get_by_role('textbox', name='Email').first (there are TWO email placeholders on the page - the second belongs to a hidden form, so .first or the aria-label 'Email' is required), click button 'Continue' (exact), wait ~6s, fill input[type=password]:visible, click button 'Sign in' (exact) -> lands on /dashboard. Theme context is route-derived: /app/utils/theme/routeContext.ts INAPP_PREFIXES decides dark-by-default; /dashboard is 'inapp' (dark default, key theme-mode-inapp), any route not in that list (including /ob-preview-temp) is 'public' (light default, key theme-mode-public). To force dark on a public route: localStorage.setItem('theme-mode-public','dark') then reload. Also note data-testid='onboarding-step-indicator' resolves to 2 nodes on authenticated pages (use .first).",
+  "verification_details": {
+    "item_1_calm_card": "PASS - [data-testid=onboarding-checklist] light: borderRadius 12px, border 1px solid rgb(226,232,240), boxShadow 'none', bg rgb(255,255,255). dark: 12px, 1px rgb(39,39,42), boxShadow 'none', bg rgb(24,24,27). Rendered after networkidle + wait_for_selector; also verified onboarding-checklist-toggle collapses and re-expands the step list.",
+    "item_2_completed_step_not_filled": "PASS (key fix confirmed) - onboarding-step-company: backgroundColor is IDENTICAL to the card surface (light rgb(255,255,255) / dark rgb(24,24,27)) and border is the neutral hairline rgb(226,232,240) / rgb(39,39,42) - the SAME border colour as the link/payment rows, i.e. no green fill and no green border. Check icon is emerald (light rgb(4,120,87) = #047857, dark rgb(52,211,153) = #34D399) and the label has textDecorationLine 'line-through'.",
+    "item_3_plain_icons_no_tinted_square": "PASS - icon wrapper backgroundColor is rgba(0,0,0,0) and borderRadius 0px for all four rows (no filled tinted square). 'next' step (wallet) icon is indigo (light rgb(67,56,202) = #4338CA, dark rgb(129,140,248) = #818CF8) and its row border is a 1px indigo highlight (light rgb(67,56,202), dark rgb(99,102,241) = #6366F1) vs neutral on every other row. Locked rows (link/payment) correctly show a lock glyph in muted grey.",
+    "item_4_step_indicator": "PASS - onboarding-step-indicator renders 'Company / Wallet'. step-indicator-1 (active) = indigo (light rgb(67,56,202) / dark rgb(99,102,241)); step-indicator-2 (inactive) = theme divider (light rgb(226,232,240) / dark rgb(39,39,42)); connector line also theme divider. Progress bar uses palette.primary.main (indigo) at 25% for 1-of-4.",
+    "item_5_dashboard_regression": "PASS - login -> /dashboard renders fully (KPI $1,086.77, volume chart, fee-tier progress, Grow with Dynopay, sidebar) with body bg rgb(9,9,11) dark. onboarding-checklist element count = 0, i.e. the card is correctly hidden for this fully-onboarded account, and the OnboardingFlow orchestrator mounts without crashing.",
+    "item_6_console_errors": "PASS - zero console errors and zero page errors captured on BOTH /ob-preview-temp (light and forced-dark) and /dashboard across 4 independent runs.",
+    "not_covered": "CelebrationOverlay.tsx, CreateCompanyModal.tsx and OnboardingBanner.tsx were NOT visually verified - unreachable without completing onboarding / creating a company, which SAFE MODE forbids. Their diffs were code-reviewed only."
+  },
+  "rca_of_the_issue": "Why the main agent's screenshot tool saw a blank shell on /ob-preview-temp: the route is not in any public allow-list in pages/_app.tsx's layout resolver, so it defaults to the authenticated ClientLayout and the client-side auth guard redirects unauthenticated visitors to /auth/login. It is not a hydration problem - with a valid session the page hydrates and the checklist selector resolves in a couple of seconds. All redesign assertions were then verified against real computed styles."
+}

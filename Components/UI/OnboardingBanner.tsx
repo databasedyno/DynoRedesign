@@ -81,7 +81,7 @@ export default function OnboardingBanner({ vertical }: { vertical: Vertical }) {
       sx={{
         position: "relative",
         overflow: "hidden",
-        borderRadius: "16px",
+        borderRadius: "12px",
         padding: { xs: "16px 18px", md: "18px 22px" },
         marginBottom: { xs: 2, md: 2.5 },
         border: `1px solid ${accent.color}33`,
@@ -109,7 +109,7 @@ export default function OnboardingBanner({ vertical }: { vertical: Vertical }) {
       <Box
         sx={{
           width: 40, height: 40, flexShrink: 0,
-          borderRadius: "10px",
+          borderRadius: "8px",
           display: "flex", alignItems: "center", justifyContent: "center",
           backgroundColor: accent.color,
           color: accent.onColor,

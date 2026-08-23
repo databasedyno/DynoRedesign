@@ -65,18 +65,10 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
       sx={{
         mb: isMobile ? 2 : 2.5,
         p: isMobile ? "18px 18px" : "22px 24px",
-        borderRadius: "16px",
-        border: `1px solid ${
-          theme.palette.mode === "dark"
-            ? "rgba(255,255,255,0.08)"
-            : "rgba(15,15,20,0.08)"
-        }`,
-        backgroundColor:
-          theme.palette.mode === "dark" ? "#141419" : "#FFFFFF",
-        boxShadow:
-          theme.palette.mode === "dark"
-            ? "0 1px 2px rgba(0,0,0,0.4)"
-            : "0 1px 2px rgba(15,15,20,0.04)",
+        borderRadius: "12px",
+        border: `1px solid ${theme.palette.border?.main || theme.palette.divider}`,
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: "none",
       }}
     >
       {/* Header — logo-quiet, no tinted icon square (Coinbase-clean) */}
@@ -172,45 +164,29 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                   alignItems: "center",
                   gap: 1.5,
                   p: isMobile ? "10px 12px" : "12px 14px",
-                  borderRadius: "10px",
+                  borderRadius: "8px",
                   border: `1px solid ${
-                    isDone
-                      ? theme.palette.border?.success || "#C6F0C2"
-                      : isNext
-                        ? theme.palette.primary.main
-                        : theme.palette.border?.main || theme.palette.divider
+                    isNext
+                      ? theme.palette.primary.main
+                      : theme.palette.border?.main || theme.palette.divider
                   }`,
-                  backgroundColor: isDone
-                    ? theme.palette.mode === "dark"
-                      ? "rgba(76,175,80,0.08)"
-                      : "#F0FAF0"
-                    : theme.palette.background.paper,
+                  backgroundColor: theme.palette.background.paper,
                   cursor: isDone ? "default" : "pointer",
-                  opacity: isDone ? 0.75 : isLocked ? 0.6 : 1,
+                  opacity: 1,
                   transition: "all 0.15s ease",
                   ...(!isDone &&
                     !isLocked && {
                       "&:hover": {
                         borderColor: theme.palette.primary.main,
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: theme.palette.action.hover,
                       },
                     }),
                 }}
               >
                 <Box
                   sx={{
-                    width: isMobile ? 30 : 34,
-                    height: isMobile ? 30 : 34,
-                    borderRadius: "8px",
-                    backgroundColor: isDone
-                      ? theme.palette.mode === "dark"
-                        ? "rgba(76,175,80,0.15)"
-                        : "#E8F5E9"
-                      : isLocked
-                        ? theme.palette.mode === "dark"
-                          ? "rgba(255,255,255,0.06)"
-                          : "#F1F3F7"
-                        : theme.palette.primary.light || "#E5EDFF",
+                    width: isMobile ? 26 : 28,
+                    height: isMobile ? 26 : 28,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -218,18 +194,24 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                   }}
                 >
                   {isDone ? (
-                    <CheckRounded sx={{ fontSize: 18, color: "#4CAF50" }} />
+                    <CheckRounded
+                      sx={{
+                        fontSize: 20,
+                        color:
+                          theme.palette.mode === "dark" ? "#34D399" : "#047857",
+                      }}
+                    />
                   ) : isLocked ? (
                     <LockRounded
                       sx={{
-                        fontSize: isMobile ? 15 : 17,
-                        color: theme.palette.text.disabled || "#9DA3AE",
+                        fontSize: isMobile ? 16 : 18,
+                        color: theme.palette.text.secondary,
                       }}
                     />
                   ) : (
                     <Icon
                       sx={{
-                        fontSize: isMobile ? 16 : 18,
+                        fontSize: isMobile ? 18 : 20,
                         color: brandFg(theme.palette.mode === "dark"),
                       }}
                     />
@@ -239,10 +221,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                   <Typography
                     sx={{
                       fontSize: isMobile ? "13px" : "14px",
-                      fontFamily:
-                        isDone || isLocked
-                          ? "var(--font-sans)"
-                          : "var(--font-sans)",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: isDone || isLocked ? 500 : 600,
                       color: isDone
                         ? theme.palette.text.secondary

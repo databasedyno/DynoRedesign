@@ -5,18 +5,20 @@ import React from "react";
 interface StepIndicatorProps {
   currentStep: number;
   totalSteps: number;
+  dataTestId?: string;
 }
 
 const StepIndicator: React.FC<StepIndicatorProps> = ({
   currentStep,
   totalSteps,
+  dataTestId = "onboarding-step-indicator",
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
 
   return (
     <Box
-      data-testid="onboarding-step-indicator"
+      data-testid={dataTestId}
       sx={{
         display: "flex",
         alignItems: "center",
@@ -47,11 +49,10 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: isCompleted
-                  ? theme.palette.primary.main
-                  : isActive
+                backgroundColor:
+                  isCompleted || isActive
                     ? theme.palette.primary.main
-                    : "#E9ECF2",
+                    : theme.palette.divider,
                 transition: "all 0.3s ease",
               }}
             >
@@ -76,7 +77,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
                     fontSize: isMobile ? "10px" : "11px",
                     fontFamily: "var(--font-sans)",
                     fontWeight: 700,
-                    color: isActive ? "#fff" : "#9DA3AE",
+                    color: isActive ? "#fff" : theme.palette.text.disabled,
                     lineHeight: 1,
                   }}
                 >
@@ -89,11 +90,11 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
             <Typography
               sx={{
                 fontSize: isMobile ? "11px" : "12px",
-                fontFamily: isActive ? "var(--font-sans)" : "var(--font-sans)",
+                fontFamily: "var(--font-sans)",
                 fontWeight: isActive ? 600 : 500,
                 color: isActive || isCompleted
                   ? theme.palette.text.primary
-                  : "#9DA3AE",
+                  : theme.palette.text.disabled,
                 lineHeight: 1,
                 transition: "color 0.3s ease",
               }}
@@ -110,7 +111,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
                   borderRadius: 1,
                   backgroundColor: isCompleted
                     ? theme.palette.primary.main
-                    : "#E9ECF2",
+                    : theme.palette.divider,
                   transition: "background-color 0.3s ease",
                   mx: 0.25,
                 }}

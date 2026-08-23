@@ -97,7 +97,24 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   Authed pages (developer-keys/customers/notifications/storefront/invoices) pending owner or
 >   frontend-testing-agent visual QA. **P7 COMPLETE.**
 >
-> **Redesign status: P1–P7 all shipped. Remaining = optional QA (§7 acceptance checklist across
+> - **P8 — Onboarding flow ✅ SHIPPED (2026-08-23b)** — the one surface P1–P7 never scoped
+>   (it only inherited the P1 token swap). Brought all 5 onboarding components to the Quiet Money
+>   bar (frontend-only, no logic/data changes): `OnboardingChecklist` card 16→12px radius, rest
+>   `boxShadow` removed, `background.paper`/theme-border tokens; the COMPLETED step no longer uses a
+>   filled green card+border → now the same neutral surface + hairline as every row, marked by an
+>   emerald check (#047857 light / #34D399 dark) + strikethrough; step icons lost their filled tinted
+>   squares (transparent, indigo icon; the "next" step keeps a 1px indigo border as the single accent);
+>   hover fill → neutral `action.hover`; dark-mode AA fix (dropped the stacked 0.6/0.7 row opacity that
+>   pushed locked/completed text below 4.5:1, lock icon → text.secondary). `StepIndicator` +
+>   `CreateCompanyModal` (18→12px, inputs 10→8px) + `CelebrationOverlay` (20→16px, retired the lime
+>   #CCFF00 confetti → indigo/emerald/gold) + `OnboardingBanner` (16→12px) all repointed off hardcoded
+>   greys/greens to theme tokens (fixes broken dark-mode borders). Modals kept as modals (drawer
+>   conversion deferred — shared components, higher risk). VERIFIED by the frontend testing agent
+>   (iteration_55, 6/6 PASS, real computed styles in light+dark, /dashboard regression clean, 0 console
+>   errors). NOT visually verified (unreachable without completing onboarding on the LIVE DB, code-review
+>   only): CelebrationOverlay, CreateCompanyModal, OnboardingBanner.
+>
+> **Redesign status: P1–P8 all shipped. Remaining = optional QA (§7 acceptance checklist across
 > 1920/1440/1280/1024/768/390 in light+dark) + the optional hero-screenshot swap.**
 
 

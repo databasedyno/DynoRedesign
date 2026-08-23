@@ -233,7 +233,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: "18px",
+          borderRadius: "12px",
           overflow: "visible",
           maxWidth: isMobile ? "95vw" : "520px",
           maxHeight: "90vh",
@@ -283,7 +283,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             pb: 0,
           }}
         >
-          <StepIndicator currentStep={1} totalSteps={2} />
+          <StepIndicator currentStep={1} totalSteps={2} dataTestId="create-company-step-indicator" />
         </Box>
       )}
 
@@ -469,12 +469,12 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 "& fieldset": {
                   borderColor: errors.mobile
                     ? theme.palette.error.main
-                    : "#E9ECF2",
+                    : theme.palette.divider,
                 },
                 "&:hover fieldset": {
                   borderColor: errors.mobile
                     ? theme.palette.error.main
-                    : "#D0D5DD",
+                    : theme.palette.divider,
                 },
                 "&.Mui-focused fieldset": {
                   borderColor: errors.mobile
@@ -581,12 +581,12 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    borderRadius: "10px",
+                    borderRadius: "8px",
                     fontSize: isMobile ? "13px" : "15px",
                     fontFamily: "var(--font-sans)",
                     minHeight: isMobile ? "40px" : "44px",
-                    "& fieldset": { borderColor: errors.country ? theme.palette.error.main : "#E9ECF2" },
-                    "&:hover fieldset": { borderColor: errors.country ? theme.palette.error.main : "#D0D5DD" },
+                    "& fieldset": { borderColor: errors.country ? theme.palette.error.main : theme.palette.divider },
+                    "&:hover fieldset": { borderColor: errors.country ? theme.palette.error.main : theme.palette.divider },
                     "&.Mui-focused fieldset": { borderColor: errors.country ? theme.palette.error.main : theme.palette.primary.main },
                   },
                   "& .MuiFormHelperText-root": { fontFamily: "var(--font-sans)", fontSize: "12px", marginLeft: "4px" },
@@ -634,12 +634,12 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 helperText={errors.currency}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    borderRadius: "10px",
+                    borderRadius: "8px",
                     fontSize: isMobile ? "13px" : "15px",
                     fontFamily: "var(--font-sans)",
                     minHeight: isMobile ? "40px" : "44px",
-                    "& fieldset": { borderColor: errors.currency ? theme.palette.error.main : "#E9ECF2" },
-                    "&:hover fieldset": { borderColor: errors.currency ? theme.palette.error.main : "#D0D5DD" },
+                    "& fieldset": { borderColor: errors.currency ? theme.palette.error.main : theme.palette.divider },
+                    "&:hover fieldset": { borderColor: errors.currency ? theme.palette.error.main : theme.palette.divider },
                     "&.Mui-focused fieldset": { borderColor: errors.currency ? theme.palette.error.main : theme.palette.primary.main },
                   },
                   "& .MuiFormHelperText-root": { fontFamily: "var(--font-sans)", fontSize: "12px", marginLeft: "4px" },
@@ -680,10 +680,10 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 px: 1.5,
                 py: 0.75,
                 borderRadius: "8px",
-                border: `1px solid #E9ECF2`,
+                border: `1px solid ${theme.palette.divider}`,
                 cursor: "pointer",
                 transition: "background-color 0.15s",
-                "&:hover": { backgroundColor: "#F4F6FA" },
+                "&:hover": { backgroundColor: theme.palette.action.hover },
               }}
             >
               <CloudUploadRounded
@@ -710,7 +710,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                   height: 36,
                   borderRadius: "8px",
                   objectFit: "cover",
-                  border: `1px solid #E9ECF2`,
+                  border: `1px solid ${theme.palette.divider}`,
                 }}
               />
             )}

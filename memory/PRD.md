@@ -1,5 +1,27 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-23c, ONBOARDING FLOW → Quiet Money bar (blueprint P8)):
+User asked whether the onboarding flow was improved by UI_REDESIGN_BLUEPRINT_2026-08.md → it was NOT
+(no §5 directive; components untouched in P1–P7, only inherited the P1 token swap; still had filled green
+completed-step cards, filled tinted icon squares, 16–20px radii, rest shadows, lime confetti, hardcoded
+greys breaking dark mode). Then "fix end to end". Refactored 5 components (frontend-only, no logic/data/API):
+Components/UI/OnboardingFlow/{OnboardingChecklist,StepIndicator,CelebrationOverlay,CreateCompanyModal}.tsx
++ Components/UI/OnboardingBanner.tsx. Key changes: checklist card 12px radius + no rest shadow + theme
+tokens; completed step = neutral surface + hairline + emerald check (#047857/#34D399) + strikethrough (NO
+green fill); step icons transparent (no tinted square), next-step 1px indigo border = single accent; dark-mode
+AA fix (removed stacked 0.6/0.7 row opacity, lock icon→text.secondary); modal/dialog radii 18→12 & inputs
+10→8; retired lime #CCFF00 confetti→indigo/emerald/gold; all hardcoded #E9ECF2/#D0D5DD/#F4F6FA→theme.divider/
+action.hover (fixes dark mode). Modals kept as modals (drawer conversion deferred — shared components/risk).
+VERIFIED: frontend testing agent iteration_55 6/6 PASS (real computed styles light+dark), /dashboard
+regression clean, 0 console errors; lint 0 errors; all routes 200. NOT visually verified (unreachable on LIVE
+DB w/o completing onboarding — code-review only): CelebrationOverlay, CreateCompanyModal, OnboardingBanner.
+Temp QA page pages/ob-preview-temp.tsx was created for the testing agent then DELETED. Blueprint updated: P8.
+
+---
+
+
+# CURRENT STATE POINTER (2026-06 fork, latest first)
+
 LATEST SESSION (2026-08-23b, follow-up — finish the no-img-element cleanup):
 User asked "is the 9 no-img-element warnings fixed?" → they were NOT (prior session silenced only
 6, and one disable comment was misplaced in ProductEditor so it didn't apply). FIXED all 9 with
