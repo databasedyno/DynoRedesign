@@ -3,6 +3,7 @@ import useSWR from "swr";
 import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
 import PanelCard from "@/Components/UI/PanelCard";
+import Sparkline from "@/Components/UI/Sparkline";
 import axiosBaseApi from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { brandFg } from "@/constants/theme";
@@ -15,6 +16,8 @@ interface SplitRow {
   handle: string | null;
   is_primary: boolean;
   views_30d: number;
+  /** 30-day daily-views bucket, oldest → newest (Redis-backed, best-effort). */
+  views_daily?: number[];
   tips_count_30d: number;
   tips_amount_30d: number;
   sales_count_30d: number;
@@ -73,7 +76,9 @@ const StorefrontComparePanel: React.FC = () => {
     fontVariantNumeric: "tabular-nums" as const,
     textAlign: "right" as const,
   };
-  const GRID = "minmax(160px, 1.4fr) 0.7fr 0.9fr 0.9fr 0.9fr";
+  // Grid: Company · Views (with sparkline) · Tips · Sales · Revenue
+  // The sparkline lives inside the Views cell so nothing else has to move.
+  const GRID = "minmax(160px, 1.4fr) minmax(160px, 1.1fr) 0.9fr 0.9fr 0.9fr";
 
   return (
     <Box sx={{ mt: 3 }} data-testid="storefront-compare-panel">
@@ -90,10 +95,10 @@ const StorefrontComparePanel: React.FC = () => {
           />
         ) : (
           <Box sx={{ overflowX: "auto" }}>
-            <Box sx={{ minWidth: 560 }}>
+            <Box sx={{ minWidth: 620 }}>
               <Box sx={{ display: "grid", gridTemplateColumns: GRID, gap: 1.5, px: 1.5, pb: 1 }}>
                 <Typography sx={HEAD_SX}>Company</Typography>
-                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Views</Typography>
+                <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Views · 30d trend</Typography>
                 <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Tips</Typography>
                 <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Sales</Typography>
                 <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>Revenue</Typography>
@@ -150,7 +155,28 @@ const StorefrontComparePanel: React.FC = () => {
                         {row.handle ? `@${row.handle}` : "No storefront yet"}
                       </Typography>
                     </Box>
-                    <Typography sx={NUM_SX}>{row.views_30d.toLocaleString()}</Typography>
+                    {/* Views + inline 30-day sparkline */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        gap: 1,
+                        minWidth: 0,
+                      }}
+                    >
+                      <Sparkline
+                        points={row.views_daily}
+                        width={80}
+                        height={26}
+                        color={isSelected ? brandFg(isDark) : undefined}
+                        data-testid={`storefront-compare-sparkline-${row.company_id}`}
+                        ariaLabel={`${row.company_name || "Company"} — 30 day views trend, total ${row.views_30d}`}
+                      />
+                      <Typography sx={{ ...NUM_SX, minWidth: 40 }}>
+                        {row.views_30d.toLocaleString()}
+                      </Typography>
+                    </Box>
                     <Box sx={{ textAlign: "right" }}>
                       <Typography sx={NUM_SX}>{fmtMoney(row.tips_amount_30d)}</Typography>
                       <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary }}>

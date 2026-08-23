@@ -1,3 +1,56 @@
+# FOLLOW-UPS (2026-08-23o) — Compare-panel sparklines + Legacy File Trim + Public Live Preview chip (ALL 3 VERIFIED, iteration_67 100%)
+
+Wave 2 of the same backlog: user asked to "complete all" (some already shipped in iter66).
+Testing agent iteration_67 = 100% backend + 100% frontend, 0 defects, safe against the LIVE DB.
+
+1. COMPARE TRENDS SPARKLINE (P2) — new `Components/UI/Sparkline.tsx` (dependency-free SVG,
+   72 lines, includes gradient fill under the trend line + "no data" pill fallback for
+   all-zero series). `getCreatorAnalyticsSplit` now returns a `views_daily` array (30
+   numbers, oldest→newest) per company alongside the existing views_30d total. Added a new
+   grid column to `StorefrontComparePanel.tsx` — header reads "Views · 30d trend", inline
+   sparkline (80×26 px) uses the account brand accent for the selected company and the
+   theme's primary otherwise, followed by the 30d view count.
+2. LEGACY FILE TRIM (P2) — 5 extractions, all new files <500 lines, all parents shrunk
+   below their baselines so the file-size gate stops warning:
+   - `utils/cronJobs.ts` 1341 → 710 lines. Extracted `crons/paymentLinkReminder.ts` (253),
+     `crons/onboardingMonitor.ts` (300), `crons/firstPaymentMonitor.ts` (115). Parent
+     re-imports + re-exports the 5 setup/trigger symbols so server.ts + any callers stay
+     untouched.
+   - `controller/companyController.ts` 2229 → 1847 lines. Extracted
+     `controller/company/autoConvert.ts` (429) → holds VALID_SETTLEMENT_CURRENCIES,
+     VALID_SETTLEMENT_CHAINS, getEligibleStablecoinWallets, mapSettlementToWalletType,
+     getAutoConvertSettings, updateAutoConvertSettings, getConversionHistory,
+     getConversionDetail, retryConversion. Test agent confirmed
+     `GET /api/company/auto-convert/1` still returns the exact same shape.
+   - `controller/payment/cryptoCheckout.ts` 2340 → 1916 lines. Extracted
+     `controller/payment/confirmPayment.ts` (456) — the settlement handler.
+     `POST /api/payment/confirmPayment` still mounted (403 CSRF on empty body, not 404).
+   - `backend/scripts/file-size-baseline.json` updated to new smaller values so the gate
+     enforces the new lower ceilings going forward.
+3. PUBLIC THEME PREVIEW (P2) — added a green "LIVE" pill (testid
+   `creator-preview-live-chip`) next to the "Live preview" label so users know clicking
+   accent swatches / cover styles updates the right column instantly (no Save required).
+   Test agent verified: clicking accent-swatch-magenta then accent-swatch-teal instantly
+   flipped colors in BOTH `theme-preview` (in-picker) AND `creator-live-preview` (right
+   column), zero re-mount / zero backend call.
+
+Regression: `test_iter66_tax_receipt_render.ts` still 4/4 PASS. Handle Nudge shell still
+hidden when no localStorage flag set. No console errors on /storefront + /dashboard.
+Files:
+  Frontend — `Components/UI/Sparkline.tsx` (NEW),
+  `Components/Page/Storefront/{StorefrontComparePanel,PageTab}.tsx`.
+  Backend — `controller/user/creatorAnalytics.ts` (adds views_daily),
+  `utils/cronJobs.ts` (re-export shell),
+  `utils/crons/{paymentLinkReminder,onboardingMonitor,firstPaymentMonitor}.ts` (NEW),
+  `controller/companyController.ts` (re-export shell),
+  `controller/company/autoConvert.ts` (NEW),
+  `controller/payment/cryptoCheckout.ts` (re-export of confirmPayment),
+  `controller/payment/confirmPayment.ts` (NEW),
+  `scripts/file-size-baseline.json` (3 entries updated).
+
+---
+
+
 # FOLLOW-UPS (2026-08-23n) — Handle Availability Nudge + Storefront Themes scope + Per-Country Tax Receipts Label (ALL 3 VERIFIED, iteration_66 100%)
 
 Built the 3 remaining backlog items in one pass; testing agent iteration_66 = 100% (4/4 tax

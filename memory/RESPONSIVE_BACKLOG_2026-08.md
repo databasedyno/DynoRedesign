@@ -112,10 +112,16 @@ selector instead of matching by visible text.
    migration 010; added a "Applies to this company only" scope chip to the Page theme section.
 5. **Tax Receipts Label (P2)** — ✅ DONE 2026-08-23n. Email receipts now use per-country tax_label
    (VAT/GST/IVA/TVA/Tax) + rate percentage + reverse-charge note + merchant VAT ID row.
-6. **Legacy File Trim (P2, eng health)** — 12 grandfathered backend files grew past their
-   file-size baselines (cryptoCheckout.ts, cronJobs.ts, companyController.ts…). Split the fastest
-   growers so the pre-commit size gate never blocks a save again (creatorProfile.ts already split
-   → creatorAnalytics.ts, 2026-08-23j).
+6. **Compare Trends sparkline (P2)** — ✅ DONE 2026-08-23o (iteration_67 100%). 30-day daily-views
+   inline SVG sparkline per company on /storefront compare panel, dependency-free
+   `Components/UI/Sparkline.tsx`, "no data" pill fallback.
+7. **Public Theme Preview (P2)** — ✅ DONE 2026-08-23o. Green "LIVE" pill next to the live preview
+   label makes it obvious that accent/cover changes update the right column instantly.
+8. **Legacy File Trim (P2, eng health)** — ✅ DONE 2026-08-23o. cronJobs.ts 1341→710,
+   companyController.ts 2229→1847, cryptoCheckout.ts 2340→1916. 5 extracted files
+   (paymentLinkReminder, onboardingMonitor, firstPaymentMonitor, autoConvert, confirmPayment) all
+   <500 lines; parents re-export the moved symbols so no caller has to change imports.
+   `check-file-size.mjs` no longer warns about those 3 files.
 
 ## New (from user, 2026-08-23k)
 5. **New-company storefront leak (BUG — FIXED + VERIFIED, iteration_63 100%)** — a freshly

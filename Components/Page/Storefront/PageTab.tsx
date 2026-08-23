@@ -311,9 +311,40 @@ const PageTab = () => {
 
         {isDesktop && mounted && (
           <Box sx={{ flex: "0 0 360px", position: "sticky", top: 24 }} data-testid="creator-preview-column">
-            <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1, ml: 0.5 }}>
-              {t("creatorPreviewLabel", { defaultValue: "Live preview", ns: "dashboardLayout" })}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 1, ml: 0.5 }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+                {t("creatorPreviewLabel", { defaultValue: "Live preview", ns: "dashboardLayout" })}
+              </Typography>
+              {/* Live-updates hint: makes it obvious the preview reflects
+                  colour/cover changes instantly (no Save required). */}
+              <Box
+                data-testid="creator-preview-live-chip"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.35,
+                  px: 0.85,
+                  py: 0.1,
+                  borderRadius: 999,
+                  border: `1px solid ${theme.palette.divider}`,
+                  backgroundColor: theme.palette.mode === "dark" ? "rgba(34,197,94,0.10)" : "rgba(34,197,94,0.08)",
+                }}
+                title="Updates instantly as you tweak the theme — no Save required."
+              >
+                <Box
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    backgroundColor: "#22c55e",
+                    boxShadow: "0 0 0 2px rgba(34,197,94,0.20)",
+                  }}
+                />
+                <Typography sx={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.5, color: "#22c55e", textTransform: "uppercase" }}>
+                  Live
+                </Typography>
+              </Box>
+            </Box>
             <CreatorLivePreview state={formState} />
           </Box>
         )}

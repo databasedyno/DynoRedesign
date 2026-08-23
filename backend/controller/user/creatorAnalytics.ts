@@ -91,16 +91,25 @@ export const getCreatorAnalyticsSplit = async (req: express.Request, res: expres
         : (cid === primaryId && accountHandle ? String(accountHandle).toLowerCase() : null);
 
       let views = 0;
+      // 30-day daily bucket array (oldest first) — powers the sparkline on the
+      // compare panel. Missing keys / redis errors surface as 0s so the client
+      // always gets exactly 30 datapoints per company (never a jagged chart).
+      const viewsDaily: number[] = new Array(30).fill(0);
       if (handle) {
         try {
-          const vals = await Promise.all(
+          const entries = await Promise.all(
             Array.from({ length: 30 }, (_, i) => {
+              // i=0 → today, i=29 → 29 days ago
               const ymd = new Date(now - i * 86400000).toISOString().slice(0, 10);
               return redis.get(`creator-visits:${handle}:day:${ymd}`);
             })
           );
-          views = vals.reduce((a: number, b) => a + Number(b || 0), 0);
-        } catch { /* redis best-effort */ }
+          for (let i = 0; i < 30; i++) {
+            const n = Number(entries[i] || 0);
+            viewsDaily[29 - i] = n; // reverse to oldest-first
+            views += n;
+          }
+        } catch { /* redis best-effort → zeros */ }
       }
 
       const tips = tipRows.find((r) => Number(r.company_id) === cid);
@@ -111,6 +120,7 @@ export const getCreatorAnalyticsSplit = async (req: express.Request, res: expres
         handle,
         is_primary: cid === primaryId,
         views_30d: views,
+        views_daily: viewsDaily,
         tips_count_30d: tips?.tips_count || 0,
         tips_amount_30d: round2(tips?.tips_amount || 0),
         sales_count_30d: sales?.sales_count || 0,
