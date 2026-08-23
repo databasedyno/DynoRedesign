@@ -801,12 +801,13 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             mt: 1.25,
           }}
         >
-          <Typography sx={{ fontFamily: MONO, fontSize: 12, flex: 1, minWidth: 0, wordBreak: 'break-all' }}>
+          <Typography sx={{ fontFamily: MONO, fontSize: 12, flex: 1, minWidth: 0, wordBreak: 'break-all' }} data-testid="inline-tip-underpaid-address">
             {cryptoInfo.address}
           </Typography>
           <Box
             component="button"
             onClick={() => doCopy(cryptoInfo.address, 'addr2')}
+            data-testid="inline-tip-underpaid-copy"
             sx={{
               background: 'none',
               border: `1px solid ${border}`,

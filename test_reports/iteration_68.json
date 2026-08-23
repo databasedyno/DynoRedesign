@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend-only test of the CleanCheckoutV2 (/pay) UNDERPAID state, driven entirely by Playwright route interception of /api/pay/* (getData, getCurrencyRates, encrypt-payload, addPayment, verifyCryptoPayment) — ZERO live data touched (SAFE MODE respected). Primary assertions PASS: underpaid banner, exact remaining amount, instruction switched to remaining amount, same address/QR still shown, grace countdown running. Found one HIGH residual gap: the AMOUNT row / Copy-amount / BIP-21 QR / 'Open in wallet app' deep link still use the ORIGINAL full amount (0.001 BTC) instead of the remaining 0.0006 BTC, so a buyer who scans the QR or taps Copy on AMOUNT will send the FULL amount again (overpay), directly contradicting the new banner. Secondary InlineTipCheckout underpaid state verified by code review only (not runtime-reachable without creating live payments).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CleanCheckoutV2 AMOUNT row", "issue": "During phase==='underpaid' the AMOUNT row and its Copy button still render cryptoInfo.expected_amount (0.001 BTC) instead of partial.remainingAmount (0.0006 BTC). Verified in browser: AMOUNT row text = '0.001 BTC'. Buyer copying this sends the full amount again -> overpayment.", "selector": "[data-testid=\"clean-checkout-copy-amount\"]", "priority": "HIGH"},
+      {"component": "CleanCheckoutV2 QR / wallet deep link", "issue": "paymentUri useMemo (line ~467-471) builds the BIP-21/Solana-Pay URI from cryptoInfo.expected_amount only; it does not depend on `partial`. So the QR shown in the underpaid state AND the 'Open in wallet app' button pre-fill the FULL 0.001 BTC, not the remaining 0.0006 BTC.", "selector": "[data-testid=\"clean-checkout-qr-svg\"]", "priority": "HIGH"},
+      {"component": "CheckoutStatusStrip (stripState mapping line ~1017)", "issue": "underpaid maps to 'confirming', so the top strip reads 'CONFIRMING / Broadcasting on-chain — We saw your transaction. Confirmations usually take under a minute.' while the banner below says an underpayment was detected. Misleading: buyer may believe the payment is complete. Needs a dedicated 'underpaid/action required' strip state.", "selector": "[data-testid=\"pay-status-strip\"]", "priority": "MEDIUM"},
+      {"component": "CleanCheckoutV2 / PanelShell", "issue": "React console error on every underpaid render: 'Warning: Invalid prop `children` supplied to `ForwardRef(Box)`, expected a ReactNode' at PanelShell (CleanCheckoutV2). Non-blocking but pollutes console.", "selector": "n/a", "priority": "LOW"},
+      {"component": "InlineTipCheckout underpaid view", "issue": "Address text and its Copy button in the underpaid block (lines ~790-830) have no data-testid (only 'inline-tip-underpaid' and 'inline-tip-underpaid-remaining' exist), making the address/copy assertion untestable.", "selector": "[data-testid=\"inline-tip-underpaid\"]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [{"screen": "/pay underpaid state", "issues": ["Amber underpaid banner is clear and readable; however conflicting messaging between the blue 'CONFIRMING / Broadcasting on-chain' strip at top and the amber underpayment banner below."]}]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Use partial.remainingAmount for the AMOUNT row + Copy-amount value when phase==='underpaid' (currently 0.001 BTC).",
+    "Make paymentUri depend on the underpaid remaining amount so the QR and 'Open in wallet app' deep link pre-fill 0.0006 BTC, not 0.001 BTC.",
+    "Add a distinct status-strip state for 'underpaid' (action required) instead of reusing 'confirming'.",
+    "Fix the PanelShell invalid `children` prop React warning.",
+    "Optional: add data-testids to the InlineTipCheckout underpaid address + copy button."
+  ],
+  "critical_code_review_comments": [
+    "CleanCheckoutV2.tsx line ~467: paymentUri useMemo depends only on cryptoInfo — add `partial`/phase so the machine-readable payment request matches the human-readable instruction. A mismatch between the banner text (0.0006) and the QR/copy amount (0.001) is worse than the original bug because wallets trust the QR.",
+    "CleanCheckoutV2.tsx is 1792 lines — exceeds the 700-line guideline; the checkout phases (currency select / awaiting / underpaid / confirmed) should be split into sub-components.",
+    "InlineTipCheckout underpaid view is a full-screen replacement so it has no conflicting full-amount display — that pattern is safer than CleanCheckoutV2's in-place banner."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested", "frontend": "80% (4/4 primary assertions pass; 2 HIGH follow-up gaps found)"},
+  "seed_data_creation": "None — all /api/pay/* calls mocked via Playwright page.route; no live payment links or crypto addresses were created.",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Reproduce the underpaid state with mocks only: register page.route for **/api/pay/getData*, getCurrencyRates* (data MUST be an array), encrypt-payload*, addPayment*, verifyCryptoPayment* (status 'underpaid', remainingAmount 0.0006, remaining_seconds 1500) BEFORE goto '/pay?d=QATEST'. Underpaid phase reached ~10-15s after load (first poll immediate but component needs the reserve chain). Verified testids: clean-checkout-underpaid-banner, clean-checkout-underpaid-remaining ('0.0006 BTC'), clean-checkout-instruction ('Pay 0.0006 BTC on Bitcoin'), clean-checkout-qr-panel, clean-checkout-address (mock addr rendered), clean-checkout-copy-address (works, shows 'Address copied'), timer counted 24:59 -> 24:56. Still failing: clean-checkout-copy-amount / AMOUNT row shows 0.001 BTC and QR/wallet link encode 0.001. Secondary InlineTipCheckout was NOT runtime-tested (would require live tip payment); code review confirms it renders inline-tip-underpaid with remaining amount, address and grace timer.",
+  "rca_of_the_issue": "The fix updated only the textual instruction and added the banner, but the other three places that surface the amount to send (AMOUNT row, Copy-amount, and the BIP-21 paymentUri used by both the QR and the wallet deep link) still read cryptoInfo.expected_amount, which is never recalculated when the partial payment state arrives."
+}

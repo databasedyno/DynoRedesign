@@ -1,3 +1,51 @@
+# FOLLOW-UPS (2026-06 fork, 2026-06) — Underpayment top-up prompt AUDIT + CleanCheckoutV2 fix (VERIFIED iter69 9/9)
+
+User asked to VERIFY that customers are prompted to complete an UNDERPAYMENT (send the remaining
+crypto to the SAME address) on every surface (payment page / store / tip / checkout), that the
+partial-payment grace timer works, and whether tolerance/grace is per-company or per-account.
+
+AUDIT FINDINGS (3 distinct checkout implementations):
+- Store / Tip / Donation = `Components/Page/Creator/InlineTipCheckout.tsx` → ALREADY correct: renders
+  `inline-tip-underpaid` ("We got X. Send Y more to the same address to complete your …") + address +
+  copy + grace timer, keeps polling. (Runtime-untested — needs a live tip; code-verified. Added
+  testids `inline-tip-underpaid-address` / `-copy`.)
+- Legacy `/pay` stepper (flag NEXT_PUBLIC_CLEAN_CHECKOUT_V2=false) = `cryptoTransfer.tsx` → ALREADY
+  correct: `Components/UI/UnderPayment/Index.tsx` card w/ remaining amount + "Pay Remaining with
+  Crypto" (`pay-remaining-btn`) + same address + timer.
+- Main `/pay` (flag ON = DEFAULT) = `Components/Page/Pay3Components/CleanCheckoutV2.tsx` → WAS BROKEN:
+  detected the underpayment but did NOT tell the buyer the remaining amount; worse, the AMOUNT row,
+  Copy-amount, QR and "Open in wallet app" BIP-21 deep link still encoded the FULL amount → a buyer
+  scanning the QR would OVERPAY. Also the top strip showed a misleading "CONFIRMING / Broadcasting
+  on-chain".
+
+FIX (CleanCheckoutV2, frontend-only): poll's underpaid branch now captures partial
+{paidAmount, remainingAmount, remainingAmountUsd, currency, baseCurrency}; introduced a single
+`amountToSend` (= partial.remainingAmount when phase==='underpaid', else expected_amount) used by the
+instruction, AMOUNT row, Copy-amount and mobile sticky bar; `paymentUri` useMemo now depends on
+phase+partial so the QR + wallet deep link encode the REMAINING amount; added an amber "Underpayment
+detected — send X more to the same address" banner (`clean-checkout-underpaid-banner` /
+`-remaining`) with a grace countdown (`clean-checkout-underpaid-timer`); `stripState` returns null
+for underpaid (kills the misleading confirming strip).
+
+GRACE TIMER: works. `verifyPayment.ts` computes remaining_seconds from partialPaymentTimestamp +
+company grace_period_minutes (capped 30); all checkouts count down + expire at 0. Verified live in
+CleanCheckoutV2 (25:00 counting down).
+
+PER-COMPANY vs PER-ACCOUNT: **PER-COMPANY**. grace_period_minutes + under/overpayment thresholds live
+on `tbl_company` and are resolved at settlement by the payment's company_id
+(`verifyPayment.ts` L143-159). Each company under an account has independent settings (Settings UI
+shows the company selector + "Applies to <Company>" chip).
+
+VERIFIED: testing agent iteration_69 = 9/9 (100%) via SAFE route-interception (mocked all /api/pay/*,
+zero live data). Underpaid desktop+mobile: every actionable amount = remaining 0.0006 BTC (text, copy,
+QR, wallet href amount=0.0006), timer runs, strip hidden, address reused; regression (waiting state)
+still shows full amount + strip. TWO pre-existing LOW console items (unrelated to this fix, NOT fixed):
+(a) React "Invalid prop children supplied to ForwardRef(Box)" at PanelShell (cosmetic); (b) 401 on
+`/api/company/getCompany` fired on the public /pay page for anonymous visitors (noisy).
+
+---
+
+
 # FOLLOW-UPS (2026-06 fork, 2026-06) — Payment Tolerance UI fix + Overpayment→Admin routing (items 2 & 3; escrow deferred)
 
 USER (this session) clarified the confusing handoff: build (A) Payment Tolerance UI fix, then

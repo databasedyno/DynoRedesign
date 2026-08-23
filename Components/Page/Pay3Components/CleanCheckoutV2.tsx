@@ -324,6 +324,15 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     fiat: number
     fiatCurrency: string
   } | null>(null)
+  // Partial-payment (underpaid) details so the buyer is told exactly how much
+  // MORE to send to the SAME address to complete the payment.
+  const [partial, setPartial] = useState<{
+    paidAmount: number
+    remainingAmount: number
+    remainingAmountUsd: number
+    currency: string
+    baseCurrency: string
+  } | null>(null)
 
   const mountedRef = useRef(true)
   const pollRef = useRef<any>(null)
@@ -455,11 +464,19 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   }, [meta_, selectedNetwork])
 
   // One-tap wallet deep-link + URI-QR value (null for token/EVM/TRON chains).
+  // Uses the OUTSTANDING amount during an underpayment so the machine-readable
+  // QR / deep link never disagrees with the human-readable instruction.
   const paymentUri = useMemo(() => {
     if (!cryptoInfo) return null
     const netCode = CRYPTO_INFO[cryptoInfo.crypto_display]?.network || cryptoInfo.network
-    return buildPaymentUri(netCode, cryptoInfo.address, cryptoInfo.expected_amount, cryptoInfo.crypto_base)
-  }, [cryptoInfo])
+    const amt = phase === 'underpaid' && partial ? partial.remainingAmount : cryptoInfo.expected_amount
+    return buildPaymentUri(netCode, cryptoInfo.address, amt, cryptoInfo.crypto_base)
+  }, [cryptoInfo, phase, partial])
+
+  // Exact crypto amount the buyer must still send NOW — the outstanding
+  // remainder during an underpayment, else the full expected amount. Every
+  // amount surface (instruction, AMOUNT row, copy, sticky bar) uses this.
+  const amountToSend = phase === 'underpaid' && partial ? partial.remainingAmount : (cryptoInfo?.expected_amount ?? 0)
 
   // Auto-select network when meta loads — prefer the customer's remembered
   // choice (per-device) so a returning visitor lands on their usual coin.
@@ -635,6 +652,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       } else if (s === 'underpaid') {
         setDetected(true)
         setPhase('underpaid')
+        setPartial({
+          paidAmount: Number(d_.paidAmount || 0),
+          remainingAmount: Number(d_.remainingAmount || 0),
+          remainingAmountUsd: Number(d_.remainingAmountUsd || 0),
+          currency: String(d_.currency || cryptoInfo.crypto_base),
+          baseCurrency: String(d_.baseCurrency || meta_.base_currency),
+        })
       } else if (s === 'waiting') {
         setDetected(false)
       }
@@ -998,7 +1022,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   // picked a coin yet don't need a "waiting" prompt.
   const stripState: CheckoutState | null = (() => {
     if (phase === 'awaiting_payment') return detected ? 'confirming' : 'pending';
-    if (phase === 'underpaid') return 'confirming';
+    // 'underpaid' intentionally shows NO top strip — the dedicated amber
+    // "action required" banner below carries the message + remaining amount,
+    // avoiding a misleading "Broadcasting on-chain / confirming" header.
     return null;
   })();
 
@@ -1212,13 +1238,52 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         </Box>
       </Box>
 
+      {/* Partial-payment (underpaid) banner — tells the buyer exactly how much
+          MORE to send to the SAME address shown below to complete the payment. */}
+      {phase === 'underpaid' && partial && cryptoInfo && (
+        <Box
+          data-testid="clean-checkout-underpaid-banner"
+          sx={{
+            display: 'flex', alignItems: 'flex-start', gap: 1, p: 1.5, mb: 2,
+            borderRadius: '10px', border: `1px solid ${warnFg}55`, backgroundColor: warnBg,
+          }}
+        >
+          <Icon icon="mdi:alert-circle-outline" width={20} color={warnFg} style={{ flexShrink: 0, marginTop: 1 }} />
+          <Box>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: theme.palette.text.primary, mb: 0.25 }}>
+              {t('checkout.status.underpaid', { defaultValue: 'Underpayment detected' })}
+            </Typography>
+            <Typography sx={{ fontSize: 12.5, color: theme.palette.text.primary, lineHeight: 1.5 }}>
+              {t('checkout.underpaid.gotPrefix', { defaultValue: 'We received' })}{' '}
+              {formatCryptoAmount(partial.paidAmount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}.{' '}
+              {t('checkout.underpaid.sendPrefix', { defaultValue: 'Send' })}{' '}
+              <strong data-testid="clean-checkout-underpaid-remaining">
+                {formatCryptoAmount(partial.remainingAmount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
+              </strong>
+              {partial.remainingAmountUsd > 0 && (
+                <> (≈ {fmtFiat(partial.remainingAmountUsd)} {partial.baseCurrency})</>
+              )}{' '}
+              {t('checkout.underpaid.sameAddressTail', { defaultValue: 'more to the same address below to complete your payment.' })}
+            </Typography>
+            <Typography
+              data-testid="clean-checkout-underpaid-timer"
+              sx={{ fontSize: 11.5, color: theme.palette.text.secondary, mt: 0.6, display: 'flex', alignItems: 'center', gap: 0.5 }}
+            >
+              <Icon icon="mdi:timer-outline" width={13} />
+              {t('checkout.underpaid.graceTimer', { defaultValue: 'Time left to complete' })}:{' '}
+              <Box component="span" sx={{ fontFamily: MONO, fontWeight: 700, color: theme.palette.text.primary }}>{timerLabel}</Box>
+            </Typography>
+          </Box>
+        </Box>
+      )}
+
       {/* Instruction sentence */}
       {cryptoInfo && (
         <Typography
           data-testid="clean-checkout-instruction"
           sx={{ fontSize: 14, color: theme.palette.text.primary, textAlign: 'center', mb: 2 }}
         >
-          {t('checkout.payPrefix', { defaultValue: 'Pay' })} <strong>{formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}</strong> {t('checkout.payOn', { defaultValue: 'on' })} {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
+          {t('checkout.payPrefix', { defaultValue: 'Pay' })} <strong>{formatCryptoAmount(amountToSend, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}</strong> {t('checkout.payOn', { defaultValue: 'on' })} {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
         </Typography>
       )}
 
@@ -1345,12 +1410,12 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             }}
           >
             <Typography sx={{ fontFamily: MONO, fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>
-              {formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
+              {formatCryptoAmount(amountToSend, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
             </Typography>
             <Box
               component="button"
               data-testid="clean-checkout-copy-amount"
-              onClick={() => doCopy(formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base), 'amt')}
+              onClick={() => doCopy(formatCryptoAmount(amountToSend, cryptoInfo.crypto_base), 'amt')}
               sx={{
                 background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
                 px: 1.5, py: 0.9, minHeight: 44, cursor: 'pointer', color: theme.palette.text.primary,
@@ -1520,7 +1585,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               {t('checkout.sendExactly', { defaultValue: 'Send exactly' })}
             </Typography>
             <Typography sx={{ fontFamily: MONO, fontSize: 15, fontWeight: 700, color: theme.palette.text.primary, lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
+              {formatCryptoAmount(amountToSend, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
             </Typography>
           </Box>
           {paymentUri ? (
