@@ -8,7 +8,37 @@ live payment surfaces. None are blockers.
 
 ---
 
-## P1 — Responsive Tables (shared table→card primitive)
+## ✅ DONE 2026-08-23g (verified iterations 59–61)
+- **P1 Responsive Tables — DONE.** Shared `hooks/useTableCardView.ts` (single 768px breakpoint):
+  transactions + pay-links swapped `useIsMobile("md")`→`useTableCardView()` (were showing cards at
+  768; now tables ≥768, cards <768); invoices (`pages/invoices.tsx`) + customers
+  (`Components/Page/Customers/index.tsx`) got NEW mobile card lists (testids
+  invoices-card-list/invoice-card-<id>, customers-card-list/customer-card-<id>). No 390 clipping.
+  Verified PASS all 4 pages × light/dark.
+- **P1 Mobile Header 44px — DONE.** In-app header 40→48px (`Containers/Client/index.tsx`); hamburger,
+  +New (`CreateNewButton`), bell (`NotificationsBell`), avatar (`UserMenu` UserTrigger), company-
+  selector trigger all ≥44px; ThemeToggle already 44. Hid the decorative mobile wordmark <600px so
+  the company name still fits.
+- **Popover polish — DONE.** Company dropdown flush under trigger (mt 0.5), divider hidden <600 so the
+  short name shows.
+- **Multi-company switch + persistence — DONE + BUG FIXED.** Removed CompanySelector's auto-select-
+  first effect that raced CompanyDataContext and clobbered the persisted company to the newest on every
+  load; CompanyDataContext is now the sole owner of default selection. Removed 2 duplicate
+  last-company PUTs (now exactly one per switch). Verified persistence holds both directions.
+  NOTE: a temp company **QA-DELETE-ME (id 55)** was created on the LIVE prod DB to test switching —
+  the user intends to delete it.
+- Also fixed: `📄` emoji → MUI icon in invoices empty state; `<h6>`-in-`<h2>` DOM warning in the
+  Customers detail dialog; removed orphaned imports.
+
+### Still open (lower priority)
+- **transactions sticky first/ID column** (custom flex table — not converted; horizontal scroll works).
+- Scroll-affordance fade on `/settings` rail + `/transactions` chip row. Landing hero right-edge bleed.
+- Bottom-tab tab set. Recharts `width(-1)` console warning on dashboard. Invoice-preview drawer:
+  Esc-to-close + PDF loading state (pre-existing drawer).
+
+---
+
+## P1 — Responsive Tables (shared table→card primitive) — ✅ DONE (see above)
 Build **one** shared table→card primitive so **transactions, pay-links, invoices and customers**
 all behave correctly on tablets and phones.
 

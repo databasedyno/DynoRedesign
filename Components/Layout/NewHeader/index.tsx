@@ -112,8 +112,8 @@ const NewHeader = () => {
           sx={{
             display: "inline-flex",
             "@media (min-width:768px)": { display: "none" },
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             mr: 0.5,
             color: muiTheme.palette.text.primary,
             backgroundColor: "transparent",
@@ -153,7 +153,7 @@ const NewHeader = () => {
         <Box
           onClick={() => router.push("/dashboard")}
           sx={{
-            display: { xs: "flex", lg: "none" },
+            display: { xs: "none", sm: "flex", lg: "none" },
             alignItems: "center",
             cursor: "pointer",
             pl: 0.5,

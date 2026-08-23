@@ -16,9 +16,9 @@ export const SelectorTrigger = styled("div")(({ theme }) => ({
   position: "relative",
   color: theme?.palette?.text?.primary,
   [theme.breakpoints.down("md")]: {
-    height: "16px",
+    minHeight: "44px",
     padding: "0px",
-    gap: "8px",
+    gap: "4px",
     border: "none",
   },
 }));

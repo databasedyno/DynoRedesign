@@ -1,5 +1,27 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-23g, 4 backlog items: responsive tables + mobile header + popover + multi-company):
+ALL 4 DONE & VERIFIED (testing agent iterations 59→61, PASS). (2) Responsive tables: new shared
+hooks/useTableCardView.ts (768px) — transactions/pay-links now tables ≥768 (were cards@768), invoices
+(pages/invoices.tsx) + customers (Components/Page/Customers/index.tsx) got NEW mobile card lists
+(testids *-card-list / *-card-<id>); no 390 clipping, light+dark PASS. (3) Mobile header 40→48px
+(Containers/Client/index.tsx) + hamburger/+New/bell/avatar/company-trigger all ≥44px; hid decorative
+mobile wordmark <600px so the company name still fits. (4) Company dropdown flush (Popover mt 0.5,
+divider hidden <600). (1) Multi-company: FIXED a HIGH pre-existing persistence bug — removed
+CompanySelector auto-select-first effect that raced CompanyDataContext and clobbered the persisted
+company to the newest on every load; CompanyDataContext is now sole owner of default selection; removed
+2 duplicate last-company PUTs (now exactly 1/switch); switch+toast + persistence verified both directions.
+Also fixed 📄 emoji→MUI icon (invoices empty state), <h6>-in-<h2> DOM warning (Customers dialog), removed
+orphaned imports. ⚠️ ACTION FOR USER: a temp company **QA-DELETE-ME (id 55)** was created on the LIVE
+prod DB to test switching — DELETE it. Still open (low pri): transactions sticky ID column, scroll-
+affordance fades, invoice-preview drawer Esc/PDF-loading, recharts width(-1) warning. Login: /auth/login
+2-step (Email→Continue exact=True→wait→password→Sign in), hostbay@moxx.co. Companies: hostbay=1, QA-DELETE-ME=55.
+
+---
+
+
+# CURRENT STATE POINTER (2026-06 fork, latest first)
+
 LATEST SESSION (2026-08-23f, BUG: company-selector dropdown does nothing on mobile/other devices):
 Root cause — the dropdown was an absolutely-positioned child clipped by the header/app-shell
 overflow:hidden ancestors (Containers/Client/index.tsx ~122 + the selector wrapper). FIX: converted

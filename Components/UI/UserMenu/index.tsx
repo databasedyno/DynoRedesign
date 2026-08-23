@@ -120,7 +120,7 @@ export default function UserMenu() {
       }}
     >
       {/* Trigger */}
-      <UserTrigger onClick={(e) => setAnchorEl(e.currentTarget)}>
+      <UserTrigger onClick={(e) => setAnchorEl(e.currentTarget)} data-testid="user-menu-trigger">
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <Box
             sx={{

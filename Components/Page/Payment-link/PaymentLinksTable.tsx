@@ -56,6 +56,7 @@ import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import Toast from "@/Components/UI/Toast";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
 import useIsMobile from "@/hooks/useIsMobile";
+import useTableCardView from "@/hooks/useTableCardView";
 import {
   PaymentLinkData,
   PaymentLinksTableProps,
@@ -150,7 +151,7 @@ const PaymentLinksTable = ({
   const { t } = useTranslation("paymentLinks");
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   const theme = useTheme();
-  const isMobile = useIsMobile("md");
+  const isMobile = useTableCardView();
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>("");
   const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");

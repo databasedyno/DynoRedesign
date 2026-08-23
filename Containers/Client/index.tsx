@@ -142,7 +142,7 @@ const ClientLayout = ({
           >
             <Box
               sx={{
-                height: isMobile ? "40px" : "56px",
+                height: isMobile ? "48px" : "56px",
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",

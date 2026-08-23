@@ -26,6 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { pageProps } from "@/utils/types";
 import useIsMobile from "@/hooks/useIsMobile";
+import useTableCardView from "@/hooks/useTableCardView";
 import useDisplayFx from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
 import useSWR from "swr";
@@ -85,6 +86,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const router = useRouter();
   const muiTheme = useTheme();
   const isMobile = useIsMobile("md");
+  const cardView = useTableCardView();
   const { t } = useTranslation("common");
 
   const [activeTab, setActiveTab] = useState(0);
@@ -375,6 +377,95 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               headerPadding={muiTheme.spacing(2.5)}
               bodyPadding={muiTheme.spacing(0)}
             >
+              {/* Invoices — card list (<768) / table (>=768). §4.2 shared breakpoint. */}
+              {cardView ? (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 2 }} data-testid="invoices-card-list">
+                  {invoiceLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <Box key={i} sx={{ p: 2, borderRadius: "12px", border: `1px solid ${muiTheme.palette.divider}` }}>
+                        <Skeleton width="50%" height={18} />
+                        <Skeleton width="30%" height={16} />
+                      </Box>
+                    ))
+                  ) : invoices.length === 0 ? (
+                    <Box sx={{ py: 5, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5 }}>
+                      <Box
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: "50%",
+                          bgcolor: `${muiTheme.palette.primary.main}10`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: brandFg(muiTheme.palette.mode === "dark"),
+                        }}
+                      >
+                        <Icon name="file-text" size={26} />
+                      </Box>
+                      <Typography sx={{ fontWeight: 600, fontFamily: "var(--font-sans)", color: muiTheme.palette.text.primary }}>
+                        {t("invoices.noInvoicesTitle")}
+                      </Typography>
+                      <Typography sx={{ fontSize: 13, color: muiTheme.palette.text.secondary, fontFamily: "var(--font-sans)", maxWidth: 320, lineHeight: 1.5 }}>
+                        {t("invoices.noInvoicesDesc")}
+                      </Typography>
+                      <CustomButton label={t("invoices.noInvoicesCta")} variant="primary" size="small" onClick={() => router.push("/create-pay-link")} />
+                    </Box>
+                  ) : (
+                    invoices.map((inv) => (
+                      <Box
+                        key={inv.invoice_id}
+                        data-testid={`invoice-card-${inv.invoice_id}`}
+                        onMouseEnter={() => prefetchInvoicePdf(inv.invoice_id)}
+                        onClick={() => openInvoicePreview(inv)}
+                        sx={{
+                          p: 2,
+                          borderRadius: "12px",
+                          border: `1px solid ${muiTheme.palette.divider}`,
+                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                            <Typography sx={{ fontWeight: 600, fontFamily: "var(--font-sans)", color: muiTheme.palette.text.primary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {inv.invoice_number}
+                            </Typography>
+                            <StatusPill tone="settled">Paid</StatusPill>
+                          </Box>
+                          <Typography sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: muiTheme.palette.text.primary, flexShrink: 0 }}>
+                            {formatUsdInDisplay(inv.total_usd)}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography sx={{ fontSize: 13, color: muiTheme.palette.text.primary, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {inv.customer_name}
+                            </Typography>
+                            <Typography sx={{ fontSize: 12, color: muiTheme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
+                              {formatDate(inv.invoice_date)}
+                              {parseFloat(String(inv.vat_amount)) > 0 ? ` · VAT ${inv.vat_rate}%` : ""}
+                            </Typography>
+                          </Box>
+                          <IconButton
+                            size="small"
+                            aria-label={t("invoices.downloadPdf")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadPDF(inv.invoice_id);
+                            }}
+                            sx={{ color: brandFg(muiTheme.palette.mode === "dark"), width: 44, height: 44, flexShrink: 0 }}
+                          >
+                            <Icon name="download" size={18} />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    ))
+                  )}
+                </Box>
+              ) : (
               <TableContainer>
                 <Table size={isMobile ? "small" : "medium"}>
                   <TableHead>
@@ -487,13 +578,14 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                     height: 56,
                                     borderRadius: "50%",
                                     bgcolor: `${muiTheme.palette.primary.main}10`,
+                                    color: brandFg(muiTheme.palette.mode === "dark"),
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
                                     mb: 0.5,
                                   }}
                                 >
-                                  <Typography sx={{ fontSize: 28 }}>📄</Typography>
+                                  <Icon name="file-text" size={26} />
                                 </Box>
                                 <Typography
                                   sx={{
@@ -699,6 +791,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              )}
 
               {/* Pagination */}
               {totalInvoices > 20 && (
@@ -740,7 +833,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             </PanelCard>
             {/* Mobile-only bottom clearance (session 72) so the pager clears the
                 fixed support-chat FAB + bottom nav pill on mobile. */}
-            {isMobile && totalInvoices > 20 && (
+            {cardView && totalInvoices > 20 && (
               <Box sx={{ height: "96px", flexShrink: 0 }} />
             )}
           </Box>

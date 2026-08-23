@@ -17,6 +17,8 @@ export const UserTrigger = styled("div")(({ theme }) => ({
     gap: "8px",
     border: "none",
     background: "transparent",
+    minHeight: 44,
+    minWidth: 44,
   },
 }));
 

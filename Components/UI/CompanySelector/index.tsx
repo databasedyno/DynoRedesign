@@ -4,7 +4,6 @@ import EditIcon from "@/assets/Icons/edit-icon.svg";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { Box, Divider, Popover, Snackbar, Typography, useTheme } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import axiosBaseApi from "@/axiosConfig";
 import {
   CompanyItem,
   ItemLeft,
@@ -40,7 +39,6 @@ import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModa
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import StepIndicator from "@/Components/UI/OnboardingFlow/StepIndicator";
 import CelebrationOverlay from "@/Components/UI/OnboardingFlow/CelebrationOverlay";
-import { API_ENDPOINTS } from "@/api/endpoints";
 
 export default function CompanySelector() {
   const { t } = useTranslation("dashboardLayout");
@@ -112,24 +110,23 @@ export default function CompanySelector() {
     [companyState.companyList],
   );
   
-  // Use Redux selectedCompanyId
+  // Use the selected company from CompanyDataContext.
   const active = companyState.selectedCompanyId;
-  
-  // Auto-select first company if none selected
-  useEffect(() => {
-    if (active == null && companies.length > 0) {
-      companyState.selectCompany(companies[0].company_id);
-    }
-  }, [active, companies, dispatch]);
+
+  // NOTE: default-company selection is owned solely by CompanyDataContext
+  // (keeps a valid current selection -> last_company_id from localStorage ->
+  // first company). We must NOT auto-select here: because companyList is
+  // newest-first, an auto-select-first effect races the context's restore and
+  // clobbers the persisted company (writing the newest id to LS + the backend)
+  // on every page load, landing multi-company merchants on the wrong company.
 
   // After company list updates during "wallet" phase, select the newest company
   useEffect(() => {
     if (addCompanyPhase === "wallet" && companies.length > 0) {
       const newestCompany = companies[companies.length - 1];
       if (newestCompany && newestCompany.company_id !== active) {
+        // selectCompany persists last_company (backend + localStorage) itself.
         companyState.selectCompany(newestCompany.company_id);
-        // Persist to backend
-        axiosBaseApi.put(API_ENDPOINTS.user.lastCompany, { company_id: newestCompany.company_id }).catch(() => {});
       }
     }
   }, [addCompanyPhase, companies, active, dispatch]);
@@ -161,8 +158,8 @@ export default function CompanySelector() {
     // Show switch toast indicator
     setSwitchToast(companyName);
     setTimeout(() => setSwitchToast(null), 2500);
-    // Persist last company to backend (fire-and-forget)
-    axiosBaseApi.put(API_ENDPOINTS.user.lastCompany, { company_id: companyId }).catch(() => {});
+    // (selectCompany already persists last_company to the backend + localStorage;
+    // no duplicate PUT here.)
     // Re-fetch all company-scoped data for the new company
     const companyPayload = { company_id: companyId };
     dispatch(DashboardAction(DASHBOARD_FETCH_ALL, companyPayload));
@@ -215,8 +212,8 @@ export default function CompanySelector() {
           </TriggerText>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <HeaderDivider />
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: "0px", sm: "8px" } }}>
+          <HeaderDivider sx={{ display: { xs: "none", sm: "block" } }} />
           {!anchorEl ? (
             <ExpandMoreIcon
               fontSize="small"
@@ -242,7 +239,7 @@ export default function CompanySelector() {
         slotProps={{
           paper: {
             sx: {
-              mt: 1,
+              mt: 0.5,
               overflow: "visible",
               background: "transparent",
               boxShadow: "none",

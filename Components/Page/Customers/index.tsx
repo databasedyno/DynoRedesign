@@ -47,6 +47,7 @@ import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
 import { useUsdRates } from "@/hooks/useUsdRates";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useIsMobile from "@/hooks/useIsMobile";
+import useTableCardView from "@/hooks/useTableCardView";
 import { useRouter } from "next/router";
 import CustomButton from "@/Components/UI/Buttons";
 import { StatusDot } from "@/Components/UI/StatusDot";
@@ -108,6 +109,7 @@ const CustomersPage: React.FC = () => {
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const cardView = useTableCardView();
   const { t } = useTranslation("common");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -556,7 +558,131 @@ const CustomersPage: React.FC = () => {
         )}
       </Box>
 
-      {/* Customers table */}
+      {/* Customers — card list (<768) / table (>=768). §4.2 shared breakpoint. */}
+      {cardView ? (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }} data-testid="customers-card-list">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <Box key={i} sx={{ p: 2, borderRadius: "12px", border: `1px solid ${cardBorder}`, bgcolor: cardBg }}>
+                <Skeleton width="55%" height={18} />
+                <Skeleton width="35%" height={16} />
+              </Box>
+            ))
+          ) : customers.length === 0 ? (
+            <Box sx={{ p: 4, borderRadius: "12px", border: `1px solid ${cardBorder}`, bgcolor: cardBg, textAlign: "center" }}>
+              <Typography sx={{ fontWeight: 600, color: theme.palette.text.primary, fontFamily: "var(--font-sans)", mb: 0.5 }}>
+                {search ? t("customers.noCustomersSearch") : t("customers.noCustomersTitle")}
+              </Typography>
+              {!search && (
+                <Box sx={{ mt: 1.5, display: "flex", justifyContent: "center" }}>
+                  <CustomButton
+                    label={t("customers.noCustomersCtaCreate", { defaultValue: "Create a payment link" })}
+                    variant="primary"
+                    size="small"
+                    onClick={() => router.push("/create-pay-link")}
+                  />
+                </Box>
+              )}
+            </Box>
+          ) : (
+            customers.map((customer) => {
+              const d = displayFor(customer.customer_name, customer.email);
+              const est = fiatEstimate(customer.wallet_balance, customer.wallet_currency);
+              return (
+                <Box
+                  key={customer.customer_id}
+                  data-testid={`customer-card-${customer.customer_id}`}
+                  onClick={() => openDetail(customer.customer_id)}
+                  sx={{
+                    p: 2,
+                    borderRadius: "12px",
+                    border: `1px solid ${cardBorder}`,
+                    bgcolor: cardBg,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    "&:active": { bgcolor: softBg },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "10px",
+                      flexShrink: 0,
+                      bgcolor: d.internal ? softBg : undefined,
+                      background: d.internal ? undefined : avatarGradient(d.name),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: 700,
+                      color: d.internal ? theme.palette.text.secondary : "#FFFFFF",
+                      fontSize: 15,
+                      fontFamily: "var(--font-sans)",
+                    }}
+                  >
+                    {d.internal ? <CodeRounded sx={{ fontSize: 20 }} /> : d.name.charAt(0).toUpperCase()}
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: "14px",
+                          fontFamily: "var(--font-sans)",
+                          color: theme.palette.text.primary,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {d.name}
+                      </Typography>
+                      {d.internal && <ApiChip small />}
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "12px",
+                        color: theme.palette.text.secondary,
+                        fontStyle: d.internal ? "italic" : "normal",
+                        fontFamily: "var(--font-sans)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {d.email}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "14px",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      {getCurrencySymbol(
+                        customer.wallet_currency || baseCurrency,
+                        fmtAmount(customer.wallet_balance || 0, customer.wallet_currency || baseCurrency)
+                      )}
+                    </Typography>
+                    {est && (
+                      <Typography sx={{ fontSize: "11px", color: theme.palette.text.secondary, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
+                        {`\u2248 ${est}`}
+                      </Typography>
+                    )}
+                  </Box>
+                  <ChevronRightRounded sx={{ fontSize: 20, color: theme.palette.text.disabled, flexShrink: 0 }} />
+                </Box>
+              );
+            })
+          )}
+        </Box>
+      ) : (
       <Box
         sx={{
           bgcolor: cardBg,
@@ -794,6 +920,7 @@ const CustomersPage: React.FC = () => {
           </Table>
         </TableContainer>
       </Box>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -859,7 +986,7 @@ const CustomersPage: React.FC = () => {
               </Box>
             </Box>
           ) : (
-            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
+            <Typography variant="h6" component="div" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
               {t("customers.customerDetails")}
             </Typography>
           )}
@@ -1132,7 +1259,7 @@ const CustomersPage: React.FC = () => {
             ) : (
               <RemoveIcon sx={{ color: "error.main" }} />
             )}
-            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
+            <Typography variant="h6" component="div" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
               {walletAction === "credit" ? t("customers.creditWallet") : t("customers.debitWallet")}
             </Typography>
           </Box>

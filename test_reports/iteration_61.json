@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only focused re-test (SAFE MODE, live DB) of the mobile header/company-selector fixes. Logged in 2-step as hostbay@moxx.co at /auth/login. RESULTS: (a) PASS - trigger width @390 = 90px (was ~20px), height 44px; company name node text 'hostbay' + chevron (20x20 at x=146) both painted; mobile Dynopay wordmark correctly hidden below 600px (parent display:none, 0x0). (b) PASS - dropdown opens @390: box x=74.5 w=226 (fully inside 390 viewport), lists both companies (option-1 hostbay, option-55 QA-DELETE-ME) + Add company btn visible; closes fine. (c) PASS - exactly ONE PUT to /api/user/last-company per switch (previously two); 'Switched to hostbay' snackbar shown within 1s; trigger label updated to 'hostbay'; localStorage last_company_id=1. (d) PASS - regression @768 (trigger w=368, name unclipped, wordmark visible 65x22, all top-bar controls 44x44, no h-scroll) and @1440 (trigger w=265, name unclipped, wordmark hidden at lg as designed, avatar 92x46 not clipped, scrollW==1440). Persistence: reload after switch keeps hostbay (label 'hostbay', LS=1). Zero console errors across all viewports. Account left on hostbay (id 1). No data created/deleted.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CompanySelector trigger @390", "issue": "Trigger is now 90px (meets the >=90 bar) but the name label is still CSS-ellipsis clipped: nameEl scrollWidth > clientWidth (nameBox width only 31px), so 'hostbay' renders visually as 'ho...'. Functional/readable-enough but the name is effectively 2 chars on mobile; ~40px more could be reclaimed (chevron+divider block, avatar block is 52px wide) to show the full short name.", "selector": "[data-testid='company-selector-trigger']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Mobile header 390px", "issues": ["Company name truncated to 'ho...' despite 90px trigger; consider hiding the in-trigger HeaderDivider or reducing gaps at xs.", "truncateByWords(count=15) in CompanySelector is dead logic at 390px since CSS ellipsis clips far earlier — safe to simplify."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": ["Optional polish only: reclaim ~30-40px at xs so the company short name is not ellipsised to 'ho...' (e.g. hide the trigger's HeaderDivider below sm)."],
+  "critical_code_review_comments": ["CompanySelector.handleCompanySwitch now correctly delegates persistence to CompanyDataContext.selectCompany (single PUT verified). The addCompanyPhase=='wallet' effect still issues its own PUT after selectCompany — that path can double-write on new-company creation; consider removing it too for consistency."],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (frontend-only request)", "frontend": "100% (4/4 deliverables PASS)" },
+  "seed_data_creation": "none - read-only apart from the app's own last-company write; QA-DELETE-ME (id 55) reused, account left on hostbay (id 1)",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ at /auth/login (2-step)",
+  "context_for_next_testing_agent": "Playwright sessions do NOT persist between tool invocations here — log in inside every script. Measured header geometry @390: hamburger 44x44 @x16, company trigger 90x44 @x76, create-new 44x44 @x172, bell @x220, theme @x268, avatar 52x44 @x316 (fills 390 exactly, no h-scroll). Known-deferred items unchanged (transactions sticky column, settings chip-row scroll, invoice-preview PDF blank, recharts width(-1)).",
+  "rca_of_the_issue": "Iteration_60's 20px trigger came from mobile-header overcrowding: the decorative wordmark consumed the flex row so the flex '1 1 auto' selector wrapper collapsed. Hiding the wordmark below sm restored 90px. The duplicate PUT was the redundant axiosBaseApi.put in handleCompanySwitch on top of CompanyDataContext.selectCompany's persist; removing it yields exactly one PUT per switch (verified via request listener)."
+}

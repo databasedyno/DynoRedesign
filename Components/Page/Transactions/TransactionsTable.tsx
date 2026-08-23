@@ -34,7 +34,7 @@ import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRigh
 
 import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
-import useIsMobile from "@/hooks/useIsMobile";
+import useTableCardView from "@/hooks/useTableCardView";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import {
   ExtendedTransaction,
@@ -79,7 +79,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     useState<ExtendedTransaction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const isMobile = useIsMobile("md");
+  const isMobile = useTableCardView();
   const fx = useDisplayFx();
 
   /** Fiat value in the merchant's display currency (falls back to the raw
