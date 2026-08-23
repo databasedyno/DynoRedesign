@@ -1275,6 +1275,7 @@ export default function Login() {
               <InputField
                 label={t("email")}
                 type="email"
+                data-testid="login-email-input"
                 value={emailInput}
                 onChange={(e) => {
                   setEmailInput(e.target.value);

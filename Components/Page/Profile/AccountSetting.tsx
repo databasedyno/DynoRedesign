@@ -236,7 +236,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     setSelectedLanguage(lng);
     const { setAppLanguage } = await import("@/helpers/setAppLanguage");
     await setAppLanguage(lng);
-    dispatch({ type: TOAST_SHOW, payload: { message: t("communicationLanguageSaved", { ns: "profile" }) } });
+    // Use the live i18n instance (not the render-captured `t`, which is bound to
+    // the previous language) so the toast shows in the just-selected language.
+    dispatch({ type: TOAST_SHOW, payload: { message: i18n.t("communicationLanguageSaved", { ns: "profile" }) } });
   };
 
   const inputSx = { gap: isMobile ? "6px" : "8px" };

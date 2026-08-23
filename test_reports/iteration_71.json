@@ -1,0 +1,25 @@
+{
+  "summary": "Re-test of iteration_70 fixes for language onboarding + account language sync (LIVE account hostbay@moxx.co). Backend: 8/8 pytest cases pass in /app/tests/test_language_sync_api.py (login JWT, profile auth guard, idempotent language-only PUT, unsupported code -> 400, fr persistence, empty body -> 400, cleanup to en). Frontend Playwright: FIX1 (bar hides after in-session login), FIX3 (French toast + French UI), FIX4 (login-email-input testid) and full regression (fresh-anon bar with localized headline + 6 chips, FR pick sets lang/lang_onboard, bar hides and does not reappear on reload, cross-device auto-French after clearing localStorage and re-login) ALL PASS. CLEANUP DONE: account language reset to 'en' via /settings UI and re-verified via GET /api/user/profile (data.language==='en').",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard / Settings in French", "issues": ["Minor i18n gaps: some strings remain English while UI is French - 'Applies to your whole account' (Settings profile header chip), 'Payment links' quick-action button on dashboard, 'VOLUME · 7 DAYS', 'vs previous period · 16 payments', tier name 'Growth'. Cosmetic only, not part of this fix round."]}
+    ]
+  },
+  "test_report_links": ["/app/tests/test_language_sync_api.py"],
+  "action_items": ["Optional: translate remaining hardcoded English strings on dashboard/settings (see design_issues)."],
+  "critical_code_review_comments": [
+    "LanguageOnboardingBar gating effect (router.pathname + window focus) correctly hides the bar on client-side login; verified live.",
+    "updateProfile(): language-only unchanged path returns 200 with full profile, unsupported base code returns 400 before any write - matches spec. Note the 200 no-op path skips Redis cache invalidation, which is fine since nothing changed."
+  ],
+  "updated_files": ["/app/tests/test_language_sync_api.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None. Only tbl_user.language toggled on the authorized live account; restored to 'en'.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (from /app/memory/test_credentials.md)",
+  "context_for_next_testing_agent": "All 4 fixes + regressions verified July 2026. Reusable API suite: /app/tests/test_language_sync_api.py (run with `python -m pytest tests/test_language_sync_api.py -o addopts=''` from /app). UI login flow: fill [data-testid=login-email-input] -> Continue -> [data-testid=password-input] -> [data-testid=signin-submit-btn]. /settings MUI select needs ~500ms after open before clicking [data-testid=language-option-XX]. Account language left as 'en'.",
+  "rca_of_the_issue": "N/A - all previously reported defects (non-idempotent language PUT, silent coercion of unsupported codes, onboarding bar persisting after in-session login, English toast, missing login email testid) are resolved and verified."
+}

@@ -211,7 +211,14 @@ export const updateProfile = async (req: express.Request, res: express.Response)
       updatedFields.push(`Username: ${currentUsername} → ${username}`);
     }
     // Language preference — updated silently (no notification email for a UI preference)
+    const SUPPORTED_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
+    let languagePreferenceProvided = false;
     if (language !== undefined) {
+      const base = String(language || "").toLowerCase().split("-")[0];
+      if (!SUPPORTED_LANGS.includes(base)) {
+        return errorResponseHelper(res, 400, "Unsupported language");
+      }
+      languagePreferenceProvided = true;
       const normalized = normalizeLang(language);
       if (normalized !== currentLanguage) {
         updateData.language = normalized;
@@ -220,6 +227,15 @@ export const updateProfile = async (req: express.Request, res: express.Response)
     
     // Check if there's anything to update
     if (Object.keys(updateData).length === 0) {
+      // Re-selecting the language you already have is a valid, idempotent no-op
+      // (the client uses this to keep the account in sync) — not an error.
+      if (languagePreferenceProvided) {
+        const profile = await userModel.findOne({
+          where: { user_id: userData.user_id },
+          attributes: { exclude: ["password", "reset_token", "reset_token_expiry"] },
+        });
+        return successResponseHelper(res, 200, "No changes to apply", profile);
+      }
       return errorResponseHelper(res, 400, "No fields to update");
     }
     

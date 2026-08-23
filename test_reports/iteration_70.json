@@ -1,0 +1,41 @@
+{
+  "summary": "Tested language onboarding bar (anon gating + one-tap pick + persistence) and full logged-in cross-device language sync on the LIVE merchant account (hostbay@moxx.co). Backend: 7 pytest cases against /api/user/login and GET/PUT /api/user/profile (6 pass, 1 documented defect). Frontend: Playwright E2E on '/', '/auth/login', '/settings', '/dashboard'. CORE FEATURES WORK: bar shows for fresh anon with localized headline + 6 chips; tapping FR switches UI to French, writes lang='fr' and lang_onboard='1', hides the bar and does not reappear after reload; /settings language Select -> FR shows success toast, switches UI to French and persists to the account (GET /api/user/profile data.language==='fr'); simulated new device (localStorage cleared + re-login) auto-lands in FRENCH on /dashboard (document.documentElement.lang==='fr') proving cross-device sync. CLEANUP DONE: account language restored to 'en' and re-verified via API twice (final GET = 'en'). One real UI bug found: the onboarding bar stays visible inside the authenticated app after an in-session login.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "PUT /api/user/profile", "issue": "Not idempotent: sending {language: <same value already stored>} returns 400 {'message':'No fields to update'}. Frontend saveLanguageToAccount() treats this as a failure -> sets localStorage.lang_manual='true' (stale 'pending sync' flag). Should return 200 (no-op) when only language is sent and unchanged."},
+      {"endpoint": "PUT /api/user/profile", "issue": "Unsupported language codes are silently coerced instead of rejected: PUT {language:'zz'} returns 200 and stores 'en' (normalizeLang fallback). Prefer 400 validation error for codes outside en/pt/fr/es/de/nl."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "LanguageOnboardingBar", "issue": "Bar remains visible on the authenticated app after logging in within the same SPA session (repro: fresh anon on /auth/login -> bar shows -> log in -> lands on /dashboard with the bar still fixed at the bottom, overlapping the in-app shell/support chat button). Cause: the token check runs only once in useEffect([]) on mount; client-side login fires no re-check (LanguageBootstrap already handles this correctly via a router.pathname/focus effect). Hides only after a hard reload.", "selector": "[data-testid=\"language-onboarding-bar\"]", "priority": "MEDIUM"},
+      {"component": "AccountSetting language toast", "issue": "Success toast text stays in English ('Communication language updated') right after switching the UI to French - toast string appears not to be re-resolved/localized post-change.", "selector": "[data-testid=\"communication-language-select\"]", "priority": "LOW"},
+      {"component": "Login page email step", "issue": "Email input has no data-testid (had to fall back to input[type=email]/placeholder). Password step and submit do have testids.", "selector": "input[type=\"email\"]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Authenticated dashboard (dark theme)", "issues": ["Onboarding bar (z-index 1500) sits over the bottom-right support chat widget when it wrongly persists post-login"]}
+    ]
+  },
+  "test_report_links": ["/app/tests/test_language_sync_api.py", "/app/test_reports/pytest/iter70_language.xml"],
+  "action_items": [
+    "LanguageOnboardingBar: re-evaluate the localStorage 'token' gate on route change/focus (or subscribe to login) so the bar hides immediately after an in-session login instead of only after a reload.",
+    "Make PUT /api/user/profile idempotent for an unchanged language (return 200 instead of 400 'No fields to update') so setAppLanguage does not mark a false 'pending sync'.",
+    "Validate the language code server-side (reject unsupported codes with 400 rather than silently coercing to 'en').",
+    "Localize the 'Communication language updated' success toast; add data-testid to the login email input."
+  ],
+  "critical_code_review_comments": [
+    "LanguageOnboardingBar/index.tsx: gating effect has an empty dep array, so the token check is stale for client-side logins - mirror LanguageBootstrap's router.pathname + focus re-check pattern.",
+    "setAppLanguage.ts saveLanguageToAccount() swallows all errors identically; a 400 'No fields to update' (already in sync) is indistinguishable from a real failure and wrongly sets lang_manual='true'.",
+    "controller/user/profile.ts updateProfile(): the 'No fields to update' 400 makes preference-only PUTs error-prone; also normalizeLang() silently rewrites invalid input."
+  ],
+  "updated_files": ["/app/tests/test_language_sync_api.py"],
+  "success_rate": {"backend": "86% (6/7 assertions; 1 documented defect)", "frontend": "90% (all onboarding + cross-device sync flows pass; 1 gating bug)"},
+  "seed_data_creation": "None. Only the live account's 'language' field was toggled en->fr->en (explicitly authorized) and verified restored to 'en'.",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (JWT, no OTP); backend tests at /app/tests/test_language_sync_api.py",
+  "context_for_next_testing_agent": "Do NOT put python test files under /app/backend - the uvicorn proxy on :8001 watches that dir and reloads, returning 503 'Backend starting' mid-run. Tests live at /app/tests/test_language_sync_api.py. Login flow: /auth/login -> fill input[type=email] -> click 'Continue' -> [data-testid=password-input] -> [data-testid=signin-submit-btn]; token lands in localStorage. /settings has [data-testid=communication-language-select] with [data-testid=language-option-{en,pt,fr,es,de,nl}] (wait ~400ms after opening the MUI Select). Account language verified 'en' at end of this session.",
+  "rca_of_the_issue": "Onboarding bar bug: the visibility decision is computed once in useEffect(..., []) on mount. A same-tab client-side login writes localStorage 'token' without remounting _app, and no storage event fires in the same tab, so the bar's state is never recomputed and it renders over the authenticated shell until a full page reload. Backend 400: updateProfile() diffs each provided field against the DB and returns 400 when the diff set is empty, so re-selecting the current language is reported as an error."
+}

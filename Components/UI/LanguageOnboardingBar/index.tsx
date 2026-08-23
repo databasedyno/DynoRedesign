@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useRouter } from "next/router";
 import { Box, IconButton, useTheme } from "@mui/material";
 import Image, { StaticImageData } from "next/image";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
@@ -34,22 +36,36 @@ const DISMISS_KEY = "lang_onboard";
  */
 export const LanguageOnboardingBar = () => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [entered, setEntered] = useState(false);
 
+  // Re-evaluate on mount, route change, and window focus so the bar hides the
+  // moment a token appears (a same-tab client-side login fires no storage event).
   useEffect(() => {
-    try {
-      const hasToken = !!localStorage.getItem("token");
-      const chose = localStorage.getItem("lang_manual") === "true";
-      const dismissed = localStorage.getItem(DISMISS_KEY) === "1";
-      if (!hasToken && !chose && !dismissed) {
+    const evaluate = () => {
+      let eligible = false;
+      try {
+        const hasToken = !!localStorage.getItem("token");
+        const chose = localStorage.getItem("lang_manual") === "true";
+        const dismissed = localStorage.getItem(DISMISS_KEY) === "1";
+        eligible = !hasToken && !chose && !dismissed;
+      } catch {
+        /* localStorage unavailable — never block the page */
+      }
+      if (eligible) {
         setVisible(true);
         requestAnimationFrame(() => setEntered(true));
+      } else {
+        setEntered(false);
+        setVisible(false);
       }
-    } catch {
-      /* localStorage unavailable — never block the page */
-    }
-  }, []);
+    };
+    evaluate();
+    window.addEventListener("focus", evaluate);
+    return () => window.removeEventListener("focus", evaluate);
+  }, [router.pathname]);
 
   const hide = () => {
     try {
@@ -95,9 +111,22 @@ export const LanguageOnboardingBar = () => {
         transition: "transform 260ms cubic-bezier(0.16,1,0.3,1)",
       }}
     >
-      <LanguageRoundedIcon
-        sx={{ fontSize: 20, color: accent, flexShrink: 0, display: { xs: "none", sm: "block" } }}
-      />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+        <LanguageRoundedIcon sx={{ fontSize: 20, color: accent }} />
+        <Box
+          component="span"
+          data-testid="language-onboarding-headline"
+          sx={{
+            fontSize: { xs: 13, sm: 14 },
+            fontWeight: 700,
+            color: theme.palette.text.primary,
+            whiteSpace: "nowrap",
+            fontFamily: "var(--font-sans)",
+          }}
+        >
+          {t("chooseYourLanguage", { ns: "common" })}
+        </Box>
+      </Box>
 
       {/* Chips — horizontally scrollable on small screens */}
       <Box

@@ -1,3 +1,44 @@
+# FOLLOW-UPS (2026-06 fork, 2026-06) — Onboarding headline + cross-device test + fixes (VERIFIED 100%)
+
+USER: (1) add a short LOCALIZED headline above the onboarding flag chips; (2) run a full logged-in
+cross-device language test end-to-end.
+
+DELIVERED:
+- Onboarding headline: `LanguageOnboardingBar` now shows a localized headline
+  (data-testid `language-onboarding-headline`) via i18n key `common.chooseYourLanguage` added to all 6
+  `langs/locales/{lang}/common.json` (en/pt/fr/es/de/nl). Globe icon + headline + 6 one-tap chips.
+- Cross-device test: run by testing_agent on the LIVE account (hostbay@moxx.co, user-authorized). VERIFIED:
+  /settings language Select → FR persists to account (GET /user/profile = 'fr'); simulated new device
+  (clear localStorage + re-login) auto-lands the app in French (reconcileLanguageOnAuth). Account
+  RESTORED to 'en' at end.
+
+FIXES from iteration_70 findings (all verified 100% in iteration_71):
+1. Onboarding bar persisting after in-session login (MEDIUM) → `LanguageOnboardingBar` gating effect now
+   re-evaluates on `router.pathname` change + window focus (mirrors LanguageBootstrap), so it hides the
+   moment a token appears (no reload needed).
+2. `PUT /api/user/profile` not idempotent → `controller/user/profile.ts updateProfile()`: a language-only
+   PUT whose value is unchanged now returns 200 (was 400 "No fields to update"), so
+   `setAppLanguage.saveLanguageToAccount()` no longer sets a false `lang_manual` pending flag.
+3. Unsupported language codes silently coerced → updateProfile now rejects codes whose base isn't in
+   en/pt/fr/es/de/nl with HTTP 400 (before any write).
+4. Success toast stayed English after switching to FR → `AccountSetting.handleLanguageChange` now uses
+   `i18n.t(...)` (live instance) instead of the render-captured `t` (bound to the old language).
+5. Login email input missing testid → `pages/auth/login.tsx` email InputField now has
+   data-testid `login-email-input`.
+
+TEST STATUS: iteration_71 = backend 8/8, frontend 100% (all 4 fixes + regression + cross-device).
+Reusable API suite: /app/tests/test_language_sync_api.py. Pre-commit hook green (tsc/file-size/secrets).
+Frontend + backend tsc clean.
+
+KNOWN BACKLOG (pre-existing, NOT a regression, flagged by tester): some hardcoded English strings remain
+untranslated when UI is in another language — Settings header chip "Applies to your whole account",
+dashboard "Payment links" quick-action, payout hero labels "VOLUME · 7 DAYS"/"vs previous period · N
+payments", and product tier names ("Growth"). Cosmetic i18n gap for a future pass.
+
+---
+
+
+
 # FOLLOW-UPS (2026-06 fork, 2026-06) — Language Onboarding bar + Email-language gap-fill (VERIFIED)
 
 Two user-picked items after the English-by-default work.
