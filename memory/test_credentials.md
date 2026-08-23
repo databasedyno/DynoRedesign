@@ -1,10 +1,9 @@
 # Test Credentials
 
-## ✅ CURRENT POD (19th pod) — env rebuilt from user's pasted prod creds
-- Preview URL: https://scoped-shop.preview.emergentagent.com
-- Login (2-step): **hostbay@moxx.co / Katiekendra123@** (KYC-exempt merchant)
-- NEXTAUTH_SECRET (both /app/.env and /app/backend/.env):
-  7b1e5221b7aea601d13104fecfcf22049a3f03318f9f3a110006799ce03a48a2
+## ✅ CURRENT POD — env rebuilt from user's pasted prod creds (setup task)
+- Preview URL: https://ee67d377-f5d6-454b-be62-03c867b6e891.preview.emergentagent.com
+- Login: **hostbay@moxx.co / Katiekendra123@** (password login returns a JWT directly — NO OTP)
+- NEXTAUTH_SECRET (/app/.env, freshly generated): X9cbR51OgEZYvSRd+qE9S2zyKsuGKKihbtuPbYDc6kU=
 - SAFE MODE (LIVE Railway PROD DB): backend NODE_ENV=production but
   ENABLE_BACKGROUND_JOBS=false + WORKER_ROLE=secondary
   → cron/sweeps/fund-movement + dev/test mutation endpoints DISABLED.

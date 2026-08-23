@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://scoped-shop.preview.emergentagent.com"
+BACKEND_URL = "https://dynopay-setup-2.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {
