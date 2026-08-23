@@ -1,5 +1,24 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-23d, AUDIT "any other pages missed?" → auth + payment-result sweep):
+Ran a full un-migrated-surface audit (retired lime, old greys, off-spec radii, old fonts, emoji icons).
+Findings: typography 100% tokenized app-wide; remaining hardcoded greys are all legit dual-mode
+(`dark ? rgba : "#E9ECF2"`) or `theme.border ?? fallback` (NOT misses); lime elsewhere is only migration
+comments. Real gaps were confined to auth + payment-result screens and are now FIXED (cosmetic-only, NO
+auth logic touched): pages/auth/register.tsx (confetti lime #CCFF00/#B4E600 → indigo/emerald/amber; OTP
+badge 16→12px; ✉️ emoji → MUI MailOutline/SmartphoneOutlined method-aware), PurposePicker.tsx (developers
+persona light contrast #CCFF00 → #FFFFFF), pages/payment/{success,failed}.tsx (card 18→12px),
+pages/auth/secure-account.tsx (card 16→12px). Verified: no residual lime/emoji, all routes 200, 0 compile
+errors. NOT screenshot-verified — the pod's lightweight screenshot tool captures a pre-hydration blank frame
+for all in-app routes (0 console errors); the confetti/OTP/success steps are gated behind a real OTP so not
+automatable. Blueprint updated: P8b. Everything else (login, reset-password, KYC, notifications, referrals,
+profile, company, verify, checkout/Pay3) already clean.
+
+---
+
+
+# CURRENT STATE POINTER (2026-06 fork, latest first)
+
 LATEST SESSION (2026-08-23c, ONBOARDING FLOW → Quiet Money bar (blueprint P8)):
 User asked whether the onboarding flow was improved by UI_REDESIGN_BLUEPRINT_2026-08.md → it was NOT
 (no §5 directive; components untouched in P1–P7, only inherited the P1 token swap; still had filled green

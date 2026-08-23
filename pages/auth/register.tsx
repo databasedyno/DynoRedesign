@@ -33,7 +33,7 @@ import {
   Divider,
   Link,
 } from "@mui/material";
-import { ArrowBack, CheckCircleOutline } from "@mui/icons-material";
+import { ArrowBack, CheckCircleOutline, MailOutline, SmartphoneOutlined } from "@mui/icons-material";
 import Head from "next/head";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
@@ -110,7 +110,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.3, y: 0.5 },
-        colors: ["#CCFF00", "#B4E600", "#10B981", "#F59E0B"],
+        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
         scalar: 0.9,
         ticks: 200,
       });
@@ -119,7 +119,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.7, y: 0.5 },
-        colors: ["#CCFF00", "#B4E600", "#10B981", "#F59E0B"],
+        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
         scalar: 0.9,
         ticks: 200,
       });
@@ -817,13 +817,17 @@ const Register = () => {
                   <Box sx={{ textAlign: "center", mb: 2.5 }}>
                     <Box
                       sx={{
-                        width: 56, height: 56, borderRadius: "16px",
+                        width: 56, height: 56, borderRadius: "12px",
                         background: `linear-gradient(135deg, ${BRAND_ACCENT}, #7C3AED)`,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         margin: "0 auto 12px",
                       }}
                     >
-                      <Typography sx={{ fontSize: "28px" }}>✉️</Typography>
+                      {method === "email" ? (
+                        <MailOutline sx={{ fontSize: 28, color: "#fff" }} />
+                      ) : (
+                        <SmartphoneOutlined sx={{ fontSize: 28, color: "#fff" }} />
+                      )}
                     </Box>
                     <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)" }}>
                       {accountExists ? t("welcomeBack") : method === "email" ? t("verifyYourEmail") : t("verifyYourPhone")}

@@ -87,7 +87,7 @@ const SecureAccountPage = () => {
           width: "100%",
           textAlign: "center",
           p: { xs: 3, sm: 4 },
-          borderRadius: "16px",
+          borderRadius: "12px",
           border: "1px solid",
           borderColor: "divider",
           backgroundColor: theme.palette.background.paper,

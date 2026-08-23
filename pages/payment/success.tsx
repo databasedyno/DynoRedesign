@@ -50,7 +50,7 @@ const Success = () => {
           width: "100%",
           textAlign: "center",
           background: theme.palette.background.paper,
-          borderRadius: "18px",
+          borderRadius: "12px",
           p: 5,
           border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(10,10,10,0.08)"}`,
           boxShadow: "0 4px 24px rgba(0,0,0,0.08)",

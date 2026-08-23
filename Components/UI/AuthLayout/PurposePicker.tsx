@@ -121,7 +121,7 @@ export default function PurposePicker({ onSelect, onDetected, routerQuery }: Pur
     merchants:   { color: dark ? "#818CF8" : BRAND_ACCENT, tint: dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.10)", contrast: "#FFFFFF" },
     fundraisers: { color: "#7C5CFF",                    tint: "rgba(124,92,255,0.14)",                                   contrast: "#FFFFFF" },
     creators:    { color: dark ? "#818CF8" : BRAND_ACCENT, tint: dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.10)", contrast: "#FFFFFF" },
-    developers:  { color: dark ? "#F5F5F5" : "#0B0B0F", tint: dark ? "rgba(255,255,255,0.10)" : "rgba(11,11,15,0.06)",   contrast: dark ? "#0B0B0F" : "#CCFF00" },
+    developers:  { color: dark ? "#F5F5F5" : "#0B0B0F", tint: dark ? "rgba(255,255,255,0.10)" : "rgba(11,11,15,0.06)",   contrast: dark ? "#0B0B0F" : "#FFFFFF" },
   };
 
   return (

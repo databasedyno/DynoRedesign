@@ -116,6 +116,17 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >
 > **Redesign status: P1–P8 all shipped. Remaining = optional QA (§7 acceptance checklist across
 > 1920/1440/1280/1024/768/390 in light+dark) + the optional hero-screenshot swap.**
+>
+> **P8b — Auth + payment-result sweep ✅ (2026-08-23c):** audit found the last un-migrated remnants
+> (typography was already 100% tokenized app-wide; all remaining hardcoded greys are legit
+> `dark ? rgba : "#E9ECF2"` dual-mode pairs or `theme.border ?? fallback`). Fixed: `pages/auth/register.tsx`
+> account-creation confetti lime `#CCFF00`/`#B4E600` → indigo/emerald/amber `["#4338CA","#818CF8","#10B981","#F59E0B"]`,
+> OTP badge 16→12px + replaced ✉️ emoji with MUI MailOutline/SmartphoneOutlined (method-aware);
+> `Components/UI/AuthLayout/PurposePicker.tsx` "developers" persona light-mode contrast `#CCFF00` → `#FFFFFF`;
+> `pages/payment/success.tsx` + `pages/payment/failed.tsx` card 18→12px; `pages/auth/secure-account.tsx` card 16→12px.
+> Verified: no residual lime/emoji, all routes 200, 0 compile errors. NOT screenshot-verified (pod's
+> lightweight screenshot tool can't render client-hydrated in-app content; confetti/OTP/success steps are
+> gated behind a real OTP so not automatable). Cosmetic-only — no auth logic touched.
 
 
 Grounding: live screenshots of the current landing / dashboard / transactions (2026-08-21), the 27-surface
