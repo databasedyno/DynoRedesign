@@ -1,5 +1,24 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-23f, BUG: company-selector dropdown does nothing on mobile/other devices):
+Root cause — the dropdown was an absolutely-positioned child clipped by the header/app-shell
+overflow:hidden ancestors (Containers/Client/index.tsx ~122 + the selector wrapper). FIX: converted
+it to a portaled MUI <Popover> in Components/UI/CompanySelector/index.tsx (renders under document.body,
+never clipped), removed the manual click-outside useEffect (Popover onClose handles it), removed the
+old absolute/top/zIndex + mt/ml positioning hacks, mobile width min(86vw,300px). Kept the wrapper
+overflow:hidden (still needed for the 390 trigger-shrink; harmless now the dropdown is portaled). Also
+SSR-hardened `useState(window.innerWidth)` -> useState(0) + set in mount effect. VERIFIED by testing
+agent iteration_58: 100% PASS on mobile(390)/tablet(768)/desktop(1440) in light+dark — dropdown opens,
+fully in-viewport, shows company list + edit + Add-company (modal opens, closed w/o submit), outside-
+click + Esc close, 0 console errors. NOTE: hostbay account has ONLY ONE company, so the multi-company
+switch + 'switched to' toast path was NOT exercised (needs a multi-company account). Minor cosmetic
+(deferred): mobile Popover anchors slightly detached from the compact trigger (fully visible/readable).
+
+---
+
+
+# CURRENT STATE POINTER (2026-06 fork, latest first)
+
 LATEST SESSION (2026-08-23e, §7 RESPONSIVE ACCEPTANCE SWEEP 1920→390 × light/dark):
 Ran the sweep via testing agent (iteration_56 found issues → fixed → iteration_57 re-verified 5/5 PASS
 with real-viewport geometry + computed styles + WCAG math, light AND dark, all 6 breakpoints; regression

@@ -2,7 +2,7 @@ import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
-import { Box, Divider, Snackbar, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Popover, Snackbar, Typography, useTheme } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axiosBaseApi from "@/axiosConfig";
 import {
@@ -87,7 +87,7 @@ export default function CompanySelector() {
   const BASE_COUNT = 15;
   const STEP = 10;
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState(0);
   const [count, setCount] = useState(BASE_COUNT);
 
   useEffect(() => {
@@ -95,6 +95,7 @@ export default function CompanySelector() {
       setWindowWidth(window.innerWidth);
     };
 
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -172,25 +173,6 @@ export default function CompanySelector() {
     dispatch(ApiAction(API_FETCH, companyPayload));
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        handleClose();
-      }
-    };
-
-    if (anchorEl) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [anchorEl]);
-
   function truncateByWords(text: string, maxLength: number) {
     if (text.length <= maxLength) return text;
 
@@ -208,8 +190,6 @@ export default function CompanySelector() {
         minWidth: 0,
         flex: isMobile ? "1 1 auto" : "0 0 auto",
         overflow: "hidden",
-        mt: Boolean(anchorEl) && isMobile ? "-16px !important" : "0px",
-        ml: Boolean(anchorEl) && isMobile ? "-6px !important" : "0px",
       }}
     >
       {/* Trigger */}
@@ -251,19 +231,33 @@ export default function CompanySelector() {
         </Box>
       </SelectorTrigger>
 
-      {/* Dropdown */}
-      {Boolean(anchorEl) && (
+      {/* Dropdown — portaled Popover so it is never clipped by the header /
+          app-shell overflow:hidden ancestors (fixes mobile + all devices). */}
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1,
+              overflow: "visible",
+              background: "transparent",
+              boxShadow: "none",
+            },
+          },
+        }}
+      >
         <Box
           data-testid="company-selector-dropdown"
           sx={{
-            position: "absolute",
-            top: "0",
-            width: isMobile ? "224px" : "300px",
+            width: isMobile ? "min(86vw, 300px)" : "300px",
             border: `1px solid ${theme.palette.mode === "dark" ? "#2A2D42" : "rgba(233, 236, 242, 1)"}`,
             borderRadius: "6px",
             backgroundColor: theme.palette.background.paper,
-            padding: anchorEl ? "9px 8px" : "11px 8px",
-            zIndex: 100,
+            padding: "9px 8px",
             boxShadow: "0px 8px 24px rgba(0,0,0,0.08)",
           }}
         >
@@ -430,7 +424,7 @@ export default function CompanySelector() {
             />
           </Box>
         </Box>
-      )}
+      </Popover>
 
       {/* Add Company Onboarding Flow */}
       <CreateCompanyModal
