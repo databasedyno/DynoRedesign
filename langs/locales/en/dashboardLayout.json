@@ -316,5 +316,21 @@
   "obAccountLabel": "Complete your account details",
   "obBusinessProfileLabel": "Complete your business profile",
   "obAccountDesc": "Add your country so invoices and tax are correct.",
-  "obBusinessProfileDesc": "Add your country and address so invoices and VAT are correct."
+  "obBusinessProfileDesc": "Add your country and address so invoices and VAT are correct.",
+  "periodVsPrevious": "vs previous period · {count} payments",
+  "volumeOver": "Volume · {range}",
+  "taxCollectedAllTime": "Tax collected (all-time)",
+  "taxAcross_one": "across {{count}} payment",
+  "taxAcross_other": "across {{count}} payments",
+  "qaCatCreatePaylink": "Create payment link",
+  "qaShortcutPayLinks": "Payment links",
+  "qaCatTransactions": "Transactions",
+  "qaCatProducts": "Products",
+  "qaCatFees": "Fees & tiers",
+  "qaCatApi": "Developer / API",
+  "qaCatReferrals": "Referrals",
+  "rangeDays7": "7 days",
+  "rangeDays30": "30 days",
+  "rangeDays90": "90 days",
+  "rangeMonths12": "12 months"
 }

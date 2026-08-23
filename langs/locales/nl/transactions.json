@@ -52,5 +52,6 @@
   "sourceTipShort": "Fooi",
   "sourceProductShort": "Winkel",
   "sourceContributionShort": "Donatie",
-  "sourceDirectShort": "Direct"
+  "sourceDirectShort": "Direct",
+  "sourcePaymentLinks": "Betaallinks"
 }

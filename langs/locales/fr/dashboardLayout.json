@@ -316,5 +316,21 @@
   "obAccountLabel": "Complétez les détails de votre compte",
   "obBusinessProfileLabel": "Complétez votre profil d'entreprise",
   "obAccountDesc": "Ajoutez votre pays pour que les factures et les taxes soient correctes.",
-  "obBusinessProfileDesc": "Ajoutez votre pays et votre adresse pour que les factures et la TVA soient correctes."
+  "obBusinessProfileDesc": "Ajoutez votre pays et votre adresse pour que les factures et la TVA soient correctes.",
+  "periodVsPrevious": "vs période précédente · {count} paiements",
+  "volumeOver": "Volume · {range}",
+  "taxCollectedAllTime": "Taxe collectée (depuis le début)",
+  "taxAcross_one": "sur {{count}} paiement",
+  "taxAcross_other": "sur {{count}} paiements",
+  "qaCatCreatePaylink": "Créer un lien de paiement",
+  "qaShortcutPayLinks": "Liens de paiement",
+  "qaCatTransactions": "Transactions",
+  "qaCatProducts": "Produits",
+  "qaCatFees": "Frais et paliers",
+  "qaCatApi": "Développeur / API",
+  "qaCatReferrals": "Parrainages",
+  "rangeDays7": "7 jours",
+  "rangeDays30": "30 jours",
+  "rangeDays90": "90 jours",
+  "rangeMonths12": "12 mois"
 }

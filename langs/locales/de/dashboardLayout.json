@@ -316,5 +316,21 @@
   "obAccountLabel": "Vervollständigen Sie Ihre Kontodaten",
   "obBusinessProfileLabel": "Vervollständigen Sie Ihr Unternehmensprofil",
   "obAccountDesc": "Fügen Sie Ihr Land hinzu, damit Rechnungen und Steuern korrekt sind.",
-  "obBusinessProfileDesc": "Fügen Sie Ihr Land und Ihre Adresse hinzu, damit Rechnungen und Mehrwertsteuer korrekt sind."
+  "obBusinessProfileDesc": "Fügen Sie Ihr Land und Ihre Adresse hinzu, damit Rechnungen und Mehrwertsteuer korrekt sind.",
+  "periodVsPrevious": "vs. Vorperiode · {count} Zahlungen",
+  "volumeOver": "Volumen · {range}",
+  "taxCollectedAllTime": "Eingezogene Steuer (gesamt)",
+  "taxAcross_one": "über {{count}} Zahlung",
+  "taxAcross_other": "über {{count}} Zahlungen",
+  "qaCatCreatePaylink": "Zahlungslink erstellen",
+  "qaShortcutPayLinks": "Zahlungslinks",
+  "qaCatTransactions": "Transaktionen",
+  "qaCatProducts": "Produkte",
+  "qaCatFees": "Gebühren & Stufen",
+  "qaCatApi": "Entwickler / API",
+  "qaCatReferrals": "Empfehlungen",
+  "rangeDays7": "7 Tage",
+  "rangeDays30": "30 Tage",
+  "rangeDays90": "90 Tage",
+  "rangeMonths12": "12 Monate"
 }

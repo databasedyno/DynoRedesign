@@ -316,5 +316,21 @@
   "obAccountLabel": "Completa los detalles de tu cuenta",
   "obBusinessProfileLabel": "Completa tu perfil de negocio",
   "obAccountDesc": "Agrega tu país para que las facturas y los impuestos sean correctos.",
-  "obBusinessProfileDesc": "Agrega tu país y dirección para que las facturas y el IVA sean correctos."
+  "obBusinessProfileDesc": "Agrega tu país y dirección para que las facturas y el IVA sean correctos.",
+  "periodVsPrevious": "vs período anterior · {count} pagos",
+  "volumeOver": "Volumen · {range}",
+  "taxCollectedAllTime": "Impuesto recaudado (histórico)",
+  "taxAcross_one": "en {{count}} pago",
+  "taxAcross_other": "en {{count}} pagos",
+  "qaCatCreatePaylink": "Crear enlace de pago",
+  "qaShortcutPayLinks": "Enlaces de pago",
+  "qaCatTransactions": "Transacciones",
+  "qaCatProducts": "Productos",
+  "qaCatFees": "Tarifas y niveles",
+  "qaCatApi": "Desarrollador / API",
+  "qaCatReferrals": "Referidos",
+  "rangeDays7": "7 días",
+  "rangeDays30": "30 días",
+  "rangeDays90": "90 días",
+  "rangeMonths12": "12 meses"
 }

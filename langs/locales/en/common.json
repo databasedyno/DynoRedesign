@@ -549,7 +549,10 @@
     "userDisplayCurrencyHint": "Overrides your team's display currency just for you. Never affects pricing or exports.",
     "currentlyOverriding": "overriding team default",
     "tax": "Tax",
-    "taxDesc": "Default VAT/tax behavior for checkouts and payment links."
+    "taxDesc": "Default VAT/tax behavior for checkouts and payment links.",
+    "scopeAccount": "Applies to your whole account",
+    "scopeCompany": "Applies to {{company}}",
+    "selectedCompanyFallback": "the selected company"
   },
   "donation": {
     "defaultTitle": "Support this campaign",
@@ -617,5 +620,6 @@
   "EmptyTxChipCreator": "Creator page",
   "EmptyTxChipProducts": "Sell products",
   "EmptyTxChipCrowdfund": "Crowdfund a cause",
-  "loading": "Loading…"
+  "loading": "Loading…",
+  "appliesToThisCompanyOnly": "Applies to this company only"
 }

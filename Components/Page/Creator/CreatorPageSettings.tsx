@@ -3,6 +3,7 @@ import useSWR from "swr";
 import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
@@ -70,6 +71,7 @@ type PlatformKey = typeof SOCIAL_PLATFORMS[number]["key"];
 
 const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const dispatch = useDispatch();
   const reduxProfile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
   const selectedCompanyId = useSelectedCompanyId();
@@ -557,7 +559,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 color={theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5"}
               />
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
-                Applies to this company only
+                {t("appliesToThisCompanyOnly", { defaultValue: "Applies to this company only" })}
               </Typography>
             </Box>
           </Box>

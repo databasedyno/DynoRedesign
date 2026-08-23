@@ -549,7 +549,10 @@
     "userDisplayCurrencyHint": "Overschrijft de weergavevaluta van je team alleen voor jou. Heeft nooit invloed op prijzen of exports.",
     "currentlyOverriding": "overschrijft teamstandaard",
     "tax": "Belasting",
-    "taxDesc": "Standaard BTW/belastinggedrag voor checkouts en betalingslinks."
+    "taxDesc": "Standaard BTW/belastinggedrag voor checkouts en betalingslinks.",
+    "scopeAccount": "Geldt voor je hele account",
+    "scopeCompany": "Geldt voor {{company}}",
+    "selectedCompanyFallback": "het geselecteerde bedrijf"
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",
@@ -617,5 +620,6 @@
   "EmptyTxChipCreator": "Maker pagina",
   "EmptyTxChipProducts": "Verkoop producten",
   "EmptyTxChipCrowdfund": "Crowdfund een doel",
-  "loading": "Laden…"
+  "loading": "Laden…",
+  "appliesToThisCompanyOnly": "Geldt alleen voor dit bedrijf"
 }

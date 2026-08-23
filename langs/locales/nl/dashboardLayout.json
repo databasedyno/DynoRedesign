@@ -316,5 +316,21 @@
   "obAccountLabel": "Vul je accountgegevens in",
   "obBusinessProfileLabel": "Vul je bedrijfsprofiel in",
   "obAccountDesc": "Voeg je land toe zodat facturen en belastingen correct zijn.",
-  "obBusinessProfileDesc": "Voeg je land en adres toe zodat facturen en BTW correct zijn."
+  "obBusinessProfileDesc": "Voeg je land en adres toe zodat facturen en BTW correct zijn.",
+  "periodVsPrevious": "vs vorige periode · {count} betalingen",
+  "volumeOver": "Volume · {range}",
+  "taxCollectedAllTime": "Belasting geïnd (totaal)",
+  "taxAcross_one": "over {{count}} betaling",
+  "taxAcross_other": "over {{count}} betalingen",
+  "qaCatCreatePaylink": "Betaallink maken",
+  "qaShortcutPayLinks": "Betaallinks",
+  "qaCatTransactions": "Transacties",
+  "qaCatProducts": "Producten",
+  "qaCatFees": "Kosten & niveaus",
+  "qaCatApi": "Ontwikkelaar / API",
+  "qaCatReferrals": "Verwijzingen",
+  "rangeDays7": "7 dagen",
+  "rangeDays30": "30 dagen",
+  "rangeDays90": "90 dagen",
+  "rangeMonths12": "12 maanden"
 }

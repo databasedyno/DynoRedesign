@@ -1,3 +1,51 @@
+# FOLLOW-UPS (2026-06 fork) — i18n GAP CLOSURE (untranslated cosmetic strings) — VERIFIED iter72 100%
+
+Closed the residual i18n gaps flagged by iter71: UI strings that stayed English even when the app
+was switched to another language, because their keys were missing from the catalogs OR they were
+hardcoded (never wrapped in t()). User said "proceed with best judgment"; fee-tier product names
+(Starter/Growth/Scale on /fees) intentionally KEPT in English (brand identifiers, not translated).
+
+ADDED 21 KEYS × 6 LOCALES (en/pt/fr/es/de/nl):
+- dashboardLayout.json: periodVsPrevious ("vs previous period · {count} payments"),
+  volumeOver ("Volume · {range}"), taxCollectedAllTime, taxAcross_one/_other,
+  qaCatCreatePaylink, qaShortcutPayLinks, qaCatTransactions, qaCatProducts, qaCatFees, qaCatApi,
+  qaCatReferrals, rangeDays7/rangeDays30/rangeDays90/rangeMonths12.
+- common.json: appliesToThisCompanyOnly (top-level) + settingsPage.scopeAccount /
+  settingsPage.scopeCompany ("Applies to {{company}}") / settingsPage.selectedCompanyFallback.
+- transactions.json: sourcePaymentLinks.
+PLACEHOLDER STYLE: periodVsPrevious/volumeOver keep SINGLE-brace {count}/{range} (consumed by manual
+.replace() in BalanceStrip/VolumeHero/VolumeChart); taxAcross_* and scopeCompany use i18next
+double-brace {{count}}/{{company}}.
+
+CODE CHANGES (frontend-only, no backend/DB):
+- pages/settings/index.tsx: scope chip now passes company fallback via t(...selectedCompanyFallback).
+- Components/Page/Transactions/index.tsx: added useTranslation("dashboardLayout"); wrapped
+  "Tax collected" -> t("taxCollected") and "across N payments" -> t("taxAcross",{count}).
+- Components/Page/Dashboard/DashboardLeftSection.tsx: "Tax collected (all-time)" -> tDashboard("taxCollectedAllTime").
+- Components/Page/Creator/CreatorPageSettings.tsx: added useTranslation("common"); wrapped
+  "Applies to this company only" -> t("appliesToThisCompanyOnly").
+- Components/Page/Dashboard/v2026/index.tsx: added useTranslation("dashboardLayout"); rangeLabel
+  presets ("7 days"/"30 days"/"90 days"/"12 months") now via t("rangeDays7"...).
+- BalanceStrip/VolumeHero/ActionsRow/QuickActionsDock: no code change (keys now resolve; defaultValue kept).
+
+VERIFIED (testing_agent iter72, frontend-only, LIVE account hostbay@moxx.co, language set to 'fr'
+then RESTORED to 'en' + confirmed via GET /user/profile): Settings scope chip FR both scopes;
+Dashboard subline "vs période précédente · N paiements"; range eyebrow "Volume · 7 jours" (rendered
+by VolumeChart.tsx data-testid=dash2026-chart-eyebrow — NOTE VolumeHero.tsx eyebrow is a dead/unmounted
+path in the current layout); quick-action "Liens de paiement"; Storefront theme chip
+"S'applique uniquement à cette entreprise". No raw key leaks, 0 console errors. frontend tsc clean.
+NOT exercisable: Transactions "Tax collected" chip — this account has 0 tax-bearing transactions
+(taxSummary.total=0 so chip not rendered); keys verified present via static audit
+(/app/tests/check_i18n_keys_iter72.py). 5/5 exercisable checks pass.
+
+KNOWN REMAINING i18n GAP (out of scope this round, flagged by tester for a future pass): Storefront
+page still has hardcoded English (title "Storefront", subtitle, tabs Page/Products/Share, "Page theme"
+labels, ACCENT COLOR / COVER STYLE, preview copy). Fee-tier names deliberately English.
+
+---
+
+
+
 # FOLLOW-UPS (2026-06 fork, 2026-06) — Onboarding headline + cross-device test + fixes (VERIFIED 100%)
 
 USER: (1) add a short LOCALIZED headline above the onboarding flag chips; (2) run a full logged-in

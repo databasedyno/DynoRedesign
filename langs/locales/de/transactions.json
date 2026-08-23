@@ -52,5 +52,6 @@
   "sourceTipShort": "Trinkgeld",
   "sourceProductShort": "Shop",
   "sourceContributionShort": "Spende",
-  "sourceDirectShort": "Direkt"
+  "sourceDirectShort": "Direkt",
+  "sourcePaymentLinks": "Zahlungslinks"
 }

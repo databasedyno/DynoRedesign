@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend-only verification of the i18n gap-closure round (21 new keys + hardcoded strings wrapped) on the LIVE account hostbay@moxx.co. Switched account UI language to French via /settings?section=profile (MUI language select), verified all target strings, then RESTORED language to 'en' and confirmed via API (GET /api/user/profile -> language='en'). Results: Settings scope chip translated for both account-scoped (profile/notifications -> \"S'applique à l'ensemble de votre compte\") and company-scoped (company/payments/tax -> \"S'applique à hostbay\") sections; Dashboard subline = 'vs période précédente · 15 paiements' (and 86/278/409 for 30D/90D/1Y); range eyebrow (data-testid=dash2026-chart-eyebrow) = 'Volume · 7 jours' / '30 jours' / '90 jours' / '12 mois'; quick-action shortcut = 'Liens de paiement' (no English 'Payment links' anywhere on dashboard); Storefront->Page theme chip = \"S'applique uniquement à cette entreprise\". No raw i18n key leaks on Dashboard, Settings, Transactions or Storefront; zero console errors on all pages. Static catalog audit (new script /app/tests/check_i18n_keys_iter72.py) confirms all 21 keys exist in all 6 locales with correct placeholder style ({count}/{range} single-brace for .replace(), {{count}}/{{company}} for i18next).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Storefront -> Page tab (French UI)", "issues": ["Remaining untranslated English strings alongside the newly-translated scope chip: page title 'Storefront', subtitle 'Your Dynopay page — tips, products and payment links behind one link.', 'Editing hostbay's storefront', tabs 'Page/Products/Share', 'Your public page', 'Page theme' + its description, 'Accent button', 'ACCENT COLOR', 'COVER STYLE', preview 'Support me' / 'Your payment links appear here'. Out of scope of this round but the next obvious i18n gap."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/tests/check_i18n_keys_iter72.py",
+    "/app/tests/verify_language_en.py",
+    "/app/tests/test_language_sync_api.py"
+  ],
+  "action_items": [
+    "No fixes required for this round — all 6 requested items pass (5 verified in-browser, 1 not exercisable).",
+    "Optional follow-up: translate remaining hardcoded English strings on the Storefront page (title/subtitle/tabs/Page-theme labels) — see design_issues."
+  ],
+  "critical_code_review_comments": [
+    "VolumeHero.tsx (dash2026-hero-rangelabel) is not rendered in the current v2026 dashboard layout; the visible range eyebrow comes from VolumeChart.tsx (data-testid=dash2026-chart-eyebrow). Same t('volumeOver') key, so behaviour is correct, but the review request's expected testid does not exist on screen — consider removing the dead VolumeHero eyebrow path or aligning testids.",
+    "periodVsPrevious/volumeOver intentionally use single-brace placeholders consumed by .replace(); this diverges from i18next interpolation used elsewhere (taxAcross_one/_other, settingsPage.scopeCompany). Verified consistent across all 6 locales, but it is fragile for future translators — a lint/CI check on placeholder style is advisable (script added at /app/tests/check_i18n_keys_iter72.py can serve that purpose)."
+  ],
+  "updated_files": [
+    "/app/tests/check_i18n_keys_iter72.py (new)",
+    "/app/tests/verify_language_en.py (new)"
+  ],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "100% (5/5 exercisable checks pass; 1 not exercisable)"},
+  "seed_data_creation": "None. No data mutated on the LIVE account other than the account language field, which was set to 'fr' for testing and restored to 'en' (verified via GET /api/user/profile).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (login route is /auth/login, NOT /login)",
+  "context_for_next_testing_agent": "Login URL is https://<preview>/auth/login (a bare /login 404s). Flow: [data-testid=login-email-input] -> button 'Continue' -> [data-testid=password-input] -> [data-testid=signin-submit-btn]; allow ~10-12s post-submit. Language switch: /settings?section=profile -> click [data-testid=communication-language-select], wait 700ms, click [data-testid=language-option-fr|en]; persists to account. Account language currently 'en' (verified). Dashboard range pills: [data-testid=dash2026-range-7d|30d|90d|1y]; range eyebrow testid is dash2026-chart-eyebrow (NOT dash2026-hero-rangelabel — VolumeHero is not mounted). The 'Tax collected' chip ([data-testid=tax-collected-summary]) could NOT be exercised: all 607 transactions on this account have an empty VAT/Tax column (taxSummary.total = 0), so the chip is correctly not rendered — needs a tax-bearing transaction to verify taxAcross plural rendering. Use `python3 /app/tests/verify_language_en.py` as the post-test cleanup assertion.",
+  "rca_of_the_issue": "N/A — no defects found in this round."
+}

@@ -549,7 +549,10 @@
     "userDisplayCurrencyHint": "Remplace la monnaie d'affichage de votre équipe juste pour vous. N'affecte jamais les prix ou les exports.",
     "currentlyOverriding": "remplaçant le défaut de l'équipe",
     "tax": "Taxe",
-    "taxDesc": "Comportement par défaut de la TVA/taxe pour les paiements et les liens de paiement."
+    "taxDesc": "Comportement par défaut de la TVA/taxe pour les paiements et les liens de paiement.",
+    "scopeAccount": "S'applique à l'ensemble de votre compte",
+    "scopeCompany": "S'applique à {{company}}",
+    "selectedCompanyFallback": "l'entreprise sélectionnée"
   },
   "donation": {
     "defaultTitle": "Soutenez cette campagne",
@@ -617,5 +620,6 @@
   "EmptyTxChipCreator": "Page du créateur",
   "EmptyTxChipProducts": "Vendre des produits",
   "EmptyTxChipCrowdfund": "Financer une cause",
-  "loading": "Chargement…"
+  "loading": "Chargement…",
+  "appliesToThisCompanyOnly": "S'applique uniquement à cette entreprise"
 }

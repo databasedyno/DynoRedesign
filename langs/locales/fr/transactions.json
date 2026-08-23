@@ -52,5 +52,6 @@
   "sourceTipShort": "Pourboire",
   "sourceProductShort": "Boutique",
   "sourceContributionShort": "Don",
-  "sourceDirectShort": "Direct"
+  "sourceDirectShort": "Direct",
+  "sourcePaymentLinks": "Liens de paiement"
 }

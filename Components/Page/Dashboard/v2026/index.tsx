@@ -5,6 +5,7 @@ import { Box } from "@mui/material";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
@@ -40,6 +41,7 @@ import ReferralCodeCard from "../ReferralCodeCard";
  */
 const Dashboard2026: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation("dashboardLayout");
   const [range, setRange] = useState<RangeId>("7d");
   const { density, isCompact } = useDashboardDensity();
   const [custom, setCustom] = useState<{ startDate: string; endDate: string } | null>(
@@ -99,10 +101,10 @@ const Dashboard2026: React.FC = () => {
   // Human label for the active window (drives the chart eyebrow + balance strip).
   const rangeLabel = useMemo(() => {
     const presetLabels: Record<RangeId, string> = {
-      "7d": "7 days",
-      "30d": "30 days",
-      "90d": "90 days",
-      "1y": "12 months",
+      "7d": t("rangeDays7", { defaultValue: "7 days" }),
+      "30d": t("rangeDays30", { defaultValue: "30 days" }),
+      "90d": t("rangeDays90", { defaultValue: "90 days" }),
+      "1y": t("rangeMonths12", { defaultValue: "12 months" }),
     };
     if (!custom) return presetLabels[range];
     const sameYear = custom.startDate.slice(0, 4) === custom.endDate.slice(0, 4);
@@ -114,7 +116,7 @@ const Dashboard2026: React.FC = () => {
       }
     };
     return `${fmt(custom.startDate, !sameYear)} – ${fmt(custom.endDate, !sameYear)}`;
-  }, [range, custom]);
+  }, [range, custom, t]);
 
   const { accountType, hasAccount, profileComplete } = useAccountProfile();
   const walletState = useWalletStore();

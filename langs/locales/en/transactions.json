@@ -52,5 +52,6 @@
   "sourceTipShort": "Tip",
   "sourceProductShort": "Store",
   "sourceContributionShort": "Donation",
-  "sourceDirectShort": "Direct"
+  "sourceDirectShort": "Direct",
+  "sourcePaymentLinks": "Payment links"
 }

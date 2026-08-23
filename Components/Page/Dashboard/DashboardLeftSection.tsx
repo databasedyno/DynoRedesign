@@ -511,7 +511,7 @@ const DashboardLeftSection = () => {
           }}
         >
           <Typography sx={{ fontSize: 12.5, color: "text.secondary", fontFamily: "var(--font-sans)" }}>
-            Tax collected (all-time)
+            {tDashboard("taxCollectedAllTime", { defaultValue: "Tax collected (all-time)" })}
           </Typography>
           <Typography sx={{ fontSize: 15, fontWeight: 700, color: "text.primary", fontFamily: "var(--font-sans)" }}>
             {stats.taxCollectedFormatted || String(stats.taxCollected)}

@@ -726,7 +726,11 @@ const SettingsPage = ({
                 {activeMeta.scope === "company"
                   ? t("settingsPage.scopeCompany", {
                       defaultValue: `Applies to ${scopeCompanyName || "the selected company"}`,
-                      company: scopeCompanyName,
+                      company:
+                        scopeCompanyName ||
+                        t("settingsPage.selectedCompanyFallback", {
+                          defaultValue: "the selected company",
+                        }),
                     })
                   : t("settingsPage.scopeAccount", {
                       defaultValue: "Applies to your whole account",

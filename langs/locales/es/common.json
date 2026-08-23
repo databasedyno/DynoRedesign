@@ -549,7 +549,10 @@
     "userDisplayCurrencyHint": "Anula la moneda de visualización de tu equipo solo para ti. Nunca afecta precios ni exportaciones.",
     "currentlyOverriding": "anulando la predeterminada del equipo",
     "tax": "Impuesto",
-    "taxDesc": "Comportamiento predeterminado del IVA/impuesto para pagos y enlaces de pago."
+    "taxDesc": "Comportamiento predeterminado del IVA/impuesto para pagos y enlaces de pago.",
+    "scopeAccount": "Se aplica a toda tu cuenta",
+    "scopeCompany": "Se aplica a {{company}}",
+    "selectedCompanyFallback": "la empresa seleccionada"
   },
   "donation": {
     "defaultTitle": "Apoya esta campaña",
@@ -617,5 +620,6 @@
   "EmptyTxChipCreator": "Página del creador",
   "EmptyTxChipProducts": "Vender productos",
   "EmptyTxChipCrowdfund": "Financia una causa",
-  "loading": "Cargando…"
+  "loading": "Cargando…",
+  "appliesToThisCompanyOnly": "Se aplica solo a esta empresa"
 }

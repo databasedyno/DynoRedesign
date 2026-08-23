@@ -17,6 +17,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
@@ -53,6 +54,7 @@ Object.entries(walletMapping).forEach(([key, value]) => {
 const TransactionPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { t } = useTranslation("dashboardLayout");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -466,13 +468,16 @@ const TransactionPage = () => {
           }}
         >
           <Typography sx={{ fontSize: "12.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-            Tax collected
+            {t("taxCollected", { defaultValue: "Tax collected" })}
           </Typography>
           <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
             {formatWithSeparators(taxSummary.total, undefined, 2)}
           </Typography>
           <Typography sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-            {`across ${taxSummary.count} ${taxSummary.count === 1 ? "payment" : "payments"}`}
+            {t("taxAcross", {
+              count: taxSummary.count,
+              defaultValue: `across ${taxSummary.count} ${taxSummary.count === 1 ? "payment" : "payments"}`,
+            })}
           </Typography>
         </Box>
       )}

@@ -549,7 +549,10 @@
     "userDisplayCurrencyHint": "Überschreibt die Anzeigewährung Ihres Teams nur für Sie. Beeinflusst niemals Preise oder Exporte.",
     "currentlyOverriding": "überschreibt die Teamvorgabe",
     "tax": "Steuer",
-    "taxDesc": "Standardverhalten für Mehrwertsteuer/Steuern bei Checkouts und Zahlungslinks."
+    "taxDesc": "Standardverhalten für Mehrwertsteuer/Steuern bei Checkouts und Zahlungslinks.",
+    "scopeAccount": "Gilt für Ihr gesamtes Konto",
+    "scopeCompany": "Gilt für {{company}}",
+    "selectedCompanyFallback": "das ausgewählte Unternehmen"
   },
   "donation": {
     "defaultTitle": "Unterstütze diese Kampagne",
@@ -617,5 +620,6 @@
   "EmptyTxChipCreator": "Erstellerseite",
   "EmptyTxChipProducts": "Produkte verkaufen",
   "EmptyTxChipCrowdfund": "Crowdfund eine Sache",
-  "loading": "Lade…"
+  "loading": "Lade…",
+  "appliesToThisCompanyOnly": "Gilt nur für dieses Unternehmen"
 }
