@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://crypto-checkout-init.preview.emergentagent.com"
+BASE = "https://checkout-preview-25.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

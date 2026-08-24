@@ -4,7 +4,7 @@
 import requests
 import json
 
-BASE_URL = "https://crypto-checkout-init.preview.emergentagent.com"
+BASE_URL = "https://checkout-preview-25.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

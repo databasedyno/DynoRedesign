@@ -1,7 +1,7 @@
 # Test Credentials
 
 ## CURRENT POD — env rebuilt from user's pasted prod creds (setup task, 2026-08-24)
-- Preview URL: https://crypto-checkout-init.preview.emergentagent.com
+- Preview URL: https://checkout-preview-25.preview.emergentagent.com
 - DB (ACTIVE): **STAGING** = postgresql://postgres:***@sakura.proxy.rlwy.net:42975/railway
   (empty schema clone of prod — 70 tables, NO data — used for safe e2e testing of the refactor items).
   Prod values are preserved (commented) in /app/backend/.env for an easy switch-back.

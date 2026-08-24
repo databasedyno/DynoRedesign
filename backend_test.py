@@ -6,12 +6,12 @@ This is a compile-time-only fix (TypeScript cast) - runtime behavior should be u
 CONTEXT:
 - App pointed at STAGING Railway Postgres DB (EMPTY schema, NO users) in SAFE MODE
 - DO NOT attempt login/authenticated flows - no seeded users exist
-- Base URL: https://crypto-checkout-init.preview.emergentagent.com (API routes prefixed with /api)
+- Base URL: https://checkout-preview-25.preview.emergentagent.com (API routes prefixed with /api)
 - Internal /health: http://localhost:8001/health (NOT exposed on external ingress)
 
 WHAT TO VERIFY (unauthenticated, read-only only):
 1. GET http://localhost:8001/health → HTTP 200 with status "healthy", database "connected", redis "connected", background_jobs.eligible=false
-2. GET https://crypto-checkout-init.preview.emergentagent.com/api/status/health → HTTP 200 healthy JSON
+2. GET https://checkout-preview-25.preview.emergentagent.com/api/status/health → HTTP 200 healthy JSON
 3. Hit PUBLIC GET /api endpoints - confirm server responds WITHOUT 5xx/crash (regression check)
 4. (Best-effort) gzip compression: request with "Accept-Encoding: gzip" and check for "Content-Encoding: gzip" or "Vary: Accept-Encoding"
 """
@@ -22,7 +22,7 @@ import sys
 
 # Base URLs
 INTERNAL_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://crypto-checkout-init.preview.emergentagent.com"
+EXTERNAL_BASE = "https://checkout-preview-25.preview.emergentagent.com"
 
 def print_test(name, passed, details=""):
     status = "✅ PASS" if passed else "❌ FAIL"
