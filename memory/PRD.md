@@ -1,3 +1,45 @@
+# REFACTOR (2026-08-24) — Item 3: single INBOUND webhook-signature verifier — DONE (unit-verified)
+
+Backlog item 3 of 5 ("single webhook-signature verifier — logic duplicated in ~8 places").
+Consolidated the hand-rolled inbound verification crypto into ONE tested module.
+
+NEW: `backend/utils/webhookSignature.ts` — the inbound counterpart to `utils/hmac.ts`
+(which already deduped OUTBOUND signing). Exports:
+- `hmacHex(algo, data, secret)` — generic HMAC→hex (sha256|sha512; objects JSON.stringify'd).
+- `verifyHmacHex({algorithm,payload,secret,providedSignature})` — constant-time, never throws.
+- `verifyTatumSignature(body, sig, secret=TATUM_WEBHOOK_SECRET)` — HMAC-SHA512 → `x-payload-hash`.
+- `verifyVeriffSignature(raw, sig, secret)` — HMAC-SHA256 of RAW bytes → `x-hmac-signature`
+  (keeps the strict `/^[0-9a-f]{64}$/` format guard).
+- `verifyFlutterwaveHash(hdr, secret=FLW_SECRET_HASH)` — plain shared-secret equality (`verif-hash`).
+All comparisons go through `timingSafeCompare` (utils/hmac.ts).
+
+REFACTORED 3 call sites (behaviour byte-identical to the originals; only hardening = the Tatum &
+Flutterwave plain `!==` compares are now timing-safe):
+- `routes/index.ts` verifyTatumWebhookSource — inline `crypto.createHmac("sha512")` + `!==` →
+  `verifyTatumSignature(rawBody, signature, secret)`. IP allowlist + unsigned rate-limiting untouched.
+- `services/veriffService.ts` — `signRaw` → `hmacHex("sha256",…)`, `verifyWebhookRaw` →
+  `verifyVeriffSignature(…, this.apiSecret)`. Legacy `generateSignature`/`verifyWebhookSignature`
+  (crypto-js, session-creation path) LEFT UNTOUCHED on purpose.
+- `webhooks/index.ts` flutterwaveWebHook — → `verifyFlutterwaveHash(signature)`.
+
+VERIFIED: `backend/tests/test_webhook_signature.ts` (standalone ts-node, no DB) = 29/29 pass —
+proves each verifier matches the ORIGINAL accept/reject decision + rejects malformed/short/empty/
+wrong-secret. Backend boots clean (listening on 3300, /health db+redis connected). tsc: 0 errors in
+any changed file (the single pre-existing `server.ts:254` compression() overload error is from the
+earlier P2 session, not this change).
+
+PRE-EXISTING BUG FLAGGED (NOT changed — preserved exactly): the Flutterwave handler sends
+`res.status(401).end()` on a bad signature but does NOT `return`, so it keeps processing. Raise as its
+own fix.
+
+SETUP NOTE (2026-08-24): pod running on the LIVE Railway prod DB in SAFE MODE. User provided a staging
+DB for testing but its host `postgres.railway.internal` is Railway-PRIVATE (unreachable here) — need
+the PUBLIC `...proxy.rlwy.net:PORT` URL for app-level e2e on later items. Items 1/2/4/5 still pending.
+
+---
+
+
+
 # ARCH (2026-08-23 fork) — Worker / API split (Pattern B) — IMPLEMENTED, web verified
 
 Enables running the SAME image as two deployments so background work stops competing with API traffic.

@@ -7,6 +7,7 @@ import axios, { AxiosInstance } from "axios";
 import { apiLogger } from "../utils/loggers";
 import CryptoJS from "crypto-js";
 import crypto from "crypto";
+import { hmacHex, verifyVeriffSignature } from "../utils/webhookSignature";
 
 // Veriff API Configuration
 const VERIFF_API_BASE_URL = "https://stationapi.veriff.com";
@@ -202,11 +203,9 @@ class VeriffService {
    * order / escaping differences would break the digest).
    */
   signRaw(raw: Buffer | string): string {
-    return crypto
-      .createHmac("sha256", this.apiSecret)
-      .update(typeof raw === "string" ? Buffer.from(raw, "utf8") : raw)
-      .digest("hex")
-      .toLowerCase();
+    // Delegates to the centralized inbound verifier module (HMAC-SHA256, hex).
+    // hmacHex hashes a string as utf8 — identical to Buffer.from(raw,"utf8").
+    return hmacHex("sha256", raw, this.apiSecret);
   }
 
   /**
@@ -214,14 +213,7 @@ class VeriffService {
    * (constant-time comparison).
    */
   verifyWebhookRaw(raw: Buffer | string, signature?: string): boolean {
-    const supplied = String(signature || "").trim().toLowerCase();
-    if (!/^[0-9a-f]{64}$/.test(supplied)) return false;
-    const expected = this.signRaw(raw);
-    try {
-      return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(supplied, "hex"));
-    } catch {
-      return false;
-    }
+    return verifyVeriffSignature(raw, signature, this.apiSecret);
   }
 
   /**

@@ -1,6 +1,7 @@
 import express from "express";
 import crypto from "crypto";
 import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
+import { verifyFlutterwaveHash } from "../utils/webhookSignature";
 import { apiLogger, webhookLogs} from "../utils/loggers";
 import { getErrorMessage } from "../helper";
 import { ITatumWebHook, IWebHook } from "../utils/types";
@@ -524,9 +525,11 @@ const flutterwaveWebHook = async (
   res: express.Response
 ) => {
   try {
-    const secretHash = process.env.FLW_SECRET_HASH;
+    // Centralized inbound verifier — plain shared-secret equality on `verif-hash`.
+    // NOTE (pre-existing behaviour, intentionally preserved): this sends 401 but
+    // does NOT `return`, so the handler continues below. Flagged for a separate fix.
     const signature = req.headers["verif-hash"];
-    if (!signature || signature !== secretHash) {
+    if (!verifyFlutterwaveHash(signature)) {
       res.status(401).end();
     }
     const payload: IWebHook = req.body;

@@ -39,6 +39,7 @@ import {
 import crypto from "crypto";
 import adminRouter from "./adminRouter";
 import { logWebhookValidationFailure } from "../utils/securityLogger";
+import { verifyTatumSignature } from "../utils/webhookSignature";
 
 /**
  * Tatum webhook HMAC signature verification middleware.
@@ -117,9 +118,9 @@ const verifyTatumWebhookSource = (req: express.Request, res: express.Response, n
   }
 
   const rawBody = JSON.stringify(req.body);
-  const expectedSignature = crypto.createHmac("sha512", secret).update(rawBody).digest("hex");
 
-  if (signature !== expectedSignature) {
+  // Centralized inbound verifier (HMAC-SHA512 of the body vs x-payload-hash).
+  if (!verifyTatumSignature(rawBody, signature, secret)) {
     apiLogger.warn(`[WebhookAuth] Invalid webhook signature from ${req.ip}`);
     logWebhookValidationFailure('tatum', req.ip || 'unknown', 'Invalid HMAC signature');
     return res.status(401).json({ error: "Invalid webhook signature" });
