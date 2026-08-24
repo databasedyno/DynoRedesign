@@ -4,14 +4,15 @@
  * Handles browser push notification delivery via the Web Push API.
  * Manages VAPID keys and push subscription lifecycle.
  */
+import { raw as envRaw } from "../utils/config";
 import webpush from "web-push";
 import pushSubscriptionModel from "../models/pushSubscriptionModel";
 import { apiLogger } from "../utils/loggers";
 
 // Configure VAPID
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || "";
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || "";
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:support@dynopay.com";
+const VAPID_PUBLIC_KEY = envRaw("VAPID_PUBLIC_KEY") || "";
+const VAPID_PRIVATE_KEY = envRaw("VAPID_PRIVATE_KEY") || "";
+const VAPID_SUBJECT = envRaw("VAPID_SUBJECT") || "mailto:support@dynopay.com";
 
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);

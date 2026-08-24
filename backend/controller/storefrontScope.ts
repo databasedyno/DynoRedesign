@@ -14,13 +14,14 @@
  * the ON path reads/writes columns that migration adds to tbl_company /
  * tbl_product / tbl_product_order.
  */
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import { QueryTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import { companyModel, userModel } from "../models";
 
 export const STOREFRONT_PER_COMPANY =
-  String(process.env.STOREFRONT_PER_COMPANY ?? "false").toLowerCase() === "true";
+  String(envRaw("STOREFRONT_PER_COMPANY") ?? "false").toLowerCase() === "true";
 
 /** Creator/storefront columns that live on tbl_company under the flag (mirror tbl_user). */
 export const STOREFRONT_COLUMNS = [

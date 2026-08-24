@@ -5,6 +5,7 @@
  * under its file-size baseline. Behaviour is byte-for-byte unchanged;
  * cryptoCheckout.ts re-imports and re-exports this handler under the same name.
  */
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
 import axios from "axios";
@@ -77,7 +78,7 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
 
         // Send admin fee notification email for card payments
         try {
-          const adminEmail = process.env.ADMIN_EMAIL;
+          const adminEmail = envRaw("ADMIN_EMAIL");
           const totalFee = platformCharge + blockchainCharge;
           if (adminEmail && totalFee > 0) {
             const merchantAmount = data.amount_settled - platformCharge - blockchainCharge;
@@ -258,7 +259,7 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
 
           // Send admin fee notification email for create payment
           try {
-            const adminEmail = process.env.ADMIN_EMAIL;
+            const adminEmail = envRaw("ADMIN_EMAIL");
             const totalFee = platformCharge + blockchainCharge;
             if (adminEmail && totalFee > 0) {
               const merchantAmount = data.amount_settled - platformCharge - blockchainCharge;

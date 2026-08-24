@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import {
   errorResponseHelper,
@@ -348,7 +349,7 @@ const login = async (req: express.Request, res: express.Response) => {
     }
 
     if (passwordValid) {
-      const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+      const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
       const userData = {
         email,
         role: "ADMIN",
@@ -607,7 +608,7 @@ const updateEmail = async (req: express.Request, res: express.Response) => {
             type: QueryTypes.UPDATE,
           }
         );
-        const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+        const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
         const userData = {
           email,
           role: "ADMIN",

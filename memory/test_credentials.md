@@ -17,11 +17,9 @@
   NOT sequelize alter:true. No schema changes made to prod.
 
 ## Login / test credentials
-- No seed/test accounts created (would write to the production DB).
-- Admin email on record: moxxcompany@gmail.com (password NOT provided — real prod account).
-- Email/password login: POST /api/user/login (Node backend) — works with the user's real prod creds.
-- OAuth (Google/GitHub) buttons render, but /api/auth/* is STUBBED by the uvicorn proxy in preview,
-  so social sign-in cannot complete here. Use email/password.
+- **Login (verified working against prod DB):** `hostbay@moxx.co` / `Katiekendra123@`
+  (user_id=1, company_id=1 — main QA merchant with real data, ~$18k volume). POST /api/user/login -> 200.
+- Admin email on record: moxxcompany@gmail.com (password NOT provided).
 
 ## Env files (created this session; gitignored)
 - /app/backend/.env  — all provided creds verbatim; DATABASE_URL added (SSL, rejectUnauthorized=false);

@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../../utils/config";
 import express from "express";
 import {
   PAYMENT_TIMING,
@@ -192,7 +193,7 @@ export const settleCryptoTransaction = async ({
     const privateKeyField = isMerchantPool ? tempAddressData.private_key : tempAddressData.privateKey;
     const privateKey = await tatumApi.decryptSymmetric(
       privateKeyField,
-      process.env.TEMP_KEY_ID
+      envRaw("TEMP_KEY_ID")
     );
 
     let fees;
@@ -356,17 +357,17 @@ export const settleCryptoTransaction = async ({
 
       let contractAddress;
       if (currency === "USDT-ERC20") {
-        contractAddress = process.env.ETH_CONTRACT;
+        contractAddress = envRaw("ETH_CONTRACT");
       } else if (currency === "USDC-ERC20") {
-        contractAddress = process.env.USDC_CONTRACT;
+        contractAddress = envRaw("USDC_CONTRACT");
       } else if (currency === "RLUSD-ERC20") {
-        contractAddress = process.env.RLUSD_ERC20_CONTRACT;
+        contractAddress = envRaw("RLUSD_ERC20_CONTRACT");
       } else if (currency === "USDT-POLYGON") {
-        contractAddress = process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
+        contractAddress = envRaw("USDT_POLYGON_CONTRACT") || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
       } else if (currency === "RLUSD") {
         contractAddress = null; // RLUSD uses XRP Ledger tokens, not contract
       } else {
-        contractAddress = process.env.TRX_CONTRACT;
+        contractAddress = envRaw("TRX_CONTRACT");
       }
 
       fees = await tatumApi.feeEstimation(
@@ -550,7 +551,7 @@ export const settleCryptoTransaction = async ({
 
               // FIX (2026-04-07): Pass recipient + contract for accurate activation-aware estimation
               // Previously only passed fromAddress, defaulting to NEW (130k) energy always.
-              const trc20Contract = contractAddress || process.env.TRX_CONTRACT || 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+              const trc20Contract = contractAddress || envRaw("TRX_CONTRACT") || 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
               const dynamicFee = await calculateDynamicTRC20Fee(fromAddress, userAddress, trc20Contract);
               const extraGasNeeded = dynamicFee.fast;
               totalGasFundedTRX += extraGasNeeded;
@@ -914,7 +915,7 @@ export const settleCryptoTransaction = async ({
                 // Re-fund gas with energy-aware estimation
                 // FIX (2026-04-07): Pass recipient + contract for correct activation check
                 cronLogger.info(`[settleCryptoTransaction] 🔋 Recovery: Re-funding TRX gas for ${fromAddress} (total gas funded: ${totalGasFundedTRX}/${MAX_GAS_PER_PAYMENT_TRX} TRX)...`);
-                const recoveryTrc20Contract = process.env.TRX_CONTRACT || 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+                const recoveryTrc20Contract = envRaw("TRX_CONTRACT") || 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
                 const recoveryDynamicFee = await calculateDynamicTRC20Fee(fromAddress, userAddress, recoveryTrc20Contract);
                 totalGasFundedTRX += recoveryDynamicFee.fast;
                 

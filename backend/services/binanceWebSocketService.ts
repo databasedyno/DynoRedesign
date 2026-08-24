@@ -15,6 +15,7 @@
  * Reference: https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
  */
 
+import { raw as envRaw } from "../utils/config";
 import WebSocket from "ws";
 import axios from "axios";
 import { SocksProxyAgent } from "socks-proxy-agent";
@@ -25,7 +26,7 @@ import { cronLogger } from "../utils/loggers";
 
 // SOCKS5 proxy for bypassing geo-blocks — uses smart detection from binanceService
 // getEffectiveProxyAgent() returns the agent ONLY when proxy is actually needed (US deployment)
-const BINANCE_PROXY_URL = process.env.BINANCE_PROXY_URL || "";
+const BINANCE_PROXY_URL = envRaw("BINANCE_PROXY_URL") || "";
 
 const LOG_PREFIX = "[BinanceWS]";
 const log = (msg: string) => cronLogger.info(`${LOG_PREFIX} ${msg}`);
@@ -36,8 +37,8 @@ const logError = (msg: string) => cronLogger.error(`${LOG_PREFIX} ${msg}`);
 // Configuration
 // ============================================
 
-const BINANCE_WS_BASE = process.env.BINANCE_WS_URL || "wss://stream.binance.com:9443";
-const BINANCE_REST_BASE = process.env.BINANCE_BASE_URL || "https://api.binance.com";
+const BINANCE_WS_BASE = envRaw("BINANCE_WS_URL") || "wss://stream.binance.com:9443";
+const BINANCE_REST_BASE = envRaw("BINANCE_BASE_URL") || "https://api.binance.com";
 
 /** All volatile assets we track (same list as volatilityMonitorService) */
 export const TRACKED_ASSETS = ["BTC", "ETH", "LTC", "DOGE", "SOL", "XRP", "BCH", "BNB", "TRX", "POL"];

@@ -1,5 +1,4 @@
-import useSWR from "swr";
-import axiosBaseApi from "@/axiosConfig";
+import useApiSWR from "@/hooks/useApiSWR";
 
 /**
  * Shared buy-buttons reader (GET /api/buy-buttons?company_id=…). Backed by SWR
@@ -10,13 +9,6 @@ import axiosBaseApi from "@/axiosConfig";
  * the original call site (pass `enabled: !!effectiveCompanyId`).
  */
 
-type BtnKey = readonly ["buy-buttons", string | number];
-
-const fetcher = async ([, cid]: BtnKey): Promise<any[]> => {
-  const { data } = await axiosBaseApi.get(`buy-buttons?company_id=${cid}`);
-  return data?.data?.buttons || [];
-};
-
 export function useBuyButtons<T = any>(
   companyId?: number | string | null,
   opts?: { enabled?: boolean }
@@ -24,17 +16,17 @@ export function useBuyButtons<T = any>(
   const hasToken =
     typeof window !== "undefined" && !!localStorage.getItem("token");
   const enabled = (opts?.enabled ?? true) && hasToken && !!companyId;
-  const key: BtnKey | null = enabled ? ["buy-buttons", companyId as string | number] : null;
+  const key = enabled ? `buy-buttons?company_id=${companyId}` : null;
 
-  const { data, error, isLoading, mutate } = useSWR<any[]>(
-    key,
-    fetcher as any,
-    { dedupingInterval: 30_000, keepPreviousData: true }
-  );
+  const { data, error, isLoading, mutate } = useApiSWR<T[]>(key, {
+    select: (raw) => (raw?.data?.buttons || []) as T[],
+    dedupingInterval: 30_000,
+    keepPreviousData: true,
+  });
 
   return {
     buttons: (data as T[]) ?? [],
-    loading: isLoading && data === undefined,
+    loading: isLoading,
     error,
     refetch: () => mutate(),
     mutate,

@@ -1,3 +1,4 @@
+import { raw as envRaw } from "./config";
 import axios from "axios";
 import { captureError } from "../services/errorMonitoringService";
 import { log } from "../utils/loggers";
@@ -63,7 +64,7 @@ const mailTransporter = async ({ to, subject, body, name, attachments }: mailOpt
   const payload: Record<string, unknown> = {
     sender: {
       name: "Dynopay",
-      email: process.env.BREVO_SENDER_EMAIL || "hi@dynopay.com",
+      email: envRaw("BREVO_SENDER_EMAIL") || "hi@dynopay.com",
     },
     subject: subject.trim(),
     to: [
@@ -99,7 +100,7 @@ const mailTransporter = async ({ to, subject, body, name, attachments }: mailOpt
         payload,
         {
           headers: {
-            "api-key": process.env.BREVO_API_KEY,
+            "api-key": envRaw("BREVO_API_KEY"),
           },
           timeout: 15000,
         }

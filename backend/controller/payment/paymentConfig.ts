@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 /**
  * Centralized payment configuration constants.
  * Extracted verbatim from paymentController.ts (no behavior change).
@@ -38,7 +39,7 @@ export const PAYMENT_TIMING = {
 // ============================================
 export const ADMIN_CONFIG = {
   // Admin email for notifications (from env, no hardcoded fallback exposed)
-  EMAIL: process.env.ADMIN_EMAIL || process.env.SMTP_USER || '',
+  EMAIL: envRaw("ADMIN_EMAIL") || envRaw("SMTP_USER") || '',
 
   // JWT expiry times
   JWT_EXPIRY: {
@@ -56,5 +57,5 @@ export const RETRY_CONFIG = {
 };
 
 // Tax calculation constants
-export const TAX_DATA_API_URL = process.env.TAX_DATA_API_URL || "https://api.apilayer.com/tax_data";
-export const TAX_DATA_API_KEY = process.env.TAX_DATA_API_KEY;
+export const TAX_DATA_API_URL = envRaw("TAX_DATA_API_URL") || "https://api.apilayer.com/tax_data";
+export const TAX_DATA_API_KEY = envRaw("TAX_DATA_API_KEY");

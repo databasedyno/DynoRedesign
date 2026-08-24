@@ -10,6 +10,7 @@
  *   - tbl_product_asset    (uploaded files for digital delivery)
  *   - tbl_product_order    (buyer's completed cart → 1:many order items)
  */
+import { raw as envRaw } from "../../utils/config";
 import { DataTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 
@@ -17,7 +18,7 @@ import sequelize from "../../utils/dbInstance";
 // exists on the DB after the migration, so only define it on the model when the
 // flag is ON — otherwise Sequelize SELECTs a non-existent column.
 const STOREFRONT_PER_COMPANY =
-  String(process.env.STOREFRONT_PER_COMPANY ?? "false").toLowerCase() === "true";
+  String(envRaw("STOREFRONT_PER_COMPANY") ?? "false").toLowerCase() === "true";
 
 const PRODUCT_COMPANY_COLUMN = STOREFRONT_PER_COMPANY
   ? {

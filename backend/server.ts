@@ -31,6 +31,7 @@ import cron from "node-cron";
 import { getTransactionFee, getBlockchainFee } from "./services/feeService";
 import { paymentController } from "./controller";
 import sequelize from "./utils/dbInstance";
+import config from "./utils/config";
 import { setupWeeklySummaryCron, setupWalletReminderCron, setupHealthCheckCron, setupRefereeCodeReminderCron, setupPaymentLinkReminderCron, setupOnboardingMonitorCron, setupFirstPaymentMonitorCron } from "./utils/cronJobs";
 import { getOptimizationDiagnostics } from "./services/tronEnergyService";
 import { migrateWebhookUrls } from "./services/migrateWebhookUrls";
@@ -60,26 +61,26 @@ import { UPLOAD_ROOT as PRODUCT_UPLOAD_ROOT } from "./middleware/uploadProductAs
 // RAILWAY LOGGING FIX: Disable output buffering
 // This ensures logs appear immediately in Railway's deploy logs
 // ============================================
-const isProduction = process.env.NODE_ENV === 'production' || !!process.env.RAILWAY_ENVIRONMENT;
+const isProduction = config.str("NODE_ENV") === 'production' || !!config.raw("RAILWAY_ENVIRONMENT");
 // SAFETY: Only run background jobs (cron, sweeps, webhook migration, reconciliation) on production.
 // Non-production instances (Emergent preview, local dev) sharing the same DB/Redis can cause:
 //   1. Cron jobs competing for locks and executing real financial transactions (sweeps)
 //   2. Webhook URL migration overwriting production URLs with dev URLs
 //   3. Duplicate email notifications via sweep recovery
 // Set ENABLE_BACKGROUND_JOBS=true explicitly to override (e.g., for staging).
-const enableBackgroundJobs = process.env.ENABLE_BACKGROUND_JOBS === 'true' || 
-  (process.env.ENABLE_BACKGROUND_JOBS !== 'false' && isProduction);
+const enableBackgroundJobs = config.str("ENABLE_BACKGROUND_JOBS") === 'true' || 
+  (config.str("ENABLE_BACKGROUND_JOBS") !== 'false' && isProduction);
 
 // WORKER_ROLE: Multi-environment isolation for shared DB/Redis setups.
 //   'primary'   — Runs all cron jobs, sweeps, and webhook processing (designate ONE environment)
 //   'secondary' — API-only, zero cron jobs (safe to run alongside primary)
 //   unset       — Legacy behavior, same as 'primary' (backward compatible)
-const workerRole = (process.env.WORKER_ROLE || 'primary').toLowerCase();
+const workerRole = (config.str("WORKER_ROLE") || 'primary').toLowerCase();
 const isCronEnabled = enableBackgroundJobs && workerRole !== 'secondary';
 
 if (!enableBackgroundJobs) {
   console.warn('⚠️  BACKGROUND JOBS DISABLED — cron jobs, webhook migration, and reconciliation will NOT run on this instance');
-  console.warn(`   Reason: ENABLE_BACKGROUND_JOBS=${process.env.ENABLE_BACKGROUND_JOBS || 'not set'}, isProduction=${isProduction}`);
+  console.warn(`   Reason: ENABLE_BACKGROUND_JOBS=${config.str("ENABLE_BACKGROUND_JOBS") || 'not set'}, isProduction=${isProduction}`);
   console.warn('   Set ENABLE_BACKGROUND_JOBS=true in .env to enable on non-production instances');
 } else if (workerRole === 'secondary') {
   console.warn('⚠️  WORKER_ROLE=secondary — This instance serves API requests only. Cron jobs, sweeps, and webhook migration are DISABLED.');
@@ -118,10 +119,10 @@ const log = (message: string, level: 'info' | 'error' | 'warn' = 'info') => {
 };
 
 log('Dynopay Backend Starting...', 'info');
-log(`Environment: ${process.env.NODE_ENV || 'development'}`, 'info');
-log(`Railway Environment: ${process.env.RAILWAY_ENVIRONMENT || 'not detected'}`, 'info');
+log(`Environment: ${config.str("NODE_ENV") || 'development'}`, 'info');
+log(`Railway Environment: ${config.str("RAILWAY_ENVIRONMENT") || 'not detected'}`, 'info');
 const app = express();
-const port = process.env.PORT || 3300;
+const port = config.str("PORT") || 3300;
 
 // Trust proxy — required behind K8s/Nginx so req.ip returns real client IP (critical for rate limiters)
 app.set('trust proxy', 1);
@@ -137,7 +138,7 @@ app.set('trust proxy', 1);
 //      new DigitalOcean alias domain never breaks CORS again.
 //   3. Standard safe infra patterns: localhost, *.preview.emergentagent.com,
 //      *.up.railway.app, *.ondigitalocean.app
-const explicitOrigins = (process.env.CORS_ALLOWED_ORIGINS || '')
+const explicitOrigins = (config.str("CORS_ALLOWED_ORIGINS") || '')
   .split(',').map(o => o.trim()).filter(Boolean);
 const explicitOriginSet = new Set(explicitOrigins);
 
@@ -159,14 +160,14 @@ const apexOf = (value?: string | null): string | null => {
 const INFRA_APEXES = ['emergentagent.com', 'railway.app', 'ondigitalocean.app', 'localhost'];
 const trustedBaseDomains = new Set<string>();
 [
-  process.env.SERVER_URL,
-  process.env.FRONTEND_URL,
-  process.env.CHECKOUT_URL,
-  process.env.NEXTAUTH_URL,
-  process.env.NEXT_PUBLIC_BASE_URL,
-  process.env.NEXT_PUBLIC_SERVER_URL,
+  config.raw("SERVER_URL"),
+  config.raw("FRONTEND_URL"),
+  config.raw("CHECKOUT_URL"),
+  config.raw("NEXTAUTH_URL"),
+  config.raw("NEXT_PUBLIC_BASE_URL"),
+  config.raw("NEXT_PUBLIC_SERVER_URL"),
   ...explicitOrigins,
-  ...((process.env.CORS_TRUSTED_DOMAINS || '').split(',')),
+  ...((config.str("CORS_TRUSTED_DOMAINS") || '').split(',')),
 ].forEach((v) => {
   const apex = apexOf(v);
   if (apex && !INFRA_APEXES.includes(apex)) trustedBaseDomains.add(apex);
@@ -297,7 +298,7 @@ app.use(cookieParser());
 app.use(csrfProtection);
 
 // Static files — served via /api/static prefix so K8s ingress routes to backend (port 8001)
-const uploadsPath = process.env.UPLOAD_PATH || path.join(__dirname, '../uploads');
+const uploadsPath = config.str("UPLOAD_PATH") || path.join(__dirname, '../uploads');
 app.use("/api/static", express.static("public"));
 app.use(express.static("public")); // Keep backward compat for internal access
 app.use("/api/static/images", express.static(path.join(uploadsPath, "images")));
@@ -1177,7 +1178,7 @@ leaderCron.schedule("*/2 * * * *", async function () {
 
 // Stablecoin Conversion: Process pending conversions via Binance
 // Runs every N minutes (configurable via BINANCE_CONVERT_INTERVAL_MINUTES)
-const convertIntervalMinutes = Math.max(parseInt(process.env.BINANCE_CONVERT_INTERVAL_MINUTES || "10") || 10, 1);
+const convertIntervalMinutes = Math.max(parseInt(config.str("BINANCE_CONVERT_INTERVAL_MINUTES") || "10") || 10, 1);
 leaderCron.schedule(`*/${convertIntervalMinutes} * * * *`, async function () {
   const lockAcquired = await acquireLock("cron:stablecoinConversion", 240, 1, 100, true);
   if (!lockAcquired) { log("Cron: stablecoinConversion skipped (already running)", "info"); return; }
@@ -1449,7 +1450,7 @@ const startServer = async () => {
     
     // Validate Merchant Pool Configuration (CRITICAL STARTUP CHECK)
     // Can be disabled with SKIP_MERCHANT_POOL_VALIDATION=true for testing/development
-    const skipValidation = process.env.SKIP_MERCHANT_POOL_VALIDATION === 'true';
+    const skipValidation = config.str("SKIP_MERCHANT_POOL_VALIDATION") === 'true';
     
     try {
       log('Validating Merchant Pool configuration...', 'info');
@@ -1499,7 +1500,7 @@ const startServer = async () => {
     // Wait for SSH tunnel to come up (takes ~3-5s) before probing Binance access.
     // This prevents the race condition where proxy detection fails because the
     // tunnel isn't ready yet, causing the WebSocket to start without proxy.
-    const tunnelWaitMs = process.env.SSH_TUNNEL_HOST ? 6000 : 0;
+    const tunnelWaitMs = config.str("SSH_TUNNEL_HOST") ? 6000 : 0;
     setTimeout(() => {
       detectBinanceAccess().then(() => {
         startBinanceWebSocket();
@@ -1565,7 +1566,7 @@ const startServer = async () => {
   // heavy cron/sweep/settlement work never competes with API request handling. Both
   // processes share DB + Redis; Redis leader election keeps every job single-run even
   // with multiple worker replicas. See worker.ts for the dedicated entrypoint.
-  if (process.env.WORKER_PROCESS === 'true') {
+  if (config.str("WORKER_PROCESS") === 'true') {
     const healthApp = express();
     healthApp.get('/health', (_req: express.Request, res: express.Response) => {
       res.status(200).json({
@@ -1577,7 +1578,7 @@ const startServer = async () => {
         timestamp: new Date().toISOString(),
       });
     });
-    const workerHealthPort = Number(process.env.WORKER_HEALTH_PORT || port);
+    const workerHealthPort = Number(config.str("WORKER_HEALTH_PORT") || port);
     httpServer = healthApp.listen(workerHealthPort, () => {
       log(`🛠️  WORKER process started — background jobs only (WORKER_ROLE=${workerRole}). Health on :${workerHealthPort}`, 'info');
       startRuntimeServices();
@@ -1594,7 +1595,7 @@ const startServer = async () => {
   // ─── Global Error Handler (must be AFTER all routes) ─────────────────────────
   // Catches unhandled errors in route handlers and prevents stack trace leakage
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = config.str("NODE_ENV") === 'production';
     log(`[GlobalErrorHandler] Unhandled error: ${err.message}${!isProduction ? `\n${err.stack}` : ''}`, 'error');
     captureError(err, 'api', {
       severity: 'high',

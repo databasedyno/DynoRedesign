@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
-import { apiLogger } from "../utils/loggers";
 
 /**
  * Service Health Check Model
@@ -56,11 +55,8 @@ const serviceHealthModel = sequelize.define(
   }
 );
 
-// Create table if not exists — create-only in production (never ALTER on boot); alter only in dev
-serviceHealthModel.sync({ alter: process.env.NODE_ENV !== "production" }).then(() => {
-  apiLogger.info("tbl_service_health table ready");
-}).catch(err => {
-  apiLogger.error("Error creating tbl_service_health:", err.message);
-});
+// Refactor Item #1: table provisioning moved to the versioned boot migration
+// (migrations/bootMigrations.ts -> getBootModels / buildBootMigrations). No more
+// ad-hoc import-time sync — create-only in prod (migration runner), alter in dev.
 
 export default serviceHealthModel;

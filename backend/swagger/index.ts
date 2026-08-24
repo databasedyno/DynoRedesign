@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
@@ -472,7 +473,7 @@ app.post('/webhooks/payment', (req, res) => {
   const isValid = verifyWebhookSignature(
     JSON.stringify(webhook),
     signature,
-    process.env.WEBHOOK_SECRET
+    envRaw("WEBHOOK_SECRET")
   );
   
   if (!isValid) {
@@ -586,7 +587,7 @@ function verifyWebhookSignature(payload, signature, secret) {
     },
     servers: [
       {
-        url: process.env.SERVER_URL || "http://localhost:8001",
+        url: envRaw("SERVER_URL") || "http://localhost:8001",
         description: "API Server — endpoints available at both /api/* and /api/v1/*",
       },
     ],

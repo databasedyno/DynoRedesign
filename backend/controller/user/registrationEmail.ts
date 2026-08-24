@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -56,7 +57,7 @@ export const registerUser = async (req: express.Request, res: express.Response) 
       return errorResponseHelper(res, 409, "Account Already Exists!");
     } else {
       const photoLocation = await downloadUserImage();
-      const photo = process.env.SERVER_URL + photoLocation;
+      const photo = envRaw("SERVER_URL") + photoLocation;
 
       // Unique referral code for new user (shared helper — consistent across all signup paths)
       const userReferralCode = generateReferralCode();
@@ -278,7 +279,7 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
 
     // Create user — no name, no password
     const photoLocation = await downloadUserImage();
-    const photo = process.env.SERVER_URL + photoLocation;
+    const photo = envRaw("SERVER_URL") + photoLocation;
     const userReferralCode = generateReferralCode();
 
     const createdUser = await userModel.create({

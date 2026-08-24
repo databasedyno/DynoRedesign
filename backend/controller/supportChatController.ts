@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
 import OpenAI from "openai";
@@ -29,13 +30,13 @@ const SESSION_ID_RE = /^[A-Za-z0-9-]{8,64}$/;
 const MAX_MESSAGE_CHARS = 2000;
 const HISTORY_TURNS_FOR_CONTEXT = 20; // messages (user+assistant) sent to the model
 const MAX_SESSION_MESSAGES = 200; // hard cap per session (abuse guard)
-const MODEL = process.env.SUPPORT_CHAT_MODEL || "gpt-5.4";
+const MODEL = envRaw("SUPPORT_CHAT_MODEL") || "gpt-5.4";
 
 // Attachments (session 14): uploaded via POST /api/support/chat/upload, stored on
 // disk under <uploads>/support-chat and served at /api/static/support-chat/<file>.
 // Path must resolve the same directory as server.ts's uploadsPath (one level up).
 export const SUPPORT_UPLOAD_DIR = path.join(
-  process.env.UPLOAD_PATH || path.join(__dirname, "../../uploads"),
+  envRaw("UPLOAD_PATH") || path.join(__dirname, "../../uploads"),
   "support-chat"
 );
 const ATTACHMENT_URL_RE = /^\/api\/static\/support-chat\/[A-Za-z0-9][A-Za-z0-9._-]{0,140}$/;
@@ -43,9 +44,9 @@ const IMAGE_MIMES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
 let openaiClient: OpenAI | null = null;
 const getOpenAI = (): OpenAI | null => {
-  if (!process.env.OPENAI_API_KEY) return null;
+  if (!envRaw("OPENAI_API_KEY")) return null;
   if (!openaiClient) {
-    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 45000, maxRetries: 1 });
+    openaiClient = new OpenAI({ apiKey: envRaw("OPENAI_API_KEY"), timeout: 45000, maxRetries: 1 });
   }
   return openaiClient;
 };
@@ -101,7 +102,7 @@ const resolveOptionalUser = (req: express.Request): JwtUser | null => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
     const token = authHeader.substring(7);
-    const secret = process.env.ACCESS_TOKEN_SECRET;
+    const secret = envRaw("ACCESS_TOKEN_SECRET");
     if (!secret) return null;
     const payload = jwt.verify(token, secret) as JwtUser;
     if (!payload || typeof payload !== "object") return null;
@@ -331,7 +332,7 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, "No conversation found for this session.");
     }
 
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = envRaw("ADMIN_EMAIL");
     if (!adminEmail) {
       apiLogger.error("[supportChat] ADMIN_EMAIL not configured — cannot escalate");
       return errorResponseHelper(res, 503, "Escalation is temporarily unavailable.");
@@ -344,7 +345,7 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
         const who = m.role === "assistant" ? "Emily (AI)" : "Visitor";
         const when = m.createdAt ? new Date(m.createdAt).toISOString().replace("T", " ").slice(0, 16) : "";
         const attachmentLine = m.attachment_url
-          ? `<br/><em>Attachment:</em> <a href="${esc(`${process.env.SERVER_URL || "https://dynopay.com"}${m.attachment_url}`)}">${esc(m.attachment_name || "file")}</a>`
+          ? `<br/><em>Attachment:</em> <a href="${esc(`${envRaw("SERVER_URL") || "https://dynopay.com"}${m.attachment_url}`)}">${esc(m.attachment_name || "file")}</a>`
           : "";
         return `<p style=\"margin:4px 0\"><strong>${who}</strong> <span style=\"color:#888\">${when} UTC</span><br/>${esc(m.content)}${attachmentLine}</p>`;
       })

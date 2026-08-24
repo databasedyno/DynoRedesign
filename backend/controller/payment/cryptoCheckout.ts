@@ -3,6 +3,7 @@
  * Extracted verbatim from paymentController.ts (no behavior change).
  * Contains: getData, Crypto, createCryptoPayment, confirmPayment.
  */
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   PAYMENT_TIMING,
@@ -169,7 +170,7 @@ const getData = async (req: express.Request, res: express.Response) => {
     }
 
     // Only log for debugging when item exists or in development
-    if (process.env.NODE_ENV === 'development' || hasUsableSession) {
+    if (envRaw("NODE_ENV") === 'development' || hasUsableSession) {
       cronLogger.info("[getData] Payment lookup:", { hasItem: hasUsableSession, dataRef: data?.substring(0, 10) + '...' });
     }
 
@@ -343,7 +344,7 @@ const getData = async (req: express.Request, res: express.Response) => {
     }
     
     // Get fee configuration (internal calculation - not exposed to public)
-    const transactionFeePercent = Number(process.env.TRANSACTION_FEE_PERCENT) || 1.5;
+    const transactionFeePercent = Number(envRaw("TRANSACTION_FEE_PERCENT")) || 1.5;
     const feeTiers = (await import("../../utils/feeConfigUtils")).getFeeTiers();
     const amount = Number(item.base_amount || item.amount || 0);
     
@@ -1097,7 +1098,7 @@ const createCryptoPayment = async (
   res: express.Response
 ) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
-  const DEBUG = process.env.DEBUG_MODE === 'true';
+  const DEBUG = envRaw("DEBUG_MODE") === 'true';
   if (DEBUG) cronLogger.info('[DEBUG] Step 1: JWT decoded successfully');
   
   try {
@@ -1614,7 +1615,7 @@ const createCryptoPayment = async (
         cronLogger.error('[createCryptoPayment] Crypto/fee calculation error:', calcError);
         // Fallback to simple 2% if calculation fails
         crypto_amount = data.amount || 0;
-        const fallbackFeePercent = parseFloat(process.env.TRANSACTION_FEE_PERCENT || '2.0') / 100;
+        const fallbackFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0') / 100;
         total_fees_crypto = crypto_amount * fallbackFeePercent;
         merchant_amount_crypto = crypto_amount - total_fees_crypto;
       }

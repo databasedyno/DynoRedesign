@@ -13,6 +13,7 @@
  * - Webhook processing errors
  */
 
+import { raw as envRaw } from "../utils/config";
 import crypto from "crypto";
 import { cronLogger } from "../utils/loggers";
 
@@ -517,7 +518,7 @@ const formatDigestEmail = (errors: GroupedError[], totalRaw: number): string => 
         <tr>
           <td style="padding:20px 32px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center;">
             Dynopay Error Monitor — Digest sent hourly when errors exist<br/>
-            Server: ${process.env.SERVER_URL || "unknown"} | PID: ${process.pid}
+            Server: ${envRaw("SERVER_URL") || "unknown"} | PID: ${process.pid}
           </td>
         </tr>
       </table>
@@ -568,7 +569,7 @@ const formatImmediateAlertEmail = (entry: ErrorEntry): string => {
         </tr>
         <tr>
           <td style="padding:16px 32px;background:#fef2f2;border-top:1px solid #fecaca;font-size:12px;color:#991b1b;text-align:center;">
-            Dynopay Error Monitor — Immediate Alert | Server: ${process.env.SERVER_URL || "unknown"} | PID: ${process.pid}
+            Dynopay Error Monitor — Immediate Alert | Server: ${envRaw("SERVER_URL") || "unknown"} | PID: ${process.pid}
           </td>
         </tr>
       </table>
@@ -589,7 +590,7 @@ const escapeHtml = (str: string): string => {
 // ─── Email Sending ───────────────────────────────────────────────────────────
 
 const getAdminEmail = (): string | null => {
-  return process.env.ADMIN_EMAIL || null;
+  return envRaw("ADMIN_EMAIL") || null;
 };
 
 /**

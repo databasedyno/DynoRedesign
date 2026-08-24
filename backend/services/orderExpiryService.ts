@@ -23,6 +23,7 @@
  * Idempotent: safe to re-run (only touches `payment_status='pending'` rows).
  * Multi-instance safe: guarded by Redis lock `cron:expireCartOrders`.
  */
+import { raw as envRaw } from "../utils/config";
 import { Op } from "sequelize";
 import {
   productOrderModel,
@@ -140,7 +141,7 @@ export async function sweepExpiredCartOrders(): Promise<{
       try {
         const order: any = await productOrderModel.findByPk(orderId);
         if (!order) continue;
-        const orderPublicUrl = `${((process.env.SERVER_URL || "") as string).replace(/\/+$/, "")}/order/${order.dataValues.public_ref}`;
+        const orderPublicUrl = `${((envRaw("SERVER_URL") || "") as string).replace(/\/+$/, "")}/order/${order.dataValues.public_ref}`;
         await sendDigitalDownloadReminderEmail(
           order.dataValues.buyer_email,
           order.dataValues.buyer_name || "",
@@ -244,8 +245,8 @@ async function expireOneOrder(orderId: number): Promise<void> {
     const merchant: any = await userModel.findByPk(orderRow.dataValues.merchant_user_id);
     const merchantHandle = merchant?.dataValues?.handle || "";
     const shopUrl = merchantHandle
-      ? `${((process.env.SERVER_URL || "") as string).replace(/\/+$/, "")}/${merchantHandle}/shop`
-      : ((process.env.SERVER_URL || "") as string).replace(/\/+$/, "");
+      ? `${((envRaw("SERVER_URL") || "") as string).replace(/\/+$/, "")}/${merchantHandle}/shop`
+      : ((envRaw("SERVER_URL") || "") as string).replace(/\/+$/, "");
     await sendOrderExpiredEmail(
       orderRow.dataValues.buyer_email,
       orderRow.dataValues.buyer_name || "",

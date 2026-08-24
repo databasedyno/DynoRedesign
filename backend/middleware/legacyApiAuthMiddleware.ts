@@ -18,6 +18,7 @@
  *   3. If Authorization is empty or invalid JWT → create/find default customer (OLD flow)
  */
 
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import { apiLogger } from "../utils/loggers";
 import jwt from "jsonwebtoken";
@@ -61,7 +62,7 @@ interface CustomerRecord {
  */
 const validateApiKey = async (apiKey: string): Promise<ApiKeyData | null> => {
   try {
-    const decryptedData = decrypt(apiKey, process.env.API_SECRET || '');
+    const decryptedData = decrypt(apiKey, envRaw("API_SECRET") || '');
     
     if (!decryptedData.includes("DYNOPAY_USER_API")) {
       apiLogger.info("[LegacyAuth] Invalid API key format");
@@ -147,7 +148,7 @@ const validateApiKey = async (apiKey: string): Promise<ApiKeyData | null> => {
  */
 const validateCustomerToken = (token: string): CustomerJwtPayload | null => {
   try {
-    const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+    const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
     if (!tokenSecret) return null;
     
     const decoded = jwt.verify(token, tokenSecret) as CustomerJwtPayload;
@@ -237,7 +238,7 @@ const findOrCreateDefaultCustomer = async (
  * Generate a temporary customer token for legacy API calls
  */
 const generateCustomerToken = (customer: CustomerRecord): string => {
-  const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
   if (!tokenSecret) throw new Error("ACCESS_TOKEN_SECRET not configured");
   
   const payload: CustomerJwtPayload = {

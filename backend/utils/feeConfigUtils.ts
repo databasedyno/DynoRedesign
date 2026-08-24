@@ -1,3 +1,4 @@
+import { raw as envRaw } from "./config";
 export interface FeeTier {
     min: number;
     max: number | null;
@@ -11,13 +12,13 @@ export const getBlockchainThreshold = (blockchain: string): number => {
 };
 
 export const getTransactionFeePercent = (): number => {
-    const val = Number(process.env.TRANSACTION_FEE_PERCENT);
+    const val = Number(envRaw("TRANSACTION_FEE_PERCENT"));
     return isNaN(val) ? 1.5 : val;
 };
 
 export const getFeeTiers = (): FeeTier[] => {
     // Check for individual tier format
-    if (process.env.FEE_TIER_1_MIN) {
+    if (envRaw("FEE_TIER_1_MIN")) {
         const tiers: FeeTier[] = [];
         let tierNum = 1;
         
@@ -35,7 +36,7 @@ export const getFeeTiers = (): FeeTier[] => {
     }
     
     // Legacy format support: BLOCKCHAIN_FEE_TIERS
-    const tierString = process.env.BLOCKCHAIN_FEE_TIERS;
+    const tierString = envRaw("BLOCKCHAIN_FEE_TIERS");
     if (tierString) {
         return tierString.split(',').map(tier => {
             const [range, fee] = tier.split(':');

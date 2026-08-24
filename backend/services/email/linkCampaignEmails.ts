@@ -299,7 +299,7 @@ export const sendPaymentLinkReminderEmail = async (
 ) => {
   try {
     const baseUrl = FRONTEND_BASE_URL;
-    const backendUrl = process.env.SERVER_URL || baseUrl;
+    const backendUrl = config.raw("SERVER_URL") || baseUrl;
     const unsubscribeUrl = `${backendUrl}/api/user/unsubscribe-payment-reminders?token=${unsubscribeToken}`;
 
     let subject: string;

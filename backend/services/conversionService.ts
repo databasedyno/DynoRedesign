@@ -11,6 +11,7 @@
  * Runs as a cron job every N minutes.
  */
 
+import { raw as envRaw } from "../utils/config";
 import stablecoinConversionModel from "../models/stablecoinConversionModel";
 import { cronLogger } from "../utils/loggers";
 import * as binanceService from "./binanceService";
@@ -26,7 +27,7 @@ const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours 
 // Guard to prevent cascading fast-poll re-checks
 let fastPollScheduled = false;
 const MAX_API_ERROR_RETRIES = 60; // Transient Binance API failures — much higher since these aren't the deposit's fault
-const MAX_PENDING_AGE_HOURS = parseInt(process.env.MAX_PENDING_AGE_HOURS || "6", 10); // FIX BUG-1: Reduced from 24h to 6h for faster stuck conversion detection
+const MAX_PENDING_AGE_HOURS = parseInt(envRaw("MAX_PENDING_AGE_HOURS") || "6", 10); // FIX BUG-1: Reduced from 24h to 6h for faster stuck conversion detection
 const LOG_PREFIX = "[StablecoinConvert]";
 
 // Estimated Binance withdrawal fees by network (in USDT)

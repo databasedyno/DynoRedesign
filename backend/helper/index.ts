@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import arraySorting from "./arraySorting";
 import currencyConvert from "./currencyConvert";
 import downloadUserImage from "./downloadUserImage";
@@ -30,7 +31,7 @@ const getMinutesBetweenDates = (startDate, endDate) => {
 
 // Helper to construct URLs properly with or without trailing slash
 export const buildUrl = (path: string): string => {
-  const baseUrl = process.env.SERVER_URL || '';
+  const baseUrl = envRaw("SERVER_URL") || '';
   const normalizedBase = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
   const normalizedPath = path.startsWith('/') ? path.substring(1) : path;
   return normalizedBase + normalizedPath;

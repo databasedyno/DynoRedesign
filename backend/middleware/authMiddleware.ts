@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import { apiLogger } from "../utils/loggers";
 import jwt from "jsonwebtoken";
@@ -54,7 +55,7 @@ const authMiddleware = async (
       return errorResponseHelper(res, 401, "Authentication required. Please provide a valid token.");
     }
     
-    const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+    const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
     if (!tokenSecret) {
       return errorResponseHelper(res, 500, "Server configuration error. Token secret not set.");
     }

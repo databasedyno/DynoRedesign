@@ -10,6 +10,7 @@
  *   5. Stuck Payment Watchdog — real-time alerting for stuck payments
  */
 
+import { raw as envRaw } from "../utils/config";
 import PaymentJournal from "../models/paymentJournalModel";
 import { cronLogger, webhookLogs } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem } from "../utils/redisInstance";
@@ -68,7 +69,7 @@ async function verifyTronSettlement(
   paymentId: string,
 ): Promise<{ settled: boolean; outgoingTxId: string | null; amount: number }> {
   const axios = require("axios");
-  const USDT_CONTRACT = process.env.TRX_CONTRACT || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+  const USDT_CONTRACT = envRaw("TRX_CONTRACT") || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 
   // Step 1: Check current USDT balance on pool address
   const accountResp = await axios.get(
@@ -411,7 +412,7 @@ export async function markSettlementCompleted(
 
   // Ledger dual-write (Tier-1 Item #3). Behind LEDGER_DUAL_WRITE flag.
   // Non-blocking — settlement path is source-of-truth; ledger is derived.
-  if (process.env.LEDGER_DUAL_WRITE === "true") {
+  if (envRaw("LEDGER_DUAL_WRITE") === "true") {
     try {
       const { recordSettlementCompleted } = await import("./ledger/ledgerPaymentMapper");
       await recordSettlementCompleted({
@@ -533,8 +534,8 @@ export async function journalStateTransition(params: {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const BACKPRESSURE_THRESHOLDS = {
-  MAX_WAITING_JOBS: parseInt(process.env.MAX_QUEUE_DEPTH || '5000', 10),
-  MAX_ACTIVE_JOBS: parseInt(process.env.MAX_ACTIVE_JOBS || '50', 10),
+  MAX_WAITING_JOBS: parseInt(envRaw("MAX_QUEUE_DEPTH") || '5000', 10),
+  MAX_ACTIVE_JOBS: parseInt(envRaw("MAX_ACTIVE_JOBS") || '50', 10),
   WARNING_THRESHOLD: 0.8, // Warn at 80% of max
 };
 
@@ -612,13 +613,13 @@ export async function initPaymentJournal(): Promise<void> {
 // --- Configuration ---
 const WATCHDOG_CONFIG = {
   /** Only attempt auto-recovery after this many minutes stuck */
-  RECOVERY_THRESHOLD_MINUTES: parseInt(process.env.WATCHDOG_RECOVERY_THRESHOLD_MIN || "60", 10),
+  RECOVERY_THRESHOLD_MINUTES: parseInt(envRaw("WATCHDOG_RECOVERY_THRESHOLD_MIN") || "60", 10),
   /** Maximum auto-recovery attempts per payment */
-  MAX_RECOVERY_ATTEMPTS: parseInt(process.env.WATCHDOG_MAX_RECOVERY_ATTEMPTS || "3", 10),
+  MAX_RECOVERY_ATTEMPTS: parseInt(envRaw("WATCHDOG_MAX_RECOVERY_ATTEMPTS") || "3", 10),
   /** Minimum minutes between recovery attempts for the same payment */
-  RECOVERY_COOLDOWN_MINUTES: parseInt(process.env.WATCHDOG_RECOVERY_COOLDOWN_MIN || "30", 10),
+  RECOVERY_COOLDOWN_MINUTES: parseInt(envRaw("WATCHDOG_RECOVERY_COOLDOWN_MIN") || "30", 10),
   /** Don't re-escalate the same payment within this many hours */
-  ESCALATION_REPEAT_HOURS: parseInt(process.env.WATCHDOG_ESCALATION_REPEAT_HOURS || "6", 10),
+  ESCALATION_REPEAT_HOURS: parseInt(envRaw("WATCHDOG_ESCALATION_REPEAT_HOURS") || "6", 10),
   /** Redis key prefix for recovery tracking */
   REDIS_PREFIX: "watchdog-recovery:",
 };

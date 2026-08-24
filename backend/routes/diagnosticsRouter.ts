@@ -3,6 +3,7 @@
  * Add these endpoints to test Binance integration from Railway deployment
  */
 
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import * as binanceService from "../services/binanceService";
 import { getTunnelStatus } from "../services/sshTunnelManager";
@@ -337,17 +338,17 @@ router.get("/binance-exchange-info", adminAuthMiddleware, async (req: express.Re
  * Get Binance connection info
  */
 router.get("/binance-info", adminAuthMiddleware, async (_req: express.Request, res: express.Response) => {
-  const hasApiKey = !!process.env.BINANCE_API_KEY;
-  const hasApiSecret = !!process.env.BINANCE_API_SECRET;
+  const hasApiKey = !!envRaw("BINANCE_API_KEY");
+  const hasApiSecret = !!envRaw("BINANCE_API_SECRET");
   
   res.status(200).json({
     success: true,
     binanceConfigured: hasApiKey && hasApiSecret,
     apiKeyPresent: hasApiKey,
     apiSecretPresent: hasApiSecret,
-    baseUrl: process.env.BINANCE_BASE_URL || "https://api.binance.com",
-    railwayEnvironment: !!process.env.RAILWAY_ENVIRONMENT,
-    nodeEnv: process.env.NODE_ENV
+    baseUrl: envRaw("BINANCE_BASE_URL") || "https://api.binance.com",
+    railwayEnvironment: !!envRaw("RAILWAY_ENVIRONMENT"),
+    nodeEnv: envRaw("NODE_ENV")
   });
 });
 
@@ -1000,9 +1001,9 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
         const isPolygon = currency?.includes("POLYGON");
         if (isPolygon) {
           // For Polygon, use Tatum v3 REST directly (Ethplorer is Ethereum only)
-          const headers = { "x-api-key": process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "" };
+          const headers = { "x-api-key": envRaw("TATUM_KEY") || envRaw("TATUM_SECRET_KEY") || "" };
           const contract = currency === "USDT-POLYGON"
-            ? (process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F")
+            ? (envRaw("USDT_POLYGON_CONTRACT") || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F")
             : undefined;
           const [tokenRes, gasRes] = await Promise.all([
             tatumHttp.get(`https://api.tatum.io/v3/polygon/account/balance/erc20/${tempAddress}`, {
@@ -1024,9 +1025,9 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
           gasBalance = Number(ethBalance);
           // Map currency → known contract
           const contractMap: Record<string, string | undefined> = {
-            "USDT-ERC20": (process.env.ETH_CONTRACT || "0xdac17f958d2ee523a2206206994597c13d831ec7").toLowerCase(),
-            "USDC-ERC20": (process.env.USDC_CONTRACT || "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48").toLowerCase(),
-            "RLUSD-ERC20": (process.env.RLUSD_ERC20_CONTRACT || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD").toLowerCase(),
+            "USDT-ERC20": (envRaw("ETH_CONTRACT") || "0xdac17f958d2ee523a2206206994597c13d831ec7").toLowerCase(),
+            "USDC-ERC20": (envRaw("USDC_CONTRACT") || "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48").toLowerCase(),
+            "RLUSD-ERC20": (envRaw("RLUSD_ERC20_CONTRACT") || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD").toLowerCase(),
           };
           const targetContract = contractMap[currency || ""];
           const tokens = ethRes.data?.tokens || [];
@@ -1105,7 +1106,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
     if (isTRC20) {
       try {
         const trc20Contract = currency === "USDT-TRC20"
-          ? (process.env.TRX_CONTRACT || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
+          ? (envRaw("TRX_CONTRACT") || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
           : undefined;
         // Pass null as recipient to force NEW recipient energy estimate (130k)
         // instead of relying on potentially stale activation cache
@@ -1134,7 +1135,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
           
           const feeWalletPrivateKey = await tatumApi.decryptSymmetric(
             feeWallet.dataValues.privateKey,
-            process.env.TEMP_KEY_ID
+            envRaw("TEMP_KEY_ID")
           );
           
           const gasTxResult = await tatumApi.assetToOtherAddress({
@@ -1219,7 +1220,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
     
     if (encryptedPrivateKey) {
       try {
-        privateKey = await tatumApi.decryptSymmetric(encryptedPrivateKey, process.env.TEMP_KEY_ID);
+        privateKey = await tatumApi.decryptSymmetric(encryptedPrivateKey, envRaw("TEMP_KEY_ID"));
       } catch (decryptErr) {
         steps.push({ step: "decrypt_private_key", status: "error", details: String(decryptErr) });
       }
@@ -1277,15 +1278,15 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
 
     // Step 10: Execute the transfer
     let contractAddress = "";
-    if (currency === "USDT-TRC20") contractAddress = process.env.TRX_CONTRACT || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-    else if (currency === "USDT-ERC20") contractAddress = process.env.ETH_CONTRACT || "";
-    else if (currency === "USDC-ERC20") contractAddress = process.env.USDC_CONTRACT || "";
+    if (currency === "USDT-TRC20") contractAddress = envRaw("TRX_CONTRACT") || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+    else if (currency === "USDT-ERC20") contractAddress = envRaw("ETH_CONTRACT") || "";
+    else if (currency === "USDC-ERC20") contractAddress = envRaw("USDC_CONTRACT") || "";
     
     try {
       let fees: Record<string, number> = {};
       if (isTRC20) {
         const trc20Contract = currency === "USDT-TRC20"
-          ? (process.env.TRX_CONTRACT || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
+          ? (envRaw("TRX_CONTRACT") || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
           : undefined;
         // RECOVERY: Use null recipient to force NEW recipient energy (130k)
         const dynamicFee = await calculateDynamicTRC20Fee(tempAddress, null as any, trc20Contract);
@@ -1786,7 +1787,7 @@ router.post("/recover-excess-trx", adminAuthMiddleware, async (req: express.Requ
           // Actually send TRX back to fee wallet
           const privateKey = await tatumApi.decryptSymmetric(
             addr.dataValues.private_key,
-            process.env.TEMP_KEY_ID
+            envRaw("TEMP_KEY_ID")
           );
 
           const txResult = await tatumApi.assetToOtherAddress({

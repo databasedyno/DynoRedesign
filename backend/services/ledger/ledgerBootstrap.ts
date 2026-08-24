@@ -10,6 +10,7 @@
  * flip flags intentionally.
  */
 
+import { raw as envRaw } from "../../utils/config";
 import LedgerAccount from "../../models/ledger/ledgerAccountModel";
 import LedgerEntry from "../../models/ledger/ledgerEntryModel";
 import LedgerInvariantCheck from "../../models/ledger/ledgerInvariantModel";
@@ -18,15 +19,15 @@ import { startLedgerInvariantChecker } from "./ledgerInvariantChecker";
 import { cronLogger } from "../../utils/loggers";
 
 export function isLedgerEnabled(): boolean {
-  return process.env.ENABLE_LEDGER === "true";
+  return envRaw("ENABLE_LEDGER") === "true";
 }
 
 export function isDualWriteEnabled(): boolean {
-  return process.env.LEDGER_DUAL_WRITE === "true";
+  return envRaw("LEDGER_DUAL_WRITE") === "true";
 }
 
 export function isInvariantCronEnabled(): boolean {
-  return process.env.LEDGER_INVARIANT_CRON === "true";
+  return envRaw("LEDGER_INVARIANT_CRON") === "true";
 }
 
 /**

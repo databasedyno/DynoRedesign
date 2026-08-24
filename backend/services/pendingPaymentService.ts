@@ -3,6 +3,7 @@
  * Handles notifications for unconfirmed/pending crypto payments
  */
 
+import { raw as envRaw } from "../utils/config";
 import { QueryTypes } from "sequelize";
 import { cronLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
@@ -301,7 +302,7 @@ export const getTransactionConfirmations = async (
   try {
     // This would typically call Tatum API to get confirmation count
     // For now, we'll implement a placeholder that can be enhanced
-    const tatumKey = process.env.TATUM_KEY;
+    const tatumKey = envRaw("TATUM_KEY");
     
     if (!tatumKey) {
       cronLogger.info("Tatum key not configured");

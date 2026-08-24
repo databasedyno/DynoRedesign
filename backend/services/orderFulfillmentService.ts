@@ -12,6 +12,7 @@
  *
  * Idempotent — safe to re-invoke on the same order (webhook retries).
  */
+import { raw as envRaw } from "../utils/config";
 import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
 import {
   productAssetModel,
@@ -34,8 +35,8 @@ export function mintDownloadToken(orderId: number, assetId: number): {
   expires_at: string;
 } {
   const secret =
-    process.env.PRODUCT_DOWNLOAD_SECRET ||
-    process.env.ACCESS_TOKEN_SECRET ||
+    envRaw("PRODUCT_DOWNLOAD_SECRET") ||
+    envRaw("ACCESS_TOKEN_SECRET") ||
     "fallback-download-secret";
   const expEpoch = Math.floor(Date.now() / 1000) + DOWNLOAD_TOKEN_TTL_SECONDS;
   const payload = `${orderId}:${assetId}:${expEpoch}`;
@@ -59,8 +60,8 @@ export function verifyDownloadToken(
   const exp = Number(expStr);
   if (!Number.isFinite(exp) || exp < Math.floor(Date.now() / 1000)) return false;
   const secret =
-    process.env.PRODUCT_DOWNLOAD_SECRET ||
-    process.env.ACCESS_TOKEN_SECRET ||
+    envRaw("PRODUCT_DOWNLOAD_SECRET") ||
+    envRaw("ACCESS_TOKEN_SECRET") ||
     "fallback-download-secret";
   const expected = hmacSha256Hex(`${orderId}:${assetId}:${exp}`, secret).slice(0, 32);
   // Constant-time compare (utf8 bytes of the truncated hex strings)
@@ -233,8 +234,8 @@ export async function handleCartPaymentSettled(
 
     // Server URL for absolute download links
     const serverBaseUrl = (
-      process.env.SERVER_URL ||
-      process.env.FRONTEND_URL ||
+      envRaw("SERVER_URL") ||
+      envRaw("FRONTEND_URL") ||
       ""
     ).replace(/\/+$/, "");
 

@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import mailTransporter from "../utils/mailTransporter";
 import { apiLogger } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
@@ -116,7 +117,7 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
     }
 
     // ── Admin email ─────────────────────────────────────────────────
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = envRaw("ADMIN_EMAIL");
     if (adminEmail) {
       const detail = `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">

@@ -30,6 +30,7 @@
  * Instead we defer to `transaction.afterCommit`, so provisioning only runs once
  * the user is durably committed and can never take signup down with it.
  */
+import { raw as envRaw } from "../utils/config";
 import type { Transaction } from "sequelize";
 import { QueryTypes } from "sequelize";
 import { companyModel } from "../models/companyModels";
@@ -39,7 +40,7 @@ import { companyLogger } from "../utils/loggers";
 
 /** Kill switch: set AUTO_PROVISION_PERSONAL_ACCOUNT=false to disable entirely. */
 const isEnabled = (): boolean =>
-  process.env.AUTO_PROVISION_PERSONAL_ACCOUNT !== "false";
+  envRaw("AUTO_PROVISION_PERSONAL_ACCOUNT") !== "false";
 
 /**
  * Automated QA runs against production and creates throwaway users. Without this

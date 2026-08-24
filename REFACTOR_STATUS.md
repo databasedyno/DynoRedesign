@@ -1,3 +1,49 @@
+# ============================================================================
+# UPDATE — 2026-08-24 (prod-connected pod): Items 1, 4, 5 progressed
+# ============================================================================
+# ITEM #1 — DONE & verified.
+#   The 4 models that still self-synced at import (buyButton, publishableKey,
+#   serviceHealth, customerTransaction) were moved into the versioned boot
+#   migration runner (new migration `0002_boot_model_tables_extra`); their
+#   import-time `.sync()` side-effects were removed. Boot now provisions ALL
+#   boot tables through versioned, recorded migrations (create-only in prod).
+#   Verified: `yarn build` (tsc) = 0 errors; prod boot applied 0002 idempotently
+#   ("1 applied, 1 present"; subsequent boots "0 applied, 2 present").
+#
+# ITEM #4 — DONE & verified (all convertible literal reads migrated).
+#   * server.ts: 23 reads -> config.str/config.raw (exact semantics preserved,
+#     incl. the compound isProduction/enableBackgroundJobs logic).
+#   * 342 reads across 99 files -> config.raw / aliased raw("X") via a new
+#     `raw()` helper on config (byte-identical `process.env[key]` passthrough,
+#     type-identical string|undefined) — surrounding `|| default` / coercion
+#     kept intact. Import auto-added per file (alias chosen to avoid collisions).
+#   * Intentionally LEFT: apis/tatumApi.ts (per prior decision), utils/config.ts
+#     + utils/envValidator.ts (the config surface + single validation gate),
+#     dynamic bracket reads in volumeTier/feeConfig/adminUtils, and worker.ts
+#     (which WRITES process.env.* before importing the server).
+#   Verified: full `tsc` build = 0 errors; clean prod boot; read-only endpoints
+#   (/health, /api/public/tickers, /api/public/fx-rates, /api/geo-detect,
+#   /api/csrf-token, root) all 200.
+#
+# ITEM #5 — WAVE done & verified (frontend testing agent: 100% pass).
+#   Standardized 5 read-only data hooks/section onto the shared useApiSWR:
+#     hooks/useOnboardingStatus.ts, hooks/useFeeFreeStatus.ts,
+#     hooks/usePublishableKeys.ts, hooks/useBuyButtons.ts,
+#     Components/Page/API/WebhookConsoleSection.tsx (2 inline useSWR calls).
+#   (tuple SWR keys -> string key + `select` to preserve exact URL/shape;
+#    exported ONBOARDING_KEY/FEE_FREE_KEY fetchers kept for prefetchDashboard.)
+#   Verified: frontend `tsc --noEmit` = 0; eslint clean; browser test PASS on
+#   login, Developers/API (Publishable Keys + Buy Buttons + Webhook console),
+#   dashboard (fee-free widget + onboarding banner), invoices/customers/
+#   notifications/settings — no crashes/overlays/infinite spinners.
+#   STILL BESPOKE by design (mutation/payment/crypto/stateful — leave as-is):
+#     CreatorPageSettings, ActiveSessions, useReusableWallets, usePaymentRates,
+#     HelpAndSupport (imperative search), admin/* pages (use adminBaseApi, need a
+#     separate admin SWR fetcher), QuickActionsDock, and all payment/crypto
+#     components. Remaining read-only screens can be converted in further waves.
+# ============================================================================
+
+
 # DynoPay — Refactor & Deployment Status (2026-08-24)
 
 ---

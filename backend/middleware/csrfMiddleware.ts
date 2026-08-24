@@ -20,6 +20,7 @@
  * - API key-authenticated endpoints (x-api-key header)
  * - Health check
  */
+import { raw as envRaw } from "../utils/config";
 import { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 import { apiLogger } from "../utils/loggers";
@@ -97,7 +98,7 @@ export const generateCsrfToken = (_req: Request, res: Response): void => {
   // Set cookie (httpOnly: false so JavaScript can read it)
   res.cookie(CSRF_COOKIE_NAME, token, {
     httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
+    secure: envRaw("NODE_ENV") === "production",
     sameSite: "strict",
     maxAge: CSRF_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000,
     path: "/",

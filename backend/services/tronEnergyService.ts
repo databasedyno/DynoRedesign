@@ -13,6 +13,7 @@
 
 // Phase 4: resilient Tatum HTTP client (retries transient GET/read failures;
 // writes/POSTs are never retried — safe for any energy-delegation calls here).
+import { raw as envRaw } from "../utils/config";
 import axios from "../utils/tatumHttp";
 import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisItemWithTTL, setRedisTTL } from "../utils/redisInstance";
@@ -21,7 +22,7 @@ import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 // TronGrid public API (no key required for basic queries)
-const TRONGRID_API = process.env.TRONGRID_API_URL || "https://api.trongrid.io";
+const TRONGRID_API = envRaw("TRONGRID_API_URL") || "https://api.trongrid.io";
 
 // Redis cache keys
 const CACHE_KEYS = {
@@ -52,7 +53,7 @@ export const TRC20_BANDWIDTH = 345;
 
 // Fallback values (post Proposal #104, Aug 2025)
 const FALLBACK = {
-  ENERGY_PRICE_SUN: parseInt(process.env.TRON_ENERGY_PRICE_SUN || "100"),
+  ENERGY_PRICE_SUN: parseInt(envRaw("TRON_ENERGY_PRICE_SUN") || "100"),
   BANDWIDTH_PRICE_SUN: 1000,
   FREE_BANDWIDTH: 600,
 };
@@ -139,8 +140,8 @@ export const getTronNetworkParams = async (): Promise<TronNetworkParams> => {
     }
 
     // Override from env if explicitly set
-    if (process.env.TRON_ENERGY_PRICE_SUN) {
-      energyPriceSun = parseInt(process.env.TRON_ENERGY_PRICE_SUN);
+    if (envRaw("TRON_ENERGY_PRICE_SUN")) {
+      energyPriceSun = parseInt(envRaw("TRON_ENERGY_PRICE_SUN"));
     }
 
     // Convert raw factor (34000 → 3.4). Minimum 1.0 (no multiplier).
@@ -442,8 +443,8 @@ export const calculateOptimalFeeLimit = async (
 
   // feeLimit with 50% safety buffer, minimum 15 TRX (raised from 5 TRX on 2026-04-10)
   // feeLimit is a CEILING — only actual energy consumed is charged, so higher limit is safe
-  const minFeeLimit = parseInt(process.env.TRON_MIN_FEE_LIMIT_TRX || "15");
-  const maxFeeLimit = parseInt(process.env.TRON_MAX_FEE_LIMIT_TRX || "50");
+  const minFeeLimit = parseInt(envRaw("TRON_MIN_FEE_LIMIT_TRX") || "15");
+  const maxFeeLimit = parseInt(envRaw("TRON_MAX_FEE_LIMIT_TRX") || "50");
   const feeLimitTRX = Math.max(Math.ceil(estimatedCostTRX * 1.5), minFeeLimit);
   const finalFeeLimit = Math.min(feeLimitTRX, maxFeeLimit);
 
@@ -670,8 +671,8 @@ export const getOptimizationDiagnostics = async (
       },
       feeLimit: {
         oldHardcodedTRX: oldFeeLimitTRX,
-        newDynamicMaxTRX: parseInt(process.env.TRON_MAX_FEE_LIMIT_TRX || "30"),
-        newDynamicMinTRX: parseInt(process.env.TRON_MIN_FEE_LIMIT_TRX || "5"),
+        newDynamicMaxTRX: parseInt(envRaw("TRON_MAX_FEE_LIMIT_TRX") || "30"),
+        newDynamicMinTRX: parseInt(envRaw("TRON_MIN_FEE_LIMIT_TRX") || "5"),
       },
     },
     trxNativeTransfer: {
@@ -685,9 +686,9 @@ export const getOptimizationDiagnostics = async (
     },
     accountResources: accountResources,
     config: {
-      TRON_MIN_FEE_LIMIT_TRX: process.env.TRON_MIN_FEE_LIMIT_TRX || "5",
-      TRON_MAX_FEE_LIMIT_TRX: process.env.TRON_MAX_FEE_LIMIT_TRX || "30",
-      TRON_ENERGY_PRICE_SUN: process.env.TRON_ENERGY_PRICE_SUN || "auto (from TronGrid)",
+      TRON_MIN_FEE_LIMIT_TRX: envRaw("TRON_MIN_FEE_LIMIT_TRX") || "5",
+      TRON_MAX_FEE_LIMIT_TRX: envRaw("TRON_MAX_FEE_LIMIT_TRX") || "30",
+      TRON_ENERGY_PRICE_SUN: envRaw("TRON_ENERGY_PRICE_SUN") || "auto (from TronGrid)",
     },
   };
 };

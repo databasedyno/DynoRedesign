@@ -3,6 +3,7 @@
  * Logs security-related events for monitoring and incident response
  */
 
+import { raw as envRaw } from "./config";
 import { createLogger, format, transports } from 'winston';
 import path from 'path';
 
@@ -45,7 +46,7 @@ const securityLogger = createLogger({
 });
 
 // Add console transport in development
-if (process.env.NODE_ENV !== 'production') {
+if (envRaw("NODE_ENV") !== 'production') {
   securityLogger.add(new transports.Console({
     format: combine(
       colorize(),

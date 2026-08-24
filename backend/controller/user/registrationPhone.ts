@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -41,7 +42,7 @@ export const phoneTypeCheck = async (req: express.Request, res: express.Response
 
     mobile = mobile.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '');
 
-    const telnyxApiKey = process.env.TELNYX_API_KEY || process.env.ACCESS_TOKEN;
+    const telnyxApiKey = envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN");
 
     try {
       const response = await axios.get(
@@ -187,11 +188,11 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
         `https://api.telnyx.com/v2/verifications/by_phone_number/+${mobile}/actions/verify`,
         {
           code: otp,
-          verify_profile_id: process.env.TELNYX_VERIFY_PROFILE_ID || process.env.PROFILE_ID,
+          verify_profile_id: envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID"),
         },
         {
           headers: {
-            Authorization: "Bearer " + (process.env.TELNYX_API_KEY || process.env.ACCESS_TOKEN),
+            Authorization: "Bearer " + (envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN")),
           },
         }
       );
@@ -247,7 +248,7 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
         : null;
     
     const photoLocation = await downloadUserImage();
-    const photo = process.env.SERVER_URL + photoLocation;
+    const photo = envRaw("SERVER_URL") + photoLocation;
     const userReferralCode = generateReferralCode();
     
     // Create user with mobile only — no name, no password

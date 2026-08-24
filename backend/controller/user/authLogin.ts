@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -336,11 +337,11 @@ export const confirmOTP = async (req: express.Request, res: express.Response) =>
           `https://api.telnyx.com/v2/verifications/by_phone_number/+${mobile}/actions/verify`,
           {
             code: otp,
-            verify_profile_id: process.env.TELNYX_VERIFY_PROFILE_ID || process.env.PROFILE_ID,
+            verify_profile_id: envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID"),
           },
           {
             headers: {
-              Authorization: "Bearer " + (process.env.TELNYX_API_KEY || process.env.ACCESS_TOKEN),
+              Authorization: "Bearer " + (envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN")),
             },
           }
         );

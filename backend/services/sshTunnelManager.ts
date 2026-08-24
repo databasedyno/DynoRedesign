@@ -13,6 +13,7 @@
  *   - Exposes health diagnostics for admin endpoints
  */
 
+import { raw as envRaw } from "../utils/config";
 import { spawn, ChildProcess } from "child_process";
 import net from "net";
 import { cronLogger } from "../utils/loggers";
@@ -20,11 +21,11 @@ import { detectBinanceAccess } from "./binanceService";
 
 // ── Configuration (from environment) ────────────────────────────────────────
 
-const SSH_HOST = process.env.SSH_TUNNEL_HOST || "";
-const SSH_USER = process.env.SSH_TUNNEL_USER || "root";
-const SSH_PASS = process.env.SSH_TUNNEL_PASS || "";
-const SSH_PORT = parseInt(process.env.SSH_TUNNEL_PORT || "22", 10);
-const LOCAL_PORT = parseInt(process.env.SSH_TUNNEL_LOCAL_PORT || "1080", 10);
+const SSH_HOST = envRaw("SSH_TUNNEL_HOST") || "";
+const SSH_USER = envRaw("SSH_TUNNEL_USER") || "root";
+const SSH_PASS = envRaw("SSH_TUNNEL_PASS") || "";
+const SSH_PORT = parseInt(envRaw("SSH_TUNNEL_PORT") || "22", 10);
+const LOCAL_PORT = parseInt(envRaw("SSH_TUNNEL_LOCAL_PORT") || "1080", 10);
 
 const HEALTH_CHECK_INTERVAL_MS = 30_000;     // Check every 30 seconds
 const BASE_RECONNECT_DELAY_MS  = 30_000;     // Initial back-off

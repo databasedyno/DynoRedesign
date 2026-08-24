@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -135,7 +136,7 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
     }
 
     // Create new user
-    const photoUrl = picture || process.env.SERVER_URL + (await downloadUserImage());
+    const photoUrl = picture || envRaw("SERVER_URL") + (await downloadUserImage());
     
     const createdUser = await userModel.create({
       name: name || email.split("@")[0],
@@ -201,8 +202,8 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
       return errorResponseHelper(res, 400, "GitHub authorization code is required");
     }
 
-    const clientId = process.env.GITHUB_CLIENT_ID;
-    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    const clientId = envRaw("GITHUB_CLIENT_ID");
+    const clientSecret = envRaw("GITHUB_CLIENT_SECRET");
     if (!clientId || !clientSecret) {
       return errorResponseHelper(res, 503, "GitHub login is not configured");
     }
@@ -308,7 +309,7 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
     }
 
     // 5. New user → register (mirrors googleSignIn)
-    const photoUrl = picture || process.env.SERVER_URL + (await downloadUserImage());
+    const photoUrl = picture || envRaw("SERVER_URL") + (await downloadUserImage());
 
     const createdUser = await userModel.create({
       name,

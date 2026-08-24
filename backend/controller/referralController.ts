@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import { Request, Response } from 'express';
 import { apiLogger } from "../utils/loggers";
 import crypto from 'crypto';
@@ -91,7 +92,7 @@ export const getMyReferralCode = async (_req: Request, res: Response) => {
       message: "Referral code retrieved successfully",
       data: {
         referral_code: referralCode,
-        referral_link: `${process.env.FRONTEND_URL || process.env.SERVER_URL}/signup?ref=${referralCode}`,
+        referral_link: `${envRaw("FRONTEND_URL") || envRaw("SERVER_URL")}/signup?ref=${referralCode}`,
         stats,
         user: {
           name: user.dataValues.name,

@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import { normalizeHandle, validateHandle, isHandleOwnedByUser, handleReserveKey, HANDLE_RESERVE_TTL_SECONDS } from "./creatorHandle";
 import express from "express";
 import {
@@ -404,7 +405,7 @@ export const uploadCoverImage = async (req: express.Request, res: express.Respon
     if (!file) {
       return errorResponseHelper(res, 400, "No image uploaded.");
     }
-    const serverUrl = (process.env.SERVER_URL || "").trim().replace(/\/$/, "");
+    const serverUrl = (envRaw("SERVER_URL") || "").trim().replace(/\/$/, "");
     const url = await finalizeUploadedImage(file, serverUrl);
     userLogger.info(`[uploadCoverImage] uploaded: ${file.filename} (${file.mimetype}, ${file.size}b)`);
     return successResponseHelper(res, 200, "Cover image uploaded", {

@@ -4,6 +4,7 @@
  * Handles session lifecycle: creation, refresh token rotation,
  * revocation, concurrent session limits, and cleanup.
  */
+import { raw as envRaw } from "../utils/config";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import UserSession from "../models/securityModels/userSessionModel";
@@ -20,11 +21,11 @@ import { QueryTypes } from "sequelize";
 // token window matches, so the session is a clean, predictable 7-day lifetime.
 // Both are env-overridable (ACCESS_TOKEN_EXPIRY_SECONDS / REFRESH_TOKEN_EXPIRY_DAYS).
 const ACCESS_TOKEN_EXPIRY_SECONDS = parseInt(
-  process.env.ACCESS_TOKEN_EXPIRY_SECONDS || String(7 * 24 * 60 * 60),
+  envRaw("ACCESS_TOKEN_EXPIRY_SECONDS") || String(7 * 24 * 60 * 60),
   10
 ); // default 7 days
-const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(process.env.REFRESH_TOKEN_EXPIRY_DAYS || "7", 10);
-const MAX_CONCURRENT_SESSIONS = parseInt(process.env.MAX_CONCURRENT_SESSIONS || "10", 10);
+const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(envRaw("REFRESH_TOKEN_EXPIRY_DAYS") || "7", 10);
+const MAX_CONCURRENT_SESSIONS = parseInt(envRaw("MAX_CONCURRENT_SESSIONS") || "10", 10);
 
 /**
  * Parse user-agent string into device info
@@ -67,7 +68,7 @@ export const createSession = async (
   user: IUserType,
   req: { ip?: string; headers: Record<string, string | string[] | undefined> }
 ): Promise<{ accessToken: string; refreshToken: string; expiresIn: number; session_id: number }> => {
-  const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
   if (!tokenSecret) throw new Error("ACCESS_TOKEN_SECRET not configured");
 
   const { password, telegram_id, ...userData } = user;
@@ -155,7 +156,7 @@ export const createSession = async (
 export const rotateRefreshToken = async (
   oldRefreshToken: string
 ): Promise<{ accessToken: string; refreshToken: string; expiresIn: number } | null> => {
-  const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
   if (!tokenSecret) throw new Error("ACCESS_TOKEN_SECRET not configured");
 
   const hashedOldToken = crypto.createHash("sha256").update(oldRefreshToken).digest("hex");

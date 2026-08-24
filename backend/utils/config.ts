@@ -15,6 +15,13 @@ export const str = (key: string, fallback = ""): string => {
   return v == null ? fallback : v.trim();
 };
 
+/**
+ * Raw env read — returns `process.env[key]` untouched (`string | undefined`).
+ * Use this for a byte-identical replacement of a bare `process.env.X` read
+ * (preserves the undefined-when-unset semantics and does NOT trim).
+ */
+export const raw = (key: string): string | undefined => process.env[key];
+
 /** Numeric env read with a fallback; non-numeric/empty → fallback. */
 export const num = (key: string, fallback: number): number => {
   const raw = process.env[key];
@@ -88,6 +95,7 @@ export const config = {
 
   // Generic typed accessors for anything not curated above.
   str,
+  raw,
   num,
   bool,
   requireEnv,

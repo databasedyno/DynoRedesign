@@ -1,3 +1,4 @@
+import { raw as envRaw } from "./config";
 import winston from "winston";
 
 const { combine, timestamp, json, prettyPrint, errors, printf } = winston.format;
@@ -27,8 +28,8 @@ export const log = (message: string, level: 'info' | 'error' | 'warn' | 'debug' 
 
 
 // Check if running on Railway or in production
-const isRailway = !!process.env.RAILWAY_ENVIRONMENT;
-const isProduction = process.env.NODE_ENV === 'production';
+const isRailway = !!envRaw("RAILWAY_ENVIRONMENT");
+const isProduction = envRaw("NODE_ENV") === 'production';
 
 // Custom format for Railway - simple, no colors, immediate output
 // Uses a circular-safe stringifier: passing objects with circular references

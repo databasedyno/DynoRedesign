@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import crypto from "crypto";
 import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
@@ -26,7 +27,7 @@ const INTERNAL_WALLETS = new Set(
 );
 
 // System-level default webhook signing secret (used when merchant hasn't configured their own)
-const DYNOPAY_DEFAULT_WEBHOOK_SECRET = process.env.DYNOPAY_WEBHOOK_SECRET || 'dynopay-webhook-default-v1';
+const DYNOPAY_DEFAULT_WEBHOOK_SECRET = envRaw("DYNOPAY_WEBHOOK_SECRET") || 'dynopay-webhook-default-v1';
 
 // Maximum consecutive 404 failures before auto-disabling a webhook URL
 const MAX_CONSECUTIVE_404_FAILURES = 5;

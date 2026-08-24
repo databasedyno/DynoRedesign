@@ -1,5 +1,4 @@
-import useSWR from "swr";
-import axiosBaseApi from "@/axiosConfig";
+import useApiSWR from "@/hooks/useApiSWR";
 
 /**
  * Shared publishable-keys reader (GET /api/publishable-keys[?company_id=…]).
@@ -16,13 +15,6 @@ import axiosBaseApi from "@/axiosConfig";
  * yet". Gate further with `{ enabled }` if a section needs to hold off.
  */
 
-type PkKey = readonly ["publishable-keys", string | number];
-
-const fetcher = async ([, cid]: PkKey): Promise<any[]> => {
-  const { data } = await axiosBaseApi.get(`publishable-keys?company_id=${cid}`);
-  return data?.data?.keys || [];
-};
-
 export function usePublishableKeys<T = any>(
   companyId?: number | string | null,
   opts?: { enabled?: boolean }
@@ -30,19 +22,17 @@ export function usePublishableKeys<T = any>(
   const hasToken =
     typeof window !== "undefined" && !!localStorage.getItem("token");
   const enabled = (opts?.enabled ?? true) && hasToken && !!companyId;
-  const key: PkKey | null = enabled
-    ? ["publishable-keys", companyId as string | number]
-    : null;
+  const key = enabled ? `publishable-keys?company_id=${companyId}` : null;
 
-  const { data, error, isLoading, mutate } = useSWR<any[]>(
-    key,
-    fetcher as any,
-    { dedupingInterval: 30_000, keepPreviousData: true }
-  );
+  const { data, error, isLoading, mutate } = useApiSWR<T[]>(key, {
+    select: (raw) => (raw?.data?.keys || []) as T[],
+    dedupingInterval: 30_000,
+    keepPreviousData: true,
+  });
 
   return {
     keys: (data as T[]) ?? [],
-    loading: isLoading && data === undefined,
+    loading: isLoading,
     error,
     refetch: () => mutate(),
     mutate,

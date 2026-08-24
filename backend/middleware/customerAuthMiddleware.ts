@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
 import { errorResponseHelper, getErrorMessage } from "../helper";
@@ -19,7 +20,7 @@ const customerAuthMiddleware = async (
       return errorResponseHelper(res, 403, "Your Login has Expired");
     }
     
-    const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+    const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
     if (!tokenSecret) {
       return errorResponseHelper(res, 500, "Server configuration error. Token secret not set.");
     }

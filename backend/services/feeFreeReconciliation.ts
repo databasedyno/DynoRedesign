@@ -16,11 +16,12 @@
  * Created: 2026-04-02
  */
 
+import { raw as envRaw } from "../utils/config";
 import sequelize from "../utils/dbInstance";
 import { log, cronLogger } from "../utils/loggers";
 import { processedStatusSql } from "../utils/processedVolume";
 
-const FREE_TRIAL_VOLUME_USD = parseFloat(process.env.FREE_TRIAL_VOLUME_USD || "500");
+const FREE_TRIAL_VOLUME_USD = parseFloat(envRaw("FREE_TRIAL_VOLUME_USD") || "500");
 
 /**
  * Reconcile fee-free balances for all users based on actual transaction history.

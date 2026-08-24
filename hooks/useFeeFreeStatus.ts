@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useApiSWR from "@/hooks/useApiSWR";
 import axiosBaseApi from "@/axiosConfig";
 
 /**
@@ -32,10 +32,9 @@ export function useFeeFreeStatus(opts?: { enabled?: boolean }) {
   const enabled = opts?.enabled ?? true;
   const hasToken =
     typeof window !== "undefined" && !!localStorage.getItem("token");
-  const { data, error, isLoading, mutate } = useSWR<FeeFreeStatus | undefined>(
+  const { data, error, isLoading, mutate } = useApiSWR<FeeFreeStatus | undefined>(
     enabled && hasToken ? FEE_FREE_KEY : null,
-    feeFreeFetcher,
-    { dedupingInterval: 60_000 }
+    { unwrap: true, dedupingInterval: 60_000 }
   );
   return { data, loading: isLoading, error, refetch: () => mutate() };
 }

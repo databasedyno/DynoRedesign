@@ -13,13 +13,14 @@
  * Only the WORKER_ROLE=primary node runs the cron.
  */
 
+import { raw as envRaw } from "../../utils/config";
 import LedgerEntry from "../../models/ledger/ledgerEntryModel";
 import LedgerInvariantCheck from "../../models/ledger/ledgerInvariantModel";
 import { cronLogger } from "../../utils/loggers";
 import { sendAlertSafe } from "../slackAlertService";
 
-const DEFAULT_WINDOW_HOURS = parseInt(process.env.LEDGER_INVARIANT_WINDOW_HOURS || "168", 10); // 7 days
-const DEFAULT_INTERVAL_MIN = parseInt(process.env.LEDGER_INVARIANT_INTERVAL_MIN || "30", 10);
+const DEFAULT_WINDOW_HOURS = parseInt(envRaw("LEDGER_INVARIANT_WINDOW_HOURS") || "168", 10); // 7 days
+const DEFAULT_INTERVAL_MIN = parseInt(envRaw("LEDGER_INVARIANT_INTERVAL_MIN") || "30", 10);
 
 function addDec(a: string, b: string): string {
   const [ai, af = ""] = a.replace(/^-/, "").split(".");

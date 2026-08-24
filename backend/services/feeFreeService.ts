@@ -11,11 +11,12 @@
  * - Fee override: waive or reduce fees while balance remains
  */
 
+import { raw as envRaw } from "../utils/config";
 import sequelize from "../utils/dbInstance";
 import { userModel } from "../models";
 import { log } from "../utils/loggers";
 
-const FREE_TRIAL_VOLUME_USD = parseFloat(process.env.FREE_TRIAL_VOLUME_USD || "500");
+const FREE_TRIAL_VOLUME_USD = parseFloat(envRaw("FREE_TRIAL_VOLUME_USD") || "500");
 
 export interface FeeFreeStatus {
   user_id: number;

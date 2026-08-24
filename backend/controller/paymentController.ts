@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import {
   PAYMENT_TIMING,
@@ -386,7 +387,7 @@ const addPayment = async (req: express.Request, res: express.Response) => {
           } catch (feeError) {
             cronLogger.error('[addPayment] Fee calculation error, using fallback:', feeError);
             // Fallback to simple 2% if tier calculation fails
-            const fallbackFeePercent = parseFloat(process.env.TRANSACTION_FEE_PERCENT || '2.0') / 100;
+            const fallbackFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0') / 100;
             total_fees_crypto = crypto_amount * fallbackFeePercent;
             merchant_amount_crypto = crypto_amount - total_fees_crypto;
           }
@@ -621,7 +622,7 @@ const cardPayment = async (
     email: tokenData.email,
     fullname: tokenData?.customer_name,
     tx_ref: uniqueRef,
-    enckey: process.env.FLW_ENCRYPTION_KEY,
+    enckey: envRaw("FLW_ENCRYPTION_KEY"),
     ...(revalidate && {
       authorization: {
         mode: data.mode,
@@ -636,7 +637,7 @@ const cardPayment = async (
           }),
       },
     }),
-    redirect_url: (process.env.CHECKOUT_URL || '').trim() + "/pay/verify",
+    redirect_url: (envRaw("CHECKOUT_URL") || '').trim() + "/pay/verify",
   };
 
   cronLogger.info("payload==========>", payload);
@@ -689,7 +690,7 @@ const bankAccount = async (data: IFundData, tokenData: IUserType) => {
         },
         {
           headers: {
-            Authorization: "Bearer " + process.env.FLW_SECRET_KEY,
+            Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
           },
         }
       );
@@ -723,7 +724,7 @@ const googleApplePay = async (data: IFundData, tokenData: IUserType) => {
     },
     {
       headers: {
-        Authorization: "Bearer " + process.env.FLW_SECRET_KEY,
+        Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
       },
     }
   );
@@ -766,7 +767,7 @@ const MobileMoney = async (data: IFundData, tokenData: IUserType) => {
     fullname: tokenData?.customer_name,
     tx_ref: uniqueRef,
     ...(data.currency !== "KES" && {
-      redirect_url: (process.env.CHECKOUT_URL || '').trim() + "/pay/verify",
+      redirect_url: (envRaw("CHECKOUT_URL") || '').trim() + "/pay/verify",
     }),
   };
 
@@ -805,7 +806,7 @@ const QRCode = async (data: IFundData, tokenData: IUserType) => {
     },
     {
       headers: {
-        Authorization: "Bearer " + process.env.FLW_SECRET_KEY,
+        Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
       },
     }
   );
@@ -1149,14 +1150,14 @@ const checkingUSDT = async () => {
               currentAddress?.wallet_address,
               userWallet?.wallet_address,
               currentAddress?.amount_to_be_paid,
-              process.env.ETH_CONTRACT
+              envRaw("ETH_CONTRACT")
             );
           }
         }
 
         const privateKey = await tatumApi.decryptSymmetric(
           currentAddress.privateKey,
-          process.env.TEMP_KEY_ID
+          envRaw("TEMP_KEY_ID")
         );
         const transactionDetails = await tatumApi.assetToOtherAddress({
           amount: currentAddress?.amount_to_be_paid,
@@ -1268,7 +1269,7 @@ const sweepNativeAdminFees = async () => {
             // Decrypt private key
             const privateKey = await tatumApi.decryptSymmetric(
               currentAddress.privateKey,
-              process.env.TEMP_KEY_ID
+              envRaw("TEMP_KEY_ID")
             );
 
             // Transfer to admin fee wallet
@@ -1739,7 +1740,7 @@ const processIncompletePayments = async () => {
 
             // Send admin fee notification email for partial payment processing
             try {
-              const adminEmail = process.env.ADMIN_EMAIL;
+              const adminEmail = envRaw("ADMIN_EMAIL");
               if (adminEmail && adminAmountToSend > 1e-8) {
                 const companyData = await companyModel.findOne({
                   where: { company_id: tempTx.company_id },
@@ -1881,7 +1882,7 @@ const processIncompletePayments = async () => {
 
             // Send admin fee notification email for expired incomplete payment
             try {
-              const adminEmail = process.env.ADMIN_EMAIL;
+              const adminEmail = envRaw("ADMIN_EMAIL");
               if (adminEmail && adminAmountToSend > 1e-8) {
                 const companyData = await companyModel.findOne({
                   where: { company_id: tempTx.company_id },

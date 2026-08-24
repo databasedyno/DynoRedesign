@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -291,7 +292,7 @@ export const getAccessToken = async (id: number) => {
     }
   );
 
-  const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
 
   const { password, telegram_id, ...userData } = users[0];
 
@@ -337,8 +338,8 @@ export const sendEmailOTP = async (email: string, name: string): Promise<boolean
  * Returns true on success, false on failure.
  */
 export const sendTelnyxSMS = async (mobile: string, maxRetries: number = 1): Promise<boolean> => {
-  const telnyxApiKey = process.env.TELNYX_API_KEY || process.env.ACCESS_TOKEN;
-  const verifyProfileId = process.env.TELNYX_VERIFY_PROFILE_ID || process.env.PROFILE_ID;
+  const telnyxApiKey = envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN");
+  const verifyProfileId = envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID");
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {

@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import axios from "axios";
 
 interface BCHTransactions {
@@ -8,7 +9,7 @@ interface BCHTransactions {
 
 const getBitcoinCashUTXO = async (address) => {
   const { data } = await axios.get(
-    `https://api.blockchair.com/bitcoin-cash/dashboards/address/${address}?transaction_details=true&key=${process.env.BLOCKCHAIR_API_KEY}`
+    `https://api.blockchair.com/bitcoin-cash/dashboards/address/${address}?transaction_details=true&key=${envRaw("BLOCKCHAIR_API_KEY")}`
   );
   const utxo: BCHTransactions[] = data?.data[address]?.utxo;
   return utxo;

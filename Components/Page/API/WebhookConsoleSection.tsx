@@ -39,7 +39,7 @@ import {
 import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import useSWR from "swr";
+import useApiSWR from "@/hooks/useApiSWR";
 
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -193,15 +193,12 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   // deduped). Keyed by company (+ status filter for logs) so switching either
   // refetches the right data. `refreshAll` revalidates both SWR caches so the
   // "send test" + manual refresh handlers below work unchanged.
-  const { data: statsData, mutate: mutateStats } = useSWR<WebhookStats | null>(
-    companyId ? ["webhook-stats", companyId] : null,
-    async () => {
-      const res = await axiosBaseApi.get(
-        API_ENDPOINTS.company.webhookStats(companyId!),
-      );
-      return res?.data?.data?.summary ?? null;
+  const { data: statsData, mutate: mutateStats } = useApiSWR<WebhookStats | null>(
+    companyId ? API_ENDPOINTS.company.webhookStats(companyId) : null,
+    {
+      select: (raw) => (raw?.data?.summary ?? null) as WebhookStats | null,
+      dedupingInterval: 15_000,
     },
-    { dedupingInterval: 15_000 },
   );
   const stats = statsData ?? null;
 
@@ -209,17 +206,19 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     data: logsData,
     isLoading: logsLoading,
     mutate: mutateLogs,
-  } = useSWR<WebhookLog[]>(
-    companyId ? ["webhook-logs", companyId, statusFilter] : null,
-    async () => {
-      const q = statusFilter !== "all" ? `&status=${statusFilter}` : "";
-      const res = await axiosBaseApi.get(
-        API_ENDPOINTS.company.webhookHistory(companyId!, q),
-      );
-      const list = res?.data?.data?.logs;
-      return Array.isArray(list) ? list : [];
+  } = useApiSWR<WebhookLog[]>(
+    companyId
+      ? API_ENDPOINTS.company.webhookHistory(
+          companyId,
+          statusFilter !== "all" ? `&status=${statusFilter}` : "",
+        )
+      : null,
+    {
+      select: (raw) =>
+        (Array.isArray(raw?.data?.logs) ? raw.data.logs : []) as WebhookLog[],
+      dedupingInterval: 10_000,
+      keepPreviousData: true,
     },
-    { dedupingInterval: 10_000, keepPreviousData: true },
   );
   const logs = logsData ?? [];
   const loadingLogs = logsLoading && logsData === undefined;

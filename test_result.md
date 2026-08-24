@@ -1,4 +1,80 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-24 (prod-connected pod) : Refactor Items 1,4,5
+# (this block SUPERSEDES the older session blocks below)
+# ============================================================================
+
+## Preview URL
+https://3ba82ad8-edfd-44c9-9bb4-d237dfc2edf8.preview.emergentagent.com
+
+## Login (PRODUCTION DB — real data; SWR reads are GET-only, safe. Do NOT bulk-create data.)
+hostbay@moxx.co / Katiekendra123@   (user_id=1, company_id=1, main QA merchant, has data)
+Login is 2-step: type email -> Continue -> type password -> Sign in.
+Google/GitHub OAuth do NOT complete in preview (proxy stubs /api/auth/*) — use email/password.
+
+## What changed this session (to verify)
+- Item #1: boot model syncs -> versioned migrations (backend only; verified: tsc=0, clean boot).
+- Item #4: 342 raw process.env reads across 99 files -> typed config (config.raw/str) + server.ts
+  (23). Byte-identical passthrough; verified: tsc build=0, clean prod boot, read-only endpoints 200.
+- Item #5 (frontend SWR standardization — THIS is what needs browser verification):
+  Converted these read-only data hooks/section onto the shared useApiSWR (frontend tsc --noEmit=0):
+    * hooks/useOnboardingStatus.ts   (kyc_required flag — header + mobile nav)
+    * hooks/useFeeFreeStatus.ts      (fee-free widget/banner/modal)
+    * hooks/usePublishableKeys.ts    (API -> Publishable Keys list)
+    * hooks/useBuyButtons.ts         (API -> Buy Buttons list)
+    * Components/Page/API/WebhookConsoleSection.tsx (webhook stats + delivery logs lists)
+  Left bespoke on purpose (mutation/payment/crypto/stateful): CreatorPageSettings, ActiveSessions,
+  useReusableWallets, usePaymentRates, HelpAndSupport (search), and all payment/crypto components.
+
+## FRONTEND verification goal = log in, then confirm each route LOADS without a runtime
+## crash / red error overlay / infinite spinner (empty states & onboarding redirects are FINE):
+  1. LOGIN: hostbay@moxx.co -> Continue -> Katiekendra123@ -> Sign in -> lands on /dashboard.
+  2. /developers or /api  (API section) — Publishable Keys list + Buy Buttons list render
+     (usePublishableKeys / useBuyButtons). Creating/editing keys is optional; just confirm lists load.
+  3. Webhook console (within the API/Developers section) — stats + delivery logs render.
+  4. /dashboard + header/mobile-nav — no crash from useOnboardingStatus / useFeeFreeStatus
+     (fee-free widget/banner shows a value or empty; KYC badge logic intact).
+  5. Regression sanity: /invoices, /customers, /notifications, /settings load fine.
+Report PASS/FAIL per route + console errors / infinite loading.
+
+## TESTING RESULTS (2026-08-24, auto_frontend_testing_agent)
+
+### frontend
+  - task: "Item #5 SWR refactor verification - all refactored hooks and components"
+    implemented: true
+    working: true
+    file: "hooks/useOnboardingStatus.ts, hooks/useFeeFreeStatus.ts, hooks/usePublishableKeys.ts, hooks/useBuyButtons.ts, Components/Page/API/WebhookConsoleSection.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Item #5 frontend SWR standardization complete. Converted 5 read-only data hooks/sections to shared useApiSWR. Frontend tsc --noEmit=0. Needs browser verification: login, dashboard (useOnboardingStatus/useFeeFreeStatus), /developer-keys (usePublishableKeys/useBuyButtons + WebhookConsoleSection), and regression routes (/invoices, /customers, /notifications, /settings)."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 8 TESTS PASSED (2026-08-24 12:15 UTC) — SWR refactor verification COMPLETE (100% pass rate). **CRITICAL SUCCESS**: (1) LOGIN ✅ — 2-step form (email → Continue → password → Sign in) successful, landed on /dashboard with data visible. Screenshot: 01_dashboard_after_login.png shows dashboard with $1,009.59 volume, fee-free widget visible ('Fee-free trial complete'), and 'Reserve hostbay's handle' banner. (2) DASHBOARD ✅ — No red error overlay, no infinite spinner. useOnboardingStatus hook working (header + mobile nav render correctly). useFeeFreeStatus hook working (fee-free widget displays completion status). Dashboard content fully rendered with volume chart, KPI strip, and quick actions. (3) DEVELOPERS/API SECTION ✅ — /developer-keys page loaded successfully. Developer tabs rendered (Keys, Webhooks, Events log, Docs). Keys tab active by default. usePublishableKeys hook working ✅ — Publishable Keys section rendered with 2 buy buttons visible ('Live Buy Button' Active, 'Storefront Test 22' Revoked). useBuyButtons hook working ✅ — Buy Buttons list section rendered. Screenshot: 03_developers_keys_tab.png shows API keys card (USD API Key with masked tokens) and Publishable keys section with buy buttons. (4) WEBHOOK CONSOLE ✅ — Webhooks tab clicked successfully. WebhookConsoleSection component rendered without crash. Webhook stats section rendered (endpoint URL: https://yoursite.com/webhooks/dynopay, signing secret: 'No secret set — regenerate to create one'). Event subscriptions section rendered (payment.created, payment.expired, payment.overpaid checkboxes). Delivery logs list rendered (empty state is acceptable). Screenshot: 04_webhooks_tab.png shows webhook configuration UI. (5) REGRESSION TESTS ✅ — All 4 regression routes loaded without crash: /invoices ✅, /customers ✅, /notifications ✅, /settings ✅. Screenshot: 08_settings.png shows settings page with Profile & Security section. **CONSOLE ERRORS**: Only 2 MINOR React DOM nesting warnings (validateDOMNesting: div inside p, fieldset inside p) from MUI Select components — these are pre-existing warnings NOT related to the SWR refactor. 12 network errors detected (CDN/rum Cloudflare analytics + 1 aborted reusable-wallets API call) — NOT critical, NOT related to SWR refactor. **CONCLUSION**: All 5 refactored SWR hooks are PRODUCTION-READY: usePublishableKeys ✅, useBuyButtons ✅, useOnboardingStatus ✅, useFeeFreeStatus ✅, WebhookConsoleSection (uses useApiSWR) ✅. NO red error overlays, NO infinite spinners, NO crashes. The SWR refactor successfully standardizes data fetching without introducing any runtime regressions. Main agent can summarize and finish."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+
+### test_plan
+  current_focus:
+    - "Item #5 SWR refactor verification"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Item #5 frontend SWR standardization complete (5 hooks/components migrated to shared useApiSWR). Frontend tsc --noEmit=0. Please verify browser functionality: login → dashboard (useOnboardingStatus/useFeeFreeStatus) → /developer-keys (usePublishableKeys/useBuyButtons + WebhookConsoleSection) → regression routes. PRODUCTION DB — READ-ONLY testing only."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-24 12:15 UTC) — ALL 8 TESTS PASSED (100% pass rate). SWR refactor verification COMPLETE and PRODUCTION-READY. **CRITICAL SUCCESS**: (1) Login successful ✅, (2) Dashboard loads without crash (useOnboardingStatus/useFeeFreeStatus working) ✅, (3) Developers/API section renders (usePublishableKeys/useBuyButtons working, 2 buy buttons visible) ✅, (4) Webhook console renders (WebhookConsoleSection working) ✅, (5) All regression routes load (/invoices, /customers, /notifications, /settings) ✅. Only MINOR console warnings (React DOM nesting from MUI, pre-existing, NOT related to SWR refactor). NO red error overlays, NO infinite spinners, NO crashes. All 5 refactored SWR hooks are working correctly. The SWR refactor successfully standardizes data fetching without introducing any runtime regressions. Main agent can summarize and finish."
+
+# ============================================================================
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-24 (v2 pod, fork) : P0 proxy-gzip login fix +
 # Item #5 SWR wave 2 + Item #4 env-config wave (feeWalletMonitor)
 # ============================================================================

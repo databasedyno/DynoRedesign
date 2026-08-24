@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
 import {
@@ -252,7 +253,7 @@ export async function ensureLiveApiKey(
     const defaultCurrency = 'USD';
     const keyData = { base_currency: defaultCurrency, company_id, adm_id: user_id, env: 'production' };
     const keyString = 'dpk_live_' + 'DYNOPAY_USER_API-' + JSON.stringify(keyData);
-    const apiKey = encrypt(keyString, process.env.API_SECRET);
+    const apiKey = encrypt(keyString, envRaw("API_SECRET"));
 
     const name = companyName || 'Company';
     const email = companyEmail || userEmail;
@@ -269,7 +270,7 @@ export async function ensureLiveApiKey(
       wallet_type: defaultCurrency,
     });
 
-    const secret = process.env.ACCESS_TOKEN_SECRET;
+    const secret = envRaw("ACCESS_TOKEN_SECRET");
     const customerToken = jwt.sign(
       { customer_id: createdCustomer.dataValues.customer_id },
       secret,

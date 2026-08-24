@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../../utils/config";
 import express from "express";
 import {
   PAYMENT_TIMING,
@@ -634,11 +635,11 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             const poolTRXBalance = poolResources.availableBandwidth >= 0 ? 0 : 0; // fallback
             
             // Check fee wallet TRX balance via Tatum (advisory only)
-            // FIX (2026-04-02): Use process.env.TRX_FEE_WALLET (the actual gas fee wallet),
-            // NOT getAdminWalletAddress("TRX") which returns process.env.TRX — the admin
+            // FIX (2026-04-02): Use envRaw("TRX_FEE_WALLET") (the actual gas fee wallet),
+            // NOT getAdminWalletAddress("TRX") which returns envRaw("TRX") — the admin
             // COLLECTION wallet (4.48 TRX) instead of the gas wallet (115+ TRX).
             // This mismatch caused false DEFERRED settlements when the gas wallet was fine.
-            const feeWalletAddress = process.env.TRX_FEE_WALLET || null;
+            const feeWalletAddress = envRaw("TRX_FEE_WALLET") || null;
             if (feeWalletAddress) {
               const feeWalletCheck = await tatumApi.getAddressBalance(feeWalletAddress, "TRX", true).catch(() => null);
               const feeWalletBalance = Number(feeWalletCheck?.balance || feeWalletCheck?.incoming || 0);
@@ -913,7 +914,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
 
         // Send admin fee notification email
         try {
-          const adminEmail = process.env.ADMIN_EMAIL;
+          const adminEmail = envRaw("ADMIN_EMAIL");
           if (adminEmail && adminAmountToSend > 1e-8) {
             // RACE CONDITION FIX: Check if admin fee email already sent for this transaction
             const adminFeeEmailKey = `admin-fee-email-${transactionId}`;
@@ -1039,7 +1040,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             // Send admin sweep notification for UTXO auto-convert direct transfer
             // (same email that account-based chains get after sweep completes)
             try {
-              const adminEmail = process.env.ADMIN_EMAIL;
+              const adminEmail = envRaw("ADMIN_EMAIL");
               if (adminEmail) {
                 const gasToken = tempCurrency; // UTXO chains use native coin for gas
                 const gasDisplay = adminTransferResult.blockchainFee

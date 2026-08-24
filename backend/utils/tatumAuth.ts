@@ -1,7 +1,8 @@
+import { raw as envRaw } from "./config";
 /**
  * Single source of truth for Tatum HTTP auth + base URLs (refactor item 2).
  *
- * Consolidates the scattered `process.env.TATUM_KEY` reads, hardcoded
+ * Consolidates the scattered `envRaw("TATUM_KEY")` reads, hardcoded
  * `https://api.tatum.io/...` base URLs and per-file `x-api-key` header building
  * that were duplicated across ~8 service/helper files. Pairs with the shared
  * resilient transport in `utils/tatumHttp.ts` (retry + keep-alive).
@@ -16,9 +17,9 @@
 export const TATUM_V3_URL = "https://api.tatum.io/v3";
 export const TATUM_V4_URL = "https://api.tatum.io/v4";
 
-export const isTatumTestnet = (): boolean => process.env.TATUM_TESTNET === "true";
+export const isTatumTestnet = (): boolean => envRaw("TATUM_TESTNET") === "true";
 export const getTatumTestnetType = (): string =>
-  process.env.TATUM_TESTNET_TYPE || "ethereum-sepolia";
+  envRaw("TATUM_TESTNET_TYPE") || "ethereum-sepolia";
 
 /**
  * Resolve the Tatum API key (testnet-aware) from env.
@@ -26,10 +27,10 @@ export const getTatumTestnetType = (): string =>
  *   testnet key (when TATUM_TESTNET=true) → TATUM_KEY → TATUM_SECRET_KEY.
  */
 export const getTatumApiKey = (): string => {
-  if (isTatumTestnet() && process.env.TATUM_TESTNET_KEY) {
-    return process.env.TATUM_TESTNET_KEY;
+  if (isTatumTestnet() && envRaw("TATUM_TESTNET_KEY")) {
+    return envRaw("TATUM_TESTNET_KEY");
   }
-  return process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
+  return envRaw("TATUM_KEY") || envRaw("TATUM_SECRET_KEY") || "";
 };
 
 /**

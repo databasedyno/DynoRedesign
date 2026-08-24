@@ -3,6 +3,7 @@
  * Extracts the volume check + threshold + grace period logic used by both
  * checkout (cryptoVerification) and payment creation endpoints.
  */
+import { raw as envRaw } from "../utils/config";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 import { kycModel } from "../models";
@@ -22,8 +23,8 @@ const KYC_GRACE_PERIOD_DAYS = 90;
 function parseIdList(raw?: string): Set<string> {
   return new Set((raw || "").split(",").map((s) => s.trim()).filter(Boolean));
 }
-const KYC_EXEMPT_COMPANY_IDS = parseIdList(process.env.KYC_EXEMPT_COMPANY_IDS);
-const KYC_EXEMPT_USER_IDS = parseIdList(process.env.KYC_EXEMPT_USER_IDS);
+const KYC_EXEMPT_COMPANY_IDS = parseIdList(envRaw("KYC_EXEMPT_COMPANY_IDS"));
+const KYC_EXEMPT_USER_IDS = parseIdList(envRaw("KYC_EXEMPT_USER_IDS"));
 
 export function isKycExempt(
   userId?: string | number | null,

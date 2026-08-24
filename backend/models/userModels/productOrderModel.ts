@@ -6,13 +6,14 @@
  * items live in tbl_product_order_item. Fulfillment logic branches on
  * `product_snapshot.product_type` — see orderFulfillmentService.
  */
+import { raw as envRaw } from "../../utils/config";
 import { DataTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 
 // STOREFRONT PER COMPANY (feature-flagged; migration 010). Only define
 // `company_id` when the flag is ON (the column only exists post-migration).
 const STOREFRONT_PER_COMPANY =
-  String(process.env.STOREFRONT_PER_COMPANY ?? "false").toLowerCase() === "true";
+  String(envRaw("STOREFRONT_PER_COMPANY") ?? "false").toLowerCase() === "true";
 
 const ORDER_COMPANY_COLUMN = STOREFRONT_PER_COMPANY
   ? {

@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import {
   encrypt,
@@ -25,8 +26,8 @@ import axios from "axios";
 import { toConversionDisplayStatus } from "../services/paymentStateMachine";
 import { OPT_IN_WEBHOOK_EVENTS, ALWAYS_ON_WEBHOOK_EVENTS, parseSubscribedEvents } from "../services/webhookEvents";
 
-const TAX_DATA_API_URL = process.env.TAX_DATA_API_URL || "https://api.apilayer.com/tax_data";
-const TAX_DATA_API_KEY = process.env.TAX_DATA_API_KEY;
+const TAX_DATA_API_URL = envRaw("TAX_DATA_API_URL") || "https://api.apilayer.com/tax_data";
+const TAX_DATA_API_KEY = envRaw("TAX_DATA_API_KEY");
 
 // Country names mapping for better error messages
 const COUNTRY_NAMES: Record<string, string> = {
@@ -175,7 +176,7 @@ const addCompany = async (req: express.Request, res: express.Response) => {
     
     let photo;
     if (file) {
-      const serverUrl = process.env.SERVER_URL?.endsWith('/') ? process.env.SERVER_URL : process.env.SERVER_URL + '/';
+      const serverUrl = envRaw("SERVER_URL")?.endsWith('/') ? envRaw("SERVER_URL") : envRaw("SERVER_URL") + '/';
       photo = serverUrl + "images/" + file.filename;
     }
     
@@ -289,7 +290,7 @@ const addCompany = async (req: express.Request, res: express.Response) => {
           env: 'development',
         };
         const keyString = 'dpk_test_' + 'DYNOPAY_USER_API-' + JSON.stringify(keyData);
-        const apiKey = encrypt(keyString, process.env.API_SECRET);
+        const apiKey = encrypt(keyString, envRaw("API_SECRET"));
 
         const companyName = data.company_name || 'Company';
         const companyEmail = data.email || userData.email;
@@ -307,7 +308,7 @@ const addCompany = async (req: express.Request, res: express.Response) => {
           wallet_type: baseCurrency,
         });
 
-        const secret = process.env.ACCESS_TOKEN_SECRET;
+        const secret = envRaw("ACCESS_TOKEN_SECRET");
         const customerToken = jwt.sign(
           { customer_id: createdCustomer.dataValues.customer_id },
           secret,
@@ -601,7 +602,7 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
     
     let photo;
     if (file) {
-      const serverUrl = process.env.SERVER_URL?.endsWith('/') ? process.env.SERVER_URL : process.env.SERVER_URL + '/';
+      const serverUrl = envRaw("SERVER_URL")?.endsWith('/') ? envRaw("SERVER_URL") : envRaw("SERVER_URL") + '/';
       photo = serverUrl + "images/" + file.filename;
     }
     

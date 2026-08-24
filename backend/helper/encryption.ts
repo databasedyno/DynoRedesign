@@ -1,8 +1,9 @@
+import { raw as envRaw } from "../utils/config";
 import CryptoJS from "crypto-js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const localSecretKey = process.env.CYPHER_KEY;
+const localSecretKey = envRaw("CYPHER_KEY");
 
 const encrypt = (content: unknown, secretKey?: string) => {
   const cipherText = CryptoJS.AES.encrypt(

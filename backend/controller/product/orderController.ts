@@ -9,6 +9,7 @@
  *                                          — regenerate signed URLs + email
  *                                            (rate-limited 5/day)
  */
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import fs from "fs";
 import path from "path";
@@ -243,8 +244,8 @@ export const resendDownloadLinks = async (
       where: { order_id: order.dataValues.order_id },
     });
     const serverBaseUrl = (
-      process.env.SERVER_URL ||
-      process.env.FRONTEND_URL ||
+      envRaw("SERVER_URL") ||
+      envRaw("FRONTEND_URL") ||
       ""
     ).replace(/\/+$/, "");
 
@@ -304,7 +305,7 @@ export const testMarkPaid = async (
   res: express.Response
 ) => {
   try {
-    if (process.env.NODE_ENV === "production") {
+    if (envRaw("NODE_ENV") === "production") {
       return errorResponseHelper(res, 403, "Disabled in production.");
     }
     const ref = String(req.params.publicRef || "").trim().slice(0, 48);
@@ -435,8 +436,8 @@ export const refundOrder = async (
     try {
       if (final) {
         const serverBaseUrl = (
-          process.env.SERVER_URL ||
-          process.env.FRONTEND_URL ||
+          envRaw("SERVER_URL") ||
+          envRaw("FRONTEND_URL") ||
           ""
         ).replace(/\/+$/, "");
         const orderPublicUrl = `${serverBaseUrl}/order/${order.dataValues.public_ref}`;

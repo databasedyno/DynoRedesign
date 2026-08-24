@@ -10,6 +10,7 @@
  * Runs once on server startup and can be triggered manually via admin endpoint.
  */
 
+import { raw as envRaw } from "../utils/config";
 import axios from "axios";
 import { webhookLogs } from "../utils/loggers";
 import tatumApi from "../apis/tatumApi";
@@ -19,7 +20,7 @@ import { TATUM_V4_URL } from "../utils/tatumAuth";
 
 /** Return the canonical base URL from .env (no trailing slash). */
 const getCanonicalBaseUrl = (): string => {
-  const url = (process.env.SERVER_URL || "").replace(/\/+$/, "");
+  const url = (envRaw("SERVER_URL") || "").replace(/\/+$/, "");
   if (!url) throw new Error("SERVER_URL is not set in .env");
   return url;
 };

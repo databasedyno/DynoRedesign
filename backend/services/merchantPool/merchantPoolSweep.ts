@@ -4,6 +4,7 @@
  * Handles gas funding, sweep execution, and scheduled sweep orchestration.
  */
 
+import { raw as envRaw } from "../../utils/config";
 import {
   merchantTempAddressModel,
   merchantPoolSweepModel,
@@ -139,7 +140,7 @@ export const fundGasIfNeeded = async (
           // Activated recipient: ~65k energy → ~7.8 TRX (actual ~6.43)
           // New/zeroed recipient: ~130k energy → ~15.6 TRX (actual ~13.03)
           const trc20Contract = walletType === 'USDT-TRC20'
-            ? (process.env.TRX_CONTRACT || 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t')
+            ? (envRaw("TRX_CONTRACT") || 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t')
             : undefined;
           const dynamicFee = await calculateDynamicTRC20Fee(tempAddress, recipientAddress, trc20Contract);
           estimatedGas = dynamicFee.fast;
@@ -147,13 +148,13 @@ export const fundGasIfNeeded = async (
         } else {
           let contractAddress: string | undefined;
           if (walletType === 'USDT-ERC20') {
-            contractAddress = process.env.ETH_CONTRACT;
+            contractAddress = envRaw("ETH_CONTRACT");
           } else if (walletType === 'USDC-ERC20') {
-            contractAddress = process.env.USDC_CONTRACT;
+            contractAddress = envRaw("USDC_CONTRACT");
           } else if (walletType === 'USDT-POLYGON') {
-            contractAddress = process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
+            contractAddress = envRaw("USDT_POLYGON_CONTRACT") || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
           } else if (walletType === 'RLUSD-ERC20') {
-            contractAddress = process.env.RLUSD_ERC20_CONTRACT || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD";
+            contractAddress = envRaw("RLUSD_ERC20_CONTRACT") || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD";
           }
           
           const estimationRecipient = recipientAddress || feeWalletAddress;
@@ -233,7 +234,7 @@ export const fundGasIfNeeded = async (
 
     const feeWalletPrivateKey = await tatumApi.decryptSymmetric(
       feeWallet.dataValues.privateKey,
-      process.env.TEMP_KEY_ID
+      envRaw("TEMP_KEY_ID")
     );
 
     cronLogger.info(`[SmartGas] 🔥 Funding ${fundAmount.toFixed(6)} ${gasToken} to ${tempAddress}`);
@@ -337,7 +338,7 @@ export const reclaimExcessGas = async (
 
     const privateKey = await tatumApi.decryptSymmetric(
       poolRecord.dataValues.privateKey,
-      process.env.TEMP_KEY_ID
+      envRaw("TEMP_KEY_ID")
     );
 
     cronLogger.info(`[GasReclaim] ♻️ Reclaiming ${reclaimAmount.toFixed(4)} ${gasToken} from ${poolAddress.substring(0, 12)}... → fee wallet`);
@@ -569,7 +570,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     if (walletType.includes("TRC20")) {
       try {
         const trc20Contract = walletType === "USDT-TRC20"
-          ? (process.env.TRX_CONTRACT || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
+          ? (envRaw("TRX_CONTRACT") || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
           : undefined;
         const dynamicFee = await calculateDynamicTRC20Fee(
           poolAddress.dataValues.wallet_address,
@@ -717,7 +718,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
 
     const privateKey = await tatumApi.decryptSymmetric(
       poolAddress.dataValues.private_key,
-      process.env.TEMP_KEY_ID
+      envRaw("TEMP_KEY_ID")
     );
 
     const isAccountChain = ACCOUNT_CHAINS.includes(walletType);
@@ -964,7 +965,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
 
       // Send admin email notification for completed sweep
       try {
-        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminEmail = envRaw("ADMIN_EMAIL");
         if (adminEmail) {
           const sweepConfig = getSweepConfig(walletType);
           const gasToken = GAS_TOKEN_MAPPING[walletType] || walletType;

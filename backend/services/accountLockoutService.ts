@@ -4,14 +4,15 @@
  * Enforces account lockout after N failed login attempts.
  * Uses Redis for tracking with automatic expiry.
  */
+import { raw as envRaw } from "../utils/config";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem } from "../utils/redisInstance";
 import { userLogger } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
 
 // Configuration
-const MAX_FAILED_ATTEMPTS = parseInt(process.env.ACCOUNT_LOCKOUT_MAX_ATTEMPTS || "5", 10);
-const LOCKOUT_DURATION_MINUTES = parseInt(process.env.ACCOUNT_LOCKOUT_DURATION_MINUTES || "30", 10);
-const ATTEMPT_WINDOW_MINUTES = parseInt(process.env.ACCOUNT_LOCKOUT_WINDOW_MINUTES || "15", 10);
+const MAX_FAILED_ATTEMPTS = parseInt(envRaw("ACCOUNT_LOCKOUT_MAX_ATTEMPTS") || "5", 10);
+const LOCKOUT_DURATION_MINUTES = parseInt(envRaw("ACCOUNT_LOCKOUT_DURATION_MINUTES") || "30", 10);
+const ATTEMPT_WINDOW_MINUTES = parseInt(envRaw("ACCOUNT_LOCKOUT_WINDOW_MINUTES") || "15", 10);
 
 interface LockoutState {
   attempts: number;

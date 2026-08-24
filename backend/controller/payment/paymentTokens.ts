@@ -2,12 +2,13 @@
  * JWT token helpers for checkout/customer links.
  * Extracted verbatim from paymentController.ts (no behavior change).
  */
+import { raw as envRaw } from "../../utils/config";
 import jwt from "jsonwebtoken";
 import { customerModel } from "../../models";
 import { cronLogger } from "../../utils/loggers";
 
 export const getLinkAccessToken = async (email, ref, pathType, id) => {
-  const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
 
   if (tokenSecret) {
     const token = jwt.sign({ email, ref, pathType, transaction_id: id }, tokenSecret);
@@ -22,7 +23,7 @@ export const getAccessToken = async (id, ref) => {
     },
   });
 
-  const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
 
   const { customer_id, company_id, ...userData } = user.dataValues;
   cronLogger.info(userData);

@@ -10,6 +10,7 @@
  * merchantUploadAsset controller records `storage_backend='local'|'gcs'` and
  * dispatches accordingly at download time.
  */
+import { raw as envRaw } from "../utils/config";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -18,10 +19,10 @@ import express from "express";
 import { apiLogger } from "../utils/loggers";
 
 export const UPLOAD_ROOT =
-  process.env.PRODUCT_UPLOAD_ROOT || "/app/uploads/products";
+  envRaw("PRODUCT_UPLOAD_ROOT") || "/app/uploads/products";
 
 export const ASSET_MAX_BYTES =
-  Number(process.env.PRODUCT_ASSET_MAX_MB || 500) * 1024 * 1024;
+  Number(envRaw("PRODUCT_ASSET_MAX_MB") || 500) * 1024 * 1024;
 
 // Blocked extensions — executable-adjacent formats that we refuse to host.
 // Digital-goods merchants selling actual .exe installers can opt into a

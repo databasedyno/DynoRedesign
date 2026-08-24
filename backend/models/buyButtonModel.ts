@@ -126,16 +126,8 @@ const buyButtonModel = sequelize.define(
   }
 );
 
-buyButtonModel
-  // create-only in production (never ALTER the live schema on boot); alter only in dev
-  .sync({ alter: process.env.NODE_ENV !== "production" })
-  .then(() => {
-    // eslint-disable-next-line no-console
-    console.log("tbl_buy_button ready");
-  })
-  .catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error("tbl_buy_button sync failed:", err?.message || err);
-  });
+// Refactor Item #1: table provisioning moved to the versioned boot migration
+// (migrations/bootMigrations.ts -> getBootModels / buildBootMigrations). No more
+// ad-hoc import-time sync — create-only in prod (migration runner), alter in dev.
 
 export default buyButtonModel;

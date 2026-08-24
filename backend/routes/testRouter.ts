@@ -3,6 +3,7 @@
  * These endpoints allow testing of payment flows and threshold logic
  */
 
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import { apiLogger } from "../utils/loggers";
 import { QueryTypes } from "sequelize";
@@ -377,7 +378,7 @@ testRouter.post("/diagnose-temp-address", authMiddleware, async (req, res) => {
     let addressMatch = false;
     
     try {
-      decryptedKey = await tatumApi.decryptSymmetric(tempData.privateKey, process.env.TEMP_KEY_ID);
+      decryptedKey = await tatumApi.decryptSymmetric(tempData.privateKey, envRaw("TEMP_KEY_ID"));
       
       // Derive address from private key
       const wallet = new ethers.Wallet(decryptedKey);
@@ -423,7 +424,7 @@ testRouter.post("/manual-transfer", authMiddleware, async (req, res) => {
     const tempData = result[0];
     
     // Decrypt private key
-    const decryptedKey = await tatumApi.decryptSymmetric(tempData.privateKey, process.env.TEMP_KEY_ID);
+    const decryptedKey = await tatumApi.decryptSymmetric(tempData.privateKey, envRaw("TEMP_KEY_ID"));
     
     // Verify address
     const wallet = new ethers.Wallet(decryptedKey);

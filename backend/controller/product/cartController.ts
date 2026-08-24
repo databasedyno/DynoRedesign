@@ -18,6 +18,7 @@
  * valid VAT ID is supplied, and persists all tax fields on the order row
  * for accounting.
  */
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import crypto from "crypto";
 import { Op } from "sequelize";
@@ -595,7 +596,7 @@ export const startCheckout = async (
 
       // 4. Create synthetic payment link
       const paymentRef = crypto.randomBytes(12).toString("hex");
-      const serverUrl = (process.env.SERVER_URL || "").replace(/\/+$/, "");
+      const serverUrl = (envRaw("SERVER_URL") || "").replace(/\/+$/, "");
       const paymentLinkUrl = `${serverUrl}/pay?d=${paymentRef}`;
       const shortRef = publicRef.slice(0, 8).toUpperCase();
       const linkTransactionId = crypto.randomUUID();

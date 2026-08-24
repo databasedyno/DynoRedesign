@@ -22,6 +22,7 @@
  * same primitives (`timingSafeCompare`) and is the inbound counterpart.
  */
 
+import { raw as envRaw } from "./config";
 import crypto from "crypto";
 import { timingSafeCompare } from "./hmac";
 
@@ -77,7 +78,7 @@ export function verifyHmacHex(params: {
 export function verifyTatumSignature(
   payload: string | Buffer,
   providedSignature?: string | string[] | null,
-  secret: string | undefined = process.env.TATUM_WEBHOOK_SECRET,
+  secret: string | undefined = envRaw("TATUM_WEBHOOK_SECRET"),
 ): boolean {
   return verifyHmacHex({ algorithm: "sha512", payload, secret, providedSignature });
 }
@@ -111,7 +112,7 @@ export function verifyVeriffSignature(
  */
 export function verifyFlutterwaveHash(
   providedHash?: string | string[] | null,
-  secret: string | undefined = process.env.FLW_SECRET_HASH,
+  secret: string | undefined = envRaw("FLW_SECRET_HASH"),
 ): boolean {
   const provided = firstHeaderValue(providedHash);
   if (!secret || !provided) return false;

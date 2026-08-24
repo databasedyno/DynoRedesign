@@ -10,6 +10,7 @@
  * - SOCKS5 proxy support for geo-restricted regions (US)
  */
 
+import { raw as envRaw } from "../utils/config";
 import crypto from "crypto";
 import http from "http";
 import https from "https";
@@ -23,10 +24,10 @@ import { SocksProxyAgent } from "socks-proxy-agent";
 const keepAliveHttpAgent = new http.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 15000 });
 const keepAliveHttpsAgent = new https.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 15000 });
 
-const BINANCE_API_KEY = process.env.BINANCE_API_KEY || "";
-const BINANCE_API_SECRET = process.env.BINANCE_API_SECRET || "";
-const BINANCE_BASE_URL = process.env.BINANCE_BASE_URL || "https://api.binance.com";
-const BINANCE_PROXY_URL = process.env.BINANCE_PROXY_URL || ""; // e.g., socks5://127.0.0.1:1080
+const BINANCE_API_KEY = envRaw("BINANCE_API_KEY") || "";
+const BINANCE_API_SECRET = envRaw("BINANCE_API_SECRET") || "";
+const BINANCE_BASE_URL = envRaw("BINANCE_BASE_URL") || "https://api.binance.com";
+const BINANCE_PROXY_URL = envRaw("BINANCE_PROXY_URL") || ""; // e.g., socks5://127.0.0.1:1080
 
 // ============================================
 // Smart Proxy: Auto-detect if proxy is needed

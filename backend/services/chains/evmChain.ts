@@ -5,14 +5,15 @@
  * Extracted from tatumApi.ts feeEstimation if/else chain.
  */
 
+import { raw as envRaw } from "../../utils/config";
 import { FeeEstimate, ChainStrategy, IncomingTx } from './chainTypes';
 
 const EVM_CURRENCIES = ['ETH', 'USDT-ERC20', 'USDC-ERC20', 'RLUSD-ERC20', 'BSC'];
 
 const getContractAddress = (currency: string): string | undefined => {
-  if (currency === 'USDC-ERC20') return process.env.USDC_CONTRACT;
-  if (currency === 'RLUSD-ERC20') return process.env.RLUSD_ERC20_CONTRACT;
-  if (currency === 'USDT-ERC20') return process.env.ETH_CONTRACT;
+  if (currency === 'USDC-ERC20') return envRaw("USDC_CONTRACT");
+  if (currency === 'RLUSD-ERC20') return envRaw("RLUSD_ERC20_CONTRACT");
+  if (currency === 'USDT-ERC20') return envRaw("ETH_CONTRACT");
   return undefined;
 };
 

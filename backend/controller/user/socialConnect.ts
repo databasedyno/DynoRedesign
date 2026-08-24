@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -111,7 +112,7 @@ export const facebookSignIn = async (req: express.Request, res: express.Response
     }
 
     // Create new user
-    const defaultPhoto = process.env.SERVER_URL + (await downloadUserImage());
+    const defaultPhoto = envRaw("SERVER_URL") + (await downloadUserImage());
     const finalPhoto = photoUrl || defaultPhoto;
     
     const createdUser = await userModel.create({

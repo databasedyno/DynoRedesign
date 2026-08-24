@@ -22,7 +22,7 @@ export const sendNewUserAdminNotification = async (userData: {
   company_name?: string | null;
 }) => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = config.raw("ADMIN_EMAIL");
     if (!adminEmail) {
       apiLogger.warn("[Email] No ADMIN_EMAIL configured — skipping new user admin notification");
       return;
@@ -84,7 +84,7 @@ export const sendOnboardingStuckAdminEmail = async (userData: {
   pending_steps: string[];
 }) => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = config.raw("ADMIN_EMAIL");
     if (!adminEmail) return;
 
     const displayName = userData.name || "N/A";
@@ -140,7 +140,7 @@ export const sendOnboardingCompletedAdminEmail = async (userData: {
   hours_to_complete: number;
 }) => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = config.raw("ADMIN_EMAIL");
     if (!adminEmail) return;
 
     const displayName = userData.name || "N/A";
@@ -197,7 +197,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
   days_since_registration?: number | null;
 }) => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = config.raw("ADMIN_EMAIL");
     if (!adminEmail) return;
 
     const merchantName = data.merchant_name || "N/A";
@@ -249,7 +249,7 @@ export const sendNewVisitorAdminEmail = async (visitorData: {
   timestamp: string;
 }) => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = config.raw("ADMIN_EMAIL");
     if (!adminEmail) return;
 
     const country = visitorData.country || "Unknown";

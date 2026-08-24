@@ -2,6 +2,7 @@
  * Payment-link CRUD handlers.
  * Extracted verbatim from paymentController.ts (no behavior change).
  */
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -856,7 +857,7 @@ export const createPaymentLink = async (
       user_id: userData.user_id,
       adm_id: userData.user_id,  // Add adm_id for crypto payment compatibility
       company_id: company_id,  // REQUIRED field
-      payment_link: (process.env.CHECKOUT_URL || '').trim().replace(/\/$/, '') + "/pay?d=" + uniqueRef,
+      payment_link: (envRaw("CHECKOUT_URL") || '').trim().replace(/\/$/, '') + "/pay?d=" + uniqueRef,
       description: description || null,
       expires_at: expires_at,
       callback_url: callback_url || null,
@@ -1070,7 +1071,7 @@ ${refereeCodeSection}
           const directPayCryptoRedisKey = getCryptoRedisKey(directPayAddress!, dpDestTag);
 
           // Calculate fee structure for the Direct Pay crypto Redis entry
-          const fallbackFeePercent = parseFloat(process.env.TRANSACTION_FEE_PERCENT || '2.0') / 100;
+          const fallbackFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0') / 100;
           // We don't have crypto_amount yet (customer hasn't selected), but store base info
           // The webhook processor + cryptoVerification will handle the actual conversion
           await setRedisItem(directPayCryptoRedisKey, {
@@ -2114,7 +2115,7 @@ export const startDonation = async (
       user_id: p.user_id,
       adm_id: p.user_id, // crypto payment compatibility (mirrors createPaymentLink)
       company_id: p.company_id || null,
-      payment_link: (process.env.CHECKOUT_URL || "").trim().replace(/\/$/, "") + "/pay?d=" + uniqueRef,
+      payment_link: (envRaw("CHECKOUT_URL") || "").trim().replace(/\/$/, "") + "/pay?d=" + uniqueRef,
       description: p.title || p.description || "Donation",
       expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // donor payment window
       callback_url: p.callback_url || null,
@@ -2262,7 +2263,7 @@ export const startTip = async (
 
     // Creator page URL (used as "back to campaign" target on the success screen).
     // Prefer the branded creator domain (CREATOR_BASE_URL, e.g. dynopay.me).
-    const creatorPageUrl = (process.env.CREATOR_BASE_URL || process.env.FRONTEND_URL || process.env.SERVER_URL || "").trim().replace(/\/$/, "") + "/" + u.handle;
+    const creatorPageUrl = (envRaw("CREATOR_BASE_URL") || envRaw("FRONTEND_URL") || envRaw("SERVER_URL") || "").trim().replace(/\/$/, "") + "/" + u.handle;
 
     // ── Find or lazily create the hidden singleton tip-jar parent ──
     let tipJar = await paymentLinkModel.findOne({
@@ -2325,7 +2326,7 @@ export const startTip = async (
       user_id: u.user_id,
       adm_id: u.user_id,
       company_id,
-      payment_link: (process.env.CHECKOUT_URL || "").trim().replace(/\/$/, "") + "/pay?d=" + uniqueRef,
+      payment_link: (envRaw("CHECKOUT_URL") || "").trim().replace(/\/$/, "") + "/pay?d=" + uniqueRef,
       description: jarTitle,
       expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
       callback_url: null,
@@ -2383,7 +2384,7 @@ export const uploadCampaignImage = async (
     if (!file) {
       return errorResponseHelper(res, 400, "No image uploaded.");
     }
-    const serverUrl = (process.env.SERVER_URL || "").trim().replace(/\/$/, "");
+    const serverUrl = (envRaw("SERVER_URL") || "").trim().replace(/\/$/, "");
     const url = await finalizeUploadedImage(file, serverUrl);
     apiLogger.info(`[uploadCampaignImage] uploaded: ${file.filename} (${file.mimetype}, ${file.size}b)`);
     return successResponseHelper(res, 200, "Image uploaded", {

@@ -1,3 +1,4 @@
+import { raw as cfgRaw } from "../utils/config";
 import express from "express";
 import {
   encrypt,
@@ -149,7 +150,7 @@ const addApi = async (req: express.Request, res: express.Response) => {
     const keyPrefix = environment === 'production' ? 'dpk_live_' : 'dpk_test_';
     const keyString = keyPrefix + "DYNOPAY_USER_API-" + JSON.stringify(keyData);
 
-    const apiKey = encrypt(keyString, process.env.API_SECRET);
+    const apiKey = encrypt(keyString, cfgRaw("API_SECRET"));
 
     // Enforce: Only 1 active API key per (company, environment) pair.
     // A company may hold BOTH a production and a development key simultaneously
@@ -191,7 +192,7 @@ const addApi = async (req: express.Request, res: express.Response) => {
     const token = await getAccessToken(createdUser.dataValues.customer_id);
     
     // Generate admin token (separate from customer token)
-    const adminTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+    const adminTokenSecret = cfgRaw("ACCESS_TOKEN_SECRET");
     const adminTokenPayload = {
       api_id: null, // Will be set after creation
       company_id,
@@ -260,7 +261,7 @@ const getAccessToken = async (id) => {
     },
   });
 
-  const tokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const tokenSecret = cfgRaw("ACCESS_TOKEN_SECRET");
 
   const { customer_id, ...userData } = user.dataValues;
   apiLogger.info(userData);
@@ -744,7 +745,7 @@ const regenerateApiKey = async (req: express.Request, res: express.Response) => 
 
     const keyPrefix = environment === "development" ? "dpk_test_" : "dpk_live_";
     const keyString = keyPrefix + "DYNOPAY_USER_API-" + JSON.stringify(keyData);
-    const newApiKey = encrypt(keyString, process.env.API_SECRET);
+    const newApiKey = encrypt(keyString, cfgRaw("API_SECRET"));
 
     await apiModel.update(
       { apiKey: newApiKey },

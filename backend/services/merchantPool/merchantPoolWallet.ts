@@ -4,6 +4,7 @@
  * Handles wallet creation, address generation, and pool initialization.
  */
 
+import { raw as envRaw } from "../../utils/config";
 import { Transaction, Op } from "sequelize";
 import { cronLogger } from "../../utils/loggers";
 import {
@@ -93,7 +94,7 @@ export const getOrCreateMerchantWallet = async (
     }
     const decryptedData = await tatumApi.decryptSymmetric(
       merchantWallet.dataValues.mnemonic,
-      process.env.XPUB_KEY_ID
+      envRaw("XPUB_KEY_ID")
     );
     const walletData = JSON.parse(decryptedData);
     return {
@@ -114,7 +115,7 @@ export const getOrCreateMerchantWallet = async (
     
     const encryptedMnemonic = await tatumApi.encryptSymmetric(
       JSON.stringify({ xpub: walletData.xpub, mnemonic: "NON_HD" }),
-      process.env.XPUB_KEY_ID
+      envRaw("XPUB_KEY_ID")
     );
 
     merchantWallet = await merchantWalletModel.create({
@@ -135,7 +136,7 @@ export const getOrCreateMerchantWallet = async (
 
   const encryptedMnemonic = await tatumApi.encryptSymmetric(
     JSON.stringify({ xpub: walletData.xpub, mnemonic: walletData.mnemonic }),
-    process.env.XPUB_KEY_ID
+    envRaw("XPUB_KEY_ID")
   );
 
   merchantWallet = await merchantWalletModel.create({
@@ -288,7 +289,7 @@ export const addAddressToMerchantPool = async (
 
         encryptedPrivateKey = await tatumApi.encryptSymmetric(
           addressData.privateKey,
-          process.env.TEMP_KEY_ID
+          envRaw("TEMP_KEY_ID")
         );
 
         break; // Success — exit retry loop
@@ -493,7 +494,7 @@ export const retryPendingTrustLines = async (): Promise<{
     if (pendingAddresses.length === 0) return result;
 
     // FIX: Backoff for unactivated XRP fee wallet — avoid retrying every 3 min when wallet has 0 XRP
-    const xrpFeeWallet = process.env.XRP_FEE_WALLET || process.env.XRP;
+    const xrpFeeWallet = envRaw("XRP_FEE_WALLET") || envRaw("XRP");
     const backoffKey = `trustline-backoff:fee-wallet-not-activated`;
     const backoffEntry = await getRedisItem(backoffKey);
     if (backoffEntry && Object.keys(backoffEntry).length > 0) {
@@ -515,7 +516,7 @@ export const retryPendingTrustLines = async (): Promise<{
         const isActivated = await tatumApi.verifyXrpAccountActivated(walletAddress);
         if (!isActivated) {
           // Try to fund the account
-          const xrpFeeWallet = process.env.XRP_FEE_WALLET || process.env.XRP;
+          const xrpFeeWallet = envRaw("XRP_FEE_WALLET") || envRaw("XRP");
           if (!xrpFeeWallet) {
             cronLogger.info(`[TrustLineRetry] ⏭️ Skipping ${walletAddress} — no XRP fee wallet configured`);
             result.errors.push(`${walletAddress}: No XRP fee wallet configured`);
@@ -548,7 +549,7 @@ export const retryPendingTrustLines = async (): Promise<{
           try {
             const xrpFeePrivateKey = await tatumApi.decryptSymmetric(
               xrpFeeWalletRecord.dataValues.privateKey,
-              process.env.TEMP_KEY_ID
+              envRaw("TEMP_KEY_ID")
             );
 
             await tatumApi.assetToOtherAddress({
@@ -589,7 +590,7 @@ export const retryPendingTrustLines = async (): Promise<{
         // Decrypt the private key for trust line creation
         const privateKey = await tatumApi.decryptSymmetric(
           addr.dataValues.private_key,
-          process.env.TEMP_KEY_ID
+          envRaw("TEMP_KEY_ID")
         );
 
         await tatumApi.setupXrpTrustLine(

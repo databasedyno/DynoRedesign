@@ -11,6 +11,7 @@
  * 5. On startup: reconciliation service checks for missed webhooks and re-queues them
  */
 
+import { raw as envRaw } from "../utils/config";
 import { Queue, Worker, Job, QueueEvents } from "bullmq";
 import { webhookLogs } from "../utils/loggers";
 import { log } from "../utils/loggers";
@@ -18,7 +19,7 @@ import { captureError } from "./errorMonitoringService";
 import { baseEmailTemplate, infoBox, dataRow, statusBadge, p } from "../utils/emailTemplate";
 
 // Redis connection config (reuse from environment)
-const REDIS_URL = process.env.REDIS_PUBLIC_URL || "redis://localhost:6379";
+const REDIS_URL = envRaw("REDIS_PUBLIC_URL") || "redis://localhost:6379";
 
 function parseRedisUrl(url: string) {
   const parsed = new URL(url);
@@ -362,11 +363,11 @@ const getMailTransporter = async () => {
 };
 
 async function sendDLQAlert(jobData: WebhookJobData, jobId: string, attempts: number, errorMessage: string): Promise<void> {
-  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminEmail = envRaw("ADMIN_EMAIL");
   if (!adminEmail) return;
 
   const { payload, source } = jobData;
-  const serverUrl = process.env.SERVER_URL || "unknown";
+  const serverUrl = envRaw("SERVER_URL") || "unknown";
   const now = new Date();
   const dateStr = now.toISOString().replace("T", " ").substring(0, 19) + " UTC";
 

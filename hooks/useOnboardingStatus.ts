@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useApiSWR from "@/hooks/useApiSWR";
 import axiosBaseApi from "@/axiosConfig";
 
 export const ONBOARDING_KEY = "/user/onboarding-status";
@@ -16,7 +16,8 @@ export const onboardingFetcher = async (url: string) => {
 export function useOnboardingStatus() {
   const hasToken =
     typeof window !== "undefined" && !!localStorage.getItem("token");
-  const { data } = useSWR(hasToken ? ONBOARDING_KEY : null, onboardingFetcher, {
+  const { data } = useApiSWR<any>(hasToken ? ONBOARDING_KEY : null, {
+    unwrap: true,
     dedupingInterval: 60_000,
   });
   const kycRequired = Boolean(data?.kyc_required || data?.kycRequired);

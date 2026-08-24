@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -175,8 +176,8 @@ export const forgotPasswordPhoneVerifyOtp = async (req: express.Request, res: ex
     }
 
     // Verify via Telnyx API
-    const telnyxApiKey = process.env.TELNYX_API_KEY || process.env.ACCESS_TOKEN;
-    const verifyProfileId = process.env.TELNYX_VERIFY_PROFILE_ID || process.env.PROFILE_ID;
+    const telnyxApiKey = envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN");
+    const verifyProfileId = envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID");
 
     try {
       const { data: { data } } = await axios.post(

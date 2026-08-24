@@ -2,6 +2,7 @@
  * Fee / quote / configured-currency read handlers.
  * Extracted verbatim from paymentController.ts (no behavior change).
  */
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -290,7 +291,7 @@ export const getConfiguredCurrenciesForCheckout = async (
     
     let feeInfo = {
       fee_payer: feePayerFromLink,
-      transaction_fee_percent: parseFloat(process.env.TRANSACTION_FEE_PERCENT || '2.0'),
+      transaction_fee_percent: parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0'),
     };
     
     let transactionAmount = 0;
@@ -503,7 +504,7 @@ export const calculateCheckoutFees = async (
     // Fee breakdown (in USD first):
     // Platform fee = merchant's tier % of amount (falls back to 1.5% if no merchant known)
     // Blockchain fee = network fee for the selected cryptocurrency
-    let platformFeePercent = parseFloat(process.env.TRANSACTION_FEE_PERCENT || '1.5');
+    let platformFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '1.5');
     if (merchantUserId) {
       try {
         const merchant = await userModel.findOne({

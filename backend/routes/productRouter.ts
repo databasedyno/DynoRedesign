@@ -9,6 +9,7 @@
  *   - Cart / Checkout        /api/cart, /api/checkout       (paymentRateLimiter)
  *   - Order status + download/api/order/:publicRef*         (paymentRateLimiter)
  */
+import { raw as envRaw } from "../utils/config";
 import express, { RequestHandler } from "express";
 import { authMiddleware } from "../middleware";
 import { paymentRateLimiter } from "../middleware/rateLimitMiddleware";
@@ -26,7 +27,7 @@ const productRouter = express.Router();
 // the same env var the frontend consults so both layers stay in sync.
 productRouter.use((req, res, next) => {
   const enabled =
-    String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() !== "false";
+    String(envRaw("NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG") ?? "true").toLowerCase() !== "false";
   if (!enabled) {
     return res
       .status(404)

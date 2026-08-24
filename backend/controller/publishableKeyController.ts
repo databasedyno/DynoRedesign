@@ -11,6 +11,7 @@
  *   POST   /api/embed/public/session       — merchant BROWSER creates a checkout session (pk auth + Origin)
  */
 
+import { raw as envRaw } from "../utils/config";
 import type express from "express";
 import crypto from "crypto";
 import { QueryTypes } from "sequelize";
@@ -585,7 +586,7 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
         .catch(() => undefined);
     }
 
-    const checkoutBase = process.env.CHECKOUT_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://checkout.dynopay.com";
+    const checkoutBase = envRaw("CHECKOUT_URL") || envRaw("NEXT_PUBLIC_BASE_URL") || "https://checkout.dynopay.com";
     const client_secret = transactionId;
     const checkout_url = `${checkoutBase}/pay?d=${transactionId}&embed=1`;
     const expires_at = new Date(Date.now() + 60 * 60 * 1000).toISOString();

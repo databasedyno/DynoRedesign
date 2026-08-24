@@ -3,6 +3,7 @@
  * Handles identity verification using Veriff API
  */
 
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import { apiLogger } from "../utils/loggers";
 import jwt from "jsonwebtoken";
@@ -221,7 +222,7 @@ const startKYCVerification = async (req: express.Request, res: express.Response)
 
     // Initialize Veriff service and create session
     const veriffService = getVeriffService();
-    const callbackUrl = `${process.env.FRONTEND_URL || process.env.SERVER_URL}/kyc/complete`;
+    const callbackUrl = `${envRaw("FRONTEND_URL") || envRaw("SERVER_URL")}/kyc/complete`;
 
     const userName = String((user as unknown as Record<string, unknown>).name || '');
     const session = await veriffService.createSession({
@@ -610,7 +611,7 @@ const resubmitKYC = async (req: express.Request, res: express.Response) => {
 
     // Initialize Veriff service and create new session
     const veriffService = getVeriffService();
-    const callbackUrl = `${process.env.FRONTEND_URL || process.env.SERVER_URL}/kyc/complete`;
+    const callbackUrl = `${envRaw("FRONTEND_URL") || envRaw("SERVER_URL")}/kyc/complete`;
 
     const session = await veriffService.createSession({
       userId,

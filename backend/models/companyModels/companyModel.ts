@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import { DataTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 
@@ -6,7 +7,7 @@ import sequelize from "../../utils/dbInstance";
 // DEFINE them on the model when the flag is ON, otherwise Sequelize would SELECT
 // non-existent columns ("column does not exist") on the un-migrated DB.
 const STOREFRONT_PER_COMPANY =
-  String(process.env.STOREFRONT_PER_COMPANY ?? "false").toLowerCase() === "true";
+  String(envRaw("STOREFRONT_PER_COMPANY") ?? "false").toLowerCase() === "true";
 
 const STOREFRONT_COMPANY_COLUMNS = STOREFRONT_PER_COMPANY
   ? {

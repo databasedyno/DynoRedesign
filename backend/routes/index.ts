@@ -81,7 +81,7 @@ setInterval(() => {
 }, UNSIGNED_CLEANUP_INTERVAL);
 
 const verifyTatumWebhookSource = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const secret = process.env.TATUM_WEBHOOK_SECRET;
+  const secret = config.raw("TATUM_WEBHOOK_SECRET");
   if (!secret) {
     // No secret configured — skip verification (backward compatible)
     return next();
@@ -443,7 +443,7 @@ router.use("/subscriptions", subscriptionRouter); // Subscription management
 // discoverable at all.
 // ─────────────────────────────────────────────────────────────────────────────
 const testEndpointsEnabled =
-  process.env.ENABLE_TEST_ENDPOINTS === "true" || process.env.NODE_ENV !== "production";
+  config.raw("ENABLE_TEST_ENDPOINTS") === "true" || config.raw("NODE_ENV") !== "production";
 
 if (testEndpointsEnabled) {
   router.use("/test", testRouter); // Test endpoints for development

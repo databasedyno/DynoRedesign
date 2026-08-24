@@ -12,7 +12,8 @@ import type { Migration } from "../utils/migrationRunner";
  * The create-only `sync()` used by `up()` is idempotent: a no-op when the tables
  * already exist (all current prod/staging databases).
  */
-export async function getBootModels(): Promise<unknown[]> {
+/** Loads the boot model groups, split so each maps to its own migration version. */
+async function loadBootModelGroups(): Promise<{ v1: unknown[]; extra: unknown[] }> {
   const {
     merchantWalletModel,
     merchantTempAddressModel,
@@ -29,14 +30,20 @@ export async function getBootModels(): Promise<unknown[]> {
     loginActivityModel,
     stablecoinConversionModel,
     companyModel,
+    buyButtonModel,
+    publishableKeyModel,
+    customerTransactionModel,
   } = await import("../models");
   const { selfTransactionModel } = await import("../models/userModels");
   const { default: pushSubscriptionModel } = await import(
     "../models/pushSubscriptionModel"
   );
+  const { default: serviceHealthModel } = await import(
+    "../models/serviceHealthModel"
+  );
 
-  // Order preserves the original boot sequence.
-  return [
+  // v1 — the original boot sequence (migration 0001_boot_model_tables).
+  const v1: unknown[] = [
     merchantWalletModel,
     merchantTempAddressModel,
     merchantPoolTransactionModel,
@@ -55,6 +62,23 @@ export async function getBootModels(): Promise<unknown[]> {
     pushSubscriptionModel,
     companyModel,
   ];
+
+  // extra — Refactor Item #1 (completion): 4 models that previously self-synced
+  // at import time, now provisioned via migration 0002_boot_model_tables_extra.
+  const extra: unknown[] = [
+    buyButtonModel,
+    publishableKeyModel,
+    customerTransactionModel,
+    serviceHealthModel,
+  ];
+
+  return { v1, extra };
+}
+
+/** All boot models — used by the dev-only `{ alter: true }` auto-sync in server.ts. */
+export async function getBootModels(): Promise<unknown[]> {
+  const { v1, extra } = await loadBootModelGroups();
+  return [...v1, ...extra];
 }
 
 interface SyncableModel {
@@ -65,17 +89,17 @@ function isSyncable(m: unknown): m is SyncableModel {
   return !!m && typeof (m as { sync?: unknown }).sync === "function";
 }
 
+/** create-only (no alter) sync of a model group — idempotent, no-op when tables exist. */
+const syncGroup = (models: unknown[]) => async (): Promise<void> => {
+  for (const m of models) {
+    if (isSyncable(m)) await m.sync();
+  }
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
-  const models = await getBootModels();
+  const { v1, extra } = await loadBootModelGroups();
   return [
-    {
-      version: "0001_boot_model_tables",
-      up: async () => {
-        // create-only (no alter) — idempotent, no-op when tables already exist.
-        for (const m of models) {
-          if (isSyncable(m)) await m.sync();
-        }
-      },
-    },
+    { version: "0001_boot_model_tables", up: syncGroup(v1) },
+    { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
   ];
 }

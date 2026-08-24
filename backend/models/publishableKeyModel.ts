@@ -127,17 +127,8 @@ const publishableKeyModel = sequelize.define(
   }
 );
 
-// Sync — creates the table on first boot if it doesn't exist. Create-only in
-// production (never ALTER the live schema on boot); alter only in dev.
-publishableKeyModel
-  .sync({ alter: process.env.NODE_ENV !== "production" })
-  .then(() => {
-    // eslint-disable-next-line no-console
-    console.log("tbl_publishable_key ready");
-  })
-  .catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error("tbl_publishable_key sync failed:", err?.message || err);
-  });
+// Refactor Item #1: table provisioning moved to the versioned boot migration
+// (migrations/bootMigrations.ts -> getBootModels / buildBootMigrations). No more
+// ad-hoc import-time sync — create-only in prod (migration runner), alter in dev.
 
 export default publishableKeyModel;

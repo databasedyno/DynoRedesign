@@ -4,13 +4,14 @@
  * Sends instant alerts to Slack or Discord webhooks for critical events.
  * Falls back gracefully if webhook URL not configured.
  */
+import { raw as envRaw } from "../utils/config";
 import axios from "axios";
 import { apiLogger } from "../utils/loggers";
 
-const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
-const ALERT_CHANNEL = process.env.ALERT_CHANNEL || "#dynopay-alerts";
-const APP_ENV = process.env.NODE_ENV || "development";
+const SLACK_WEBHOOK_URL = envRaw("SLACK_WEBHOOK_URL");
+const DISCORD_WEBHOOK_URL = envRaw("DISCORD_WEBHOOK_URL");
+const ALERT_CHANNEL = envRaw("ALERT_CHANNEL") || "#dynopay-alerts";
+const APP_ENV = envRaw("NODE_ENV") || "development";
 
 interface AlertPayload {
   title: string;

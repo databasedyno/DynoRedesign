@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -74,7 +75,7 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
     
     let photo;
     if (file) {
-      const serverUrl = process.env.SERVER_URL?.endsWith('/') ? process.env.SERVER_URL : process.env.SERVER_URL + '/';
+      const serverUrl = envRaw("SERVER_URL")?.endsWith('/') ? envRaw("SERVER_URL") : envRaw("SERVER_URL") + '/';
       photo = serverUrl + "images/" + file.filename;
       updatedFields.push('Profile Photo: Updated');
     }

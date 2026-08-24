@@ -12,17 +12,18 @@
  * Optional env: SPACES_ENDPOINT (default https://<region>.digitaloceanspaces.com),
  *               SPACES_CDN_ENDPOINT (e.g. https://<bucket>.<region>.cdn.digitaloceanspaces.com)
  */
+import { raw as envRaw } from "../utils/config";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import fs from "fs";
 import type { Readable } from "stream";
 import { apiLogger } from "../utils/loggers";
 
-const REGION = (process.env.SPACES_REGION || "").trim();
-const BUCKET = (process.env.SPACES_BUCKET || "").trim();
-const ACCESS = (process.env.SPACES_ACCESS_KEY || "").trim();
-const SECRET = (process.env.SPACES_SECRET_KEY || "").trim();
-const ENDPOINT = (process.env.SPACES_ENDPOINT || (REGION ? `https://${REGION}.digitaloceanspaces.com` : "")).trim().replace(/\/$/, "");
-const CDN = (process.env.SPACES_CDN_ENDPOINT || "").trim().replace(/\/$/, "");
+const REGION = (envRaw("SPACES_REGION") || "").trim();
+const BUCKET = (envRaw("SPACES_BUCKET") || "").trim();
+const ACCESS = (envRaw("SPACES_ACCESS_KEY") || "").trim();
+const SECRET = (envRaw("SPACES_SECRET_KEY") || "").trim();
+const ENDPOINT = (envRaw("SPACES_ENDPOINT") || (REGION ? `https://${REGION}.digitaloceanspaces.com` : "")).trim().replace(/\/$/, "");
+const CDN = (envRaw("SPACES_CDN_ENDPOINT") || "").trim().replace(/\/$/, "");
 
 export const isSpacesEnabled = (): boolean =>
   Boolean(REGION && BUCKET && ACCESS && SECRET && ENDPOINT);

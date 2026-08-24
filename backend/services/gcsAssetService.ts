@@ -32,10 +32,11 @@
  *     GOOGLE_CLIENT_KEY       → \n-escaped PEM private key
  *     GCS_PRODUCT_BUCKET      → e.g. "dynopay-product-assets"  (NEW — add on activation)
  */
+import { raw as envRaw } from "../utils/config";
 import { apiLogger } from "../utils/loggers";
 import { isSpacesEnabled, SPACES_BUCKET } from "./objectStorage";
 
-export const GCS_PRODUCT_BUCKET = process.env.GCS_PRODUCT_BUCKET || "";
+export const GCS_PRODUCT_BUCKET = envRaw("GCS_PRODUCT_BUCKET") || "";
 
 /**
  * True iff all required env vars are set. Called at boot + before any GCS op.
@@ -43,9 +44,9 @@ export const GCS_PRODUCT_BUCKET = process.env.GCS_PRODUCT_BUCKET || "";
  */
 export function isGcsConfigured(): boolean {
   return (
-    !!process.env.PROJECT_ID &&
-    !!process.env.GOOGLE_CLIENT_EMAIL &&
-    !!process.env.GOOGLE_CLIENT_KEY &&
+    !!envRaw("PROJECT_ID") &&
+    !!envRaw("GOOGLE_CLIENT_EMAIL") &&
+    !!envRaw("GOOGLE_CLIENT_KEY") &&
     !!GCS_PRODUCT_BUCKET
   );
 }
@@ -88,7 +89,7 @@ export async function getGcsSignedUrl(_bucket: string, _object: string): Promise
 export function logStorageStrategyOnStartup(uploadRoot: string): void {
   const gcsOn = isGcsConfigured();
   const spacesOn = isSpacesEnabled();
-  const looksProd = String(process.env.NODE_ENV || "").toLowerCase() === "production";
+  const looksProd = String(envRaw("NODE_ENV") || "").toLowerCase() === "production";
   const ephemeralHint =
     uploadRoot === "/app/uploads/products" || uploadRoot.startsWith("/app/uploads");
 

@@ -14,6 +14,7 @@
  * containment filter), so the sweep stays cheap and cannot surprise anyone.
  */
 
+import { raw as envRaw } from "../utils/config";
 import { QueryTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import { cronLogger } from "../utils/loggers";
@@ -28,7 +29,7 @@ export interface ExpirySweepResult {
   errors: number;
 }
 
-const DEFAULT_LOOKBACK_MINUTES = Number(process.env.PAYMENT_EXPIRED_LOOKBACK_MINUTES || 180);
+const DEFAULT_LOOKBACK_MINUTES = Number(envRaw("PAYMENT_EXPIRED_LOOKBACK_MINUTES") || 180);
 
 interface ExpiredLinkRow {
   link_id: number;

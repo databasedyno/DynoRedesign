@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
-import { apiLogger } from "../../utils/loggers";
 
 const customerTransactionModel = sequelize.define(
   "Customer_Transaction",
@@ -83,10 +82,8 @@ const customerTransactionModel = sequelize.define(
   }
 );
 
-// Sync to ensure schema matches model (customer_id should be nullable)
-customerTransactionModel
-  // create-only in production (never ALTER the live schema on boot); alter only in dev
-  .sync({ alter: process.env.NODE_ENV !== "production" })
-  .then(() => apiLogger.info("tbl_customer_transaction synced"));
+// Refactor Item #1: table provisioning moved to the versioned boot migration
+// (migrations/bootMigrations.ts -> getBootModels / buildBootMigrations). No more
+// ad-hoc import-time sync — create-only in prod (migration runner), alter in dev.
 
 export default customerTransactionModel;

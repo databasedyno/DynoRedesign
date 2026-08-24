@@ -25,6 +25,7 @@
  * For a known-safe non-GET read:  axios.post(url, body, { headers, idempotent: true })
  */
 
+import { raw as envRaw } from "./config";
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -35,13 +36,13 @@ import https from "https";
 import { cronLogger } from "./loggers";
 
 // ── Tunables (env-overridable, sane defaults) ───────────────────────────
-const MAX_RETRIES = Number(process.env.TATUM_HTTP_MAX_RETRIES ?? 3);
-const BASE_DELAY_MS = Number(process.env.TATUM_HTTP_BASE_DELAY_MS ?? 400);
-const MAX_DELAY_MS = Number(process.env.TATUM_HTTP_MAX_DELAY_MS ?? 4000);
+const MAX_RETRIES = Number(envRaw("TATUM_HTTP_MAX_RETRIES") ?? 3);
+const BASE_DELAY_MS = Number(envRaw("TATUM_HTTP_BASE_DELAY_MS") ?? 400);
+const MAX_DELAY_MS = Number(envRaw("TATUM_HTTP_MAX_DELAY_MS") ?? 4000);
 // Bounded timeout applied ONLY to auto-retryable reads that don't set their own,
 // so a hung read fails fast and can be retried. Writes keep the caller's timeout
 // (usually none) so a broadcast is never aborted mid-flight.
-const READ_TIMEOUT_MS = Number(process.env.TATUM_HTTP_READ_TIMEOUT_MS ?? 30000);
+const READ_TIMEOUT_MS = Number(envRaw("TATUM_HTTP_READ_TIMEOUT_MS") ?? 30000);
 
 const IDEMPOTENT_METHODS = new Set(["get", "head", "options"]);
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);

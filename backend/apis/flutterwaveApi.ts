@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import Flutterwave from "flutterwave-node-v3";
 
 // Define Flutterwave interface based on usage
@@ -59,10 +60,10 @@ export interface FlutterwaveInstance {
 let flw: FlutterwaveInstance | null = null;
 
 // Only initialize if credentials are provided
-if (process.env.FLW_PUBLIC_KEY && process.env.FLW_SECRET_KEY) {
+if (envRaw("FLW_PUBLIC_KEY") && envRaw("FLW_SECRET_KEY")) {
   flw = new Flutterwave(
-    process.env.FLW_PUBLIC_KEY,
-    process.env.FLW_SECRET_KEY
+    envRaw("FLW_PUBLIC_KEY"),
+    envRaw("FLW_SECRET_KEY")
   ) as FlutterwaveInstance;
 }
 

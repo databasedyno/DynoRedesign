@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
   downloadUserImage,
@@ -84,13 +85,13 @@ export const changePhone = async (req: express.Request, res: express.Response) =
       await axios.post(
         "https://api.telnyx.com/v2/messages",
         {
-          from: process.env.TELNYX_PHONE_NUMBER,
+          from: envRaw("TELNYX_PHONE_NUMBER"),
           to: "+" + newPhone,
           text: `Your Dynopay phone number has been successfully updated to this number. If you didn't make this change, please contact support immediately.`
         },
         {
           headers: {
-            Authorization: "Bearer " + (process.env.TELNYX_API_KEY || process.env.ACCESS_TOKEN),
+            Authorization: "Bearer " + (envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN")),
           },
         }
       );
@@ -228,11 +229,11 @@ export const verifyAddPhone = async (req: express.Request, res: express.Response
         `https://api.telnyx.com/v2/verifications/by_phone_number/+${phone}/actions/verify`,
         {
           code: otp,
-          verify_profile_id: process.env.TELNYX_VERIFY_PROFILE_ID || process.env.PROFILE_ID,
+          verify_profile_id: envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID"),
         },
         {
           headers: {
-            Authorization: "Bearer " + (process.env.TELNYX_API_KEY || process.env.ACCESS_TOKEN),
+            Authorization: "Bearer " + (envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN")),
           },
         }
       );

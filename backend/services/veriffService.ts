@@ -3,6 +3,7 @@
  * Documentation: https://devdocs.veriff.com/apidocs
  */
 
+import { raw as envRaw } from "../utils/config";
 import axios, { AxiosInstance } from "axios";
 import { apiLogger } from "../utils/loggers";
 import CryptoJS from "crypto-js";
@@ -301,8 +302,8 @@ let veriffServiceInstance: VeriffService | null = null;
 export const getVeriffService = (): VeriffService => {
   if (!veriffServiceInstance) {
     // Try to initialize from environment variables
-    const apiKey = process.env.VERIFF_API_KEY;
-    const apiSecret = process.env.VERIFF_API_SECRET;
+    const apiKey = envRaw("VERIFF_API_KEY");
+    const apiSecret = envRaw("VERIFF_API_SECRET");
 
     if (!apiKey || !apiSecret) {
       throw new Error("Veriff API credentials not configured. Please set VERIFF_API_KEY and VERIFF_API_SECRET in environment variables.");

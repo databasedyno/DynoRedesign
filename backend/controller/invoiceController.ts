@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
 import { Op, fn, col, literal } from "sequelize";
@@ -161,7 +162,7 @@ export const computeInvoiceFigures = async (
       // %fee), NOT the transaction amount that merely passes through the
       // platform. Legacy gross behavior via INVOICE_VAT_ON_GROSS=true.
       const vatBaseUSD =
-        process.env.INVOICE_VAT_ON_GROSS === "true"
+        envRaw("INVOICE_VAT_ON_GROSS") === "true"
           ? usdAmount
           : fixedFeeUSD + transactionFeeUSD;
       vatAmountUSD = (vatBaseUSD * vatRate) / 100;
@@ -425,7 +426,7 @@ export const autoGenerateInvoice = async (
 
       if (user) {
         const userData = user.dataValues;
-        const invoiceUrl = `${process.env.SERVER_URL}/api/invoices/${invoice.dataValues.invoice_id}`;
+        const invoiceUrl = `${envRaw("SERVER_URL")}/api/invoices/${invoice.dataValues.invoice_id}`;
         
         await sendInvoiceGeneratedEmail(userData.email, userData.name, {
           invoice_number: invoiceNumber,

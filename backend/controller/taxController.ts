@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import axios from "axios";
 import {
@@ -22,8 +23,8 @@ import {
 // neither is a valid tax-type label.
 const TAX_ACRONYMS = TAX_TYPE_ACRONYMS;
 
-const TAX_DATA_API_URL = process.env.TAX_DATA_API_URL || "https://api.apilayer.com/tax_data";
-const TAX_DATA_API_KEY = process.env.TAX_DATA_API_KEY;
+const TAX_DATA_API_URL = envRaw("TAX_DATA_API_URL") || "https://api.apilayer.com/tax_data";
+const TAX_DATA_API_KEY = envRaw("TAX_DATA_API_KEY");
 
 // Use centralized FALLBACK_TAX_RATES as FALLBACK_VAT_RATES
 const FALLBACK_VAT_RATES = FALLBACK_TAX_RATES;

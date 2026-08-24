@@ -3,6 +3,7 @@
  * Tests that payments below blockchain threshold are sent entirely to admin wallet
  */
 
+import { raw as envRaw } from "../utils/config";
 import { setRedisItem, deleteRedisItem } from '../utils/redisInstance';
 import { apiLogger } from "../utils/loggers";
 // sequelize and QueryTypes imports removed - not used
@@ -11,9 +12,9 @@ import { getBlockchainThreshold } from '../utils/feeConfigUtils';
 
 // Test configuration
 const TEST_CONFIG = {
-  BTC_THRESHOLD: Number(process.env.BTC_THRESHOLD) || 7,
-  ETH_THRESHOLD: Number(process.env.ETH_THRESHOLD) || 5,
-  TRX_THRESHOLD: Number(process.env.TRX_THRESHOLD) || 5,
+  BTC_THRESHOLD: Number(envRaw("BTC_THRESHOLD")) || 7,
+  ETH_THRESHOLD: Number(envRaw("ETH_THRESHOLD")) || 5,
+  TRX_THRESHOLD: Number(envRaw("TRX_THRESHOLD")) || 5,
 };
 
 interface ThresholdTestResult {

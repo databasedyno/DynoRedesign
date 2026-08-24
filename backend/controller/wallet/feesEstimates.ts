@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import { getTempAddressBatches } from "./tempAddress";
 import express from "express";
 import jwt from "jsonwebtoken";
@@ -82,9 +83,9 @@ export const estimateFees = async (req: express.Request, res: express.Response) 
   try {
     const contractAddress =
       currency === "USDT-TRC20"
-        ? process.env.TRX_CONTRACT
+        ? envRaw("TRX_CONTRACT")
         : currency === "USDT-ERC20"
-          ? process.env.ETH_CONTRACT
+          ? envRaw("ETH_CONTRACT")
           : null;
     let data;
     walletLogger.info("##address", address);

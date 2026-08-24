@@ -1,3 +1,4 @@
+import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
 import {
@@ -93,7 +94,7 @@ export const cardPayment = async (
     email: tokenData.email,
     fullname: tokenData.name,
     tx_ref: uniqueRef,
-    enckey: process.env.FLW_ENCRYPTION_KEY,
+    enckey: envRaw("FLW_ENCRYPTION_KEY"),
     ...(revalidate && {
       authorization: {
         mode: data.mode,
@@ -108,7 +109,7 @@ export const cardPayment = async (
           }),
       },
     }),
-    redirect_url: `${process.env.FRONTEND_URL || process.env.REACT_APP_FRONTEND_URL || ''}/payment/verify`,
+    redirect_url: `${envRaw("FRONTEND_URL") || envRaw("REACT_APP_FRONTEND_URL") || ''}/payment/verify`,
   };
 
   walletLogger.info("payload==========>", payload);
@@ -160,7 +161,7 @@ export const bankAccount = async (data: IFundData, tokenData: IUserType) => {
       },
       {
         headers: {
-          Authorization: "Bearer " + process.env.FLW_SECRET_KEY,
+          Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
         },
       }
     );
@@ -191,7 +192,7 @@ export const googleApplePay = async (data: IFundData, tokenData: IUserType) => {
     },
     {
       headers: {
-        Authorization: "Bearer " + process.env.FLW_SECRET_KEY,
+        Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
       },
     }
   );
@@ -235,7 +236,7 @@ export const MobileMoney = async (data: IFundData, tokenData: IUserType) => {
     fullname: tokenData.name,
     tx_ref: uniqueRef,
     ...(data.currency !== "KES" && {
-      redirect_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/verify`,
+      redirect_url: `${envRaw("FRONTEND_URL") || 'http://localhost:3000'}/payment/verify`,
     }),
   };
 
@@ -274,7 +275,7 @@ export const QRCode = async (data: IFundData, tokenData: IUserType) => {
     },
     {
       headers: {
-        Authorization: "Bearer " + process.env.FLW_SECRET_KEY,
+        Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
       },
     }
   );

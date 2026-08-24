@@ -1,4 +1,5 @@
 // Phase 4: resilient Tatum HTTP client (retries transient GET/read failures).
+import { raw as envRaw } from "../utils/config";
 import axios from "../utils/tatumHttp";
 import { apiLogger } from "../utils/loggers";
 import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
@@ -18,7 +19,7 @@ const backgroundRateCache = new Map<string, { rate: number; timestamp: number }>
 const BACKGROUND_CACHE_TTL_MS = 180_000; // 180s — slightly longer than 120s refresh interval for overlap
 
 // FastForex API key (primary real-time provider — 150-300ms)
-const FASTFOREX_API_KEY = process.env.FASTFOREX_API_KEY || '';
+const FASTFOREX_API_KEY = envRaw("FASTFOREX_API_KEY") || '';
 
 // Common fiat currencies to pre-cache rates for
 const CACHE_FIAT_TARGETS = ['USD', 'EUR', 'GBP', 'BRL'];
@@ -403,7 +404,7 @@ const getCryptoRateViaTatum = async (from: string, to: string): Promise<number |
  * Uses fetch-one endpoint for optimal speed
  */
 const getFastForexRate = async (from: string, to: string, amount: number): Promise<{ rate: number; converted: number } | null> => {
-  const apiKey = FASTFOREX_API_KEY || process.env.FAST_FOREX_KEY;
+  const apiKey = FASTFOREX_API_KEY || envRaw("FAST_FOREX_KEY");
   if (!apiKey) return null;
   
   try {
