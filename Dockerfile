@@ -122,6 +122,12 @@ ENV NEXT_PUBLIC_ENABLE_GITHUB_AUTH=${NEXT_PUBLIC_ENABLE_GITHUB_AUTH}
 ARG NEXT_PUBLIC_GITHUB_CLIENT_ID=
 ENV NEXT_PUBLIC_GITHUB_CLIENT_ID=${NEXT_PUBLIC_GITHUB_CLIENT_ID}
 
+# Crypto Refund Flow feature flag: shows the merchant on-chain refund UI on
+# payment-links / product-orders. MUST be declared or Docker drops the build
+# arg and the flag inlines as undefined (UI hidden). Empty default = OFF.
+ARG NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=
+ENV NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=${NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS}
+
 # Branded creator domain (e.g. https://dynopay.me). MUST be declared so that
 # client-side bundles inline the value at build time — otherwise UserMenu /
 # CreatorPageCard / share dialogs fall back to NEXT_PUBLIC_BASE_URL.
