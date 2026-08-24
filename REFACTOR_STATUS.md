@@ -261,3 +261,38 @@ node_modules/.bin/ts-node --transpile-only tests/test_config.ts              # 1
 2. Optionally have me **watch/trigger the DO deployment** and confirm it goes ACTIVE.
 3. Resume **Item 5** screen conversions in verified waves (needs frontend-test approval + a staging login).
 4. Continue **Item 4** env-read migration in waves; and/or apply the small **Flutterwave `return`** fix.
+
+
+---
+
+## 6. NEXT ACTION ITEMS (2026-08-24 v2 — after P0 login fix + Item#5 wave 2 + Item#4 wave)
+
+Context: SAFE MODE + LOCAL isolated Postgres/Redis. Login: testmerchant@dynopay.dev / TestMerchant123!.
+Flutterwave webhook `return` fix is DE-SCOPED per user ("only focusing on crypto").
+
+1. **Env Config Wave (Item #4)** — Move the next batch of backend `process.env` reads into the typed
+   `utils/config.ts` surface: `server.ts` (~23 reads), `routes/diagnosticsRouter.ts` (~18),
+   `controller/paymentController.ts` (~12). Migrate in boot-verifiable waves; new/touched code reads
+   from `config`. (~610 raw reads remain overall.)
+
+2. **More SWR Screens (Item #5)** — Migrate a few more read-only dashboard screens onto the shared
+   `useApiSWR` hook. Keep the mutation-heavy / crypto / payment components bespoke (AddWalletModal,
+   CampaignManager, ProductQuickSell, ConversionBanner, CreatorPageCard, HandleClaimNudge,
+   SupportChatWidget, cryptoTransfer, pay-links/[slug], useReusableWallets, usePaymentRates).
+
+3. **Test Company Seed** — Seed a company + a wallet for the test merchant so currency selectors
+   (DisplayCurrencySelector / UserDisplayCurrencySelector are gated on a selected company) and payout
+   flows can be regression-tested end-to-end by the frontend testing agent.
+
+4. **Live Payment Toasts (enhancement)** — Show a real-time "payment received" toast on the dashboard
+   the moment a crypto payment settles (on-brand delight for the crypto-checkout platform).
+
+### Done this session (2026-08-24 v2)
+- **P0 fix**: `backend/server.py` reverse-proxy gzip mismatch (forwarded `accept-encoding` + stripped
+  `content-encoding` while shipping the compressed body + stale `content-length`) → browsers couldn't
+  decode login. Fixed (stop forwarding `accept-encoding` on the internal hop; drop backend
+  `content-length`). UI login now reaches /dashboard (testing agent iteration_77 PASS).
+- **Item #5 wave 2 (5 files)**: `help-support/[slug]`, `system-status`, `DisplayCurrencySelector`,
+  `UserDisplayCurrencySelector`, `useStorefrontProfile` → shared `useApiSWR`. (13 total migrated.)
+- **Item #4 wave**: `services/feeWalletMonitor.ts` (13 env reads → typed `config`).
+- **MEDIUM fix**: help-article cards → semantic Next `<Link>` (reliable/keyboard/right-click nav).
