@@ -9,7 +9,7 @@ import json
 import sys
 from typing import Dict, List, Any
 
-BASE_URL = "https://checkout-preview-25.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-init-1.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 COMPANY_ID = 1

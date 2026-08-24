@@ -12,7 +12,7 @@ from typing import Dict, Any, Tuple
 
 # Configuration
 INTERNAL_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://41df08a6-652d-4266-94d9-f3812166d81a.preview.emergentagent.com"
+EXTERNAL_BASE = "https://crypto-checkout-init-1.preview.emergentagent.com"
 TEST_EMAIL = "testmerchant@dynopay.dev"
 TEST_PASSWORD = "TestMerchant123!"
 

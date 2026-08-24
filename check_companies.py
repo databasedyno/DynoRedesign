@@ -2,7 +2,7 @@
 import requests
 import json
 
-BASE_URL = "https://checkout-preview-25.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-init-1.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Login first

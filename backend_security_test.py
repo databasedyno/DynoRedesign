@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Base URL for the preview environment
-BASE_URL = "https://checkout-preview-25.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-init-1.preview.emergentagent.com"
 
 # Test results storage
 test_results = []

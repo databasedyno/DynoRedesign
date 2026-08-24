@@ -1,43 +1,40 @@
-# Test Credentials
+# DynoPay — Emergent Preview Setup Notes (2026-08-24, prod-connected)
 
-## CURRENT POD — rebuilt from user's pasted PROD creds (setup task, 2026-08-24 v2)
-- Preview URL: https://41df08a6-652d-4266-94d9-f3812166d81a.preview.emergentagent.com
+## Status: RUNNING (fresh pod — previous local-DB setup notes were stale/gone)
+- Preview URL: https://3ba82ad8-edfd-44c9-9bb4-d237dfc2edf8.preview.emergentagent.com
+- Backend (Node/Express via `server.py` uvicorn proxy :8001 -> Node :3300) connected to
+  the user's LIVE Railway PostgreSQL + Redis (user explicitly chose prod DB = option 1a).
+- Frontend (Next.js dev) :3000, wired via NEXT_PUBLIC_BASE_URL=preview + `/api/`.
 
-### DB / Redis — LOCAL, ISOLATED (no live data, zero risk)
-- The user pasted LIVE prod creds (roundhouse.proxy.rlwy.net) with real crypto wallets +
-  payment keys. To avoid any risk to live funds/data, this pod runs a **LOCAL** Postgres +
-  Redis instead of prod:
-  - Postgres 15 (apt), SSL on (snakeoil cert). DATABASE_URL=
-    postgresql://postgres:dynolocal_pw_2026@127.0.0.1:5432/railway  (db `railway`, 59 tables)
-    Schema built via `database/migrate.ts` (sequelize sync of 56 models) + SQL migrations 001/002/003/010.
-  - Redis 7 (apt) on 127.0.0.1:6379.
-  - Both are supervised: /etc/supervisor/conf.d/local-db.conf -> scripts/start-local-db.sh
-    (postgres in foreground; redis daemonized). `supervisorctl status local-db` => RUNNING.
-- **SAFE MODE** enforced in /app/backend/.env: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary
-  => no cron/sweeps/settlement/fund-movement, no BullMQ worker. NODE_ENV=production.
-- Prod DB (roundhouse) is REACHABLE but intentionally NOT used. To switch to prod, set
-  DATABASE_URL/HOST/DB_PORT/USER_NAME/PASSWORD to the pasted prod values (NOT recommended).
+## SAFETY CONSTRAINTS (agreed with user this session)
+- Connected to the user's **PRODUCTION Railway DB** (real merchant/payment data, 71 tables).
+  DO NOT run write-heavy automated tests that create users/payments/etc against it.
+- Background jobs DISABLED: ENABLE_BACKGROUND_JOBS=false + WORKER_ROLE=secondary
+  => no crypto sweeps, no reconciliation, no BullMQ worker, no cron (verified in boot logs).
+- SSH tunnel + Binance SOCKS proxy disabled (Binance geo-blocked 451 here; rates use
+  Tatum/CoinGecko fallbacks — working, 40 rates refreshed).
+- NODE_ENV=production => schema handled by idempotent versioned migrations (0 applied, 1 present),
+  NOT sequelize alter:true. No schema changes made to prod.
 
-### Login (seeded on LOCAL db — scripts/seed_test_user.ts, no emails sent)
-- **testmerchant@dynopay.dev / TestMerchant123!**  (user_id=1, email_verified=true, status=active)
-- Verified working: POST /api/user/login => "Login Successful!".
-- Note: fresh user has NO company yet (registerUser doesn't create one) and tbl_admin_wallet
-  is empty so 0 user wallets — dashboard may show onboarding; wallet screen may be empty.
+## Login / test credentials
+- No seed/test accounts created (would write to the production DB).
+- Admin email on record: moxxcompany@gmail.com (password NOT provided — real prod account).
+- Email/password login: POST /api/user/login (Node backend) — works with the user's real prod creds.
+- OAuth (Google/GitHub) buttons render, but /api/auth/* is STUBBED by the uvicorn proxy in preview,
+  so social sign-in cannot complete here. Use email/password.
 
-### Env files (gitignored, rebuilt this pod)
-- /app/.env (Next.js): URLs->preview, FRONTEND_MODE=dev, INTERNAL_API_URL=http://localhost:8001,
-  NEXTAUTH_SECRET=JnFpwkMIhpvwxW0LIehBaajQODO5yjs2TsAZ+40ZPUU=, OAuth client ids/secrets.
-- /app/backend/.env: all pasted prod keys VERBATIM except DB/Redis (local), SAFE MODE, URLs->preview,
-  CORS incl preview host. GOOGLE_CLIENT_KEY rewritten to single-\n (dotenv expands to real PEM).
+## Env files (created this session; gitignored)
+- /app/backend/.env  — all provided creds verbatim; DATABASE_URL added (SSL, rejectUnauthorized=false);
+  URLs -> preview; SAFE MODE; SSH/Binance-proxy commented out; GOOGLE_CLIENT_KEY as single-\n PEM.
+- /app/.env          — Next.js: NEXT_PUBLIC_* + NextAuth + INTERNAL_API_URL/INTERNAL_BACKEND_URL=http://localhost:3300.
 
-### Architecture (Emergent adaptation)
-- Frontend: Next.js 14 in /app (port 3000) via supervisor `frontend` -> scripts/start-frontend.sh (next dev)
-- Backend: Node/TS Express (server.ts) internal port 3300, behind Python uvicorn proxy server.py :8001
-  (supervisor `backend`). Proxy forwards /api/* to Node; stubs /api/auth/* (NextAuth) with empty JSON.
-- Router mounts: main router at /api and /api/v1. Login: /api/user/login.
+## Architecture
+- Frontend: Next.js 14 in /app (port 3000), supervisor `frontend` -> scripts/start-frontend.sh (next dev).
+- Backend: Node/TS Express server.ts on :3300, behind Python uvicorn proxy server.py :8001 (supervisor `backend`).
+  Proxy forwards /api/* to Node; stubs /api/auth/* (NextAuth) with empty JSON.
+- SSR pages fetch backend via `${INTERNAL_API_URL}/api/...` (= http://localhost:3300).
 
-### Verified healthy (2026-08-24 v2)
-- /health: status=healthy, database=connected, redis=connected, tatum operational,
-  background_jobs.eligible=false (SAFE MODE). Frontend / => 200 local + external.
-- OAuth (Google/GitHub) will NOT complete in preview (redirect URIs are for dynopay.com,
-  and /api/auth/* is stubbed by the proxy). Use email/password login above.
+## Verified (read-only)
+- PG: 71 tables, SSL OK. Redis: PONG.
+- GET /health (healthy), /api/public/tickers, /api/public/fx-rates, /api/geo-detect -> all 200 with live data.
+- Frontend /auth/login renders full UI (logo, email/phone login, Google/GitHub, crypto badges).
