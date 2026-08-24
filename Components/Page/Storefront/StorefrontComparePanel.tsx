@@ -1,11 +1,10 @@
 import React from "react";
-import useSWR from "swr";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
 import Sparkline from "@/Components/UI/Sparkline";
-import axiosBaseApi from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { brandFg } from "@/constants/theme";
 
@@ -40,11 +39,11 @@ const StorefrontComparePanel: React.FC = () => {
   const { t } = useTranslation("common");
   const isDark = theme.palette.mode === "dark";
   const { companyList, selectedCompanyId } = useCompanyStore();
-  const { data } = useSWR(
-    companyList.length > 1 ? "user/creator/analytics/split" : null,
-    async () => {
-      const r = await axiosBaseApi.get("user/creator/analytics/split");
-      return (r?.data?.data ?? null) as SplitData | null;
+  const { data } = useApiSWR<SplitData | null>(
+    "user/creator/analytics/split",
+    {
+      enabled: companyList.length > 1,
+      select: (raw: any) => (raw?.data ?? null) as SplitData | null,
     },
   );
 

@@ -16,6 +16,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { DashboardAction } from "@/Redux/Actions";
 import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
 import { useWalletStore } from "@/contexts/WalletDataContext";
+import useApiSWR from "@/hooks/useApiSWR";
 
 type SupportedCurrency = {
   code: string;
@@ -35,36 +36,27 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
   const { refetchWallets } = useWalletStore();
   const { t } = useTranslation("common");
 
+  // Read standardized onto the shared SWR hook (refactor item 5). `current`
+  // stays local so the change handler can optimistically update + roll back.
+  const { data: dcData, isLoading: loading } = useApiSWR<{
+    display_currency?: string;
+    supported?: SupportedCurrency[];
+  }>(companyId ? `company/display-currency/${companyId}` : null, {
+    select: (raw) => raw?.data ?? {},
+  });
+  const supported = dcData?.supported ?? [];
+
   const [current, setCurrent] = useState<string>("");
-  const [supported, setSupported] = useState<SupportedCurrency[]>([]);
-  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (dcData) setCurrent(dcData.display_currency || "USD");
+  }, [dcData]);
+
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
     open: false,
     message: "",
     severity: "success",
   });
-
-  useEffect(() => {
-    if (!companyId) return;
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const { data } = await axiosBaseApi.get(`company/display-currency/${companyId}`);
-        if (cancelled) return;
-        setCurrent(data?.data?.display_currency || "USD");
-        setSupported(data?.data?.supported || []);
-      } catch {
-        /* leave defaults; select stays empty */
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [companyId]);
 
   const handleChange = async (next: string) => {
     if (!companyId || next === current || saving) return;

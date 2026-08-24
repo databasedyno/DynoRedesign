@@ -22,7 +22,7 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import useSWR from "swr";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import axiosBaseApi from "@/axiosConfig";
 import SkeletonList from "@/Components/UI/SkeletonList";
 import { useSelector } from "react-redux";
@@ -224,14 +224,12 @@ const NotificationPage = () => {
   // Notifications list on SWR → cached between visits + deduped, keyed per
   // company. The bell badge stays in sync via the shared unread-count cache
   // (fetchUnreadCount / decrementUnreadCount / setCachedUnreadCount below).
-  const { data: notifData, isLoading: notifLoading, mutate: mutateNotifs } = useSWR(
-    [API_ENDPOINTS.notifications.list, effectiveCompanyId],
-    async ([url, companyId]: [string, any]) => {
-      const params: Record<string, any> = {};
-      if (companyId) params.company_id = companyId;
-      const res = await axiosBaseApi.get(url, { params });
-      return (res?.data?.data?.notifications || []) as any[];
-    }
+  const notifListKey = effectiveCompanyId
+    ? `${API_ENDPOINTS.notifications.list}?company_id=${encodeURIComponent(String(effectiveCompanyId))}`
+    : API_ENDPOINTS.notifications.list;
+  const { data: notifData, isLoading: notifLoading, mutate: mutateNotifs } = useApiSWR<any[]>(
+    [notifListKey, effectiveCompanyId],
+    { select: (raw: any) => (raw?.data?.notifications || []) as any[] }
   );
   const notifications = notifData ?? [];
 

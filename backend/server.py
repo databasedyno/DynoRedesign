@@ -147,11 +147,18 @@ def _build_forward_path(scope):
 
 
 def _extract_forward_headers(scope):
-    """Return a dict of headers to forward, dropping hop-by-hop ones."""
+    """Return a dict of headers to forward, dropping hop-by-hop ones.
+
+    We also drop `accept-encoding` so the Node backend never gzips the
+    response for this proxy hop. httpx would decompress transparently, but
+    the resulting header/content-length juggling is fragile — keeping the
+    internal hop uncompressed guarantees the browser always receives clean,
+    correctly-lengthed JSON. (Edge/nginx compression still applies in prod.)
+    """
     headers = {}
     for name, value in scope.get('headers', []):
         name_str = name.decode().lower()
-        if name_str not in ('host', 'content-length', 'transfer-encoding'):
+        if name_str not in ('host', 'content-length', 'transfer-encoding', 'accept-encoding'):
             headers[name_str] = value.decode()
     return headers
 
@@ -185,11 +192,13 @@ async def proxy_request(scope, receive, send):
             content=body if body else None
         )
         
-        # Send response
+        # Send response. Drop the backend's content-length/encoding and set a
+        # single authoritative content-length for the (decoded) body we forward
+        # — a stale/duplicate content-length would truncate the response.
         response_headers = [
             (k.lower().encode(), v.encode())
             for k, v in response.headers.items()
-            if k.lower() not in ('transfer-encoding', 'content-encoding')
+            if k.lower() not in ('transfer-encoding', 'content-encoding', 'content-length')
         ]
         response_headers.append((b'content-length', str(len(response.content)).encode()))
         

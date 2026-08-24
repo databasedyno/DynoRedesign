@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only regression after the proxy-gzip P0 login fix. UI login flow now succeeds end-to-end (email step -> password step -> /dashboard). All refactored screens using useApiSWR (system-status, help-support list + [slug], settings, storefront) render without runtime crash, red overlay, or infinite spinner. Wave-1 regression screens (/referrals, /profile, /dashboard, /customers, /invoices, /notifications) all load cleanly with 0 page errors and 0 console errors captured.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "HelpAndSupport article card", "issue": "Clicking a help-article card (data-testid=help-article-card-0) via Playwright click/mouse.click does not navigate to /help-support/<slug>. router.push is wired in onClick on the Box, but the click doesn't fire routing in this environment (URL stayed at /help-support). Direct navigation to /help-support/<slug> works and renders correctly (article body or graceful 'Article not found'). May be a click-target/pointer-events issue on the outer Box, or event bubbling being swallowed by an inner element.", "selector": "[data-testid=\"help-article-card-0\"]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Investigate why the outer Box onClick=router.push on help-article-card-N does not fire in the preview environment. Consider wrapping the card content in a real <Link>/<a href> (Next Link) so it works with keyboard, right-click 'open in new tab', and Playwright clicks; current cursor:pointer Box is not accessible/discoverable as a link."
+  ],
+  "critical_code_review_comments": [
+    "pages/settings/index.tsx: DisplayCurrencySelector and UserDisplayCurrencySelector only render when showDisplayCurrency && selectedId. The test user has no company (selectedId undefined) so these selectors were never rendered. This is expected per the review note (empty state), NOT a bug — but it means the refactor of these two selectors was NOT exercised in-DOM during this run. Consider seeding at least one company for the test merchant so future regression runs can actually assert the refactored selectors.",
+    "Help articles are rendered as Box with onClick=router.push. Prefer semantic <Link href=\"/help-support/[slug]\"> for a11y, SEO, and reliable navigation."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (not tested)", "frontend": "100% for login + render-without-crash checks; help article click-through 0/1 (direct URL navigation works)"},
+  "test_credentials": "testmerchant@dynopay.dev / TestMerchant123! (used successfully via /auth/login 2-step)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "P0 login fix (proxy accept-encoding/content-length) is confirmed working via UI. The seeded test user has NO company, so DisplayCurrencySelector / UserDisplayCurrencySelector never render (guarded by `showDisplayCurrency && selectedId`). To assert the refactored SWR-backed currency selectors in-DOM, seed a company for testmerchant@dynopay.dev first. All refactored pages loaded with 0 pageerrors and 0 console errors. Only observed anomaly: clicking a help-article-card Box does not fire router.push in preview (direct URL navigation to /help-support/<slug> works and shows either the article or a graceful 'Article not found' fallback).",
+  "rca of the issue": "n/a — no critical bug reproduced. The earlier P0 UI-login failure (proxy gzip mismatch) is fixed and login now redirects to /dashboard as expected."
+}

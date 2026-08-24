@@ -1,5 +1,5 @@
 import useSWR, { SWRConfiguration, KeyedMutator } from "swr";
-import { swrFetcher, swrDataFetcher, SwrKey } from "@/utils/swrFetcher";
+import { swrFetcher, SwrKey } from "@/utils/swrFetcher";
 
 /**
  * Reusable typed data-fetching hook (refactor item 5).
@@ -24,6 +24,10 @@ export interface UseApiSWROptions<T> extends SWRConfiguration<T> {
   enabled?: boolean;
   /** Use the `{ data: {...} }`-unwrapping fetcher (returns res.data.data). */
   unwrap?: boolean;
+  /** Optional transform on the raw response body (res.data) before caching.
+   *  Takes precedence over `unwrap`. Lets a screen keep its exact cached shape
+   *  (e.g. `(raw) => raw?.data?.items ?? []`) so render + mutate stay unchanged. */
+  select?: (raw: any) => T;
 }
 
 export interface UseApiSWRResult<T> {
@@ -40,9 +44,14 @@ export function useApiSWR<T = unknown>(
   key: SwrKey,
   options: UseApiSWROptions<T> = {},
 ): UseApiSWRResult<T> {
-  const { enabled = true, unwrap = false, ...swrOptions } = options;
+  const { enabled = true, unwrap = false, select, ...swrOptions } = options;
   const effectiveKey = enabled ? key : null;
-  const fetcher = (unwrap ? swrDataFetcher : swrFetcher) as (k: SwrKey) => Promise<T>;
+  const fetcher = async (k: SwrKey): Promise<T> => {
+    const raw = await swrFetcher<any>(k);
+    if (select) return select(raw);
+    if (unwrap) return (raw?.data ?? raw) as T;
+    return raw as T;
+  };
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<T>(
     effectiveKey === false || effectiveKey == null ? null : effectiveKey,

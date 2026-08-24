@@ -1,6 +1,6 @@
 import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Typography, CircularProgress, Skeleton, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   TypographyDescription,
@@ -10,8 +10,8 @@ import {
 import serviceIcon from "@/assets/Icons/home/service.svg";
 import Image from "next/image";
 import Bars from "@/Components/UI/APIStatus/Bars";
-import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import useApiSWR from "@/hooks/useApiSWR";
 
 interface ServiceData {
   id: string;
@@ -55,68 +55,36 @@ const StatusPage = () => {
   const isMobile = useIsMobile();
   const { t } = useTranslation("apiStatus");
 
-  const [services, setServices] = useState<ServiceData[]>([]);
-  const [incidents, setIncidents] = useState<IncidentData[]>([]);
-  const [uptimeData, setUptimeData] = useState<UptimeData | null>(null);
-  const [overallStatus, setOverallStatus] = useState<string>("operational");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Status data standardized onto the shared SWR hook (refactor item 5) —
+  // three tolerant reads that auto-refresh every 60s (was a manual Promise.all
+  // + setInterval). Each read degrades to an empty/neutral value on error.
+  const { data: services = [], isLoading: sLoading } = useApiSWR<ServiceData[]>(
+    API_ENDPOINTS.status.services,
+    {
+      refreshInterval: 60000,
+      select: (raw) => (raw?.data?.services as ServiceData[]) ?? [],
+    },
+  );
+  const { data: incidents = [], isLoading: iLoading } = useApiSWR<
+    IncidentData[]
+  >(API_ENDPOINTS.status.incidents, {
+    refreshInterval: 60000,
+    select: (raw) => (raw?.data?.incidents as IncidentData[]) ?? [],
+  });
+  const { data: uptimeData = null, isLoading: uLoading } = useApiSWR<
+    UptimeData | null
+  >(API_ENDPOINTS.status.uptime, {
+    refreshInterval: 60000,
+    select: (raw) => (raw?.data as UptimeData) ?? null,
+  });
 
-  useEffect(() => {
-    const fetchStatus = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const [servicesRes, incidentsRes, uptimeRes] = await Promise.all([
-          axiosBaseApi.get(API_ENDPOINTS.status.services).catch((err) => {
-            console.error("Failed to fetch services:", err);
-            return null;
-          }),
-          axiosBaseApi.get(API_ENDPOINTS.status.incidents).catch((err) => {
-            console.error("Failed to fetch incidents:", err);
-            return null;
-          }),
-          axiosBaseApi.get(API_ENDPOINTS.status.uptime).catch((err) => {
-            console.error("Failed to fetch uptime:", err);
-            return null;
-          }),
-        ]);
-
-        // Parse services
-        if (servicesRes?.data?.data?.services) {
-          const svc: ServiceData[] = servicesRes.data.data.services;
-          setServices(svc);
-          const allOp = svc.every((s) => s.status === "operational");
-          const hasOutage = svc.some((s) => s.status === "outage");
-          setOverallStatus(
-            hasOutage ? "partial_outage" : allOp ? "operational" : "degraded"
-          );
-        }
-
-        // Parse incidents
-        if (incidentsRes?.data?.data?.incidents) {
-          setIncidents(incidentsRes.data.data.incidents);
-        }
-
-        // Parse uptime
-        if (uptimeRes?.data?.data) {
-          setUptimeData(uptimeRes.data.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch status data:", err);
-        setError("Unable to load status data. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStatus();
-
-    // Auto-refresh every 60 seconds
-    const interval = setInterval(fetchStatus, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  const loading = sLoading || iLoading || uLoading;
+  const overallStatus = useMemo<string>(() => {
+    if (!services.length) return "operational";
+    const hasOutage = services.some((s) => s.status === "outage");
+    const allOp = services.every((s) => s.status === "operational");
+    return hasOutage ? "partial_outage" : allOp ? "operational" : "degraded";
+  }, [services]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

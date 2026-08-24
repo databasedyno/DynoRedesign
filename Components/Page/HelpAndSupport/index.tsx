@@ -11,7 +11,7 @@ import {
 } from "./styled";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
-import { useRouter } from "next/router";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import HelpAndSupportData from "@/hooks/useHelpAndSupportData";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
@@ -38,7 +38,6 @@ const HelpAndSupport = () => {
     const theme = useTheme();
     const isMobile = useIsMobile("md");
     const { t } = useTranslation("helpAndSupport");
-    const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [articles, setArticles] = useState<KBArticle[]>([]);
     const [loading, setLoading] = useState(true);
@@ -274,65 +273,70 @@ const HelpAndSupport = () => {
                             </TextDecoration>
                         ) : (
                             articles.map((item, index) => (
-                                <Box
+                                <Link
                                     key={item.article_id || index}
+                                    href={`/help-support/${item.slug}`}
                                     data-testid={`help-article-card-${index}`}
-                                    sx={{
-                                        minHeight: 168,
-                                        backgroundColor: theme.palette.background.paper,
-                                        border: `1px solid ${theme.palette.divider}`,
-                                        borderRadius: "16px",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "space-between",
-                                        gap: "14px",
-                                        padding: "22px",
-                                        cursor: "pointer",
-                                        transition: "border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",
-                                        "&:hover": {
-                                            borderColor: theme.palette.primary.main,
-                                            transform: "translateY(-2px)",
-                                            boxShadow: `0 8px 24px ${theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(17,18,20,0.08)"}`,
-                                        },
-                                    }}
-                                    onClick={() => router.push(`/help-support/${item.slug}`)}
+                                    style={{ textDecoration: "none", display: "block" }}
                                 >
-                                    <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                                        <TextDecoration style={{ fontSize: "17px", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
-                                            {item.title}
-                                        </TextDecoration>
-                                        <TextDecoration
-                                            sx={{
-                                                fontSize: "14px",
-                                                color: theme.palette.text.secondary,
-                                                lineHeight: 1.5,
-                                                display: "-webkit-box",
-                                                WebkitLineClamp: 2,
-                                                WebkitBoxOrient: "vertical",
-                                                overflow: "hidden",
-                                            }}
-                                        >
-                                            {item.excerpt || item.description}
-                                        </TextDecoration>
-                                    </Box>
-
-                                    <SearchIconButton
+                                    <Box
                                         sx={{
-                                            marginLeft: "auto",
-                                            borderColor: theme.palette.divider,
-                                            width: 36,
-                                            height: 36,
-                                        }}
-                                        onClick={(e: React.MouseEvent) => {
-                                            e.stopPropagation();
-                                            router.push(`/help-support/${item.slug}`);
+                                            minHeight: 168,
+                                            backgroundColor: theme.palette.background.paper,
+                                            border: `1px solid ${theme.palette.divider}`,
+                                            borderRadius: "16px",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "space-between",
+                                            gap: "14px",
+                                            padding: "22px",
+                                            cursor: "pointer",
+                                            transition: "border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",
+                                            "&:hover": {
+                                                borderColor: theme.palette.primary.main,
+                                                transform: "translateY(-2px)",
+                                                boxShadow: `0 8px 24px ${theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(17,18,20,0.08)"}`,
+                                            },
                                         }}
                                     >
-                                        <ArrowOutwardIcon
-                                            sx={{ color: theme.palette.text.secondary, fontSize: 18 }}
-                                        />
-                                    </SearchIconButton>
-                                </Box>
+                                        <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                            <TextDecoration style={{ fontSize: "17px", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
+                                                {item.title}
+                                            </TextDecoration>
+                                            <TextDecoration
+                                                sx={{
+                                                    fontSize: "14px",
+                                                    color: theme.palette.text.secondary,
+                                                    lineHeight: 1.5,
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: "vertical",
+                                                    overflow: "hidden",
+                                                }}
+                                            >
+                                                {item.excerpt || item.description}
+                                            </TextDecoration>
+                                        </Box>
+
+                                        <Box
+                                            aria-hidden
+                                            sx={{
+                                                marginLeft: "auto",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                border: `1px solid ${theme.palette.divider}`,
+                                                borderRadius: "8px",
+                                                width: 36,
+                                                height: 36,
+                                            }}
+                                        >
+                                            <ArrowOutwardIcon
+                                                sx={{ color: theme.palette.text.secondary, fontSize: 18 }}
+                                            />
+                                        </Box>
+                                    </Box>
+                                </Link>
                             ))
                         )}
                     </Box>

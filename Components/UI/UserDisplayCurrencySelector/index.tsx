@@ -16,6 +16,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { DashboardAction } from "@/Redux/Actions";
 import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
 import { useWalletStore } from "@/contexts/WalletDataContext";
+import useApiSWR from "@/hooks/useApiSWR";
 
 type SupportedCurrency = { code: string; symbol: string; display_format: string };
 
@@ -39,37 +40,33 @@ const UserDisplayCurrencySelector: React.FC = () => {
   const { refetchWallets } = useWalletStore();
   const { t } = useTranslation("common");
 
+  // Read standardized onto the shared SWR hook (refactor item 5). The resolved
+  // currency / override / source stay local so the change handler can update
+  // them from the PATCH response without a refetch.
+  const { data: ucData, isLoading: loading } = useApiSWR<{
+    display_currency?: string;
+    user_override?: string | null;
+    source?: "user" | "company" | "default";
+    supported?: SupportedCurrency[];
+  }>("user/display-currency", { select: (raw) => raw?.data ?? {} });
+  const supported = ucData?.supported ?? [];
+
   const [resolved, setResolved] = useState<string>("");
   const [override, setOverride] = useState<string | null>(null); // "" means inherit; a code means user override
   const [source, setSource] = useState<"user" | "company" | "default">("company");
-  const [supported, setSupported] = useState<SupportedCurrency[]>([]);
-  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (!ucData) return;
+    setResolved(ucData.display_currency || "USD");
+    setOverride(ucData.user_override || null);
+    setSource(ucData.source || "default");
+  }, [ucData]);
+
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
     open: false,
     message: "",
     severity: "success",
   });
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const { data } = await axiosBaseApi.get("user/display-currency");
-        if (cancelled) return;
-        setResolved(data?.data?.display_currency || "USD");
-        setOverride(data?.data?.user_override || null);
-        setSource((data?.data?.source as any) || "default");
-        setSupported(data?.data?.supported || []);
-      } catch {
-        /* leave defaults */
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
 
   const handleChange = async (raw: string) => {
     // raw === "" → user picked "Use company default" (clear override)

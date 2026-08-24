@@ -17,7 +17,7 @@ import { StatusDot } from "@/Components/UI/StatusDot";
 import ProductImage from "@/Components/UI/ProductImage";
 import CustomButton from "@/Components/UI/Buttons";
 import axiosBaseApi from "@/axiosConfig";
-import useSWR from "swr";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import SkeletonList from "@/Components/UI/SkeletonList";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
@@ -59,23 +59,22 @@ const ProductsTab = () => {
   // account's products (they belong to the primary company's storefront).
   const { profile: storefrontProfile } = useStorefrontProfile();
 
-  const { data: productsResp, error: productsError, isLoading: productsLoading, mutate: mutateProducts } = useSWR(
-    ["products-list", statusFilter, categoryFilter, q, selectedCompanyId],
-    async ([, status, category, search]: [string, string, string, string, number | null]) => {
-      const params = new URLSearchParams();
-      if (status !== "all") params.set("status", status);
-      if (category !== "all") {
-        params.set("category", category === "__uncategorized__" ? "" : category);
-      }
-      if (search.trim()) params.set("q", search.trim());
-      const r = await axiosBaseApi.get(`products?${params.toString()}`);
-      return (r.data?.data?.items || []) as ProductRow[];
-    },
-    { keepPreviousData: true }
+  const productsParams = new URLSearchParams();
+  if (statusFilter !== "all") productsParams.set("status", statusFilter);
+  if (categoryFilter !== "all") {
+    productsParams.set("category", categoryFilter === "__uncategorized__" ? "" : categoryFilter);
+  }
+  if (q.trim()) productsParams.set("q", q.trim());
+  const { data: productsResp, error: productsError, isLoading: productsLoading, mutate: mutateProducts } = useApiSWR<ProductRow[]>(
+    [`products?${productsParams.toString()}`, selectedCompanyId],
+    {
+      select: (raw: any) => (raw?.data?.items || []) as ProductRow[],
+      keepPreviousData: true,
+    }
   );
   const items: ProductRow[] = productsResp || [];
   const loading = productsLoading && productsResp === undefined;
-  const error = productsError ? (productsError?.response?.data?.message || "Failed to load products") : null;
+  const error = productsError ? ((productsError as any)?.response?.data?.message || "Failed to load products") : null;
 
   useEffect(() => {
     // Storefront-per-company: the "view shop" handle is the ACTIVE company's

@@ -1,4 +1,105 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-24 (v2 pod, fork) : P0 proxy-gzip login fix +
+# Item #5 SWR wave 2 + Item #4 env-config wave (feeWalletMonitor)
+# ============================================================================
+
+## Preview URL
+https://41df08a6-652d-4266-94d9-f3812166d81a.preview.emergentagent.com
+
+## Login (LOCAL isolated DB — SAFE to interact/mutate; NOT production)
+testmerchant@dynopay.dev / TestMerchant123!
+NOTE: seeded user has NO company and almost NO data → most screens render EMPTY
+states (expected/fine). Google/GitHub OAuth do NOT complete in preview — use
+email/password. Login is 2-step: type email → Continue → type password → Sign in.
+
+## P0 FIX (root cause of the earlier "frontend agent can't log in" blocker)
+backend/server.py (Python reverse proxy) forwarded the browser's Accept-Encoding
+to Node, so Node gzipped larger responses (e.g. login ~4KB). The proxy then
+stripped the content-encoding header but still shipped the compressed body +
+stale content-length → the browser received application/json it could not decode
+→ login (and any >~1KB response) silently failed in real browsers. FIX: proxy no
+longer forwards accept-encoding (internal hop stays identity) and drops the
+backend's content-length before setting its own. Verified: login via preview URL
+returns clean JSON + token; UI login now redirects to /dashboard (screenshot).
+
+## Item #5 (axios-in-useEffect → shared useApiSWR) — WAVE 2 (this session)
+Converted 5 read-oriented screens/hooks (frontend tsc = 0 errors):
+  - pages/help-support/[slug].tsx (KB article read)
+  - pages/system-status.tsx (services/incidents/uptime, 60s refreshInterval)
+  - Components/UI/DisplayCurrencySelector/index.tsx (company display currency)
+  - Components/UI/UserDisplayCurrencySelector/index.tsx (per-user display currency)
+  - hooks/useStorefrontProfile.ts (storefront profile read)
+Deliberately LEFT bespoke (crypto/payment/mutation-heavy or abort/POST fetchers):
+  AddWalletModal, CampaignManager, ProductQuickSell, ConversionBanner,
+  CreatorPageCard, HandleClaimNudge, SupportChatWidget, cryptoTransfer,
+  pay-links/[slug], useReusableWallets, usePaymentRates (higher regression risk,
+  already-working, minimal caching benefit).
+
+## Item #4 (typed config) — WAVE (this session)
+services/feeWalletMonitor.ts: 13 raw process.env reads → config.str/config.num
+(ADMIN_EMAIL/BREVO_SENDER_EMAIL + TRX/ETH/POLYGON fee-wallet address+thresholds).
+Backend boots healthy, MerchantPool validation passes, no TypeError.
+
+## What to verify (FRONTEND) — GOAL = login works in the agent's browser +
+## no regression from the SWR refactor. Log in, then visit each route and confirm
+## it LOADS without a runtime crash / red error overlay / infinite spinner:
+  1. LOGIN itself (the P0 fix): email testmerchant@dynopay.dev → Continue →
+     password TestMerchant123! → Sign in → lands on /dashboard. THIS is the key check.
+  2. /system-status — status page renders (services list / operational badge).
+  3. /help-support then open any article (/help-support/<slug>) — article renders
+     or graceful not-found (no crash).
+  4. /settings — the "Dashboard display currency" + "My display currency" selectors
+     render (a currency Select appears; empty/USD default ok).
+  5. /storefront — Page/Products tabs render (uses useStorefrontProfile).
+  6. Prior wave-1 screens still fine: /referrals, /profile (Login activity card),
+     /dashboard (referral code card), /customers, /invoices, /notifications.
+Report PASS/FAIL per route + any console errors / infinite loading. Empty states
+and onboarding redirects (no company) are EXPECTED, not bugs.
+
+
+# ============================================================================
+# FRONTEND TEST — 2026-08-24 (v2 pod) : Item #5 axios/SWR migration (Waves 1+2)
+# ============================================================================
+
+## Preview URL
+https://41df08a6-652d-4266-94d9-f3812166d81a.preview.emergentagent.com
+
+## Login (LOCAL isolated DB — SAFE to interact/mutate; NOT production)
+testmerchant@dynopay.dev / TestMerchant123!
+NOTE: this seeded user has NO company and essentially NO data yet, so most
+screens will render EMPTY states — that is EXPECTED and fine. Google/GitHub OAuth
+buttons will NOT complete in preview (use email/password).
+
+## What changed (frontend, Item #5) — converted bespoke per-file SWR fetchers to
+the shared `useApiSWR` hook (added an optional `select` transform to the hook):
+  - pages/referrals.tsx (code / list / earnings / discount / leaderboard)
+  - Components/Page/Profile/LoginActivity.tsx
+  - Components/Page/Dashboard/ReferralCodeCard.tsx (on the dashboard)
+  - Components/Page/Storefront/StorefrontComparePanel.tsx
+  - Components/Page/Storefront/ProductsTab.tsx (storefront → products)
+  - Components/Page/Customers/index.tsx (/customers)
+  - pages/invoices.tsx (/invoices)
+  - Components/Page/Notification/NotificationPage.tsx (/notifications)
+
+## What to verify (FRONTEND) — GOAL = no regression from the SWR refactor
+Log in, then visit each route below and confirm the page LOADS without a runtime
+crash / red error overlay / infinite spinner, the data request fires and resolves
+(200 or a graceful empty/error state), and the screen renders (empty state OK):
+  1. /referrals — code card + referrals list + earnings + leaderboard sections render.
+  2. /profile — "Login activity" card renders (should show at least the current login);
+     page does not crash.
+  3. /dashboard — the referral code card renders (may be within the dashboard).
+  4. /customers — customer list / empty state renders (no crash, no infinite spinner).
+  5. /invoices — invoices list / empty state renders.
+  6. /notifications — notifications list / empty state renders.
+  7. /storefront (Products tab) — products list / empty state renders; if a
+     multi-company "Compare storefronts" panel is not shown that's fine (single company).
+Report PASS/FAIL per route, plus any console errors or infinite-loading. Interacting
+(pagination, search) is SAFE. If a route redirects to onboarding because there's no
+company, note it (not a bug). Focus: the converted screens still fetch + render.
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-24 (v2 pod) : Refactor Items #1 & #4 (backend)
 # ============================================================================
 

@@ -1,6 +1,5 @@
-import useSWR from "swr";
-import axiosBaseApi from "@/axiosConfig";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
+import useApiSWR from "@/hooks/useApiSWR";
 
 export interface StorefrontProfile {
   handle: string | null;
@@ -24,13 +23,12 @@ export interface StorefrontProfile {
  */
 export default function useStorefrontProfile() {
   const selectedCompanyId = useSelectedCompanyId();
-  const { data, error, mutate } = useSWR(
+  const { data, error, mutate } = useApiSWR<StorefrontProfile | null>(
     ["user/creator/profile", selectedCompanyId],
-    async () => {
-      const r = await axiosBaseApi.get("user/creator/profile");
-      return (r?.data?.data ?? null) as StorefrontProfile | null;
+    {
+      keepPreviousData: true,
+      select: (raw) => (raw?.data?.data ?? null) as StorefrontProfile | null,
     },
-    { keepPreviousData: true },
   );
   return { profile: data, loading: data === undefined && !error, error, mutate };
 }

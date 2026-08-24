@@ -15,6 +15,7 @@ import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import useApiSWR from "@/hooks/useApiSWR";
 
 interface KBArticleDetail {
   article_id: number;
@@ -39,8 +40,6 @@ const HelpDetail = ({
   const { t } = useTranslation("helpAndSupport");
   const router = useRouter();
   const { slug } = router.query;
-  const [article, setArticle] = useState<KBArticleDetail | null>(null);
-  const [loading, setLoading] = useState(true);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   useEffect(() => {
@@ -50,28 +49,14 @@ const HelpDetail = ({
     }
   }, [setPageName, setPageDescription, t]);
 
-  useEffect(() => {
-    if (!router.isReady || !slug) return;
-
-    const fetchArticle = async () => {
-      try {
-        setLoading(true);
-        const res = await axiosBaseApi.get(API_ENDPOINTS.kb.article(slug));
-        const data = res?.data?.data;
-        if (data?.article) {
-          setArticle(data.article);
-        } else {
-          // Article not found
-          setArticle(null);
-        }
-      } catch {
-        setArticle(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticle();
-  }, [router.isReady, slug]);
+  // Article fetch standardized onto the shared SWR hook (refactor item 5).
+  const articleKey =
+    router.isReady && slug ? API_ENDPOINTS.kb.article(slug) : null;
+  const { data: article = null, isLoading } = useApiSWR<KBArticleDetail | null>(
+    articleKey,
+    { select: (raw) => (raw?.data?.article as KBArticleDetail) ?? null },
+  );
+  const loading = articleKey === null || isLoading;
 
   const handleFeedback = async (isHelpful: boolean) => {
     if (!article?.article_id || feedbackSubmitted) return;

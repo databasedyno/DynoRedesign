@@ -29,7 +29,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import useTableCardView from "@/hooks/useTableCardView";
 import useDisplayFx from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
-import useSWR from "swr";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import { prefetchInvoicePdf } from "@/helpers/invoicePdfCache";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -164,15 +164,13 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   }, [setPageName, setPageDescription]);
 
   // Fetch invoices (SWR — cached per page/company, deduped across remounts)
-  const { data: invoicesResp, isLoading: invoicesSwrLoading, mutate: mutateInvoices } = useSWR(
-    ["invoices-list", page, selectedCompanyId],
-    async ([, p, companyId]: [string, number, any]) => {
-      const params: Record<string, any> = { page: p, limit: 20 };
-      if (companyId) params.company_id = companyId;
-      const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.list, { params });
-      return res?.data?.data;
-    },
-    { keepPreviousData: true }
+  const invoicesParams = new URLSearchParams();
+  invoicesParams.set("page", String(page));
+  invoicesParams.set("limit", "20");
+  if (selectedCompanyId) invoicesParams.set("company_id", String(selectedCompanyId));
+  const { data: invoicesResp, isLoading: invoicesSwrLoading, mutate: mutateInvoices } = useApiSWR<any>(
+    [`${API_ENDPOINTS.invoices.list}?${invoicesParams.toString()}`, selectedCompanyId],
+    { unwrap: true, keepPreviousData: true }
   );
   const invoices: Invoice[] = invoicesResp?.invoices || [];
   const totalInvoices: number = invoicesResp?.pagination?.total || 0;

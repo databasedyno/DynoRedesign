@@ -23,8 +23,10 @@ import tatumApi from "../apis/tatumApi";
 import { cronLogger } from "../utils/loggers";
 import { dynoPayGreetingTemplate } from "./emailService";
 import mailTransporter from "../utils/mailTransporter";
+import config from "../utils/config";
 
-const ALERT_EMAIL = process.env.ADMIN_EMAIL || process.env.BREVO_SENDER_EMAIL || "admin@dynopay.com";
+const ALERT_EMAIL =
+  config.adminEmail || config.str("BREVO_SENDER_EMAIL") || "admin@dynopay.com";
 
 // Cooldown between alert emails for the SAME chain in the SAME status level.
 // Escalation (worse → worst) still bypasses this so a wallet going empty right
@@ -51,31 +53,31 @@ const CHAIN_CONFIGS: ChainConfig[] = [
   {
     chain: 'TRX',
     displayName: 'TRX',
-    address: process.env.TRX_FEE_WALLET || '',
-    criticalThreshold: Number(process.env.TRX_FEE_WALLET_CRITICAL || 30),
-    warningThreshold: Number(process.env.TRX_FEE_WALLET_WARNING || 60),
-    healthyThreshold: Number(process.env.TRX_FEE_WALLET_HEALTHY || 120),
+    address: config.str("TRX_FEE_WALLET"),
+    criticalThreshold: config.num("TRX_FEE_WALLET_CRITICAL", 30),
+    warningThreshold: config.num("TRX_FEE_WALLET_WARNING", 60),
+    healthyThreshold: config.num("TRX_FEE_WALLET_HEALTHY", 120),
     supportsStaking: true,
   },
   {
     chain: 'ETH',
     displayName: 'ETH',
-    address: process.env.ETH_FEE_WALLET || '',
+    address: config.str("ETH_FEE_WALLET"),
     // ETH mainnet gas: ~50k gas × 20-30 gwei ≈ 0.001-0.0015 ETH per ERC20 tx.
     // Warning at 0.02 ETH ≈ 10-20 operations; critical at 0.01 ≈ 5-10.
-    criticalThreshold: Number(process.env.ETH_FEE_WALLET_CRITICAL || 0.01),
-    warningThreshold: Number(process.env.ETH_FEE_WALLET_WARNING || 0.02),
-    healthyThreshold: Number(process.env.ETH_FEE_WALLET_HEALTHY || 0.05),
+    criticalThreshold: config.num("ETH_FEE_WALLET_CRITICAL", 0.01),
+    warningThreshold: config.num("ETH_FEE_WALLET_WARNING", 0.02),
+    healthyThreshold: config.num("ETH_FEE_WALLET_HEALTHY", 0.05),
     supportsStaking: false,
   },
   {
     chain: 'POLYGON',
     displayName: 'POL',
-    address: process.env.POLYGON_FEE_WALLET || '',
+    address: config.str("POLYGON_FEE_WALLET"),
     // Polygon gas: ~$0.005-0.05/tx. 5 POL comfortably covers weeks.
-    criticalThreshold: Number(process.env.POLYGON_FEE_WALLET_CRITICAL || 2),
-    warningThreshold: Number(process.env.POLYGON_FEE_WALLET_WARNING || 5),
-    healthyThreshold: Number(process.env.POLYGON_FEE_WALLET_HEALTHY || 10),
+    criticalThreshold: config.num("POLYGON_FEE_WALLET_CRITICAL", 2),
+    warningThreshold: config.num("POLYGON_FEE_WALLET_WARNING", 5),
+    healthyThreshold: config.num("POLYGON_FEE_WALLET_HEALTHY", 10),
     supportsStaking: false,
   },
 ];

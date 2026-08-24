@@ -1,3 +1,57 @@
+# SESSION 2026-08-24 (v2 pod, fork) — P0 proxy-gzip LOGIN FIX + Item#5 SWR wave 2 + Item#4 env wave
+
+CONTEXT: continuation of the DynoPay refactor (LOCAL isolated Postgres+Redis, SAFE MODE:
+ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, NODE_ENV=production). User: "fix all except
+flutterwave as we are only focusing on crypto." Preview:
+https://41df08a6-652d-4266-94d9-f3812166d81a.preview.emergentagent.com
+Login (LOCAL, safe): testmerchant@dynopay.dev / TestMerchant123!
+
+## P0 — Frontend UI login failure ROOT-CAUSED + FIXED (was the prior fork's blocker)
+The Python reverse proxy `backend/server.py` forwarded the browser's `Accept-Encoding` to Node, so
+Node's compression middleware gzipped larger responses (login ≈4KB). The proxy then stripped the
+`content-encoding` header but still shipped the COMPRESSED body + a stale `content-length` → browsers
+received `application/json` they could not decode → login (and any >~1KB response) silently failed in
+real browsers (checkEmail was small/uncompressed, so only some flows broke). FIX (2 lines):
+  - `_extract_forward_headers` now also drops `accept-encoding` → the internal proxy→Node hop stays
+    identity (uncompressed); edge/nginx compression still applies in prod.
+  - `proxy_request` now drops the backend's `content-length` before appending its own (no stale/dupe).
+VERIFIED: login via preview returns clean JSON+token; UI 2-step login reaches /dashboard (testing
+agent iteration_77 = login PASS + all screens render, 0 console/page errors).
+
+## Item #5 (axios-in-useEffect → shared useApiSWR) — WAVE 2 (5 files, tsc+eslint clean)
+  - pages/help-support/[slug].tsx (KB article read)
+  - pages/system-status.tsx (services/incidents/uptime; 3× useApiSWR w/ refreshInterval 60s + useMemo)
+  - Components/UI/DisplayCurrencySelector/index.tsx (seeds local `current` from SWR)
+  - Components/UI/UserDisplayCurrencySelector/index.tsx (seeds resolved/override/source from SWR)
+  - hooks/useStorefrontProfile.ts (tuple key → useApiSWR + select)
+  Total migrated to date: 13 screens/hooks (8 prior + 5 this wave).
+  DELIBERATELY LEFT BESPOKE (crypto/payment/mutation-heavy or abort/POST fetchers, higher regression
+  risk + already working): AddWalletModal, CampaignManager, ProductQuickSell, ConversionBanner,
+  CreatorPageCard, HandleClaimNudge, SupportChatWidget, cryptoTransfer, pay-links/[slug],
+  useReusableWallets, usePaymentRates. Also HelpAndSupport/index.tsx list (search mutates the list).
+
+## Item #4 (typed config) — WAVE: services/feeWalletMonitor.ts
+  13 raw process.env reads → config.str/config.num (ADMIN_EMAIL/BREVO_SENDER_EMAIL + TRX/ETH/POLYGON
+  fee-wallet address+critical/warning/healthy thresholds). Boot-verified healthy; backend tsc clean.
+
+## Also fixed (from testing agent iteration_77, MEDIUM)
+  Components/Page/HelpAndSupport/index.tsx: help-article cards were `Box onClick=router.push`
+  (unreliable click, not keyboard/right-click accessible). Converted to a semantic Next `<Link href>`
+  (inner arrow made non-interactive to avoid nested-anchor). VERIFIED: card click navigates to
+  /help-support/<slug>; the article page renders its graceful "Article not found" fallback (expected —
+  local DB has no seeded KB articles). Removed now-unused useRouter import (DO build runs eslint).
+
+## STATUS / DID NOT DO
+  - Flutterwave webhook `return` bug: SKIPPED per user ("only focusing on crypto").
+  - Item #4 still has ~610 raw process.env reads to migrate incrementally in later waves.
+  - Item #5 has ~11 mutation-heavy/crypto components intentionally left bespoke (see list above).
+  - Currency selectors render only when a company is selected; the seeded test user has no company, so
+    they weren't exercised in-DOM by the agent (tsc-verified; logic is a straightforward SWR seed).
+
+---
+
+
+
 # DEPLOYMENT FIX (2026-08-24) — DigitalOcean build blocker RESOLVED + testing-agent verified
 
 Task: "access the DO deployment and fix the issue preventing deployment."

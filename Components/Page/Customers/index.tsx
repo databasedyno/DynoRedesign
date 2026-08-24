@@ -39,7 +39,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import axiosBaseApi from "@/axiosConfig";
-import useSWR from "swr";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
@@ -152,16 +152,14 @@ const CustomersPage: React.FC = () => {
     mutateCustomers();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { data: customersResp, isLoading: customersLoading, mutate: mutateCustomers } = useSWR(
-    ["customers-list", page, debouncedSearch, selectedCompanyId],
-    async ([, p, srch, companyId]: [string, number, string, any]) => {
-      const params: any = { page: p, limit: 20 };
-      if (srch && srch.trim()) params.search = srch.trim();
-      if (companyId) params.company_id = companyId;
-      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customers, { params });
-      return res.data?.data;
-    },
-    { keepPreviousData: true }
+  const customersParams = new URLSearchParams();
+  customersParams.set("page", String(page));
+  customersParams.set("limit", "20");
+  if (debouncedSearch && debouncedSearch.trim()) customersParams.set("search", debouncedSearch.trim());
+  if (selectedCompanyId) customersParams.set("company_id", String(selectedCompanyId));
+  const { data: customersResp, isLoading: customersLoading, mutate: mutateCustomers } = useApiSWR<any>(
+    [`${API_ENDPOINTS.userApi.customers}?${customersParams.toString()}`, selectedCompanyId],
+    { unwrap: true, keepPreviousData: true }
   );
   const customers: Customer[] = customersResp?.customers || [];
   const totalPages: number = customersResp?.pages || 1;
