@@ -224,7 +224,11 @@ a {
   size-adjust: 103.69%;
 }
 
-/* --- Legacy weight-carrying aliases (Urbanist*) → Manrope --- */
+/* --- Legacy weight-carrying aliases (Urbanist*) → Manrope ---
+   These map to Manrope woffs. When referencing one directly (e.g.
+   fontFamily: "UrbanistBold"), ALWAYS include the metric-matched fallback so a
+   cold load doesn't resize, i.e. use: '"UrbanistBold", "Manrope Fallback", sans-serif'
+   (or prefer the --font-display / --font-hero vars, which already include it). */
 @font-face {
   font-family: "UrbanistLight";
   src: url("/fonts/Manrope-Light.woff") format("woff");

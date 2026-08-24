@@ -47,7 +47,8 @@ export const PageHeaderDescription = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   color: theme.palette.text.secondary,
   lineHeight: 1.2,
-  fontFamily: "UrbanistMedium",
+  // Manrope-backed alias + metric-matched fallback so cold loads don't resize.
+  fontFamily: '"UrbanistMedium", "Manrope Fallback", sans-serif',
   paddingLeft: 0,
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",

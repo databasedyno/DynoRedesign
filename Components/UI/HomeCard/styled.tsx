@@ -244,7 +244,8 @@ export const SuccessChip = styled(Box)(({ theme }) => ({
 
 export const TypographyTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
-  fontFamily: "OutfitSemiBold",
+  // Manrope-backed alias + metric-matched fallback so cold loads don't resize.
+  fontFamily: '"OutfitSemiBold", "Manrope Fallback", sans-serif',
   lineHeight: "24px",
   letterSpacing: 0,
   color: theme.palette.text.primary,

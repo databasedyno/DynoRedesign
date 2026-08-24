@@ -185,7 +185,8 @@ const SummaryValue = styled(Typography)(({ theme }) => {
   return {
     fontSize: "20px",
     fontWeight: 600,
-    fontFamily: "OutfitSemiBold",
+    // Manrope-backed alias + metric-matched fallback so cold loads don't resize.
+    fontFamily: '"OutfitSemiBold", "Manrope Fallback", sans-serif',
     color: brandFg(isDark),
   };
 });
@@ -433,7 +434,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
             </ResultRow>
             <ResultRow>
               <ResultLabel sx={{ fontWeight: 500, fontFamily: "var(--font-sans)" }}>{t("resultTotalFees")}</ResultLabel>
-              <ResultValue sx={{ fontWeight: 600, fontFamily: "OutfitSemiBold" }}>
+              <ResultValue sx={{ fontWeight: 600, fontFamily: '"OutfitSemiBold", "Manrope Fallback", sans-serif' }}>
                 {formatAmount(result.fee_breakdown.total_fees)}
               </ResultValue>
             </ResultRow>
