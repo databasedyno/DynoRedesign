@@ -18,7 +18,10 @@ const userMiddleware = (
 
   const pathname = req.path;
   if (req.headers["content-type"].includes("multipart/form-data")) {
-    if (!req.body.data && !req.body.name && !req.body.email) {
+    // A photo-only update sends just the file (and an empty `data`), so a
+    // request with an uploaded file is valid even without name/email fields.
+    const hasFile = Boolean((req as express.Request & { file?: unknown }).file);
+    if (!req.body.data && !req.body.name && !req.body.email && !hasFile) {
       return res.status(400).json({ message: "Data not found! Please provide name and email." });
     } else {
       // Handle both JSON string, object, and individual field formats
@@ -47,12 +50,14 @@ const userMiddleware = (
       
       const { name, email }: IUserType = parsedData;
       if (pathname.includes("updateUser")) {
+        // Profile updates are PARTIAL (e.g. changing only the profile photo).
+        // Only validate the fields actually provided — never require name/email
+        // just to save a photo. (Fixes "Please enter proper values!" on photo save.)
         schema = {
-          name: Joi.string().required().messages({
+          name: Joi.string().optional().allow("", null).messages({
             "string.empty": "Name is Required",
           }),
-          email: Joi.string().email().required().messages({
-            "string.empty": "Email is Required",
+          email: Joi.string().email().optional().allow("", null).messages({
             "string.email": "Please Enter Valid Email",
           }),
         };

@@ -1,333 +1,318 @@
 #!/usr/bin/env python3
 """
-Backend Regression Test for DynoPay Node/TS Backend
-Testing Items #1 (versioned boot migrations) & #4 (typed config wave 2)
-Environment: LOCAL & ISOLATED DB + Redis (NOT production), SAFE MODE on
+Backend API Testing for DynoPay Profile Photo & Brand Logo Bug Fix
+===================================================================
+PRODUCTION DATABASE - MINIMAL WRITES ONLY (1 photo + 1 logo upload max)
+
+Test Cases:
+1. Profile photo-only update (the core fix) - expect 200
+2. Photo removal - expect 200
+3. Invalid email format (regression check) - expect 400
+4. Brand logo-only update - expect 200
 """
 
 import requests
-import json
-import sys
-from typing import Dict, Any, Tuple
+import io
+from PIL import Image
 
-# Configuration
-INTERNAL_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://merchant-portal-239.preview.emergentagent.com"
-TEST_EMAIL = "testmerchant@dynopay.dev"
-TEST_PASSWORD = "TestMerchant123!"
+# Base URL
+BASE_URL = "https://d91abbf6-57fc-4343-9a18-4289c6328295.preview.emergentagent.com"
+API_BASE = f"{BASE_URL}/api"
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
+# Test credentials
+TEST_EMAIL = "hostbay@moxx.co"
+TEST_PASSWORD = "Katiekendra123@"
 
-def print_test(name: str):
-    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
-    print(f"{Colors.BLUE}TEST: {name}{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
+# Global token storage
+access_token = None
 
-def print_pass(msg: str):
-    print(f"{Colors.GREEN}✅ PASS: {msg}{Colors.RESET}")
+def create_test_image(size=(100, 100), color=(255, 0, 0)):
+    """Create a small test image in memory"""
+    img = Image.new('RGB', size, color)
+    img_bytes = io.BytesIO()
+    img.save(img_bytes, format='PNG')
+    img_bytes.seek(0)
+    return img_bytes
 
-def print_fail(msg: str):
-    print(f"{Colors.RED}❌ FAIL: {msg}{Colors.RESET}")
-
-def print_info(msg: str):
-    print(f"{Colors.YELLOW}ℹ️  INFO: {msg}{Colors.RESET}")
-
-def test_health_endpoint() -> Tuple[bool, str]:
-    """
-    TEST 1: GET http://localhost:8001/health
-    Expected: HTTP 200, status "healthy", database "connected", redis "connected", 
-              background_jobs.eligible=false
-    """
-    print_test("1. Health Endpoint Check")
+def login():
+    """Login and get access token"""
+    global access_token
+    print("\n" + "="*70)
+    print("AUTHENTICATION")
+    print("="*70)
+    
+    url = f"{API_BASE}/user/login"
+    payload = {
+        "email": TEST_EMAIL,
+        "password": TEST_PASSWORD
+    }
+    
+    print(f"\n[LOGIN] POST {url}")
+    print(f"Payload: {payload}")
     
     try:
-        response = requests.get(f"{INTERNAL_BASE}/health", timeout=10)
-        print_info(f"Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            return False, f"Expected HTTP 200, got {response.status_code}"
-        
-        data = response.json()
-        print_info(f"Response: {json.dumps(data, indent=2)}")
-        
-        # Check required fields
-        checks = [
-            (data.get('status') == 'healthy', f"status = '{data.get('status')}' (expected 'healthy')"),
-            (data.get('database') == 'connected', f"database = '{data.get('database')}' (expected 'connected')"),
-            (data.get('redis') == 'connected', f"redis = '{data.get('redis')}' (expected 'connected')"),
-            (data.get('background_jobs', {}).get('eligible') == False, 
-             f"background_jobs.eligible = {data.get('background_jobs', {}).get('eligible')} (expected False)")
-        ]
-        
-        all_passed = True
-        for passed, msg in checks:
-            if passed:
-                print_pass(msg)
-            else:
-                print_fail(msg)
-                all_passed = False
-        
-        if all_passed:
-            return True, "Health endpoint returned correct values"
-        else:
-            return False, "Some health checks failed"
-            
-    except Exception as e:
-        return False, f"Exception: {str(e)}"
-
-def test_migration_system() -> Tuple[bool, str]:
-    """
-    TEST 2: ITEM 1 (versioned boot migrations)
-    Verify backend booted without errors and migration log shows correct message
-    """
-    print_test("2. Versioned Boot Migrations (ITEM 1)")
-    
-    try:
-        # Read backend logs
-        with open('/var/log/supervisor/backend.out.log', 'r') as f:
-            logs = f.read()
-        
-        # Look for migration success message in ALL logs (not just recent)
-        recent_logs = logs
-        
-        # Check for migration completion message
-        migration_patterns = [
-            "[migrations] done —",
-            "already present",
-            "Boot model tables ensured via versioned migrations"
-        ]
-        
-        all_found = True
-        for pattern in migration_patterns:
-            if pattern in recent_logs:
-                print_pass(f"Found log pattern: '{pattern}'")
-            else:
-                print_fail(f"Missing log pattern: '{pattern}'")
-                all_found = False
-        
-        # Check for schema_migrations table mention
-        if "schema_migrations" in logs or "0001_boot_model_tables" in logs:
-            print_pass("Migration system references found in logs")
-        else:
-            print_info("Note: schema_migrations table name not explicitly in logs (may be internal)")
-        
-        # Check for no boot errors
-        error_patterns = ["TypeError", "ReferenceError", "Cannot read property", "undefined is not"]
-        boot_errors = []
-        for pattern in error_patterns:
-            if pattern in recent_logs:
-                boot_errors.append(pattern)
-        
-        if boot_errors:
-            print_fail(f"Found boot errors: {', '.join(boot_errors)}")
-            return False, f"Boot errors detected: {', '.join(boot_errors)}"
-        else:
-            print_pass("No boot errors detected")
-        
-        if all_found:
-            return True, "Migration system working correctly"
-        else:
-            return False, "Some migration log patterns missing"
-            
-    except Exception as e:
-        return False, f"Exception reading logs: {str(e)}"
-
-def test_merchant_pool_config() -> Tuple[bool, str]:
-    """
-    TEST 3: ITEM 4 (typed config)
-    Verify boot log shows MerchantPool configuration validation passed
-    """
-    print_test("3. Typed Config - MerchantPool Validation (ITEM 4)")
-    
-    try:
-        # Read backend logs
-        with open('/var/log/supervisor/backend.out.log', 'r') as f:
-            logs = f.read()
-        
-        # Look for MerchantPool validation message in ALL logs
-        recent_logs = logs
-        
-        validation_pattern = "[MerchantPool] ✅ Configuration validation passed"
-        
-        if validation_pattern in recent_logs:
-            print_pass(f"Found: '{validation_pattern}'")
-            
-            # Also check for no TypeError related to merchantPool
-            if "TypeError" in recent_logs and "merchantPool" in recent_logs:
-                print_fail("Found TypeError related to merchantPool")
-                return False, "TypeError found in merchantPool context"
-            else:
-                print_pass("No TypeError related to merchantPool")
-            
-            return True, "MerchantPool configuration validation passed"
-        else:
-            print_fail(f"Missing log pattern: '{validation_pattern}'")
-            return False, "MerchantPool validation message not found in logs"
-            
-    except Exception as e:
-        return False, f"Exception reading logs: {str(e)}"
-
-def test_public_endpoints() -> Tuple[bool, str]:
-    """
-    TEST 4: Regression on PUBLIC endpoints
-    Verify public endpoints respond without 5xx errors
-    """
-    print_test("4. Public Endpoints Regression")
-    
-    endpoints = [
-        ("/api/status/health", "Status health endpoint"),
-        ("/api/csrf-token", "CSRF token endpoint"),
-        ("/api/products/categories", "Product categories endpoint")
-    ]
-    
-    all_passed = True
-    results = []
-    
-    for path, description in endpoints:
-        try:
-            url = f"{EXTERNAL_BASE}{path}"
-            print_info(f"Testing: {description} ({path})")
-            
-            response = requests.get(url, timeout=10)
-            status = response.status_code
-            
-            print_info(f"  Status Code: {status}")
-            
-            # 5xx is failure, 401/403 is acceptable for protected endpoints
-            if 500 <= status < 600:
-                print_fail(f"  {description}: HTTP {status} (5xx error)")
-                all_passed = False
-                results.append(f"{path}: FAIL (5xx)")
-            elif status in [401, 403]:
-                print_pass(f"  {description}: HTTP {status} (protected endpoint, acceptable)")
-                results.append(f"{path}: PASS (protected)")
-            elif 200 <= status < 300:
-                print_pass(f"  {description}: HTTP {status} (success)")
-                results.append(f"{path}: PASS")
-            else:
-                print_info(f"  {description}: HTTP {status} (non-5xx, acceptable)")
-                results.append(f"{path}: PASS (non-5xx)")
-                
-        except Exception as e:
-            print_fail(f"  {description}: Exception - {str(e)}")
-            all_passed = False
-            results.append(f"{path}: FAIL (exception)")
-    
-    if all_passed:
-        return True, "All public endpoints responded without 5xx errors"
-    else:
-        return False, f"Some endpoints returned 5xx: {', '.join(results)}"
-
-def test_auth_login() -> Tuple[bool, str]:
-    """
-    TEST 5: AUTH - Login with seeded credentials
-    POST /api/user/login with testmerchant@dynopay.dev / TestMerchant123!
-    Expected: Success response with token
-    """
-    print_test("5. Authentication - Login with Seeded Credentials")
-    
-    try:
-        # Use internal endpoint to avoid proxy compression issues
-        url = f"{INTERNAL_BASE}/api/user/login"
-        payload = {
-            "email": TEST_EMAIL,
-            "password": TEST_PASSWORD
-        }
-        
-        print_info(f"POST {url}")
-        print_info(f"Payload: {json.dumps(payload, indent=2)}")
-        
         response = requests.post(url, json=payload, timeout=10)
-        status = response.status_code
+        print(f"Status: {response.status_code}")
+        print(f"Response: {response.text[:500]}")
         
-        print_info(f"Status Code: {status}")
-        
-        try:
+        if response.status_code == 200:
             data = response.json()
-            print_info(f"Response keys: {list(data.keys())}")
-            if 'data' in data and isinstance(data['data'], dict):
-                print_info(f"Response data keys: {list(data['data'].keys())}")
-        except (json.JSONDecodeError, ValueError) as e:
-            print_info(f"Response decode error: {str(e)}")
-            print_info(f"Response text (first 200 chars): {response.text[:200]}")
-            data = {}
-        
-        # Check for success
-        if status == 200:
-            # Check for token in response
-            has_token = False
-            token_fields = ['accessToken', 'token', 'access_token', 'jwt']
-            
-            for field in token_fields:
-                if field in data or (isinstance(data.get('data'), dict) and field in data.get('data', {})):
-                    has_token = True
-                    print_pass(f"Found token field: '{field}'")
-                    break
-            
-            if has_token:
-                print_pass("Login successful with token returned")
-                return True, "Login successful with token"
+            if 'data' in data and 'accessToken' in data['data']:
+                access_token = data['data']['accessToken']
+                print(f"✅ Login successful! Token obtained (length: {len(access_token)})")
+                return True
             else:
-                # Check if it's a success message without token (might be OTP flow)
-                if data.get('success') or 'success' in str(data).lower() or data.get('message') == 'Login Successful!':
-                    print_pass(f"Login successful: {data.get('message', 'success')}")
-                    return True, "Login successful"
-                else:
-                    print_fail("Login returned 200 but no token found")
-                    return False, "No token in response"
+                print(f"❌ Login response missing accessToken")
+                return False
         else:
-            print_fail(f"Login failed with status {status}")
-            return False, f"Login failed: HTTP {status}"
-            
+            print(f"❌ Login failed with status {response.status_code}")
+            return False
     except Exception as e:
-        return False, f"Exception: {str(e)}"
+        print(f"❌ Login error: {str(e)}")
+        return False
+
+def test_profile_photo_only_update():
+    """
+    TEST CASE 1: Profile photo-only update (THE CORE BUG FIX)
+    Expected: HTTP 200 with message "User updated successfully!"
+    Bug was: returned 400 "Please enter proper values!" because validation required name+email
+    """
+    print("\n" + "="*70)
+    print("TEST CASE 1: Profile Photo-Only Update (Core Bug Fix)")
+    print("="*70)
+    
+    url = f"{API_BASE}/user/updateUser"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    
+    # Create a small test image
+    img_bytes = create_test_image(size=(50, 50), color=(255, 100, 100))
+    
+    # Multipart form data: image file + empty data object
+    files = {
+        'image': ('test_profile.png', img_bytes, 'image/png')
+    }
+    data = {
+        'data': '{}'  # Empty JSON object - no name, no email
+    }
+    
+    print(f"\n[TEST 1] PUT {url}")
+    print(f"Headers: Authorization: Bearer <token>")
+    print(f"Files: image=test_profile.png (50x50 PNG)")
+    print(f"Data: data={{}}")
+    print(f"Expected: HTTP 200 with message 'User updated successfully!'")
+    
+    try:
+        response = requests.put(url, headers=headers, files=files, data=data, timeout=15)
+        print(f"\nActual Status: {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        
+        if response.status_code == 200:
+            resp_json = response.json()
+            message = resp_json.get('message', '')
+            if 'User updated successfully' in message:
+                print(f"✅ TEST 1 PASSED: Photo-only update returned 200 with correct message")
+                return True
+            else:
+                print(f"⚠️ TEST 1 PARTIAL: Got 200 but message was: {message}")
+                return True
+        elif response.status_code == 400:
+            resp_json = response.json()
+            message = resp_json.get('message', '')
+            if 'Please enter proper values' in message:
+                print(f"❌ TEST 1 FAILED: BUG NOT FIXED - Still getting 400 'Please enter proper values!'")
+                return False
+            else:
+                print(f"❌ TEST 1 FAILED: Got 400 with message: {message}")
+                return False
+        else:
+            print(f"❌ TEST 1 FAILED: Unexpected status {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ TEST 1 ERROR: {str(e)}")
+        return False
+
+def test_photo_removal():
+    """
+    TEST CASE 2: Photo removal
+    Expected: HTTP 200 (photo cleared)
+    """
+    print("\n" + "="*70)
+    print("TEST CASE 2: Photo Removal")
+    print("="*70)
+    
+    url = f"{API_BASE}/user/updateUser"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    
+    # Multipart form data: no file, data with remove_photo flag
+    data = {
+        'data': '{"remove_photo":true}'
+    }
+    
+    print(f"\n[TEST 2] PUT {url}")
+    print(f"Headers: Authorization: Bearer <token>")
+    print(f"Data: data={{\"remove_photo\":true}}")
+    print(f"Expected: HTTP 200")
+    
+    try:
+        response = requests.put(url, headers=headers, data=data, timeout=15)
+        print(f"\nActual Status: {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        
+        if response.status_code == 200:
+            print(f"✅ TEST 2 PASSED: Photo removal returned 200")
+            return True
+        else:
+            print(f"❌ TEST 2 FAILED: Expected 200, got {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ TEST 2 ERROR: {str(e)}")
+        return False
+
+def test_invalid_email_format():
+    """
+    TEST CASE 3: Invalid email format (regression check - validation should still work)
+    Expected: HTTP 400 with validation message like "Please Enter Valid Email"
+    """
+    print("\n" + "="*70)
+    print("TEST CASE 3: Invalid Email Format (Regression Check)")
+    print("="*70)
+    
+    url = f"{API_BASE}/user/updateUser"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    
+    # Multipart form data: invalid email
+    data = {
+        'data': '{"email":"not-an-email"}'
+    }
+    
+    print(f"\n[TEST 3] PUT {url}")
+    print(f"Headers: Authorization: Bearer <token>")
+    print(f"Data: data={{\"email\":\"not-an-email\"}}")
+    print(f"Expected: HTTP 400 with validation message (e.g., 'Please Enter Valid Email')")
+    
+    try:
+        response = requests.put(url, headers=headers, data=data, timeout=15)
+        print(f"\nActual Status: {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        
+        if response.status_code == 400:
+            resp_json = response.json()
+            message = resp_json.get('message', '').lower()
+            if 'email' in message or 'valid' in message:
+                print(f"✅ TEST 3 PASSED: Invalid email correctly rejected with 400")
+                return True
+            else:
+                print(f"⚠️ TEST 3 PARTIAL: Got 400 but message was: {resp_json.get('message', '')}")
+                return True
+        else:
+            print(f"❌ TEST 3 FAILED: Expected 400, got {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ TEST 3 ERROR: {str(e)}")
+        return False
+
+def test_brand_logo_update():
+    """
+    TEST CASE 4: Brand logo (company) logo-only update
+    Expected: HTTP 200 with message "Company updated successfully!"
+    """
+    print("\n" + "="*70)
+    print("TEST CASE 4: Brand Logo-Only Update")
+    print("="*70)
+    
+    url = f"{API_BASE}/company/updateCompany/1"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    
+    # Create a small test image
+    img_bytes = create_test_image(size=(50, 50), color=(100, 100, 255))
+    
+    # Multipart form data: image file + empty data object
+    files = {
+        'image': ('test_logo.png', img_bytes, 'image/png')
+    }
+    data = {
+        'data': '{}'  # Empty JSON object
+    }
+    
+    print(f"\n[TEST 4] PUT {url}")
+    print(f"Headers: Authorization: Bearer <token>")
+    print(f"Files: image=test_logo.png (50x50 PNG)")
+    print(f"Data: data={{}}")
+    print(f"Expected: HTTP 200 with message 'Company updated successfully!'")
+    
+    try:
+        response = requests.put(url, headers=headers, files=files, data=data, timeout=15)
+        print(f"\nActual Status: {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        
+        if response.status_code == 200:
+            resp_json = response.json()
+            message = resp_json.get('message', '')
+            if 'Company updated successfully' in message:
+                print(f"✅ TEST 4 PASSED: Logo-only update returned 200 with correct message")
+                return True
+            else:
+                print(f"⚠️ TEST 4 PARTIAL: Got 200 but message was: {message}")
+                return True
+        else:
+            print(f"❌ TEST 4 FAILED: Expected 200, got {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ TEST 4 ERROR: {str(e)}")
+        return False
 
 def main():
-    """Run all tests and report results"""
-    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
-    print(f"{Colors.BLUE}DynoPay Backend Regression Test Suite{Colors.RESET}")
-    print(f"{Colors.BLUE}Testing: Items #1 (versioned migrations) & #4 (typed config){Colors.RESET}")
-    print(f"{Colors.BLUE}Environment: LOCAL & ISOLATED (SAFE MODE){Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
+    """Run all tests"""
+    print("\n" + "="*70)
+    print("DYNOPAY BACKEND API TESTING")
+    print("Profile Photo & Brand Logo Bug Fix Verification")
+    print("="*70)
+    print(f"Base URL: {BASE_URL}")
+    print(f"Test User: {TEST_EMAIL}")
+    print("⚠️  PRODUCTION DATABASE - MINIMAL WRITES ONLY")
+    print("="*70)
     
-    tests = [
-        ("Health Endpoint", test_health_endpoint),
-        ("Versioned Boot Migrations (ITEM 1)", test_migration_system),
-        ("Typed Config - MerchantPool (ITEM 4)", test_merchant_pool_config),
-        ("Public Endpoints Regression", test_public_endpoints),
-        ("Authentication Login", test_auth_login)
-    ]
+    # Step 1: Login
+    if not login():
+        print("\n❌ TESTING ABORTED: Login failed")
+        return
     
-    results = []
+    # Step 2: Run all test cases
+    results = {
+        "Test 1: Profile Photo-Only Update (Core Fix)": test_profile_photo_only_update(),
+        "Test 2: Photo Removal": test_photo_removal(),
+        "Test 3: Invalid Email Format (Regression)": test_invalid_email_format(),
+        "Test 4: Brand Logo-Only Update": test_brand_logo_update()
+    }
     
-    for test_name, test_func in tests:
-        passed, message = test_func()
-        results.append((test_name, passed, message))
+    # Step 3: Summary
+    print("\n" + "="*70)
+    print("TEST SUMMARY")
+    print("="*70)
     
-    # Summary
-    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
-    print(f"{Colors.BLUE}TEST SUMMARY{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
     
-    passed_count = sum(1 for _, passed, _ in results if passed)
-    total_count = len(results)
+    for test_name, result in results.items():
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status} - {test_name}")
     
-    for test_name, passed, message in results:
-        status = f"{Colors.GREEN}✅ PASS{Colors.RESET}" if passed else f"{Colors.RED}❌ FAIL{Colors.RESET}"
-        print(f"{status} - {test_name}: {message}")
+    print(f"\nTotal: {passed}/{total} tests passed ({int(passed/total*100)}% pass rate)")
     
-    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
-    pass_rate = (passed_count / total_count * 100) if total_count > 0 else 0
-    print(f"{Colors.BLUE}TOTAL: {passed_count}/{total_count} tests passed ({pass_rate:.1f}%){Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}\n")
+    if passed == total:
+        print("\n🎉 ALL TESTS PASSED - Bug fix verified successfully!")
+    else:
+        print(f"\n⚠️  {total - passed} test(s) failed - Bug fix incomplete or regression detected")
     
-    # Exit with appropriate code
-    sys.exit(0 if passed_count == total_count else 1)
+    print("="*70)
 
 if __name__ == "__main__":
     main()

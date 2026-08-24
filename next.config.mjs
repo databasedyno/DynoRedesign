@@ -96,6 +96,18 @@ const nextConfig = {
     ],
   },
 
+  // Uploaded avatars/logos are served by the BACKEND at /images/*. The Emergent
+  // preview's K8s ingress only routes /api/* to the backend, so without this the
+  // browser's /images/* requests hit Next and 404. Proxy them to the backend.
+  // Dormant in production (nginx serves /images before Next ever sees it).
+  async rewrites() {
+    const backend = process.env.INTERNAL_API_URL || "http://localhost:8001";
+    return [
+      { source: "/images/:path*", destination: `${backend}/images/:path*` },
+    ];
+  },
+
+
   // ─── Opt-in to the User Preference Media-Features Client Hint so the
   //     browser sends `Sec-CH-Prefers-Color-Scheme` on every request. This
   //     lets SSR pick the correct MUI theme on the FIRST paint (no flash

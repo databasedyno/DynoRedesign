@@ -90,12 +90,47 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     }
   }, [phoneOtpCountdown]);
 
-  // Photo upload
+  // Photo upload — auto-saves immediately (no manual Save button needed)
   const MAX_FILE_SIZE_MB = 10;
   const [photoError, setPhotoError] = useState("");
+  const [savingPhoto, setSavingPhoto] = useState(false);
+
+  // Auto-save the profile photo: `file` = new upload, `remove` = clear existing.
+  const autoSavePhoto = async (opts: { file?: File; remove?: boolean; previewUrl?: string }) => {
+    const formData = new FormData();
+    if (opts.file) formData.append("image", opts.file);
+    formData.append("data", JSON.stringify(opts.remove ? { remove_photo: true } : {}));
+    setSavingPhoto(true);
+    try {
+      const res = await axiosBaseApi.put("user/updateUser", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const respData = res?.data?.data;
+      // Keep global auth/user state in sync (refreshes the stored token).
+      if (respData?.accessToken) {
+        dispatch({ type: USER_UPDATE, payload: respData });
+      }
+      setInitialPhoto(opts.remove ? "" : (opts.previewUrl ?? ""));
+      setMedia(undefined);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: { message: res?.data?.message || t("photoUpdated", { ns: "profile", defaultValue: "Photo updated" }) },
+      });
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || t("photoUpdateFailed", { ns: "profile", defaultValue: "Failed to update photo" });
+      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      // Revert the preview to the last saved photo.
+      setUserPhoto(initialPhoto);
+      setMedia(undefined);
+      setImageError(false);
+    } finally {
+      setSavingPhoto(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
         setPhotoError(t("imageSizeError", { ns: "profile", max: MAX_FILE_SIZE_MB }));
@@ -103,31 +138,22 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
         return;
       }
       setPhotoError("");
-      setUserPhoto(URL.createObjectURL(file));
+      const previewUrl = URL.createObjectURL(file);
+      setUserPhoto(previewUrl);
       setMedia(file);
       setImageError(false);
+      autoSavePhoto({ file, previewUrl }); // auto-save immediately
     }
   };
 
   const handleRemovePhoto = () => {
+    const hadPhoto = Boolean(initialPhoto);
     setUserPhoto("");
     setMedia(null);
     setImageError(false);
     if (fileRef.current) fileRef.current.value = "";
+    if (hadPhoto) autoSavePhoto({ remove: true }); // persist removal immediately
   };
-
-  const handlePhotoSave = () => {
-    const formData = new FormData();
-    if (media) {
-      formData.append("image", media);
-    }
-    formData.append("data", JSON.stringify({}));
-    dispatch(UserAction(USER_UPDATE, formData));
-    setInitialPhoto(userPhoto);
-    setMedia(undefined);
-  };
-
-  const hasPhotoChanges = (media !== undefined && media !== null) || userPhoto !== initialPhoto;
 
   // --- Email Change Flow ---
   const handleSendEmailOtp = async () => {
@@ -307,14 +333,15 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
           )}
         </Box>
 
-        {/* Photo Actions */}
+        {/* Photo Actions — auto-saves on select / remove (no Save button) */}
         <Box mt={isMobile ? "10px" : "4px"}>
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: { xs: "12px", md: "21px" } }}>
             <CustomButton
               data-testid="upload-photo-btn"
-              label={t("uploadNewPhoto", { ns: "profile" })}
+              label={savingPhoto ? t("saving", { ns: "profile", defaultValue: "Saving…" }) : t("uploadNewPhoto", { ns: "profile" })}
               variant="outlined"
               size={isMobile ? "small" : "medium"}
+              disabled={savingPhoto}
               startIcon={<Image src={CameraIcon.src} alt="camera-icon" width={14} height={12} draggable={false} />}
               iconSize={18}
               onClick={() => fileRef.current?.click()}
@@ -325,23 +352,20 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
               label={t("remove", { ns: "profile" })}
               variant="outlined"
               size={isMobile ? "small" : "medium"}
+              disabled={savingPhoto || (!userPhoto && !initialPhoto)}
               startIcon={<Image src={TrashIcon.src} alt="trash-icon" width={12} height={12} draggable={false} />}
               iconSize={18}
               onClick={handleRemovePhoto}
               sx={{ color: theme.palette.text.secondary, padding: { xs: "0px 16px", sm: "0px 49px" }, fontSize: { xs: "13px", sm: "15px" } }}
             />
           </Box>
-          {hasPhotoChanges && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-              <CustomButton
-                label={t("savePhoto", { ns: "profile" })}
-                data-testid="save-photo-btn"
-                variant="primary"
-                size="small"
-                onClick={handlePhotoSave}
-              />
-            </Box>
-          )}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 1, minHeight: 18 }}>
+            <Typography data-testid="photo-autosave-hint" sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
+              {savingPhoto
+                ? t("saving", { ns: "profile", defaultValue: "Saving…" })
+                : t("autoSaveHint", { ns: "profile", defaultValue: "Changes save automatically" })}
+            </Typography>
+          </Box>
         </Box>
 
         <input type="file" accept="image/*" hidden ref={fileRef} onChange={handleFileChange} />

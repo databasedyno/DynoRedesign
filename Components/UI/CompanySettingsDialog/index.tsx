@@ -89,6 +89,7 @@ export default function CompanySettingsDialog({
   const [formKey, setFormKey] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | undefined>();
   const [mediaFile, setMediaFile] = useState<File | undefined>();
+  const [savingLogo, setSavingLogo] = useState(false);
   const [expanded, setExpanded] = useState<string | false>("company");
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -297,10 +298,28 @@ export default function CompanySettingsDialog({
     handleClose();
   };
 
-  const handleFileChange = (file?: File) => {
+  const handleFileChange = async (file?: File) => {
     if (!file) return;
-    setImagePreview(URL.createObjectURL(file));
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
     setMediaFile(file);
+    // Auto-save the brand logo immediately — no need to press Save.
+    if (!company?.company_id) return;
+    const formData = new FormData();
+    formData.append("data", JSON.stringify({})); // logo-only partial update
+    formData.append("image", file);
+    setSavingLogo(true);
+    try {
+      await companyState.updateCompany({ id: company.company_id, formData });
+      // Persisted — clear the pending file so the main Save won't re-upload it.
+      setMediaFile(undefined);
+    } catch {
+      // error toast is handled inside the store; revert preview to saved logo
+      setImagePreview(company?.photo);
+      setMediaFile(undefined);
+    } finally {
+      setSavingLogo(false);
+    }
   };
 
   const handleSubmit = (values: Values) => {
@@ -389,6 +408,7 @@ export default function CompanySettingsDialog({
                     handleFieldsChange={handleFieldsChange}
                     imagePreview={imagePreview}
                     onFileChange={handleFileChange}
+                    uploadingLogo={savingLogo}
                     isMobile={isMobile}
                     expanded={expanded === "company"}
                     onAccordionChange={handleAccordionChange("company")}

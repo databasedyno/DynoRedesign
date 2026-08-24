@@ -166,6 +166,7 @@ export type CompanyDetailsSectionProps = {
   handleFieldsChange: (fields: Record<string, unknown>) => void;
   imagePreview?: string;
   onFileChange: (file?: File) => void;
+  uploadingLogo?: boolean;
   isMobile?: boolean;
   expanded: boolean;
   onAccordionChange: (event: React.SyntheticEvent, isExpanded: boolean) => void;
@@ -183,6 +184,7 @@ export default function CompanyDetailsSection({
   handleFieldsChange,
   imagePreview,
   onFileChange,
+  uploadingLogo,
   isMobile = false,
   expanded,
   onAccordionChange,
@@ -1178,6 +1180,14 @@ export default function CompanyDetailsSection({
                 </Box>
               )}
             </Box>
+            <Typography
+              data-testid="logo-autosave-hint"
+              sx={{ mt: 0.75, fontSize: isMobile ? 9 : 12, color: theme.palette.text.secondary, fontWeight: 400 }}
+            >
+              {uploadingLogo
+                ? t("fields.brandLogo.saving", { defaultValue: "Saving…" })
+                : t("fields.brandLogo.autoSaveHint", { defaultValue: "Saved automatically when you choose a file" })}
+            </Typography>
           </Grid>
         </Grid>
       </Box>

@@ -73,19 +73,30 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
       updatedFields.push(`Email: ${oldEmail} → ${data.email}`);
     }
     
-    let photo;
+    // Photo handling: uploaded file -> new URL; explicit remove flag -> clear;
+    // otherwise leave the stored photo untouched (undefined = not written).
+    let photo: string | undefined;
     if (file) {
       const serverUrl = envRaw("SERVER_URL")?.endsWith('/') ? envRaw("SERVER_URL") : envRaw("SERVER_URL") + '/';
       photo = serverUrl + "images/" + file.filename;
       updatedFields.push('Profile Photo: Updated');
+    } else if (data && (data.remove_photo === true || data.remove_photo === "true")) {
+      photo = ""; // clear the stored photo
+      updatedFields.push('Profile Photo: Removed');
     }
+    // Never persist the control flag as a column.
+    if (data && "remove_photo" in data) delete data.remove_photo;
+
     await userModel.update(
       {
         ...data,
-        photo,
+        ...(photo !== undefined ? { photo } : {}),
       },
       { where: { user_id: userData.user_id } }
     );
+
+    // Invalidate cached profile so the fresh photo/name/email is served next read.
+    await deleteRedisItem(`profile:${userData.user_id}`);
     
     // Send profile update notification email
     if (updatedFields.length > 0) {
