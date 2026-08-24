@@ -1373,65 +1373,22 @@ const startServer = async () => {
     
     // Sync Merchant Pool models (per-merchant system for ALL chains including USDT)
     // OPTIMIZED: Use alter:true only in development — production should use migrations
-    const syncOptions = isProduction ? {} : { alter: true };
-    
-    // OPTIMIZED: Single consolidated import instead of 3 separate await import("./models") calls
-    const {
-      merchantWalletModel,
-      merchantTempAddressModel,
-      merchantPoolTransactionModel,
-      merchantPoolSweepModel,
-      referralModel,
-      referralRewardModel,
-      kbCategoryModel,
-      kbArticleModel,
-      supportChatMessageModel,
-      refereeCodeModel,
-      userModel,
-    } = await import("./models");
-    
-    await merchantWalletModel.sync(syncOptions);
-    await merchantTempAddressModel.sync(syncOptions);
-    await merchantPoolTransactionModel.sync(syncOptions);
-    await merchantPoolSweepModel.sync(syncOptions);
-    log(`Merchant Pool tables synced successfully${isProduction ? ' (no-alter)' : ' (alter)' }.`, 'info');
-    
-    // Sync Referral models
-    await referralModel.sync(syncOptions);
-    await referralRewardModel.sync(syncOptions);
-    log('Referral tables synced successfully.', 'info');
-    
-    // Sync Referee Code model
-    await refereeCodeModel.sync(syncOptions);
-    log('Referee Code table synced successfully.', 'info');
-    
-    // Sync Knowledge Base models
-    await kbCategoryModel.sync(syncOptions);
-    await kbArticleModel.sync(syncOptions);
-    log('Knowledge Base tables synced successfully.', 'info');
+    if (isProduction) {
+      const { runMigrations } = await import("./utils/migrationRunner");
+      const { buildBootMigrations } = await import("./migrations/bootMigrations");
+      const migResult = await runMigrations(sequelize, await buildBootMigrations());
+      log(`Boot model tables ensured via versioned migrations (${migResult.applied} applied, ${migResult.skipped} present).`, 'info');
+    } else {
+      // Development keeps the fast-iteration alter:true auto-sync (unchanged behavior).
+      const { getBootModels } = await import("./migrations/bootMigrations");
+      for (const m of await getBootModels()) {
+        if (m && typeof (m as any).sync === "function") await (m as any).sync({ alter: true });
+      }
+      log('Boot model tables synced (dev alter).', 'info');
+    }
 
-    // Sync AI Support Chat model
-    await supportChatMessageModel.sync(syncOptions);
-    log('Support Chat table synced successfully.', 'info');
-    
-    // Sync user model to add referral columns
-    await userModel.sync(syncOptions);
-    log('User model synced with referral columns.', 'info');
-
-    // Sync onboarding analytics table
-    const { onboardingEventModel } = await import("./models");
-    await onboardingEventModel.sync(syncOptions);
-    log('Onboarding analytics table synced successfully.', 'info');
-
-    // Sync self-transaction table (dashboard / analytics endpoints query it)
-    const { selfTransactionModel } = await import("./models/userModels");
-    await selfTransactionModel.sync(syncOptions);
-    log('Self-transaction table synced successfully.', 'info');
-
-    // Sync login activity table
-    const { loginActivityModel } = await import("./models");
-    await loginActivityModel.sync(syncOptions);
-    log('Login activity table synced successfully.', 'info');
+    // userModel is needed by the one-time referral-code data migration below.
+    const { userModel } = await import("./models");
     
     // One-time migration: shorten old long referral codes (DYNO2026XXXYYY → DYNO-XXXXXX)
     try {
@@ -1465,14 +1422,9 @@ const startServer = async () => {
       log(`Referral code migration skipped: ${migErr.message}`, 'info');
     }
     
-    // Sync stablecoin conversion model
-    await stablecoinConversionModel.sync(syncOptions);
-    log('Stablecoin conversion table synced.', 'info');
+    // Stablecoin conversion table is provisioned by the boot migration above.
     
-    // Sync push subscription model (Web Push)
-    const { default: pushSubscriptionModel } = await import("./models/pushSubscriptionModel");
-    await pushSubscriptionModel.sync(syncOptions);
-    log('Push subscription table synced.', 'info');
+    // Push subscription table is provisioned by the boot migration above.
     
     // Sync Payment Journal model (reliability layer)
     try {
@@ -1493,9 +1445,7 @@ const startServer = async () => {
       log(`Ledger bootstrap failed (non-critical): ${ledgerErr.message}`, 'warn');
     }
     
-    // Sync company model (for auto-convert fields)
-    await companyModel.sync(syncOptions);
-    log('Company model synced with auto-convert fields.', 'info');
+    // Company table is provisioned by the boot migration above.
     
     // Validate Merchant Pool Configuration (CRITICAL STARTUP CHECK)
     // Can be disabled with SKIP_MERCHANT_POOL_VALIDATION=true for testing/development

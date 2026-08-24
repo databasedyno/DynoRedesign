@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, Skeleton, useTheme, Tooltip } from "@mui/m
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import useSWR from "swr";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import {
   CardGiftcardRounded,
   ContentCopyRounded,
@@ -14,7 +14,6 @@ import {
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
 import { MONO } from "@/styles/uiKit";
-import axiosBaseApi from "@/axiosConfig";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
@@ -39,9 +38,6 @@ type ReferralCode = {
   };
 };
 
-const fetcher = (url: string): Promise<ReferralCode> =>
-  axiosBaseApi.get(url).then((r) => r.data?.data);
-
 const ACCENT = "#EC4899"; // referral pink — matches GrowPanel's referral offer
 
 const ReferralCodeCard: React.FC = () => {
@@ -51,10 +47,9 @@ const ReferralCodeCard: React.FC = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation(["referrals", "dashboardLayout"]);
 
-  const { data, isLoading } = useSWR<ReferralCode>(
+  const { data, isLoading } = useApiSWR<ReferralCode>(
     API_ENDPOINTS.referral.myCode,
-    fetcher,
-    { revalidateOnFocus: false }
+    { unwrap: true, revalidateOnFocus: false }
   );
 
   const code = data?.referral_code || "";

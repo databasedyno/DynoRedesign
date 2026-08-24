@@ -11,16 +11,17 @@ import {
   TOKEN_CHAINS as MODEL_TOKEN_CHAINS,
 } from "../../models";
 import { getErrorMessage } from "../../helper";
+import config from "../../utils/config";
 
 // Configuration
 export const POOL_CONFIG = {
-  INITIAL_SIZE: parseInt(process.env.MERCHANT_POOL_INITIAL_SIZE || "2"),
+  INITIAL_SIZE: config.num("MERCHANT_POOL_INITIAL_SIZE", 2),
   
   // Pre-warming: minimum AVAILABLE addresses to maintain per merchant per chain
-  MIN_AVAILABLE: parseInt(process.env.MERCHANT_POOL_MIN_AVAILABLE || "2"),
+  MIN_AVAILABLE: config.num("MERCHANT_POOL_MIN_AVAILABLE", 2),
   
   // Timeout settings
-  RESERVATION_TIMEOUT_MINUTES: parseInt(process.env.RESERVATION_TIMEOUT_MINUTES || "120"),
+  RESERVATION_TIMEOUT_MINUTES: config.num("RESERVATION_TIMEOUT_MINUTES", 120),
   PROCESSING_TIMEOUT_MINUTES: 60,
   STALE_LOCK_TIMEOUT_MINUTES: 120,
   
@@ -55,9 +56,9 @@ export const POOL_CONFIG = {
   //
   // Thresholds are set at ~2× typical gas cost per chain family (matching
   // the 50% profitability rule in checkSweepProfitability).
-  MIN_SWEEP_USD_TOKEN_HIGH_FEE: parseFloat(process.env.MIN_SWEEP_USD_TOKEN_HIGH_FEE || "10"),   // TRC20, ERC20 tokens (energy/gas expensive)
-  MIN_SWEEP_USD_NATIVE: parseFloat(process.env.MIN_SWEEP_USD_NATIVE || "5"),                     // ETH, TRX, SOL, BNB, MATIC (native transfers)
-  MIN_SWEEP_USD_LOW_FEE: parseFloat(process.env.MIN_SWEEP_USD_LOW_FEE || "2"),                   // XRP, XLM (very cheap tx fees)
+  MIN_SWEEP_USD_TOKEN_HIGH_FEE: config.num("MIN_SWEEP_USD_TOKEN_HIGH_FEE", 10),   // TRC20, ERC20 tokens (energy/gas expensive)
+  MIN_SWEEP_USD_NATIVE: config.num("MIN_SWEEP_USD_NATIVE", 5),                     // ETH, TRX, SOL, BNB, MATIC (native transfers)
+  MIN_SWEEP_USD_LOW_FEE: config.num("MIN_SWEEP_USD_LOW_FEE", 2),                   // XRP, XLM (very cheap tx fees)
 };
 
 // UTXO chains that support batch transfers
@@ -70,43 +71,43 @@ export const NATIVE_CURRENCIES = ["TRX", "ETH", "SOL", "XRP", "POLYGON"];
 export const TOKEN_CHAINS = MODEL_TOKEN_CHAINS || ["USDT-TRC20", "USDT-ERC20", "USDC-ERC20", "RLUSD", "USDT-POLYGON", "RLUSD-ERC20"];
 
 export const FEE_WALLETS = {
-  TRX: process.env.TRX_FEE_WALLET || "",
-  ETH: process.env.ETH_FEE_WALLET || "",
-  XRP: process.env.XRP_FEE_WALLET || "",
-  POLYGON: process.env.POLYGON_FEE_WALLET || "",
+  TRX: config.str("TRX_FEE_WALLET"),
+  ETH: config.str("ETH_FEE_WALLET"),
+  XRP: config.str("XRP_FEE_WALLET"),
+  POLYGON: config.str("POLYGON_FEE_WALLET"),
 };
 
 // Admin wallets for sweeping
 export const ADMIN_WALLETS: Record<string, string> = {
-  "BTC": process.env.BTC || "",
-  "ETH": process.env.ETH || "",
-  "LTC": process.env.LTC || "",
-  "DOGE": process.env.DOGE || "",
-  "TRX": process.env.TRX || "",
-  "BCH": process.env.BCH || "",
-  "USDT-TRC20": process.env.USDT_TRC20_ADMIN_WALLET || process.env.USDT_TRC20 || "",
-  "USDT-ERC20": process.env.USDT_ERC20_ADMIN_WALLET || process.env.USDT_ERC20 || "",
-  "USDC-ERC20": process.env.USDC_ERC20 || "",
-  "SOL": process.env.SOL || "",
-  "XRP": process.env.XRP || "",
-  "RLUSD": process.env.RLUSD_ADMIN_WALLET || process.env.XRP || "",
-  "POLYGON": process.env.POLYGON || "",
-  "USDT-POLYGON": process.env.USDT_POLYGON || process.env.POLYGON || "",
-  "RLUSD-ERC20": process.env.RLUSD_ERC20 || process.env.ETH || "",
+  "BTC": config.str("BTC"),
+  "ETH": config.str("ETH"),
+  "LTC": config.str("LTC"),
+  "DOGE": config.str("DOGE"),
+  "TRX": config.str("TRX"),
+  "BCH": config.str("BCH"),
+  "USDT-TRC20": config.str("USDT_TRC20_ADMIN_WALLET") || config.str("USDT_TRC20"),
+  "USDT-ERC20": config.str("USDT_ERC20_ADMIN_WALLET") || config.str("USDT_ERC20"),
+  "USDC-ERC20": config.str("USDC_ERC20"),
+  "SOL": config.str("SOL"),
+  "XRP": config.str("XRP"),
+  "RLUSD": config.str("RLUSD_ADMIN_WALLET") || config.str("XRP"),
+  "POLYGON": config.str("POLYGON"),
+  "USDT-POLYGON": config.str("USDT_POLYGON") || config.str("POLYGON"),
+  "RLUSD-ERC20": config.str("RLUSD_ERC20") || config.str("ETH"),
 };
 
 export const TOKEN_CONTRACTS: Record<string, string> = {
-  "USDT-TRC20": process.env.TRX_CONTRACT || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-  "USDT-ERC20": process.env.ETH_CONTRACT || "0xdac17f958d2ee523a2206206994597c13d831ec7",
-  "USDC-ERC20": process.env.USDC_CONTRACT || "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-  "USDT-POLYGON": process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-  "RLUSD-ERC20": process.env.RLUSD_ERC20_CONTRACT || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+  "USDT-TRC20": config.str("TRX_CONTRACT") || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+  "USDT-ERC20": config.str("ETH_CONTRACT") || "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  "USDC-ERC20": config.str("USDC_CONTRACT") || "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+  "USDT-POLYGON": config.str("USDT_POLYGON_CONTRACT") || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+  "RLUSD-ERC20": config.str("RLUSD_ERC20_CONTRACT") || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
 };
 
 // RLUSD on XRP Ledger configuration
 export const RLUSD_CONFIG = {
-  issuer: process.env.RLUSD_ISSUER || "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
-  currencyHex: process.env.RLUSD_CURRENCY_HEX || "524C555344000000000000000000000000000000",
+  issuer: config.str("RLUSD_ISSUER") || "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+  currencyHex: config.str("RLUSD_CURRENCY_HEX") || "524C555344000000000000000000000000000000",
 };
 
 /**
@@ -127,7 +128,7 @@ export const TAG_BASED_CHAINS = ["XRP", "RLUSD"];
  * It has been funded with XRP and has RLUSD trust line established.
  * SEPARATE from the XRP gas/fee wallet (XRP_FEE_WALLET) which handles gas funding.
  */
-export const XRP_MASTER_ADDRESS = process.env.XRP_MASTER_WALLET || "";
+export const XRP_MASTER_ADDRESS = config.str("XRP_MASTER_WALLET");
 
 /**
  * Check if a wallet type uses destination-tag-based addressing
@@ -159,7 +160,7 @@ export interface SweepConfig {
 const parseSweepConfig = (walletType: string): SweepConfig => {
   // Check for explicit env override first (allows overriding UTXO default)
   const envKey = `${walletType.replace(/-/g, "_")}_SWEEP`;
-  const configValue = process.env[envKey];
+  const configValue = config.str(envKey);
 
   if (configValue) {
     const [mode, valueStr] = configValue.split(":");

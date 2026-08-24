@@ -1,4 +1,48 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-24 (v2 pod) : Refactor Items #1 & #4 (backend)
+# ============================================================================
+
+## Preview URL
+https://41df08a6-652d-4266-94d9-f3812166d81a.preview.emergentagent.com
+(Backend internal health: http://localhost:8001/health — not on external ingress)
+
+## ENVIRONMENT — IMPORTANT (differs from earlier prod sessions)
+- DB + Redis are **LOCAL & ISOLATED** on this pod (Postgres 15 @127.0.0.1:5432 db=railway [59 tables],
+  Redis @127.0.0.1:6379). NO live/prod data. So authenticated + MUTATING tests are SAFE here
+  (create/login/etc. is fine — it only touches the throwaway local DB). Do NOT need read-only.
+- SAFE MODE still on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary), NODE_ENV=production.
+- Login (seeded, LOCAL): testmerchant@dynopay.dev / TestMerchant123! (user_id=1, email_verified).
+  Login endpoint: POST /api/user/login {email,password}. Note: fresh user has NO company yet.
+
+## What changed this session (BACKEND ONLY)
+- ITEM 1 (boot syncs -> versioned migrations): NEW backend/utils/migrationRunner.ts +
+  backend/migrations/bootMigrations.ts. server.ts (~L1376) replaced 17 ad-hoc model.sync() boot
+  calls: production now runs a versioned migration once (recorded in a `schema_migrations` table);
+  development keeps alter:true auto-sync. Idempotent.
+- ITEM 4 (typed config wave 2): migrated ALL raw process.env reads in
+  services/merchantPool/merchantPoolConfig.ts (33) and services/merchantPoolValidator.ts (21)
+  to the typed `config` (config.str/config.num). Semantics preserved. tsc build exits 0.
+
+## What to verify (BACKEND) — deep_testing_backend_v2
+1. GET http://localhost:8001/health -> status healthy, database connected, redis connected,
+   background_jobs.eligible=false (SAFE MODE). Proves boot with the refactor is fine.
+2. ITEM 1: server booted with NO error; `schema_migrations` should contain 0001_boot_model_tables
+   (backend log lines "[migrations] done — N applied, M already present"). A restart must be idempotent
+   (0 applied, 1 already present). No crash, no repeated 17-way sync.
+3. ITEM 4: merchant pool config loads (boot log "[MerchantPool] ✅ Configuration validation passed"),
+   proving config-driven wallet/threshold/sweep reads still resolve. No TypeError at boot.
+4. Regression: a few PUBLIC GET /api endpoints respond WITHOUT 5xx (e.g. /api/status/health,
+   /api/csrf-token, /api/products/categories). Protected -> 401/403 is fine.
+5. AUTH (safe on local DB): POST /api/user/login with the seeded creds returns "Login Successful!"
+   with a token. (Authenticated GETs like /api/dashboard may 400/404 if no company — acceptable.)
+Report PASS/FAIL per check. Mutations are permitted (local isolated DB) but keep it minimal.
+
+## agent_communication
+  - agent: "main"
+    message: "Backend refactor Items #1 (versioned boot migrations) & #4 (typed-config wave 2 for merchantPoolConfig + merchantPoolValidator) done. tsc build exits 0, backend boots healthy, migration idempotent, merchant-pool validation passes. DB/Redis are LOCAL & ISOLATED this pod (NOT prod) so authenticated/mutating tests are SAFE. Please verify no regression per the checks above."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-24 : FIX DigitalOcean DEPLOYMENT BLOCKER (build)
 # ============================================================================
 
@@ -37682,4 +37726,91 @@ Verify that the settlement-path subtitle element (data-testid="hero-settle-path"
 ## Agent Communication
   - agent: "testing"
     message: "✅ VERIFICATION COMPLETE (2026-08-22 08:44 UTC) — Hero settlement coin rotation bug fix is FULLY VERIFIED and WORKING CORRECTLY. **CRITICAL FINDING**: The settlement coin is NOT hardcoded to USDC - it successfully rotates between USDC and USDT. Over 20 seconds of observation (7 data points at 3-second intervals), both 'USDC' and 'USDT' appeared in the settlement path subtitle (format: 'USD → COIN'). Observed sequence: USDT, USDT, USDT, USDC, USDT, USDT, USDC. The hero reel is also rotating correctly (different handles and amounts visible in screenshots). No console errors detected. The landing page loads without crash. The reported bug (settlement coin hardcoded to USDC) is RESOLVED. The fix is production-ready."
+
+
+# ============================================================================
+# TESTING AGENT REPORT — 2026-08-24 (Backend Refactor Items #1 & #4)
+# ============================================================================
+
+## Test Execution Summary
+**Date**: 2026-08-24T10:00:00Z
+**Agent**: deep_testing_backend_v2
+**Environment**: LOCAL & ISOLATED DB + Redis (NOT production), SAFE MODE on
+**Test Suite**: backend_test.py
+**Result**: ✅ ALL 5 TESTS PASSED (100% pass rate)
+
+## Test Results
+
+### TEST 1: Health Endpoint ✅ PASS
+- **Endpoint**: GET http://localhost:8001/health
+- **Status**: HTTP 200
+- **Verification**:
+  - ✅ status = 'healthy'
+  - ✅ database = 'connected'
+  - ✅ redis = 'connected'
+  - ✅ background_jobs.eligible = false (SAFE MODE confirmed)
+- **Additional Info**: 
+  - tatum_api.operational = true, circuit_state = 'CLOSED'
+  - binance_websocket.geo_blocked = true (expected, noted in logs)
+
+### TEST 2: ITEM 1 - Versioned Boot Migrations ✅ PASS
+- **Verification**: Backend booted without errors
+- **Migration Log Patterns Found**:
+  - ✅ "[migrations] done — 0 applied, 1 already present"
+  - ✅ "Boot model tables ensured via versioned migrations"
+  - ✅ No boot errors (TypeError, ReferenceError, etc.)
+- **Database Verification**:
+  - ✅ schema_migrations table exists
+  - ✅ Contains version: 0001_boot_model_tables
+  - ✅ Applied at: 2026-08-24 09:48:55.833292+00
+- **Idempotency**: Confirmed - subsequent restarts show "0 applied, 1 already present"
+
+### TEST 3: ITEM 4 - Typed Config (MerchantPool) ✅ PASS
+- **Verification**: Boot log shows merchant pool configuration validation
+- **Log Pattern Found**:
+  - ✅ "[MerchantPool] ✅ Configuration validation passed"
+  - ✅ No TypeError related to merchantPool
+- **Conclusion**: Typed config migration (config.str/config.num) working correctly
+
+### TEST 4: Public Endpoints Regression ✅ PASS
+- **Endpoints Tested**:
+  1. GET /api/status/health → HTTP 200 ✅
+  2. GET /api/csrf-token → HTTP 200 ✅
+  3. GET /api/products/categories → HTTP 401 ✅ (protected endpoint, expected)
+- **Result**: NO 5xx errors detected, all endpoints responding correctly
+
+### TEST 5: Authentication (Seeded Credentials) ✅ PASS
+- **Endpoint**: POST http://localhost:8001/api/user/login
+- **Credentials**: testmerchant@dynopay.dev / TestMerchant123!
+- **Status**: HTTP 200
+- **Response**:
+  - ✅ message = "Login Successful!"
+  - ✅ data.accessToken present (JWT token)
+  - ✅ data.refreshToken present
+  - ✅ data.session_id = 7
+  - ✅ data.token_type = "Bearer"
+- **Backend Logs Confirm**:
+  - "[Login] Login completed for testmerchant@dynopay.dev"
+  - "[Session] Created session 7 for user 1"
+
+## Backend Status
+- **Server**: Listening on port 3300 (internal), proxy on 8001
+- **Database**: PostgreSQL connected (59 tables)
+- **Redis**: Connected
+- **Safe Mode**: Active (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary)
+- **Storage**: DigitalOcean Spaces (bucket=dynopay-uploads-6708cc37)
+- **Tatum API**: Operational (circuit_state=CLOSED, failures=0)
+- **Binance WebSocket**: Geo-blocked (using CoinGecko fallback)
+
+## Regression Analysis
+**NO REGRESSION DETECTED**
+
+The two backend refactors have been successfully verified:
+1. **ITEM 1 (versioned boot migrations)**: The migration system is working correctly, idempotent, and the schema_migrations table is properly tracking applied migrations.
+2. **ITEM 4 (typed config wave 2)**: The merchant pool configuration validation passes, proving that the migrated config.str/config.num reads resolve correctly without TypeErrors.
+
+All public endpoints respond without 5xx errors, and authentication works as expected.
+
+## Conclusion
+✅ **PRODUCTION-READY**: Both refactors (Items #1 and #4) are working correctly with NO regression. The backend is healthy, all verification checks pass, and the system is ready for deployment.
 

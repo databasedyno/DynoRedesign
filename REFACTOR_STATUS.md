@@ -1,5 +1,33 @@
 # DynoPay — Refactor & Deployment Status (2026-08-24)
 
+---
+## UPDATE 2026-08-24 (v2 pod) — Items #1, #4, #5 progressed
+
+Environment this session: LOCAL isolated Postgres 15 + Redis (no live data) in SAFE MODE
+(`ENABLE_BACKGROUND_JOBS=false`, NODE_ENV=production). Seeded login: testmerchant@dynopay.dev.
+
+- **Item #1 — DONE & verified.** Added a versioned migration runner
+  (`backend/utils/migrationRunner.ts` + `backend/migrations/bootMigrations.ts`, a
+  `schema_migrations` table). `server.ts` (~L1376) now: production applies the boot table
+  creation ONCE (recorded/auditable, no 17-way DDL introspection each restart); development
+  keeps `alter:true` auto-sync. Verified: tsc build exit 0; boot healthy; first boot `1 applied`,
+  restart `0 applied, 1 already present` (idempotent). Backend testing agent: 5/5 PASS.
+- **Item #4 — Wave 2 done.** Migrated ALL raw `process.env` reads in
+  `services/merchantPool/merchantPoolConfig.ts` (33) and `services/merchantPoolValidator.ts` (21)
+  → typed `config` (config.str/config.num), semantics preserved. tsc exit 0; merchant-pool
+  validation passes at boot. Remaining (~625 reads) still to migrate in later waves
+  (server.ts 23, diagnosticsRouter 18, feeWalletMonitor 13, paymentController 12, …;
+  `apis/tatumApi.ts` intentionally left).
+- **Item #5 — Wave 1 done (3 screens).** Converted bespoke per-file SWR fetchers to the shared
+  `useApiSWR`: `Components/Page/Profile/LoginActivity.tsx`,
+  `Components/Page/Dashboard/ReferralCodeCard.tsx`, `pages/referrals.tsx` (5 SWR calls).
+  Frontend `tsc --noEmit` = 0 errors; ESLint clean; routes compile. **Pending frontend-agent
+  verification.** Remaining ~27 files across waves (some — e.g. ActiveSessions, ConversionBanner,
+  CreatorPageSettings — need care: array-shaped mutate / stateful forms).
+
+---
+
+
 Handoff document covering the work done this session: the **DigitalOcean deployment fix**
 and progress on the **5 leftover refactor recommendations** from the prior agent.
 

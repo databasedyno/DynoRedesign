@@ -12,9 +12,8 @@ import { Icon, MONO } from "@/styles/uiKit";
 import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import useSWR from "swr";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import useIsMobile from "@/hooks/useIsMobile";
-import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
 import { pageProps } from "@/utils/types";
@@ -80,31 +79,28 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
 
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
 
-  const referralFetcher = (url: string) =>
-    axiosBaseApi.get(url).then((r) => r.data?.data);
-
   // Each referral endpoint gets its own SWR key → cached + deduped across
   // remounts (and shared with anything else that reads the same endpoint).
-  const { data: codeRaw, isLoading: codeLoading } = useSWR<ReferralStats>(
+  const { data: codeRaw, isLoading: codeLoading } = useApiSWR<ReferralStats>(
     API_ENDPOINTS.referral.myCode,
-    referralFetcher
+    { unwrap: true }
   );
   const codeData = codeRaw ?? null;
-  const { data: listData } = useSWR(API_ENDPOINTS.referral.list, referralFetcher);
+  const { data: listData } = useApiSWR<{ referrals?: Referral[] }>(API_ENDPOINTS.referral.list, { unwrap: true });
   const referrals: Referral[] = listData?.referrals || [];
-  const { data: earningsRaw } = useSWR<Earnings>(
+  const { data: earningsRaw } = useApiSWR<Earnings>(
     API_ENDPOINTS.referral.earnings,
-    referralFetcher
+    { unwrap: true }
   );
   const earnings = earningsRaw ?? null;
-  const { data: discountRaw } = useSWR<DiscountStatus>(
+  const { data: discountRaw } = useApiSWR<DiscountStatus>(
     API_ENDPOINTS.referral.discountStatus,
-    referralFetcher
+    { unwrap: true }
   );
   const discount = discountRaw ?? null;
-  const { data: leaderboardData } = useSWR(
+  const { data: leaderboardData } = useApiSWR<{ leaderboard?: LeaderboardEntry[] }>(
     API_ENDPOINTS.referral.leaderboard,
-    referralFetcher
+    { unwrap: true }
   );
   const leaderboard: LeaderboardEntry[] = leaderboardData?.leaderboard || [];
   const loading = codeLoading && codeRaw === undefined;

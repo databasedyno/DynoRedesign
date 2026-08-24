@@ -5,6 +5,7 @@
  */
 
 import { cronLogger } from "../utils/loggers";
+import { str as cfgStr } from "../utils/config";
 
 export async function validateMerchantPoolConfiguration(): Promise<void> {
   cronLogger.info("[MerchantPool] 🔍 Validating configuration...");
@@ -18,28 +19,28 @@ export async function validateMerchantPoolConfiguration(): Promise<void> {
   const TOKEN_CHAINS = ["USDT-TRC20", "USDT-ERC20", "USDC-ERC20", "RLUSD", "RLUSD-ERC20", "USDT-POLYGON"];
   
   const ADMIN_WALLETS: Record<string, string> = {
-    BTC: process.env.BTC || "",
-    ETH: process.env.ETH || "",
-    LTC: process.env.LTC || "",
-    DOGE: process.env.DOGE || "",
-    TRX: process.env.TRX || "",
-    BCH: process.env.BCH || "",
-    SOL: process.env.SOL || "",
-    XRP: process.env.XRP || "",
-    POLYGON: process.env.POLYGON || "",
-    "USDT-TRC20": process.env.USDT_TRC20 || "",
-    "USDT-ERC20": process.env.USDT_ERC20 || "",
-    "USDC-ERC20": process.env.USDC_ERC20 || "",
-    "RLUSD": process.env.RLUSD_ADMIN_WALLET || process.env.XRP || "",
-    "RLUSD-ERC20": process.env.RLUSD_ERC20 || process.env.ETH || "",
-    "USDT-POLYGON": process.env.USDT_POLYGON || process.env.POLYGON || "",
+    BTC: cfgStr("BTC"),
+    ETH: cfgStr("ETH"),
+    LTC: cfgStr("LTC"),
+    DOGE: cfgStr("DOGE"),
+    TRX: cfgStr("TRX"),
+    BCH: cfgStr("BCH"),
+    SOL: cfgStr("SOL"),
+    XRP: cfgStr("XRP"),
+    POLYGON: cfgStr("POLYGON"),
+    "USDT-TRC20": cfgStr("USDT_TRC20"),
+    "USDT-ERC20": cfgStr("USDT_ERC20"),
+    "USDC-ERC20": cfgStr("USDC_ERC20"),
+    "RLUSD": cfgStr("RLUSD_ADMIN_WALLET") || cfgStr("XRP"),
+    "RLUSD-ERC20": cfgStr("RLUSD_ERC20") || cfgStr("ETH"),
+    "USDT-POLYGON": cfgStr("USDT_POLYGON") || cfgStr("POLYGON"),
   };
   
   const FEE_WALLETS = {
-    TRX: process.env.TRX_FEE_WALLET || "",
-    ETH: process.env.ETH_FEE_WALLET || "",
-    XRP: process.env.XRP_FEE_WALLET || "",
-    POLYGON: process.env.POLYGON_FEE_WALLET || "",
+    TRX: cfgStr("TRX_FEE_WALLET"),
+    ETH: cfgStr("ETH_FEE_WALLET"),
+    XRP: cfgStr("XRP_FEE_WALLET"),
+    POLYGON: cfgStr("POLYGON_FEE_WALLET"),
   };
 
   // 1. Validate Admin Wallets
@@ -69,7 +70,7 @@ export async function validateMerchantPoolConfiguration(): Promise<void> {
   }
   
   // Validate XRP master wallet (required for tag-based XRP/RLUSD payments)
-  if (!process.env.XRP_MASTER_WALLET) {
+  if (!cfgStr("XRP_MASTER_WALLET")) {
     errors.push("Missing XRP_MASTER_WALLET address (required for XRP/RLUSD tag-based payments)");
   }
   if (!FEE_WALLETS.POLYGON) {
@@ -92,7 +93,7 @@ export async function validateMerchantPoolConfiguration(): Promise<void> {
   ];
 
   for (const config of sweepConfigs) {
-    const value = process.env[config.key];
+    const value = cfgStr(config.key);
     if (!value) {
       warnings.push(`${config.key} not configured, will use default: threshold:30`);
     } else {
@@ -123,13 +124,13 @@ export async function validateMerchantPoolConfiguration(): Promise<void> {
   ];
 
   for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
+    if (!cfgStr(envVar)) {
       errors.push(`Missing required environment variable: ${envVar}`);
     }
   }
 
   // 5. Validate Pool Configuration
-  const poolInitialSize = parseInt(process.env.MERCHANT_POOL_INITIAL_SIZE || "2");
+  const poolInitialSize = parseInt(cfgStr("MERCHANT_POOL_INITIAL_SIZE") || "2");
   if (isNaN(poolInitialSize) || poolInitialSize < 1) {
     errors.push("MERCHANT_POOL_INITIAL_SIZE must be positive integer");
   }

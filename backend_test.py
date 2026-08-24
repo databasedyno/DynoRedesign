@@ -1,243 +1,333 @@
 #!/usr/bin/env python3
 """
-Backend regression test for compression middleware build fix.
-This is a compile-time-only fix (TypeScript cast) - runtime behavior should be unchanged.
-
-CONTEXT:
-- App pointed at STAGING Railway Postgres DB (EMPTY schema, NO users) in SAFE MODE
-- DO NOT attempt login/authenticated flows - no seeded users exist
-- Base URL: https://checkout-preview-25.preview.emergentagent.com (API routes prefixed with /api)
-- Internal /health: http://localhost:8001/health (NOT exposed on external ingress)
-
-WHAT TO VERIFY (unauthenticated, read-only only):
-1. GET http://localhost:8001/health → HTTP 200 with status "healthy", database "connected", redis "connected", background_jobs.eligible=false
-2. GET https://checkout-preview-25.preview.emergentagent.com/api/status/health → HTTP 200 healthy JSON
-3. Hit PUBLIC GET /api endpoints - confirm server responds WITHOUT 5xx/crash (regression check)
-4. (Best-effort) gzip compression: request with "Accept-Encoding: gzip" and check for "Content-Encoding: gzip" or "Vary: Accept-Encoding"
+Backend Regression Test for DynoPay Node/TS Backend
+Testing Items #1 (versioned boot migrations) & #4 (typed config wave 2)
+Environment: LOCAL & ISOLATED DB + Redis (NOT production), SAFE MODE on
 """
 
 import requests
 import json
 import sys
+from typing import Dict, Any, Tuple
 
-# Base URLs
+# Configuration
 INTERNAL_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://checkout-preview-25.preview.emergentagent.com"
+EXTERNAL_BASE = "https://41df08a6-652d-4266-94d9-f3812166d81a.preview.emergentagent.com"
+TEST_EMAIL = "testmerchant@dynopay.dev"
+TEST_PASSWORD = "TestMerchant123!"
 
-def print_test(name, passed, details=""):
-    status = "✅ PASS" if passed else "❌ FAIL"
-    print(f"\n{status} - {name}")
-    if details:
-        print(f"  {details}")
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    RESET = '\033[0m'
 
-def test_internal_health():
-    """Test 1: Internal /health endpoint (localhost:8001)"""
-    print("\n" + "="*80)
-    print("TEST 1: Internal /health endpoint (http://localhost:8001/health)")
-    print("="*80)
+def print_test(name: str):
+    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
+    print(f"{Colors.BLUE}TEST: {name}{Colors.RESET}")
+    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
+
+def print_pass(msg: str):
+    print(f"{Colors.GREEN}✅ PASS: {msg}{Colors.RESET}")
+
+def print_fail(msg: str):
+    print(f"{Colors.RED}❌ FAIL: {msg}{Colors.RESET}")
+
+def print_info(msg: str):
+    print(f"{Colors.YELLOW}ℹ️  INFO: {msg}{Colors.RESET}")
+
+def test_health_endpoint() -> Tuple[bool, str]:
+    """
+    TEST 1: GET http://localhost:8001/health
+    Expected: HTTP 200, status "healthy", database "connected", redis "connected", 
+              background_jobs.eligible=false
+    """
+    print_test("1. Health Endpoint Check")
     
     try:
         response = requests.get(f"{INTERNAL_BASE}/health", timeout=10)
-        print(f"Status Code: {response.status_code}")
+        print_info(f"Status Code: {response.status_code}")
         
         if response.status_code != 200:
-            print_test("Internal /health endpoint", False, f"Expected 200, got {response.status_code}")
-            return False
+            return False, f"Expected HTTP 200, got {response.status_code}"
         
         data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
+        print_info(f"Response: {json.dumps(data, indent=2)}")
         
         # Check required fields
-        checks = {
-            "status == 'healthy'": data.get("status") == "healthy",
-            "database == 'connected'": data.get("database") == "connected",
-            "redis == 'connected'": data.get("redis") == "connected",
-            "background_jobs.eligible == false": data.get("background_jobs", {}).get("eligible") == False
-        }
+        checks = [
+            (data.get('status') == 'healthy', f"status = '{data.get('status')}' (expected 'healthy')"),
+            (data.get('database') == 'connected', f"database = '{data.get('database')}' (expected 'connected')"),
+            (data.get('redis') == 'connected', f"redis = '{data.get('redis')}' (expected 'connected')"),
+            (data.get('background_jobs', {}).get('eligible') == False, 
+             f"background_jobs.eligible = {data.get('background_jobs', {}).get('eligible')} (expected False)")
+        ]
         
-        all_passed = all(checks.values())
+        all_passed = True
+        for passed, msg in checks:
+            if passed:
+                print_pass(msg)
+            else:
+                print_fail(msg)
+                all_passed = False
         
-        for check, passed in checks.items():
-            status = "✅" if passed else "❌"
-            print(f"  {status} {check}")
-        
-        print_test("Internal /health endpoint", all_passed, 
-                   "Server booted successfully with the fix" if all_passed else "Health check fields mismatch")
-        return all_passed
-        
+        if all_passed:
+            return True, "Health endpoint returned correct values"
+        else:
+            return False, "Some health checks failed"
+            
     except Exception as e:
-        print_test("Internal /health endpoint", False, f"Exception: {str(e)}")
-        return False
+        return False, f"Exception: {str(e)}"
 
-def test_external_health():
-    """Test 2: External /api/status/health endpoint"""
-    print("\n" + "="*80)
-    print("TEST 2: External /api/status/health endpoint")
-    print("="*80)
+def test_migration_system() -> Tuple[bool, str]:
+    """
+    TEST 2: ITEM 1 (versioned boot migrations)
+    Verify backend booted without errors and migration log shows correct message
+    """
+    print_test("2. Versioned Boot Migrations (ITEM 1)")
     
     try:
-        response = requests.get(f"{EXTERNAL_BASE}/api/status/health", timeout=10)
-        print(f"Status Code: {response.status_code}")
+        # Read backend logs
+        with open('/var/log/supervisor/backend.out.log', 'r') as f:
+            logs = f.read()
         
-        if response.status_code != 200:
-            print_test("External /api/status/health", False, f"Expected 200, got {response.status_code}")
-            return False
+        # Look for migration success message in ALL logs (not just recent)
+        recent_logs = logs
         
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
+        # Check for migration completion message
+        migration_patterns = [
+            "[migrations] done —",
+            "already present",
+            "Boot model tables ensured via versioned migrations"
+        ]
         
-        # Check it's a healthy JSON response
-        has_status = "status" in data or "message" in data or "data" in data
+        all_found = True
+        for pattern in migration_patterns:
+            if pattern in recent_logs:
+                print_pass(f"Found log pattern: '{pattern}'")
+            else:
+                print_fail(f"Missing log pattern: '{pattern}'")
+                all_found = False
         
-        print_test("External /api/status/health", has_status, 
-                   "Healthy JSON response received" if has_status else "No recognizable health data")
-        return has_status
+        # Check for schema_migrations table mention
+        if "schema_migrations" in logs or "0001_boot_model_tables" in logs:
+            print_pass("Migration system references found in logs")
+        else:
+            print_info("Note: schema_migrations table name not explicitly in logs (may be internal)")
         
+        # Check for no boot errors
+        error_patterns = ["TypeError", "ReferenceError", "Cannot read property", "undefined is not"]
+        boot_errors = []
+        for pattern in error_patterns:
+            if pattern in recent_logs:
+                boot_errors.append(pattern)
+        
+        if boot_errors:
+            print_fail(f"Found boot errors: {', '.join(boot_errors)}")
+            return False, f"Boot errors detected: {', '.join(boot_errors)}"
+        else:
+            print_pass("No boot errors detected")
+        
+        if all_found:
+            return True, "Migration system working correctly"
+        else:
+            return False, "Some migration log patterns missing"
+            
     except Exception as e:
-        print_test("External /api/status/health", False, f"Exception: {str(e)}")
-        return False
+        return False, f"Exception reading logs: {str(e)}"
 
-def test_public_endpoints():
-    """Test 3: Public GET /api endpoints (regression check - no 5xx crashes)"""
-    print("\n" + "="*80)
-    print("TEST 3: Public GET /api endpoints (regression check)")
-    print("="*80)
+def test_merchant_pool_config() -> Tuple[bool, str]:
+    """
+    TEST 3: ITEM 4 (typed config)
+    Verify boot log shows MerchantPool configuration validation passed
+    """
+    print_test("3. Typed Config - MerchantPool Validation (ITEM 4)")
     
-    # List of public endpoints to test (unauthenticated, read-only)
-    # Note: Protected endpoints returning 401/403 is EXPECTED and CORRECT
-    public_endpoints = [
-        "/api/csrf-token",  # Public CSRF token endpoint
-        "/api/user/checkEmail?email=test@example.com",  # Public email check
-        "/api/products/categories",  # Public categories (may be empty)
+    try:
+        # Read backend logs
+        with open('/var/log/supervisor/backend.out.log', 'r') as f:
+            logs = f.read()
+        
+        # Look for MerchantPool validation message in ALL logs
+        recent_logs = logs
+        
+        validation_pattern = "[MerchantPool] ✅ Configuration validation passed"
+        
+        if validation_pattern in recent_logs:
+            print_pass(f"Found: '{validation_pattern}'")
+            
+            # Also check for no TypeError related to merchantPool
+            if "TypeError" in recent_logs and "merchantPool" in recent_logs:
+                print_fail("Found TypeError related to merchantPool")
+                return False, "TypeError found in merchantPool context"
+            else:
+                print_pass("No TypeError related to merchantPool")
+            
+            return True, "MerchantPool configuration validation passed"
+        else:
+            print_fail(f"Missing log pattern: '{validation_pattern}'")
+            return False, "MerchantPool validation message not found in logs"
+            
+    except Exception as e:
+        return False, f"Exception reading logs: {str(e)}"
+
+def test_public_endpoints() -> Tuple[bool, str]:
+    """
+    TEST 4: Regression on PUBLIC endpoints
+    Verify public endpoints respond without 5xx errors
+    """
+    print_test("4. Public Endpoints Regression")
+    
+    endpoints = [
+        ("/api/status/health", "Status health endpoint"),
+        ("/api/csrf-token", "CSRF token endpoint"),
+        ("/api/products/categories", "Product categories endpoint")
+    ]
+    
+    all_passed = True
+    results = []
+    
+    for path, description in endpoints:
+        try:
+            url = f"{EXTERNAL_BASE}{path}"
+            print_info(f"Testing: {description} ({path})")
+            
+            response = requests.get(url, timeout=10)
+            status = response.status_code
+            
+            print_info(f"  Status Code: {status}")
+            
+            # 5xx is failure, 401/403 is acceptable for protected endpoints
+            if 500 <= status < 600:
+                print_fail(f"  {description}: HTTP {status} (5xx error)")
+                all_passed = False
+                results.append(f"{path}: FAIL (5xx)")
+            elif status in [401, 403]:
+                print_pass(f"  {description}: HTTP {status} (protected endpoint, acceptable)")
+                results.append(f"{path}: PASS (protected)")
+            elif 200 <= status < 300:
+                print_pass(f"  {description}: HTTP {status} (success)")
+                results.append(f"{path}: PASS")
+            else:
+                print_info(f"  {description}: HTTP {status} (non-5xx, acceptable)")
+                results.append(f"{path}: PASS (non-5xx)")
+                
+        except Exception as e:
+            print_fail(f"  {description}: Exception - {str(e)}")
+            all_passed = False
+            results.append(f"{path}: FAIL (exception)")
+    
+    if all_passed:
+        return True, "All public endpoints responded without 5xx errors"
+    else:
+        return False, f"Some endpoints returned 5xx: {', '.join(results)}"
+
+def test_auth_login() -> Tuple[bool, str]:
+    """
+    TEST 5: AUTH - Login with seeded credentials
+    POST /api/user/login with testmerchant@dynopay.dev / TestMerchant123!
+    Expected: Success response with token
+    """
+    print_test("5. Authentication - Login with Seeded Credentials")
+    
+    try:
+        # Use internal endpoint to avoid proxy compression issues
+        url = f"{INTERNAL_BASE}/api/user/login"
+        payload = {
+            "email": TEST_EMAIL,
+            "password": TEST_PASSWORD
+        }
+        
+        print_info(f"POST {url}")
+        print_info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        response = requests.post(url, json=payload, timeout=10)
+        status = response.status_code
+        
+        print_info(f"Status Code: {status}")
+        
+        try:
+            data = response.json()
+            print_info(f"Response keys: {list(data.keys())}")
+            if 'data' in data and isinstance(data['data'], dict):
+                print_info(f"Response data keys: {list(data['data'].keys())}")
+        except (json.JSONDecodeError, ValueError) as e:
+            print_info(f"Response decode error: {str(e)}")
+            print_info(f"Response text (first 200 chars): {response.text[:200]}")
+            data = {}
+        
+        # Check for success
+        if status == 200:
+            # Check for token in response
+            has_token = False
+            token_fields = ['accessToken', 'token', 'access_token', 'jwt']
+            
+            for field in token_fields:
+                if field in data or (isinstance(data.get('data'), dict) and field in data.get('data', {})):
+                    has_token = True
+                    print_pass(f"Found token field: '{field}'")
+                    break
+            
+            if has_token:
+                print_pass("Login successful with token returned")
+                return True, "Login successful with token"
+            else:
+                # Check if it's a success message without token (might be OTP flow)
+                if data.get('success') or 'success' in str(data).lower() or data.get('message') == 'Login Successful!':
+                    print_pass(f"Login successful: {data.get('message', 'success')}")
+                    return True, "Login successful"
+                else:
+                    print_fail("Login returned 200 but no token found")
+                    return False, "No token in response"
+        else:
+            print_fail(f"Login failed with status {status}")
+            return False, f"Login failed: HTTP {status}"
+            
+    except Exception as e:
+        return False, f"Exception: {str(e)}"
+
+def main():
+    """Run all tests and report results"""
+    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
+    print(f"{Colors.BLUE}DynoPay Backend Regression Test Suite{Colors.RESET}")
+    print(f"{Colors.BLUE}Testing: Items #1 (versioned migrations) & #4 (typed config){Colors.RESET}")
+    print(f"{Colors.BLUE}Environment: LOCAL & ISOLATED (SAFE MODE){Colors.RESET}")
+    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
+    
+    tests = [
+        ("Health Endpoint", test_health_endpoint),
+        ("Versioned Boot Migrations (ITEM 1)", test_migration_system),
+        ("Typed Config - MerchantPool (ITEM 4)", test_merchant_pool_config),
+        ("Public Endpoints Regression", test_public_endpoints),
+        ("Authentication Login", test_auth_login)
     ]
     
     results = []
     
-    for endpoint in public_endpoints:
-        try:
-            url = f"{EXTERNAL_BASE}{endpoint}"
-            print(f"\nTesting: {endpoint}")
-            response = requests.get(url, timeout=10)
-            print(f"  Status Code: {response.status_code}")
-            
-            # Check for 5xx server errors (the key regression check)
-            is_not_5xx = response.status_code < 500
-            
-            if is_not_5xx:
-                print(f"  ✅ No server error (status {response.status_code})")
-                if response.status_code == 401 or response.status_code == 403:
-                    print(f"  ℹ️  Protected endpoint - 401/403 is EXPECTED and CORRECT")
-                results.append(True)
-            else:
-                print(f"  ❌ Server error {response.status_code}")
-                try:
-                    print(f"  Response: {response.text[:500]}")
-                except Exception:
-                    pass
-                results.append(False)
-                
-        except Exception as e:
-            print(f"  ❌ Exception: {str(e)}")
-            results.append(False)
+    for test_name, test_func in tests:
+        passed, message = test_func()
+        results.append((test_name, passed, message))
     
-    all_passed = all(results)
-    print_test("Public endpoints regression check", all_passed,
-               f"{sum(results)}/{len(results)} endpoints responded without 5xx" if all_passed 
-               else f"Some endpoints returned 5xx errors")
-    return all_passed
-
-def test_gzip_compression():
-    """Test 4: gzip compression sanity check (best-effort)"""
-    print("\n" + "="*80)
-    print("TEST 4: gzip compression sanity check (best-effort)")
-    print("="*80)
+    # Summary
+    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
+    print(f"{Colors.BLUE}TEST SUMMARY{Colors.RESET}")
+    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
     
-    # Test with a public endpoint that might return a large response
-    endpoint = "/api/csrf-token"
-    url = f"{EXTERNAL_BASE}{endpoint}"
+    passed_count = sum(1 for _, passed, _ in results if passed)
+    total_count = len(results)
     
-    print("\n4a. Request WITH Accept-Encoding: gzip")
-    try:
-        response = requests.get(url, headers={"Accept-Encoding": "gzip"}, timeout=10)
-        print(f"  Status Code: {response.status_code}")
-        print(f"  Content-Encoding: {response.headers.get('Content-Encoding', 'NOT SET')}")
-        print(f"  Vary: {response.headers.get('Vary', 'NOT SET')}")
-        print(f"  Content-Length: {response.headers.get('Content-Length', 'NOT SET')}")
-        
-        # Check for compression indicators
-        has_gzip = response.headers.get('Content-Encoding') == 'gzip'
-        has_vary = 'Accept-Encoding' in response.headers.get('Vary', '')
-        
-        if has_gzip:
-            print(f"  ✅ Response is gzip compressed")
-        elif has_vary:
-            print(f"  ℹ️  Response has Vary: Accept-Encoding (compression middleware active)")
-            print(f"  ℹ️  Response may be below compression size threshold (acceptable)")
-        else:
-            print(f"  ℹ️  No compression headers (response may be too small)")
-        
-    except Exception as e:
-        print(f"  ❌ Exception: {str(e)}")
+    for test_name, passed, message in results:
+        status = f"{Colors.GREEN}✅ PASS{Colors.RESET}" if passed else f"{Colors.RED}❌ FAIL{Colors.RESET}"
+        print(f"{status} - {test_name}: {message}")
     
-    print("\n4b. Request WITH x-no-compression: 1 (compression should be disabled)")
-    try:
-        response = requests.get(url, headers={"x-no-compression": "1", "Accept-Encoding": "gzip"}, timeout=10)
-        print(f"  Status Code: {response.status_code}")
-        print(f"  Content-Encoding: {response.headers.get('Content-Encoding', 'NOT SET')}")
-        
-        # Check compression is disabled
-        no_gzip = response.headers.get('Content-Encoding') != 'gzip'
-        
-        if no_gzip:
-            print(f"  ✅ Compression disabled with x-no-compression header")
-        else:
-            print(f"  ❌ Compression still active despite x-no-compression header")
-        
-        print_test("gzip compression sanity check", True, 
-                   "Compression middleware is active (best-effort check)")
-        return True
-        
-    except Exception as e:
-        print(f"  ❌ Exception: {str(e)}")
-        print_test("gzip compression sanity check", True, 
-                   "Best-effort check - not critical for regression test")
-        return True
-
-def main():
-    print("\n" + "="*80)
-    print("BACKEND REGRESSION TEST: Compression Middleware Build Fix")
-    print("="*80)
-    print("Context: Compile-time-only fix (TypeScript cast at server.ts:254)")
-    print("Runtime behavior should be UNCHANGED")
-    print("App on STAGING DB (empty schema, NO users) in SAFE MODE")
-    print("="*80)
+    print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
+    pass_rate = (passed_count / total_count * 100) if total_count > 0 else 0
+    print(f"{Colors.BLUE}TOTAL: {passed_count}/{total_count} tests passed ({pass_rate:.1f}%){Colors.RESET}")
+    print(f"{Colors.BLUE}{'='*80}{Colors.RESET}\n")
     
-    results = {
-        "Test 1: Internal /health": test_internal_health(),
-        "Test 2: External /api/status/health": test_external_health(),
-        "Test 3: Public endpoints regression": test_public_endpoints(),
-        "Test 4: gzip compression (best-effort)": test_gzip_compression(),
-    }
-    
-    print("\n" + "="*80)
-    print("TEST SUMMARY")
-    print("="*80)
-    
-    for test_name, passed in results.items():
-        status = "✅ PASS" if passed else "❌ FAIL"
-        print(f"{status} - {test_name}")
-    
-    total = len(results)
-    passed = sum(results.values())
-    print(f"\nTotal: {passed}/{total} tests passed ({passed*100//total}%)")
-    
-    if passed == total:
-        print("\n✅ ALL TESTS PASSED - No regression detected from compression middleware fix")
-        print("The backend is healthy and public endpoints respond without server errors.")
-        return 0
-    else:
-        print(f"\n❌ {total - passed} TEST(S) FAILED - Issues detected")
-        return 1
+    # Exit with appropriate code
+    sys.exit(0 if passed_count == total_count else 1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

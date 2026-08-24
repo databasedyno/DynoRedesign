@@ -5,8 +5,7 @@ import { useTheme } from "@mui/material/styles";
 import { Icon } from "@/styles/uiKit";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import useSWR from "swr";
-import axiosBaseApi from "@/axiosConfig";
+import { useApiSWR } from "@/hooks/useApiSWR";
 
 interface LoginEntry {
   id: number;
@@ -25,21 +24,15 @@ interface LoginActivityResponse {
   pagination?: { totalPages?: number };
 }
 
-const activityFetcher = async ([, p]: [string, number]): Promise<LoginActivityResponse> => {
-  const res = await axiosBaseApi.get(`user/login-activity?page=${p}&limit=10`);
-  return (res.data?.data || { activities: [] }) as LoginActivityResponse;
-};
-
 const LoginActivity = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("profile");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useSWR<LoginActivityResponse>(
-    ["user/login-activity", page],
-    activityFetcher as any,
-    { keepPreviousData: true }
+  const { data, isLoading } = useApiSWR<LoginActivityResponse>(
+    `user/login-activity?page=${page}&limit=10`,
+    { unwrap: true, keepPreviousData: true }
   );
   const activities = data?.activities ?? [];
   const totalPages = data?.pagination?.totalPages ?? 1;
