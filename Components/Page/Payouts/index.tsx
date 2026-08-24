@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Divider,
   FormControl,
   MenuItem,
@@ -15,11 +16,15 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
 import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalletRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
+import FileDownloadRounded from "@mui/icons-material/FileDownloadRounded";
+import HourglassTopRounded from "@mui/icons-material/HourglassTopRounded";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import useApiSWR from "@/hooks/useApiSWR";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
@@ -89,6 +94,49 @@ const statusMeta = (status?: string) => {
     return { label: status || "Failed", color: ERROR_RED };
   return { label: status || "\u2014", color: WARNING_AMBER };
 };
+
+// Statuses that mean "money is on the way but not yet final" — a deposit
+// address was generated and we're waiting for on-chain confirmation.
+const PENDING_STATUSES = [
+  "pending",
+  "processing",
+  "awaiting",
+  "confirming",
+  "partial",
+  "underpaid",
+];
+const isPending = (s?: string) =>
+  PENDING_STATUSES.some((k) => (s || "").toLowerCase().includes(k));
+
+const relativeFromNow = (v?: string) => {
+  if (!v) return "";
+  const t = new Date(v).getTime();
+  if (!Number.isFinite(t)) return "";
+  const m = Math.floor((Date.now() - t) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+};
+
+// Matches the backend UNPAID_AFTER_MINUTES payment window — a fresh 'pending'
+// row auto-expires (shown as 'unpaid') after this many minutes.
+const PAYMENT_WINDOW_MIN = 60;
+const minutesLeftToConfirm = (v?: string) => {
+  if (!v) return null;
+  const t = new Date(v).getTime();
+  if (!Number.isFinite(t)) return null;
+  const left = PAYMENT_WINDOW_MIN - Math.floor((Date.now() - t) / 60000);
+  return left > 0 ? left : null;
+};
+
+const RANGE_PRESETS: { value: string; label: string }[] = [
+  { value: "7", label: "Last 7 days" },
+  { value: "30", label: "Last 30 days" },
+  { value: "90", label: "Last 90 days" },
+  { value: "365", label: "Last 12 months" },
+];
 
 const PayoutsPage: React.FC = () => {
   const router = useRouter();
@@ -224,6 +272,74 @@ const PayoutsPage: React.FC = () => {
   };
 
   const toggleDisabled = toggling || (!hasStablecoinWallet && !enabled);
+
+  const dispatch = useDispatch();
+
+  // Pending funds — awaiting on-chain confirmation. Fetched independently (up
+  // to 50 recent rows) and filtered to pending-like statuses so it stays
+  // accurate even when the merchant has many confirmed payments.
+  const { data: pendingRaw } = useApiSWR<any[]>(
+    selectedCompanyId
+      ? `/dashboard/recent-transactions?limit=50&company_id=${selectedCompanyId}`
+      : null,
+    {
+      select: (raw) => raw?.data?.transactions ?? raw?.transactions ?? [],
+      refreshInterval: 30000,
+    },
+  );
+  const pendingTxns: any[] = Array.isArray(pendingRaw)
+    ? pendingRaw.filter((t) => isPending(t?.status))
+    : [];
+
+  // Payout history CSV export (date-ranged).
+  const [exportRange, setExportRange] = useState("30");
+  const [exporting, setExporting] = useState(false);
+  const handleExportPayouts = async () => {
+    if (!selectedCompanyId || exporting) return;
+    setExporting(true);
+    try {
+      const to = new Date();
+      const from = new Date();
+      from.setDate(from.getDate() - parseInt(exportRange, 10));
+      const res = await axiosBaseApi.post(
+        "/wallet/transactions/export",
+        {
+          date_from: from.toISOString(),
+          date_to: to.toISOString(),
+          company_id: String(selectedCompanyId),
+        },
+        { responseType: "blob" },
+      );
+      const blob = new Blob([res.data], {
+        type: res.headers?.["content-type"] || "text/csv",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `payout_history_${new Date().toISOString().split("T")[0]}.csv`,
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: { message: "Payout history exported", severity: "success" },
+      });
+    } catch {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: "Export failed. Please try again.",
+          severity: "error",
+        },
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const txns: any[] = Array.isArray(recentTransactions)
     ? recentTransactions
@@ -615,6 +731,123 @@ const PayoutsPage: React.FC = () => {
         </Box>
       </Box>
 
+      {/* Pending funds */}
+      <Box sx={cardSx} data-testid="payouts-pending-funds-card">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 1.5 }}
+        >
+          <Stack direction="row" alignItems="center" gap={1.25}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                display: "grid",
+                placeItems: "center",
+                bgcolor: `${WARNING_AMBER}1A`,
+                color: WARNING_AMBER,
+              }}
+            >
+              <HourglassTopRounded fontSize="small" />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 700 }}>Pending funds</Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: theme.palette.text.secondary }}
+              >
+                Payments awaiting on-chain confirmation
+              </Typography>
+            </Box>
+          </Stack>
+          {pendingTxns.length > 0 && (
+            <Chip
+              size="small"
+              label={`${pendingTxns.length} pending`}
+              data-testid="payouts-pending-count"
+              sx={{
+                color: WARNING_AMBER,
+                bgcolor: `${WARNING_AMBER}1A`,
+                fontWeight: 700,
+              }}
+            />
+          )}
+        </Stack>
+        {pendingTxns.length === 0 ? (
+          <Typography
+            variant="body2"
+            data-testid="payouts-pending-empty"
+            sx={{
+              color: theme.palette.text.secondary,
+              py: 1.5,
+              textAlign: "center",
+            }}
+          >
+            No payments awaiting confirmation right now.
+          </Typography>
+        ) : (
+          <Stack divider={<Divider flexItem />} spacing={0}>
+            {pendingTxns.slice(0, 6).map((tx, i) => {
+              const amount = tx?.base_amount ?? tx?.amount;
+              const cur = tx?.base_currency || sym;
+              const coin = tx?.crypto_currency || tx?.wallet_type;
+              const who = (
+                tx?.customer_name ||
+                tx?.customer_email ||
+                ""
+              ).toString();
+              const started = relativeFromNow(tx?.createdAt || tx?.created_at);
+              const left = minutesLeftToConfirm(tx?.createdAt || tx?.created_at);
+              return (
+                <Stack
+                  key={tx?.transaction_id || tx?.id || i}
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  sx={{ py: 1.25 }}
+                  data-testid={`payouts-pending-row-${i}`}
+                >
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
+                      {amount != null ? `${cur} ${amount}` : "\u2014"}{" "}
+                      {coin ? (
+                        <Typography
+                          component="span"
+                          variant="caption"
+                          sx={{ color: theme.palette.text.secondary }}
+                        >
+                          · {coin}
+                        </Typography>
+                      ) : null}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: theme.palette.text.secondary }}
+                    >
+                      {who ? `${who} \u00b7 ` : ""}
+                      {started ? `started ${started}` : ""}
+                      {left != null ? ` \u00b7 ~${left}m left to confirm` : ""}
+                    </Typography>
+                  </Box>
+                  <Chip
+                    size="small"
+                    label="Confirming"
+                    sx={{
+                      color: WARNING_AMBER,
+                      bgcolor: `${WARNING_AMBER}1A`,
+                      fontWeight: 700,
+                    }}
+                  />
+                </Stack>
+              );
+            })}
+          </Stack>
+        )}
+      </Box>
+
       {/* Recent settlements */}
       <Box sx={cardSx}>
         <Stack
@@ -624,14 +857,53 @@ const PayoutsPage: React.FC = () => {
           sx={{ mb: 1.5 }}
         >
           <Typography sx={{ fontWeight: 700 }}>Recent settlements</Typography>
-          <Button
-            size="small"
-            endIcon={<ArrowForwardRounded />}
-            onClick={() => router.push("/transactions")}
-            sx={{ textTransform: "none" }}
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={1}
+            flexWrap="wrap"
+            justifyContent="flex-end"
           >
-            View all
-          </Button>
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <Select
+                value={exportRange}
+                onChange={(e) => setExportRange(e.target.value as string)}
+                data-testid="payouts-export-range-select"
+                sx={{ borderRadius: 2, fontSize: 13 }}
+              >
+                {RANGE_PRESETS.map((r) => (
+                  <MenuItem key={r.value} value={r.value}>
+                    {r.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
+              size="small"
+              variant="outlined"
+              disabled={exporting || !selectedCompanyId}
+              onClick={handleExportPayouts}
+              data-testid="payouts-export-csv-btn"
+              startIcon={
+                exporting ? (
+                  <CircularProgress size={14} color="inherit" />
+                ) : (
+                  <FileDownloadRounded />
+                )
+              }
+              sx={{ textTransform: "none", borderRadius: 2 }}
+            >
+              {exporting ? "Exporting\u2026" : "Export CSV"}
+            </Button>
+            <Button
+              size="small"
+              endIcon={<ArrowForwardRounded />}
+              onClick={() => router.push("/transactions")}
+              sx={{ textTransform: "none" }}
+            >
+              View all
+            </Button>
+          </Stack>
         </Stack>
         {loading ? (
           <Stack spacing={1}>

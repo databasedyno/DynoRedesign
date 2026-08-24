@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
-import axiosBaseApi from "@/axiosConfig";
+import { useCallback } from "react";
+import useApiSWR from "@/hooks/useApiSWR";
 
 /**
  * useDisplayFx — resolves the merchant's chosen DISPLAY currency
@@ -10,6 +10,11 @@ import axiosBaseApi from "@/axiosConfig";
  * The rate comes from the backend (`GET /api/user/display-currency`), which
  * reads a Redis-cached rate — no client-side FX guessing. Fails safe: if the
  * call fails we fall back to USD @ rate 1 so amounts still render.
+ *
+ * Data fetching standardized on the shared `useApiSWR` hook (refactor item 5).
+ * SWR globally de-dupes the request across every mounted consumer (replacing
+ * the old hand-rolled module-level cache). Revalidation is pinned off so the
+ * behaviour matches the previous "fetch once and keep" semantics.
  */
 
 interface DisplayFxState {
@@ -26,49 +31,30 @@ const DEFAULT: DisplayFxState = {
   ready: false,
 };
 
-// module-level cache so multiple mounted components share one network call
-let cached: DisplayFxState | null = null;
-let inflight: Promise<DisplayFxState> | null = null;
+type Resolved = { currency: string; symbol: string; rate: number };
 
-const fetchFx = (): Promise<DisplayFxState> => {
-  if (cached) return Promise.resolve(cached);
-  if (inflight) return inflight;
-  inflight = axiosBaseApi
-    .get("user/display-currency")
-    .then((res) => {
-      const d = res?.data?.data;
-      const next: DisplayFxState = {
+export function useDisplayFx() {
+  const { data, error } = useApiSWR<Resolved>("user/display-currency", {
+    select: (raw) => {
+      const d = raw?.data;
+      return {
         currency: d?.display_currency || "USD",
         symbol: d?.currency_info?.symbol || "$",
         rate: Number(d?.rate) > 0 ? Number(d.rate) : 1,
-        ready: true,
       };
-      cached = next;
-      return next;
-    })
-    .catch(() => {
-      const next = { ...DEFAULT, ready: true };
-      cached = next;
-      return next;
-    })
-    .finally(() => {
-      inflight = null;
-    });
-  return inflight;
-};
+    },
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    revalidateIfStale: false,
+    shouldRetryOnError: false,
+  });
 
-export function useDisplayFx() {
-  const [state, setState] = useState<DisplayFxState>(cached || DEFAULT);
-
-  useEffect(() => {
-    let alive = true;
-    fetchFx().then((next) => {
-      if (alive) setState(next);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
+  // Ready once we have data OR the call failed (fail-safe → USD @ 1).
+  const state: DisplayFxState = data
+    ? { ...data, ready: true }
+    : error
+      ? { ...DEFAULT, ready: true }
+      : DEFAULT;
 
   /**
    * Convert a USD amount into the display currency and format it with the

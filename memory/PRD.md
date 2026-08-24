@@ -1,3 +1,54 @@
+# FEATURE (2026-08-24 fork) — Payouts page: Live-toggle verify + Pending Funds + CSV Export + SWR wave — DONE (verified)
+
+Four user-picked next-actions, all on the Balances & Payouts (`/payouts`) surface (frontend-only
+except read-only backend verification). Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB).
+
+1) LIVE TOGGLE CHECK (auto-convert switch actually saves) — VERIFIED via curl round-trip against the
+   real endpoint the UI Switch calls: GET original {enabled:false, USDC/ERC20} → PUT
+   {auto_convert_enabled:true, settlement_currency:USDC, settlement_chain:ERC20} ("Auto-convert enabled
+   successfully", persisted) → GET confirms enabled=true → PUT {auto_convert_enabled:false} → GET
+   confirms restored to original (enabled=false, USDC/ERC20). NO residue — prod setting left exactly as
+   found. The coin picker's currency/chain payload is the same PUT, so it's verified too.
+
+2) PENDING FUNDS CARD (`Components/Page/Payouts/index.tsx`) — new card (data-testid
+   `payouts-pending-funds-card`) listing payments awaiting on-chain confirmation. Independent
+   `useApiSWR` fetch of `/dashboard/recent-transactions?limit=50&company_id=<id>` (select →
+   `data.transactions`, refreshInterval 30s), filtered to fresh-pending statuses
+   (pending/processing/awaiting/confirming/partial/underpaid). Stale "unpaid" (>60m) rows are
+   correctly EXCLUDED (backend deriveTxDisplayStatus already flips them). Each row shows amount+crypto,
+   customer, "started Xm ago", and "~Xm left to confirm" (PAYMENT_WINDOW_MIN=60, mirrors backend
+   UNPAID_AFTER_MINUTES). Empty state `payouts-pending-empty`. Current account = 32 successful + 18
+   unpaid + 0 fresh-pending → card correctly shows the empty state.
+
+3) PAYOUT HISTORY EXPORT — range preset Select (`payouts-export-range-select`: 7/30/90/365 days) +
+   "Export CSV" button (`payouts-export-csv-btn`) in the Recent settlements header. Direct
+   `axiosBaseApi.post('/wallet/transactions/export', {date_from,date_to,company_id}, {responseType:'blob'})`
+   → downloads `payout_history_<date>.csv`; success/error via redux TOAST_SHOW. NOTE: uses the CORRECT
+   backend param names `date_from`/`date_to` (the legacy Transactions TRANSACTION_EXPORT saga sends
+   startDate/endDate which the backend IGNORES — pre-existing bug, left untouched, out of scope).
+   Exports the full date-ranged history (CSV has a Status column) because the backend status filter is
+   single-exact-match and "settled" = successful|completed (multi-value). VERIFIED via curl: 200
+   text/csv, 145 rows for 30d/company 1, correct headers.
+
+4) SWR CLEANUP (Refactor Item 5 continuation) — the only remaining manual-axios dashboard components
+   (`ConversionBanner`, `CreatorPageCard`) are the mutation/crypto-heavy ones DELIBERATELY left bespoke
+   (unsafe to convert). Migrated the one genuinely safe read-only hook: `hooks/useDisplayFx.ts`
+   (GET user/display-currency) from a hand-rolled module cache to shared `useApiSWR`
+   (revalidateOnFocus/Reconnect/IfStale off + shouldRetryOnError false → same "fetch once, fail-safe to
+   USD@1" behaviour; SWR now globally de-dupes across its 5 consumers). Return shape unchanged
+   ({currency,symbol,rate,ready,formatFromUsd}).
+
+VERIFIED: frontend `tsc --noEmit` EXIT 0 (twice). Screenshots (logged-in, LIVE): /payouts renders the
+interactive toggle + coin picker + Pending Funds card (empty state) + export range/button + Recent
+settlements; /transactions "USD Value" column still renders ($37.63/$111.86/…) proving the useDisplayFx
+migration has ZERO regression; 0 console errors (only benign nav ERR_ABORTED). All 6 payouts testids
+present. Did the toggle mutation ONLY via the controlled curl round-trip (restored) — not via the UI —
+to avoid leaving the live merchant's setting changed.
+
+---
+
+
+
 # FEATURE (2026-08-24 fork) — Inline Auto-Convert control on Balances & Payouts — DONE (UI-verified)
 
 User picks: (1b) add an inline auto-convert toggle + settlement-coin picker directly on the
