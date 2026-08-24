@@ -342,3 +342,64 @@ Flutterwave webhook `return` fix is DE-SCOPED per user ("only focusing on crypto
   `UserDisplayCurrencySelector`, `useStorefrontProfile` → shared `useApiSWR`. (13 total migrated.)
 - **Item #4 wave**: `services/feeWalletMonitor.ts` (13 env reads → typed `config`).
 - **MEDIUM fix**: help-article cards → semantic Next `<Link>` (reliable/keyboard/right-click nav).
+
+
+---
+
+## 7. BALANCES & PAYOUTS SESSION (2026-08-24 fork, prod-connected) — DONE + NEXT ITEMS
+
+Context: LIVE Railway prod DB, SAFE MODE. Login: hostbay@moxx.co / Katiekendra123@.
+All work verified via `tsc` + curl (read-only) + logged-in screenshots; testing agent NOT used
+(would risk mutating the live prod DB / leaving auto-convert toggled).
+
+### Done this session (Balances & Payouts, `/payouts`)
+- **Inline Auto-Convert control** — replaced the read-only chip + "Manage → Settings" button with a live
+  Switch + settlement-coin picker wired to `PUT /company/auto-convert/:id` (reuses ConversionBanner
+  logic). Verified via curl round-trip (enable → verify → disable → restored, no residue).
+- **Pending Funds card** — new `GET /api/dashboard/pending-summary?company_id=` (fresh-pending rows +
+  accurate USD total, same conversion logic as the CSV export). Card shows "≈ $X / N payments awaiting".
+- **Auto-Convert Savings card** — new `GET /api/company/conversion-savings/:id` (aggregates
+  tbl_stablecoin_conversion: month/all-time converted USD + count + in-progress). "$X THIS MONTH".
+- **Payout History Export (CSV)** — Payouts export via `POST /wallet/transactions/export` with a range
+  picker (7/30/90/365 days + **Custom range** date pickers), a **"Settled only"** checkbox
+  (backend `settled_only` → `status IN ('successful','completed')`), correct `date_from`/`date_to`.
+- **Fixed legacy Transactions export dates** — `Components/Page/Transactions/index.tsx` was sending
+  `startDate`/`endDate` (backend ignores them); now sends `date_from`/`date_to` so the range applies.
+- **Item #5 SWR wave** — migrated `hooks/useDisplayFx.ts` (GET user/display-currency) from a hand-rolled
+  module cache to the shared `useApiSWR`. Remaining dashboard components (ConversionBanner,
+  CreatorPageCard) stay bespoke by design (mutation/crypto).
+
+### NEXT ACTION ITEMS (surfaced this session, not yet built)
+1. **Remember Last Range** — persist the merchant's last-used payout export range/dates (e.g.
+   localStorage) so it's pre-selected next visit.
+2. **Custom Range in Transactions** — bring the same custom-date export UX to the main Transactions
+   page so both surfaces match.
+3. **Savings Sparkline** — small 6-month trend under "Auto-convert protection" (needs a monthly
+   aggregate endpoint over tbl_stablecoin_conversion).
+4. **Pending Auto-Refresh Toast** — notify on the Payouts page the moment a pending payment confirms and
+   moves to settled (poll/SSE-driven).
+5. **Payout Email Digest** — opt-in weekly email summarising settled payouts + anything still pending
+   (a `payoutDigestService` already exists — extend it).
+
+### Backlog (carried from prior forks)
+- **Item #4 (typed config)** — ~610 raw `process.env` reads still to migrate to `utils/config.ts` in
+  boot-verifiable waves (server.ts, diagnosticsRouter, paymentController, …; apis/tatumApi.ts left).
+- **Item #5 (SWR)** — remaining read-only screens; mutation/crypto/payment components stay bespoke.
+- **Item #1** — move the 17 already-safe `server.ts` boot syncs to versioned migrations (low urgency).
+- Flutterwave webhook `return` bug (`webhooks/index.ts`) — DE-SCOPED (crypto-only focus).
+
+### New/modified files this session
+```
+Backend (new endpoints/params):
+  controller/dashboardController.ts            (+getPendingSummary, +convertToUSD import)
+  routes/dashboardRouter.ts                    (+/pending-summary)
+  controller/company/autoConvert.ts            (+getConversionSavings, +Op import)
+  controller/companyController.ts              (barrel: +getConversionSavings)
+  routes/companyRouter.ts                      (+/conversion-savings/:id)
+  controller/wallet/transactionsDetail.ts      (+settled_only export flag)
+Frontend:
+  Components/Page/Payouts/index.tsx            (inline auto-convert, pending card, savings card,
+                                                CSV export w/ presets+custom range+settled-only)
+  Components/Page/Transactions/index.tsx       (export date_from/date_to fix)
+  hooks/useDisplayFx.ts                         (Item #5 -> useApiSWR)
+```
