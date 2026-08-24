@@ -181,6 +181,12 @@ const NewSidebar = ({
       icon: "wallets",
       path: "/wallet",
     };
+    const balances: SidebarItem = {
+      label: t("balancesPayouts", { defaultValue: "Balances" }),
+      icon: "balances",
+      path: "/payouts",
+      isNew: true,
+    };
     const customers: SidebarItem = { label: t("customers"), icon: "customers", path: "/customers" };
     const settings: SidebarItem = { label: t("settings"), icon: "settings", path: "/settings" };
     const developers: SidebarItem = {
@@ -206,6 +212,7 @@ const NewSidebar = ({
           label: t("sidebarSectionMoney", { defaultValue: "Money" }),
           items: [
             dashboard,
+            balances,
             transactions,
             ...(reveal.receipts ? [receipts] : []),
             wallets,
@@ -229,6 +236,7 @@ const NewSidebar = ({
       {
         label: t("sidebarSectionMoney", { defaultValue: "Money" }),
         items: [
+          balances,
           transactions,
           ...(reveal.receipts ? [receipts] : []),
           // Customers is the "who paid me" surface, so it belongs with the money

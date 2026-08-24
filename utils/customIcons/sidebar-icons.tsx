@@ -9,7 +9,8 @@ type IconName =
   | "payment-links"
   | "invoices"
   | "customers"
-  | "referrals";
+  | "referrals"
+  | "balances";
 
 interface SidebarIconProps {
   name: string;
@@ -100,6 +101,13 @@ const icons: Record<IconName, React.FC<{ color: string }>> = {
         fill={color}
       />
     </>
+  ),
+
+  balances: ({ color }) => (
+    <path
+      d="M10 2C6.686 2 4 3.119 4 4.5V6.5C4 7.881 6.686 9 10 9C13.314 9 16 7.881 16 6.5V4.5C16 3.119 13.314 2 10 2ZM16 8.4C14.7 9.4 12.5 10 10 10C7.5 10 5.3 9.4 4 8.4V11C4 12.381 6.686 13.5 10 13.5C13.314 13.5 16 12.381 16 11V8.4ZM16 12.9C14.7 13.9 12.5 14.5 10 14.5C7.5 14.5 5.3 13.9 4 12.9V15.5C4 16.881 6.686 18 10 18C13.314 18 16 16.881 16 15.5V12.9Z"
+      fill={color}
+    />
   ),
 };
 
