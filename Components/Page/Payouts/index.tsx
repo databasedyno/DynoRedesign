@@ -1,15 +1,21 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   Box,
   Button,
   Chip,
   Divider,
+  FormControl,
+  MenuItem,
+  Select,
   Skeleton,
   Stack,
+  Switch,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
+import axiosBaseApi from "@/axiosConfig";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
 import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalletRounded";
@@ -40,6 +46,16 @@ interface SettlementOption {
   wallet_type?: string;
   wallet_address?: string;
 }
+
+const STABLECOIN_LABELS: Record<string, string> = {
+  usdt_trc20: "USDT (TRC-20)",
+  usdt_erc20: "USDT (ERC-20)",
+  usdc_erc20: "USDC (ERC-20)",
+  "USDT-TRC20": "USDT (TRC-20)",
+  "USDT-ERC20": "USDT (ERC-20)",
+  "USDC-ERC20": "USDC (ERC-20)",
+  "USDT-POLYGON": "USDT (Polygon)",
+};
 
 const maskAddr = (a?: string) =>
   !a ? "\u2014" : a.length <= 12 ? a : `${a.slice(0, 6)}\u2026${a.slice(-4)}`;
@@ -89,25 +105,125 @@ const PayoutsPage: React.FC = () => {
   const loading = dashboard.loading;
   const { selectedCompanyId } = useCompanyStore();
 
-  const { data: settlement, isLoading: settlementLoading } = useApiSWR<any>(
+  const {
+    data: settlement,
+    isLoading: settlementLoading,
+    mutate: mutateSettlement,
+  } = useApiSWR<any>(
     selectedCompanyId
       ? API_ENDPOINTS.company.autoConvert(selectedCompanyId)
       : null,
     { select: (raw) => raw?.data ?? raw },
   );
 
-  const autoEnabled = settlement?.auto_convert_enabled === true;
   const settlementOptions: SettlementOption[] = Array.isArray(
     settlement?.available_settlement_options,
   )
     ? settlement.available_settlement_options
     : [];
-  const settlementTarget =
-    settlement?.settlement_currency && settlement?.settlement_chain
+
+  const [enabled, setEnabled] = useState(false);
+  const [selectedWallet, setSelectedWallet] = useState("");
+  const [toggling, setToggling] = useState(false);
+
+  // Seed local toggle/selection state from the fetched settings.
+  useEffect(() => {
+    if (!settlement) return;
+    setEnabled(settlement.auto_convert_enabled === true);
+    const cur = settlement.settlement_currency;
+    const ch = settlement.settlement_chain;
+    const opts: SettlementOption[] = Array.isArray(
+      settlement.available_settlement_options,
+    )
+      ? settlement.available_settlement_options
+      : [];
+    if (cur && ch) {
+      const match = opts.find((o) => o.currency === cur && o.chain === ch);
+      setSelectedWallet(match?.wallet_type || `${cur}-${ch}`);
+    } else if (opts.length > 0) {
+      setSelectedWallet(opts[0].wallet_type || "");
+    }
+  }, [settlement]);
+
+  const hasStablecoinWallet = settlementOptions.length > 0;
+  const autoEnabled = enabled;
+
+  const activeOption = settlementOptions.find(
+    (o) => o.wallet_type === selectedWallet,
+  );
+  const settlementTarget = activeOption
+    ? `${activeOption.currency} \u00b7 ${activeOption.chain}`
+    : settlement?.settlement_currency && settlement?.settlement_chain
       ? `${settlement.settlement_currency} \u00b7 ${settlement.settlement_chain}`
       : settlementOptions[0]
         ? `${settlementOptions[0].currency} \u00b7 ${settlementOptions[0].chain}`
         : "\u2014";
+
+  const putAutoConvert = useCallback(
+    async (payload: Record<string, unknown>) => {
+      if (!selectedCompanyId) return;
+      await axiosBaseApi.put(
+        API_ENDPOINTS.company.autoConvert(selectedCompanyId),
+        payload,
+      );
+    },
+    [selectedCompanyId],
+  );
+
+  const enableAutoConvert = useCallback(
+    async (walletType: string) => {
+      if (!walletType) return;
+      const opt = settlementOptions.find((o) => o.wallet_type === walletType);
+      const currency = opt?.currency || walletType.split("-")[0];
+      const chain = opt?.chain || walletType.split("-")[1];
+      setToggling(true);
+      setEnabled(true);
+      setSelectedWallet(walletType);
+      try {
+        await putAutoConvert({
+          auto_convert_enabled: true,
+          settlement_currency: currency,
+          settlement_chain: chain,
+        });
+        await mutateSettlement();
+      } catch {
+        setEnabled(false);
+      } finally {
+        setToggling(false);
+      }
+    },
+    [settlementOptions, putAutoConvert, mutateSettlement],
+  );
+
+  const disableAutoConvert = useCallback(async () => {
+    setToggling(true);
+    setEnabled(false);
+    try {
+      await putAutoConvert({ auto_convert_enabled: false });
+      await mutateSettlement();
+    } catch {
+      setEnabled(true);
+    } finally {
+      setToggling(false);
+    }
+  }, [putAutoConvert, mutateSettlement]);
+
+  const handleToggle = () => {
+    if (!selectedCompanyId || toggling) return;
+    if (enabled) {
+      disableAutoConvert();
+      return;
+    }
+    if (!hasStablecoinWallet) return;
+    enableAutoConvert(selectedWallet || settlementOptions[0]?.wallet_type || "");
+  };
+
+  const handleCoinChange = (walletType: string) => {
+    setSelectedWallet(walletType);
+    if (enabled) enableAutoConvert(walletType);
+  };
+
+  const toggleDisabled = toggling || (!hasStablecoinWallet && !enabled);
 
   const txns: any[] = Array.isArray(recentTransactions)
     ? recentTransactions
@@ -248,30 +364,74 @@ const PayoutsPage: React.FC = () => {
               </Typography>
             </Box>
           </Stack>
-          <Stack direction="row" alignItems="center" gap={1}>
-            <Chip
-              size="small"
-              label={settlementLoading ? "\u2026" : autoEnabled ? "On" : "Off"}
-              sx={{
-                fontWeight: 700,
-                color: autoEnabled
-                  ? SUCCESS_GREEN
-                  : theme.palette.text.secondary,
-                bgcolor: autoEnabled
-                  ? `${SUCCESS_GREEN}1A`
-                  : theme.palette.action.hover,
-              }}
-            />
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => router.push("/settings")}
-              sx={{ textTransform: "none", borderRadius: 2 }}
-            >
-              Manage
-            </Button>
-          </Stack>
+          <Tooltip
+            title={
+              !hasStablecoinWallet && !enabled
+                ? "Add a stablecoin settlement wallet first"
+                : ""
+            }
+            arrow
+            placement="top"
+          >
+            <span>
+              <Switch
+                checked={enabled}
+                onChange={handleToggle}
+                disabled={toggleDisabled}
+                data-testid="payouts-autoconvert-toggle"
+                sx={{
+                  "& .MuiSwitch-switchBase.Mui-checked": {
+                    color: SUCCESS_GREEN,
+                  },
+                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                    backgroundColor: SUCCESS_GREEN,
+                  },
+                }}
+              />
+            </span>
+          </Tooltip>
         </Stack>
+
+        {hasStablecoinWallet && (
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            flexWrap="wrap"
+            gap={1}
+            sx={{ mt: 2 }}
+          >
+            <Typography
+              variant="body2"
+              sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
+            >
+              Settle to
+            </Typography>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <Select
+                value={selectedWallet}
+                onChange={(e) => handleCoinChange(e.target.value as string)}
+                displayEmpty
+                data-testid="payouts-settlement-coin-select"
+                sx={{ borderRadius: 2, fontWeight: 600 }}
+              >
+                <MenuItem value="" disabled>
+                  Select settlement coin
+                </MenuItem>
+                {settlementOptions.map((opt) => {
+                  const val =
+                    opt.wallet_type || `${opt.currency}-${opt.chain}`;
+                  return (
+                    <MenuItem key={val} value={val}>
+                      {STABLECOIN_LABELS[opt.wallet_type || ""] ||
+                        `${opt.currency} on ${opt.chain}`}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Stack>
+        )}
 
         <Divider sx={{ my: 2 }} />
 

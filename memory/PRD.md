@@ -1,3 +1,37 @@
+# FEATURE (2026-08-24 fork) — Inline Auto-Convert control on Balances & Payouts — DONE (UI-verified)
+
+User picks: (1b) add an inline auto-convert toggle + settlement-coin picker directly on the
+`/payouts` (Balances & Payouts) page AND remove the "Manage → Settings" button so Payouts is the
+single control surface. (2) "remove refund options" request — user said IGNORE → NOT done (no refund
+UI touched).
+
+CHANGES (frontend-only, `Components/Page/Payouts/index.tsx`):
+- Replaced the read-only "On/Off" Chip + "Manage" button in the "Settlement & auto-convert" card with
+  an interactive MUI `Switch` (data-testid `payouts-autoconvert-toggle`) + a "Settle to" coin picker
+  `Select` (data-testid `payouts-settlement-coin-select`), shown when the company has ≥1 stablecoin
+  settlement wallet.
+- Reused the EXACT mutation logic/payload from `Components/Page/Dashboard/ConversionBanner.tsx`:
+  PUT `/api/company/auto-convert/:companyId`
+    · disable → `{ auto_convert_enabled:false }`
+    · enable / change coin → `{ auto_convert_enabled:true, settlement_currency, settlement_chain }`
+  (currency+chain parsed from the selected `available_settlement_options[].wallet_type`).
+- Local optimistic state (`enabled`/`selectedWallet`/`toggling`) seeded from the SWR settings via
+  useEffect; `mutateSettlement()` revalidates after each PUT (optimistic revert on error). Toggle is
+  disabled + tooltip "Add a stablecoin settlement wallet first" when no stablecoin wallet exists.
+  Changing the coin while ON updates the settlement target live; picking a coin while OFF only stages
+  the selection (does not enable).
+
+VERIFIED: frontend `tsc --noEmit` EXIT 0. Live preview screenshot (logged in as hostbay@moxx.co,
+company 1): /payouts renders the toggle (Off — matches account) + "Settle to" picker (USDC (ERC-20))
+with all 4 settlement wallets listed; Manage button gone; no React/page console errors (only benign
+net::ERR_ABORTED from the dashboard→payouts navigation). DID NOT click the toggle live — it writes to
+the PROD company row; the PUT path is byte-identical to the already-proven ConversionBanner mutation,
+so the wiring is verified structurally, not by mutating prod data. User can flip it in-app to confirm.
+
+---
+
+
+
 # SESSION 2026-08-24 (v2 pod, fork) — P0 proxy-gzip LOGIN FIX + Item#5 SWR wave 2 + Item#4 env wave
 
 CONTEXT: continuation of the DynoPay refactor (LOCAL isolated Postgres+Redis, SAFE MODE:
