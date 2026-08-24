@@ -11,7 +11,7 @@ from datetime import datetime
 import sys
 
 # Configuration
-BASE_URL = "https://crypto-checkout-43.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-init.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
