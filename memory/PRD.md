@@ -53,6 +53,16 @@ LIVE prod DB (0 refund rows; link 174/175 refund_address reset to null). Safety 
   off), sshpass not found (tunnel is preview-only), MerchantPool "sweep not profitable" (dust),
   and FastForex "No active subscription" → falls back to Tatum for FX (FLAG TO USER: their FastForex
   plan lapsed; conversions still work via Tatum).
+- ROOT CAUSE FIX (start-all.sh): the prod container starts backend(:3300)+Next(:3000) then `sleep 3`
+  then nginx(:8001). nginx proxies BOTH /api AND /health to the backend, so nginx going live after
+  only 3s (while the backend is still booting: DB+migrations+ledger) caused `/api` 111 "Connection
+  refused" (user-reported at 19:08:45) AND flapped the /health readiness probe (the likely
+  `DeployContainerHealthChecksFailed` cause). FIX: replaced `sleep 3` with a bounded wait loop that
+  polls `curl http://127.0.0.1:3300/health` until the backend is actually ready (fallback after
+  BACKEND_WAIT=120s so a slow backend never causes a total outage), plus a short frontend grace wait.
+  Cannot be verified in the preview pod (which uses the uvicorn 8001→3300 proxy, not start-all.sh) —
+  verify on the next DigitalOcean deploy: nginx boot log should show "Backend is ready after ~Ns" and
+  the 111 errors + readiness flaps should disappear.
 - NOTE: the `deployment_agent` tool targets Emergent K8s (assumes React /app/frontend + MongoDB); its
   two "blockers" (frontend/package.json start script, PostgreSQL-not-supported) are FALSE POSITIVES
   for this DigitalOcean/Postgres app and were intentionally NOT acted on.
