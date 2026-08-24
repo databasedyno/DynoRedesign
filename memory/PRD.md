@@ -1,3 +1,18 @@
+# FEATURE (2026-08-24 fork) — Payouts export: Custom date range — DONE (verified)
+
+Added a "Custom range…" option to the Payouts CSV export range picker (`Components/Page/Payouts/index.tsx`),
+alongside the 7/30/90/365-day presets. Selecting it reveals two MUI date pickers (From/To, testids
+`payouts-export-custom-from` / `payouts-export-custom-to`). Export resolves date_from = <from>T00:00:00,
+date_to = <to>T23:59:59.999 (full end day) → same `/wallet/transactions/export` call. Validation via
+redux toast: both dates required; start must be ≤ end. Frontend-only (backend already honours
+date_from/date_to + settled_only). VERIFIED: frontend tsc clean; screenshot shows the two date pickers
+inline; curl narrow window 2026-08-22→24 = 6 rows all in range (vs 146 for 30d), confirming custom dates
+apply. Self-tested (curl + screenshot).
+
+---
+
+
+
 # FEATURE (2026-08-24 fork) — Payouts: Pending$ total + Auto-Convert Savings + Settled-only export + Legacy export date fix — DONE (verified)
 
 Four user-picked next-actions. Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB). All new

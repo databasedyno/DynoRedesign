@@ -14,6 +14,7 @@ import {
   Skeleton,
   Stack,
   Switch,
+  TextField,
   Tooltip,
   Typography,
   useTheme,
@@ -126,6 +127,7 @@ const RANGE_PRESETS: { value: string; label: string }[] = [
   { value: "30", label: "Last 30 days" },
   { value: "90", label: "Last 90 days" },
   { value: "365", label: "Last 12 months" },
+  { value: "custom", label: "Custom range\u2026" },
 ];
 
 const PayoutsPage: React.FC = () => {
@@ -301,20 +303,55 @@ const PayoutsPage: React.FC = () => {
 
   // Payout history CSV export (date-ranged).
   const [exportRange, setExportRange] = useState("30");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [settledOnly, setSettledOnly] = useState(false);
   const [exporting, setExporting] = useState(false);
   const handleExportPayouts = async () => {
     if (!selectedCompanyId || exporting) return;
-    setExporting(true);
-    try {
+
+    let dateFrom: string;
+    let dateTo: string;
+    if (exportRange === "custom") {
+      if (!customFrom || !customTo) {
+        dispatch({
+          type: TOAST_SHOW,
+          payload: {
+            message: "Pick both a start and end date",
+            severity: "error",
+          },
+        });
+        return;
+      }
+      const f = new Date(`${customFrom}T00:00:00`);
+      const t = new Date(`${customTo}T23:59:59.999`);
+      if (f > t) {
+        dispatch({
+          type: TOAST_SHOW,
+          payload: {
+            message: "Start date must be before the end date",
+            severity: "error",
+          },
+        });
+        return;
+      }
+      dateFrom = f.toISOString();
+      dateTo = t.toISOString();
+    } else {
       const to = new Date();
       const from = new Date();
       from.setDate(from.getDate() - parseInt(exportRange, 10));
+      dateFrom = from.toISOString();
+      dateTo = to.toISOString();
+    }
+
+    setExporting(true);
+    try {
       const res = await axiosBaseApi.post(
         "/wallet/transactions/export",
         {
-          date_from: from.toISOString(),
-          date_to: to.toISOString(),
+          date_from: dateFrom,
+          date_to: dateTo,
           company_id: String(selectedCompanyId),
           settled_only: settledOnly,
         },
@@ -970,6 +1007,36 @@ const PayoutsPage: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
+            {exportRange === "custom" && (
+              <>
+                <TextField
+                  size="small"
+                  type="date"
+                  value={customFrom}
+                  onChange={(e) => setCustomFrom(e.target.value)}
+                  label="From"
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{
+                    max: customTo || undefined,
+                    "data-testid": "payouts-export-custom-from",
+                  }}
+                  sx={{ width: 160, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                />
+                <TextField
+                  size="small"
+                  type="date"
+                  value={customTo}
+                  onChange={(e) => setCustomTo(e.target.value)}
+                  label="To"
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{
+                    min: customFrom || undefined,
+                    "data-testid": "payouts-export-custom-to",
+                  }}
+                  sx={{ width: 160, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                />
+              </>
+            )}
             <FormControlLabel
               control={
                 <Checkbox
