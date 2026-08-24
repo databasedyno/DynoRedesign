@@ -1,3 +1,39 @@
+# FEATURE (2026-06 fork) — Crypto Refund: merchant-entered address + per-chain validation — DONE (verified)
+
+Extends the Crypto Refund Flow so a refund is no longer hard-blocked when the customer left no
+refund address at checkout (the checkout field is optional). The refund chain stays LOCKED to the
+original payment; merchant supplies/validates a same-chain address at refund time.
+
+Backend:
+- `services/refund/refundChains.ts`: added `validateChainAddress(meta, addr)` + `ADDRESS_VALIDATORS`
+  keyed by native gas symbol (BTC/LTC/DOGE/BCH, EVM 0x for ETH+POL+all ERC20/POL tokens, Tron T…,
+  SOL base58, XRP r…). Format-only check; rejects wrong-chain addresses (e.g. 0x for a BTC refund).
+- `services/refund/refundService.ts`: `resolveOriginalPayment` no longer throws on missing address
+  (returns empty). `createRefund` accepts `refundAddress` (merchant-provided wins, else on-file),
+  validates per-chain, and persists a provided address back to the source. `CreateRefundInput`
+  gained `refundAddress?`.
+- BUG FIX (pre-existing Phase-B): payment-link resolver queried the WRONG table
+  (`tbl_user_transaction` by id) so ALL payment-link refunds 400'd "No settled crypto transaction".
+  Fixed to read `tbl_customer_transaction` by `unique_tx_id` (paid_currency / paid_amount / status).
+- `controller/refund/refundController.ts`: preview returns `needs_address` + `address_invalid`
+  (no more 400 on missing address); `POST /api/refunds` reads `refund_address` from body.
+
+Frontend (`Components/Page/Refund/CryptoRefundModal.tsx`): when `needs_address`, shows a warning +
+"Customer <ASSET> refund address" input with client-side per-chain validation; "Create refund" is
+disabled until a valid same-chain address is entered. testids: `refund-needs-address`,
+`refund-address-input`.
+
+VERIFIED (LIVE prod DB, SAFE MODE dry-run, all test rows cleaned up):
+- 55/55 pure unit tests pass (incl. new validateChainAddress cases); backend + frontend tsc EXIT 0.
+- Preview: product_order (no addr) & payment_link 175 BTC / 173 USDT-ERC20 → `needs_address:true`.
+- Create: ETH addr for BTC link → 400 wrong-chain reject; valid BTC addr → 201 dry-run row
+  (deposit = refund + gas), address persisted; row + link.refund_address cleaned back to null.
+- UI smoke screenshot: modal shows warning, address input, disabled Create button.
+Login: hostbay@moxx.co / Katiekendra123@.
+
+---
+
+
 # DEPLOY UNBLOCK (2026-08-24 fork) — pre-commit file-size gate FIXED
 
 The `.husky/pre-commit` hook (`backend/scripts/check-file-size.mjs`) was BLOCKING Save-to-GitHub/deploy:

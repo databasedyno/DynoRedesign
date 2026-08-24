@@ -20,9 +20,14 @@ import {
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import OpenInNewRounded from "@mui/icons-material/OpenInNewRounded";
 import ReplayRounded from "@mui/icons-material/ReplayRounded";
+import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
 import PanelCard from "@/Components/UI/PanelCard";
 import { pageProps } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
+import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
+
+const CRYPTO_REFUNDS_ENABLED =
+  process.env.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS === "true";
 
 interface OrderRow {
   order_id: number;
@@ -74,6 +79,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
   const [refundFinal, setRefundFinal] = useState(false);
   const [refunding, setRefunding] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [cryptoRefundOrder, setCryptoRefundOrder] = useState<OrderRow | null>(null);
 
   useEffect(() => {
     if (!setPageName || !setPageDescription) return;
@@ -186,6 +192,17 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
                         <ReplayRounded fontSize="small" />
                       </IconButton>
                     )}
+                    {canRefund && CRYPTO_REFUNDS_ENABLED && (
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={() => setCryptoRefundOrder(o)}
+                        title="Crypto refund (on-chain)"
+                        data-testid={`product-order-crypto-refund-${o.order_id}`}
+                      >
+                        <CurrencyExchangeRounded fontSize="small" />
+                      </IconButton>
+                    )}
                     <IconButton
                       size="small"
                       onClick={() => window.open(`/order/${o.public_ref}`, "_blank")}
@@ -287,6 +304,17 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
         message={toast || ""}
         data-testid="refund-toast"
       />
+
+      {/* On-chain crypto refund */}
+      {cryptoRefundOrder && (
+        <CryptoRefundModal
+          open={!!cryptoRefundOrder}
+          onClose={() => setCryptoRefundOrder(null)}
+          sourceType="product_order"
+          sourceRef={cryptoRefundOrder.public_ref}
+          onDone={() => setToast("Refund updated")}
+        />
+      )}
     </Box>
   );
 };

@@ -93,6 +93,12 @@ export const config = {
   // ── Ops / misc ─────────────────────────────────────────────
   adminEmail: str("ADMIN_EMAIL"),
 
+  // ── Crypto Refunds (feature-flagged; default off) ──────────
+  /** Master switch for the on-chain crypto refund flow. */
+  enableCryptoRefunds: bool("ENABLE_CRYPTO_REFUNDS"),
+  /** Preview/sandbox: no real pool allocation, no forwarding, placeholder addrs. */
+  refundDryRun: bool("REFUND_DRY_RUN"),
+
   // Generic typed accessors for anything not curated above.
   str,
   raw,

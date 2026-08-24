@@ -343,6 +343,10 @@ app.use("/api/diagnostics", diagnosticsRouter);
 import ledgerRouter from "./routes/ledgerRouter";
 app.use("/api/ledger", ledgerRouter);
 
+// Crypto Refund Flow (gated by ENABLE_CRYPTO_REFUNDS inside the router).
+import refundRouter from "./routes/refundRouter";
+app.use("/api/refunds", refundRouter);
+
 // Publishable Keys — dashboard CRUD (JWT). The public /api/embed/public route
 // is mounted earlier (before the wildcard OPTIONS handler) so cross-origin
 // merchant preflights don't get intercepted by the global CORS handler.

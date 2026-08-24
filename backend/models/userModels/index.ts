@@ -12,6 +12,7 @@ import productVariantModel from "./productVariantModel";
 import productAssetModel from "./productAssetModel";
 import productOrderModel from "./productOrderModel";
 import productOrderItemModel from "./productOrderItemModel";
+import refundModel from "./refundModel";
 
 export {
   userExchangeModel,
@@ -28,4 +29,5 @@ export {
   productAssetModel,
   productOrderModel,
   productOrderItemModel,
+  refundModel,
 };

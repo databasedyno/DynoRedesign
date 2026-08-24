@@ -87,6 +87,10 @@ const EXEMPT_PATHS = [
   "/api/cart",
   "/api/checkout",
   "/api/order/",
+  // Crypto Refund Flow — public checkout capture of the customer's refund
+  // destination address (no auth/session yet). Keyed by the unguessable order
+  // public_ref / link id; only stores an address (no funds move here).
+  "/api/refunds/capture-address",
 ];
 
 /**

@@ -25,6 +25,7 @@ import {
   productAssetModel,
   productOrderModel,
   productOrderItemModel,
+  refundModel,
 } from "./userModels";
 
 // Phase 1: New models
@@ -155,6 +156,8 @@ export {
   productAssetModel,
   productOrderModel,
   productOrderItemModel,
+  // Crypto Refund Flow
+  refundModel,
 };
 
 // (Duplicate import removed after Product Catalog additions)

@@ -64,6 +64,13 @@ import {
 import { useRouter } from "next/router";
 import PaymentLinkSuccessModal from "../CreatePaymentLink/PaymentLinkSuccessModal";
 import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
+import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
+import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
+
+const CRYPTO_REFUNDS_ENABLED =
+  process.env.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS === "true";
+const isRefundableLinkStatus = (status?: string) =>
+  status === "paid" || status === "completed";
 
 const headerIconMap: Record<string, any> = {
   linkIdHeader: TransactionIcon,
@@ -174,6 +181,7 @@ const PaymentLinksTable = ({
   });
   const [paymentLink, setPaymentLink] = useState<string>("");
   const [deleteModel, setDeleteModel] = useState<boolean>(false);
+  const [cryptoRefundLinkId, setCryptoRefundLinkId] = useState<string | null>(null);
   const [deleteId, setDeletId] = useState<string>("");
 
   const total = paymentLinks.length;
@@ -334,6 +342,14 @@ const PaymentLinksTable = ({
         paymentSettings={viewModelData}
         onCopyLink={handleCopyLink}
       />
+      {CRYPTO_REFUNDS_ENABLED && cryptoRefundLinkId && (
+        <CryptoRefundModal
+          open={!!cryptoRefundLinkId}
+          onClose={() => setCryptoRefundLinkId(null)}
+          sourceType="payment_link"
+          sourceRef={cryptoRefundLinkId}
+        />
+      )}
       <Box
         sx={{
           display: "flex",
@@ -469,6 +485,18 @@ const PaymentLinksTable = ({
                             sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.error.main }}
                           >
                             <Image src={TrashIcon} alt="" width={14} height={14} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)" }} />
+                          </CopyButton>
+                        </Tooltip>
+                      )}
+                      {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
+                        <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
+                          <CopyButton
+                            aria-label="Crypto refund"
+                            data-testid={`paylink-crypto-refund-mobile-${row.id}`}
+                            onClick={() => setCryptoRefundLinkId(String(row.id))}
+                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.primary.main }}
+                          >
+                            <CurrencyExchangeRounded sx={{ fontSize: 14, color: theme.palette.primary.main }} />
                           </CopyButton>
                         </Tooltip>
                       )}
@@ -797,6 +825,21 @@ const PaymentLinksTable = ({
                                 filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)",
                               }}
                             />
+                          </CopyButton>
+                        </Tooltip>
+                      )}
+                      {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
+                        <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
+                          <CopyButton
+                            aria-label="Crypto refund"
+                            data-testid={`paylink-crypto-refund-${row.id}`}
+                            onClick={() => setCryptoRefundLinkId(String(row.id))}
+                            sx={{
+                              borderColor: theme.palette.primary.main,
+                              "&:hover": { backgroundColor: "transparent", boxShadow: "none" },
+                            }}
+                          >
+                            <CurrencyExchangeRounded sx={{ fontSize: isMobile ? 14 : 18, color: theme.palette.primary.main }} />
                           </CopyButton>
                         </Tooltip>
                       )}

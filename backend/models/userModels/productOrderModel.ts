@@ -164,6 +164,13 @@ const productOrderModel = sequelize.define(
       type: DataTypes.STRING(6),
       allowNull: true,
     },
+    // ── Crypto Refund Flow ────────────────────────────────────────────
+    // Customer's refund destination address (typed at checkout). Set only;
+    // used solely when the merchant explicitly triggers an on-chain refund.
+    refund_address: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
   },
   {
     tableName: "tbl_product_order",

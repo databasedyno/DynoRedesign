@@ -481,10 +481,42 @@ Last in-progress item from the handoff (frontend-only), plan confirmed but not y
 
 ---
 
-## 10. CRYPTO REFUND FLOW — SPEC / DESIGN (2026-08-24 fork) — NOT YET BUILT (requirements captured)
+## 10. CRYPTO REFUND FLOW — Phase A+B BUILT (2026-08-24); Phase C pending prod validation
 
-Refunds were previously DE-SCOPED; the user re-scoped them with a specific on-chain design. This section
-is the agreed spec so any agent can implement it. **Nothing below is built yet** — status = DESIGN.
+Refunds were previously DE-SCOPED; the user re-scoped them with a specific on-chain design.
+The design spec is below. **UPDATE — Phase A + Phase B are now BUILT & verified** (backend + merchant UI,
+behind `ENABLE_CRYPTO_REFUNDS`; the preview runs in `REFUND_DRY_RUN=true`). Phase C (on-chain
+forwarding) is implemented as a HARD-GATED entrypoint only — pending production validation.
+
+### Confirmed decisions (final, from the user)
+- Same crypto asset + amount (NOT USD value). Single refund per payment, custom/partial amount ≤ paid.
+- Merchant covers gas. Scope = product orders + standard payment links.
+
+### What was BUILT (2026-08-24)
+- Migration `0004_crypto_refund_flow` (APPLIED ON LIVE PROD, additive): `tbl_refund` + `tbl_product_order.refund_address`.
+- `models/userModels/refundModel.ts` (tbl_refund).
+- `services/refund/refundChains.ts` — chain metadata (all chains) + PURE helpers (amount cap, deposit plan,
+  gas coverage native-vs-token, state machine). 43 unit tests pass (`tests/test_refund_logic.ts`).
+- `services/refund/refundService.ts` — resolveOriginalPayment (order/link), estimateGasBuffer (live + static
+  fallback), createRefund (single-refund guard, dry-run placeholder vs `reserveAddress`), get/list/cancel,
+  and `forwardRefund` (Phase C — HARD-REFUSES unless jobs on & not dry-run).
+- `controller/refund/refundController.ts` + `routes/refundRouter.ts` (gated by ENABLE_CRYPTO_REFUNDS → 404 when off).
+  Endpoints: `GET /preview`, `POST /`, `GET /`, `GET /:id`, `POST /:id/cancel`, `POST /capture-address` (public, CSRF-exempt).
+- Config flags: `ENABLE_CRYPTO_REFUNDS`, `REFUND_DRY_RUN`. Frontend flag `NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS`.
+- Frontend: `Components/Page/Refund/CryptoRefundModal.tsx` (preview → partial amount → create invoice → status/cancel),
+  wired into the product Orders page + the Payment Links table (desktop + mobile), gated by the frontend flag.
+- Verified: tsc (backend+frontend) 0 errors; ESLint clean; e2e dry-run via API on a real paid order
+  (capture-address → preview → create partial → single-refund guard) then FULLY CLEANED UP (0 rows left).
+
+### Phase C (NOT wired — production only)
+On a confirmed merchant deposit, reuse the sweep/forward rails (fee-wallet gas funding for token chains) to
+send the refund to the customer, transition forwarding→completed, persist `forward_txid`, write ledger
+(`refund_liability`), email the customer, fire a webhook. MOVES REAL FUNDS — enable
+`ENABLE_CRYPTO_REFUNDS` + `ENABLE_BACKGROUND_JOBS`, set `REFUND_DRY_RUN` unset/false on the prod worker,
+then validate with a small live amount before general availability.
+
+---
+### ORIGINAL SPEC (retained for reference)
 
 ### The flow (as described by the user)
 1. **At checkout (customer):** the customer provides a **refund destination wallet address**. If a refund

@@ -78,7 +78,8 @@ async function loadBootModelGroups(): Promise<{ v1: unknown[]; extra: unknown[] 
 /** All boot models — used by the dev-only `{ alter: true }` auto-sync in server.ts. */
 export async function getBootModels(): Promise<unknown[]> {
   const { v1, extra } = await loadBootModelGroups();
-  return [...v1, ...extra];
+  const { refundModel } = await import("../models");
+  return [...v1, ...extra, refundModel];
 }
 
 interface SyncableModel {
@@ -109,11 +110,28 @@ const addPayoutDigestPref = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0004 — Crypto Refund Flow.
+ *  - Creates tbl_refund (create-only sync of refundModel; no-op if it exists).
+ *  - Adds the additive `refund_address` column to tbl_product_order
+ *    (payment links already have one). Idempotent + metadata-only → safe on prod.
+ */
+const createRefundTables = async (): Promise<void> => {
+  const { refundModel } = await import("../models");
+  if (isSyncable(refundModel)) await refundModel.sync();
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_product_order"
+       ADD COLUMN IF NOT EXISTS "refund_address" VARCHAR(255)`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
     { version: "0003_add_payout_digest_pref", up: addPayoutDigestPref },
+    { version: "0004_crypto_refund_flow", up: createRefundTables },
   ];
 }
