@@ -1,3 +1,29 @@
+# ============================================================================
+# 2026-08-24 RE-SETUP (this session) — prod-connected, SAFE MODE — VERIFIED
+# ----------------------------------------------------------------------------
+# - Preview URL: https://d91abbf6-57fc-4343-9a18-4289c6328295.preview.emergentagent.com
+# - Env files were REBUILT DIRECTLY from a fresh full cred paste by the user
+#   (NOT restored from env.vault.enc — no passphrase was provided this session).
+# - /app/backend/.env and /app/.env written by hand; SAFE MODE enforced:
+#     ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary  (no sweeps/settlement/
+#     payouts/webhook worker/cron — no on-chain money movement)
+#     REDIS_PUBLIC_URL -> .../15794/1   (isolated to Redis DB index 1)
+#     DISABLE_OUTBOUND_EMAIL=true       (no Brevo email to real merchants)
+#     DATABASE_URL set explicitly (URL branch of dbInstance.ts = SSL on; Railway needs it)
+#     Binance SOCKS proxy + SSH tunnel commented out (geo-blocked here; FX -> Tatum/CoinGecko)
+#     All public URLs rewritten to this preview host; CORS appended with it.
+# - VERIFIED this session:
+#     GET :8001/health -> healthy (database=connected, redis=connected,
+#       background_jobs.eligible=false = SAFE MODE, tatum operational, binance geo-blocked).
+#     external /  -> 200; external /api/public/tickers -> live prices.
+#     POST /api/user/login (hostbay@moxx.co) -> 200 "Login Successful!" (user_id=1, company_id=1).
+#     Boot migrations: "0 applied, 4 present" => NO schema changes to prod.
+# - Login (verified 200 this session): hostbay@moxx.co / Katiekendra123@
+# - Admin email on record: moxxcompany@gmail.com (password NOT provided).
+# - NOTE for testing agents: WIRED TO PRODUCTION DB. Prefer READ-ONLY checks.
+# ============================================================================
+
+
 # DynoPay — Emergent Preview Setup Notes (prod-connected, SAFE MODE)
 
 ## Status: RUNNING — connected to the user's LIVE Railway PostgreSQL + Redis
