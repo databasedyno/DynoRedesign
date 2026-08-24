@@ -478,3 +478,72 @@ Last in-progress item from the handoff (frontend-only), plan confirmed but not y
 - Item #4 typed config (~610 raw `process.env` reads), Item #5 remaining read-only SWR screens,
   Item #1 (17 `server.ts` boot syncs → migrations). Flutterwave webhook `return` bug DE-SCOPED
   (crypto-only focus).
+
+---
+
+## 10. CRYPTO REFUND FLOW — SPEC / DESIGN (2026-08-24 fork) — NOT YET BUILT (requirements captured)
+
+Refunds were previously DE-SCOPED; the user re-scoped them with a specific on-chain design. This section
+is the agreed spec so any agent can implement it. **Nothing below is built yet** — status = DESIGN.
+
+### The flow (as described by the user)
+1. **At checkout (customer):** the customer provides a **refund destination wallet address**. If a refund
+   is ever needed, this is where their crypto goes. Tied to the CHAIN the customer paid on.
+2. **Merchant refund:** the merchant opens the invoice/order → clicks **Refund** → DynoPay generates a
+   **refund invoice** that shows a **DynoPay-controlled wallet address on the SAME chain the customer
+   used**, with a crypto payment option. The merchant sends crypto to that DynoPay address; DynoPay then
+   **forwards it to the customer's saved refund address**. The refund is **locked to the original chain** —
+   the merchant cannot refund on a different chain.
+
+### CONFIRMED decisions (from the user)
+- **[1a] Custody path = DynoPay-mediated.** Merchant pays into a DynoPay-controlled address (customer's
+  chain); DynoPay forwards to the customer's saved refund address. (Mirrors the normal checkout rails —
+  reuse merchant-pool / temp-address + forwarding infra.)
+- **[2b] Refund destination = typed address only.** Always require the customer to TYPE a refund wallet
+  address at checkout. DROP the "refund to the same wallet I paid from" auto-detect (unreliable on
+  UTXO chains like BTC; simpler & safest to require an explicit address).
+- **[5] Scope = Storefront + Payment Links** (NOT the general Invoices feature). Exact storefront
+  sub-surfaces — product orders vs tips/donations — being confirmed (see OPEN below).
+
+### RECOMMENDED (proposed by agent, awaiting final user confirm)
+- **[3] Amount:** refund in the **SAME crypto asset + amount** the customer originally paid (e.g. sent
+  0.01 ETH → gets 0.01 ETH back), **NOT the USD value** (avoids FX disputes when price moves; matches
+  "same chain the customer used"). Support **partial** refunds (editable amount, capped at original;
+  full is the default). Option to ship v1 as full-only if the user prefers.
+- **[4] Gas/network fee:** the **merchant covers it** — refund invoice total = refund amount +
+  network-fee buffer, so the customer receives the FULL original crypto amount ("made whole"). Estimate
+  fees via existing `services/blockchainFeeService.ts` / `services/tronEnergyService.ts`.
+
+### OPEN questions (blocking final plan)
+- Final sign-off on [3] (crypto-denominated + partial allowed) and [4] (merchant pays gas).
+- Which storefront surface gets the Refund button FIRST: product orders, tips/donations, and/or
+  payment links (all use crypto checkout).
+
+### What ALREADY exists in the codebase (grounding — reuse, don't rebuild)
+- `tbl_payment_link.refund_address` (STRING) — CleanCheckoutV2 "Phase 1"; set at checkout via
+  `POST /pay/setRefundAddress` (`controller/payment/paymentLinkController.ts::setRefundAddress`).
+  Currently STORED ONLY — "never used to send to unless the merchant explicitly triggers a refund flow."
+  The checkout UI input lives in `Components/Page/Pay3Components/CleanCheckoutV2.tsx`
+  (`refundAddress` state + `saveRefundAddress`, ~L321/707/1520).
+- Product orders (`models/userModels/productOrderModel.ts`) have a refund STATUS flow
+  (`refund_requested` → `refunded`) via `controller/product/orderController.ts::refundOrder`
+  (`POST /api/products/orders/:orderId/refund`) — but crypto refunds are currently **OFF-CHAIN/manual**
+  (merchant sends from their own wallet; system only tracks status + emails buyer via
+  `sendOrderRefundedEmail`). This is the surface to UPGRADE to the on-chain refund-invoice flow.
+- Payment state machine already has a terminal `REFUNDED` state (`services/paymentStateMachine.ts`);
+  ledger has a `refund_liability` account (`services/ledger/ledgerAccountsBootstrap.ts`).
+
+### Implementation notes / phases (for whoever builds it)
+- **Phase A (checkout capture):** ensure the typed refund-address input is present on the in-scope
+  checkout surfaces (payment links already have it; verify storefront/product + tip checkouts capture it),
+  validated per-chain. Persist chain + address against the payment.
+- **Phase B (refund invoice):** new merchant "Refund" action → creates a refund-invoice record
+  (original payment ref, chain, asset, amount incl. fee buffer, customer refund_address) → allocates a
+  DynoPay deposit address on the SAME chain (reuse merchant-pool/temp-address allocation) → renders a
+  crypto payment page for the MERCHANT.
+- **Phase C (forwarding + settlement):** on confirmed merchant deposit, forward the refund to the
+  customer's refund_address (reuse the existing sweep/forward rails), mark payment `REFUNDED`, write the
+  ledger entries, email the customer (`sendOrderRefundedEmail` already exists), fire a webhook.
+- **SAFETY:** this MOVES REAL FUNDS on the LIVE prod DB — build behind a flag, unit-test the state
+  machine + fee math, and DO NOT trigger live forwarding during development without explicit approval.
+
