@@ -41,6 +41,15 @@ const isValidEmail = (email: string): boolean => {
  * Send email using Brevo (formerly Sendinblue) API
  */
 const mailTransporter = async ({ to, subject, body, name, attachments }: mailOptions) => {
+  // --- PREVIEW/SANDBOX SAFETY: never send real email from a non-prod pod ---
+  // When DISABLE_OUTBOUND_EMAIL=true (the Emergent preview is wired to the LIVE
+  // production DB), skip the Brevo API entirely so no real merchant / customer /
+  // admin email is ever sent from this environment. Production never sets this flag.
+  if (envRaw("DISABLE_OUTBOUND_EMAIL") === "true") {
+    log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=${to} | subject=${subject}`);
+    return { suppressed: true } as unknown;
+  }
+
   // --- Input validation (prevent Brevo 400s from bad data) ---
   if (!to || !isValidEmail(to)) {
     const err = new Error(`Invalid recipient email: "${to}"`);
