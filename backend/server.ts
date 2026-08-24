@@ -54,6 +54,7 @@ import { startLeaderElection, stopLeaderElection, isLeader, getInstanceId } from
 import { checkRpcHealth } from "./services/rpcHealthMonitor";
 import * as merchantPoolService from "./services/merchantPoolService";
 import { sweepExpiredCartOrders } from "./services/orderExpiryService";
+import { runRefundForwardingCycle } from "./services/refund/refundWorker";
 import { logStorageStrategyOnStartup } from "./services/gcsAssetService";
 import { UPLOAD_ROOT as PRODUCT_UPLOAD_ROOT } from "./middleware/uploadProductAsset";
 
@@ -901,6 +902,26 @@ leaderCron.schedule("*/5 * * * *", async () => {
     captureError(err as Error, "cron", { extraContext: "expireCartOrders" });
   } finally {
     await releaseLock("cron:expireCartOrders");
+  }
+});
+
+// Crypto Refund Flow (Phase C) — forward confirmed merchant deposits to the
+// customer + expire/timeout stale refunds. HARD-GATED inside the worker: a
+// no-op unless ENABLE_CRYPTO_REFUNDS + ENABLE_BACKGROUND_JOBS are on AND
+// REFUND_DRY_RUN is off (so it never runs in the safe-mode preview).
+leaderCron.schedule("*/2 * * * *", async () => {
+  const lockAcquired = await acquireLock("cron:refundForwarding", 100, 1, 100, true);
+  if (!lockAcquired) return;
+  try {
+    const stats = await runRefundForwardingCycle();
+    if (stats.advanced || stats.completed || stats.failed || stats.expired) {
+      log(`Cron: refundForwarding — ${JSON.stringify(stats)}`, "info");
+    }
+  } catch (err) {
+    log(`Cron: refundForwarding failed: ${(err as Error).message}`, "error");
+    captureError(err as Error, "cron", { extraContext: "refundForwarding" });
+  } finally {
+    await releaseLock("cron:refundForwarding");
   }
 });
 

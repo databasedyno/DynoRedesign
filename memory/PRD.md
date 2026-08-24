@@ -1,3 +1,67 @@
+# FEATURE + BUGFIX + DEPLOY DIAGNOSIS (2026-06 fork) — Refund status view, Phase-C worker/simulator, address masking, DO deploy RCA — DONE (testing-agent verified 100%)
+
+## 1) Refund Status View — DONE
+- New shared `Components/Page/Refund/refundStatus.tsx`: `REFUND_STATUS_COLORS`, `RefundStatusChip`,
+  `RefundStatusTimeline` (awaiting_deposit→deposit_detected→forwarding→completed; terminal
+  cancelled/failed/expired render as a chip), `maskAddress`, and `useRefundMap(sourceType)` (SWR;
+  keys refunds by source_ref).
+- Table status chips wired into `pages/pay-links/products/[productId]/orders.tsx`
+  (`product-order-refund-status-{id}`) and `Components/Page/Payment-link/PaymentLinksTable.tsx`
+  desktop `paylink-refund-status-{id}` + mobile `paylink-refund-status-mobile-{id}`.
+- Modal (`CryptoRefundModal.tsx`) invoice view renders the timeline. Colors/card made theme-aware
+  (modal is dark-themed) so the "Send exactly" card + labels are readable.
+
+## 2) Phase-C forwarding worker + SAFE dry-run simulator — DONE (worker OFF in prod/preview)
+- `backend/services/refund/refundWorker.ts`: `runRefundForwardingCycle()` — HARD-GATED (no-op unless
+  ENABLE_CRYPTO_REFUNDS + ENABLE_BACKGROUND_JOBS on AND REFUND_DRY_RUN off; only touches
+  is_dry_run=false rows). Chain ops `detectDeposit`/`forwardToCustomer` are documented PRODUCTION
+  INTEGRATION POINTS that SAFELY no-op until wired to sweep/KMS rails in staging.
+- `refundService.ts`: `transitionRefund()` (state-machine-guarded) + `simulateAdvanceRefund()` (advances
+  a DRY-RUN refund one step with synthetic tx ids; REFUSES non-dry-run rows).
+- `POST /api/refunds/:refundId/simulate` (auth) + modal "Advance status (simulate)" button
+  (`refund-simulate-btn`, dry-run only).
+- Leader cron registered in `server.ts` (`cron:refundForwarding`, */2m) — no-ops in preview/prod
+  until flags enabled.
+
+## 3) BUG FIX — mask customer receiving address — DONE
+- Merchant must NOT see the full customer refund/receiving address. `maskAddress()` (first6+…+last4)
+  applied in the modal: invoice "Customer receives at", create-view on-file "Customer refund address"
+  row, and the confirmation-checkbox echo (both on-file and manual-entry branches).
+- Also (this session, per user) the address-confirm checkbox (`refund-confirm-checkbox`) is now a
+  GENERAL final confirmation shown on EVERY refund create (not just manual entry) and gates
+  "Create refund" (`crypto-refund-submit-btn`) in addition to per-chain address validity.
+
+VERIFIED: testing_agent iteration_80 = 100% (4/4) — masking (0x9a72…b38f, full absent), table chips,
+simulate progression (deposit_detected→forwarding→completed), confirmation gating + wrong-chain
+(ETH-for-BTC) rejection. backend tsc + frontend tsc clean. All dry-run test rows cleaned from the
+LIVE prod DB (0 refund rows; link 174/175 refund_address reset to null). Safety rails untouched.
+
+## 4) DigitalOcean deployment failure — DIAGNOSED (no code blocker)
+- App: DO App Platform, single Dockerfile service "dynoredesign", http_port 8001 (Next.js + Node),
+  Railway PostgreSQL + Redis. App id f86b27dc-feb0-4a44-a4e9-ebd2053e0468.
+- Failed deploy = commit 2508e31 ("Safe Preview") → phase ERROR, `DeployContainerHealthChecksFailed`
+  (readiness probe). BUILD SUCCEEDED. Its ONLY runtime change was a harmless in-function email guard
+  (mailTransporter.ts) → transient/slow-boot readiness flake, NOT a code bug. DO auto-rolled back to
+  cbf0c48c; production is HEALTHY.
+- Verified next deploy (HEAD, adds refund feature) is DEPLOY-SAFE: `.env` is gitignored (NOT in the
+  Docker image) + `dotenv.config()` doesn't override DO spec env → preview-only values
+  (ENABLE_BACKGROUND_JOBS=false, DISABLE_OUTBOUND_EMAIL, Redis /1) will NOT leak to prod. Boot
+  migration 0004 is idempotent (create-only sync + ADD COLUMN IF NOT EXISTS, recorded in
+  schema_migrations). Refund feature is OFF in prod (no ENABLE_CRYPTO_REFUNDS env → router 404s,
+  worker no-ops). No hardcoded secrets/ports in new code (confirmed).
+- Active-deployment runtime warnings (all NON-fatal, no fix needed): VAPID not configured (web push
+  off), sshpass not found (tunnel is preview-only), MerchantPool "sweep not profitable" (dust),
+  and FastForex "No active subscription" → falls back to Tatum for FX (FLAG TO USER: their FastForex
+  plan lapsed; conversions still work via Tatum).
+- NOTE: the `deployment_agent` tool targets Emergent K8s (assumes React /app/frontend + MongoDB); its
+  two "blockers" (frontend/package.json start script, PostgreSQL-not-supported) are FALSE POSITIVES
+  for this DigitalOcean/Postgres app and were intentionally NOT acted on.
+
+Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB).
+
+---
+
+
 # FEATURE (2026-06 fork) — Crypto Refund: merchant-entered address + per-chain validation — DONE (verified)
 
 Extends the Crypto Refund Flow so a refund is no longer hard-blocked when the customer left no

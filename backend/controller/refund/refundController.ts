@@ -11,6 +11,7 @@ import {
   getRefund,
   listRefunds,
   cancelRefund,
+  simulateAdvanceRefund,
   resolveOriginalPayment,
   estimateGasBuffer,
   isRefundDryRun,
@@ -132,6 +133,23 @@ export const postCancelRefund = async (req: Request, res: Response) => {
   } catch (e: any) {
     const code = /not found/i.test(e?.message) ? 404 : 400;
     return errorResponseHelper(res, code, e?.message || "Unable to cancel refund.");
+  }
+};
+
+/**
+ * POST /api/refunds/:refundId/simulate  (SANDBOX)
+ * Advances a DRY-RUN refund one step so the status timeline can be validated
+ * end-to-end in preview. Refuses on any real (non-dry-run) refund.
+ */
+export const postSimulateRefund = async (req: Request, res: Response) => {
+  try {
+    const actor = uid(res);
+    if (!actor) return errorResponseHelper(res, 401, "Authentication required.");
+    const refund = await simulateAdvanceRefund(String(req.params.refundId), actor);
+    return successResponseHelper(res, 200, "Refund advanced (simulated).", refund);
+  } catch (e: any) {
+    const code = /not found/i.test(e?.message) ? 404 : 400;
+    return errorResponseHelper(res, code, e?.message || "Unable to simulate refund.");
   }
 };
 

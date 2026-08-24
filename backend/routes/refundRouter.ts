@@ -14,6 +14,7 @@ import {
   getRefundById,
   getRefunds,
   postCancelRefund,
+  postSimulateRefund,
   captureRefundAddress,
 } from "../controller/refund/refundController";
 import { isRefundsEnabled } from "../services/refund/refundService";
@@ -37,5 +38,6 @@ refundRouter.get("/", authMiddleware, getRefunds);
 refundRouter.post("/", authMiddleware, postRefund);
 refundRouter.get("/:refundId", authMiddleware, getRefundById);
 refundRouter.post("/:refundId/cancel", authMiddleware, postCancelRefund);
+refundRouter.post("/:refundId/simulate", authMiddleware, postSimulateRefund);
 
 export default refundRouter;

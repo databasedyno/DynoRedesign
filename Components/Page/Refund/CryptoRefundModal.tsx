@@ -26,9 +26,12 @@ import {
   Divider,
   IconButton,
   Tooltip,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import ContentCopyRounded from "@mui/icons-material/ContentCopyRounded";
 import axiosBaseApi from "@/axiosConfig";
+import { RefundStatusTimeline, maskAddress } from "./refundStatus";
 
 export type RefundSourceType = "product_order" | "payment_link";
 
@@ -129,6 +132,8 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
   const [created, setCreated] = useState<RefundRow | null>(null);
   const [copied, setCopied] = useState(false);
   const [addrInput, setAddrInput] = useState<string>("");
+  const [addrConfirmed, setAddrConfirmed] = useState(false);
+  const [simulating, setSimulating] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -157,6 +162,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
       setPreview(p);
       setAmount(String(p.max_refundable));
       setAddrInput(p.address_invalid ? String(p.customer_refund_address || "") : "");
+      setAddrConfirmed(false);
     } catch (e: any) {
       setError(
         e?.response?.data?.message || e?.message || "Unable to load refund details."
@@ -189,6 +195,10 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
         return;
       }
       refundAddr = a;
+    }
+    if (!addrConfirmed) {
+      setError("Please confirm the refund address is correct before continuing.");
+      return;
     }
     setSubmitting(true);
     setError(null);
@@ -225,6 +235,21 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
     }
   };
 
+  // Sandbox only — advance a dry-run refund to the next stage to preview the flow.
+  const simulateAdvance = async (refundId: string) => {
+    setSimulating(true);
+    setError(null);
+    try {
+      await axiosBaseApi.post(`refunds/${refundId}/simulate`, {});
+      onDone?.();
+      await load();
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e?.message || "Unable to advance refund.");
+    } finally {
+      setSimulating(false);
+    }
+  };
+
   const copy = (text: string) => {
     try {
       navigator.clipboard.writeText(text);
@@ -255,6 +280,29 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
           )}
         </Stack>
 
+        <Box sx={{ px: 0.5 }}>
+          <RefundStatusTimeline status={r.status} />
+        </Box>
+
+        {r.is_dry_run &&
+          ["awaiting_deposit", "deposit_detected", "forwarding"].includes(r.status) && (
+            <Box>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => simulateAdvance(r.refund_id)}
+                disabled={simulating}
+                data-testid="refund-simulate-btn"
+              >
+                {simulating ? "Advancing…" : "Advance status (simulate)"}
+              </Button>
+              <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+                Sandbox only — steps the refund to the next stage so you can preview
+                the full flow. No funds move.
+              </Typography>
+            </Box>
+          )}
+
         {r.is_dry_run && (
           <Alert severity="info" sx={{ fontSize: 13 }}>
             Preview / sandbox mode — this is a demonstration. No deposit address was
@@ -263,11 +311,11 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
           </Alert>
         )}
 
-        <Box sx={{ p: 1.5, border: "1px solid #E5E7EB", borderRadius: 1.5, bgcolor: "#F9FAFB" }}>
+        <Box sx={{ p: 1.5, border: "1px solid", borderColor: "divider", borderRadius: 1.5, bgcolor: "action.hover" }}>
           <Typography variant="caption" color="text.secondary">
             Send exactly
           </Typography>
-          <Typography sx={{ fontWeight: 800, fontSize: 20 }} data-testid="refund-deposit-amount">
+          <Typography sx={{ fontWeight: 800, fontSize: 20, color: "text.primary" }} data-testid="refund-deposit-amount">
             {Number(r.merchant_deposit_total)} {r.deposit_asset}
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -275,7 +323,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
           </Typography>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.5 }}>
             <Typography
-              sx={{ fontFamily: "var(--font-mono)", wordBreak: "break-all", fontSize: 13 }}
+              sx={{ fontFamily: "var(--font-mono)", wordBreak: "break-all", fontSize: 13, color: "text.primary" }}
               data-testid="refund-deposit-address"
             >
               {r.dyno_deposit_address}
@@ -299,7 +347,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
           />
           <Row
             label="Customer receives at"
-            value={r.customer_refund_address}
+            value={maskAddress(r.customer_refund_address)}
             mono
           />
         </Stack>
@@ -344,7 +392,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
               {!preview.needs_address && (
                 <Row
                   label="Customer refund address"
-                  value={preview.customer_refund_address}
+                  value={maskAddress(preview.customer_refund_address)}
                   mono
                 />
               )}
@@ -409,6 +457,29 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
               inputProps={{ maxLength: 500, "data-testid": "refund-reason-input" }}
               fullWidth
             />
+            <FormControlLabel
+              sx={{ alignItems: "flex-start", m: 0 }}
+              control={
+                <Checkbox
+                  checked={addrConfirmed}
+                  onChange={(e) => setAddrConfirmed(e.target.checked)}
+                  sx={{ pt: 0, mr: 1 }}
+                  inputProps={{ "data-testid": "refund-confirm-checkbox" } as any}
+                />
+              }
+              label={
+                <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.4 }}>
+                  I confirm the refund will be sent to{" "}
+                  <b style={{ wordBreak: "break-all" }}>
+                    {preview.needs_address
+                      ? (addrInput.trim() ? maskAddress(addrInput.trim()) : "the address above")
+                      : maskAddress(preview.customer_refund_address)}
+                  </b>{" "}
+                  on the <b>{preview.chain}</b> network. Crypto transfers are
+                  irreversible and cannot be undone once sent.
+                </Typography>
+              }
+            />
             {error && <Alert severity="error">{error}</Alert>}
           </Stack>
         ) : null}
@@ -433,6 +504,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
             onClick={submit}
             disabled={
               submitting ||
+              !addrConfirmed ||
               (!!preview.needs_address && !isValidAddressFor(preview.chain, addrInput))
             }
             data-testid="crypto-refund-submit-btn"

@@ -66,6 +66,7 @@ import PaymentLinkSuccessModal from "../CreatePaymentLink/PaymentLinkSuccessModa
 import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
 import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
+import { useRefundMap, RefundStatusChip } from "@/Components/Page/Refund/refundStatus";
 
 const CRYPTO_REFUNDS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS === "true";
@@ -182,6 +183,7 @@ const PaymentLinksTable = ({
   const [paymentLink, setPaymentLink] = useState<string>("");
   const [deleteModel, setDeleteModel] = useState<boolean>(false);
   const [cryptoRefundLinkId, setCryptoRefundLinkId] = useState<string | null>(null);
+  const { refundMap, mutateRefunds } = useRefundMap("payment_link");
   const [deleteId, setDeletId] = useState<string>("");
 
   const total = paymentLinks.length;
@@ -348,6 +350,7 @@ const PaymentLinksTable = ({
           onClose={() => setCryptoRefundLinkId(null)}
           sourceType="payment_link"
           sourceRef={cryptoRefundLinkId}
+          onDone={() => mutateRefunds()}
         />
       )}
       <Box
@@ -487,6 +490,12 @@ const PaymentLinksTable = ({
                             <Image src={TrashIcon} alt="" width={14} height={14} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)" }} />
                           </CopyButton>
                         </Tooltip>
+                      )}
+                      {CRYPTO_REFUNDS_ENABLED && refundMap[String(row.id)] && (
+                        <RefundStatusChip
+                          status={refundMap[String(row.id)].status}
+                          testid={`paylink-refund-status-mobile-${row.id}`}
+                        />
                       )}
                       {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
                         <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
@@ -827,6 +836,12 @@ const PaymentLinksTable = ({
                             />
                           </CopyButton>
                         </Tooltip>
+                      )}
+                      {CRYPTO_REFUNDS_ENABLED && refundMap[String(row.id)] && (
+                        <RefundStatusChip
+                          status={refundMap[String(row.id)].status}
+                          testid={`paylink-refund-status-${row.id}`}
+                        />
                       )}
                       {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
                         <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>

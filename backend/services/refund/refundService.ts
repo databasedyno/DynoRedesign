@@ -322,6 +322,53 @@ export const listRefunds = async (
   return rows.map((r: any) => r.dataValues);
 };
 
+/**
+ * Persist a validated refund state transition. Throws on an illegal transition
+ * (guards the state machine); a no-op when from === to.
+ */
+export const transitionRefund = async (
+  refund: any,
+  to: RefundStatus,
+  patch: Record<string, unknown> = {}
+) => {
+  const from = refund.dataValues.status as RefundStatus;
+  if (from === to) return refund.dataValues;
+  if (!canTransition(from, to)) {
+    throw new Error(`Illegal refund transition ${from} → ${to}.`);
+  }
+  await refund.update({ status: to, ...patch });
+  return refund.dataValues;
+};
+
+/**
+ * SAFE dry-run simulator — advances a DRY-RUN refund one step toward completion
+ * (awaiting_deposit → deposit_detected → forwarding → completed) with synthetic
+ * tx ids, so the status timeline can be validated end-to-end in the preview
+ * WITHOUT moving funds. HARD-REFUSES on any real (non-dry-run) refund.
+ */
+export const simulateAdvanceRefund = async (refundId: string, actorUserId: number) => {
+  const refund: any = await refundModel.findByPk(refundId);
+  if (!refund) throw new Error("Refund not found.");
+  if (Number(refund.dataValues.merchant_user_id) !== Number(actorUserId)) {
+    throw new Error("You do not have access to this refund.");
+  }
+  if (!refund.dataValues.is_dry_run) {
+    throw new Error("Simulation is only allowed on dry-run (sandbox) refunds.");
+  }
+  const short = String(refundId).slice(0, 8);
+  const cur = refund.dataValues.status as RefundStatus;
+  const step: Partial<Record<RefundStatus, { to: RefundStatus; patch: Record<string, unknown> }>> = {
+    awaiting_deposit: { to: "deposit_detected", patch: { merchant_deposit_txid: `SIM-DEP-${short}` } },
+    deposit_detected: { to: "forwarding", patch: {} },
+    forwarding: { to: "completed", patch: { forward_txid: `SIM-FWD-${short}` } },
+  };
+  const next = step[cur];
+  if (!next) {
+    throw new Error(`Refund is '${cur}' — nothing left to simulate.`);
+  }
+  return transitionRefund(refund, next.to, next.patch);
+};
+
 export const cancelRefund = async (refundId: string, actorUserId: number) => {
   const refund: any = await refundModel.findByPk(refundId);
   if (!refund) throw new Error("Refund not found.");

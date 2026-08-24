@@ -1,0 +1,40 @@
+{
+  "summary": "Frontend-only verification of Crypto Refund modal on payment links 174 (invoice view / ETH, existing dry-run refund) and 175 (create view / BTC). All 4 requested items PASS. Login via API + localStorage token worked. No writes performed outside the allowed sandbox refund creation on link 175.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "CryptoRefundModal (create view, link 175)", "issues": ["The confirmation-checkbox label displays the FULL customer BTC address just typed by the merchant (e.g. 'I confirm the refund will be sent to bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq on the BTC network...'). This is arguably fine (merchant just entered it), but is inconsistent with the masking policy applied elsewhere. Consider masking it in the checkbox label too for consistency."]}
+    ]
+  },
+  "test_results": {
+    "1_address_masking_link174": {
+      "status": "PASS",
+      "details": "Modal displays 'Customer receives at 0x9a72…b38f'. Full ETH address '0x9a7221b5e32d5f99e8da95585835442e29afb38f' is NOT present anywhere in the dialog. Timeline (refund-timeline), simulate button (refund-simulate-btn), and status chip (refund-status-chip = 'DEPOSIT DETECTED') all visible."
+    },
+    "2_table_status_chip_174": {
+      "status": "PASS",
+      "details": "paylink-refund-status-174 chip present in /pay-links table; text 'DEPOSIT DETECTED' initially, updated to 'COMPLETED' after simulate advances."
+    },
+    "3_simulate_advances_status": {
+      "status": "PASS",
+      "details": "Clicking refund-simulate-btn advanced status: DEPOSIT DETECTED → FORWARDING → COMPLETED. After COMPLETED the simulate button disappeared as expected (2 clicks from deposit_detected reached completed)."
+    },
+    "4_confirmation_gating_link175": {
+      "status": "PASS",
+      "details": "Create view shows refund-needs-address warning, refund-address-input, refund-amount-input, refund-confirm-checkbox, and crypto-refund-submit-btn. Submit initially disabled. Entering ETH address '0x9a72...b38f' + ticking checkbox: submit REMAINS DISABLED and 'Not a valid BTC address' error is shown. Entering valid BTC 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' + checkbox ticked: submit ENABLED. Unticking checkbox re-disables submit; reticking re-enables. Created one sandbox refund — invoice view appeared with masked 'Customer receives at bc1qar…5mdq' (full address NOT rendered in invoice view) and refund-timeline visible."
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: confirmation checkbox label on create view echoes full customer refund address — consider masking for policy consistency (low priority)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100% (4/4 scenarios)"},
+  "seed_data_creation": "Created 1 sandbox dry-run refund on payment link 175 via the modal (allowed per instructions). Main agent will clean it up.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Crypto Refund masking + confirmation-gating + simulate flow verified end-to-end on links 174/175. Login flow: POST /api/user/login → data.accessToken → localStorage 'token' + 'last_company_id'='1' → navigate to /pay-links."
+}

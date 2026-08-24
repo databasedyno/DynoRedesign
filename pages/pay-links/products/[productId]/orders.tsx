@@ -25,6 +25,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import { pageProps } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
+import { useRefundMap, RefundStatusChip } from "@/Components/Page/Refund/refundStatus";
 
 const CRYPTO_REFUNDS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS === "true";
@@ -80,6 +81,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
   const [refunding, setRefunding] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [cryptoRefundOrder, setCryptoRefundOrder] = useState<OrderRow | null>(null);
+  const { refundMap, mutateRefunds } = useRefundMap("product_order");
 
   useEffect(() => {
     if (!setPageName || !setPageDescription) return;
@@ -178,6 +180,12 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
                       sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700 }}
                       data-testid={`product-order-status-${o.order_id}`}
                     />
+                    {CRYPTO_REFUNDS_ENABLED && refundMap[o.public_ref] && (
+                      <RefundStatusChip
+                        status={refundMap[o.public_ref].status}
+                        testid={`product-order-refund-status-${o.order_id}`}
+                      />
+                    )}
                     {canRefund && (
                       <IconButton
                         size="small"
@@ -312,7 +320,10 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
           onClose={() => setCryptoRefundOrder(null)}
           sourceType="product_order"
           sourceRef={cryptoRefundOrder.public_ref}
-          onDone={() => setToast("Refund updated")}
+          onDone={() => {
+            setToast("Refund updated");
+            mutateRefunds();
+          }}
         />
       )}
     </Box>
