@@ -24,7 +24,7 @@ import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LinkRounded from "@mui/icons-material/LinkRounded";
 import PublicRounded from "@mui/icons-material/PublicRounded";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, Typography, useTheme } from "@mui/material";
 import { format } from "date-fns";
 import Image from "next/image";
 import React, {
@@ -57,6 +57,8 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
   onWalletChange,
   onSourceChange,
   onExport,
+  settledOnly,
+  onSettledOnlyChange,
   initialWallet,
   initialSource,
 }) => {
@@ -437,6 +439,25 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
         </Box>
 
         <ExportButtonWrapper>
+          {!isLgMobile && onSettledOnlyChange && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size="small"
+                  checked={!!settledOnly}
+                  onChange={(e) => onSettledOnlyChange(e.target.checked)}
+                  data-testid="transactions-export-settled-only"
+                />
+              }
+              label="Settled only"
+              sx={{
+                m: 0,
+                mr: 0.5,
+                whiteSpace: "nowrap",
+                "& .MuiFormControlLabel-label": { fontSize: 13 },
+              }}
+            />
+          )}
           <CustomButton
             label={tTransactions("export")}
             startIcon={

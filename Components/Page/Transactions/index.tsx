@@ -401,12 +401,14 @@ const TransactionPage = () => {
     });
   };
 
+  const [settledExport, setSettledExport] = useState(false);
   const handleExport = () => {    dispatch(TransactionAction(TRANSACTION_EXPORT, {
       wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
       date_from: dateRange.startDate?.toISOString(),
       date_to: dateRange.endDate?.toISOString(),
       search: searchTerm || undefined,
       company_id: selectedCompanyId || undefined,
+      settled_only: settledExport,
     }));
   };
 
@@ -449,6 +451,8 @@ const TransactionPage = () => {
         onWalletChange={handleWalletChange}
         onSourceChange={handleSourceChange}
         onExport={handleExport}
+        settledOnly={settledExport}
+        onSettledOnlyChange={setSettledExport}
         initialWallet={selectedWallet}
         initialSource={selectedSource}
       />

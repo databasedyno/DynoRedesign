@@ -96,10 +96,24 @@ const syncGroup = (models: unknown[]) => async (): Promise<void> => {
   }
 };
 
+/**
+ * 0003 — additive opt-in column for the weekly payout digest email.
+ * Idempotent (ADD COLUMN IF NOT EXISTS); safe on live prod (metadata-only,
+ * constant default). Recorded once in schema_migrations.
+ */
+const addPayoutDigestPref = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_notification_preferences"
+       ADD COLUMN IF NOT EXISTS "payout_digest_weekly" BOOLEAN NOT NULL DEFAULT false`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
+    { version: "0003_add_payout_digest_pref", up: addPayoutDigestPref },
   ];
 }

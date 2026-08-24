@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import { BRAND_ACCENT } from '@/constants/theme';
-import { Close, ArrowForward } from '@mui/icons-material';
+import { Close, ArrowForward, CardGiftcardRounded } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 
 /**
@@ -89,7 +89,7 @@ const StickyPromoBar: React.FC = () => {
           minWidth: 0,
         }}
       >
-        <Box component="span" sx={{ fontSize: 16, lineHeight: 1 }}>🎁</Box>
+        <CardGiftcardRounded sx={{ fontSize: 18 }} aria-hidden />
         {/* Shorter copy on mobile so the whole bar fits in one line at 375px iPhone width. */}
         <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
           Your first{' '}

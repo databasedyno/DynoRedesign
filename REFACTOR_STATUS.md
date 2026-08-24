@@ -403,3 +403,78 @@ Frontend:
   Components/Page/Transactions/index.tsx       (export date_from/date_to fix)
   hooks/useDisplayFx.ts                         (Item #5 -> useApiSWR)
 ```
+
+---
+
+## 8. NEXT-ITEMS PROGRESS (2026-08-24 fork) — 3 of the §7 items now BUILT
+
+- ✅ **Custom Range in Transactions** — the Transactions export already honoured the page's date-range
+  picker (post the date_from/date_to fix); added a **"Settled only"** checkbox next to Export for full
+  parity with the Payouts export (`TransactionsTopBar` + `settled_only` in the export payload).
+- ✅ **Savings Sparkline** — `getConversionSavings` now returns `monthly[6]`; the Payouts
+  "Auto-convert protection" card renders `Components/UI/Sparkline` (shown once conversions exist).
+- ✅ **Payout Email Digest (opt-in)** — NEW `payout_digest_weekly` column via idempotent migration
+  **0003_add_payout_digest_pref** (APPLIED ON LIVE PROD, additive/safe), wired through the notification
+  preferences get/update, gated `payoutDigestService.sendPayoutDigestsToAll` on the opt-in, and added a
+  "Weekly payout digest" toggle + "Send preview" button on `/payouts`. Cron send + preview email NOT
+  e2e-tested here (background jobs disabled; preview sends a real Brevo email).
+
+### Remaining §7 next-items (not yet built)
+- **Remember Last Range** — persist the merchant's last-used payout export range/dates.
+- **Pending Auto-Refresh Toast** — notify on /payouts the moment a pending payment confirms → settled.
+
+### Backlog (carried)
+- Item #4 typed config (~610 raw `process.env` reads), Item #5 remaining read-only SWR screens,
+  Item #1 (17 server.ts boot syncs → migrations). Flutterwave webhook `return` bug DE-SCOPED.
+
+
+
+---
+
+## 9. DEPLOYMENT UNBLOCK + STOREFRONT POLISH (2026-08-24 fork) — file-size gate FIXED
+
+Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).
+
+### ✅ DONE — Pre-commit / deploy blocker (file-size R2 budget)
+The `.husky/pre-commit` hook runs `backend/scripts/check-file-size.mjs`, which HARD-FAILS (exit 1)
+any NEW backend `.ts` file > 500 lines that is not grandfathered in
+`backend/scripts/file-size-baseline.json`. This was **blocking Save-to-GitHub / deploy**.
+
+- **Offender:** `controller/company/autoConvert.ts` = **510 lines** (grew past 500 when the savings
+  sparkline `monthly[6]` logic was added to `getConversionSavings` in §7/§8). Not in the baseline →
+  the gate blocked the commit.
+- **Fix (clean extraction, NOT grandfathering):** moved `getConversionSavings` into a new module
+  `controller/company/conversionSavings.ts` (98 lines). `autoConvert.ts` is now **429 lines** (under
+  budget) with its now-unused `Op`/`QueryTypes`/`sequelize` imports removed. The
+  `companyController.ts` barrel now imports `getConversionSavings` from `./company/conversionSavings`
+  and the rest from `./company/autoConvert`. Route `GET /api/company/conversion-savings/:id` unchanged.
+- **Verified:** `node backend/scripts/check-file-size.mjs` → **EXIT 0** ("no new backend file exceeds
+  500 lines, 57 legacy files grandfathered"); `cd backend && yarn build` (the exact DO/tsc build cmd) →
+  **EXIT 0**; endpoint still resolves (`GET /api/company/conversion-savings/1` → 401 = wired, needs
+  auth). Backend hot-reloaded clean.
+- **NOTE (warn-only, non-blocking):** several grandfathered legacy files have grown 1–100+ lines past
+  their baseline (dashboardController 1334→1441, productController 784→871, cartController 832→878,
+  chainVerification 1697→1704, etc.). These only WARN (the hook does not block on legacy growth) — but
+  if any needs editing later, prefer extracting a module over extending, or bump its baseline entry.
+
+FILES: NEW `backend/controller/company/conversionSavings.ts`; MOD
+`backend/controller/company/autoConvert.ts` (trimmed), `backend/controller/companyController.ts` (import).
+
+### ⏳ PENDING (planned, awaiting user go-ahead) — Storefront tab testids + @handle in checklist
+Last in-progress item from the handoff (frontend-only), plan confirmed but not yet applied:
+1. **Stable tab-panel testids** — wrap each rendered Storefront tab in `pages/storefront/index.tsx`
+   with `storefront-tabpanel-page` / `-products` / `-share` (tab BUTTONS already have testids; the
+   content panels' root testids vary by inner state, so a stable wrapper is needed for automated tests).
+2. **@handle inline in onboarding checklist** — in `Components/Page/Dashboard/v2026/ActivationChecklist.tsx`,
+   when a handle exists, render the reserved `@handle` (e.g. `@hostbay`) as a subtle chip next to the
+   "Open your storefront…" step so it feels claimed at a glance (uses `useStorefrontProfile`).
+   → After applying: frontend `tsc`, one smoke screenshot, then the frontend testing agent (handoff
+   flagged testing-agent required).
+
+### Backlog (carried)
+- **Remember Last Range** — persist the merchant's last-used payout export range/dates (localStorage).
+- **Pending Auto-Refresh Toast** — already built in §"Payouts row rendering" fork; verify live when a
+  real pending payment settles.
+- Item #4 typed config (~610 raw `process.env` reads), Item #5 remaining read-only SWR screens,
+  Item #1 (17 `server.ts` boot syncs → migrations). Flutterwave webhook `return` bug DE-SCOPED
+  (crypto-only focus).

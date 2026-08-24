@@ -3,6 +3,7 @@ import { Box, useTheme } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { SurfaceCard, Eyebrow, PrimaryCTA, CB_TOKENS } from "../coinbase/styled";
 
 interface Props {
@@ -32,6 +33,10 @@ const ActivationChecklist: React.FC<Props> = ({
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const router = useRouter();
   const isIndividual = accountType === "individual";
+  // Storefront-per-company: a claimed handle means the merchant's public page
+  // (tips + products + payment links) is live. Drives the storefront step below.
+  const { profile: storefront } = useStorefrontProfile();
+  const hasHandle = Boolean(storefront?.handle);
 
   const steps = useMemo(
     () => [
@@ -52,6 +57,18 @@ const ActivationChecklist: React.FC<Props> = ({
         href: "/wallet",
       },
       {
+        id: "handle",
+        label: hasHandle
+          ? t("stepHandleDone", {
+              defaultValue: "Open your storefront and share your page",
+            })
+          : t("stepHandle", {
+              defaultValue: "Claim your handle and open your page",
+            }),
+        done: hasHandle,
+        href: "/storefront",
+      },
+      {
         id: "link",
         label: t("stepLink", { defaultValue: "Create your first payment link" }),
         done: false,
@@ -64,7 +81,7 @@ const ActivationChecklist: React.FC<Props> = ({
         href: null as string | null,
       },
     ],
-    [isIndividual, profileComplete, hasWallet, t],
+    [isIndividual, profileComplete, hasWallet, hasHandle, t],
   );
 
   const doneCount = steps.filter((s) => s.done).length;

@@ -27,7 +27,7 @@ export default function useStorefrontProfile() {
     ["user/creator/profile", selectedCompanyId],
     {
       keepPreviousData: true,
-      select: (raw) => (raw?.data?.data ?? null) as StorefrontProfile | null,
+      select: (raw) => (raw?.data ?? null) as StorefrontProfile | null,
     },
   );
   return { profile: data, loading: data === undefined && !error, error, mutate };

@@ -302,7 +302,7 @@ const PageTab = () => {
         <Box sx={{ flex: "1 1 480px", minWidth: 0 }}>
           <PanelCard
             title={t("creatorCustomizeTitle", { defaultValue: "Customize your page", ns: "dashboardLayout" })}
-            subTitle={t("creatorCustomizeSubtitle", { defaultValue: "Claim a handle, add a cover image and share your links.", ns: "dashboardLayout" })}
+            subTitle={t("creatorCustomizeSubtitle", { defaultValue: "Personalise your page — cover image, theme and links.", ns: "dashboardLayout" })}
             bodyPadding={theme.spacing(2.5)}
           >
             <CreatorPageSettings onChange={onFormChange} />

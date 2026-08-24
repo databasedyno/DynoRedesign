@@ -1716,10 +1716,10 @@ import {
   getAutoConvertSettings,
   updateAutoConvertSettings,
   getConversionHistory,
-  getConversionSavings,
   getConversionDetail,
   retryConversion,
 } from "./company/autoConvert";
+import { getConversionSavings } from "./company/conversionSavings";
 
 
 // ── Fee-Free Status ─────────────────────────────────────────────────────────

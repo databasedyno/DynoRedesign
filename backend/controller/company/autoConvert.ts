@@ -1,6 +1,5 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { Op } from "sequelize";
 import { errorResponseHelper, getErrorMessage, successResponseHelper } from "../../helper";
 import { companyLogger } from "../../utils/loggers";
 import { companyModel, stablecoinConversionModel, userWalletModel } from "../../models";
@@ -346,59 +345,6 @@ const getConversionHistory = async (
   }
 };
 
-/**
- * Get auto-convert "volatility protection" summary for a company.
- * GET /api/company/conversion-savings/:id
- * Returns the USD value locked into stablecoins this month + all-time (COMPLETED
- * conversions) plus a count of in-progress conversions.
- */
-const getConversionSavings = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  const { id } = req.params;
-  try {
-    const companyId = parseInt(id);
-    const monthStart = new Date();
-    monthStart.setUTCDate(1);
-    monthStart.setUTCHours(0, 0, 0, 0);
-
-    const monthWhere = {
-      company_id: companyId,
-      status: "COMPLETED",
-      createdAt: { [Op.gte]: monthStart },
-    };
-    const allWhere = { company_id: companyId, status: "COMPLETED" };
-
-    const [monthSum, monthCount, allSum, allCount, inProgress] =
-      await Promise.all([
-        stablecoinConversionModel.sum("merchant_payout_usd", { where: monthWhere }),
-        stablecoinConversionModel.count({ where: monthWhere }),
-        stablecoinConversionModel.sum("merchant_payout_usd", { where: allWhere }),
-        stablecoinConversionModel.count({ where: allWhere }),
-        stablecoinConversionModel.count({
-          where: {
-            company_id: companyId,
-            status: { [Op.notIn]: ["COMPLETED", "FAILED"] },
-          },
-        }),
-      ]);
-
-    successResponseHelper(res, 200, "Conversion savings retrieved", {
-      month_converted_usd: Number(monthSum) || 0,
-      month_count: Number(monthCount) || 0,
-      all_time_converted_usd: Number(allSum) || 0,
-      all_time_count: Number(allCount) || 0,
-      in_progress_count: Number(inProgress) || 0,
-    });
-  } catch (e) {
-    const errorMessage = getErrorMessage(e);
-    companyLogger.error(errorMessage, { user_id: userData.user_id }, new Error(e));
-    errorResponseHelper(res, 500, errorMessage);
-  }
-};
-
 // Get single conversion detail by conversionId
 const getConversionDetail = async (req: express.Request, res: express.Response) => {
   try {
@@ -478,7 +424,6 @@ export {
   getAutoConvertSettings,
   updateAutoConvertSettings,
   getConversionHistory,
-  getConversionSavings,
   getConversionDetail,
   retryConversion,
 };

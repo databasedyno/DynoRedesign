@@ -464,9 +464,10 @@ export async function sendPayoutDigestForUser(
 }
 
 /**
- * Cron entry point — sends digests to every active merchant.
+ * Cron entry point — sends digests to every OPTED-IN active merchant.
  *
- * Definition of "active":
+ * Definition of "eligible":
+ *   • Opted in (tbl_notification_preferences.payout_digest_weekly = true)
  *   • Has verified email
  *   • Has status = 'active'
  *   • Has at least one settled transaction ever (skip freshly-signed-up empties)
@@ -483,7 +484,11 @@ export async function sendPayoutDigestsToAll(): Promise<{
      JOIN tbl_user_transaction ut ON ut.user_id = u.user_id
      WHERE u.status = 'active'
        AND u.email IS NOT NULL AND u.email <> ''
-       AND ut.status IN (${statusList})`,
+       AND ut.status IN (${statusList})
+       AND EXISTS (
+         SELECT 1 FROM tbl_notification_preferences np
+         WHERE np.user_id = u.user_id AND np.payout_digest_weekly = true
+       )`,
     { type: QueryTypes.SELECT },
   )) as Array<Record<string, unknown>>;
   let sent = 0;

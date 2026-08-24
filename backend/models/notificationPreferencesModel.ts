@@ -45,6 +45,12 @@ const notificationPreferencesModel = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    // Opt-IN (default false): the richer weekly "payout digest" email summarising
+    // settled payouts + anything still pending. Gated in payoutDigestService cron.
+    payout_digest_weekly: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     security_alerts: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

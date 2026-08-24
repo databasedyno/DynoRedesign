@@ -97,6 +97,8 @@ export interface TransactionsTopBarProps {
   onWalletChange?: (wallet: string) => void;
   onSourceChange?: (source: TransactionSourceType | "all") => void;
   onExport?: () => void;
+  settledOnly?: boolean;
+  onSettledOnlyChange?: (value: boolean) => void;
   initialSource?: TransactionSourceType | "all";
 }
 

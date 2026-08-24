@@ -3,11 +3,11 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, InputBase, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
-import { rootReducer } from "@/utils/types";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { buildCreatorUrl, prettyCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
@@ -44,14 +44,17 @@ const CreatorPageCard: React.FC = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { t } = useTranslation("dashboardLayout");
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const { profile: storefront, mutate: mutateStorefront } = useStorefrontProfile();
 
   const siteUrl = prettyCreatorDomain();
-  const handle = profile?.handle || "";
-  const published = Boolean(profile?.creator_page_enabled);
+  const handle =
+    (storefront?.handle as string) ||
+    (storefront?.storefront_pending ? (storefront?.account_handle as string) : "") ||
+    "";
+  const published = Boolean(storefront?.creator_page_enabled);
   const publicUrl = buildCreatorUrl(handle);
   const prettyUrl = prettyCreatorUrl(handle);
-  const accentColor = profile?.theme_accent_color || LIME;
+  const accentColor = (storefront?.theme_accent_color as string) || LIME;
 
   const [stats, setStats] = useState<CreatorStats | null>(null);
   const [copied, setCopied] = useState(false);
@@ -168,6 +171,7 @@ const CreatorPageCard: React.FC = () => {
         payload: { message: `Reserved! ${siteUrl}/${reserved} is yours 🎉` },
       });
       dispatch(UserAction(USER_PROFILE_FETCH));
+      void mutateStorefront?.();
     } catch (e: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not reserve handle", severity: "error" } });
     } finally {
@@ -179,6 +183,10 @@ const CreatorPageCard: React.FC = () => {
   const isDark = theme.palette.mode === "dark";
   const accentTint = isDark ? `${accentColor}14` : `${accentColor}1F`;
   const border = theme.palette.divider;
+
+  // Wait for the canonical per-company creator profile before choosing a state,
+  // so merchants who already have a handle never flash the "reserve" prompt.
+  if (storefront === undefined) return null;
 
   // ── STATE 3: Published (has handle + published) ─────────────────────
   if (handle && published) {

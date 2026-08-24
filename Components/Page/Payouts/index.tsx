@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import {
   Box,
@@ -28,6 +28,9 @@ import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
 import FileDownloadRounded from "@mui/icons-material/FileDownloadRounded";
 import HourglassTopRounded from "@mui/icons-material/HourglassTopRounded";
 import ShieldRounded from "@mui/icons-material/ShieldRounded";
+import MailRounded from "@mui/icons-material/MailRounded";
+import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
+import Sparkline from "@/Components/UI/Sparkline";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import useApiSWR from "@/hooks/useApiSWR";
@@ -68,6 +71,57 @@ const STABLECOIN_LABELS: Record<string, string> = {
 
 const maskAddr = (a?: string) =>
   !a ? "\u2014" : a.length <= 12 ? a : `${a.slice(0, 6)}\u2026${a.slice(-4)}`;
+
+// API-originated payments have no real customer email — the backend mints a
+// synthetic placeholder (legacy-api-…@dynopay.internal etc). Never surface those.
+const isInternalEmail = (v?: string) => {
+  if (!v) return false;
+  const s = String(v).toLowerCase();
+  return (
+    s.endsWith("@dynopay.internal") ||
+    s.endsWith("@dynopay.local") ||
+    s.startsWith("legacy-api-") ||
+    s.startsWith("pk-buyer-") ||
+    s.startsWith("elements-buyer-") ||
+    s.startsWith("recovered-")
+  );
+};
+
+const SOURCE_LABEL: Record<string, string> = {
+  api: "API payment",
+  payment_link: "Payment link",
+  tip: "Tip",
+  product: "Store order",
+  contribution: "Donation",
+  direct: "Direct payment",
+};
+
+// A human-friendly payer label: prefer a real name/email, otherwise fall back to
+// the payment source (never the synthetic internal email).
+const payerLabel = (tx: any): string => {
+  const name = (tx?.customer_name || "").toString().trim();
+  const email = (tx?.customer_email || tx?.customerEmail || "").toString().trim();
+  if (email && !isInternalEmail(email)) return name || email;
+  if (name && !isInternalEmail(name)) return name;
+  const type = tx?.source?.type;
+  if (type && SOURCE_LABEL[type]) return SOURCE_LABEL[type];
+  return isInternalEmail(email) ? "API payment" : "";
+};
+
+// Amount + single ticker (e.g. "0.016338 ETH"). base_currency and crypto_currency
+// are usually identical, so show the ticker exactly once.
+const amountLabel = (tx: any, fallbackSym: string): string => {
+  const amount = tx?.base_amount ?? tx?.amount;
+  if (amount == null) return "\u2014";
+  const ticker =
+    tx?.crypto_currency ||
+    tx?.cryptocurrency ||
+    tx?.wallet_type ||
+    tx?.base_currency ||
+    tx?.currency ||
+    fallbackSym;
+  return `${amount} ${ticker}`.trim();
+};
 
 const formatDate = (v?: string) => {
   if (!v) return "";
@@ -284,6 +338,40 @@ const PayoutsPage: React.FC = () => {
   const pendingCount: number = pendingSummary?.count ?? pendingTxns.length;
   const pendingTotalUsd: number = Number(pendingSummary?.total_usd) || 0;
 
+  // Real-time nudge: when a previously-pending payment leaves the pending set
+  // (confirmed → settled), toast the merchant and refresh the settlements list.
+  const prevPendingIdsRef = useRef<Set<string>>(new Set());
+  const pendingSeededRef = useRef(false);
+  useEffect(() => {
+    if (!pendingSummary) return;
+    const ids = new Set<string>(
+      pendingTxns
+        .map((t) => String(t?.transaction_id ?? t?.id ?? ""))
+        .filter(Boolean),
+    );
+    if (!pendingSeededRef.current) {
+      prevPendingIdsRef.current = ids;
+      pendingSeededRef.current = true;
+      return;
+    }
+    const settled = [...prevPendingIdsRef.current].filter((id) => !ids.has(id));
+    if (settled.length > 0) {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message:
+            settled.length === 1
+              ? "A pending payment just confirmed and settled"
+              : `${settled.length} pending payments just confirmed`,
+          severity: "success",
+        },
+      });
+      dashboard.refreshDashboard?.();
+    }
+    prevPendingIdsRef.current = ids;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingSummary]);
+
   // Auto-convert "volatility protection" — value locked into stablecoins.
   const { data: savings } = useApiSWR<any>(
     selectedCompanyId
@@ -294,6 +382,74 @@ const PayoutsPage: React.FC = () => {
   const savingsMonthUsd: number = Number(savings?.month_converted_usd) || 0;
   const savingsMonthCount: number = Number(savings?.month_count) || 0;
   const savingsInProgress: number = Number(savings?.in_progress_count) || 0;
+  const savingsAllTimeCount: number = Number(savings?.all_time_count) || 0;
+  const savingsMonthly: number[] = Array.isArray(savings?.monthly)
+    ? savings.monthly.map((v: unknown) => Number(v) || 0)
+    : [];
+
+  // Weekly payout digest opt-in (notification preference).
+  const { data: notifPrefs, mutate: mutateNotifPrefs } = useApiSWR<any>(
+    "/notifications/preferences",
+    { select: (raw) => raw?.data ?? raw },
+  );
+  const digestEnabled = notifPrefs?.payout_digest_weekly === true;
+  const [digestSaving, setDigestSaving] = useState(false);
+  const [digestPreviewing, setDigestPreviewing] = useState(false);
+  const toggleDigest = async (next: boolean) => {
+    if (digestSaving) return;
+    setDigestSaving(true);
+    mutateNotifPrefs(
+      { ...(notifPrefs || {}), payout_digest_weekly: next },
+      false,
+    );
+    try {
+      await axiosBaseApi.put("/notifications/preferences", {
+        payout_digest_weekly: next,
+      });
+      await mutateNotifPrefs();
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: next
+            ? "Weekly payout digest turned on"
+            : "Weekly payout digest turned off",
+          severity: "success",
+        },
+      });
+    } catch {
+      await mutateNotifPrefs();
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: "Couldn't update the digest setting",
+          severity: "error",
+        },
+      });
+    } finally {
+      setDigestSaving(false);
+    }
+  };
+  const sendDigestPreview = async () => {
+    if (digestPreviewing) return;
+    setDigestPreviewing(true);
+    try {
+      await axiosBaseApi.post("/notifications/payout-digest/preview", {});
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: "Preview digest sent to your email",
+          severity: "success",
+        },
+      });
+    } catch {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: { message: "Couldn't send the preview", severity: "error" },
+      });
+    } finally {
+      setDigestPreviewing(false);
+    }
+  };
 
   const fmtUsd = (n: number) =>
     `$${(Number(n) || 0).toLocaleString("en-US", {
@@ -682,6 +838,127 @@ const PayoutsPage: React.FC = () => {
       </Box>
 
       {/* Auto-convert protection */}
+      <Box sx={{ ...cardSx }} data-testid="payouts-autoconvert-savings-card">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          gap={1.5}
+        >
+          <Stack direction="row" alignItems="center" gap={1.25} sx={{ minWidth: 0 }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                display: "grid",
+                placeItems: "center",
+                bgcolor: `${SUCCESS_GREEN}1A`,
+                color: SUCCESS_GREEN,
+                flexShrink: 0,
+              }}
+            >
+              <ShieldRounded fontSize="small" />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+                <Typography sx={{ fontWeight: 700 }}>
+                  Auto-convert protection
+                </Typography>
+                {savingsAllTimeCount === 1 && (
+                  <Chip
+                    size="small"
+                    icon={<AutoAwesomeRounded sx={{ fontSize: 14 }} />}
+                    label="First conversion!"
+                    data-testid="payouts-first-conversion-badge"
+                    sx={{
+                      height: 22,
+                      fontWeight: 700,
+                      fontSize: 11,
+                      color: SUCCESS_GREEN,
+                      bgcolor: `${SUCCESS_GREEN}1A`,
+                      "& .MuiChip-icon": { color: SUCCESS_GREEN, ml: 0.5 },
+                      animation: "payoutsCelebratePulse 1.6s ease-in-out 3",
+                      "@keyframes payoutsCelebratePulse": {
+                        "0%, 100%": { transform: "scale(1)" },
+                        "50%": { transform: "scale(1.06)" },
+                      },
+                    }}
+                  />
+                )}
+              </Stack>
+              <Typography
+                variant="body2"
+                sx={{ color: theme.palette.text.secondary }}
+              >
+                {savingsAllTimeCount === 1 && savingsMonthUsd > 0
+                  ? "Your first payment was just auto-converted to a stablecoin \u2014 locked in against volatility"
+                  : savingsMonthUsd > 0
+                    ? `Locked into stablecoins this month across ${savingsMonthCount} ${
+                        savingsMonthCount === 1 ? "payment" : "payments"
+                      } — shielded from crypto volatility`
+                    : savingsInProgress > 0
+                      ? `${savingsInProgress} conversion${
+                          savingsInProgress === 1 ? "" : "s"
+                        } in progress — protecting your revenue`
+                      : "Turn on auto-convert to lock incoming crypto into stablecoins"}
+              </Typography>
+            </Box>
+          </Stack>
+          <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+            <Typography
+              data-testid="payouts-savings-month"
+              sx={{
+                fontSize: { xs: 20, sm: 24 },
+                fontWeight: 800,
+                lineHeight: 1.1,
+                color: savingsMonthUsd > 0 ? SUCCESS_GREEN : theme.palette.text.primary,
+              }}
+            >
+              {fmtUsd(savingsMonthUsd)}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: theme.palette.text.secondary,
+                textTransform: "uppercase",
+                letterSpacing: 0.4,
+                fontWeight: 600,
+              }}
+            >
+              This month
+            </Typography>
+          </Box>
+        </Stack>
+        {(savingsMonthly.some((v) => v > 0) || savingsAllTimeCount > 0) && (
+          <>
+            <Divider sx={{ my: 1.5 }} />
+            <Stack
+              direction="row"
+              alignItems="flex-end"
+              justifyContent="space-between"
+              gap={1}
+            >
+              <Typography
+                variant="caption"
+                sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
+              >
+                Last 6 months
+              </Typography>
+              <Sparkline
+                points={savingsMonthly}
+                width={168}
+                height={36}
+                color={SUCCESS_GREEN}
+                ariaLabel="Stablecoin conversions over the last 6 months"
+                data-testid="payouts-savings-sparkline"
+              />
+            </Stack>
+          </>
+        )}
+      </Box>
+
+      {/* Weekly payout digest opt-in */}
       <Box
         sx={{
           ...cardSx,
@@ -689,8 +966,9 @@ const PayoutsPage: React.FC = () => {
           alignItems: "center",
           justifyContent: "space-between",
           gap: 1.5,
+          flexWrap: "wrap",
         }}
-        data-testid="payouts-autoconvert-savings-card"
+        data-testid="payouts-digest-card"
       >
         <Stack direction="row" alignItems="center" gap={1.25} sx={{ minWidth: 0 }}>
           <Box
@@ -700,57 +978,44 @@ const PayoutsPage: React.FC = () => {
               borderRadius: 2,
               display: "grid",
               placeItems: "center",
-              bgcolor: `${SUCCESS_GREEN}1A`,
-              color: SUCCESS_GREEN,
+              bgcolor: `${theme.palette.primary.main}1A`,
+              color: theme.palette.primary.main,
               flexShrink: 0,
             }}
           >
-            <ShieldRounded fontSize="small" />
+            <MailRounded fontSize="small" />
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 700 }}>
-              Auto-convert protection
-            </Typography>
+            <Typography sx={{ fontWeight: 700 }}>Weekly payout digest</Typography>
             <Typography
               variant="body2"
               sx={{ color: theme.palette.text.secondary }}
             >
-              {savingsMonthUsd > 0
-                ? `Locked into stablecoins this month across ${savingsMonthCount} ${
-                    savingsMonthCount === 1 ? "payment" : "payments"
-                  } — shielded from crypto volatility`
-                : savingsInProgress > 0
-                  ? `${savingsInProgress} conversion${
-                      savingsInProgress === 1 ? "" : "s"
-                    } in progress — protecting your revenue`
-                  : "Turn on auto-convert to lock incoming crypto into stablecoins"}
+              Get a weekly email summarising settled payouts and anything still
+              pending
             </Typography>
           </Box>
         </Stack>
-        <Box sx={{ textAlign: "right", flexShrink: 0 }}>
-          <Typography
-            data-testid="payouts-savings-month"
-            sx={{
-              fontSize: { xs: 20, sm: 24 },
-              fontWeight: 800,
-              lineHeight: 1.1,
-              color: savingsMonthUsd > 0 ? SUCCESS_GREEN : theme.palette.text.primary,
-            }}
-          >
-            {fmtUsd(savingsMonthUsd)}
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: theme.palette.text.secondary,
-              textTransform: "uppercase",
-              letterSpacing: 0.4,
-              fontWeight: 600,
-            }}
-          >
-            This month
-          </Typography>
-        </Box>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          {digestEnabled && (
+            <Button
+              size="small"
+              variant="text"
+              disabled={digestPreviewing}
+              onClick={sendDigestPreview}
+              data-testid="payouts-digest-preview-btn"
+              sx={{ textTransform: "none", borderRadius: 2 }}
+            >
+              {digestPreviewing ? "Sending\u2026" : "Send preview"}
+            </Button>
+          )}
+          <Switch
+            checked={digestEnabled}
+            onChange={(e) => toggleDigest(e.target.checked)}
+            disabled={digestSaving}
+            data-testid="payouts-digest-toggle"
+          />
+        </Stack>
       </Box>
 
       {/* Payout destinations + tax quick links */}
@@ -920,14 +1185,7 @@ const PayoutsPage: React.FC = () => {
         ) : (
           <Stack divider={<Divider flexItem />} spacing={0}>
             {pendingTxns.slice(0, 6).map((tx, i) => {
-              const amount = tx?.base_amount ?? tx?.amount;
-              const cur = tx?.base_currency || sym;
-              const coin = tx?.crypto_currency || tx?.wallet_type;
-              const who = (
-                tx?.customer_name ||
-                tx?.customer_email ||
-                ""
-              ).toString();
+              const who = payerLabel(tx);
               const started = relativeFromNow(tx?.createdAt || tx?.created_at);
               const left = minutesLeftToConfirm(tx?.createdAt || tx?.created_at);
               return (
@@ -941,16 +1199,7 @@ const PayoutsPage: React.FC = () => {
                 >
                   <Box sx={{ minWidth: 0 }}>
                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
-                      {amount != null ? `${cur} ${amount}` : "\u2014"}{" "}
-                      {coin ? (
-                        <Typography
-                          component="span"
-                          variant="caption"
-                          sx={{ color: theme.palette.text.secondary }}
-                        >
-                          · {coin}
-                        </Typography>
-                      ) : null}
+                      {amountLabel(tx, sym)}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -1100,14 +1349,7 @@ const PayoutsPage: React.FC = () => {
           <Stack divider={<Divider flexItem />} spacing={0}>
             {txns.slice(0, 6).map((tx, i) => {
               const meta = statusMeta(tx?.status);
-              const amount = tx?.base_amount ?? tx?.amount;
-              const cur = tx?.base_currency || tx?.currency || sym;
-              const coin = tx?.crypto_currency || tx?.cryptocurrency;
-              const email = (
-                tx?.customerEmail ||
-                tx?.customer_email ||
-                ""
-              ).toString();
+              const who = payerLabel(tx);
               const date = formatDate(tx?.createdAt || tx?.created_at);
               return (
                 <Stack
@@ -1119,22 +1361,13 @@ const PayoutsPage: React.FC = () => {
                 >
                   <Box sx={{ minWidth: 0 }}>
                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
-                      {amount != null ? `${cur} ${amount}` : "\u2014"}{" "}
-                      {coin ? (
-                        <Typography
-                          component="span"
-                          variant="caption"
-                          sx={{ color: theme.palette.text.secondary }}
-                        >
-                          · {coin}
-                        </Typography>
-                      ) : null}
+                      {amountLabel(tx, sym)}
                     </Typography>
                     <Typography
                       variant="caption"
                       sx={{ color: theme.palette.text.secondary }}
                     >
-                      {email || "\u2014"}
+                      {who || "\u2014"}
                       {date ? ` \u00b7 ${date}` : ""}
                     </Typography>
                   </Box>

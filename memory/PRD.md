@@ -1,3 +1,173 @@
+# DEPLOY UNBLOCK (2026-08-24 fork) — pre-commit file-size gate FIXED
+
+The `.husky/pre-commit` hook (`backend/scripts/check-file-size.mjs`) was BLOCKING Save-to-GitHub/deploy:
+`controller/company/autoConvert.ts` had grown to 510 lines (> 500 R2 budget, not grandfathered) after
+the savings-sparkline additions. FIX: extracted `getConversionSavings` → new module
+`controller/company/conversionSavings.ts` (98 lines); `autoConvert.ts` now 429 lines; barrel
+`companyController.ts` imports it from the new path. Route `GET /api/company/conversion-savings/:id`
+unchanged. VERIFIED: file-size gate EXIT 0, `cd backend && yarn build` (tsc) EXIT 0, secrets guard EXIT 0,
+endpoint resolves (401 = wired). Full detail in /app/REFACTOR_STATUS.md §9. User can now Save to GitHub.
+
+PENDING (planned, awaiting go-ahead): Storefront tab-panel testids + reserved @handle chip in the
+onboarding checklist (frontend-only; see REFACTOR_STATUS §9).
+
+---
+
+
+# BUGFIX + FEATURE (2026-08-24 fork) — "Claim handle when already claimed" + onboarding step — DONE (testing-agent verified 100%)
+
+Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB). Verified by testing_agent iteration_79 (100%).
+
+BUG (P0): App asked merchant 'hostbay' to CLAIM a handle it already owns (handle='hostbay',
+creator_page_enabled=true — confirmed via GET /api/user/creator/profile). Showed as a dashboard
+"Reserve hostbay's handle / Claim now" banner + storefront claim prompts.
+ROOT CAUSE: hooks/useStorefrontProfile.ts line 30 used a DOUBLE unwrap `select: raw => raw?.data?.data`.
+swrFetcher returns res.data = {message, data:{payload}}, so raw?.data = payload; raw?.data?.data =
+payload.data = undefined → hook ALWAYS returned null → every storefront surface (ClaimHandleBanner,
+PageTab, CreatorPageCard) thought no handle existed.
+FIX: `select: raw => raw?.data`. One line — fixes ALL consumers at once.
+Supporting fixes: CreatorPageCard now reads the canonical per-company profile via useStorefrontProfile
+(was stale account-level userReducer.profile) + calls mutate after a claim + a loading guard
+(`if (storefront === undefined) return null`); PageTab "Customize your page" subtitle reworded from
+"Claim a handle…" → "Personalise your page — cover image, theme and links."
+VERIFIED (testing_agent 100%): dashboard has NO claim-handle-banner / no "Reserve"/"Claim now";
+/storefront shows "Your creator page is live" + @hostbay + /hostbay + visit totals; 0 console/page errors.
+
+FEATURE: Added a "Claim your handle & open your page" step to the activation checklist
+(Components/Page/Dashboard/v2026/ActivationChecklist.tsx) — uses useStorefrontProfile; when a handle
+exists the step is done + reads "Open your storefront and share your page", else "Claim your handle and
+open your page" → /storefront. Helps new creator merchants discover the storefront. (Only shown to
+brand-new merchants pre-first-payment, so hostbay doesn't see it.)
+
+NON-BLOCKING (from test report, not fixed — testability only): storefront Page/Products/Share tabs lack
+data-testids; CreatorPageCard testid not present in hostbay's dashboard layout (renders GrowPanel/fee-tier
+instead — expected).
+
+FILES: hooks/useStorefrontProfile.ts, Components/Page/Dashboard/CreatorPageCard.tsx,
+Components/Page/Storefront/PageTab.tsx, Components/Page/Dashboard/v2026/ActivationChecklist.tsx.
+
+---
+
+
+
+# CLEANUP (2026-08-24 fork) — Retire legacy fiat checkout + emoji→icon — DONE (self-verified)
+
+User approved 1a + 2a; ICP = both creators/SMBs AND B2B/API (so Storefront/Tips kept as-is).
+
+1) RETIRED LEGACY FIAT CHECKOUT (crypto-only product cleanup). Deleted the orphaned Flutterwave-era
+   method-picker + all its components:
+     pages/payment/index.tsx
+     Components/Page/Payment/{Card,GooglePay,MobileMoney,USSD,BankTransfer,BankAccount,QRCode,Crypto}Component.tsx
+     Components/Page/Payment/utils.ts  (dir now removed)
+   Safety: every one of those 8 components was imported ONLY by pages/payment/index.tsx; utils.ts had no
+   external importers; no in-app navigation targets /payment. KEPT (shared): paymentAuth HOC (used by
+   /pay), and pages/payment/{success,failed,verify}.tsx (generic status pages, no fiat imports).
+   Verified: frontend tsc EXIT 0 (no broken imports); /payment → 404; /pay 200; /payment/success|failed|
+   verify 200; landing 200; no frontend compile errors.
+
+2) EMOJI → ICON: replaced the 🎁 emoji-as-icon in Components/Common/StickyPromoBar.tsx with MUI
+   CardGiftcardRounded. NOTE: the dashboard "Grow with Dynopay" card already used a proper
+   CelebrationRounded icon (the low-res screenshot misread) — no change needed there. (Remaining emoji in
+   the app are toast microcopy like CreatorPageCard "…is yours 🎉" and code comments — left as-is.)
+
+UI RELEVANCE AUDIT CONCLUSION (confirmed by the landing hero "Storefronts, tips, campaigns and a clean
+API — merchants, creators, fundraisers and developers"): the legacy fiat checkout was the ONLY off-scope
+in-app surface; everything else (crypto checkout, Payment Links, Payouts, Transactions, Customers,
+Invoices/Tax, Storefront/Shop/Creator-tips, Wallets, API, Referrals, Fees, Onboarding) is highly relevant.
+
+---
+
+
+
+# BUGFIX + FEATURES (2026-08-24 fork) — Payouts row rendering + celebration/toast + UI audit — DONE (testing-agent verified)
+
+Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB).
+
+USER-REPORTED BUG (Payouts rows I built) — FIXED & VERIFIED by testing_agent (iteration_78, 100%):
+- Duplicated ticker ("ETH 0.01536406 · ETH", "USDT-TRC20 111.86 · USDT-TRC20") → now single ticker
+  via `amountLabel(tx)` → "0.01536406 ETH".
+- Synthetic internal customer email leak ("legacy-api-…@dynopay.internal") → `payerLabel(tx)` +
+  `isInternalEmail()` now show a clean payer (real name/email, else source label "API payment"/
+  "Direct payment"/"Store order"/"Tip"/"Donation"/"Payment link"). Applied to BOTH the Pending funds
+  card and Recent settlements rows in Components/Page/Payouts/index.tsx. (Dashboard
+  RecentTransactionsWidget + Transactions page already guarded this — leak was isolated to Payouts.)
+
+FEATURES (render clean; can't trigger on this 0-conversion / 0-pending account — activate with real data):
+- Backfill Sparkline + celebration: savings sparkline now shows once all_time_count>0; a subtle pulsing
+  "First conversion!" chip (data-testid payouts-first-conversion-badge, AutoAwesome icon) + tailored copy
+  when all_time_count===1. Uses savings.all_time_count.
+- Pending Auto-Refresh Toast: /payouts polls pending-summary every 30s; a useRef diff of pending
+  transaction_ids fires a success toast ("A pending payment just confirmed and settled") + calls
+  dashboard.refreshDashboard() when an id leaves the pending set (seeded on first load to avoid a false
+  toast).
+
+UI RELEVANCE / ALIGNMENT AUDIT (requested):
+- Alignment: the duplicate-ticker + internal-email issues were ISOLATED to the Payouts page (fixed).
+  No other duplicated-ticker instances; other tx-display surfaces already use source badges/labels.
+  Minor: dashboard "Grow with Dynopay" card uses an emoji (🎉) as an icon — against the design system.
+- Relevance FLAG: `pages/payment/index.tsx` is a LEGACY Flutterwave-era FIAT checkout bundling
+  Card/GooglePay/MobileMoney/USSD/BankTransfer/BankAccount (Components/Page/Payment/*). The LIVE crypto
+  checkout is CleanCheckoutV2 (/pay, /[handle]/checkout). For a crypto-only product these fiat rails are
+  low-relevance / candidate for removal/hiding. All other in-app areas (Payment Links, API/Buy Buttons,
+  Balances/Payouts, Transactions, Wallets, Customers, Invoices/Receipts&Tax, Storefront/Shop/Creator-tips,
+  Referrals, Fee tiers, Onboarding/handle/KYC) are highly relevant.
+
+FILES: Components/Page/Payouts/index.tsx (payerLabel/amountLabel/isInternalEmail helpers, row rendering,
+celebration badge, pending auto-refresh effect, useRef import, AutoAwesome import).
+
+---
+
+
+
+# FEATURE (2026-08-24 fork) — Transactions settled-export parity + Savings Sparkline + Payout Email Digest opt-in — DONE (verified)
+
+Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB). Verified via tsc (fe+be) + curl + screenshots.
+
+1) CUSTOM RANGE IN TRANSACTIONS (parity) — the Transactions page already had a date-range picker that
+   (after the earlier date_from/date_to fix) drives its CSV export, so custom-date export already
+   worked. Closed the remaining gap vs Payouts by adding a **"Settled only"** checkbox next to Export
+   (`TransactionsTopBar` new props `settledOnly`/`onSettledOnlyChange`, data-testid
+   `transactions-export-settled-only`; index.tsx `settledExport` state → `settled_only` in the
+   TRANSACTION_EXPORT payload). Backend `settled_only` already curl-verified (146→86 rows). TopBar is a
+   single-consumer component (safe to edit).
+
+2) SAVINGS SPARKLINE — `getConversionSavings` (controller/company/autoConvert.ts) now also returns
+   `monthly: number[6]` (last 6 months of COMPLETED merchant_payout_usd, oldest→newest, missing months
+   0-filled; +sequelize/QueryTypes import). Payouts "Auto-convert protection" card renders
+   `Components/UI/Sparkline` (data-testid `payouts-savings-sparkline`) ONLY when some month > 0 (hidden
+   for this account: monthly=[0,0,0,0,0,0], 0 conversions). Curl-verified the array shape.
+
+3) PAYOUT EMAIL DIGEST (opt-in) — genuine opt-in needed a false-default flag (weekly_summary defaults
+   TRUE and already gates the basic weekly-summary cron), so added a dedicated column:
+   * MIGRATION 0003_add_payout_digest_pref (backend/migrations/bootMigrations.ts) — idempotent
+     `ALTER TABLE tbl_notification_preferences ADD COLUMN IF NOT EXISTS payout_digest_weekly BOOLEAN
+     NOT NULL DEFAULT false`. APPLIED ON LIVE PROD ("1 applied, 2 present") — safe/additive/metadata-only.
+   * Model `notificationPreferencesModel` + `notificationController` get/update wired for
+     payout_digest_weekly.
+   * `payoutDigestService.sendPayoutDigestsToAll` cron now gated on
+     `EXISTS(... np.payout_digest_weekly = true)` → true opt-in.
+   * Payouts "Weekly payout digest" card (data-testid `payouts-digest-card` / `payouts-digest-toggle`)
+     — Switch reads/writes `/notifications/preferences` via useApiSWR + PUT (optimistic + toast), plus a
+     "Send preview" button (`payouts-digest-preview-btn`) → `POST /notifications/payout-digest/preview`.
+   * Curl-verified: column present, PUT true→false round-trip OK (left OFF/default).
+   * NOT e2e-tested: the weekly cron (ENABLE_BACKGROUND_JOBS=false here) and the preview button (sends a
+     REAL Brevo email to the merchant — deliberately not triggered).
+
+VERIFIED: frontend + backend `tsc` EXIT 0; backend restarted (migration 0003 ran); screenshots show the
+Transactions "Settled only" checkbox + the Payouts savings + digest cards; 0 console errors. NOTE: a real
+fresh 'pending' BTC payment appeared during testing → Pending badge now shows 1 (the Pending Funds card /
+summary reflect it live).
+
+FILES: backend/controller/company/autoConvert.ts, backend/migrations/bootMigrations.ts,
+backend/models/notificationPreferencesModel.ts, backend/controller/notificationController.ts,
+backend/services/payoutDigestService.ts; Components/Page/Payouts/index.tsx,
+Components/Page/Transactions/index.tsx, Components/Page/Transactions/TransactionsTopBar.tsx,
+utils/types/transaction.ts.
+
+---
+
+
+
 # FEATURE (2026-08-24 fork) — Payouts export: Custom date range — DONE (verified)
 
 Added a "Custom range…" option to the Payouts CSV export range picker (`Components/Page/Payouts/index.tsx`),
