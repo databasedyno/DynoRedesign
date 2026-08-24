@@ -127,6 +127,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
   const [preview, setPreview] = useState<Preview | null>(null);
   const [existing, setExisting] = useState<RefundRow | null>(null);
   const [amount, setAmount] = useState<string>("");
+  const [amountPreset, setAmountPreset] = useState<"full" | "half" | "custom">("full");
   const [reason, setReason] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [created, setCreated] = useState<RefundRow | null>(null);
@@ -161,6 +162,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
       const p: Preview = prevResp?.data?.data;
       setPreview(p);
       setAmount(String(p.max_refundable));
+      setAmountPreset("full");
       setAddrInput(p.address_invalid ? String(p.customer_refund_address || "") : "");
       setAddrConfirmed(false);
     } catch (e: any) {
@@ -434,20 +436,60 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
               </Box>
             )}
 
-            <TextField
-              label={`Refund amount (${preview.asset})`}
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              inputProps={{
-                min: 0,
-                max: preview.max_refundable,
-                step: "any",
-                "data-testid": "refund-amount-input",
-              }}
-              helperText={`Max ${preview.max_refundable} ${preview.asset} (partial allowed)`}
-              fullWidth
-            />
+            <Box>
+              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                <Button
+                  size="small"
+                  variant={amountPreset === "full" ? "contained" : "outlined"}
+                  onClick={() => {
+                    setAmountPreset("full");
+                    setAmount(String(preview.max_refundable));
+                  }}
+                  data-testid="refund-preset-full"
+                >
+                  Full
+                </Button>
+                <Button
+                  size="small"
+                  variant={amountPreset === "half" ? "contained" : "outlined"}
+                  onClick={() => {
+                    setAmountPreset("half");
+                    setAmount(String(Math.floor((preview.max_refundable / 2) * 1e8) / 1e8));
+                  }}
+                  data-testid="refund-preset-half"
+                >
+                  50%
+                </Button>
+                <Button
+                  size="small"
+                  variant={amountPreset === "custom" ? "contained" : "outlined"}
+                  onClick={() => {
+                    setAmountPreset("custom");
+                    setAmount("");
+                  }}
+                  data-testid="refund-preset-custom"
+                >
+                  Custom
+                </Button>
+              </Stack>
+              <TextField
+                label={`Refund amount (${preview.asset})`}
+                type="number"
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setAmountPreset("custom");
+                }}
+                inputProps={{
+                  min: 0,
+                  max: preview.max_refundable,
+                  step: "any",
+                  "data-testid": "refund-amount-input",
+                }}
+                helperText={`Max ${preview.max_refundable} ${preview.asset} (partial allowed)`}
+                fullWidth
+              />
+            </Box>
             <TextField
               label="Reason (optional, shown to customer)"
               multiline

@@ -134,6 +134,29 @@ export const validateChainAddress = (
   return { ok: true };
 };
 
+const EXPLORER_TX: Record<string, (t: string) => string> = {
+  BTC: (t) => `https://mempool.space/tx/${t}`,
+  LTC: (t) => `https://blockchair.com/litecoin/transaction/${t}`,
+  DOGE: (t) => `https://blockchair.com/dogecoin/transaction/${t}`,
+  BCH: (t) => `https://blockchair.com/bitcoin-cash/transaction/${t}`,
+  ETH: (t) => `https://etherscan.io/tx/${t}`,
+  POL: (t) => `https://polygonscan.com/tx/${t}`,
+  TRX: (t) => `https://tronscan.org/#/transaction/${t}`,
+  SOL: (t) => `https://solscan.io/tx/${t}`,
+  XRP: (t) => `https://xrpscan.com/tx/${t}`,
+};
+
+/** Block-explorer URL for a tx on the chain of `meta` (null if txid/chain unknown). */
+export const explorerTxUrl = (
+  meta: ChainMeta,
+  txid: string | null | undefined
+): string | null => {
+  const t = String(txid || "").trim();
+  if (!t) return null;
+  const fn = EXPLORER_TX[meta.gasSymbol];
+  return fn ? fn(t) : null;
+};
+
 export interface AmountValidation {
   ok: boolean;
   amount: number;

@@ -9,11 +9,13 @@ import {
   getChainMeta,
   validateRefundAmount,
   validateChainAddress,
+  explorerTxUrl,
   computeDepositPlan,
   canTransition,
   isRefundableOrderStatus,
   STATIC_GAS_BUFFER_NATIVE,
 } from "../services/refund/refundChains";
+import { buildRefundEmail } from "../services/refund/refundEmailTemplates";
 
 let passed = 0;
 let failed = 0;
@@ -102,6 +104,19 @@ assert("valid SOL", validateChainAddress(solMeta, "Gjjphdxe26tayH3PBQcqXYt3R2gt7
 assert("valid XRP", validateChainAddress(xrpMeta, "rNxp4h8apvRis6mJf9Sh8C6iRxfrDWN7AV").ok);
 assert("empty REJECTED", !validateChainAddress(btcMeta, "").ok);
 assert("garbage REJECTED", !validateChainAddress(ethMeta, "not-an-address").ok);
+
+console.log("\n== explorerTxUrl + refund receipt emails ==");
+assert("ETH explorer url", explorerTxUrl(ethMeta, "0xabc123") === "https://etherscan.io/tx/0xabc123");
+assert("empty txid -> null", explorerTxUrl(ethMeta, "") === null);
+assert("TRC20 token uses Tron explorer", (explorerTxUrl(trc20Meta, "Txyz") || "").startsWith("https://tronscan.org"));
+assert("BTC explorer url", (explorerTxUrl(btcMeta, "deadbeef") || "") === "https://mempool.space/tx/deadbeef");
+const emFwd = buildRefundEmail({ refund_amount: 0.5, asset: "BTC", chain: "BTC" }, "forwarding");
+assert("forwarding subject mentions amount + on its way", /on its way/i.test(emFwd.subject) && emFwd.subject.includes("0.5 BTC"));
+const emDone = buildRefundEmail({ refund_amount: 10, asset: "USDT", chain: "USDT-ERC20", forward_txid: "0xfeedface" }, "completed");
+assert("completed subject", /complete/i.test(emDone.subject) && emDone.subject.includes("10 USDT"));
+assert("completed body embeds explorer link", emDone.html.includes("https://etherscan.io/tx/0xfeedface"));
+const emDoneNoTx = buildRefundEmail({ refund_amount: 1, asset: "BTC", chain: "BTC" }, "completed");
+assert("completed w/o txid still builds", /complete/i.test(emDoneNoTx.subject) && emDoneNoTx.html.length > 100);
 
 console.log(`\n===== Refund logic tests: ${passed} passed, ${failed} failed =====\n`);
 process.exit(failed === 0 ? 0 : 1);

@@ -1,3 +1,32 @@
+# FEATURES (2026-06 fork) — Refund receipt emails + amount presets — DONE
+
+## Refund Amount Presets (frontend) — DONE (screenshot-verified)
+- `CryptoRefundModal.tsx` create view: added Full / 50% / Custom quick buttons above the amount field
+  (`refund-preset-full`, `refund-preset-half`, `refund-preset-custom`). Full = max_refundable, 50% =
+  max/2 (floored to 8 dp), Custom clears the field for manual entry; typing in the amount switches the
+  active preset to Custom. Verified: 50% set 0.000601 from a 0.001202 max.
+
+## Refund Receipt Emails (backend) — DONE (unit-tested; live send only in prod)
+- `backend/services/refund/refundEmailTemplates.ts` — pure `buildRefundEmail(refund, kind)` for
+  kind 'forwarding' ("your refund is on its way") and 'completed' ("refund complete" + a
+  block-explorer button linking the forward_txid). Dark Dynopay-branded HTML.
+- `backend/services/refund/refundChains.ts` — `explorerTxUrl(meta, txid)` keyed by native gas symbol
+  (mempool.space / blockchair / etherscan / polygonscan / tronscan / solscan / xrpscan).
+- `backend/services/refund/refundEmails.ts` — `sendRefundStatusEmail(refund)`: sends via the existing
+  Brevo `mailTransporter` (which honours DISABLE_OUTBOUND_EMAIL). NO-OP for dry-run refunds, missing
+  customer_email, or non-emailable statuses; NEVER throws.
+- Hooked into `refundService.transitionRefund`: on transition to `forwarding` or `completed` it calls
+  `sendRefundStatusEmail`. Because it's wired at the state-transition choke point, both the Phase-C
+  worker (real) and the simulator (dry-run) hit it — dry-run is skipped so no email is sent in preview.
+- VERIFIED: 63/63 refund unit tests pass (8 new for explorerTxUrl + buildRefundEmail); backend +
+  frontend tsc clean; dry-run simulate still advances awaiting_deposit→deposit_detected→forwarding→
+  completed with the hook in place (no send). ⚠️ The ACTUAL email send only fires for REAL
+  (non-dry-run) refunds in production — it is intentionally skipped in the preview (dry-run + email
+  kill-switch), so live delivery must be confirmed once Phase C runs in staging/prod.
+
+---
+
+
 # FEATURE + BUGFIX + DEPLOY DIAGNOSIS (2026-06 fork) — Refund status view, Phase-C worker/simulator, address masking, DO deploy RCA — DONE (testing-agent verified 100%)
 
 ## 1) Refund Status View — DONE

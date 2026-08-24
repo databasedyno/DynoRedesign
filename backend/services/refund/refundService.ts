@@ -17,6 +17,7 @@ import refundModel from "../../models/userModels/refundModel";
 import { paymentLinkModel, productOrderModel, customerTransactionModel } from "../../models";
 import { reserveAddress } from "../merchantPool/merchantPoolReservation";
 import { getBlockchainNetworkFee } from "../blockchainFeeService";
+import { sendRefundStatusEmail } from "./refundEmails";
 import {
   getChainMeta,
   validateRefundAmount,
@@ -337,6 +338,11 @@ export const transitionRefund = async (
     throw new Error(`Illegal refund transition ${from} → ${to}.`);
   }
   await refund.update({ status: to, ...patch });
+  // Fire the customer receipt email on the two customer-relevant transitions.
+  // No-op for dry-run refunds / missing email; never throws.
+  if (to === "forwarding" || to === "completed") {
+    await sendRefundStatusEmail(refund);
+  }
   return refund.dataValues;
 };
 
