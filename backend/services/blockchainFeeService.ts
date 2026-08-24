@@ -11,9 +11,10 @@ import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
 import { getTronNetworkParams } from "./tronEnergyService";
 import { getPrice as getBinancePrice } from "./binanceWebSocketService";
+import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
 
 // Tatum API base URL
-const TATUM_API_URL = "https://api.tatum.io/v3";
+const TATUM_API_URL = TATUM_V3_URL;
 
 // Cache duration for fees (5 minutes)
 const FEE_CACHE_DURATION = 5 * 60; // seconds
@@ -56,7 +57,7 @@ interface BlockchainFeeResult {
  * Get Tatum API key
  */
 const getTatumKey = (): string => {
-  return process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
+  return getTatumApiKey();
 };
 
 /**

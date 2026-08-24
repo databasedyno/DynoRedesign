@@ -2,13 +2,14 @@
 
 ## CURRENT POD — env rebuilt from user's pasted prod creds (setup task, 2026-08-24)
 - Preview URL: https://crypto-checkout-init.preview.emergentagent.com
-- Login: **hostbay@moxx.co / Katiekendra123@** (password login returns a JWT directly — NO OTP)
-  (carried from prior sessions — LIVE prod account; NOT re-verified this setup pass to avoid prod writes)
-- NEXTAUTH_SECRET (freshly generated this pod, 2026-08-24): JnFpwkMIhpvwxW0LIehBaajQODO5yjs2TsAZ+40ZPUU=
-- Env files rebuilt: /app/backend/.env (full creds + DATABASE_URL for SSL + PORT=3300) and /app/.env
-  (frontend NEXT_PUBLIC_* pointed at the preview URL). STOREFRONT_PER_COMPANY=true (migration 010 already
-  applied to the live DB per prior sessions). Verified: /health db+redis connected, tatum operational,
-  external /api/status/health 200, login page SSR renders ("Log in · Dynopay").
+- DB (ACTIVE): **STAGING** = postgresql://postgres:***@sakura.proxy.rlwy.net:42975/railway
+  (empty schema clone of prod — 70 tables, NO data — used for safe e2e testing of the refactor items).
+  Prod values are preserved (commented) in /app/backend/.env for an easy switch-back.
+- PROD DB (not active): roundhouse.proxy.rlwy.net:23599 (LIVE — do not point tests here).
+- Login: **hostbay@moxx.co / Katiekendra123@** exists ONLY on PROD, NOT on staging. Staging has no
+  users yet — seed a verified test account (direct SQL) before login-dependent testing.
+- NEXTAUTH_SECRET (this pod, 2026-08-24): JnFpwkMIhpvwxW0LIehBaajQODO5yjs2TsAZ+40ZPUU=
+- PG18 client tools (pg_dump/psql) installed via PGDG for schema clone.
 - SAFE MODE (LIVE Railway PROD DB): backend NODE_ENV=production but
   ENABLE_BACKGROUND_JOBS=false + WORKER_ROLE=secondary
   → cron/sweeps/fund-movement + BullMQ webhook worker + reconciliation DISABLED.

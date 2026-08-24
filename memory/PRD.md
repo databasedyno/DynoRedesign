@@ -1,3 +1,45 @@
+# REFACTOR (2026-08-24) — Item 2: consolidate Tatum usage behind a single auth/config source — DONE
+
+Backlog item 2 of 5 ("consolidate Tatum usage (~33 files) behind the single wrapper"). Reality:
+most files already used the wrapper `apis/tatumApi.ts` or the shared resilient transport
+`utils/tatumHttp.ts`. The remaining inconsistency was ~8 files each doing their OWN
+`process.env.TATUM_KEY || TATUM_SECRET_KEY` read + hardcoded `https://api.tatum.io/...` base URL
++ hand-built `x-api-key` header (no testnet awareness).
+
+NEW: `backend/utils/tatumAuth.ts` — the single source for Tatum HTTP auth/config:
+`TATUM_V3_URL`, `TATUM_V4_URL`, `isTatumTestnet()`, `getTatumTestnetType()`,
+`getTatumApiKey()` (testnet-aware env resolution), `getTatumHeaders(extra?)` (adds x-testnet-type
+in testnet), `getTatumWeb3Url(chain)`.
+
+MIGRATED 7 offenders to use tatumAuth (+ the shared `tatumHttp` transport several already used) —
+removed EVERY direct env read + hardcoded base URL:
+- helper/currencyConvert.ts   (rate fetch — LIVE-verified on boot)
+- services/blockchainFeeService.ts
+- services/reconciliation.ts   (v4 subscription URLs)
+- services/tronEnergyService.ts
+- services/rpcHealthMonitor.ts
+- services/migrateWebhookUrls.ts (v4 subscription URL)
+- services/merchantPool/directEvmTransfer.ts (EVM RPC gateway URLs + key source)
+
+Behaviour: byte-identical in mainnet (our config); STRICT IMPROVEMENT in testnet (offenders now use
+the testnet key + x-testnet-type header). DELIBERATELY did NOT touch the 4135-line monolith
+`apis/tatumApi.ts` — it keeps its richer getTatumKey() (adds a Google Secret Manager fallback the
+offenders never had). So two key resolvers coexist, but both resolve to the same env key whenever one
+is set (always true in prod/staging). Documented in tatumAuth.ts.
+
+VERIFIED: tsc clean (only the pre-existing server.ts:254 compression() overload remains);
+`tests/test_tatum_auth.ts` 11/11 (+ webhook-sig regression 29/29); backend boots clean on STAGING
+(listening 3300, db+redis connected, tatum operational); LIVE path "Refreshed 40 rates via Tatum"
+confirms currencyConvert works end-to-end through the new shared config.
+
+STAGING TESTBED READY: prod schema cloned into staging (70 tables, no data). App now points at STAGING
+(/app/backend/.env DATABASE_URL; prod values commented for switch-back). No prod writes during any of
+this work.
+
+---
+
+
+
 # REFACTOR (2026-08-24) — Item 3: single INBOUND webhook-signature verifier — DONE (unit-verified)
 
 Backlog item 3 of 5 ("single webhook-signature verifier — logic duplicated in ~8 places").

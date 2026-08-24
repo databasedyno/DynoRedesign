@@ -16,6 +16,7 @@
 import axios from "../utils/tatumHttp";
 import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisItemWithTTL, setRedisTTL } from "../utils/redisInstance";
+import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -363,10 +364,10 @@ export const isRecipientActivatedForToken = async (
 
     // Attempt 2: Tatum fallback (same trc20 array shape, uses existing TATUM_KEY)
     try {
-      const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY;
+      const tatumKey = getTatumApiKey();
       if (tatumKey) {
         const tatumResponse = await axios.get(
-          `https://api.tatum.io/v3/tron/account/${recipientAddress}`,
+          `${TATUM_V3_URL}/tron/account/${recipientAddress}`,
           { timeout: 10000, headers: { "x-api-key": tatumKey, Accept: "application/json" } }
         );
 

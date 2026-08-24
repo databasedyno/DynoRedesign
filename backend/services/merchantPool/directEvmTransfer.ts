@@ -14,6 +14,7 @@
 import { ethers } from "ethers";
 import { cronLogger } from "../../utils/loggers";
 import { TOKEN_CONTRACTS } from "./merchantPoolConfig";
+import { TATUM_V3_URL, getTatumApiKey } from "../../utils/tatumAuth";
 
 const LOG_PREFIX = "[DirectEvmSweep]";
 
@@ -85,7 +86,7 @@ const ERC20_IFACE = new ethers.Interface([
 // ─── RPC Endpoints ─────────────────────────────────────────────────────────────
 
 export function getRpcUrls(chain: "ETH" | "POLYGON"): string[] {
-  const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
+  const tatumKey = getTatumApiKey();
 
   if (chain === "POLYGON") {
     // NOTE: https://polygon-rpc.com now returns HTTP 401 "API key disabled /
@@ -95,7 +96,7 @@ export function getRpcUrls(chain: "ETH" | "POLYGON"): string[] {
       "https://polygon-bor-rpc.publicnode.com",
       "https://polygon.drpc.org",
     ];
-    if (tatumKey) urls.push(`https://api.tatum.io/v3/polygon/web3/${tatumKey}`);
+    if (tatumKey) urls.push(`${TATUM_V3_URL}/polygon/web3/${tatumKey}`);
     return urls;
   }
 
@@ -105,7 +106,7 @@ export function getRpcUrls(chain: "ETH" | "POLYGON"): string[] {
     "https://ethereum-rpc.publicnode.com",
     "https://eth.drpc.org",
   ];
-  if (tatumKey) urls.push(`https://api.tatum.io/v3/ethereum/web3/${tatumKey}`);
+  if (tatumKey) urls.push(`${TATUM_V3_URL}/ethereum/web3/${tatumKey}`);
   return urls;
 }
 
@@ -120,7 +121,7 @@ function createProvider(rpcUrl: string, chain: "ETH" | "POLYGON"): ethers.JsonRp
   // and the caller falls through to the next endpoint in getRpcUrls().
   const network = ethers.Network.from(chain === "POLYGON" ? 137 : 1);
   // Tatum proxy needs API key in header too for some endpoints
-  const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
+  const tatumKey = getTatumApiKey();
   if (rpcUrl.includes("tatum.io") && tatumKey) {
     const fetchReq = new ethers.FetchRequest(rpcUrl);
     fetchReq.setHeader("x-api-key", tatumKey);

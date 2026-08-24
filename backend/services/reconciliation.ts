@@ -17,6 +17,7 @@ import { parseState, PaymentState } from "./paymentStateMachine";
 import { verifySettlementOnChain, markSettlementCompleted } from "./paymentReliability";
 // Phase 4: resilient Tatum HTTP client (retries transient GET/read failures).
 import axios from "../utils/tatumHttp";
+import { TATUM_V4_URL, getTatumApiKey } from "../utils/tatumAuth";
 
 /**
  * Run all reconciliation strategies on startup.
@@ -514,7 +515,7 @@ async function reconcileTatumFailedWebhooks(): Promise<number> {
   const maxAgeMs = MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
   const cutoffTime = Date.now() - maxAgeMs;
 
-  const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY;
+  const tatumKey = getTatumApiKey();
   if (!tatumKey) {
     webhookLogs.info("[Reconciliation] No Tatum API key available, skipping Tatum reconciliation");
     return 0;
@@ -536,7 +537,7 @@ async function reconcileTatumFailedWebhooks(): Promise<number> {
     const headers = { "x-api-key": tatumKey };
     
     const { data: failedWebhooks } = await axios.get(
-      "https://api.tatum.io/v4/subscription/webhook?pageSize=50&direction=desc",
+      `${TATUM_V4_URL}/subscription/webhook?pageSize=50&direction=desc`,
       { headers, timeout: 15000 }
     );
 
@@ -662,7 +663,7 @@ export async function clearStaleTatumWebhooks(): Promise<{
 }> {
   const stats = { total: 0, cleared: 0, alreadyCleared: 0, errors: [] as string[] };
 
-  const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY;
+  const tatumKey = getTatumApiKey();
   if (!tatumKey) {
     stats.errors.push("No Tatum API key available");
     return stats;
@@ -671,7 +672,7 @@ export async function clearStaleTatumWebhooks(): Promise<{
   try {
     const headers = { "x-api-key": tatumKey };
     const { data: failedWebhooks } = await axios.get(
-      "https://api.tatum.io/v4/subscription/webhook?pageSize=50&direction=desc",
+      `${TATUM_V4_URL}/subscription/webhook?pageSize=50&direction=desc`,
       { headers, timeout: 15000 }
     );
 

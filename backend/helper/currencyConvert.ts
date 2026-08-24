@@ -1,6 +1,7 @@
 // Phase 4: resilient Tatum HTTP client (retries transient GET/read failures).
 import axios from "../utils/tatumHttp";
 import { apiLogger } from "../utils/loggers";
+import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
 
 interface CurrencyRateList {
   currency: string;
@@ -233,7 +234,7 @@ const getTatumRate = async (crypto: string, fiat: string = 'USD'): Promise<numbe
     tatumFailureCache.delete(failKey);
   }
 
-  const apiKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY;
+  const apiKey = getTatumApiKey();
   if (!apiKey) {
     apiLogger.warn(`[currencyConvert] Tatum: no API key configured`);
     return null;
@@ -244,7 +245,7 @@ const getTatumRate = async (crypto: string, fiat: string = 'USD'): Promise<numbe
   for (let attempt = 1; attempt <= MAX_RATE_RETRIES; attempt++) {
     try {
       const { data } = await axios.get(
-        `https://api.tatum.io/v3/tatum/rate/${id}`,
+        `${TATUM_V3_URL}/tatum/rate/${id}`,
         {
           params: { basePair: fiat.toUpperCase() },
           headers: { 'x-api-key': apiKey },

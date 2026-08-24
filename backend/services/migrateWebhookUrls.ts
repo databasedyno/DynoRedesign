@@ -13,6 +13,7 @@
 import axios from "axios";
 import { webhookLogs } from "../utils/loggers";
 import tatumApi from "../apis/tatumApi";
+import { TATUM_V4_URL } from "../utils/tatumAuth";
 
 // ── helpers ────────────────────────────────────────────────────────
 
@@ -144,7 +145,7 @@ export const migrateWebhookUrls = async (): Promise<MigrationStats> => {
     // 4. Update via Tatum API
     try {
       await axios.put(
-        `https://api.tatum.io/v4/subscription/${subId}`,
+        `${TATUM_V4_URL}/subscription/${subId}`,
         { url: correctedUrl },
         { headers }
       );

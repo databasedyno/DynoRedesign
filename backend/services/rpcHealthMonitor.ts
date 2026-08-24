@@ -18,6 +18,7 @@ import { getRpcUrls } from "./merchantPool/directEvmTransfer";
 import { captureError } from "./errorMonitoringService";
 import { sendAlert } from "./slackAlertService";
 import { cronLogger } from "../utils/loggers";
+import { getTatumApiKey } from "../utils/tatumAuth";
 
 type Chain = "ETH" | "POLYGON";
 const CHAINS: Chain[] = ["ETH", "POLYGON"];
@@ -45,7 +46,7 @@ async function pingRpc(chain: Chain, url: string): Promise<PingResult> {
   try {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (url.includes("tatum.io")) {
-      const key = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
+      const key = getTatumApiKey();
       if (key) headers["x-api-key"] = key;
     }
     const res = await fetch(url, {
