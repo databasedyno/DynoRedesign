@@ -1,15 +1,16 @@
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 import { log } from "./loggers";
+import config from "./config";
 import { isShuttingDown } from "./shutdownState";
 
 dotenv.config();
 
 // Connection pool configuration — sized for a payment platform
 const poolConfig = {
-  max: parseInt(process.env.DB_POOL_MAX || '20', 10),   // Max connections in pool
-  min: parseInt(process.env.DB_POOL_MIN || '5', 10),     // Min connections in pool
-  idle: parseInt(process.env.DB_POOL_IDLE || '10000', 10), // Max idle time (ms) before release
+  max: config.db.poolMax,   // Max connections in pool
+  min: config.db.poolMin,     // Min connections in pool
+  idle: config.db.poolIdle, // Max idle time (ms) before release
   acquire: 30000,  // Max time (ms) to acquire connection before error
   evict: 1000,     // Check for idle connections every 1s
 };
@@ -20,8 +21,8 @@ const retryConfig = {
 };
 
 // SSL + keepAlive for remote PostgreSQL connections (Railway, Heroku, etc.)
-const isRemoteDB = !!(process.env.DATABASE_URL && process.env.DATABASE_URL.includes('railway'));
-const isProduction = process.env.NODE_ENV === 'production';
+const isRemoteDB = !!(config.db.url && config.db.url.includes('railway'));
+const isProduction = config.isProduction;
 const useSSL = isProduction || isRemoteDB;
 
 const dialectOptions: Record<string, unknown> = {
@@ -32,13 +33,13 @@ const dialectOptions: Record<string, unknown> = {
   ...(useSSL ? {
     ssl: {
       require: true,
-      rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
+      rejectUnauthorized: config.db.sslRejectUnauthorized,
     },
   } : {}),
 };
 
-const sequelize = process.env.DATABASE_URL
-  ? new Sequelize(process.env.DATABASE_URL, {
+const sequelize = config.db.url
+  ? new Sequelize(config.db.url, {
       dialect: "postgres",
       dialectOptions,
       logging: isProduction ? false : (msg: string) => log(`[Sequelize] ${msg}`, 'debug'),
@@ -59,12 +60,12 @@ const sequelize = process.env.DATABASE_URL
       },
     })
   : new Sequelize(
-      process.env.DB_NAME,
-      process.env.USER_NAME,
-      process.env.PASSWORD,
+      config.db.name,
+      config.db.user,
+      config.db.password,
       {
-        host: process.env.HOST,
-        port: Number(process.env.DB_PORT),
+        host: config.db.host,
+        port: config.db.port,
         dialect: "postgres",
         dialectOptions: {
           keepAlive: true,

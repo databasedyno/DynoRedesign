@@ -1,9 +1,10 @@
 import { createClient } from "redis";
 import { cronLogger } from "../utils/loggers";
 import { log } from "./loggers";
+import config from "./config";
 
 const redisClient = createClient({
-  url: process.env.REDIS_PUBLIC_URL,
+  url: config.redisUrl || undefined,
   socket: {
     connectTimeout: 5000,
     reconnectStrategy: retries => Math.min(retries * 100, 3000),

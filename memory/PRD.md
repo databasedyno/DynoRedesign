@@ -1,3 +1,104 @@
+# DEPLOYMENT FIX (2026-08-24) — DigitalOcean build blocker RESOLVED + testing-agent verified
+
+Task: "access the DO deployment and fix the issue preventing deployment."
+Investigated via DO API (token in-memory only). App `dynopay` (id f86b27dc-...) builds from /Dockerfile
+on GitHub databasedyno/DynoRedesign@Improvement. Latest deploys (commit 860cbff, bfebb50) FAILED at the
+BACKEND build step; an older build stayed live.
+
+ROOT CAUSE (from the DO build log): backend `yarn build` runs `tsc` (full type-check). It aborted with
+ONE error — server.ts(254,9) TS2769: compression()'s RequestHandler not assignable to PathParams
+(@types/compression drags a different @types/express-serve-static-core than @types/express@4). The pod
+runs ts-node --transpile-only so runtime never saw it, but the Docker build (real tsc) exit-2'd → every
+deploy since compression() was added was blocked.
+
+FIX: backend/server.ts ~L254 → `app.use(compression({...}) as unknown as express.RequestHandler);`
+(compile-time cast; runtime identical).
+
+VERIFIED:
+- `cd backend && yarn build` (the EXACT DO build cmd) → exit 0 (was exit 2).
+- Frontend `tsc --noEmit` at /app → 0 errors (whole tree incl. item-5 foundation files compiles).
+- deep_testing_backend_v2 → 4/4 PASS, NO regression (/health healthy on staging, public /api endpoints
+  respond without 5xx, gzip middleware active). Only backend/server.ts changed for this fix.
+
+TO DEPLOY: user must "Save to GitHub" (pushes the working tree to Improvement — .env is gitignored so
+no secrets). DO deploy_on_push then rebuilds; the build will now pass. NOTE: the push also carries this
+session's verified refactors (items 3, 2, 1, 4-wave1 + item-5 foundation) — all compile cleanly.
+
+---
+
+
+# REFACTOR (2026-08-24) — Item 5: standardize frontend data fetching on SWR — FOUNDATION laid
+
+Backlog item 5 of 5 ("standardize the ~67 manual axios-in-useEffect screens onto SWR"). The app
+already has SWR v2, a global <SWRConfig> in pages/_app.tsx (options only, NO global fetcher), and a
+strong hooks/ convention — but every hook/component re-defines its own `const fetcher`.
+
+FOUNDATION added (safe, additive, lint-clean, imported nowhere yet so zero behaviour change):
+- utils/swrFetcher.ts   — ONE shared SWR fetcher over the authenticated axiosBaseApi
+  (swrFetcher → res.data; swrDataFetcher → res.data.data). Supports string + tuple keys.
+- hooks/useApiSWR.ts    — reusable typed hook (data/error/isLoading/isValidating/mutate,
+  `enabled` to defer, `unwrap` for the {data:{}} envelope).
+
+NEXT (gated on user): converting the 67 screens changes live dashboard behaviour and MUST be
+runtime-verified via the frontend testing agent — which needs (a) explicit permission and (b) a
+logged-in session. STAGING has NO users, so a verified test merchant account must be seeded (direct
+SQL) first. Plan: migrate screens in verified WAVES (not one big-bang).
+
+---
+
+
+
+# REFACTOR (2026-08-24) — Item 1: kill the dangerous per-boot alter:true syncs — DONE (verified on staging)
+
+Backlog item 1 of 5. The real risk wasn't the 17 boot syncs in server.ts (they already use
+`syncOptions = isProduction ? {} : {alter:true}` → create-only in prod, SAFE). It was 4 models that
+called `.sync({ alter: true })` UNCONDITIONALLY at module import → ALTERing the LIVE prod schema on
+EVERY backend restart:
+  models/buyButtonModel.ts, models/customerModels/customerTransactionModel.ts,
+  models/serviceHealthModel.ts, models/publishableKeyModel.ts.
+These 4 are NOT in server.ts's boot block — their table is created ONLY by this module-load sync, so
+deleting it would break fresh-DB creation.
+
+FIX (the guarded create-only fallback the user approved): each now uses
+`.sync({ alter: process.env.NODE_ENV !== "production" })` — create-only in production (never ALTER on
+boot; tables still auto-created on a fresh DB), alter only in dev. Matches server.ts's existing
+isProduction gate.
+
+VERIFIED on STAGING (NODE_ENV=production): backend boots clean; all four ".then" callbacks fire
+(tbl_buy_button ready / tbl_customer_transaction synced / tbl_service_health table ready /
+tbl_publishable_key ready) with NO errors; all 4 tables intact; NO ALTER DDL runs. Once prod redeploys
+with this, the live schema is no longer reshaped on every restart.
+
+Remaining (optional, low marginal value): the 17 server.ts boot syncs are already prod-safe
+(create-only); moving them fully to versioned migrations is a larger, lower-urgency effort.
+
+---
+
+
+
+# REFACTOR (2026-08-24) — Item 4: typed config surface + first migration waves — DONE (wave 1)
+
+Backlog item 4 of 5 ("centralize ~740 raw process.env reads into one typed config module").
+Approach: `utils/config.ts` is the typed READ surface; `utils/envValidator.ts` is the single
+VALIDATION gate (already hard-fails boot on missing required vars). A big-bang rewrite of 700+ call
+sites is neither safe nor verifiable, so we EXPAND config + migrate reads in BOOT-VERIFIABLE waves.
+
+EXPANDED `utils/config.ts`: added grouped, typed entries with EXACT current defaults —
+  db { url,name,user,password,host,port, poolMax=20, poolMin=5, poolIdle=10000, sslRejectUnauthorized },
+  redisUrl, enableBackgroundJobs, adminEmail (plus existing env/urls/secrets/workerRole).
+
+WAVE 1 migrated (boot-verifiable — wrong defaults would break connect immediately):
+- utils/dbInstance.ts  → all DB reads now from config.db.* (behaviour byte-identical; app reconnected).
+- utils/redisInstance.ts → url from config.redisUrl (|| undefined to preserve unset behaviour).
+
+VERIFIED: tests/test_config.ts 18/18; tsc clean (only pre-existing server.ts:254); backend boots on
+STAGING with db: connected + "Redis connected successfully". Remaining ~700 reads migrate incrementally
+(the module's stated design) — new/touched code reads from config; nothing forced at once.
+
+---
+
+
+
 # REFACTOR (2026-08-24) — Item 2: consolidate Tatum usage behind a single auth/config source — DONE
 
 Backlog item 2 of 5 ("consolidate Tatum usage (~33 files) behind the single wrapper"). Reality:

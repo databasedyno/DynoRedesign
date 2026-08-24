@@ -251,6 +251,9 @@ app.use(helmet({
 // (text/event-stream) so the real-time /api/events stream is never buffered,
 // and honours an x-no-compression escape hatch. Behind nginx in production the
 // already-encoded response is passed through untouched (no double-compression).
+// Cast: @types/compression pulls a different @types/express-serve-static-core
+// than @types/express@4, so compression()'s RequestHandler must be re-typed to
+// this app's express.RequestHandler for app.use() to accept it (runtime unaffected).
 app.use(compression({
   filter: (req, res) => {
     if (req.headers["x-no-compression"]) return false;
@@ -258,7 +261,7 @@ app.use(compression({
     if (typeof type === "string" && type.includes("text/event-stream")) return false;
     return compression.filter(req, res);
   },
-}));
+}) as unknown as express.RequestHandler);
 
 // Preflight handler — reuse the same CORS config so OPTIONS responses
 // respect the same origin whitelist as actual requests.

@@ -40,11 +40,28 @@ export function requireEnv(key: string): string {
 }
 
 const nodeEnv = str("NODE_ENV", "development");
+const isProduction = nodeEnv === "production";
+
+// Database — mirrors the exact reads/fallbacks in utils/dbInstance.ts.
+const db = {
+  /** Full connection string; when set it is preferred (and enables SSL for railway). */
+  url: str("DATABASE_URL"),
+  name: str("DB_NAME"),
+  user: str("USER_NAME"),
+  password: str("PASSWORD"),
+  host: str("HOST"),
+  port: num("DB_PORT", 5432),
+  poolMax: num("DB_POOL_MAX", 20),
+  poolMin: num("DB_POOL_MIN", 5),
+  poolIdle: num("DB_POOL_IDLE", 10000),
+  /** `DB_SSL_REJECT_UNAUTHORIZED !== 'false'` → default true unless explicitly disabled. */
+  sslRejectUnauthorized: str("DB_SSL_REJECT_UNAUTHORIZED") !== "false",
+} as const;
 
 export const config = {
   // ── Environment ────────────────────────────────────────────
   env: nodeEnv,
-  isProduction: nodeEnv === "production",
+  isProduction,
 
   // ── Public / server URLs ───────────────────────────────────
   serverUrl: str("SERVER_URL"),
@@ -58,8 +75,16 @@ export const config = {
   accessTokenSecret: str("ACCESS_TOKEN_SECRET"),
   apiSecret: str("API_SECRET"),
 
+  // ── Database / Redis ───────────────────────────────────────
+  db,
+  redisUrl: str("REDIS_PUBLIC_URL"),
+
   // ── Worker / jobs ──────────────────────────────────────────
   workerRole: str("WORKER_ROLE", "primary").toLowerCase(),
+  enableBackgroundJobs: bool("ENABLE_BACKGROUND_JOBS"),
+
+  // ── Ops / misc ─────────────────────────────────────────────
+  adminEmail: str("ADMIN_EMAIL"),
 
   // Generic typed accessors for anything not curated above.
   str,

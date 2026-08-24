@@ -127,7 +127,8 @@ const buyButtonModel = sequelize.define(
 );
 
 buyButtonModel
-  .sync({ alter: true })
+  // create-only in production (never ALTER the live schema on boot); alter only in dev
+  .sync({ alter: process.env.NODE_ENV !== "production" })
   .then(() => {
     // eslint-disable-next-line no-console
     console.log("tbl_buy_button ready");

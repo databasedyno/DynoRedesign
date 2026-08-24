@@ -85,7 +85,8 @@ const customerTransactionModel = sequelize.define(
 
 // Sync to ensure schema matches model (customer_id should be nullable)
 customerTransactionModel
-  .sync({ alter: true })
+  // create-only in production (never ALTER the live schema on boot); alter only in dev
+  .sync({ alter: process.env.NODE_ENV !== "production" })
   .then(() => apiLogger.info("tbl_customer_transaction synced"));
 
 export default customerTransactionModel;

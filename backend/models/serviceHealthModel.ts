@@ -56,8 +56,8 @@ const serviceHealthModel = sequelize.define(
   }
 );
 
-// Create table if not exists
-serviceHealthModel.sync({ alter: true }).then(() => {
+// Create table if not exists — create-only in production (never ALTER on boot); alter only in dev
+serviceHealthModel.sync({ alter: process.env.NODE_ENV !== "production" }).then(() => {
   apiLogger.info("tbl_service_health table ready");
 }).catch(err => {
   apiLogger.error("Error creating tbl_service_health:", err.message);

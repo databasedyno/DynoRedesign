@@ -127,11 +127,10 @@ const publishableKeyModel = sequelize.define(
   }
 );
 
-// Sync — creates the table on first boot if it doesn't exist, adds any
-// missing columns on subsequent boots. Same pattern as other new models
-// (customerTransactionModel, serviceHealthModel).
+// Sync — creates the table on first boot if it doesn't exist. Create-only in
+// production (never ALTER the live schema on boot); alter only in dev.
 publishableKeyModel
-  .sync({ alter: true })
+  .sync({ alter: process.env.NODE_ENV !== "production" })
   .then(() => {
     // eslint-disable-next-line no-console
     console.log("tbl_publishable_key ready");
