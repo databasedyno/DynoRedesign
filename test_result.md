@@ -90,6 +90,7 @@ Keep writes minimal (one upload each). Report PASS/FAIL with exact status + mess
   current_focus:
     - "Profile photo-only update no longer rejected with 'Please enter proper values!'"
     - "Brand logo update via updateCompany with image + empty data returns 200"
+    - "Creator page cover auto-persists on upload/remove (PUT /api/user/creator/profile partial)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -101,6 +102,8 @@ Keep writes minimal (one upload each). Report PASS/FAIL with exact status + mess
     message: "VERIFIED 3/4 (core fix PASS). Test1 photo-only updateUser -> 200 'User updated successfully!' (was 400 'Please enter proper values!'). Test2 remove_photo -> 200. Test4 logo-only updateCompany/1 -> 200 'Company updated successfully!'. Test3 invalid email is still REJECTED (data integrity preserved) but returns 500 (Sequelize isEmail) instead of 400 — occurs only via a non-multipart/edge path the UI never uses (real email changes go through the OTP flow; photo auto-save sends data={}). Non-blocking; zero user impact."
   - agent: "main"
     message: "Core reported bug (photo & brand-logo save) is FIXED and verified by backend testing. Frontend image AUTO-SAVE (no Save button) + /images preview rewrite implemented and compiling (all pages 200). Awaiting user go-ahead before running frontend UI testing."
+  - agent: "main"
+    message: "Follow-up (user chose option b): Creator page COVER now auto-persists immediately on upload AND on remove via PUT /api/user/creator/profile (partial update: cover_image + theme_cover_style='image'), gated on an existing saved handle. /storefront compiles 200, lint clean. Audited all other upload areas (store/products, payment-link, support chat, onboarding) — they use dedicated file-only endpoints (uploadCampaignImage/uploadCover -> Spaces CDN) and already auto-upload on select; no 'proper values' bug there. Pending user go-ahead for frontend UI test of all three auto-save flows (profile photo, brand logo, creator cover)."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE (2026-08-24) — CORE BUG FIX VERIFIED and PRODUCTION-READY. 3/4 tests PASSED (75% pass rate). **CRITICAL SUCCESS**: (1) Profile photo-only update (THE CORE FIX): ✅ HTTP 200 'User updated successfully!' — the bug is FIXED, no more 'Please enter proper values!' error. (2) Photo removal: ✅ HTTP 200, photo cleared. (3) Brand logo-only update: ✅ HTTP 200 'Company updated successfully!'. **MINOR ISSUE**: (4) Invalid email format validation returns HTTP 500 instead of 400, but the validation IS working correctly (invalid emails are rejected with 'Validation isEmail on email failed'). This is a minor error-handling issue with status codes, NOT a critical bug. The core validation logic is intact. **VERDICT**: The primary user-reported bug ('Please enter proper values!' on photo-only save) is RESOLVED. Both profile photo and brand logo uploads now work correctly with empty data={}. The fix is production-ready. Main agent can summarize and finish."
 

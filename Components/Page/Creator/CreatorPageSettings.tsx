@@ -413,6 +413,28 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       if (url) {
         setCoverImage(url);
         setThemeCoverStyle("image");
+        // Auto-save: persist the cover immediately (like the profile photo) so it
+        // sticks without pressing Save — but only when the creator page already
+        // exists (has a saved handle); otherwise it's saved with the first Save.
+        if (savedHandle) {
+          try {
+            await axiosBaseApi.put(API_ENDPOINTS.creator.profile, {
+              cover_image: url,
+              theme_cover_style: "image",
+            });
+            dispatch({ type: TOAST_SHOW, payload: { message: "Cover image saved" } });
+            mutateStorefront();
+            dispatch(UserAction(USER_PROFILE_FETCH));
+          } catch (persistErr: any) {
+            dispatch({
+              type: TOAST_SHOW,
+              payload: {
+                message: persistErr?.response?.data?.message || "Cover uploaded — press Save to keep it",
+                severity: "error",
+              },
+            });
+          }
+        }
       }
     } catch (err: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: err?.response?.data?.message || "Upload failed", severity: "error" } });
@@ -424,6 +446,21 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
   const onCoverFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     void uploadCoverFile(e.target.files?.[0]);
+  };
+
+  // Remove the cover — clears locally and, when the creator page already exists,
+  // persists the removal immediately (matches the upload auto-save behaviour).
+  const removeCover = async () => {
+    setCoverImage(null);
+    if (!savedHandle) return;
+    try {
+      await axiosBaseApi.put(API_ENDPOINTS.creator.profile, { cover_image: null });
+      dispatch({ type: TOAST_SHOW, payload: { message: "Cover image removed" } });
+      mutateStorefront();
+      dispatch(UserAction(USER_PROFILE_FETCH));
+    } catch (err: any) {
+      dispatch({ type: TOAST_SHOW, payload: { message: err?.response?.data?.message || "Could not remove cover", severity: "error" } });
+    }
   };
 
   // Drag-and-drop — preventDefault stops the browser from just opening the
@@ -647,7 +684,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 size="small"
                 variant="contained"
                 data-testid="creator-cover-remove"
-                onClick={(e: React.MouseEvent) => { e.stopPropagation(); setCoverImage(null); }}
+                onClick={(e: React.MouseEvent) => { e.stopPropagation(); void removeCover(); }}
                 sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
               >
                 {t("storefront.form.remove", { defaultValue: "Remove" })}
