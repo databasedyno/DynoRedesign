@@ -44,6 +44,7 @@ companyRouter.get("/webhook-stats/:id", authMiddleware, companyOwnershipMiddlewa
 companyRouter.get("/auto-convert/:id", authMiddleware, companyOwnershipMiddleware, companyController.getAutoConvertSettings);
 companyRouter.put("/auto-convert/:id", authMiddleware, companyOwnershipMiddleware, companyController.updateAutoConvertSettings);
 companyRouter.get("/conversion-history/:id", authMiddleware, companyOwnershipMiddleware, companyController.getConversionHistory);
+companyRouter.get("/conversion-savings/:id", authMiddleware, companyOwnershipMiddleware, companyController.getConversionSavings);
 
 // Single conversion detail & retry
 companyRouter.get("/conversion/:conversionId", authMiddleware, companyController.getConversionDetail);

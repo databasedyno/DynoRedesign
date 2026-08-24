@@ -1716,6 +1716,7 @@ import {
   getAutoConvertSettings,
   updateAutoConvertSettings,
   getConversionHistory,
+  getConversionSavings,
   getConversionDetail,
   retryConversion,
 } from "./company/autoConvert";
@@ -1840,6 +1841,7 @@ export default {
   getAutoConvertSettings,
   updateAutoConvertSettings,
   getConversionHistory,
+  getConversionSavings,
   getConversionDetail,
   retryConversion,
   getFeeFreeStatus,

@@ -3,10 +3,12 @@ import { useRouter } from "next/router";
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   CircularProgress,
   Divider,
   FormControl,
+  FormControlLabel,
   MenuItem,
   Select,
   Skeleton,
@@ -24,6 +26,7 @@ import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalle
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
 import FileDownloadRounded from "@mui/icons-material/FileDownloadRounded";
 import HourglassTopRounded from "@mui/icons-material/HourglassTopRounded";
+import ShieldRounded from "@mui/icons-material/ShieldRounded";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import useApiSWR from "@/hooks/useApiSWR";
@@ -95,19 +98,8 @@ const statusMeta = (status?: string) => {
   return { label: status || "\u2014", color: WARNING_AMBER };
 };
 
-// Statuses that mean "money is on the way but not yet final" — a deposit
-// address was generated and we're waiting for on-chain confirmation.
-const PENDING_STATUSES = [
-  "pending",
-  "processing",
-  "awaiting",
-  "confirming",
-  "partial",
-  "underpaid",
-];
-const isPending = (s?: string) =>
-  PENDING_STATUSES.some((k) => (s || "").toLowerCase().includes(k));
-
+// Matches the backend UNPAID_AFTER_MINUTES payment window — a fresh 'pending'
+// row auto-expires (shown as 'unpaid') after this many minutes.
 const relativeFromNow = (v?: string) => {
   if (!v) return "";
   const t = new Date(v).getTime();
@@ -120,8 +112,6 @@ const relativeFromNow = (v?: string) => {
   return `${Math.floor(h / 24)}d ago`;
 };
 
-// Matches the backend UNPAID_AFTER_MINUTES payment window — a fresh 'pending'
-// row auto-expires (shown as 'unpaid') after this many minutes.
 const PAYMENT_WINDOW_MIN = 60;
 const minutesLeftToConfirm = (v?: string) => {
   if (!v) return null;
@@ -275,24 +265,43 @@ const PayoutsPage: React.FC = () => {
 
   const dispatch = useDispatch();
 
-  // Pending funds — awaiting on-chain confirmation. Fetched independently (up
-  // to 50 recent rows) and filtered to pending-like statuses so it stays
-  // accurate even when the merchant has many confirmed payments.
-  const { data: pendingRaw } = useApiSWR<any[]>(
+  // Pending funds — awaiting on-chain confirmation. Dedicated endpoint returns
+  // fresh-pending rows + an accurate USD total (server converts crypto → USD).
+  const { data: pendingSummary } = useApiSWR<any>(
     selectedCompanyId
-      ? `/dashboard/recent-transactions?limit=50&company_id=${selectedCompanyId}`
+      ? `/dashboard/pending-summary?company_id=${selectedCompanyId}`
       : null,
     {
-      select: (raw) => raw?.data?.transactions ?? raw?.transactions ?? [],
+      select: (raw) => raw?.data ?? raw,
       refreshInterval: 30000,
     },
   );
-  const pendingTxns: any[] = Array.isArray(pendingRaw)
-    ? pendingRaw.filter((t) => isPending(t?.status))
+  const pendingTxns: any[] = Array.isArray(pendingSummary?.transactions)
+    ? pendingSummary.transactions
     : [];
+  const pendingCount: number = pendingSummary?.count ?? pendingTxns.length;
+  const pendingTotalUsd: number = Number(pendingSummary?.total_usd) || 0;
+
+  // Auto-convert "volatility protection" — value locked into stablecoins.
+  const { data: savings } = useApiSWR<any>(
+    selectedCompanyId
+      ? `/company/conversion-savings/${selectedCompanyId}`
+      : null,
+    { select: (raw) => raw?.data ?? raw },
+  );
+  const savingsMonthUsd: number = Number(savings?.month_converted_usd) || 0;
+  const savingsMonthCount: number = Number(savings?.month_count) || 0;
+  const savingsInProgress: number = Number(savings?.in_progress_count) || 0;
+
+  const fmtUsd = (n: number) =>
+    `$${(Number(n) || 0).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
 
   // Payout history CSV export (date-ranged).
   const [exportRange, setExportRange] = useState("30");
+  const [settledOnly, setSettledOnly] = useState(false);
   const [exporting, setExporting] = useState(false);
   const handleExportPayouts = async () => {
     if (!selectedCompanyId || exporting) return;
@@ -307,6 +316,7 @@ const PayoutsPage: React.FC = () => {
           date_from: from.toISOString(),
           date_to: to.toISOString(),
           company_id: String(selectedCompanyId),
+          settled_only: settledOnly,
         },
         { responseType: "blob" },
       );
@@ -634,6 +644,78 @@ const PayoutsPage: React.FC = () => {
         )}
       </Box>
 
+      {/* Auto-convert protection */}
+      <Box
+        sx={{
+          ...cardSx,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 1.5,
+        }}
+        data-testid="payouts-autoconvert-savings-card"
+      >
+        <Stack direction="row" alignItems="center" gap={1.25} sx={{ minWidth: 0 }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              display: "grid",
+              placeItems: "center",
+              bgcolor: `${SUCCESS_GREEN}1A`,
+              color: SUCCESS_GREEN,
+              flexShrink: 0,
+            }}
+          >
+            <ShieldRounded fontSize="small" />
+          </Box>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 700 }}>
+              Auto-convert protection
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: theme.palette.text.secondary }}
+            >
+              {savingsMonthUsd > 0
+                ? `Locked into stablecoins this month across ${savingsMonthCount} ${
+                    savingsMonthCount === 1 ? "payment" : "payments"
+                  } — shielded from crypto volatility`
+                : savingsInProgress > 0
+                  ? `${savingsInProgress} conversion${
+                      savingsInProgress === 1 ? "" : "s"
+                    } in progress — protecting your revenue`
+                  : "Turn on auto-convert to lock incoming crypto into stablecoins"}
+            </Typography>
+          </Box>
+        </Stack>
+        <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+          <Typography
+            data-testid="payouts-savings-month"
+            sx={{
+              fontSize: { xs: 20, sm: 24 },
+              fontWeight: 800,
+              lineHeight: 1.1,
+              color: savingsMonthUsd > 0 ? SUCCESS_GREEN : theme.palette.text.primary,
+            }}
+          >
+            {fmtUsd(savingsMonthUsd)}
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.text.secondary,
+              textTransform: "uppercase",
+              letterSpacing: 0.4,
+              fontWeight: 600,
+            }}
+          >
+            This month
+          </Typography>
+        </Box>
+      </Box>
+
       {/* Payout destinations + tax quick links */}
       <Box
         sx={{
@@ -763,18 +845,28 @@ const PayoutsPage: React.FC = () => {
               </Typography>
             </Box>
           </Stack>
-          {pendingTxns.length > 0 && (
-            <Chip
-              size="small"
-              label={`${pendingTxns.length} pending`}
-              data-testid="payouts-pending-count"
+          <Box sx={{ textAlign: "right" }}>
+            <Typography
+              data-testid="payouts-pending-total"
               sx={{
-                color: WARNING_AMBER,
-                bgcolor: `${WARNING_AMBER}1A`,
-                fontWeight: 700,
+                fontSize: { xs: 18, sm: 22 },
+                fontWeight: 800,
+                lineHeight: 1.1,
+                color: pendingTotalUsd > 0 ? WARNING_AMBER : theme.palette.text.primary,
               }}
-            />
-          )}
+            >
+              {`\u2248 ${fmtUsd(pendingTotalUsd)}`}
+            </Typography>
+            <Typography
+              variant="caption"
+              data-testid="payouts-pending-count"
+              sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
+            >
+              {pendingCount === 1
+                ? "1 payment awaiting"
+                : `${pendingCount} payments awaiting`}
+            </Typography>
+          </Box>
         </Stack>
         {pendingTxns.length === 0 ? (
           <Typography
@@ -878,6 +970,21 @@ const PayoutsPage: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size="small"
+                  checked={settledOnly}
+                  onChange={(e) => setSettledOnly(e.target.checked)}
+                  data-testid="payouts-export-settled-only"
+                />
+              }
+              label="Settled only"
+              sx={{
+                m: 0,
+                "& .MuiFormControlLabel-label": { fontSize: 13 },
+              }}
+            />
             <Button
               size="small"
               variant="outlined"

@@ -1,3 +1,56 @@
+# FEATURE (2026-08-24 fork) — Payouts: Pending$ total + Auto-Convert Savings + Settled-only export + Legacy export date fix — DONE (verified)
+
+Four user-picked next-actions. Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB). All new
+backend endpoints are READ-ONLY (no prod mutations).
+
+1) FIX LEGACY EXPORT DATES — `Components/Page/Transactions/index.tsx` handleExport sent
+   `startDate`/`endDate`, but the backend export reads `date_from`/`date_to` → the date range was
+   silently ignored. Renamed the two keys (via the existing TRANSACTION_EXPORT saga, which forwards the
+   payload verbatim). Backend already honours date_from/date_to (curl: 30d range returns only in-range
+   rows). No backend change needed for this item.
+
+2) AUTO-CONVERT SAVINGS — NEW `GET /api/company/conversion-savings/:id`
+   (`controller/company/autoConvert.ts::getConversionSavings`, re-exported via companyController barrel,
+   route in companyRouter with authMiddleware+companyOwnershipMiddleware). Aggregates
+   tbl_stablecoin_conversion via Sequelize sum/count: month_converted_usd + month_count (COMPLETED,
+   createdAt>=UTC month start), all_time_*, in_progress_count (status NOT IN COMPLETED/FAILED). New
+   "Auto-convert protection" card on /payouts (data-testid `payouts-autoconvert-savings-card` /
+   `payouts-savings-month`) shows "$X THIS MONTH" + a context line (locked this month / N in progress /
+   "Turn on auto-convert…"). Curl: all zeros for this account (auto-convert has been off).
+
+3) SETTLED-ONLY EXPORT — added optional `settled_only` body flag to
+   `controller/wallet/transactionsDetail.ts::exportTransactions` → when true (and no explicit status)
+   appends `AND ut.status IN ('successful','completed')`. New "Settled only" checkbox
+   (`payouts-export-settled-only`) on the Payouts export control; the Payouts Export CSV posts
+   settled_only. Curl VERIFIED: 30d all=146 rows (86 successful + 60 unpaid) vs settled_only=true=86
+   rows (all successful).
+
+4) PENDING TOTAL VALUE — NEW `GET /api/dashboard/pending-summary?company_id=`
+   (`dashboardController.ts::getPendingSummary`, route in dashboardRouter). Selects fresh-pending rows
+   (FRESH_PENDING_SQL = status 'pending' within 60-min window) and computes an accurate USD total the
+   SAME way the CSV export does (stored usd_value → stablecoin face value → live convertToUSD, per-
+   currency request cache). Returns {count, total_usd, transactions[]}. The Pending Funds card now
+   consumes THIS endpoint (replacing the recent-transactions+client-filter approach) and shows a
+   headline "≈ $X / N payments awaiting" (`payouts-pending-total` / `payouts-pending-count`). Curl:
+   count 0 / total_usd 0 (no fresh pending now).
+
+VERIFIED: frontend `tsc` EXIT 0, backend `tsc` EXIT 0 (backend restarted for new routes). Curl-tested
+all 3 new/modified endpoints + the settled-only filter (read-only). Screenshots (logged-in, LIVE):
+/payouts renders the Auto-convert protection card ($0.00 THIS MONTH), Pending headline (≈ $0.00 / 0
+payments awaiting) + empty state, and the Settled-only checkbox beside Export CSV; 0 console errors; all
+6 new testids present. Did NOT run the testing agent (would risk mutating the LIVE prod DB / leaving
+auto-convert toggled); self-tested via curl + screenshots instead.
+
+BACKEND FILES: controller/dashboardController.ts (+getPendingSummary, +convertToUSD import),
+routes/dashboardRouter.ts, controller/company/autoConvert.ts (+getConversionSavings, +Op import),
+controller/companyController.ts (barrel), routes/companyRouter.ts,
+controller/wallet/transactionsDetail.ts (+settled_only).
+FRONTEND FILES: Components/Page/Payouts/index.tsx, Components/Page/Transactions/index.tsx.
+
+---
+
+
+
 # FEATURE (2026-08-24 fork) — Payouts page: Live-toggle verify + Pending Funds + CSV Export + SWR wave — DONE (verified)
 
 Four user-picked next-actions, all on the Balances & Payouts (`/payouts`) surface (frontend-only

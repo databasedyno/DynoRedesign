@@ -210,13 +210,20 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
       status,
       currency,
       search,
-      company_id
+      company_id,
+      settled_only,
     } = req.body;
 
     // Build parameterized WHERE conditions
     const { whereConditions, replacements } = buildTransactionFilters(userData.user_id, {
       date_from, date_to, status, currency, search, company_id
     });
+    // "Settled only" export (accounting) — restrict to confirmed payouts. Only
+    // applied when the caller didn't already pass an explicit status filter.
+    const finalWhere =
+      settled_only && !status
+        ? `${whereConditions} AND ut.status IN ('successful','completed')`
+        : whereConditions;
     const transactions = await sequelize.query(
       `
       SELECT 
@@ -236,7 +243,7 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
       LEFT JOIN tbl_customer c ON c.customer_id=ut.customer_id
       LEFT JOIN tbl_company cm ON cm.company_id=c.company_id
       LEFT JOIN tbl_user_wallet uw ON uw.wallet_id=ut.wallet_id
-      WHERE ${whereConditions}
+      WHERE ${finalWhere}
       ORDER BY ut."createdAt" DESC
       `,
       { type: QueryTypes.SELECT, replacements }

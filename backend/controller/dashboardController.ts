@@ -13,7 +13,7 @@ import { userTransactionModel, userWalletModel, companyModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
-import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, getUserDisplayCurrency } from "../utils/currencyUtils";
+import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, convertToUSD, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { deriveTxDisplayStatus, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";
@@ -1333,11 +1333,107 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
   }
 };
 
+/**
+ * GET /api/dashboard/pending-summary
+ * Money awaiting on-chain confirmation: fresh 'pending' payments (within the
+ * payment window) for the selected company, with an accurate USD total.
+ * Query params: company_id (optional). Read-only.
+ */
+const getPendingSummary = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const { company_id } = req.query;
+    const userId = userData.user_id;
+
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userId);
+      if (!companyData) return;
+    }
+
+    const rows = await sequelize.query(
+      `SELECT
+        ut.transaction_id,
+        ut.id,
+        ut.base_amount,
+        ut.base_currency,
+        ut.crypto_currency,
+        ut.usd_value,
+        ut."createdAt",
+        uw.wallet_type,
+        c.customer_name,
+        c.email as customer_email
+       FROM tbl_user_transaction ut
+       LEFT JOIN tbl_user_wallet uw ON ut.wallet_id = uw.wallet_id
+       LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
+       WHERE ut.user_id = :userId
+         ${company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : ''}
+         AND ${FRESH_PENDING_SQL}
+       ORDER BY ut."createdAt" DESC
+       LIMIT 25`,
+      {
+        replacements: { userId, companyId: company_id },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    // Resolve a USD value per row the same way the CSV export does: prefer the
+    // stored usd_value, treat stablecoins as face value, otherwise convert the
+    // crypto amount live (request-scoped per-currency cache).
+    const STABLE = ['USD', 'USDT', 'USDC', 'USDT-ERC20', 'USDT-TRC20', 'USDC-ERC20', 'BUSD', 'DAI'];
+    const perUnitUsd = new Map<string, number>();
+    const usdForRow = async (tx: Record<string, unknown>): Promise<number> => {
+      const stored = Number(tx.usd_value);
+      if (Number.isFinite(stored) && stored > 0) return stored;
+      const cur = String(tx.base_currency || '').toUpperCase();
+      const amt = Number(tx.base_amount) || 0;
+      if (amt <= 0) return 0;
+      if (STABLE.some((s) => cur === s || cur.includes(s))) return amt;
+      if (!perUnitUsd.has(cur)) {
+        try {
+          perUnitUsd.set(cur, Number(await convertToUSD(cur, 1)) || 0);
+        } catch {
+          perUnitUsd.set(cur, 0);
+        }
+      }
+      const rate = perUnitUsd.get(cur) || 0;
+      return rate > 0 ? amt * rate : 0;
+    };
+
+    let total = 0;
+    const transactions: Array<Record<string, unknown>> = [];
+    for (const tx of rows as Array<Record<string, unknown>>) {
+      const usd = await usdForRow(tx);
+      total += usd;
+      transactions.push({
+        transaction_id: tx.transaction_id,
+        id: tx.id,
+        base_amount: tx.base_amount,
+        base_currency: tx.base_currency,
+        crypto_currency: tx.crypto_currency,
+        wallet_type: tx.wallet_type,
+        customer_name: tx.customer_name,
+        customer_email: tx.customer_email,
+        createdAt: tx.createdAt,
+        usd_value: usd > 0 ? Math.round(usd * 100) / 100 : null,
+      });
+    }
+
+    successResponseHelper(res, 200, "Pending summary retrieved", {
+      count: transactions.length,
+      total_usd: Math.round(total * 100) / 100,
+      transactions,
+    });
+  } catch (e) {
+    errorResponseHelper(res, 500, getErrorMessage(e));
+  }
+};
+
 export default {
   getDashboard,
   getChartData,
   getFeeTiers,
   getRecentTransactions,
+  getPendingSummary,
   getConversions,
   getConversionDetail,
   getActionCounts,

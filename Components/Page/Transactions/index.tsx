@@ -403,8 +403,8 @@ const TransactionPage = () => {
 
   const handleExport = () => {    dispatch(TransactionAction(TRANSACTION_EXPORT, {
       wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
-      startDate: dateRange.startDate?.toISOString(),
-      endDate: dateRange.endDate?.toISOString(),
+      date_from: dateRange.startDate?.toISOString(),
+      date_to: dateRange.endDate?.toISOString(),
       search: searchTerm || undefined,
       company_id: selectedCompanyId || undefined,
     }));

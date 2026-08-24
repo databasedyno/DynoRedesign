@@ -21,6 +21,10 @@ dashboardRouter.get("/fee-tiers", dashboardController.getFeeTiers);
 // Query params: limit (default 10), company_id
 dashboardRouter.get("/recent-transactions", dashboardController.getRecentTransactions);
 
+// GET /api/dashboard/pending-summary - Money awaiting on-chain confirmation
+// (fresh pending payments + accurate USD total). Query params: company_id.
+dashboardRouter.get("/pending-summary", dashboardController.getPendingSummary);
+
 // GET /api/dashboard/conversions - Get conversion status tracker
 // Query params: status (optional), company_id (optional), limit (default 20)
 dashboardRouter.get("/conversions", dashboardController.getConversions);
