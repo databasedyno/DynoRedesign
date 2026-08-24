@@ -520,8 +520,8 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
           :root {
             --font-sans: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-mono: ${PlexMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            --font-display: "Manrope", ${PlexSans.style.fontFamily}, -apple-system, sans-serif;
-            --font-hero: "Manrope", ${UnboundedFont.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-display: "Manrope", "Manrope Fallback", ${PlexSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-hero: "Manrope", "Manrope Fallback", ${UnboundedFont.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
             --font-body: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-tech: ${PlexMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
             --font-inter: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

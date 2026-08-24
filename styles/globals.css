@@ -204,6 +204,26 @@ a {
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 
+/* ============================================================
+   Metric-matched fallback for self-hosted Manrope (BUGFIX 2026-08-24).
+   Manrope uses font-display:swap; on a COLD (new-browser) load the heading /
+   hero copy first paints in a plain fallback, then Manrope loads and the text
+   visibly RESIZES ("small then grows bigger"). This face makes the swap-window
+   fallback (Arial) occupy Manrope's exact box, so when Manrope swaps in there
+   is no size jump — same technique next/font applies to its own families.
+   Overrides computed from Manrope-Regular.woff vs Arial (capsize method).
+   Used in the --font-hero / --font-display / MUI HEADING_FONT stacks, placed
+   immediately AFTER "Manrope" so it only shows during the brief swap window.
+   ============================================================ */
+@font-face {
+  font-family: "Manrope Fallback";
+  src: local("Arial");
+  ascent-override: 106.6%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+  size-adjust: 103.69%;
+}
+
 /* --- Legacy weight-carrying aliases (Urbanist*) → Manrope --- */
 @font-face {
   font-family: "UrbanistLight";

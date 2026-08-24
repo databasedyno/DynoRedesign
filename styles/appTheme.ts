@@ -29,7 +29,7 @@ const INDIGO_DARK_HOVER = "#818CF8"; // indigo-400
  * body sans (var(--font-body) = IBM Plex Sans) and money on IBM Plex Mono.
  * Manrope is self-hosted (@font-face in globals.css) so there is no new font cost.
  */
-const HEADING_FONT = "'Manrope', var(--font-hero), var(--font-sans), system-ui, sans-serif";
+const HEADING_FONT = "'Manrope', 'Manrope Fallback', var(--font-hero), var(--font-sans), system-ui, sans-serif";
 const BODY_FONT = "var(--font-body), 'IBM Plex Sans', var(--font-sans), system-ui, sans-serif";
 const headingTypography = {
   fontFamily: BODY_FONT,
