@@ -232,10 +232,10 @@ export const validateCartApi = async (
     if (body.merchant_user_id) {
       merchantUserId = Number(body.merchant_user_id);
     } else if (body.merchant_handle) {
-      const merchant: any = await userModel.findOne({
-        where: { handle: String(body.merchant_handle) } as any,
-      });
-      if (merchant) merchantUserId = Number(merchant.dataValues.user_id);
+      // The vanity handle lives on the COMPANY when storefront-per-company is ON;
+      // resolveStorefrontByHandle handles both flag states (falls back to tbl_user).
+      const owner = await resolveStorefrontByHandle(String(body.merchant_handle));
+      if (owner) merchantUserId = Number(owner.user_id);
     } else {
       // Try to infer from the first item's product
       const anyProduct: any = await productModel.findOne({
@@ -273,15 +273,21 @@ export const startCheckout = async (
     const body = req.body || {};
     const buyer = body.buyer || {};
     const buyerEmail = String(buyer.email || "").trim().toLowerCase();
-    if (!buyerEmail || !buyerEmail.includes("@"))
-      return errorResponseHelper(res, 400, "Valid buyer email is required.");
+    // Email is OPTIONAL — buyers can pay without it (they still get the on-screen
+    // order page). Validate the format only when one is actually provided.
+    if (buyerEmail && !buyerEmail.includes("@"))
+      return errorResponseHelper(res, 400, "Please enter a valid email address.");
 
-    // Resolve merchant
+    // Resolve merchant — the vanity handle lives on the COMPANY when
+    // storefront-per-company is ON, so resolve it via resolveStorefrontByHandle
+    // (handles both flag states) and then load the owning user.
     let merchant: any = null;
     if (body.merchant_handle) {
-      merchant = await userModel.findOne({
-        where: { handle: String(body.merchant_handle) } as any,
-      });
+      const owner = await resolveStorefrontByHandle(String(body.merchant_handle));
+      if (owner)
+        merchant = await userModel.findOne({
+          where: { user_id: Number(owner.user_id) } as any,
+        });
     } else if (body.merchant_user_id) {
       merchant = await userModel.findOne({
         where: { user_id: Number(body.merchant_user_id) } as any,
@@ -555,7 +561,7 @@ export const startCheckout = async (
           public_ref: publicRef,
           merchant_user_id: merchantUserId,
           company_id: merchantCompanyId,
-          buyer_email: buyerEmail,
+          buyer_email: buyerEmail || null,
           buyer_name: buyer.name ? String(buyer.name).slice(0, 160) : null,
           buyer_phone: buyer.phone ? String(buyer.phone).slice(0, 32) : null,
           shipping_address: body.shipping_address || null,
@@ -614,7 +620,7 @@ export const startCheckout = async (
           base_amount: totalCents / 100,
           base_currency: currency,
           status: "pending",
-          email: buyerEmail,
+          email: buyerEmail || null,
           payment_link: paymentLinkUrl,
           description: orderDescription,
           link_type: "cart",
@@ -644,7 +650,7 @@ export const startCheckout = async (
       try {
         const redisPayload = {
           transaction_id: linkTransactionId,
-          email: buyerEmail,
+          email: buyerEmail || null,
           allowedModes: "crypto",
           base_amount: totalCents / 100,
           base_currency: currency,
@@ -696,7 +702,9 @@ export const startCheckout = async (
     } catch (txErr: any) {
       try {
         await t.rollback();
-      } catch {}
+      } catch {
+        /* transaction already resolved / connection gone — nothing to undo */
+      }
       apiLogger.warn(
         `[cartController] checkout tx rolled back: ${txErr?.message || txErr}`
       );
@@ -739,9 +747,8 @@ export const quoteTax = async (
 
     let merchant: any = null;
     if (body.merchant_handle) {
-      merchant = await userModel.findOne({
-        where: { handle: String(body.merchant_handle) } as any,
-      });
+      const owner = await resolveStorefrontByHandle(String(body.merchant_handle));
+      if (owner) merchant = await userModel.findByPk(Number(owner.user_id));
     } else if (body.merchant_user_id) {
       merchant = await userModel.findByPk(Number(body.merchant_user_id));
     } else {

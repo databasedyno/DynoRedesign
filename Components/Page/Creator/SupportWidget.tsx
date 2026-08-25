@@ -68,6 +68,7 @@ const SupportWidget = ({
   const [selected, setSelected] = useState<number | 'custom'>(presets[0] ?? 'custom')
   const [customAmount, setCustomAmount] = useState('')
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [anon, setAnon] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -124,6 +125,11 @@ const SupportWidget = ({
       setError(`Please enter at least ${fmtMoney(min)}.`)
       return
     }
+    const trimmedEmail = email.trim()
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError('Please enter a valid email address, or leave it blank.')
+      return
+    }
     setLoading(true)
     try {
       const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '')
@@ -136,6 +142,7 @@ const SupportWidget = ({
           donor_name: anon ? null : name.trim() || null,
           donor_message: widget.allow_message ? message.trim() || null : null,
           is_anonymous: anon,
+          email: trimmedEmail || null,
         }),
       })
       const json = await res.json().catch(() => null)
@@ -343,6 +350,20 @@ const SupportWidget = ({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
           placeholder={t("creator.support.namePlaceholder")}
           sx={{ ...fieldSx, opacity: anon ? 0.5 : 1 }}
+        />
+      </Box>
+
+      {/* Email (optional) — donor's own receipt / updates */}
+      <Box sx={{ mt: 1.5 }}>
+        <Box
+          component="input"
+          type="email"
+          maxLength={160}
+          data-testid="support-donor-email"
+          value={email}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+          placeholder="Email for updates (optional)"
+          sx={fieldSx}
         />
       </Box>
 

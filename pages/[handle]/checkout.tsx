@@ -61,7 +61,11 @@ const CheckoutPage: NextPageWithLayout = () => {
     }
   }, []);
 
-  const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
+  // Email is OPTIONAL — valid when blank, or when it's a well-formed address.
+  const emailValid = useMemo(() => {
+    const v = email.trim();
+    return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }, [email]);
   const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
 
   useEffect(() => {
@@ -138,7 +142,7 @@ const CheckoutPage: NextPageWithLayout = () => {
 
   const submit = async () => {
     setError(null);
-    if (!emailValid) { setError("Enter a valid email address."); return; }
+    if (!emailValid) { setError("Please enter a valid email address, or leave it blank."); return; }
     if (lines.length === 0) { setError("Your cart is empty."); return; }
     setSubmitting(true);
     try {
@@ -152,7 +156,7 @@ const CheckoutPage: NextPageWithLayout = () => {
             variant_id: i.variant_id,
             quantity: i.quantity,
           })),
-          buyer: { email: email.trim(), name: name.trim() || undefined },
+          buyer: { email: email.trim() || undefined, name: name.trim() || undefined },
           customer_vat_id: vatId.trim() || undefined,
           timezone,
         }),
@@ -229,14 +233,13 @@ const CheckoutPage: NextPageWithLayout = () => {
 
         <Stack spacing={2}>
           <TextField
-            label="Email address"
+            label="Email for receipt & updates (optional)"
             type="email"
             fullWidth
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             inputProps={{ "data-testid": "checkout-email-input" }}
-            helperText="We'll send your receipt + download links here."
+            helperText="Optional — add it and we'll email your receipt + any download links."
           />
           <TextField
             label="Name (optional)"

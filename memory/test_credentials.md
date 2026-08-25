@@ -1,4 +1,42 @@
 # ============================================================================
+# 2026-08-25 BUGFIX SESSION — storefront / checkout / payments (VERIFIED)
+# ----------------------------------------------------------------------------
+# Test merchant: handle "devhub" (company_id=1, user_id=1, owner hostbay@moxx.co),
+#   product #9 "Talk to a Developer" ($100 USD, slug talk-to-a-developer).
+#
+# ROOT CAUSE (issue 3, critical): STOREFRONT_PER_COMPANY=true puts the vanity
+#   handle on tbl_company, but cart/checkout/tax/tip resolved it via tbl_user
+#   (userModel.findOne{handle}) -> "Merchant handle or ID required" / "not
+#   accepting tips". FIX: use resolveStorefrontByHandle() everywhere.
+#   Files: backend/controller/product/cartController.ts (validateCartApi,
+#   startCheckout, quoteTax) + backend/controller/payment/paymentLinkController.ts
+#   (startTip). Crowdfunding/donation (startDonation) resolves via payment-link
+#   ref, NOT handle -> was NOT affected.
+#
+# OTHER FIXES:
+#   - Optional payer email everywhere (checkout/tip/donation) — validated only
+#     if provided; buyer_email/email null-safe. checkout email no longer required.
+#   - Product publish now create-then-publish for new products (ProductEditor) —
+#     no "save the draft first" dead-end.
+#   - Added Telegram + Facebook to social-link options (CreatorPageSettings +
+#     CreatorProfile + CreatorLivePreview). Empty socials still hidden.
+#   - ShopHero share tray now labelled "Share" (was unlabeled; looked like socials).
+#   - Price $99.91 was stale CDN cache; product/shop edge cache tightened
+#     15s/30s, creator 30s/60s.
+#   - Pre-existing lint cleanup: empty catch (cartController) + LinkCard/Stat
+#     nested components -> render functions. tsc --noEmit = 0 errors; real
+#     next eslint = 0 errors.
+#
+# VERIFICATION: read-only + fail-before-write curl probes (cart/checkout/tax/tip
+#   all resolve devhub now) + Playwright rendering (store Share label, product
+#   $100, cart/checkout no error, checkout email optional + pay enabled w/o email,
+#   creator page + support-widget email field). DID NOT run deep_testing agents /
+#   submit any payment — app is wired to the LIVE prod DB (would create real rows).
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-08-25 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
 # - Preview URL: https://7aaa188d-49a7-4e85-a5da-1814289af15b.preview.emergentagent.com

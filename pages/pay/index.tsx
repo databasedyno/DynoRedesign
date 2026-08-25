@@ -726,6 +726,7 @@ const Payment = () => {
     donor_name?: string
     donor_message?: string
     is_anonymous?: boolean
+    email?: string
   }) => {
     if (donateSubmitting || !donationRef) return
     setDonateSubmitting(true)

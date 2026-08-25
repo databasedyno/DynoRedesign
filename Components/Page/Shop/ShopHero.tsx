@@ -259,6 +259,18 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
           }}
           data-testid="shop-share-tray"
         >
+          <Typography
+            variant="caption"
+            sx={{
+              mr: 0.5,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.5)",
+            }}
+          >
+            Share
+          </Typography>
           <Tooltip title="Share on X">
             <IconButton
               size="small"

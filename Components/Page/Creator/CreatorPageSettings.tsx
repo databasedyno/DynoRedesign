@@ -64,6 +64,8 @@ const SOCIAL_PLATFORMS = [
   { key: "instagram", label: "Instagram",     icon: "mdi:instagram",   placeholder: "@yourname or full URL" },
   { key: "youtube",   label: "YouTube",       icon: "mdi:youtube",     placeholder: "channel URL" },
   { key: "tiktok",    label: "TikTok",        icon: "mdi:music-note",  placeholder: "@yourname or full URL" },
+  { key: "telegram",  label: "Telegram",      icon: "mdi:telegram",    placeholder: "@yourname or t.me/yourname" },
+  { key: "facebook",  label: "Facebook",      icon: "mdi:facebook",    placeholder: "page URL or username" },
   { key: "website",   label: "Website",       icon: "mdi:web",         placeholder: "https://yourwebsite.com" },
 ] as const;
 

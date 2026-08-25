@@ -161,6 +161,7 @@ interface DonationCampaignProps {
     donor_name?: string
     donor_message?: string
     is_anonymous?: boolean
+    email?: string
   }) => void
 }
 
@@ -194,9 +195,11 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState<string>('')
   const [donorName, setDonorName] = useState<string>('')
+  const [donorEmail, setDonorEmail] = useState<string>('')
   const [donorMessage, setDonorMessage] = useState<string>('')
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false)
   const [amountError, setAmountError] = useState<string>('')
+  const [emailError, setEmailError] = useState<string>('')
   // Relative "time ago" labels depend on the current clock, which differs
   // between the SSR render and client hydration → React hydration mismatch
   // (#418/#425). Render them only after mount so SSR and first client paint
@@ -261,11 +264,18 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
       )
       return
     }
+    const trimmedEmail = donorEmail.trim()
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setEmailError(t('donation.invalidEmail', { defaultValue: 'Please enter a valid email address, or leave it blank.' }))
+      return
+    }
+    setEmailError('')
     onDonate({
       amount: effectiveAmount,
       donor_name: donorName.trim() || undefined,
       donor_message: donorMessage.trim() || undefined,
       is_anonymous: isAnonymous,
+      email: trimmedEmail || undefined,
     })
   }
 
@@ -312,7 +322,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
     display: 'block',
   }
 
-  const Stat = ({ value, label, mono = true }: { value: React.ReactNode; label: string; mono?: boolean }) => (
+  const renderStat = (value: React.ReactNode, label: string, mono: boolean = true) => (
     <Box sx={{ minWidth: 0 }}>
       <Typography sx={{ fontFamily: mono ? MONO : 'var(--font-sans)', fontWeight: 700, fontSize: { xs: 18, sm: 20 }, lineHeight: 1.1, color: theme.palette.text.primary }}>
         {value}
@@ -458,6 +468,21 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           placeholder={t('donation.namePlaceholder', { defaultValue: 'Your name' })}
           sx={{ ...inputSx, mb: 1 }}
         />
+        <Box
+          component='input'
+          type='email'
+          maxLength={160}
+          data-testid='donation-donor-email'
+          value={donorEmail}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setDonorEmail(e.target.value); if (emailError) setEmailError('') }}
+          placeholder={t('donation.emailPlaceholder', { defaultValue: 'Email for updates (optional)' })}
+          sx={{ ...inputSx, mb: emailError ? 0.25 : 1 }}
+        />
+        {emailError && (
+          <Typography fontSize={11.5} color={theme.palette.error.main} mb={1} data-testid='donation-email-error'>
+            {emailError}
+          </Typography>
+        )}
         <Box position='relative'>
           <Box
             component='textarea'
@@ -713,12 +738,12 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
               )}
 
               <Box display='flex' gap={{ xs: 3, sm: 5 }} mt={2} flexWrap='wrap'>
-                <Stat value={donation.supporters_count} label={t('donation.supportersLabel', { defaultValue: 'supporters' })} />
+                {renderStat(donation.supporters_count, t('donation.supportersLabel', { defaultValue: 'supporters' }))}
                 {hasGoal && progressPct != null && (
-                  <Stat value={`${progressPct}%`} label={t('donation.funded', { defaultValue: 'funded' })} />
+                  renderStat(`${progressPct}%`, t('donation.funded', { defaultValue: 'funded' }))
                 )}
                 {hasGoal && (
-                  <Stat value={fmt(Math.max(0, (donation.goal_amount as number) - donation.raised_amount))} label={t('donation.toGo', { defaultValue: 'to go' })} />
+                  renderStat(fmt(Math.max(0, (donation.goal_amount as number) - donation.raised_amount)), t('donation.toGo', { defaultValue: 'to go' }))
                 )}
               </Box>
 

@@ -22,6 +22,8 @@ const SOCIAL_ICONS: Record<string, string> = {
   instagram: "mdi:instagram",
   youtube: "mdi:youtube",
   tiktok: "mdi:music-note",
+  telegram: "mdi:telegram",
+  facebook: "mdi:facebook",
   website: "mdi:web",
 };
 

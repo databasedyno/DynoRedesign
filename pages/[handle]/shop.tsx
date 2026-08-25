@@ -158,8 +158,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     if (process.env.NODE_ENV === "production" && creatorHost && reqHost && reqHost !== creatorHost) {
       return { redirect: { destination: `${siteUrl}${ctx.resolvedUrl}`, permanent: true } };
     }
-    // Public catalog content — cacheable at the edge (path-keyed, safe).
-    ctx.res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+    // Public catalog content — cacheable at the edge but kept SHORT because the
+    // grid shows live PRICES; a price edit should propagate in seconds.
+    ctx.res.setHeader("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
     return {
       props: {
         merchant: data.merchant,

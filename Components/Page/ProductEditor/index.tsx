@@ -252,15 +252,27 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   };
 
   const publish = async () => {
-    if (!product) { setToast({ text: "Save the draft first.", kind: "err" }); return; }
     const err = validate();
     if (err) { setToast({ text: err, kind: "err" }); return; }
     setPublishing(true);
     try {
-      await axiosBaseApi.patch(`products/${product.product_id}`, buildPayload());
-      const r = await axiosBaseApi.post(`products/${product.product_id}/publish`);
+      let target = product;
+      // New / unsaved product: create it first, then publish — one click, no
+      // "save the draft first" dead-end.
+      if (!target) {
+        const cr = await axiosBaseApi.post("products", buildPayload());
+        target = cr.data?.data?.product as ProductRow;
+      } else {
+        await axiosBaseApi.patch(`products/${target.product_id}`, buildPayload());
+      }
+      const r = await axiosBaseApi.post(`products/${target.product_id}/publish`);
       setProduct(r.data?.data?.product);
       setToast({ text: "Published — your product is live.", kind: "ok" });
+      // Just created? Move the URL onto the saved product so refreshes / further
+      // edits target the right record.
+      if (mode === "new") {
+        router.replace(`/pay-links/products/${target.product_id}/edit`);
+      }
     } catch (e: any) {
       setToast({ text: e?.response?.data?.message || "Publish failed.", kind: "err" });
     } finally {

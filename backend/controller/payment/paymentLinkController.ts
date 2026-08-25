@@ -2047,7 +2047,7 @@ export const startDonation = async (
   res: express.Response
 ) => {
   try {
-    const { data, amount, donor_name, donor_message, is_anonymous } = req.body;
+    const { data, amount, donor_name, donor_message, is_anonymous, email: donorEmailRaw } = req.body;
 
     if (!data) {
       return errorResponseHelper(res, 400, "Campaign reference is required");
@@ -2103,12 +2103,17 @@ export const startDonation = async (
     const dName = donor_name ? String(donor_name).trim().slice(0, 100) : null;
     const dMsg = donor_message ? String(donor_message).trim().slice(0, 280) : null;
     const anon = Boolean(is_anonymous);
+    // Optional donor email — for their own receipt/updates (never required).
+    const donorEmail = String(donorEmailRaw || "").trim().toLowerCase();
+    if (donorEmail && !donorEmail.includes("@")) {
+      return errorResponseHelper(res, 400, "Please enter a valid email address.");
+    }
 
     // ── Create the contribution child row ──
     const uniqueRef = crypto.randomBytes(24).toString("hex");
     const childPayload = {
       transaction_id: crypto.randomUUID(),
-      email: null,
+      email: donorEmail || null,
       allowedModes: p.allowedModes || "crypto",
       base_amount: amt,
       base_currency: p.base_currency || "USD",
@@ -2181,26 +2186,27 @@ export const startTip = async (
   res: express.Response
 ) => {
   try {
-    const { handle: rawHandle, amount, donor_name, donor_message, is_anonymous } = req.body;
+    const { handle: rawHandle, amount, donor_name, donor_message, is_anonymous, email: donorEmailRaw } = req.body;
     const handle = String(rawHandle || "").trim().toLowerCase();
     if (!handle) {
       return errorResponseHelper(res, 400, "Creator handle is required");
     }
 
-    // Resolve the creator + widget config
-    const creator = await userModel.findOne({
-      where: sequelize.where(sequelize.fn("LOWER", sequelize.col("handle")), handle),
-      attributes: [
-        "user_id", "name", "handle", "creator_page_enabled",
-        "support_widget_enabled", "support_widget_style", "support_widget_label",
-        "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
-        "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
-      ],
-    });
-    if (!creator || !creator.dataValues.creator_page_enabled || !creator.dataValues.support_widget_enabled) {
+    // Resolve the creator + widget config. The handle + widget settings live on
+    // the COMPANY when storefront-per-company is ON, so resolveStorefrontByHandle
+    // (which handles both flag states) is the single correct lookup — a direct
+    // tbl_user.handle query misses company-scoped storefronts entirely.
+    const owner = await resolveStorefrontByHandle(handle, true);
+    if (!owner || !owner.support_widget_enabled) {
       return errorResponseHelper(res, 404, "This creator isn't accepting tips right now.");
     }
-    const u = creator.dataValues as Record<string, any>;
+    const u = owner as Record<string, any>;
+
+    // Optional donor email — for their own receipt/updates (never required).
+    const donorEmail = String(donorEmailRaw || "").trim().toLowerCase();
+    if (donorEmail && !donorEmail.includes("@")) {
+      return errorResponseHelper(res, 400, "Please enter a valid email address.");
+    }
 
     // ── Amount validation ──
     const rawAmt = Number(amount);
@@ -2217,15 +2223,20 @@ export const startTip = async (
       return errorResponseHelper(res, 400, "Amount is too large.");
     }
 
-    // Resolve the creator's company (first/primary)
-    const company = await companyModel.findOne({
-      where: { user_id: u.user_id },
-      order: [["company_id", "ASC"]],
-    });
-    if (!company) {
-      return errorResponseHelper(res, 400, "This creator isn't set up to receive payments yet.");
+    // Resolve the creator's company — the one that OWNS this storefront handle
+    // when storefront-per-company is ON, else the primary company.
+    let company_id: number | null =
+      u.company_id != null ? Number(u.company_id) : null;
+    if (company_id == null) {
+      const company = await companyModel.findOne({
+        where: { user_id: u.user_id },
+        order: [["company_id", "ASC"]],
+      });
+      if (!company) {
+        return errorResponseHelper(res, 400, "This creator isn't set up to receive payments yet.");
+      }
+      company_id = Number(company.dataValues.company_id);
     }
-    const company_id = company.dataValues.company_id;
 
     // Configured wallet currencies for that company
     const cryptoTypes = ['BTC', 'ETH', 'LTC', 'DOGE', 'TRX', 'BCH', 'USDT-TRC20', 'USDT-ERC20', 'USDC-ERC20', 'SOL', 'XRP', 'RLUSD', 'RLUSD-ERC20', 'POLYGON', 'USDT-POLYGON'];
@@ -2319,7 +2330,7 @@ export const startTip = async (
     const uniqueRef = crypto.randomBytes(24).toString("hex");
     const childPayload = {
       transaction_id: crypto.randomUUID(),
-      email: null,
+      email: donorEmail || null,
       allowedModes: "crypto",
       base_amount: amt,
       base_currency: widgetCurrency,

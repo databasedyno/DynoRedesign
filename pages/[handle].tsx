@@ -113,7 +113,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     // Public content — let DO's edge/CDN serve repeat hits so the backend + DB
     // are barely touched (60s fresh, 5min stale-while-revalidate). Set only on
     // the successful render path (not on notFound / redirect).
-    ctx.res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
+    ctx.res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60')
     return {
       props: {
         creator: data.creator,

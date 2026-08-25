@@ -77,6 +77,8 @@ const SOCIAL_ICONS: Record<string, string> = {
   instagram: 'mdi:instagram',
   youtube: 'mdi:youtube',
   tiktok: 'mdi:music-note',
+  telegram: 'mdi:telegram',
+  facebook: 'mdi:facebook',
   website: 'mdi:web',
 }
 
@@ -89,6 +91,8 @@ const socialHref = (platform: string, raw: string): string => {
     case 'twitter':   return `https://twitter.com/${stripped}`
     case 'instagram': return `https://instagram.com/${stripped}`
     case 'tiktok':    return `https://www.tiktok.com/@${stripped}`
+    case 'telegram':  return `https://t.me/${stripped}`
+    case 'facebook':  return v.startsWith('http') ? v : `https://facebook.com/${stripped}`
     case 'youtube':   return v.startsWith('http') ? v : `https://youtube.com/${stripped}`
     case 'website':   return v.startsWith('http') ? v : `https://${v}`
     default:          return v
@@ -241,8 +245,9 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
   }
   const closeInlineCheckout = () => setActiveLink(null)
 
-  const LinkCard = ({ l }: { l: CreatorLink }) => (
+  const renderLinkCard = (l: CreatorLink) => (
     <Box
+      key={l.link_id}
       role='button'
       tabIndex={0}
       data-testid={`creator-link-${l.link_id}`}
@@ -598,7 +603,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
         {/* ── Links ── */}
         {rest.length > 0 && !activeLink && (
           <Box display='flex' flexDirection='column' gap={1.5} data-testid='creator-links'>
-            {rest.map((l) => <LinkCard key={l.link_id} l={l} />)}
+            {rest.map((l) => renderLinkCard(l))}
           </Box>
         )}
 
