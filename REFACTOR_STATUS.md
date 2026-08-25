@@ -1,4 +1,97 @@
 # ============================================================================
+# NEXT ACTIONS BACKLOG — 2026-08-25 (pod f054383c)
+# Source: OTP AutoFill fix session + Checkout/Payment load-test session.
+# Status legend:  [ ] todo   [~] in progress   [x] done
+# ============================================================================
+
+## A. From the CHECKOUT / PAYMENT LOAD TEST (2026-08-25)
+# Context: ran real settlement/sweep/reservation code under 1000 concurrency
+# against an ISOLATED staging clone (schema-only) with LOADTEST_NO_BROADCAST=true.
+# Correctness invariants ALL held (no double-settle, ledger balanced, no
+# over-reserve, no double-sweep — testing-agent verified). One real capacity
+# bottleneck was found AND FIXED. Everything below is FOLLOW-UP, not blockers.
+
+### A0. [x] DONE & VERIFIED — network-fees aggregate cache (checkout capacity fix)
+#   `services/blockchainFeeService.ts::getAllBlockchainFees()` fanned out to 15
+#   per-chain lookups on EVERY request → GET /api/pay/network-fees p95 ≈ 13.4s at
+#   1000 VUs. Added a 60s aggregate Redis cache (per-chain values already cached
+#   5 min, so 60s aggregate is strictly fresh).
+#   Result: 1000-VU throughput 972 → 3,567 req/s (3.7×); network-fees p95
+#   13,400ms → 687ms (~20×); 0 server 5xx. Testing agent confirmed 8.7× on the
+#   prod-preview backend (478ms cold → 55ms warm). Live in prod (safe).
+
+### A1. [ ] Reservation burst headroom (per-merchant throughput ceiling)
+#   FINDING (not a bug): `reserveAddress` serializes per merchant on Redis lock
+#   `reserve-address:<uid>:<walletType>` with acquireLock(retries=3, delay=100ms).
+#   Under a burst of MANY simultaneous checkouts for the SAME merchant, losers
+#   get a graceful "Address reservation busy … please try again" (at 10 concurrent
+#   /merchant in the test, ~80% hit backpressure). Correct & safe (client retries),
+#   but a single merchant's flash-sale would see retries.
+#   FIX OPTIONS (pick one): (a) grow the PRE_RESERVED pre-warm pool per merchant so
+#   the LOCK-FREE fast path (optimistic `UPDATE … WHERE status='PRE_RESERVED'`)
+#   absorbs the burst; (b) raise withLock retry/backoff for reservation only;
+#   (c) a short per-merchant address queue. Ref: services/merchantPool/
+#   merchantPoolReservation.ts (fast path L60-175, standard flow L~175-230,
+#   backpressure throw L~227); pre-warm: replenishPreReservedPool.
+#   ACCEPTANCE: 1000 concurrent same-merchant checkouts → <5% backpressure, still
+#   zero over-reservation (re-run scripts/loadtest_money_path.ts).
+
+### A2. [ ] network-fees stale-while-revalidate
+#   Current 60s aggregate cache still has ONE slow request per 60s window when it
+#   expires (herd mostly hits per-chain caches, so it's cheap, but not zero).
+#   Add SWR: serve the last good payload instantly and refresh in the background
+#   (single-flight guard so only one refresher runs). File: services/
+#   blockchainFeeService.ts::getAllBlockchainFees (key `all_blockchain_fees_v1`).
+
+### A3. [ ] Live load / money-path health dashboard (admin)
+#   Admin page surfacing real-time settlement throughput, ledger balance
+#   (DR==CR per currency), pending sweeps, and provider health (Tatum/FX/Redis).
+#   Reuse: ledgerService.getBalances(), /health, existing monitoringService.
+
+### A4. [ ] Reusable staging load-test kit
+#   Turn this session's one-off into a committed, documented workflow:
+#     1. pg_dump --schema-only (prod, PG18 client) → restore into an isolated
+#        staging PG; point a second backend at staging PG+Redis with
+#        ENABLE_BACKGROUND_JOBS=true, WORKER_ROLE=primary, LOADTEST_NO_BROADCAST=true.
+#     2. Correctness: backend/scripts/loadtest_money_path.ts
+#        (flags: --settle-payments --settle-concurrency --reserve
+#         --reserve-merchants --sweep --sweep-concurrency).
+#     3. Capacity: backend/scripts/loadtest_http.js
+#        (flags: --base --concurrency --duration --warmup).
+#   Wrap as scripts/staging-loadtest.sh with the safety pre-checks that
+#   loadtest_money_path.ts already enforces (refuses unless
+#   LOADTEST_NO_BROADCAST=true AND DB host is not prod 'roundhouse').
+
+### A-REF. Load-test infrastructure that already landed (reuse, don't rebuild)
+#   - utils/loadtestGuard.ts — isLoadtestNoBroadcast()/syntheticTxId(); gates the
+#     irreversible broadcast+KMS ONLY when LOADTEST_NO_BROADCAST=true (UNSET in
+#     dev/preview/prod → strict no-op). Gated seams:
+#       controller/payment/settlement/settleTransaction.ts (settlement)
+#       services/merchantPool/merchantPoolSweep.ts (balance read + KMS + fee/
+#         profitability + broadcast)
+#       apis/tatumApi.ts (createSubscription / createSubscriptionBlockBeeStyle)
+#   - backend/scripts/loadtest_money_path.ts (correctness harness)
+#   - backend/scripts/loadtest_http.js (HTTP capacity driver)
+
+## B. From the OTP AUTOFILL FIX (2026-08-25)
+### B0. [x] DONE & VERIFIED — iOS/Android OTP AutoFill fills all 6 boxes
+#   Components/UI/OtpInputPanel/index.tsx: removed DOM maxLength=1 (WebKit
+#   truncated AutoFill insert to the first digit); multi-digit insert now
+#   distributed atomically; select-on-focus; Android GBoard keys allowed.
+#   Harness: pages/qa/otp-harness.tsx. Testing agent 8/8 PASS.
+
+### B1. [ ] SMS AutoFill hint (nice-to-have, user-suggested)
+#   Make text-message OTP codes show the one-tap suggestion reliably by adding a
+#   domain-bound code format (e.g. "@dynopay.com #123456") to the OTP SMS body.
+#   Files: OTP SMS send path (Telnyx/Infobip) in services/*sms*/otp senders.
+
+### B2. [ ] Font-flash polish & landing speed report (carried from prior sessions)
+#   (Pre-existing backlog items — see CHANGELOG; not started.)
+
+# ============================================================================
+
+
+# ============================================================================
 # UPDATE — 2026-08-24 (prod-connected pod): Items 1, 4, 5 progressed
 # ============================================================================
 # ITEM #1 — DONE & verified.
