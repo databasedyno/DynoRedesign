@@ -9,7 +9,7 @@ import json
 import sys
 from typing import Dict, List, Any
 
-BASE_URL = "https://dynopay-credentials.preview.emergentagent.com"
+BASE_URL = "https://payment-gateway-673.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 COMPANY_ID = 1

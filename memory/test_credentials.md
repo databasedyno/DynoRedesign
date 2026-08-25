@@ -1,7 +1,34 @@
 # ============================================================================
-# 2026-08-25 RE-SETUP (current pod) — prod-connected, SAFE MODE — VERIFIED
+# 2026-08-25 (later) RE-SETUP (current pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://d26a4423-b492-4d0d-91e4-68950f0ae45d.preview.emergentagent.com
+# - Preview URL: https://f054383c-4e56-452c-b238-dc450a792344.preview.emergentagent.com
+# - Branch: Improvement (latest, contains all other branches)
+# - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
+#   NOT used). /app/.env + /app/backend/.env written by hand, then
+#   `bash scripts/pod-bootstrap.sh` -> POD READY in 26s (deps were already present).
+# - SAFE MODE (same as all prior sessions):
+#     ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (no sweeps/settlement/cron)
+#     REDIS_PUBLIC_URL -> .../15794/1 (isolated Redis DB index 1)
+#     DISABLE_OUTBOUND_EMAIL=true (no Brevo email)
+#     DATABASE_URL set explicitly (URL branch of dbInstance.ts = SSL; Railway)
+#     Binance SOCKS proxy + SSH tunnel commented out (geo-blocked; FX -> Tatum/CoinGecko)
+#     NEXTAUTH_SECRET freshly generated (paste contained the literal placeholder)
+#     /app/.env NEXT_PUBLIC_BASE_URL left EMPTY (relative browser calls; SSR uses INTERNAL_API_URL)
+# - VERIFIED this session:
+#     GET :8001/health -> healthy (database=connected, redis=connected,
+#       background_jobs.eligible=false = SAFE MODE, tatum operational, binance geo-blocked)
+#     GET /api/public/tickers -> live prices (BTC ~$79k)
+#     POST /api/user/login (hostbay@moxx.co / Katiekendra123@) -> 200 "Login Successful!" (user_id=1)
+#     External / and /auth/login render full UI (screenshot-verified)
+# - Merchant login: hostbay@moxx.co / Katiekendra123@ (user_id=1, company_id=1)
+# - NOTE for testing agents: WIRED TO PRODUCTION DB. Prefer READ-ONLY checks.
+# ============================================================================
+
+
+# ============================================================================
+# 2026-08-25 RE-SETUP (prior pod) — prod-connected, SAFE MODE — VERIFIED
+# ----------------------------------------------------------------------------
+# - Preview URL: https://payment-gateway-673.preview.emergentagent.com
 # - Env files REBUILT from a fresh full cred paste by the user (no vault passphrase
 #   this session; env.vault.enc NOT used). /app/.env + /app/backend/.env written by
 #   hand, then `bash scripts/pod-bootstrap.sh` synced URLs + enforced SAFE MODE.
@@ -27,7 +54,7 @@
 # ============================================================================
 # 2026-08-24 RE-SETUP (this session) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-credentials.preview.emergentagent.com
+# - Preview URL: https://payment-gateway-673.preview.emergentagent.com
 # - Env files were REBUILT DIRECTLY from a fresh full cred paste by the user
 #   (NOT restored from env.vault.enc — no passphrase was provided this session).
 # - /app/backend/.env and /app/.env written by hand; SAFE MODE enforced:
@@ -53,7 +80,7 @@
 # DynoPay — Emergent Preview Setup Notes (prod-connected, SAFE MODE)
 
 ## Status: RUNNING — connected to the user's LIVE Railway PostgreSQL + Redis
-- Preview URL: https://dynopay-credentials.preview.emergentagent.com
+- Preview URL: https://payment-gateway-673.preview.emergentagent.com
 - Architecture: Next.js (`:3000`) + Node/Express backend (`server.ts` on `:3300`) behind a
   Python/uvicorn proxy (`server.py` on `:8001`, the `/api/*` ingress target). Proxy forwards
   `/api/*` to Node and stubs `/api/auth/*` (NextAuth) with empty JSON.

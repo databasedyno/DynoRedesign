@@ -23,7 +23,7 @@ from PIL import Image
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://d26a4423-b492-4d0d-91e4-68950f0ae45d.preview.emergentagent.com"
+EXTERNAL_BASE = "https://payment-gateway-673.preview.emergentagent.com"
 API_BASE = f"{EXTERNAL_BASE}/api"
 
 # Test credentials

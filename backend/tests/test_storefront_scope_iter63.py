@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://dynopay-credentials.preview.emergentagent.com"
+BASE = "https://payment-gateway-673.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 
