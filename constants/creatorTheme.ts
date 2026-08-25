@@ -29,13 +29,15 @@ export const ACCENT_PRESETS: Array<{ key: string; hex: string; label: string }> 
 ];
 
 // Gradient presets — key + CSS stops (for preview + rendered on public page)
+// 2026-08 premium refresh: richer multi-stop editorial blends (deep base →
+// saturated mid → luminous tail) replace the flat 2-stop neon pairs.
 export const GRADIENT_PRESETS: Array<{ key: string; label: string; stops: string }> = [
-  { key: "sunset", label: "Sunset", stops: "#FF7A45 0%, #FF3D9A 100%" },
-  { key: "ocean", label: "Ocean", stops: "#00E5FF 0%, #7C3AED 100%" },
-  { key: "forest", label: "Forest", stops: "#0FCFA0 0%, #14532D 100%" },
-  { key: "twilight", label: "Twilight", stops: "#4C1D95 0%, #0EA5E9 100%" },
-  { key: "midnight", label: "Midnight", stops: "#0F172A 0%, #6366F1 100%" },
-  { key: "candy", label: "Candy", stops: "#FCD34D 0%, #FF3D9A 100%" },
+  { key: "sunset", label: "Sunset", stops: "#1C1917 0%, #7C2D12 32%, #EA580C 64%, #FB7185 100%" },
+  { key: "ocean", label: "Ocean", stops: "#0C4A6E 0%, #0EA5E9 48%, #7C3AED 100%" },
+  { key: "forest", label: "Forest", stops: "#052E16 0%, #047857 58%, #34D399 100%" },
+  { key: "twilight", label: "Twilight", stops: "#1E1B4B 0%, #4C1D95 45%, #0EA5E9 100%" },
+  { key: "midnight", label: "Midnight", stops: "#020617 0%, #1E1B4B 52%, #6366F1 100%" },
+  { key: "candy", label: "Candy", stops: "#831843 0%, #EC4899 55%, #FCD34D 100%" },
 ];
 
 /**
@@ -56,7 +58,8 @@ export const buildCoverBackground = (theme: CreatorTheme, coverImageUrl?: string
   const accent = theme.accentColor || BRAND_ACCENT;
   const style = theme.coverStyle || "solid";
   if (style === "solid") {
-    return `linear-gradient(135deg, ${accent}22 0%, ${accent}66 100%)`;
+    // Premium aurora default — deep ink base with layered accent glows
+    return `radial-gradient(90% 120% at 18% 0%, ${accent}8C 0%, transparent 55%), radial-gradient(80% 110% at 85% 12%, rgba(124,58,237,0.5) 0%, transparent 58%), radial-gradient(70% 90% at 55% 100%, rgba(14,165,233,0.25) 0%, transparent 60%), #0A0A14`;
   }
   if (style === "gradient") {
     const stops = GRADIENT_STOPS[theme.coverGradient || "sunset"];

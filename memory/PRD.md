@@ -3543,3 +3543,24 @@ integrations added.
   restores `'growth'` (1.0%); `BLOCKCHAIR_API_KEY` expired 2026-07-03 (402) but is still wired into
   ~10 wallet controllers.
 
+
+# PREMIUM PUBLIC-SURFACE REDESIGN (2026-08-25 session) — DONE (screenshot-verified)
+Re-imagined donation/crowdfunding, storefront and support-me/tip/coffee for a premium feel
+(visual layer ONLY — zero logic/testid changes). Shared vocabulary: indigo→violet gradient
+(BRAND_ACCENT #4338CA → #7C3AED), glass panels (blur + hairline + layered shadow, r20-24),
+aurora ambient glows, var(--font-hero) display titles, mono money.
+- SupportWidget.tsx: glass card w/ top aurora, gradient icon chip + CTA (glow, icon), stats pill,
+  gradient-selected preset pills, sx inputs w/ accent focus rings, lock trust line.
+- CreatorProfile.tsx: page aurora backdrop, gradient-ring avatar, handle pill (light-accent
+  contrast-guarded via readableOn+darken), glass featured card + gradient progress, LinkCard
+  hover ring + arrow slide. LinearProgress import dropped.
+- constants/creatorTheme.ts: GRADIENT_PRESETS refreshed to multi-stop editorial blends (sunset =
+  ember dusk etc.); 'solid' default cover -> premium aurora (also in buildCoverBackground).
+- donationCampaign.tsx: r24 card + deeper shadow, aurora no-image hero, 34px hero title, glass
+  sticky donate form w/ gradient presets + gradient CTA (+heart icon) + gradient mobile sticky bar.
+- campaign/GoalProgressBar.tsx: white pill text (was near-black on indigo), gradient pill+fill
+  (indigo→violet / emerald when reached) with glow.
+- Shop: ShopHero brand-aurora cover (merchant hue as tint) + gradient avatar + hero font;
+  ProductCard r18 + indigo hover ring/glow; ShopEmpty display heading + gradient emoji tiles.
+Verified: tsc 0 err, lint = pre-existing issues only; screenshots of /hostbay, /pay/donation-demo
+(all 3 states), /hostbay/shop. NOT yet run through auto_frontend_testing_agent (needs user OK).

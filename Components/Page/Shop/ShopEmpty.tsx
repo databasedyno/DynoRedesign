@@ -96,7 +96,8 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
           fontWeight: 800,
           fontSize: { xs: "1.5rem", md: "1.85rem" },
           lineHeight: 1.2,
-          letterSpacing: "-0.01em",
+          letterSpacing: "-0.02em",
+          fontFamily: "var(--font-hero), var(--font-sans)",
           mb: 1,
         }}
       >
@@ -130,22 +131,38 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
             data-testid={c.testid}
             sx={{
               flex: 1,
-              borderRadius: 3,
+              borderRadius: "18px",
               p: 3,
               textAlign: "left",
               border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
               bgcolor: isDark ? "rgba(255,255,255,0.02)" : "background.paper",
               transition: "border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease",
               "&:hover": {
-                borderColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.16)",
-                transform: "translateY(-2px)",
+                borderColor: isDark ? "rgba(99,102,241,0.5)" : "rgba(79,70,229,0.4)",
+                transform: "translateY(-3px)",
                 boxShadow: isDark
-                  ? "0 8px 24px rgba(0,0,0,0.4)"
-                  : "0 8px 24px rgba(0,0,0,0.08)",
+                  ? "0 14px 34px rgba(0,0,0,0.45)"
+                  : "0 14px 34px rgba(67,56,202,0.14)",
               },
             }}
           >
-            <Box sx={{ fontSize: 32, mb: 1.5 }} aria-hidden>
+            <Box
+              sx={{
+                fontSize: 26,
+                mb: 1.5,
+                width: 52,
+                height: 52,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "14px",
+                background: isDark
+                  ? "linear-gradient(135deg, rgba(79,70,229,0.25) 0%, rgba(124,58,237,0.18) 100%)"
+                  : "linear-gradient(135deg, rgba(79,70,229,0.10) 0%, rgba(124,58,237,0.08) 100%)",
+                border: `1px solid ${isDark ? "rgba(99,102,241,0.3)" : "rgba(79,70,229,0.18)"}`,
+              }}
+              aria-hidden
+            >
               {c.icon}
             </Box>
             <Typography

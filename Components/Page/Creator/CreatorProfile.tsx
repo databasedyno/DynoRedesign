@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
-import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material'
+import { Box, Button, Typography, useTheme } from '@mui/material'
 import { alpha, darken } from '@mui/material/styles'
 import { Icon } from '@iconify/react'
 import Logo from '@/assets/Icons/Logo'
@@ -131,8 +131,8 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
     if (coverStyle === 'pattern') {
       return `${accent}18 radial-gradient(${accent}44 1px, transparent 1px) 0 0/16px 16px`
     }
-    // solid (or fallback)
-    return `linear-gradient(135deg, ${accent}22 0%, ${accent}66 100%)`
+    // solid (or fallback) — premium aurora: deep ink base with layered accent glows
+    return `radial-gradient(90% 120% at 18% 0%, ${alpha(accent, 0.55)} 0%, transparent 55%), radial-gradient(80% 110% at 85% 12%, rgba(124,58,237,0.5) 0%, transparent 58%), radial-gradient(70% 90% at 55% 100%, rgba(14,165,233,0.25) 0%, transparent 60%), #0A0A14`
   })()
   const hasCustomCover = coverStyle !== 'solid' || creator.theme?.accent_color != null
   // A "rich" hero band exists when the creator has an uploaded cover image or
@@ -254,11 +254,18 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
         alignItems: 'center',
         gap: 1.75,
         p: 1.75,
-        borderRadius: '16px',
+        borderRadius: '18px',
         border: `1px solid ${border}`,
         backgroundColor: surface,
-        transition: 'border-color 160ms ease, transform 160ms ease',
-        '&:hover': { borderColor: accent, transform: 'translateY(-2px)' },
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        transition: 'border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease',
+        '&:hover': {
+          borderColor: alpha(accent, 0.6),
+          transform: 'translateY(-2px)',
+          boxShadow: `0 14px 34px ${isDark ? 'rgba(0,0,0,0.4)' : alpha(accent, 0.14)}`,
+          '& .creator-link-arrow': { transform: 'translate(2px, -2px)', color: accent },
+        },
       }}
     >
       <Box
@@ -286,13 +293,21 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               : (l.description || 'Payment link')}
         </Typography>
       </Box>
-      <Icon icon='mdi:arrow-top-right' width={20} color={theme.palette.text.secondary} />
+      <Icon className='creator-link-arrow' icon='mdi:arrow-top-right' width={20} color={theme.palette.text.secondary} style={{ transition: 'transform 160ms ease, color 160ms ease' }} />
     </Box>
   )
 
   return (
-    <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, pt: { xs: '64px', sm: '88px' }, pb: { xs: '104px', sm: 4 } }}>
-      <Box sx={{ width: '100%', maxWidth: 620 }}>
+    <Box sx={{ position: 'relative', minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, pt: { xs: '64px', sm: '88px' }, pb: { xs: '104px', sm: 4 }, overflow: 'hidden' }}>
+      {/* Ambient aurora backdrop — quiet, premium depth behind the column */}
+      <Box
+        aria-hidden
+        sx={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+          background: `radial-gradient(46% 34% at 50% 0%, ${alpha(accent, isDark ? 0.16 : 0.10)} 0%, transparent 70%), radial-gradient(38% 30% at 12% 42%, ${alpha('#7C3AED', isDark ? 0.10 : 0.06)} 0%, transparent 70%), radial-gradient(38% 30% at 88% 68%, ${alpha('#0EA5E9', isDark ? 0.08 : 0.05)} 0%, transparent 70%)`,
+        }}
+      />
+      <Box sx={{ width: '100%', maxWidth: 620, position: 'relative', zIndex: 1 }}>
         {/* ── Hero band: rich cover OR bare ambient accent glow ──
             Reserves clearance for the FIXED marketing header via the outer
             container's top padding, so the avatar below is never clipped. */}
@@ -349,32 +364,47 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
             data-testid='creator-avatar'
             sx={{
               width: { xs: 104, sm: 120 }, height: { xs: 104, sm: 120 },
-              borderRadius: '50%', overflow: 'hidden',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: `4px solid ${theme.palette.background.default}`,
-              background: creator.photo
-                ? theme.palette.background.paper
-                : `linear-gradient(135deg, ${accent} 0%, ${darken(accent, 0.28)} 100%)`,
-              boxShadow: creator.photo
-                ? `0 12px 36px ${alpha(accent, isDark ? 0.34 : 0.2)}`
-                : `0 14px 44px ${alpha(accent, 0.42)}`,
+              borderRadius: '50%',
+              p: '3.5px',
+              background: `linear-gradient(135deg, ${accent} 0%, #7C3AED 55%, ${alpha('#0EA5E9', 0.85)} 100%)`,
+              boxShadow: `0 16px 48px ${alpha(accent, isDark ? 0.4 : 0.28)}`,
               position: 'relative', zIndex: 1,
             }}
           >
-            {creator.photo ? (
-              <Box component='img' src={creator.photo} alt={creator.name} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: { xs: 42, sm: 48 }, lineHeight: 1, color: '#FFFFFF' }}>
-                {initial}
-              </Typography>
-            )}
+            <Box
+              sx={{
+                width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: `3px solid ${theme.palette.background.default}`,
+                background: creator.photo
+                  ? theme.palette.background.paper
+                  : `linear-gradient(135deg, ${accent} 0%, ${darken(accent, 0.28)} 100%)`,
+              }}
+            >
+              {creator.photo ? (
+                <Box component='img' src={creator.photo} alt={creator.name} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: { xs: 42, sm: 48 }, lineHeight: 1, color: '#FFFFFF' }}>
+                  {initial}
+                </Typography>
+              )}
+            </Box>
           </Box>
-          <Typography data-testid='creator-name' fontWeight={800} fontSize={{ xs: 24, sm: 28 }} letterSpacing='-0.03em' color={theme.palette.text.primary} mt={2}>
+          <Typography data-testid='creator-name' fontWeight={800} fontSize={{ xs: 26, sm: 30 }} letterSpacing='-0.03em' color={theme.palette.text.primary} mt={2} sx={{ fontFamily: 'var(--font-hero), var(--font-sans)' }}>
             {creator.name}
           </Typography>
-          <Typography sx={{ fontFamily: MONO, fontSize: 14.5, fontWeight: 600, color: accent, mt: 0.5 }}>
-            @{creator.handle}
-          </Typography>
+          <Box
+            sx={{
+              display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.75,
+              px: 1.25, py: 0.4, borderRadius: '999px',
+              border: `1px solid ${alpha(accent, 0.35)}`,
+              backgroundColor: alpha(accent, isDark ? 0.12 : 0.07),
+            }}
+          >
+            <Typography sx={{ fontFamily: MONO, fontSize: 13.5, fontWeight: 600, color: isDark ? '#A5B4FC' : (readableOn(accent) === '#FFFFFF' ? accent : darken(accent, 0.35)) }}>
+              @{creator.handle}
+            </Typography>
+          </Box>
           {creator.bio && (
             <Typography fontSize={15} lineHeight={1.6} color={theme.palette.text.secondary} mt={2} sx={{ maxWidth: 460 }}>
               {creator.bio}
@@ -487,14 +517,22 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
           <Box
             data-testid='creator-featured'
             sx={{
-              borderRadius: '20px', border: `1px solid ${border}`, p: { xs: 2.5, sm: 3 }, mb: 3,
-              backgroundColor: surface,
+              position: 'relative', overflow: 'hidden',
+              borderRadius: '24px', border: `1px solid ${border}`, p: { xs: 2.5, sm: 3 }, mb: 3,
+              background: isDark
+                ? 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+                : 'linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(250,250,255,0.85) 100%)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: isDark
+                ? '0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)'
+                : '0 24px 70px rgba(67,56,202,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
             }}
           >
             <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1 }}>
               Support {creator.name.split(' ')[0]}
             </Typography>
-            <Typography fontWeight={800} fontSize={19} color={theme.palette.text.primary} lineHeight={1.25}>
+            <Typography fontWeight={800} fontSize={20} color={theme.palette.text.primary} lineHeight={1.25} sx={{ fontFamily: 'var(--font-hero), var(--font-sans)', letterSpacing: '-0.02em' }}>
               {featured.title}
             </Typography>
             {featured.description && (
@@ -515,15 +553,19 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               )}
             </Box>
             {featured.goal_amount && featured.progress_percent != null && (
-              <LinearProgress
-                variant='determinate'
-                value={Math.min(100, featured.progress_percent)}
-                sx={{
-                  mt: 1.25, height: 9, borderRadius: 999,
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
-                  '& .MuiLinearProgress-bar': { backgroundColor: accent, borderRadius: 999 },
-                }}
-              />
+              <Box sx={{ position: 'relative', mt: 1.25 }}>
+                <Box sx={{ height: 10, borderRadius: 999, backgroundColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+                  <Box
+                    sx={{
+                      width: `${Math.min(100, featured.progress_percent)}%`,
+                      height: '100%', borderRadius: 999,
+                      background: `linear-gradient(90deg, ${accent} 0%, #7C3AED 100%)`,
+                      boxShadow: `0 0 12px ${alpha(accent, 0.55)}`,
+                      transition: 'width 600ms cubic-bezier(0.22,1,0.36,1)',
+                    }}
+                  />
+                </Box>
+              </Box>
             )}
             <Typography fontSize={12} color={theme.palette.text.secondary} mt={1}>
               {featured.supporters_count} {featured.supporters_count === 1 ? 'supporter' : 'supporters'}
@@ -535,9 +577,12 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               data-testid='creator-support-btn'
               onClick={() => go(featured.url)}
               sx={{
-                mt: 2, py: 1.4, borderRadius: '12px', textTransform: 'none',
-                fontWeight: 800, fontSize: 15.5, backgroundColor: accent, color: readableOn(accent),
-                '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
+                mt: 2, py: 1.5, borderRadius: '14px', textTransform: 'none',
+                fontWeight: 800, fontSize: 15.5, letterSpacing: '-0.01em',
+                background: `linear-gradient(135deg, ${accent} 0%, #7C3AED 100%)`, color: readableOn(accent),
+                boxShadow: `0 12px 30px ${alpha(accent, 0.35)}`,
+                transition: 'transform 140ms ease, box-shadow 140ms ease, filter 140ms ease',
+                '&:hover': { background: `linear-gradient(135deg, ${accent} 0%, #7C3AED 100%)`, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: `0 16px 38px ${alpha(accent, 0.45)}` },
               }}
             >
               {t('creator.card.supportCampaign')}

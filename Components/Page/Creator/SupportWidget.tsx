@@ -54,6 +54,8 @@ const SupportWidget = ({
 
   const meta = STYLE_META[widget.style] || STYLE_META.coffee
   const title = (widget.label && widget.label.trim()) || meta.title
+  // Premium gradient pair — Aurora indigo → violet (Quiet Money public surfaces)
+  const GRAD = `linear-gradient(135deg, ${LIME} 0%, #7C3AED 100%)`
   const presets =
     Array.isArray(widget.preset_amounts) && widget.preset_amounts.length
       ? widget.preset_amounts
@@ -84,32 +86,36 @@ const SupportWidget = ({
   const chipSx = (active: boolean) => ({
     flex: '1 1 auto',
     minWidth: 64,
-    py: 1.05,
+    py: 1.25,
     px: 1,
-    borderRadius: '12px',
-    border: `1.5px solid ${active ? LIME : border}`,
-    backgroundColor: active ? limeTint : surface,
-    color: theme.palette.text.primary,
+    borderRadius: '14px',
+    border: `1.5px solid ${active ? 'transparent' : border}`,
+    background: active ? GRAD : surface,
+    color: active ? '#FFFFFF' : theme.palette.text.primary,
     fontWeight: 800,
     fontSize: 15,
     fontFamily: MONO,
     cursor: 'pointer',
     textAlign: 'center' as const,
-    transition: 'border-color 140ms ease, transform 140ms ease',
-    '&:hover': { borderColor: LIME, transform: 'translateY(-1px)' },
+    boxShadow: active ? '0 8px 22px rgba(79,70,229,0.35)' : 'none',
+    transition: 'border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease',
+    '&:hover': { borderColor: LIME, transform: 'translateY(-2px)', boxShadow: active ? '0 10px 26px rgba(79,70,229,0.42)' : `0 6px 18px ${isDark ? 'rgba(0,0,0,0.35)' : 'rgba(67,56,202,0.12)'}` },
   })
 
-  const fieldStyle: React.CSSProperties = {
+  const fieldSx = {
     width: '100%',
-    padding: '11px 12px',
-    borderRadius: '10px',
+    padding: '12px 14px',
+    borderRadius: '12px',
     border: `1px solid ${border}`,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.85)',
     color: theme.palette.text.primary,
     fontFamily: 'var(--font-sans)',
     fontSize: 14,
     outline: 'none',
-    boxSizing: 'border-box',
+    boxSizing: 'border-box' as const,
+    transition: 'border-color 140ms ease, box-shadow 140ms ease',
+    '&::placeholder': { color: theme.palette.text.disabled },
+    '&:focus': { borderColor: LIME, boxShadow: `0 0 0 3px ${isDark ? 'rgba(99,102,241,0.25)' : 'rgba(67,56,202,0.14)'}` },
   }
 
   const submit = async () => {
@@ -174,29 +180,51 @@ const SupportWidget = ({
     <Box
       data-testid="creator-support-widget"
       sx={{
-        borderRadius: '20px',
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: '24px',
         border: `1px solid ${border}`,
         p: { xs: 2.5, sm: 3 },
-        backgroundColor: surface,
+        background: isDark
+          ? 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+          : 'linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(250,250,255,0.85) 100%)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: isDark
+          ? '0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)'
+          : '0 24px 70px rgba(67,56,202,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+        // Soft accent aurora bleeding in from the top edge
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: -120,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 420,
+          height: 220,
+          background: `radial-gradient(50% 50% at 50% 50%, ${isDark ? 'rgba(99,102,241,0.22)' : 'rgba(79,70,229,0.14)'} 0%, transparent 70%)`,
+          pointerEvents: 'none',
+        },
       }}
     >
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 0.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5, position: 'relative' }}>
         <Box
           sx={{
-            width: 40,
-            height: 40,
-            borderRadius: '12px',
+            width: 44,
+            height: 44,
+            borderRadius: '14px',
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: LIME,
+            background: GRAD,
+            boxShadow: '0 10px 24px rgba(79,70,229,0.38)',
           }}
         >
-          <Icon icon={meta.icon} width={22} color={INK} />
+          <Icon icon={meta.icon} width={23} color={INK} />
         </Box>
-        <Typography fontWeight={800} fontSize={19} color={theme.palette.text.primary} lineHeight={1.2}>
+        <Typography fontWeight={800} fontSize={20} color={theme.palette.text.primary} lineHeight={1.2} sx={{ fontFamily: 'var(--font-hero), var(--font-sans)', letterSpacing: '-0.02em' }}>
           {title}
         </Typography>
       </Box>
@@ -208,9 +236,12 @@ const SupportWidget = ({
       )}
 
       {hasStats && (
-        <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, mt: 1 }}>
-          {widget.supporters_count} supporter{widget.supporters_count === 1 ? '' : 's'} · {fmtMoney(widget.raised_amount)} raised
-        </Typography>
+        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, mt: 1.25, px: 1.25, py: 0.5, borderRadius: '999px', border: `1px solid ${border}`, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(67,56,202,0.05)' }}>
+          <Box sx={{ width: 6, height: 6, borderRadius: '50%', background: GRAD, boxShadow: '0 0 8px rgba(99,102,241,0.8)' }} />
+          <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary }}>
+            {widget.supporters_count} supporter{widget.supporters_count === 1 ? '' : 's'} · {fmtMoney(widget.raised_amount)} raised
+          </Typography>
+        </Box>
       )}
 
       {/* Session 42: inline crypto checkout replaces the /pay redirect */}
@@ -285,45 +316,48 @@ const SupportWidget = ({
           >
             {sym}
           </Box>
-          <input
+          <Box
+            component="input"
             type="number"
             inputMode="decimal"
             min={min}
             step="any"
             data-testid="support-custom-amount"
             value={customAmount}
-            onChange={(e) => setCustomAmount(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomAmount(e.target.value)}
             placeholder={`Amount (min ${min})`}
-            style={{ ...fieldStyle, paddingLeft: 26, fontFamily: MONO, fontWeight: 700 }}
+            sx={{ ...fieldSx, paddingLeft: '28px', fontFamily: MONO, fontWeight: 700 }}
           />
         </Box>
       )}
 
       {/* Name */}
       <Box sx={{ mt: 1.5 }}>
-        <input
+        <Box
+          component="input"
           type="text"
           maxLength={100}
           data-testid="support-donor-name"
           value={name}
           disabled={anon}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
           placeholder={t("creator.support.namePlaceholder")}
-          style={{ ...fieldStyle, opacity: anon ? 0.5 : 1 }}
+          sx={{ ...fieldSx, opacity: anon ? 0.5 : 1 }}
         />
       </Box>
 
       {/* Message */}
       {widget.allow_message && (
         <Box sx={{ mt: 1.5 }}>
-          <textarea
+          <Box
+            component="textarea"
             rows={2}
             maxLength={280}
             data-testid="support-donor-message"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
             placeholder={`Say something nice to ${firstName} (optional)`}
-            style={{ ...fieldStyle, resize: 'vertical', minHeight: 56, display: 'block' }}
+            sx={{ ...fieldSx, resize: 'vertical', minHeight: 56, display: 'block' }}
           />
         </Box>
       )}
@@ -378,25 +412,33 @@ const SupportWidget = ({
         onClick={submit}
         sx={{
           mt: 2,
-          py: 1.4,
-          borderRadius: '12px',
+          py: 1.5,
+          borderRadius: '14px',
           textTransform: 'none',
           fontWeight: 800,
           fontSize: 15.5,
-          backgroundColor: LIME,
+          letterSpacing: '-0.01em',
+          background: GRAD,
           color: INK,
-          '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
-          '&.Mui-disabled': { backgroundColor: LIME, opacity: 0.45, color: INK },
+          boxShadow: '0 12px 30px rgba(79,70,229,0.35)',
+          transition: 'transform 140ms ease, box-shadow 140ms ease, filter 140ms ease',
+          '&:hover': { background: GRAD, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: '0 16px 38px rgba(79,70,229,0.45)' },
+          '&:active': { transform: 'translateY(0)' },
+          '&.Mui-disabled': { background: GRAD, opacity: 0.45, color: INK, boxShadow: 'none' },
         }}
       >
         {loading ? (
           <CircularProgress size={20} sx={{ color: INK }} />
         ) : (
-          `${meta.cta} ${valid ? fmtMoney(amount) : ''}`.trim()
+          <>
+            <Icon icon={meta.icon} width={17} style={{ marginRight: 8 }} />
+            {`${meta.cta} ${valid ? fmtMoney(amount) : ''}`.trim()}
+          </>
         )}
       </Button>
 
-      <Typography fontSize={11} color={theme.palette.text.secondary} textAlign="center" mt={1}>
+      <Typography fontSize={11} color={theme.palette.text.secondary} textAlign="center" mt={1.25} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+        <Icon icon="mdi:lock-outline" width={12} />
         {t("creator.support.trustLine")}
       </Typography>
       </>

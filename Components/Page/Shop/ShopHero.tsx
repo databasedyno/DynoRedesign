@@ -87,12 +87,14 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
   };
 
   const coverGradient = isDark
-    ? `radial-gradient(1200px 400px at 20% 0%, hsla(${hue},70%,45%,0.35) 0%, transparent 60%),
-       radial-gradient(900px 300px at 80% 30%, hsla(${(hue + 40) % 360},80%,55%,0.28) 0%, transparent 55%),
-       linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.65) 100%)`
-    : `radial-gradient(1200px 400px at 20% 0%, hsla(${hue},80%,70%,0.55) 0%, transparent 60%),
-       radial-gradient(900px 300px at 80% 30%, hsla(${(hue + 40) % 360},85%,75%,0.45) 0%, transparent 55%),
-       linear-gradient(180deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.6) 100%)`;
+    ? `radial-gradient(1100px 420px at 15% 0%, rgba(79,70,229,0.42) 0%, transparent 60%),
+       radial-gradient(900px 340px at 85% 25%, rgba(124,58,237,0.34) 0%, transparent 58%),
+       radial-gradient(760px 300px at 55% 115%, hsla(${hue},70%,50%,0.22) 0%, transparent 60%),
+       linear-gradient(180deg, rgba(2,6,23,0.5) 0%, rgba(2,6,23,0.85) 100%)`
+    : `radial-gradient(1100px 420px at 15% 0%, rgba(79,70,229,0.26) 0%, transparent 60%),
+       radial-gradient(900px 340px at 85% 25%, rgba(124,58,237,0.20) 0%, transparent 58%),
+       radial-gradient(760px 300px at 55% 115%, hsla(${hue},80%,68%,0.38) 0%, transparent 60%),
+       linear-gradient(180deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.4) 100%)`;
 
   const shareBtnSx = {
     color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.75)",
@@ -141,9 +143,9 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
           sx={{
             width: { xs: 72, md: 96 },
             height: { xs: 72, md: 96 },
-            border: `3px solid ${isDark ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.95)"}`,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-            bgcolor: merchant.accent || `hsl(${hue}, 60%, 55%)`,
+            border: `3px solid ${isDark ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.98)"}`,
+            boxShadow: "0 12px 40px rgba(79,70,229,0.35), 0 8px 32px rgba(0,0,0,0.25)",
+            background: merchant.accent || `linear-gradient(135deg, #4338CA 0%, #7C3AED 60%, hsl(${hue}, 70%, 55%) 120%)`,
             fontSize: { xs: 28, md: 36 },
             fontWeight: 700,
           }}
@@ -157,8 +159,9 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
             sx={{
               fontWeight: 800,
               fontSize: { xs: "1.75rem", md: "2.5rem" },
-              lineHeight: 1.15,
-              letterSpacing: "-0.02em",
+              lineHeight: 1.12,
+              letterSpacing: "-0.03em",
+              fontFamily: "var(--font-hero), var(--font-sans)",
               color: isDark ? "rgba(255,255,255,0.98)" : "rgba(0,0,0,0.92)",
               wordBreak: "break-word",
             }}

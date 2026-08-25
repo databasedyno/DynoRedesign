@@ -60,14 +60,15 @@ export default function GoalProgressBar({
   }, [target]);
 
   const accent = BRAND_ACCENT;
-  const accentDim = "#4338CA";
   const success = "#10B981";
   const trackBg = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
-  const pillBg = goalReached ? success : accent;
-  const pillFg = goalReached ? "#fff" : "#0A0A0B";
+  const pillBg = goalReached
+    ? `linear-gradient(135deg, #34D399 0%, ${success} 100%)`
+    : `linear-gradient(135deg, ${accent} 0%, #7C3AED 100%)`;
+  const pillFg = "#FFFFFF";
   const fillGradient = goalReached
     ? `linear-gradient(90deg, #34D399 0%, ${success} 100%)`
-    : `linear-gradient(90deg, ${accent} 0%, #4338CA 100%)`;
+    : `linear-gradient(90deg, ${accent} 0%, #7C3AED 100%)`;
 
   return (
     <Box data-testid="goal-progress-bar" sx={{ width: "100%" }}>
@@ -111,7 +112,7 @@ export default function GoalProgressBar({
               px: 1.5,
               py: 0.6,
               borderRadius: "999px",
-              backgroundColor: pillBg,
+              background: pillBg,
               color: pillFg,
               fontFamily: MONO,
               fontWeight: 800,
@@ -120,7 +121,7 @@ export default function GoalProgressBar({
               display: "inline-flex",
               alignItems: "center",
               gap: 0.5,
-              boxShadow: goalReached ? `0 4px 14px ${success}66` : "none",
+              boxShadow: goalReached ? `0 4px 14px ${success}66` : "0 6px 18px rgba(79,70,229,0.35)",
               animation: goalReached ? `${pulse} 1.8s ease-in-out infinite` : "none",
             }}
           >
@@ -178,6 +179,7 @@ export default function GoalProgressBar({
               width: `${barValue}%`,
               background: fillGradient,
               borderRadius: 999,
+              boxShadow: goalReached ? `0 0 14px ${success}80` : "0 0 14px rgba(99,102,241,0.55)",
               transition: "width 900ms cubic-bezier(0.16,1,0.3,1)",
               zIndex: 2,
               overflow: "hidden",

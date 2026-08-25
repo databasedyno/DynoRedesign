@@ -73,7 +73,7 @@ export default function ProductCard({
       data-testid={`shop-product-card-${product.product_id}`}
       data-variant={variant}
       sx={{
-        borderRadius: 3,
+        borderRadius: "18px",
         overflow: "hidden",
         height: "100%",
         display: "flex",
@@ -85,9 +85,9 @@ export default function ProductCard({
         "&:hover": {
           transform: "translateY(-4px)",
           boxShadow: isDark
-            ? "0 12px 32px rgba(0,0,0,0.5)"
-            : "0 12px 32px rgba(0,0,0,0.12)",
-          borderColor: isDark ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.12)",
+            ? "0 18px 44px rgba(0,0,0,0.55), 0 0 0 1px rgba(99,102,241,0.35)"
+            : "0 18px 44px rgba(67,56,202,0.16), 0 0 0 1px rgba(79,70,229,0.25)",
+          borderColor: isDark ? "rgba(99,102,241,0.45)" : "rgba(79,70,229,0.35)",
           "& .product-cover-img": {
             transform: "scale(1.05)",
           },

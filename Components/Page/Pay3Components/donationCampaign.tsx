@@ -209,6 +209,8 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
 
   const accent = BRAND_ACCENT // aurora indigo — Landing v3 (Session 82 migration; was: #CCFF00 brand lime)
   const onAccent = '#FFFFFF'
+  // Premium gradient pair — shared with the creator Support widget
+  const GRAD = `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #7C3AED 100%)`
   const surfaceGlass = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
   const border = theme.palette.border.main
   const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'
@@ -325,13 +327,30 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
       ref={donateFormRef}
       data-testid='donation-form-card'
       sx={{
-        borderRadius: '18px',
+        overflow: 'hidden',
+        borderRadius: '22px',
         border: `1px solid ${border}`,
-        backgroundColor: surfaceGlass,
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        background: isDark
+          ? 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
+          : 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(250,250,255,0.88) 100%)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: isDark
+          ? '0 20px 55px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)'
+          : '0 20px 55px rgba(67,56,202,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: -110,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 380,
+          height: 200,
+          background: `radial-gradient(50% 50% at 50% 50%, ${isDark ? 'rgba(99,102,241,0.2)' : 'rgba(79,70,229,0.12)'} 0%, transparent 70%)`,
+          pointerEvents: 'none',
+        },
         p: { xs: 2, sm: 2.5 },
-        position: { md: 'sticky' },
+        position: { xs: 'relative', md: 'sticky' },
         top: { md: 16 },
       }}
     >
@@ -360,16 +379,17 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                   cursor: 'pointer',
                   userSelect: 'none',
                   textAlign: 'center',
-                  padding: '12px 6px',
-                  borderRadius: '12px',
+                  padding: '13px 6px',
+                  borderRadius: '14px',
                   fontFamily: MONO,
                   fontSize: 15,
                   fontWeight: 700,
-                  border: `1.5px solid ${active ? accent : border}`,
-                  color: theme.palette.text.primary,
-                  backgroundColor: active ? limeTint : 'transparent',
-                  transition: 'border-color 120ms ease, background-color 120ms ease, transform 120ms ease',
-                  '&:hover': { borderColor: accent },
+                  border: `1.5px solid ${active ? 'transparent' : border}`,
+                  color: active ? onAccent : theme.palette.text.primary,
+                  background: active ? GRAD : 'transparent',
+                  boxShadow: active ? '0 8px 22px rgba(79,70,229,0.35)' : 'none',
+                  transition: 'border-color 120ms ease, background-color 120ms ease, transform 120ms ease, box-shadow 120ms ease',
+                  '&:hover': { borderColor: accent, transform: 'translateY(-2px)' },
                   '&:active': { transform: 'scale(0.98)' },
                 }}
               >
@@ -480,26 +500,31 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
         sx={{
           mt: 1.5,
           py: 1.5,
-          borderRadius: '12px',
+          borderRadius: '14px',
           textTransform: 'none',
           fontSize: 15.5,
           fontWeight: 800,
           letterSpacing: '-0.01em',
-          backgroundColor: accent,
+          background: GRAD,
           color: onAccent,
-          transition: 'filter 140ms ease, transform 120ms ease',
-          '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
+          boxShadow: '0 12px 30px rgba(79,70,229,0.35)',
+          transition: 'filter 140ms ease, transform 120ms ease, box-shadow 140ms ease',
+          '&:hover': { background: GRAD, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: '0 16px 38px rgba(79,70,229,0.45)' },
           '&:active': { transform: 'scale(0.99)' },
           '&.Mui-disabled': {
-            backgroundColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)',
+            background: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)',
             color: theme.palette.text.disabled,
+            boxShadow: 'none',
           },
         }}
       >
         {submitting ? (
           <CircularProgress size={20} sx={{ color: onAccent }} />
         ) : effectiveAmount != null && effectiveAmount > 0 ? (
-          t('donation.donateAmount', { defaultValue: `Donate ${fmt(effectiveAmount)}`, amount: fmt(effectiveAmount) })
+          <>
+            <Icon icon='mdi:heart' width={16} style={{ marginRight: 8 }} />
+            {t('donation.donateAmount', { defaultValue: `Donate ${fmt(effectiveAmount)}`, amount: fmt(effectiveAmount) })}
+          </>
         ) : (
           t('donation.donate', { defaultValue: 'Donate' })
         )}
@@ -530,11 +555,13 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
         sx={{
           width: '100%',
           maxWidth: 960,
-          borderRadius: '20px',
+          borderRadius: '24px',
           overflow: 'hidden',
           border: `1px solid ${border}`,
           backgroundColor: theme.palette.background.paper,
-          boxShadow: isDark ? '0 20px 60px rgba(0,0,0,0.4)' : '0 12px 40px rgba(10,10,10,0.08)',
+          boxShadow: isDark
+            ? '0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
+            : '0 30px 80px rgba(67,56,202,0.12), 0 4px 16px rgba(10,10,10,0.05)',
         }}
       >
         {/* ── Hero: cover + title + progress ── */}
@@ -553,9 +580,9 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           ) : (
             <Box
               sx={{
-                height: { xs: 120, sm: 150 },
+                height: { xs: 130, sm: 170 },
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: `radial-gradient(120% 140% at 85% 0%, rgba(79,70,229,0.16) 0%, rgba(79,70,229,0) 55%), #0A0A0B`,
+                background: `radial-gradient(90% 130% at 15% 0%, rgba(79,70,229,0.5) 0%, transparent 55%), radial-gradient(80% 110% at 88% 15%, rgba(124,58,237,0.42) 0%, transparent 58%), radial-gradient(70% 90% at 55% 105%, rgba(14,165,233,0.22) 0%, transparent 60%), #0A0A14`,
               }}
             >
               <Logo width={44} height={52} />
@@ -587,11 +614,12 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           {/* Title + purpose */}
           <Typography
             fontWeight={800}
-            fontSize={{ xs: 24, sm: 30 }}
-            lineHeight={1.15}
-            letterSpacing='-0.02em'
+            fontSize={{ xs: 26, sm: 34 }}
+            lineHeight={1.12}
+            letterSpacing='-0.03em'
             color={theme.palette.text.primary}
             data-testid='donation-title'
+            sx={{ fontFamily: 'var(--font-hero), var(--font-sans)' }}
           >
             {donation.title || t('donation.defaultTitle', { defaultValue: 'Support this campaign' })}
           </Typography>
@@ -969,13 +997,15 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
               textTransform: 'none',
               fontSize: 16,
               fontWeight: 800,
-              backgroundColor: accent,
+              background: GRAD,
               color: onAccent,
-              '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
+              boxShadow: '0 10px 26px rgba(79,70,229,0.4)',
+              '&:hover': { background: GRAD, filter: 'brightness(1.07)' },
               '&:active': { transform: 'scale(0.99)' },
               '&.Mui-disabled': {
-                backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)',
+                background: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)',
                 color: theme.palette.text.disabled,
+                boxShadow: 'none',
               },
             }}
           >
