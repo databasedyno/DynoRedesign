@@ -5,7 +5,7 @@ import json
 import requests
 import pytest
 
-BASE_URL = "https://merchant-portal-239.preview.emergentagent.com"
+BASE_URL = "https://dynopay-credentials.preview.emergentagent.com"
 LOGIN_EMAIL = "hostbay@moxx.co"
 LOGIN_PASSWORD = "Katiekendra123@"
 CAMPAIGN_LINK_ID = 77

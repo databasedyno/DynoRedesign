@@ -16,7 +16,7 @@ import io
 from PIL import Image
 
 # Base URL
-BASE_URL = "https://d91abbf6-57fc-4343-9a18-4289c6328295.preview.emergentagent.com"
+BASE_URL = "https://dynopay-credentials.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
