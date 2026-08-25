@@ -156,7 +156,15 @@ const AnalyticsWidget: React.FC<Props> = ({
         data-testid="creator-analytics-compact"
         sx={{
           p: { xs: 1.75, sm: 2.25 }, mt: 2.5,
-          borderRadius: '14px', border: `1px solid ${border}`, backgroundColor: cardBg,
+          borderRadius: '20px', border: `1px solid ${border}`,
+          background: isDark
+            ? 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(250,250,255,0.82) 100%)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          boxShadow: isDark
+            ? '0 16px 44px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)'
+            : '0 16px 44px rgba(67,56,202,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>

@@ -71,6 +71,18 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
 
   const previewBg = buildCoverBackground({ ...value, coverStyle: currentStyle });
 
+  // Contrast-guard: readable text ON a solid accent fill (light accents → ink).
+  const readableOnAccent = useMemo(() => {
+    const m = /^#?([0-9a-fA-F]{6})$/.exec(currentAccent.trim());
+    if (!m) return "#FFFFFF";
+    const h = m[1];
+    const L =
+      (0.2126 * parseInt(h.slice(0, 2), 16) +
+        0.7152 * parseInt(h.slice(2, 4), 16) +
+        0.0722 * parseInt(h.slice(4, 6), 16)) / 255;
+    return L > 0.6 ? "#0A0A0B" : "#FFFFFF";
+  }, [currentAccent]);
+
   const sectionLabel = (
     icon: string,
     label: string
@@ -85,25 +97,52 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
 
   return (
     <Box data-testid="creator-theme-picker" sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-      {/* LIVE PREVIEW BAR */}
+      {/* LIVE PREVIEW — mini mock of the public page hero */}
       <Box
         sx={{
-          height: 84,
-          borderRadius: "12px",
+          height: 112,
+          borderRadius: "14px",
           border: `1px solid ${border}`,
           background: previewBg,
           position: "relative",
           overflow: "hidden",
+          boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.35)" : "0 10px 30px rgba(67,56,202,0.10)",
         }}
         data-testid="theme-preview"
       >
+        {/* Bottom scrim — same blend the real page hero uses */}
+        <Box
+          aria-hidden
+          sx={{
+            position: "absolute", inset: 0,
+            background: `linear-gradient(to bottom, transparent 30%, ${isDark ? "rgba(10,10,20,0.65)" : "rgba(255,255,255,0.55)"} 100%)`,
+          }}
+        />
+        {/* Mini avatar + identity skeleton — makes the preview read as "your page" */}
+        <Box sx={{ position: "absolute", left: 14, bottom: 12, display: "flex", alignItems: "center", gap: 1.25 }}>
+          <Box
+            sx={{
+              width: 36, height: 36, borderRadius: "50%",
+              p: "2px",
+              background: `linear-gradient(135deg, ${currentAccent} 0%, #7C3AED 100%)`,
+              boxShadow: "0 6px 16px rgba(0,0,0,0.3)",
+            }}
+          >
+            <Box sx={{ width: "100%", height: "100%", borderRadius: "50%", backgroundColor: theme.palette.background.paper, border: `2px solid ${theme.palette.background.paper}` }} />
+          </Box>
+          <Box>
+            <Box sx={{ width: 74, height: 9, borderRadius: 99, backgroundColor: isDark ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.95)", boxShadow: "0 1px 6px rgba(0,0,0,0.25)" }} />
+            <Box sx={{ width: 46, height: 7, borderRadius: 99, mt: 0.75, backgroundColor: isDark ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.7)", boxShadow: "0 1px 6px rgba(0,0,0,0.2)" }} />
+          </Box>
+        </Box>
         <Box
           sx={{
-            position: "absolute", left: 12, bottom: 12,
-            px: 1.25, py: 0.5, borderRadius: "8px",
-            backgroundColor: currentAccent,
-            color: isDark ? "#0A0A0B" : "#0A0A0B",
+            position: "absolute", right: 12, bottom: 12,
+            px: 1.25, py: 0.5, borderRadius: "999px",
+            background: `linear-gradient(135deg, ${currentAccent} 0%, #7C3AED 100%)`,
+            color: readableOnAccent,
             fontWeight: 700, fontSize: 12,
+            boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
           }}
         >
           {t("storefront.accentButton", { defaultValue: "Accent button" })}
@@ -209,11 +248,11 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
         )}
       </Box>
 
-      {/* GRADIENT PRESETS — only when style=gradient */}
+      {/* GRADIENT PRESETS — live cover thumbnails, only when style=gradient */}
       {currentStyle === "gradient" && (
         <Box>
           {sectionLabel("mdi:gradient-vertical", t("storefront.gradientPreset", { defaultValue: "Gradient preset" }))}
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 1 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" }, gap: 1.25 }}>
             {GRADIENT_PRESETS.map((g) => {
               const active = currentGradient === g.key;
               return (
@@ -226,16 +265,37 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
                   data-testid={`gradient-preset-${g.key}`}
                   sx={{
                     cursor: "pointer",
-                    border: active ? `2px solid ${theme.palette.text.primary}` : `1px solid ${border}`,
-                    borderRadius: "10px", overflow: "hidden",
-                    transition: "transform 120ms",
-                    "&:hover": { transform: "translateY(-2px)" },
+                    border: active ? `2px solid ${currentAccent}` : `1px solid ${border}`,
+                    borderRadius: "12px", overflow: "hidden",
+                    boxShadow: active ? `0 0 0 3px ${currentAccent}33, 0 10px 24px rgba(0,0,0,0.18)` : "none",
+                    transition: "transform 120ms, box-shadow 120ms, border-color 120ms",
+                    "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 24px ${isDark ? "rgba(0,0,0,0.4)" : "rgba(67,56,202,0.14)"}` },
                   }}
                 >
-                  <Box sx={{ height: 36, background: `linear-gradient(135deg, ${g.stops})` }} />
-                  <Box sx={{ px: 1, py: 0.5, backgroundColor: theme.palette.background.paper, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Typography sx={{ fontSize: 11, fontWeight: 600 }}>{g.label}</Typography>
-                    {active && <Icon icon="mdi:check" width={12} color={currentAccent} />}
+                  {/* Live mini-cover: gradient + hero scrim + avatar dot straddling the edge */}
+                  <Box sx={{ position: "relative", height: 58, background: `linear-gradient(135deg, ${g.stops})` }}>
+                    <Box
+                      aria-hidden
+                      sx={{
+                        position: "absolute", inset: 0,
+                        background: `linear-gradient(to bottom, transparent 40%, ${isDark ? "rgba(10,10,20,0.55)" : "rgba(255,255,255,0.45)"} 100%)`,
+                      }}
+                    />
+                    <Box
+                      aria-hidden
+                      sx={{
+                        position: "absolute", left: "50%", bottom: -9, transform: "translateX(-50%)",
+                        width: 22, height: 22, borderRadius: "50%",
+                        backgroundColor: theme.palette.background.paper,
+                        border: `2px solid ${isDark ? "rgba(255,255,255,0.85)" : "#FFFFFF"}`,
+                        boxShadow: "0 3px 10px rgba(0,0,0,0.3)",
+                        zIndex: 1,
+                      }}
+                    />
+                  </Box>
+                  <Box sx={{ px: 1, pt: 1.25, pb: 0.75, backgroundColor: theme.palette.background.paper, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+                    <Typography sx={{ fontSize: 11.5, fontWeight: 700 }}>{g.label}</Typography>
+                    {active && <Icon icon="mdi:check-circle" width={13} color={currentAccent} />}
                   </Box>
                 </Box>
               );

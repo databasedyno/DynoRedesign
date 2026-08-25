@@ -87,10 +87,10 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
   };
 
   const coverGradient = isDark
-    ? `radial-gradient(1100px 420px at 15% 0%, rgba(79,70,229,0.42) 0%, transparent 60%),
-       radial-gradient(900px 340px at 85% 25%, rgba(124,58,237,0.34) 0%, transparent 58%),
-       radial-gradient(760px 300px at 55% 115%, hsla(${hue},70%,50%,0.22) 0%, transparent 60%),
-       linear-gradient(180deg, rgba(2,6,23,0.5) 0%, rgba(2,6,23,0.85) 100%)`
+    ? `radial-gradient(1100px 420px at 15% 0%, rgba(99,102,241,0.5) 0%, transparent 60%),
+       radial-gradient(900px 340px at 85% 25%, rgba(139,92,246,0.4) 0%, transparent 58%),
+       radial-gradient(760px 300px at 55% 115%, hsla(${hue},70%,55%,0.28) 0%, transparent 60%),
+       linear-gradient(180deg, rgba(2,6,23,0.45) 0%, rgba(2,6,23,0.82) 100%)`
     : `radial-gradient(1100px 420px at 15% 0%, rgba(79,70,229,0.26) 0%, transparent 60%),
        radial-gradient(900px 340px at 85% 25%, rgba(124,58,237,0.20) 0%, transparent 58%),
        radial-gradient(760px 300px at 55% 115%, hsla(${hue},80%,68%,0.38) 0%, transparent 60%),

@@ -304,7 +304,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
         aria-hidden
         sx={{
           position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-          background: `radial-gradient(46% 34% at 50% 0%, ${alpha(accent, isDark ? 0.16 : 0.10)} 0%, transparent 70%), radial-gradient(38% 30% at 12% 42%, ${alpha('#7C3AED', isDark ? 0.10 : 0.06)} 0%, transparent 70%), radial-gradient(38% 30% at 88% 68%, ${alpha('#0EA5E9', isDark ? 0.08 : 0.05)} 0%, transparent 70%)`,
+          background: `radial-gradient(46% 34% at 50% 0%, ${alpha(accent, isDark ? 0.22 : 0.10)} 0%, transparent 70%), radial-gradient(38% 30% at 12% 42%, ${alpha('#7C3AED', isDark ? 0.14 : 0.06)} 0%, transparent 70%), radial-gradient(38% 30% at 88% 68%, ${alpha('#0EA5E9', isDark ? 0.11 : 0.05)} 0%, transparent 70%)`,
         }}
       />
       <Box sx={{ width: '100%', maxWidth: 620, position: 'relative', zIndex: 1 }}>

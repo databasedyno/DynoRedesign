@@ -3564,3 +3564,19 @@ aurora ambient glows, var(--font-hero) display titles, mono money.
   ProductCard r18 + indigo hover ring/glow; ShopEmpty display heading + gradient emoji tiles.
 Verified: tsc 0 err, lint = pre-existing issues only; screenshots of /hostbay, /pay/donation-demo
 (all 3 states), /hostbay/shop. NOT yet run through auto_frontend_testing_agent (needs user OK).
+
+# COVER THUMBNAILS + CONFETTI + DARK PASS (2026-08-25 session, part 2) — DONE
+- CreatorThemePicker.tsx: main preview -> live hero mock (cover bg + scrim + gradient-ring
+  avatar + name/handle skeleton + contrast-guarded gradient "Accent button" pill); the six
+  GRADIENT_PRESETS now render as LIVE COVER THUMBNAILS (58px gradient + hero scrim + white-ring
+  avatar dot straddling the edge, accent selection ring + glow, 3-col grid). Screenshot-verified
+  in /creator (Storefront page) with SMADAV.
+- Confetti: NEW utils/confettiBurst.ts (canvas-confetti DYNAMICALLY imported, brand palette,
+  debounced, prefers-reduced-motion respected, never throws). Wired: InlineTipCheckout fires on
+  phase==='confirmed' (tip completed); campaign/GoalProgressBar fires once per mount when
+  goalReached (350ms delay). Verified LIVE on /pay/donation-demo (confetti captured in screenshot).
+  Deps added: canvas-confetti + @types/canvas-confetti.
+- Dark pass: AnalyticsWidget compact ("Momentum") -> glass panel (r20, gradient bg, blur, inset
+  highlight); ShopHero dark aurora brightened (indigo 0.5/violet 0.4); CreatorProfile ambient
+  backdrop dark alphas raised (0.22/0.14/0.11). Dark screenshots verified all three surfaces.
+- tsc 0 errors, lint clean on touched files. No automated frontend-agent run yet (user OK needed).

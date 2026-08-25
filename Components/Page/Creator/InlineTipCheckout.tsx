@@ -21,6 +21,7 @@ import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/materi
 import { Icon } from '@iconify/react'
 import { formatCryptoAmount, formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
+import fireConfettiBurst from '@/utils/confettiBurst'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
@@ -362,6 +363,12 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   )
 
   // ─── Step 3: poll verifyCryptoPayment ────────────────────────────────
+  useEffect(() => {
+    // Celebration burst the moment the supporter's payment is CONFIRMED.
+    // Decorative only (never throws), skipped for reduced-motion users.
+    if (phase === 'confirmed') fireConfettiBurst()
+  }, [phase])
+
   useEffect(() => {
     if (phase !== 'awaiting_payment' && phase !== 'underpaid') return
     if (!cryptoInfo?.address || !meta_?.token) return
