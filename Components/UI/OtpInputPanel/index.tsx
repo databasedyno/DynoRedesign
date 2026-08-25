@@ -239,6 +239,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
       index: number,
       value: string,
       handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+      handleFieldsChange: (updates: Partial<OtpFormValues>) => void,
       values: OtpFormValues,
       loadingFlag: boolean,
     ) => {
@@ -258,55 +259,117 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
 
       if (numericValue.length === 0) return;
 
-      const singleDigit = numericValue.slice(-1);
-      const updatedValues: OtpFormValues = {
-        ...values,
-        [fieldName]: singleDigit,
-      };
+      // ---- Single digit (the common typing case) -------------------------
+      // Also covers "type-over": the box already held a digit and one new
+      // digit arrived, giving a 2-char value ("XY" or "YX") — keep the NEW one.
+      const previousChar = String(values[fieldName] ?? "").trim();
+      let single: string | null = null;
+      if (numericValue.length === 1) {
+        single = numericValue;
+      } else if (
+        numericValue.length === 2 &&
+        previousChar &&
+        numericValue.includes(previousChar)
+      ) {
+        single = numericValue.replace(previousChar, "");
+      }
 
-      const changeEvent = {
-        target: { name: fieldName, value: singleDigit },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
-      handleChange(changeEvent);
-      if (error && onClearError) onClearError();
+      if (single !== null && single.length === 1) {
+        const updatedValues: OtpFormValues = {
+          ...values,
+          [fieldName]: single,
+        };
+        const changeEvent = {
+          target: { name: fieldName, value: single },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        handleChange(changeEvent);
+        if (error && onClearError) onClearError();
 
-      if (numericValue.length > 1) {
-        const remainingDigits = numericValue.slice(1);
-        remainingDigits.split("").forEach((digit, idx) => {
-          const nextIndex = index + idx + 1;
-          if (nextIndex < otpLength) {
-            const nextFieldName = `otp${nextIndex + 1}` as OtpFieldName;
-            updatedValues[nextFieldName] = digit;
-            const nextEvent = {
-              target: { name: nextFieldName, value: digit },
-            } as unknown as React.ChangeEvent<HTMLInputElement>;
-            handleChange(nextEvent);
-          }
-        });
-        const lastFilledIndex = Math.min(
-          index + numericValue.length - 1,
-          otpLength - 1,
-        );
-        const nextField = inputRefs.current[lastFilledIndex];
-        if (nextField) {
-          if (typeof window !== "undefined") {
-            window.requestAnimationFrame(() => nextField.focus());
-          } else {
-            nextField.focus();
+        if (index < otpLength - 1) {
+          const nextField = inputRefs.current[index + 1];
+          if (nextField) {
+            if (typeof window !== "undefined") {
+              window.requestAnimationFrame(() => nextField.focus());
+            } else {
+              nextField.focus();
+            }
           }
         }
-      } else if (singleDigit && index < otpLength - 1) {
-        const nextField = inputRefs.current[index + 1];
-        if (nextField) {
-          if (typeof window !== "undefined") {
-            window.requestAnimationFrame(() => nextField.focus());
-          } else {
-            nextField.focus();
+        if (isOtpComplete(updatedValues)) {
+          attemptAutoSubmit(updatedValues, loadingFlag);
+        } else {
+          previousOtpRef.current = "";
+          isSubmittingRef.current = false;
+        }
+        return;
+      }
+
+      // ---- Multi-digit insertion (iOS / Android OTP AutoFill) -----------
+      // Tapping the "From Mail/Messages" code suggestion inserts the WHOLE
+      // code into the focused box as ONE input event — there is NO paste
+      // event and NO per-key events — so it must be distributed here.
+      let digits: string[];
+      let fillStart: number;
+      if (numericValue.length >= otpLength) {
+        // A full code arrived: fill from box 1 no matter which box was
+        // focused. Take the LAST otpLength digits so any stale digit that
+        // was already in the box (iOS appends to existing content) is
+        // discarded rather than corrupting the code.
+        digits = numericValue.slice(-otpLength).split("");
+        fillStart = 0;
+      } else {
+        // Partial multi-digit: fill forward from the focused box, first
+        // digit into the focused box (in order).
+        digits = numericValue.split("");
+        fillStart = index;
+      }
+
+      const updatedValues: OtpFormValues = { ...values };
+      const partial: Partial<OtpFormValues> = {};
+      let lastFilled = fillStart;
+      digits.forEach((digit, i) => {
+        const target = fillStart + i;
+        if (target < otpLength) {
+          const fName = `otp${target + 1}` as OtpFieldName;
+          updatedValues[fName] = digit;
+          partial[fName] = digit;
+          lastFilled = target;
+        }
+      });
+      // ONE atomic bulk update. Sequential handleChange calls in the same
+      // tick overwrite each other (FormManager's handleChange closes over
+      // the stale render-scope `values`), so only handleFieldsChange is
+      // safe for writing multiple boxes at once — same as handlePaste.
+      handleFieldsChange(partial);
+      formValuesRef.current = updatedValues;
+      if (error && onClearError) onClearError();
+
+      const allFilled = isOtpComplete(updatedValues);
+      let focusIndex = lastFilled;
+      if (!allFilled) {
+        for (let i = lastFilled + 1; i < otpLength; i++) {
+          const fName = `otp${i + 1}` as OtpFieldName;
+          if (
+            !updatedValues[fName] ||
+            String(updatedValues[fName]).trim().length === 0
+          ) {
+            focusIndex = i;
+            break;
           }
+        }
+      } else {
+        focusIndex = otpLength - 1;
+      }
+      const nextField = inputRefs.current[focusIndex];
+      if (nextField) {
+        if (typeof window !== "undefined") {
+          window.requestAnimationFrame(() => nextField.focus());
+        } else {
+          nextField.focus();
         }
       }
 
-      if (isOtpComplete(updatedValues)) {
+      if (allFilled) {
         attemptAutoSubmit(updatedValues, loadingFlag);
       } else {
         previousOtpRef.current = "";
@@ -389,6 +452,11 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
           "Control",
           "v",
           "V",
+          // Android GBoard / IME keyboards report "Unidentified" or
+          // "Process" (keyCode 229) for EVERY key — blocking them blocks
+          // all typing on those devices. onChange sanitizes to digits.
+          "Unidentified",
+          "Process",
         ].includes(e.key)
       ) {
         e.preventDefault();
@@ -619,9 +687,16 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                             index,
                             inputValue,
                             handleChange,
+                            handleFieldsChange,
                             values,
                             loading,
                           );
+                        }}
+                        onFocus={(e) => {
+                          // Select existing content so typing or an OS
+                          // AutoFill insertion REPLACES it instead of
+                          // appending to it.
+                          e.target.select();
                         }}
                         onBlur={() => handleOtpBlur(fieldName, handleBlur)}
                         onKeyDown={(e) =>
@@ -646,7 +721,11 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                         error={hasError}
                         success={Boolean(hasValue && !hasError)}
                         fullWidth
-                        maxLength={1}
+                        // NO maxLength here on purpose: iOS AutoFill inserts
+                        // the whole code into the focused box as one input
+                        // event; a DOM maxLength=1 made WebKit truncate it to
+                        // the FIRST DIGIT before JS ever saw it. Each box is
+                        // clamped to a single digit in handleOtpChange instead.
                         inputMode="numeric"
                         inputHeight={inputSize}
                         inputRef={(el: HTMLInputElement | null) => {

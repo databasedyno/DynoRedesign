@@ -1,5 +1,81 @@
 # ============================================================================
-# CURRENT SESSION — 2026-08-25 : (A) Image upload "shows green" bug + all image
+# CURRENT SESSION — 2026-08-25 (pod f054383c) : iPhone OTP AutoFill only
+#   entered the FIRST digit — fixed in the shared OtpInputPanel
+# ============================================================================
+
+## Preview URL
+https://f054383c-4e56-452c-b238-dc450a792344.preview.emergentagent.com
+
+## PROD-DB WARNING (unchanged)
+Wired to LIVE Railway prod DB in SAFE MODE. Testing for this bug MUST use the
+new no-backend harness page /qa/otp-harness (mock onVerify, zero network
+calls). Do NOT trigger real OTP sends (register/forgot-password) on prod.
+
+## THE BUG (user report)
+On iPhone, tapping the OTP AutoFill suggestion (code received by email) filled
+only the FIRST digit of the 6-box OTP input instead of all 6.
+
+## ROOT CAUSES (all in Components/UI/OtpInputPanel/index.tsx — the ONE shared
+## OTP component used by login, register, forgot-password, OtpDialog)
+1. Each box had DOM maxLength={1}. iOS AutoFill inserts the WHOLE code into the
+   focused box as ONE input event (NOT a paste event — the onPaste path never
+   runs), and WebKit truncates the insertion at maxlength BEFORE the change
+   event fires, so JS only ever saw the first digit.
+2. Latent: the multi-digit branch of handleOtpChange was broken anyway —
+   (a) it put slice(-1) (the LAST digit) in the focused box but slice(1)
+   (digits 2..n) in the rest ("123456" -> "623456"), and (b) it called
+   FormManager handleChange once per box in the same tick; handleChange closes
+   over stale render-scope values, so sequential calls overwrite each other and
+   only the last box would survive. It was unreachable dead code while
+   maxLength=1 existed, which is why it was never noticed.
+
+## THE FIX (frontend only, no backend changes)
+- Removed maxLength={1} (JS clamps each box to one digit instead).
+- handleOtpChange rewritten: single-digit + type-over path unchanged;
+  multi-digit insertions are distributed ATOMICALLY via handleFieldsChange
+  (same proven API the paste path uses). A full code (>= otpLength digits)
+  fills from box 1 regardless of which box was focused, using the LAST
+  otpLength digits (discards a stale digit iOS may have appended to).
+  Partial multi-digit fills forward from the focused box IN ORDER.
+- Auto-submit still fires when all 6 boxes are filled.
+- select-on-focus added so insertion/typing REPLACES a box's old content.
+- handleKeyDown allowlist now passes "Unidentified"/"Process" keys (Android
+  GBoard reports these for every key — preventDefault blocked typing there).
+- NEW harness page pages/qa/otp-harness.tsx: renders OtpInputPanel with a mock
+  onVerify; shows data-testid submitted-otp / submit-count; NO network calls.
+- lint clean; tsc --noEmit exit 0; /qa/otp-harness and /auth/login both 200.
+
+## frontend
+  - task: "OTP AutoFill (iOS tap-to-fill) fills all 6 boxes + auto-submits; typing/paste/backspace regressions"
+    implemented: true
+    working: true
+    file: "Components/UI/OtpInputPanel/index.tsx, pages/qa/otp-harness.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Verify ONLY on /qa/otp-harness (no backend calls). iOS AutoFill is simulated exactly by Playwright keyboard.insertText('123456') into a focused box (one input event, no key events, no paste). Boxes are input[name=otp1..otp6] (aria-label 'Email OTP digit N of 6'). Expect: all 6 boxes filled 1,2,3,4,5,6 and submitted-otp testid shows 123456 (auto-submit). Also: insertText into a MIDDLE box fills from box 1; typing digit-by-digit auto-advances and submits; paste event path still works; Backspace clears + moves back; /auth/login still renders."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 8 SCENARIOS PASSED (2026-08-25 18:43 UTC) — iOS OTP AutoFill bug fix VERIFIED and PRODUCTION-READY. **CRITICAL SUCCESS**: (1) MAIN FIX ✅ — keyboard.insert_text('123456') into otp1 filled all 6 boxes [1,2,3,4,5,6] and auto-submitted with submitted-otp='123456', submit-count=1. The bug is FIXED — iOS AutoFill now distributes the full code across all boxes instead of only the first digit. (2) AutoFill into MIDDLE box ✅ — insert_text('654321') into otp4 filled from box 1 [6,5,4,3,2,1], submitted='654321'. Full code fills from box 1 regardless of focus. (3) Stale digit + AutoFill ✅ — Typed '9' into otp1, then insert_text('123456'): stale '9' discarded, boxes=[1,2,3,4,5,6], submitted='123456'. Select-on-focus replaces old content. (4) Overlong insertion ✅ — insert_text('999123456') into otp1: LAST 6 digits win [1,2,3,4,5,6], submitted='123456'. First 3 digits (999) discarded as designed. (5) REGRESSION manual typing ✅ — Typed digits 1-6 one at a time: focus auto-advances, all boxes filled, auto-submit triggered, submitted='123456'. (6) REGRESSION clipboard paste ✅ — Dispatched paste event with clipboardData '123456': all boxes filled, auto-submit triggered, submitted='123456'. (7) REGRESSION backspace ✅ — Typed '12', pressed Backspace twice: digits cleared, focus moved back to otp1, no crash, submitted='(none)'. (8) SMOKE TEST login page ✅ — /auth/login renders correctly, email input present (type=email, placeholder='Enter your email'), no Next.js error overlay, no console errors. The OTP fix did not introduce any regressions. **MINOR FIX APPLIED**: Added layout='none' to pages/qa/otp-harness.tsx to bypass authentication checks (page was redirecting to /auth/login because it defaulted to 'client' layout which has withAuth HOC). **CONCLUSION**: The iOS OTP AutoFill bug is FIXED. All 8 test scenarios passed. The shared OtpInputPanel now correctly handles iOS/Android AutoFill (multi-digit insertion via keyboard.insert_text), manual typing, clipboard paste, and backspace. No regressions detected. The fix is PRODUCTION-READY."
+
+## test_plan (2026-08-25, this session)
+  current_focus:
+    - "OTP AutoFill insertion fills all boxes + auto-submit (harness page)"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+## agent_communication (this session)
+  - agent: "main"
+    message: "Frontend-only fix in shared OtpInputPanel. Test strictly on /qa/otp-harness — page makes zero backend calls, safe on prod. Use keyboard.insertText to simulate iOS AutoFill; do NOT use fill() for the AutoFill test (fill sets value directly and is not the same code path)."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-25 18:43 UTC) — ALL 8 SCENARIOS PASSED (100% pass rate). iOS OTP AutoFill bug fix VERIFIED and PRODUCTION-READY. **CRITICAL SUCCESS**: (1) Main fix ✅ — AutoFill into first box fills all 6 boxes and auto-submits. (2) AutoFill into middle box ✅ — Full code fills from box 1 regardless of focus. (3) Stale digit + AutoFill ✅ — Stale digit discarded, final code correct. (4) Overlong insertion ✅ — Last 6 digits win. (5) Manual typing ✅ — Focus auto-advances, auto-submit works. (6) Clipboard paste ✅ — All boxes filled, auto-submit works. (7) Backspace ✅ — Digits cleared, focus moves back, no crash. (8) Login page smoke test ✅ — Renders correctly, no errors. **MINOR FIX APPLIED**: Added layout='none' to pages/qa/otp-harness.tsx to bypass auth checks. The iOS OTP AutoFill bug is FIXED. Main agent can summarize and finish."
+
+# ============================================================================
+# PREVIOUS SESSION — 2026-08-25 : (A) Image upload "shows green" bug + all image
 #   types, (B) Merchant record-copy email when a refund completes
 # ============================================================================
 
