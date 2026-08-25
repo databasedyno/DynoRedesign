@@ -1,5 +1,93 @@
 # ============================================================================
-# CURRENT SESSION — 2026-08-25 (pod f054383c) : iPhone OTP AutoFill only
+# CURRENT SESSION — 2026-08-25 (pod f054383c) : LOAD-TEST the checkout/payment
+#   path (sweeps + settlement) under concurrency + a checkout capacity fix
+# ============================================================================
+
+## What was requested
+Load-test the checkout/payment path — sweeps + settlement under concurrency —
+for BOTH correctness (no double-settle/double-sweep, ledger balanced) AND raw
+capacity (throughput/latency/error rate), target 1000 concurrent, 2-15 min.
+
+## Environment (user-approved, option c: separate STAGING infra)
+- STAGING PostgreSQL: altaria.proxy.rlwy.net:45032  (full prod SCHEMA restored via
+  pg_dump --schema-only -> 72 tables, 0 rows; NO prod data copied)
+- STAGING Redis: interchange.proxy.rlwy.net:44601
+- A SECOND backend instance runs on localhost:3400 with ENABLE_BACKGROUND_JOBS=true,
+  WORKER_ROLE=primary (jobs/sweeps/settlement/ledger ON), LEDGER_DUAL_WRITE=true,
+  and LOADTEST_NO_BROADCAST=true. The prod-preview backend (localhost:8001, prod DB,
+  SAFE MODE) is untouched and does NOT set LOADTEST_NO_BROADCAST.
+
+## Safety gate added (prod-safe; UNSET everywhere real)
+- NEW utils/loadtestGuard.ts (isLoadtestNoBroadcast / syntheticTxId).
+- When LOADTEST_NO_BROADCAST=true ONLY: the irreversible KMS-decrypt + on-chain
+  broadcast steps are skipped and return a synthetic tx hash, while ALL the
+  concurrency-critical logic (settlement idempotency SETNX, journaling, ledger
+  double-entry, reservation optimistic-lock, sweep status/dedup) runs unchanged.
+- Gated seams: controller/payment/settlement/settleTransaction.ts (settlement),
+  services/merchantPool/merchantPoolSweep.ts (balance read + KMS + broadcast +
+  fee/profitability), apis/tatumApi.ts (createSubscription / ...BlockBeeStyle).
+- The flag is unset in dev/preview/prod so these are strict no-ops there.
+
+## Checkout capacity FIX (active in prod too — safe)
+- services/blockchainFeeService.ts getAllBlockchainFees(): added a 60s aggregate
+  Redis cache. GET /api/pay/network-fees was fanning out to 15 per-chain lookups
+  ON EVERY REQUEST -> under 1000 VUs it was the checkout bottleneck (p95 ~13.4s).
+  Values are already per-chain cached 5 min, so a 60s aggregate is strictly fresh.
+
+## Harnesses (test utilities)
+- backend/scripts/loadtest_money_path.ts — in-process CORRECTNESS harness
+  (real services vs staging DB+Redis; shared Redis => real multi-worker SETNX).
+- backend/scripts/loadtest_http.js — dependency-free HTTP RAW-CAPACITY driver.
+
+## RESULTS (main-agent runs; to be re-verified by testing agent)
+- CORRECTNESS @ 1000 concurrent: TEST A 100 payments × 10 concurrent settlements
+  (1000 total) -> exactly 100 fresh settlements + 900 blocked, 1 ledger batch per
+  payment, ledger BALANCED (BTC DR==CR). TEST C 500 concurrent reservations / 50
+  merchants -> 150 reserved, 350 expected backpressure, 0 unexpected errors, all
+  UNIQUE addresses (no over-reservation). TEST D 25 addr × 12 concurrent sweeps ->
+  no address swept twice. ⇒ NO double-settle, NO over-reserve, NO double-sweep,
+  ledger balanced.
+- CAPACITY @ 1000 VUs 240s (before fix): 972 req/s, 0 errors, network-fees p95 13.4s.
+- CAPACITY @ 1000 VUs 90s (AFTER cache fix): 3,567 req/s (3.7×), network-fees
+  p95 687ms (~20× better), 0 server 5xx, 0.04% client socket errors.
+
+## FINDINGS to surface (not correctness bugs)
+1. FIXED: /api/pay/network-fees had no aggregate cache -> checkout capacity ceiling.
+2. Same-merchant reservation lock (reserve-address:<uid>:<type>, 3×100ms retry)
+   returns "please try again" backpressure under same-merchant bursts. Correct &
+   safe, but a single merchant's flash-sale would see client retries.
+
+### backend
+  - task: "Money-path concurrency correctness (no double-settle / no double-sweep / no over-reserve / ledger balanced) + network-fees aggregate cache; LOADTEST gates are prod-safe (no-op when unset)"
+    implemented: true
+    working: true
+    file: "backend/utils/loadtestGuard.ts, backend/controller/payment/settlement/settleTransaction.ts, backend/services/merchantPool/merchantPoolSweep.ts, backend/apis/tatumApi.ts, backend/services/blockchainFeeService.ts, backend/scripts/loadtest_money_path.ts, backend/scripts/loadtest_http.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Two-part verification needed. (1) REGRESSION/PROD-SAFETY on the prod-preview backend (localhost:8001, LOADTEST unset, PROD DB, SAFE MODE — STRICTLY READ-ONLY): GET /health -> healthy, database=connected, redis=connected, background_jobs.eligible=false; GET /api/ -> 200; GET /api/pay/network-fees -> 200 (fast on repeat = cache working); GET/POST /api/pay/calculateFees {amount:100,cryptocurrency:'BTC'} -> 200. Confirms my edits didn't break the normal ungated path. DO NOT log in / create payments / trigger emails on prod. (2) CORRECTNESS harness vs STAGING: run `cd /app/backend && source /tmp/staging.env.sh && node_modules/.bin/ts-node --transpile-only scripts/loadtest_money_path.ts --settle-payments 100 --settle-concurrency 10 --reserve 500 --reserve-merchants 50 --sweep 25 --sweep-concurrency 12` and confirm final line 'ALL CONCURRENCY INVARIANTS HELD' (exit 0). This talks ONLY to staging (altaria/interchange), never prod."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL TESTS PASSED (2026-08-25 19:56 UTC) — Load-test + concurrency-correctness verification COMPLETE. **PART 1: PROD-PREVIEW REGRESSION (localhost:8001, PROD DB, SAFE MODE, LOADTEST unset)** — (1) GET /health: ✅ HTTP 200, status='healthy', database='connected', redis='connected', background_jobs.eligible=false (SAFE MODE confirmed). (2) GET /api/: ✅ HTTP 200, status='operational', version='1.0.0'. (3) GET /api/pay/network-fees (cache test): ✅ FIRST call 478ms (cold cache), SECOND call 55ms (8.7× faster) — 60s aggregate Redis cache is WORKING. (4) POST /api/pay/calculateFees {amount:100,cryptocurrency:'BTC'}: ✅ HTTP 200, fee_breakdown returned (platform_fee=1.5, blockchain_fee=1.75, total_fees=3.25, net_to_merchant=96.75). NO 5xx errors. The code edits did NOT break the normal ungated path. **PART 2: STAGING CONCURRENCY CORRECTNESS HARNESS (localhost:3400, isolated altaria PG + interchange Redis, LOADTEST_NO_BROADCAST=true)** — Ran: `cd /app/backend && source /tmp/staging.env.sh && node_modules/.bin/ts-node --transpile-only scripts/loadtest_money_path.ts --settle-payments 100 --settle-concurrency 10 --reserve 500 --reserve-merchants 50 --sweep 25 --sweep-concurrency 12`. EXIT CODE: 0. FINAL LINE: '✅ ALL CONCURRENCY INVARIANTS HELD (no double-settle, ledger balanced, no over-reserve, no double-sweep)'. **TEST A (Settlement idempotency + ledger balance)**: 100 payments × 10 concurrent settlements (1000 total) in 3.6s → freshSettled=100, dupBlocked=900, errored=0. Throughput: 277 settlement-calls/sec. ✅ Exactly one fresh settlement per payment (no double-settlement). ✅ Exactly one ledger settlement_sent batch per payment (100 payments, 0 with !=1 batch). ✅ Ledger balanced: BTC DR=426.000000000000 CR=426.000000000000 delta=0 (DR==CR). **TEST C (Reservation concurrency, no over-reservation)**: 500 concurrent reservations across 50 merchants in 3.1s → reserved=100, busy(expected backpressure)=400, errored=0, uniqueAddrs=100. ✅ Every successful reservation got a UNIQUE address (no over-reservation). Expected backpressure (busy=400) is CORRECT behavior under same-merchant bursts (reserve-address lock with 3×100ms retry). **TEST D (Sweep concurrency, no double-sweep)**: 25 addresses × 12 concurrent sweeps each in 7.3s → addresses=25, addresses swept>once=0. ✅ No address swept more than once (concurrent sweep guard holds). **VERDICT**: ALL concurrency invariants held. NO double-settlement, NO over-reservation, NO double-sweep, ledger balanced. The LOADTEST gates are prod-safe (dormant when unset). The network-fees aggregate cache is working (8.7× speedup on repeat calls). The load-test + concurrency-correctness changes are PRODUCTION-READY."
+
+## test_plan (2026-08-25, load-test session)
+  current_focus:
+    - "Money-path concurrency invariants (staging harness) + prod-preview read regression + network-fees cache"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+## agent_communication (load-test session)
+  - agent: "main"
+    message: "Two backends run in this container. PROD-PREVIEW = localhost:8001 / external URL (PROD DB, SAFE MODE, LOADTEST unset) — READ-ONLY only. STAGING = localhost:3400 + creds in /tmp/staging.env.sh (isolated altaria PG + interchange Redis, jobs ON, LOADTEST gated). Verify prod-preview read endpoints + /health (regression) and re-run the staging correctness harness. Never write to the prod DB, never trigger payments/emails."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-25 19:56 UTC) — ALL TESTS PASSED (100% pass rate). **PROD-PREVIEW REGRESSION**: All 4 checks passed (health, /api/, network-fees cache 8.7× speedup, calculateFees). NO 5xx errors. Code edits did NOT break the normal ungated path. **STAGING CONCURRENCY CORRECTNESS**: Harness exit code 0, final line '✅ ALL CONCURRENCY INVARIANTS HELD'. TEST A: 100 payments × 10 concurrent settlements → exactly 100 fresh settlements, 900 blocked, 0 errors, ledger balanced (BTC DR==CR), exactly 1 ledger batch per payment. NO double-settlement. TEST C: 500 concurrent reservations → 100 reserved, 400 expected backpressure, 0 unexpected errors, 100 unique addresses. NO over-reservation. TEST D: 25 addresses × 12 concurrent sweeps → 0 addresses swept more than once. NO double-sweep. **VERDICT**: All concurrency invariants held. LOADTEST gates are prod-safe (dormant when unset). Network-fees aggregate cache is working (8.7× speedup). The load-test + concurrency-correctness changes are PRODUCTION-READY. Main agent can summarize and finish."
+
+# ============================================================================
+# PREVIOUS SESSION — 2026-08-25 (pod f054383c) : iPhone OTP AutoFill only
 #   entered the FIRST digit — fixed in the shared OtpInputPanel
 # ============================================================================
 

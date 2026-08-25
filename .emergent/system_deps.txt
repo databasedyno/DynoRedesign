@@ -2,5 +2,7 @@ cron=3.0pl1-162
 gnupg=2.2.40-1.1+deb12u2
 lsb-release=12.0-1
 postgresql=15+248+deb12u1
+postgresql-client-18=18.6-1.pgdg12+2
+postgresql-common=248+deb12u1
 postgresql-contrib=15+248+deb12u1
 redis-server=5:7.0.15-1~deb12u9

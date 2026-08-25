@@ -517,6 +517,21 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     cronLogger.info(`[MerchantPool] 🧹 Starting sweep for ${poolAddress.dataValues.wallet_address}`);
     
     let balanceData;
+    // ── LOAD-TEST SAFETY GATE (sweep) ────────────────────────────────────────
+    // Under LOADTEST_NO_BROADCAST (staging only; unset in prod) the row-lock
+    // claim + status transitions above have already run for real — that IS the
+    // "no double sweep" concurrency guard. Here we skip the real on-chain
+    // balance read and synthesize a sweepable balance so the rest of the
+    // status/dedup bookkeeping runs without touching a real chain.
+    const __loadtest = require("../../utils/loadtestGuard");
+    if (__loadtest.isLoadtestNoBroadcast()) {
+      const wt = poolAddress.dataValues.wallet_type;
+      if (["BTC", "LTC", "DOGE", "BCH"].includes(wt)) {
+        balanceData = { incoming: "1", outgoing: "0" };
+      } else {
+        balanceData = { balance: "1" };
+      }
+    } else {
     try {
       // skipCache=true for sweep execution — must know actual balance before moving funds
       balanceData = await tatumApi.getAddressBalance(
@@ -531,6 +546,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
         return { success: true, amount: 0, message: "Account not activated on-chain" };
       }
       throw balanceError;
+    }
     }
     // UTXO chains (BTC, LTC, DOGE, BCH) return {incoming, outgoing} not {balance}
     // Account-based chains (ETH, TRX, XRP, SOL, POLYGON) return {balance}
@@ -567,7 +583,12 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     // "unprofitable" → 5 failed attempts → 7-day deferral loop → admin fees stuck
     // for weeks (root cause of the July 2026 "USDT admin fee not forwarded" report).
     let feeData: SweepFeeData;
-    if (walletType.includes("TRC20")) {
+    if (__loadtest.isLoadtestNoBroadcast()) {
+      // Load test: skip the real Tatum fee estimation (network call for a
+      // synthetic address) — use a tiny synthetic fee so the winning sweep
+      // completes its full status/dedup bookkeeping.
+      feeData = { fast: 0.00001, slow: 0.00001 } as unknown as SweepFeeData;
+    } else if (walletType.includes("TRC20")) {
       try {
         const trc20Contract = walletType === "USDT-TRC20"
           ? (envRaw("TRX_CONTRACT") || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
@@ -597,7 +618,9 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       );
     }
 
-    const profitabilityResult = await checkSweepProfitability(walletType, actualBalance, feeData);
+    const profitabilityResult = __loadtest.isLoadtestNoBroadcast()
+      ? { profitable: true, balanceUSD: 0, feeUSD: 0, estimatedFee: 0 }
+      : await checkSweepProfitability(walletType, actualBalance, feeData);
     
     if (!profitabilityResult.profitable) {
       cronLogger.warn(`[MerchantPool] ⚠️ Sweep not profitable for ${poolAddress.dataValues.wallet_address}`);
@@ -716,10 +739,12 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       cronLogger.info(`[MerchantPool] Native ${walletType} - gas comes from remaining balance, no external funding needed`);
     }
 
-    const privateKey = await tatumApi.decryptSymmetric(
-      poolAddress.dataValues.private_key,
-      envRaw("TEMP_KEY_ID")
-    );
+    const privateKey = __loadtest.isLoadtestNoBroadcast()
+      ? "LOADTEST-PRIVATE-KEY"
+      : await tatumApi.decryptSymmetric(
+          poolAddress.dataValues.private_key,
+          envRaw("TEMP_KEY_ID")
+        );
 
     const isAccountChain = ACCOUNT_CHAINS.includes(walletType);
     const isUTXOChain = ["BTC", "LTC", "DOGE", "BCH"].includes(walletType);
@@ -814,7 +839,12 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     // For non-EVM chains (TRX, XRP, BTC, etc.), continue using Tatum SDK.
     let sweepTxId: string | undefined;
 
-    if (isDirectEvmSupported(walletType)) {
+    if (__loadtest.isLoadtestNoBroadcast()) {
+      // Skip the real on-chain broadcast; the status/dedup bookkeeping below
+      // (outgoing-tx marker, balance updates, status transitions) still runs.
+      sweepTxId = __loadtest.syntheticTxId("LOADTEST-SWEEP");
+      cronLogger.warn(`[MerchantPool] 🧪 LOADTEST_NO_BROADCAST — synthetic sweep tx ${sweepTxId} for ${poolAddress.dataValues.wallet_address}`);
+    } else if (isDirectEvmSupported(walletType)) {
       // DIRECT EVM SWEEP: ethers.js signs locally + broadcasts via eth_sendRawTransaction
       // The TX hash is real — sendTransaction() throws if the RPC node rejects the TX
       cronLogger.info(`[MerchantPool] Using direct EVM sweep for ${walletType}`);

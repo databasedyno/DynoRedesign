@@ -136,6 +136,33 @@ export const settleCryptoTransaction = async ({
     // Mark settlement as in-progress (atomic claim)
     await markSettlementInProgress(paymentId);
 
+    // ── LOAD-TEST SAFETY GATE ────────────────────────────────────────────────
+    // When LOADTEST_NO_BROADCAST=true (staging load tests ONLY — unset in prod),
+    // skip the irreversible KMS-decrypt + on-chain broadcast but STILL run the
+    // real completion path (idempotency marker, PostgreSQL journal, and ledger
+    // dual-write) so concurrency correctness (one-settlement-per-payment,
+    // balanced ledger, no double sweep) is exercised faithfully.
+    {
+      const { isLoadtestNoBroadcast, syntheticTxId } = require("../../../utils/loadtestGuard");
+      if (isLoadtestNoBroadcast()) {
+        const fakeTxId = syntheticTxId("LOADTEST-SETTLE");
+        const companyId = Number((tempAddressData as any).current_company_id) || null;
+        await markSettlementCompleted(
+          paymentId,
+          fakeTxId,
+          fromAddress,
+          currency,
+          Number(userAmount || 0),
+          Number(receivedAmount || 0),
+          companyId
+        );
+        cronLogger.warn(
+          `[settleCryptoTransaction] 🧪 LOADTEST_NO_BROADCAST — skipped KMS+broadcast for ${paymentId}; synthetic tx ${fakeTxId}`
+        );
+        return { txId: fakeTxId, status: "loadtest_settled" };
+      }
+    }
+
     const adminWalletAddress = getAdminWalletAddress(currency);
 
     if (!adminWalletAddress) {

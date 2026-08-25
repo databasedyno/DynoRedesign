@@ -731,6 +731,9 @@ const deleteUserAddress = async (customerID, address) => {
 };
 
 const createSubscription = async (address, currency, onlyCrypto = false) => {
+  if (process.env.LOADTEST_NO_BROADCAST === "true") {
+    return { id: `LOADTEST-SUB-${Date.now().toString(36)}` };
+  }
   try {
     const headers = await getTatumHeaders();
 
@@ -897,6 +900,9 @@ const createSubscriptionBlockBeeStyle = async (
   userId: number,
   addressId: number
 ) => {
+  if (process.env.LOADTEST_NO_BROADCAST === "true") {
+    return { id: `LOADTEST-SUB-${Date.now().toString(36)}`, url: "loadtest://noop" };
+  }
   try {
     const headers = await getTatumHeaders();
 
