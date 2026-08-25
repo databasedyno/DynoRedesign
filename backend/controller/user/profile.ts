@@ -77,8 +77,12 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
     // otherwise leave the stored photo untouched (undefined = not written).
     let photo: string | undefined;
     if (file) {
-      const serverUrl = envRaw("SERVER_URL")?.endsWith('/') ? envRaw("SERVER_URL") : envRaw("SERVER_URL") + '/';
-      photo = serverUrl + "images/" + file.filename;
+      // Durable storage: upload to DO Spaces (CDN URL) when configured so the
+      // photo survives container redeploys and renders in EVERY environment
+      // (the DB is shared across prod/preview — a local /images/ URL only
+      // resolves on the machine that received the upload; everywhere else the
+      // static fallback kicked in and the avatar showed as a blank pixel).
+      photo = await finalizeUploadedImage(file, envRaw("SERVER_URL") || "");
       updatedFields.push('Profile Photo: Updated');
     } else if (data && (data.remove_photo === true || data.remove_photo === "true")) {
       photo = ""; // clear the stored photo

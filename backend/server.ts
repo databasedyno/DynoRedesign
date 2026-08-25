@@ -307,8 +307,11 @@ app.use("/images", express.static(path.join(uploadsPath, "images")));
 
 // FIX: Fallback for missing images — serve a 1x1 transparent PNG instead of 404
 // This prevents noisy 404 logs for deleted/missing user avatars and company logos
+// NOTE: the previous base64 here was accidentally a SEMI-TRANSPARENT GREEN pixel
+// (RGBA 0,255,0,127), so every missing avatar/logo rendered as a green square.
+// This one is verified fully transparent (RGBA 0,0,0,0).
 const TRANSPARENT_PNG = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=",
   "base64"
 );
 const imageFallbackHandler = (_req: express.Request, res: express.Response) => {

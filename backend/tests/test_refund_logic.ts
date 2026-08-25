@@ -15,7 +15,7 @@ import {
   isRefundableOrderStatus,
   STATIC_GAS_BUFFER_NATIVE,
 } from "../services/refund/refundChains";
-import { buildRefundEmail } from "../services/refund/refundEmailTemplates";
+import { buildRefundEmail, buildMerchantRefundEmail } from "../services/refund/refundEmailTemplates";
 
 let passed = 0;
 let failed = 0;
@@ -117,6 +117,22 @@ assert("completed subject", /complete/i.test(emDone.subject) && emDone.subject.i
 assert("completed body embeds explorer link", emDone.html.includes("https://etherscan.io/tx/0xfeedface"));
 const emDoneNoTx = buildRefundEmail({ refund_amount: 1, asset: "BTC", chain: "BTC" }, "completed");
 assert("completed w/o txid still builds", /complete/i.test(emDoneNoTx.subject) && emDoneNoTx.html.length > 100);
+
+console.log("\n== merchant record-copy email (buildMerchantRefundEmail) ==");
+const emMerchant = buildMerchantRefundEmail({
+  refund_amount: 10,
+  asset: "USDT",
+  chain: "USDT-ERC20",
+  forward_txid: "0xfeedface",
+  refund_id: "rf_test123",
+  customer_email: "buyer@example.com",
+});
+assert("merchant subject mentions amount + customer", emMerchant.subject.includes("10 USDT") && emMerchant.subject.includes("buyer@example.com"));
+assert("merchant body embeds explorer link", emMerchant.html.includes("https://etherscan.io/tx/0xfeedface"));
+assert("merchant body includes refund id + customer", emMerchant.html.includes("rf_test123") && emMerchant.html.includes("buyer@example.com"));
+assert("merchant footer says record copy (not customer footer)", /record copy/i.test(emMerchant.html));
+const emMerchantBare = buildMerchantRefundEmail({ refund_amount: 0.5, asset: "BTC", chain: "BTC" });
+assert("merchant email w/o txid/customer still builds", /complete/i.test(emMerchantBare.subject) && emMerchantBare.html.length > 100);
 
 console.log(`\n===== Refund logic tests: ${passed} passed, ${failed} failed =====\n`);
 process.exit(failed === 0 ? 0 : 1);

@@ -18,6 +18,7 @@ import { companyLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import { sendCompanyProfileCreatedEmail, sendCompanyContactWelcomeEmail, sendCompanyProfileUpdatedEmail } from "../services/emailService";
+import { finalizeUploadedImage } from "../services/objectStorage";
 import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import crypto from "crypto";
 import { hmacSha256Hex } from "../utils/hmac";
@@ -176,8 +177,9 @@ const addCompany = async (req: express.Request, res: express.Response) => {
     
     let photo;
     if (file) {
-      const serverUrl = envRaw("SERVER_URL")?.endsWith('/') ? envRaw("SERVER_URL") : envRaw("SERVER_URL") + '/';
-      photo = serverUrl + "images/" + file.filename;
+      // Durable storage: DO Spaces CDN URL when configured (survives redeploys,
+      // renders in every environment); local static URL fallback otherwise.
+      photo = await finalizeUploadedImage(file, envRaw("SERVER_URL") || "");
     }
     
     // Auto-suggest country from VAT number if country is missing
@@ -602,8 +604,9 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
     
     let photo;
     if (file) {
-      const serverUrl = envRaw("SERVER_URL")?.endsWith('/') ? envRaw("SERVER_URL") : envRaw("SERVER_URL") + '/';
-      photo = serverUrl + "images/" + file.filename;
+      // Durable storage: DO Spaces CDN URL when configured (survives redeploys,
+      // renders in every environment); local static URL fallback otherwise.
+      photo = await finalizeUploadedImage(file, envRaw("SERVER_URL") || "");
     }
     
     // Validate grace_period_minutes: max 30 minutes (Payment Link only, not Direct API)
