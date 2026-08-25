@@ -743,5 +743,10 @@
     "tipCount_other": "{{count}} fooien",
     "orderCount_one": "{{count}} bestelling",
     "orderCount_other": "{{count}} bestellingen"
-  }
+  },
+  "imageCropTitle": "Afbeelding aanpassen",
+  "imageCropHint": "Sleep om te verplaatsen. Gebruik de schuifregelaar om te zoomen.",
+  "imageCropZoom": "Zoom",
+  "imageCropCancel": "Annuleren",
+  "imageCropApply": "Toepassen"
 }

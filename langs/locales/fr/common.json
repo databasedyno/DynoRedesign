@@ -743,5 +743,10 @@
     "tipCount_other": "{{count}} pourboires",
     "orderCount_one": "{{count}} commande",
     "orderCount_other": "{{count}} commandes"
-  }
+  },
+  "imageCropTitle": "Ajuster l'image",
+  "imageCropHint": "Faites glisser pour repositionner. Utilisez le curseur pour zoomer.",
+  "imageCropZoom": "Zoom",
+  "imageCropCancel": "Annuler",
+  "imageCropApply": "Appliquer"
 }

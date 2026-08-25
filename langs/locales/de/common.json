@@ -743,5 +743,10 @@
     "tipCount_other": "{{count}} Trinkgelder",
     "orderCount_one": "{{count}} Bestellung",
     "orderCount_other": "{{count}} Bestellungen"
-  }
+  },
+  "imageCropTitle": "Bild anpassen",
+  "imageCropHint": "Zum Verschieben ziehen. Mit dem Regler zoomen.",
+  "imageCropZoom": "Zoom",
+  "imageCropCancel": "Abbrechen",
+  "imageCropApply": "Übernehmen"
 }

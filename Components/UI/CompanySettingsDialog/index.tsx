@@ -16,6 +16,8 @@ import axiosBaseApi from "@/axiosConfig";
 import Toast from "../Toast";
 import CustomAlert from "../CustomAlert";
 import CompanyDetailsSection from "./CompanyDetailsSection";
+import ImageCropperDialog from "@/Components/UI/ImageCropperDialog";
+import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
 import CryptoConversionSection from "./CryptoConversionSection";
 import PaymentToleranceSection from "./PaymentToleranceSection";
 import WebhookNotificationsSection from "./WebhookNotificationsSection";
@@ -298,12 +300,10 @@ export default function CompanySettingsDialog({
     handleClose();
   };
 
-  const handleFileChange = async (file?: File) => {
-    if (!file) return;
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreview(previewUrl);
+  // Upload the (possibly cropped) brand logo — auto-saves, no Save press needed.
+  const uploadLogo = async (file: File, previewUrl?: string) => {
+    setImagePreview(previewUrl || URL.createObjectURL(file));
     setMediaFile(file);
-    // Auto-save the brand logo immediately — no need to press Save.
     if (!company?.company_id) return;
     const formData = new FormData();
     formData.append("data", JSON.stringify({})); // logo-only partial update
@@ -320,6 +320,33 @@ export default function CompanySettingsDialog({
     } finally {
       setSavingLogo(false);
     }
+  };
+
+  const handleFileChange = async (file?: File) => {
+    if (!file) return;
+    // Crop & zoom step first (sharp logos). SVG/GIF/HEIC bypass the cropper
+    // (vector/animation/undecodable) and upload untouched.
+    if (isCroppableImage(file.type)) {
+      setLogoCropFile(file);
+      setLogoCropSrc(URL.createObjectURL(file));
+      return; // upload happens in handleLogoCropApply
+    }
+    await uploadLogo(file);
+  };
+
+  // --- Crop & zoom step (brand logo) ---
+  const [logoCropSrc, setLogoCropSrc] = useState<string | null>(null);
+  const [logoCropFile, setLogoCropFile] = useState<File | null>(null);
+
+  const closeLogoCropper = () => {
+    if (logoCropSrc) URL.revokeObjectURL(logoCropSrc);
+    setLogoCropSrc(null);
+    setLogoCropFile(null);
+  };
+
+  const handleLogoCropApply = (file: File, previewUrl: string) => {
+    closeLogoCropper();
+    uploadLogo(file, previewUrl);
   };
 
   const handleSubmit = (values: Values) => {
@@ -590,6 +617,18 @@ export default function CompanySettingsDialog({
         message={toastMessage}
         severity={toastSeverity}
       />
+
+      {logoCropSrc && (
+        <ImageCropperDialog
+          open
+          imageSrc={logoCropSrc}
+          sourceFile={logoCropFile}
+          cropShape="rect"
+          aspect={1}
+          onCancel={closeLogoCropper}
+          onApply={handleLogoCropApply}
+        />
+      )}
 
       <CustomAlert
         open={deleteAlertOpen}

@@ -743,5 +743,10 @@
     "tipCount_other": "{{count}} propinas",
     "orderCount_one": "{{count}} pedido",
     "orderCount_other": "{{count}} pedidos"
-  }
+  },
+  "imageCropTitle": "Ajustar imagen",
+  "imageCropHint": "Arrastra para reposicionar. Usa el control para hacer zoom.",
+  "imageCropZoom": "Zoom",
+  "imageCropCancel": "Cancelar",
+  "imageCropApply": "Aplicar"
 }

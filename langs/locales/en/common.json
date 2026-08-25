@@ -743,5 +743,10 @@
     "tipCount_other": "{{count}} tips",
     "orderCount_one": "{{count}} order",
     "orderCount_other": "{{count}} orders"
-  }
+  },
+  "imageCropTitle": "Adjust image",
+  "imageCropHint": "Drag to reposition. Use the slider to zoom.",
+  "imageCropZoom": "Zoom",
+  "imageCropCancel": "Cancel",
+  "imageCropApply": "Apply"
 }

@@ -743,5 +743,10 @@
     "tipCount_other": "{{count}} gorjetas",
     "orderCount_one": "{{count}} pedido",
     "orderCount_other": "{{count}} pedidos"
-  }
+  },
+  "imageCropTitle": "Ajustar imagem",
+  "imageCropHint": "Arraste para reposicionar. Use o controlo para ampliar.",
+  "imageCropZoom": "Zoom",
+  "imageCropCancel": "Cancelar",
+  "imageCropApply": "Aplicar"
 }

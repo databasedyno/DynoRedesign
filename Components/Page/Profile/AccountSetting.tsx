@@ -4,6 +4,8 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import OtpDialog from "@/Components/UI/OtpDialog";
+import ImageCropperDialog from "@/Components/UI/ImageCropperDialog";
+import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
 import PanelCard from "@/Components/UI/PanelCard";
 import { getInitials } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -138,12 +140,38 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
         return;
       }
       setPhotoError("");
+      // Crop & zoom step first (sharp avatars). SVG/GIF/HEIC bypass the
+      // cropper (vector/animation/undecodable) and upload untouched.
+      if (isCroppableImage(file.type)) {
+        setCropFile(file);
+        setCropSrc(URL.createObjectURL(file));
+        return; // upload happens in handleCropApply
+      }
       const previewUrl = URL.createObjectURL(file);
       setUserPhoto(previewUrl);
       setMedia(file);
       setImageError(false);
       autoSavePhoto({ file, previewUrl }); // auto-save immediately
     }
+  };
+
+  // --- Crop & zoom step (profile photo) ---
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+
+  const closeCropper = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    setCropFile(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const handleCropApply = (file: File, previewUrl: string) => {
+    closeCropper();
+    setUserPhoto(previewUrl);
+    setMedia(file);
+    setImageError(false);
+    autoSavePhoto({ file, previewUrl }); // auto-save the cropped image
   };
 
   const handleRemovePhoto = () => {
@@ -369,6 +397,17 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
         </Box>
 
         <input type="file" accept="image/*" hidden ref={fileRef} onChange={handleFileChange} />
+        {cropSrc && (
+          <ImageCropperDialog
+            open
+            imageSrc={cropSrc}
+            sourceFile={cropFile}
+            cropShape="round"
+            aspect={1}
+            onCancel={closeCropper}
+            onApply={handleCropApply}
+          />
+        )}
         {photoError && (
           <Typography sx={{ color: theme.palette.error.main, fontSize: "12px", fontFamily: "var(--font-sans)", textAlign: "center", mt: 0.5 }}>
             {photoError}
