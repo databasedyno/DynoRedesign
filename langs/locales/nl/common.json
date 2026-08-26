@@ -748,5 +748,9 @@
   "imageCropHint": "Sleep om te verplaatsen. Gebruik de schuifregelaar om te zoomen.",
   "imageCropZoom": "Zoom",
   "imageCropCancel": "Annuleren",
-  "imageCropApply": "Toepassen"
+  "imageCropApply": "Toepassen",
+  "payoutsToast": {
+    "settledOne": "Een openstaande betaling is zojuist bevestigd en afgewikkeld",
+    "settledMany": "{{count}} openstaande betalingen zijn zojuist bevestigd"
+  }
 }

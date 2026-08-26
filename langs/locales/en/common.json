@@ -748,5 +748,9 @@
   "imageCropHint": "Drag to reposition. Use the slider to zoom.",
   "imageCropZoom": "Zoom",
   "imageCropCancel": "Cancel",
-  "imageCropApply": "Apply"
+  "imageCropApply": "Apply",
+  "payoutsToast": {
+    "settledOne": "A pending payment just confirmed and settled",
+    "settledMany": "{{count}} pending payments just confirmed"
+  }
 }

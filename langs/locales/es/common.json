@@ -748,5 +748,9 @@
   "imageCropHint": "Arrastra para reposicionar. Usa el control para hacer zoom.",
   "imageCropZoom": "Zoom",
   "imageCropCancel": "Cancelar",
-  "imageCropApply": "Aplicar"
+  "imageCropApply": "Aplicar",
+  "payoutsToast": {
+    "settledOne": "Un pago pendiente acaba de confirmarse y liquidarse",
+    "settledMany": "{{count}} pagos pendientes acaban de confirmarse"
+  }
 }

@@ -748,5 +748,9 @@
   "imageCropHint": "Faites glisser pour repositionner. Utilisez le curseur pour zoomer.",
   "imageCropZoom": "Zoom",
   "imageCropCancel": "Annuler",
-  "imageCropApply": "Appliquer"
+  "imageCropApply": "Appliquer",
+  "payoutsToast": {
+    "settledOne": "Un paiement en attente vient d'être confirmé et réglé",
+    "settledMany": "{{count}} paiements en attente viennent d'être confirmés"
+  }
 }

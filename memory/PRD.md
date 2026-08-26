@@ -1,3 +1,46 @@
+# FEATURES (2026-06 fork) — Fees v3 full localization + localized Payouts toast + Dynotech→Dynopay rename — DONE
+
+Preview: https://9ce6d8ae-5030-4fe3-992a-47e6471c8db2.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, backend tsc EXIT 0.
+
+## 1) /fees v3 page — FULLY LOCALIZED (was hardcoded English) — DONE (screenshot-verified DE)
+`pages/fees.tsx` used `useTranslation("fees")` as an UNUSED `_t` — every hero/tier/calculator/comparison/
+security string was hardcoded English. Added a new `v3` object (40 keys) to all 6 `langs/locales/*/fees.json`
+and wired `pages/fees.tsx` via `t("v3.*")`: hero eyebrow/title(lead+tail, rate "1.5% → 0.5%" kept literal)/
+subtitle/CTA; tiers eyebrow/title + "per successful payment"/"30-day volume"/"Your tier"; calculator
+eyebrow/title/"Monthly volume"/Tier/Rate/"You'd pay"/CTA; comparison eyebrow/title + Feature/Others headers
++ 6 feature rows + Yes/No/Often/Batched/Bundled/Rarely/None/Common value cells; security eyebrow/title + 3
+cards. KEPT English (intentional): brand "Dynopay", tier NAMES (Starter/Growth/Scale/Enterprise), numeric
+labels ($500/$1M/$5k, percentages). VERIFIED in German: hero "Eine Zahl, die man sich merkt", calculator
+"MONATLICHES VOLUMEN / STUFE / SATZ / SIE ZAHLEN", "[ 02 · RECHNER ]"; zero English leftovers.
+
+## 2) Payouts "pending confirmed" toast — LOCALIZED (all 6 langs) — DONE
+Added `payoutsToast.settledOne` + `payoutsToast.settledMany` ({{count}}) to all 6 `common.json`.
+`Components/Page/Payouts/index.tsx` now `useTranslation("common")` and the settlement toast uses
+`t("payoutsToast.settledOne")` / `t("payoutsToast.settledMany",{count})` instead of hardcoded English.
+(Can't trigger a live pending→settled transition without a prod write — wiring is tsc-clean + resolves
+from common.json.)
+
+## 3) "Dynotech Innovations, LDA" → "Dynopay Innovations, LDA" — DONE (rename, screenshot-verified footer)
+- backend/utils/emailTemplate.ts (email footer copyright), backend/services/pdfService.ts (invoice PDF
+  "From"), backend/models/invoiceModel.ts (provider_name defaultValue + comment),
+  backend/controller/invoiceController.ts (providerInfo.provider_name + comment).
+- Landing footer `footerCopyright` in all 6 landing.json: "© {{year}} Dynotech. <rights>" →
+  "© {{year}} Dynopay Innovations, LDA. <rights>" (localized rights phrase per locale). Prior session had
+  shortened it to bare "Dynotech" — now restored to full corrected legal name.
+- NOTE: existing invoice rows in the prod DB keep their stored old provider_name; only NEW invoices +
+  live emails/PDFs use the new name (defaultValue/constant change).
+- memory/CHANGELOG.md & ROADMAP.md left as-is (historical records).
+
+## PRE-EXISTING BUILD BUG FIXED (bundled — would block the next DO/Save-to-GitHub build)
+`controller/user/creatorProfile.ts` calls `emailService.sendCreatorHandleUpdatedEmail(...)` but the
+`emailService` DEFAULT-export barrel omitted it (only `export *` named it) → backend `tsc` EXIT 2. Added it
+to both the named import + the default object in `backend/services/emailService.ts`. Runtime-safe here
+(pod uses ts-node transpile-only + emails disabled). backend tsc now EXIT 0.
+
+---
+
+
+
 # S3.0 i18n CLOSURE (2026-06 fork) — non-English "$500 free trial" → "first payment is on us" — DONE
 
 Preview: https://9ce6d8ae-5030-4fe3-992a-47e6471c8db2.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)

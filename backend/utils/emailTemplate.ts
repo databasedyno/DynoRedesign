@@ -242,7 +242,7 @@ export const baseEmailTemplate = (
                 ${socialIconsBlock}
                 <tr>
                   <td align="center" class="ftr-text" style="color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;">
-                    &copy; ${year} Dynotech Innovations, LDA. All rights reserved.
+                    &copy; ${year} Dynopay Innovations, LDA. All rights reserved.
                   </td>
                 </tr>
                 <tr>

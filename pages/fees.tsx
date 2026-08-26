@@ -51,7 +51,7 @@ const formatUSD = (n: number) =>
     : `$${n.toLocaleString("en-US")}`;
 
 const FeesPage = () => {
-  const { t: _t } = useTranslation("fees");
+  const { t } = useTranslation("fees");
   const s = useAurora();
   const router = useRouter();
   const [volume, setVolume] = useState(5000);
@@ -67,18 +67,18 @@ const FeesPage = () => {
   }, []);
 
   const comparisonRows = [
-    { feature: "Multiple stacked fees", dynopay: false, dynoText: "No", others: true, othersText: "Often" },
-    { feature: "Instant on-chain forwarding", dynopay: true, dynoText: "Yes", others: false, othersText: "Batched" },
-    { feature: "Clear fee breakdown at checkout", dynopay: true, dynoText: "Yes", others: false, othersText: "Bundled" },
-    { feature: "Non-custodial", dynopay: true, dynoText: "Yes", others: false, othersText: "Rarely" },
-    { feature: "Real-time volume calculator", dynopay: true, dynoText: "Yes", others: false, othersText: "No" },
-    { feature: "Chargebacks", dynopay: false, dynoText: "None", others: true, othersText: "Common" },
+    { feature: t("v3.cmpStackedFees"), dynopay: false, dynoText: t("v3.valNo"), others: true, othersText: t("v3.valOften") },
+    { feature: t("v3.cmpInstantForward"), dynopay: true, dynoText: t("v3.valYes"), others: false, othersText: t("v3.valBatched") },
+    { feature: t("v3.cmpClearBreakdown"), dynopay: true, dynoText: t("v3.valYes"), others: false, othersText: t("v3.valBundled") },
+    { feature: t("v3.cmpNonCustodial"), dynopay: true, dynoText: t("v3.valYes"), others: false, othersText: t("v3.valRarely") },
+    { feature: t("v3.cmpRealtimeCalc"), dynopay: true, dynoText: t("v3.valYes"), others: false, othersText: t("v3.valNo") },
+    { feature: t("v3.cmpChargebacks"), dynopay: false, dynoText: t("v3.valNone"), others: true, othersText: t("v3.valCommon") },
   ];
 
   return (
     <>
       <Head>
-        <title>Fees · Dynopay — From 0.5% flat, no monthly, no chargebacks.</title>
+        <title>{t("v3.headTitle")}</title>
       </Head>
 
       <PageWrapper sx={{ background: s.bg }}>
@@ -114,15 +114,14 @@ const FeesPage = () => {
           />
           <Container sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ pt: { xs: 9, md: 16 }, pb: { xs: 6, md: 9 }, textAlign: "center" }}>
-              <Eyebrow tone="coral" sx={{ mb: 3 }}>[ Fees · Simple, honest ]</Eyebrow>
+              <Eyebrow tone="coral" sx={{ mb: 3 }}>{t("v3.heroEyebrow")}</Eyebrow>
               <HeadlineXL sx={{ color: s.ink, maxWidth: 1000, mx: "auto", mb: 3 }}>
-                One number to remember.
+                {t("v3.heroTitleLead")}
                 <br />
-                <AuroraInk>1.5% → 0.5%</AuroraInk> as you grow.
+                <AuroraInk>1.5% → 0.5%</AuroraInk> {t("v3.heroTitleTail")}
               </HeadlineXL>
               <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 16, md: 18 }, color: s.ink2, maxWidth: 640, mx: "auto", lineHeight: 1.6, mb: 4 }}>
-                No monthly fee. No setup fee. No chargebacks. You only pay when you get paid —
-                and the more you move, the less it costs.
+                {t("v3.heroSubtitle")}
               </Typography>
               <Button
                 onClick={scrollToCalc}
@@ -143,7 +142,7 @@ const FeesPage = () => {
                   "&:active": { transform: "scale(0.98)" },
                 }}
               >
-                Calculate my fee
+                {t("v3.heroCta")}
               </Button>
             </Box>
           </Container>
@@ -153,8 +152,8 @@ const FeesPage = () => {
         <Container>
           <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 620 }}>
-              <Eyebrow tone="violet" sx={{ mb: 2 }}>[ 01 · Volume tiers ]</Eyebrow>
-              <HeadlineL sx={{ color: s.ink }}>Four tiers. One number that shrinks.</HeadlineL>
+              <Eyebrow tone="violet" sx={{ mb: 2 }}>{t("v3.tiersEyebrow")}</Eyebrow>
+              <HeadlineL sx={{ color: s.ink }}>{t("v3.tiersTitle")}</HeadlineL>
             </Box>
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(4, 1fr)" }, gap: 2.5 }}>
               {TIERS.map((tr) => {
@@ -187,12 +186,12 @@ const FeesPage = () => {
                         {tr.pct}%
                       </Typography>
                       <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: isCurrent ? "rgba(255,255,255,0.9)" : s.ink3 }}>
-                        per successful payment
+                        {t("v3.perPayment")}
                       </Typography>
                     </Box>
                     <Box sx={{ mt: 3, pt: 2, borderTop: `1px dashed ${isCurrent ? "rgba(255,255,255,0.35)" : s.line}` }}>
                       <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.08em", color: isCurrent ? "rgba(255,255,255,0.9)" : s.ink3, textTransform: "uppercase" }}>
-                        30-day volume
+                        {t("v3.vol30d")}
                       </Typography>
                       <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: 15, mt: 0.5, color: isCurrent ? "#fff" : s.ink }}>
                         {formatUSD(tr.min)}{tr.max ? ` – ${formatUSD(tr.max)}` : "+"}
@@ -217,7 +216,7 @@ const FeesPage = () => {
                           py: 0.3,
                         }}
                       >
-                        Your tier
+                        {t("v3.yourTier")}
                       </Box>
                     )}
                   </Box>
@@ -231,8 +230,8 @@ const FeesPage = () => {
         <Container>
           <Box component="section" id="fee-calculator" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 620 }}>
-              <Eyebrow tone="coral" sx={{ mb: 2 }}>[ 02 · Calculator ]</Eyebrow>
-              <HeadlineL sx={{ color: s.ink }}>Move the slider. See your fee.</HeadlineL>
+              <Eyebrow tone="coral" sx={{ mb: 2 }}>{t("v3.calcEyebrow")}</Eyebrow>
+              <HeadlineL sx={{ color: s.ink }}>{t("v3.calcTitle")}</HeadlineL>
             </Box>
             <Box
               sx={{
@@ -263,7 +262,7 @@ const FeesPage = () => {
               />
               <Box sx={{ position: "relative", zIndex: 1 }}>
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: s.ink3, mb: 1 }}>
-                  Monthly volume
+                  {t("v3.monthlyVolume")}
                 </Typography>
                 <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 40, md: 56 }, letterSpacing: "-0.03em", color: s.ink, lineHeight: 1 }}>
                   {formatUSD(volume)}
@@ -298,7 +297,7 @@ const FeesPage = () => {
                 <Box sx={{ mt: 4, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" }, gap: 0, border: `1px solid ${s.line}`, borderRadius: "16px", overflow: "hidden" }}>
                   <Box sx={{ p: 2.5, borderRight: { xs: "none", sm: `1px solid ${s.line}` }, borderBottom: { xs: `1px solid ${s.line}`, sm: "none" } }}>
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.ink3, letterSpacing: "0.14em", textTransform: "uppercase", mb: 1 }}>
-                      Tier
+                      {t("v3.colTier")}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 22, color: tier.accent }}>
                       {tier.name}
@@ -306,7 +305,7 @@ const FeesPage = () => {
                   </Box>
                   <Box sx={{ p: 2.5, borderRight: { xs: "none", sm: `1px solid ${s.line}` }, borderBottom: { xs: `1px solid ${s.line}`, sm: "none" } }}>
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.ink3, letterSpacing: "0.14em", textTransform: "uppercase", mb: 1 }}>
-                      Rate
+                      {t("v3.colRate")}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 22, color: s.ink }}>
                       {tier.pct}%
@@ -314,7 +313,7 @@ const FeesPage = () => {
                   </Box>
                   <Box sx={{ p: 2.5, background: tier.accentSoft }}>
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.ink3, letterSpacing: "0.14em", textTransform: "uppercase", mb: 1 }}>
-                      You&apos;d pay
+                      {t("v3.youdPay")}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 22, color: s.ink }}>
                       ${fee.toLocaleString("en-US", { maximumFractionDigits: 2 })}
@@ -339,7 +338,7 @@ const FeesPage = () => {
                       "&:hover": { background: "#4338CA" },
                     }}
                   >
-                    Start earning — free
+                    {t("v3.calcCta")}
                   </Button>
                 </Box>
               </Box>
@@ -351,12 +350,12 @@ const FeesPage = () => {
         <Container>
           <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 620 }}>
-              <Eyebrow tone="violet" sx={{ mb: 2 }}>[ 03 · vs. Everyone else ]</Eyebrow>
-              <HeadlineL sx={{ color: s.ink }}>What you don&apos;t pay for.</HeadlineL>
+              <Eyebrow tone="violet" sx={{ mb: 2 }}>{t("v3.compareEyebrow")}</Eyebrow>
+              <HeadlineL sx={{ color: s.ink }}>{t("v3.compareTitle")}</HeadlineL>
             </Box>
             <Box sx={{ maxWidth: 900, mx: "auto", borderRadius: "20px", overflow: "hidden", border: `1px solid ${s.line}`, background: s.surface }}>
               <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1.5fr 1fr 1fr", sm: "2fr 1fr 1fr" }, px: { xs: 2, sm: 3 }, py: 2, borderBottom: `1px solid ${s.lineStrong}`, background: s.bgAlt }}>
-                {["Feature", "Dynopay", "Others"].map((h, i) => (
+                {[t("v3.colFeature"), "Dynopay", t("v3.colOthers")].map((h, i) => (
                   <Typography key={h} sx={{ fontFamily: FONT_TECH, fontSize: 11.5, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: s.ink, textAlign: i === 0 ? "left" : "center" }}>
                     {h}
                   </Typography>
@@ -387,17 +386,17 @@ const FeesPage = () => {
         <Container>
           <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 6 }, maxWidth: 620 }}>
-              <Eyebrow tone="coral" sx={{ mb: 2 }}>[ 04 · What we don&apos;t touch ]</Eyebrow>
-              <HeadlineL sx={{ color: s.ink }}>Non-custodial by design.</HeadlineL>
+              <Eyebrow tone="coral" sx={{ mb: 2 }}>{t("v3.secEyebrow")}</Eyebrow>
+              <HeadlineL sx={{ color: s.ink }}>{t("v3.secTitle")}</HeadlineL>
             </Box>
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 2.5 }}>
               {[
-                { t: "Your keys, your coins.", d: "Dynopay never holds your funds. Every settlement is a direct on-chain transfer to the wallet address you control." },
-                { t: "KYC / AML where required.", d: "Country-aware compliance built in. Users in regulated jurisdictions get gated at the right moment — no over-collection." },
-                { t: "SOC2-track, GDPR ready.", d: "Encrypted secrets in Google KMS, PII minimised, audit trail retained. Export or delete on request." },
+                { title: t("v3.sec1Title"), body: t("v3.sec1Body") },
+                { title: t("v3.sec2Title"), body: t("v3.sec2Body") },
+                { title: t("v3.sec3Title"), body: t("v3.sec3Body") },
               ].map((item) => (
                 <Box
-                  key={item.t}
+                  key={item.title}
                   sx={{
                     background: s.surface,
                     border: `1px solid ${s.line}`,
@@ -411,8 +410,8 @@ const FeesPage = () => {
                   }}
                 >
                   <ShieldOutlinedIcon sx={{ color: BRAND_ACCENT, fontSize: 22 }} />
-                  <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, letterSpacing: "-0.01em" }}>{item.t}</Typography>
-                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2, lineHeight: 1.6 }}>{item.d}</Typography>
+                  <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, letterSpacing: "-0.01em" }}>{item.title}</Typography>
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2, lineHeight: 1.6 }}>{item.body}</Typography>
                 </Box>
               ))}
             </Box>

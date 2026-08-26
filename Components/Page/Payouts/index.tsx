@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -320,6 +321,7 @@ const PayoutsPage: React.FC = () => {
   const toggleDisabled = toggling || (!hasStablecoinWallet && !enabled);
 
   const dispatch = useDispatch();
+  const { t } = useTranslation("common");
 
   // Pending funds — awaiting on-chain confirmation. Dedicated endpoint returns
   // fresh-pending rows + an accurate USD total (server converts crypto → USD).
@@ -361,8 +363,8 @@ const PayoutsPage: React.FC = () => {
         payload: {
           message:
             settled.length === 1
-              ? "A pending payment just confirmed and settled"
-              : `${settled.length} pending payments just confirmed`,
+              ? t("payoutsToast.settledOne")
+              : t("payoutsToast.settledMany", { count: settled.length }),
           severity: "success",
         },
       });

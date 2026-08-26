@@ -25,10 +25,10 @@ const invoiceModel = sequelize.define(
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     },
-    // Provider (Dynotech) info
+    // Provider (Dynopay) info
     provider_name: {
       type: DataTypes.STRING(100),
-      defaultValue: "Dynotech Innovations, LDA",
+      defaultValue: "Dynopay Innovations, LDA",
     },
     provider_address: {
       type: DataTypes.TEXT,

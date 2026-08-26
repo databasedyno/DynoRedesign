@@ -159,7 +159,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .text("From:", 50, providerStartY)
     .fontSize(10)
     .font("Helvetica-Bold")
-    .text("Dynotech Innovations, LDA", 50, providerStartY + 20)
+    .text("Dynopay Innovations, LDA", 50, providerStartY + 20)
     .fontSize(9)
     .font("Helvetica")
     .text("Rua Luís de Camões 1017, 7° Dt°", 50, providerStartY + 35)

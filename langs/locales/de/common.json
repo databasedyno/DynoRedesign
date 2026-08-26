@@ -748,5 +748,9 @@
   "imageCropHint": "Zum Verschieben ziehen. Mit dem Regler zoomen.",
   "imageCropZoom": "Zoom",
   "imageCropCancel": "Abbrechen",
-  "imageCropApply": "Übernehmen"
+  "imageCropApply": "Übernehmen",
+  "payoutsToast": {
+    "settledOne": "Eine ausstehende Zahlung wurde soeben bestätigt und abgewickelt",
+    "settledMany": "{{count}} ausstehende Zahlungen wurden soeben bestätigt"
+  }
 }

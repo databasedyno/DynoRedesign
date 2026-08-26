@@ -748,5 +748,9 @@
   "imageCropHint": "Arraste para reposicionar. Use o controlo para ampliar.",
   "imageCropZoom": "Zoom",
   "imageCropCancel": "Cancelar",
-  "imageCropApply": "Aplicar"
+  "imageCropApply": "Aplicar",
+  "payoutsToast": {
+    "settledOne": "Um pagamento pendente acabou de ser confirmado e liquidado",
+    "settledMany": "{{count}} pagamentos pendentes acabaram de ser confirmados"
+  }
 }

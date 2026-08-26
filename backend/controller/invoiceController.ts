@@ -351,9 +351,9 @@ export const autoGenerateInvoice = async (
 
     const companyData = company.dataValues;
 
-    // Provider details (Dynotech Innovations, LDA)
+    // Provider details (Dynopay Innovations, LDA)
     const providerInfo = {
-      provider_name: "Dynotech Innovations, LDA",
+      provider_name: "Dynopay Innovations, LDA",
       provider_address: "Rua Luís de Camões 1017, 7° Dt°\nMontijo 2870-154\nPortugal",
       provider_vat_id: "PT518713130",
     };
