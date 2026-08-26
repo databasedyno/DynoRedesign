@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://blockchain-bridge-3.preview.emergentagent.com",
+        "origin": "https://dynopay-setup-6.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
