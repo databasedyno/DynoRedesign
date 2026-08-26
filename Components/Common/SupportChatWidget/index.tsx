@@ -375,7 +375,16 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   // F1: On mobile in the client shell, lift the FAB further so it no longer
   // occludes the last ~20px of "Create Company" / "View all" / row action
   // regions. Sits above the bottom tab bar with breathing room.
-  const fabBottom = layout === "client" ? { xs: 108, md: 24 } : { xs: 24, md: 24 };
+  // F2 (iter_83): ALSO lift the FAB above the bottom language-onboarding bar
+  // (--dp-lang-bar, ~76px, zIndex 1500) so its lower half is never trapped
+  // behind the bar — otherwise real clicks land on the bar, not the FAB.
+  const LANG_BAR = "var(--dp-lang-bar, 0px)";
+  const fabBaseXs = layout === "client" ? 108 : 24;
+  const fabBaseMd = 24;
+  const fabBottom = {
+    xs: `calc(${LANG_BAR} + ${fabBaseXs}px)`,
+    md: `calc(${LANG_BAR} + ${fabBaseMd}px)`,
+  };
 
   // F1: Hide the floating FAB while any blocking MUI Dialog / Modal is open
   // (onboarding wizard, promo, delete confirms, etc.). We watch for the
@@ -427,6 +436,12 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     const rightPx = 16;
     let raf = 0;
     let clearTimer: ReturnType<typeof setTimeout> | null = null;
+    // S1.2 (iter_83): on mobile the FAB tucks off-screen when an interactive
+    // element sits beneath it — but if that state persists AT REST the user has
+    // no way to open support chat. So on mobile we only tuck WHILE actively
+    // scrolling and always reveal the FAB once scrolling stops.
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+    let isScrolling = false;
 
     const insideChat = (node: Element | null): boolean => {
       let el: Element | null = node;
@@ -496,7 +511,18 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         const desktop = vw > 900;
-        const bottomPx = (!desktop && layout === "client") ? 108 : 24;
+        // Mobile: never tuck the FAB away while at rest — otherwise a bottom
+        // interactive element hides the chat launcher with no way back.
+        if (!desktop && !isScrolling) {
+          applyOcclusion(false);
+          return;
+        }
+        // Also lift the probe rect above the language-onboarding bar so the
+        // occlusion check samples where the FAB actually is.
+        const langBarPx = parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue("--dp-lang-bar")
+        ) || 0;
+        const bottomPx = ((!desktop && layout === "client") ? 108 : 24) + langBarPx;
         // FAB square bounding box in viewport
         const leftEdge = vw - rightPx - FAB_SIZE;
         const rightEdge = vw - rightPx;
@@ -529,17 +555,28 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
       if (raf) return;
       raf = window.requestAnimationFrame(check);
     };
+    // Track active scrolling so the mobile reveal-at-rest logic above works.
+    const onScroll = () => {
+      isScrolling = true;
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        isScrolling = false;
+        schedule(); // re-check → mobile FAB comes back once scrolling stops
+      }, 900);
+      schedule();
+    };
     schedule();
-    window.addEventListener("scroll", schedule, { passive: true, capture: true });
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
     window.addEventListener("resize", schedule);
     const obs = new MutationObserver(schedule);
     obs.observe(document.body, { childList: true, subtree: true });
     return () => {
-      window.removeEventListener("scroll", schedule, { capture: true } as any);
+      window.removeEventListener("scroll", onScroll, { capture: true } as any);
       window.removeEventListener("resize", schedule);
       obs.disconnect();
       if (raf) window.cancelAnimationFrame(raf);
       if (clearTimer) clearTimeout(clearTimer);
+      if (idleTimer) clearTimeout(idleTimer);
     };
   }, [open, layout]);
 
@@ -589,7 +626,10 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
           data-testid="support-chat-panel"
           sx={{
             position: "fixed",
-            bottom: { xs: `calc(${typeof fabBottom.xs === "number" ? fabBottom.xs : 20}px + 68px)`, md: "calc(24px + 68px)" },
+            bottom: {
+              xs: `calc(${LANG_BAR} + ${fabBaseXs}px + 68px)`,
+              md: `calc(${LANG_BAR} + ${fabBaseMd}px + 68px)`,
+            },
             right: { xs: 12, md: 24 },
             width: { xs: "calc(100vw - 24px)", sm: 384 },
             maxWidth: 384,
@@ -1045,7 +1085,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             position: "fixed",
             bottom: fabBottom,
             right: { xs: 16, md: 24 },
-            zIndex: 1451,
+            zIndex: 1501,
             width: 56,
             height: 56,
             borderRadius: "50%",

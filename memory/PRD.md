@@ -1,3 +1,40 @@
+# BUGFIX (2026-06 fork: dynopay-setup-4) — Landing CTA audit final blocker: support-chat FAB — DONE (testing-agent iteration_84 = 100%)
+
+Preview: https://dynopay-setup-4.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
+
+Closed the last open item from the landing/marketing CTA audit (iter_82 = 60+ CTAs OK; iter_83 flagged one HIGH + one MEDIUM).
+
+S1.1 (HIGH) — the floating support-chat FAB was TRAPPED behind the bottom language-onboarding bar
+(shown to logged-OUT visitors; fixed full-width, zIndex 1500, ~76px tall). The FAB (bottom:24px,
+zIndex 1451) had its lower half inside the bar → real/Playwright clicks hit the bar
+("intercepts pointer events") on /, /fees, /documentation. FIX (Components/Common/SupportChatWidget/index.tsx):
+FAB + chat-panel `bottom` now = calc(var(--dp-lang-bar,0px) + base) so they lift above the bar; the
+occlusion probe adds the --dp-lang-bar px; FAB zIndex bumped 1451→1501 (defensive, above the bar).
+Components/Layout/ScrollToTopButton.tsx desktop bottom 96→calc(var(--dp-lang-bar,0px)+96px) so it stays
+above the lifted FAB.
+
+S1.2 (MEDIUM) — mobile FAB could tuck off-screen (aria-hidden) with no way back. FIX: mobile occlusion
+now only tucks WHILE actively scrolling (isScrolling flag + 900ms idle timer); at rest the FAB always
+reveals.
+
+VERIFIED (testing_agent iteration_84, frontend-only, anonymous with localStorage cleared so the language
+bar renders): 6/6 — normal click on [data-testid=support-chat-button] opens [data-testid=support-chat-panel]
+with the language bar VISIBLE on /, /fees, /documentation at 1920x1080 AND 390x844; scroll-to-top sits
+above the FAB with zero overlap and is clickable; mobile FAB reveals ~2s after scroll stops and opens the
+panel. Frontend tsc EXIT 0. (Testing agent added data-testid="scroll-to-top-button" — harmless test-scope.)
+
+OPEN (cosmetic, flagged not fixed): on mobile the scroll-to-top arrow overlaps the OPEN chat panel's
+send-button row — optional hide/offset while the mobile chat panel is open.
+
+POLICY DELIVERED (no code) — $500 fee-free abuse: recommend making the allowance per VERIFIED
+merchant/business lifetime (not per account), tied to payout wallet + verified email/phone (+ Veriff KYC
+over a threshold), progressive unlock, flag-not-block duplicates, Terms copy update. Awaiting user pick on
+build scope (advice-only / simple wallet+email cap / full).
+
+---
+
+
+
 # FEATURES (2026-06 fork) — Refund receipt emails + amount presets — DONE
 
 ## Refund Amount Presets (frontend) — DONE (screenshot-verified)

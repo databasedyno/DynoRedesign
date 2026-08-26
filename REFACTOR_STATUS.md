@@ -682,12 +682,9 @@ then validate with a small live amount before general availability.
 # ============================================================================
 
 ## S1. Landing/marketing CTA audit — final blocker (from testing iteration_83)
-# CONTEXT: full CTA audit done (iter_82 = 100% of 60+ CTAs work on the correct
-# preview URL). iter_83 verified the scroll-to-top vs chat-FAB overlap + the
-# duplicate /documentation back-to-top are FIXED, but found ONE remaining HIGH
-# blocker:
+# STATUS: DONE & VERIFIED (testing_agent iteration_84 = 100%).
 #
-# ### S1.1 [~] HIGH — support-chat FAB unclickable behind the language bar
+# ### S1.1 [x] HIGH — support-chat FAB unclickable behind the language bar — FIXED
 #   ROOT CAUSE (iter_83 rca): the SupportChatWidget FAB is fixed at bottom:24px
 #   with zIndex 1451; the LanguageOnboardingBar (shown to logged-OUT visitors) is
 #   fixed full-width at the bottom, height ~76px (--dp-lang-bar), zIndex 1500.
@@ -712,10 +709,20 @@ then validate with a small live amount before general availability.
 #   [data-testid=support-chat-button] opens the panel on /, /fees, /documentation
 #   at 1920x1080 and 390x844. Re-run frontend testing agent.
 #
-# ### S1.2 [ ] MEDIUM — mobile FAB "occluding" state can hide with no re-entry
+# ### S1.2 [x] MEDIUM — mobile FAB "occluding" state can hide with no re-entry — FIXED
 #   iter_83: in one mobile run the FAB was in occluding state (translateX(96px),
 #   aria-hidden, off-screen) leaving no way to open support chat while it persists.
-#   Intentional per code, but review a reveal-on-scroll-stop fallback. Lower prio.
+#   FIX: mobile occlusion now only tucks the FAB WHILE actively scrolling
+#   (isScrolling flag + 900ms idle timer); at rest the FAB always reveals.
+#   VERIFIED iteration_84: mobile FAB returns on-screen ~2s after scroll stops and
+#   a normal click opens the panel on / and /fees.
+#
+#   HARDENING (iter_84 review): FAB zIndex bumped 1451 → 1501 (above the bar's
+#   1500) so a future bar-height change can't reintroduce the interception.
+#
+#   OPTIONAL COSMETIC (iter_84, NOT done — flagged to user): on mobile the
+#   scroll-to-top arrow visually sits over the OPEN chat panel's send-button row.
+#   Fix = hide/offset ScrollToTopButton while the mobile chat panel is open.
 
 ## S2. $500 fee-free allowance abuse — recommendation (product policy)
 # USER Q: "what if a user makes a new account every time they hit $500? it hampers

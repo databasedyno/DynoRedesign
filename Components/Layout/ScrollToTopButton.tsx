@@ -41,8 +41,11 @@ const ScrollToTopButton = () => {
         position: "fixed",
         // Sit ABOVE the support-chat FAB (bottom-right, ~56px) instead of on
         // top of it — otherwise this button swallows clicks meant for the chat
-        // FAB once the page is scrolled. On mobile also clear the language bar.
-        bottom: isMobile ? "calc(var(--dp-lang-bar, 0px) + 88px)" : 96,
+        // FAB once the page is scrolled. Clear the language bar on both mobile
+        // and desktop so it stays above the lifted FAB when the bar is visible.
+        bottom: isMobile
+          ? "calc(var(--dp-lang-bar, 0px) + 88px)"
+          : "calc(var(--dp-lang-bar, 0px) + 96px)",
         right: isMobile ? 16 : 24,
         zIndex: (theme) => theme.zIndex.tooltip + 1,
         transition: "opacity 0.3s ease, transform 0.3s ease",
@@ -51,6 +54,7 @@ const ScrollToTopButton = () => {
       <IconButton
         onClick={scrollToTop}
         aria-label="Scroll to top"
+        data-testid="scroll-to-top-button"
         sx={{
           backgroundColor: theme.palette.primary.main,
           color: theme.palette.common.white,

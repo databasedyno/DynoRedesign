@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only verification of iteration_83 floating-UI fixes (S1.1, S1.1b, S1.2) on DynoPay marketing pages. With the language-onboarding-bar VISIBLE (localStorage cleared, logged out, --dp-lang-bar computed as 76px confirmed on every page), a NORMAL Playwright click on [data-testid=support-chat-button] after scrolling 900px succeeded and [data-testid=support-chat-panel] opened on /, /fees and /documentation at BOTH 1920x1080 and 390x844 — 6/6 PASS, no 'language-onboarding-bar intercepts pointer events' errors. document.elementFromPoint at the FAB centre resolved to the chat icon (ChatRoundedIcon) in all 6 cases, proving the FAB is now the topmost element at its hit area. S1.1b: scroll-to-top button sits fully ABOVE the FAB with zero geometric overlap (desktop 1856,868 40x40 vs FAB 1840,924 56x56; mobile 334,640 vs FAB 318,688) and its normal click succeeded on all 6 runs. S1.2 (mobile): during active scrolling the FAB does tuck off-screen/aria-hidden=true (intentional), but after ~2s at rest it returned to x=318,y=688 fully on-screen, aria-hidden=false, transform=none, opacity=1 and a normal click opened the panel on both / and /fees.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Mobile 390x844 — support chat panel open", "issues": ["Cosmetic only: the scroll-to-top up-arrow (bottom-right, ~y640) visually sits directly over the open chat panel's message-input/send-button row, so the arrow and the send icon appear stacked. It does not block the FAB click, but consider hiding the scroll-to-top button while the chat panel is open on mobile."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": ["Optional cosmetic: hide/offset ScrollToTopButton while the mobile support-chat panel is open so it does not sit on the panel's send-button row."],
+  "critical_code_review_comments": [
+    "SupportChatWidget FAB still uses zIndex 1451 which is BELOW the language bar's 1500; the fix works only because the FAB's bottom offset now clears the 76px bar via calc(var(--dp-lang-bar,0px) + base). If the bar's height ever changes without updating --dp-lang-bar (it is hardcoded to 76px in LanguageOnboardingBar), the interception regression returns. Safer to also raise the FAB zIndex above 1500.",
+    "ScrollToTopButton had no data-testid; I added data-testid=\"scroll-to-top-button\" (test-scope change) so future automation can target it reliably."
+  ],
+  "updated_files": ["/app/Components/Layout/ScrollToTopButton.tsx"],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (6/6 FAB click+panel open with lang bar visible; 6/6 scroll-to-top clickable & non-overlapping; 2/2 mobile at-rest reveal)"},
+  "seed_data_creation": "None — anonymous marketing pages, localStorage cleared before each load.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "S1.1/S1.1b/S1.2 from iteration_83 are VERIFIED FIXED. Reproduction recipe: goto '/', localStorage.clear(), goto target path, wait_until='domcontentloaded' + 9s (networkidle never settles due to crypto ticker), assert [data-testid=language-onboarding-bar] visible and --dp-lang-bar == '76px', wheel 900px, wait 2.5s, then normal click [data-testid=support-chat-button]. Mobile FAB is intentionally aria-hidden while scrolling; always wait ~2s at rest before asserting. Added data-testid=scroll-to-top-button.",
+  "rca_of_the_issue": "Original blocker: FAB zIndex 1451 < language bar zIndex 1500 AND the FAB's bottom offset ignored the 76px bar, so the bar covered the FAB hit area. Fix (bottom: calc(var(--dp-lang-bar,0px) + base) on both FAB and panel, plus mobile tuck limited to active scrolling with a 900ms idle reveal) verified effective; hit-testing now resolves to the chat icon."
+}
