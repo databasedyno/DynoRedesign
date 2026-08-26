@@ -102,21 +102,28 @@
   "v3": {
     "hero": {
       "eyebrow": "Dynopay · Nu in publieke bèta",
-      "headline1": "Krijg betaald in crypto.",
-      "headlineHighlight": "Op elke manier",
-      "headline2": "die je verkoopt.",
-      "body": "Eén wallet voor verkopers, creators, fondsenwervers en developers. Winkels, fooien, campagnes en een strakke API — alles afgerekend in de munt die jij kiest, vanaf <b>0,5%</b>.",
+      "headline1": "Accepteer cryptobetalingen.",
+      "headlineHighlight": "Ontvang",
+      "headline2": "in stablecoin.",
+      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout of betaallink. Elke betaling <b>wordt automatisch omgezet naar USDC of USDT</b> en aan jou uitbetaald — geen volatiliteit, geen terugboekingen, vanaf <b>0,5%</b>.",
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
-      "bullets": "Gratis te starten · Geen kaart · 15+ chains",
-      "trustLine": "Non-custodial · SOC 2 in voorbereiding · GDPR / AML",
+      "bullets": "Gratis starten · Geen kaart · 15+ netwerken",
+      "trustLine": "Non-custodial · Versleuteld · AVG / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Stuur een tip",
       "sendTipBtn": "Stuur tip",
-      "metaSettle": "Staat in ~4s in <b>je wallet</b> · vanaf <b>1,5%</b>",
+      "metaSettle": "Uitbetaald in <b>USDC</b> · vanaf <b>0,5%</b>",
       "handleAvailable": "is beschikbaar",
-      "handleTaken": "Die naam is niet beschikbaar — probeer een andere."
+      "handleTaken": "Die naam is niet beschikbaar — probeer een andere.",
+      "primaryCta": "Begin met betalingen ontvangen",
+      "secondaryCta": "Hoe het werkt",
+      "creatorLink": "Ben je maker? <s>Claim je @handle →</s>",
+      "demoLabel": "Live demo",
+      "demoCheckout": "Veilige checkout",
+      "amountDueLabel": "Te betalen",
+      "payBtn": "Betalen"
     },
     "story": {
       "eyebrow": "[ Hoe het werkt ]",
@@ -155,21 +162,26 @@
       }
     },
     "numbers": {
-      "eyebrow": "[ Cijfers & Vertrouwen ]",
-      "headline": "Kleine fees. Grote beweging.",
-      "body": "Non-custodial by design. Compliant by choice. Snel omdat het zo geschreven is.",
+      "eyebrow": "[ Waarom men ons vertrouwt ]",
+      "headline": "Lage kosten. Geen terugboekingen. Jouw keys.",
+      "body": "Non-custodial van opzet, compliant uit keuze — elke betaling wordt uitbetaald in de stablecoin die jij kiest.",
       "settledLabel": "Vereffend",
       "settledSub": "Sinds de lancering",
-      "chainsLabel": "Chains",
-      "chainsSub": "BTC, ETH, TRON, XRP, SOL",
-      "feeLabel": "Laagste fee",
-      "feeSub": "Bij Enterprise-volume",
+      "chainsLabel": "Netwerken",
+      "chainsSub": "BTC · ETH · USDT · USDC…",
+      "feeLabel": "Laagste tarief",
+      "feeSub": "naarmate je groeit",
       "settleLabel": "Mediane vereffening",
       "settleSub": "On-chain bevestiging",
       "badgeSOC2": "SOC2 in voorbereiding",
       "badgeKYC": "KYC / AML",
-      "badgeGDPR": "GDPR",
-      "badgeNonCustodial": "Non-custodial"
+      "badgeGDPR": "AVG",
+      "badgeNonCustodial": "Non-custodial",
+      "chargebacksLabel": "Terugboekingen",
+      "chargebacksSub": "crypto is definitief",
+      "alwaysOnLabel": "Altijd actief",
+      "alwaysOnSub": "geen banktijden",
+      "badgeEncrypted": "Versleuteld"
     },
     "features": {
       "eyebrow": "[ Wat zit erin ]",
@@ -215,7 +227,8 @@
         "tag": "01 · Merchants",
         "title": "Verkoop producten in crypto.",
         "desc": "Gehoste checkout, productcatalogus en facturen. Automatisch omzetten of de originele munt behouden.",
-        "statLabel": "fees terwijl je groeit"
+        "statLabel": "fees terwijl je groeit",
+        "startHere": "Begin hier"
       },
       "fundraisers": {
         "tag": "02 · Fundraisers",
@@ -245,19 +258,19 @@
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
       "getStarted": "Gratis starten",
       "readDocs": "Lees de docs",
-      "trustLine": "Non-custodial · 15+ chains · SOC2 in voorbereiding · GDPR / AML"
+      "trustLine": "Non-custodial · 15+ netwerken · Versleuteld · AVG / AML"
     },
     "faq": {
       "eyebrow": "[ Antwoorden ]",
       "headline": "Veelgestelde vragen.",
       "q1": "Moet ik crypto bezitten om het te accepteren?",
-      "a1": "Nee. Kopers betalen in 15+ ondersteunde coins, en Dynopay kan automatisch converteren naar USDC of USDT en vereffenen op je wallet in seconden. Je raakt nooit een crypto-exchange aan.",
+      "a1": "Nee. Kopers betalen in een van de 15+ ondersteunde munten, en Dynopay kan automatisch omzetten naar USDC of USDT en uitbetalen naar je wallet zodra de betaling on-chain is bevestigd. Je komt nooit bij een exchange.",
       "q2": "Waar landen de fondsen?",
       "a2": "Direct op een wallet-adres dat jij beheert — niet door ons gehouden. Dynopay is non-custodial. Elke vereffening is een echte on-chain transfer naar jouw adres.",
       "q3": "Wat kost het?",
       "a3": "Tussen 1,5% (Starter) en 0,5% (Enterprise), gebaseerd op 30-daags volume. Geen maandelijkse kosten, geen setup-fee, geen chargebacks. Zie de Tarieven-pagina voor de volledige tier-tabel.",
       "q4": "Hoe snel is de vereffening?",
-      "a4": "Mediaan 4,2 seconden voor stablecoin-rails (TRC-20, ERC-20 L2s) en minder dan een minuut voor BTC/ETH mainnet-bevestigingen bij onze drempel. Je dashboard toont live TX-status.",
+      "a4": "Dat hangt af van het netwerk. Stablecoin-rails en snelle chains (TRC-20, Polygon, L2's) bevestigen meestal binnen een minuut of twee; Bitcoin en Ethereum op mainnet kunnen langer duren bij drukte. Je dashboard toont de transactiestatus live, en het geld wordt omgezet naar de door jou gekozen stablecoin zodra de betaling is bevestigd.",
       "q5": "Ondersteunen jullie fiat, refunds of abonnementen?",
       "a5": "Refunds, ja — on-chain terugboekingen met één klik die het geld rechtstreeks terugsturen naar het adres van de koper. Fiat-kaarten of automatische terugkerende abonnementen bieden we vandaag niet aan: elke betaling is een directe, eenmalige crypto-betaling naar een wallet die jij beheert, met optionele auto-conversie naar USDC of USDT. Terugkerende betaling nodig? Deel gewoon dezelfde link opnieuw.",
       "stillCurious": "Nog steeds nieuwsgierig?",
@@ -290,6 +303,19 @@
     },
     "footer": {
       "systemsOperational": "Alle systemen operationeel"
+    },
+    "howitworks": {
+      "eyebrow": "[ Klaar in minuten ]",
+      "headline": "Van aanmelden tot je eerste betaling.",
+      "body": "Geen crypto-ervaring nodig. Drie stappen en je ontvangt betalingen die direct in stablecoin worden uitbetaald.",
+      "stepLabel": "Stap",
+      "step1title": "Maak je gratis account",
+      "step1desc": "Meld je aan in een minuut — geen kaart, geen cryptokennis nodig.",
+      "step2title": "Deel een link of voeg checkout toe",
+      "step2desc": "Stuur een betaallink of plaats onze gehoste checkout op je site of winkel.",
+      "step3title": "Word betaald in stablecoin",
+      "step3desc": "Elke betaling wordt automatisch omgezet naar USDC of USDT en direct aan jou uitbetaald.",
+      "cta": "Begin met betalingen ontvangen"
     }
   },
   "checkout": {

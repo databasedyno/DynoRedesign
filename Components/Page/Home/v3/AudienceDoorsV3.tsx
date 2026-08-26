@@ -19,10 +19,10 @@ const AudienceDoorsV3: React.FC = () => {
   const { t } = useTranslation("landing");
 
   const DOORS = [
-    { key: "merchant", icon: StorefrontRoundedIcon, tag: t("v3.audience.merchants.tag"), title: t("v3.audience.merchants.title"), desc: t("v3.audience.merchants.desc"), href: "/for/merchants", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: "1.5→  0.5%", statLabel: t("v3.audience.merchants.statLabel") },
-    { key: "fundraiser", icon: VolunteerActivismRoundedIcon, tag: t("v3.audience.fundraisers.tag"), title: t("v3.audience.fundraisers.title"), desc: t("v3.audience.fundraisers.desc"), href: "/for/fundraisers", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: t("v3.audience.fundraisers.stat"), statLabel: t("v3.audience.fundraisers.statLabel") },
-    { key: "creator", icon: FavoriteBorderRoundedIcon, tag: t("v3.audience.creators.tag"), title: t("v3.audience.creators.title"), desc: t("v3.audience.creators.desc"), href: "/for/creators", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: "~4s", statLabel: t("v3.audience.creators.statLabel") },
-    { key: "developer", icon: TerminalRoundedIcon, tag: t("v3.audience.developers.tag"), title: t("v3.audience.developers.title"), desc: t("v3.audience.developers.desc"), href: "/documentation", bg: "#0A0A0A", accent: BRAND_ACCENT, accentDeep: "#6366F1", ink: "#F5F5F5", stat: "~10 min", statLabel: t("v3.audience.developers.statLabel") },
+    { key: "merchant", featured: true, dark: true, icon: StorefrontRoundedIcon, tag: t("v3.audience.merchants.tag"), title: t("v3.audience.merchants.title"), desc: t("v3.audience.merchants.desc"), href: "/for/merchants", bg: "linear-gradient(160deg, #4F46E5 0%, #4338CA 100%)", accent: "#FFFFFF", accentDeep: "#C7D2FE", ink: "#FFFFFF", stat: "1.5→  0.5%", statLabel: t("v3.audience.merchants.statLabel") },
+    { key: "fundraiser", featured: false, dark: false, icon: VolunteerActivismRoundedIcon, tag: t("v3.audience.fundraisers.tag"), title: t("v3.audience.fundraisers.title"), desc: t("v3.audience.fundraisers.desc"), href: "/for/fundraisers", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: t("v3.audience.fundraisers.stat"), statLabel: t("v3.audience.fundraisers.statLabel") },
+    { key: "creator", featured: false, dark: false, icon: FavoriteBorderRoundedIcon, tag: t("v3.audience.creators.tag"), title: t("v3.audience.creators.title"), desc: t("v3.audience.creators.desc"), href: "/for/creators", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: "~4s", statLabel: t("v3.audience.creators.statLabel") },
+    { key: "developer", featured: false, dark: true, icon: TerminalRoundedIcon, tag: t("v3.audience.developers.tag"), title: t("v3.audience.developers.title"), desc: t("v3.audience.developers.desc"), href: "/documentation", bg: "#0A0A0A", accent: BRAND_ACCENT, accentDeep: "#6366F1", ink: "#F5F5F5", stat: "~10 min", statLabel: t("v3.audience.developers.statLabel") },
   ];
 
   return (
@@ -63,6 +63,7 @@ const AudienceDoorsV3: React.FC = () => {
                   onClick={() => router.push(d.href)}
                   role="button"
                   tabIndex={0}
+                  data-testid={`audience-door-${d.key}`}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") router.push(d.href);
                   }}
@@ -78,11 +79,12 @@ const AudienceDoorsV3: React.FC = () => {
                     flexDirection: "column",
                     justifyContent: "space-between",
                     overflow: "hidden",
-                    border: `1px solid ${d.bg === "#0A0A0A" ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.06)"}`,
+                    border: `1px solid ${d.dark ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.06)"}`,
+                    boxShadow: d.featured ? `0 26px 60px -30px ${d.accent === "#FFFFFF" ? "rgba(79,70,229,0.85)" : d.accent}` : "none",
                     transition: "transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease",
                     "&:hover": {
                       transform: "translateY(-4px)",
-                      boxShadow: `0 30px 60px -30px ${d.accent}66`,
+                      boxShadow: `0 30px 60px -30px ${d.featured ? "rgba(79,70,229,0.9)" : `${d.accent}66`}`,
                     },
                     "&:hover .go-arrow": {
                       transform: "translate(4px,-4px)",
@@ -100,10 +102,30 @@ const AudienceDoorsV3: React.FC = () => {
                       height: 240,
                       borderRadius: "50%",
                       background: d.accent,
-                      opacity: 0.07,
+                      opacity: d.featured ? 0.14 : 0.07,
                       filter: "blur(30px)",
                     }}
                   />
+                  {/* Featured ribbon — pulls the "I want to get paid" visitor in first */}
+                  {d.featured && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 16,
+                        right: 16,
+                        px: 1.25,
+                        py: 0.4,
+                        borderRadius: "999px",
+                        background: "rgba(255,255,255,0.16)",
+                        border: "1px solid rgba(255,255,255,0.35)",
+                        zIndex: 2,
+                      }}
+                    >
+                      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10, fontWeight: 600, color: "#FFFFFF", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                        {t("v3.audience.merchants.startHere")}
+                      </Typography>
+                    </Box>
+                  )}
                   <Box sx={{ position: "relative", zIndex: 1 }}>
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3.5 }}>
                       <Box
@@ -111,12 +133,12 @@ const AudienceDoorsV3: React.FC = () => {
                           width: 44,
                           height: 44,
                           borderRadius: "12px",
-                          background: d.bg === "#0A0A0A" ? "rgba(79, 70, 229,0.12)" : "#fff",
-                          border: `1px solid ${d.bg === "#0A0A0A" ? "rgba(79, 70, 229,0.35)" : "rgba(10,10,10,0.08)"}`,
+                          background: d.dark ? "rgba(255,255,255,0.12)" : "#fff",
+                          border: `1px solid ${d.dark ? "rgba(255,255,255,0.28)" : "rgba(10,10,10,0.08)"}`,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          color: d.accent,
+                          color: d.dark ? "#FFFFFF" : d.accent,
                         }}
                       >
                         <Icon sx={{ fontSize: 22 }} />
@@ -127,8 +149,8 @@ const AudienceDoorsV3: React.FC = () => {
                           width: 36,
                           height: 36,
                           borderRadius: "50%",
-                          background: d.bg === "#0A0A0A" ? BRAND_ACCENT : "#0A0A0A",
-                          color: d.bg === "#0A0A0A" ? "#0A0A0A" : "#fff",
+                          background: d.dark ? "#FFFFFF" : "#0A0A0A",
+                          color: d.dark ? "#0A0A0A" : "#fff",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -144,16 +166,16 @@ const AudienceDoorsV3: React.FC = () => {
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 22, md: 24 }, lineHeight: 1.1, letterSpacing: "-0.02em", color: d.ink, mb: 1.5 }}>
                       {d.title}
                     </Typography>
-                    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.55, color: d.bg === "#0A0A0A" ? "rgba(255,255,255,0.7)" : "#3F3F46" }}>
+                    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.55, color: d.dark ? "rgba(255,255,255,0.75)" : "#3F3F46" }}>
                       {d.desc}
                     </Typography>
                   </Box>
 
-                  <Box sx={{ position: "relative", zIndex: 1, mt: 3, pt: 2, borderTop: `1px dashed ${d.bg === "#0A0A0A" ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.10)"}` }}>
+                  <Box sx={{ position: "relative", zIndex: 1, mt: 3, pt: 2, borderTop: `1px dashed ${d.dark ? "rgba(255,255,255,0.18)" : "rgba(10,10,10,0.10)"}` }}>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 22, letterSpacing: "-0.02em", color: d.accent, lineHeight: 1 }}>
                       {d.stat}
                     </Typography>
-                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: d.bg === "#0A0A0A" ? "rgba(255,255,255,0.5)" : "#71717A", mt: 0.5, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: d.dark ? "rgba(255,255,255,0.6)" : "#71717A", mt: 0.5, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                       {d.statLabel}
                     </Typography>
                   </Box>

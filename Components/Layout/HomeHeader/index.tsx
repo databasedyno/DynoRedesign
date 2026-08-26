@@ -576,7 +576,7 @@ const HomeHeader = memo(function HomeHeader() {
             </MobileLanguageWrapper>
 
             <MobileTrustBadges>
-              <TrustPill>SOC 2</TrustPill>
+              <TrustPill>Encrypted</TrustPill>
               <TrustPill>GDPR</TrustPill>
               <TrustPill>Non-custodial</TrustPill>
               <TrustPill>● Live</TrustPill>

@@ -15,6 +15,8 @@ interface Stat {
   suffix?: string;
   prefix?: string;
   decimals?: number;
+  /** When set, renders this string verbatim instead of the CountUp number. */
+  display?: string;
   label: string;
   sub: string;
   color: string;
@@ -62,14 +64,14 @@ const NumbersTrustBand: React.FC = () => {
   const { t } = useTranslation("landing");
 
   const STATS: Stat[] = [
-    { value: 42, suffix: "M+", prefix: "$", label: t("v3.numbers.settledLabel"), sub: t("v3.numbers.settledSub"), color: BRAND_ACCENT },
-    { value: 15, suffix: "+", label: t("v3.numbers.chainsLabel"), sub: t("v3.numbers.chainsSub"), color: BRAND_ACCENT },
     { value: 0.5, suffix: "%", decimals: 1, label: t("v3.numbers.feeLabel"), sub: t("v3.numbers.feeSub"), color: BRAND_ACCENT },
-    { value: 4.2, suffix: "s", decimals: 1, label: t("v3.numbers.settleLabel"), sub: t("v3.numbers.settleSub"), color: BRAND_ACCENT },
+    { value: 15, suffix: "+", label: t("v3.numbers.chainsLabel"), sub: t("v3.numbers.chainsSub"), color: BRAND_ACCENT },
+    { value: 0, display: "0", label: t("v3.numbers.chargebacksLabel"), sub: t("v3.numbers.chargebacksSub"), color: BRAND_ACCENT },
+    { value: 0, display: "24/7", label: t("v3.numbers.alwaysOnLabel"), sub: t("v3.numbers.alwaysOnSub"), color: BRAND_ACCENT },
   ];
 
   const BADGES = [
-    { icon: SecurityRoundedIcon, label: t("v3.numbers.badgeSOC2"), ink: "#0A0A0A" },
+    { icon: SecurityRoundedIcon, label: t("v3.numbers.badgeEncrypted"), ink: "#0A0A0A" },
     { icon: VerifiedUserRoundedIcon, label: t("v3.numbers.badgeKYC"), ink: "#0A0A0A" },
     { icon: GavelRoundedIcon, label: t("v3.numbers.badgeGDPR"), ink: "#0A0A0A" },
     { icon: PolicyRoundedIcon, label: t("v3.numbers.badgeNonCustodial"), ink: "#0A0A0A" },
@@ -148,7 +150,7 @@ const NumbersTrustBand: React.FC = () => {
                   }}
                 >
                   {stat.prefix}
-                  <CountUp end={stat.value} decimals={stat.decimals} />
+                  {stat.display != null ? stat.display : <CountUp end={stat.value} decimals={stat.decimals} />}
                   {stat.suffix}
                 </Typography>
                 <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: 15, color: s.ink, mt: 1.5 }}>

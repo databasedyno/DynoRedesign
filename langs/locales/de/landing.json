@@ -102,21 +102,28 @@
   "v3": {
     "hero": {
       "eyebrow": "Dynopay · Jetzt in der öffentlichen Beta",
-      "headline1": "Werde in Krypto bezahlt.",
-      "headlineHighlight": "Egal wie",
-      "headline2": "du verkaufst.",
-      "body": "Eine Wallet für Händler, Creator, Fundraiser und Entwickler. Shops, Trinkgelder, Kampagnen und eine saubere API – alles in der Coin deiner Wahl abgerechnet, ab <b>0,5 %</b>.",
+      "headline1": "Krypto-Zahlungen annehmen.",
+      "headlineHighlight": "Ausgezahlt",
+      "headline2": "in Stablecoin.",
+      "body": "Nimm Bitcoin, Ethereum und Stablecoins über ein gehostetes Checkout oder einen Zahlungslink an. Jede Zahlung <b>wird automatisch in USDC oder USDT umgewandelt</b> und an dich ausgezahlt — ohne Volatilität, ohne Rückbuchungen, ab <b>0,5 %</b>.",
       "claimBtn": "Sichern",
       "chooseHandle": "Wähle deinen Creator-Handle",
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
-      "bullets": "Kostenlos starten · Keine Karte · Über 15 Chains",
-      "trustLine": "Non-custodial · SOC 2 in Vorbereitung · DSGVO / AML",
+      "bullets": "Kostenlos starten · Ohne Karte · 15+ Netzwerke",
+      "trustLine": "Nicht verwahrend · Verschlüsselt · DSGVO / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Tip senden",
       "sendTipBtn": "Tip senden",
-      "metaSettle": "Landet in ~4s in <b>deiner Wallet</b> · ab <b>1,5 %</b>",
+      "metaSettle": "Auszahlung in <b>USDC</b> · ab <b>0,5 %</b>",
       "handleAvailable": "ist verfügbar",
-      "handleTaken": "Dieser Handle ist nicht verfügbar — versuchen Sie einen anderen."
+      "handleTaken": "Dieser Handle ist nicht verfügbar — versuchen Sie einen anderen.",
+      "primaryCta": "Zahlungen annehmen",
+      "secondaryCta": "So funktioniert's",
+      "creatorLink": "Creator? <s>Sichere dir dein @handle →</s>",
+      "demoLabel": "Live-Demo",
+      "demoCheckout": "Sicheres Checkout",
+      "amountDueLabel": "Fälliger Betrag",
+      "payBtn": "Bezahlen"
     },
     "story": {
       "eyebrow": "[ So funktioniert's ]",
@@ -155,21 +162,26 @@
       }
     },
     "numbers": {
-      "eyebrow": "[ Zahlen & Vertrauen ]",
-      "headline": "Kleine Gebühren. Große Bewegung.",
-      "body": "Non-custodial by design. Compliant by choice. Schnell, weil so geschrieben.",
+      "eyebrow": "[ Warum man uns vertraut ]",
+      "headline": "Niedrige Gebühren. Keine Rückbuchungen. Deine Keys.",
+      "body": "Nicht verwahrend by Design, konform aus Überzeugung — jede Zahlung wird in der von dir gewählten Stablecoin ausgezahlt.",
       "settledLabel": "Abgewickelt",
       "settledSub": "Seit dem Start",
-      "chainsLabel": "Chains",
-      "chainsSub": "BTC, ETH, TRON, XRP, SOL",
+      "chainsLabel": "Netzwerke",
+      "chainsSub": "BTC · ETH · USDT · USDC…",
       "feeLabel": "Niedrigste Gebühr",
-      "feeSub": "Bei Enterprise-Volumen",
+      "feeSub": "mit wachsendem Volumen",
       "settleLabel": "Median-Abwicklung",
       "settleSub": "On-chain-Bestätigung",
       "badgeSOC2": "SOC2 in Vorbereitung",
       "badgeKYC": "KYC / AML",
       "badgeGDPR": "DSGVO",
-      "badgeNonCustodial": "Non-custodial"
+      "badgeNonCustodial": "Nicht verwahrend",
+      "chargebacksLabel": "Rückbuchungen",
+      "chargebacksSub": "Krypto ist endgültig",
+      "alwaysOnLabel": "Immer aktiv",
+      "alwaysOnSub": "keine Bankzeiten",
+      "badgeEncrypted": "Verschlüsselt"
     },
     "features": {
       "eyebrow": "[ Was drin ist ]",
@@ -215,7 +227,8 @@
         "tag": "01 · Händler",
         "title": "Verkaufe Produkte in Krypto.",
         "desc": "Gehosteter Checkout, Produktkatalog und Rechnungen. Automatisch umwandeln oder die ursprüngliche Coin behalten.",
-        "statLabel": "Gebühren, während du wächst"
+        "statLabel": "Gebühren, während du wächst",
+        "startHere": "Hier starten"
       },
       "fundraisers": {
         "tag": "02 · Fundraiser",
@@ -245,19 +258,19 @@
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
       "getStarted": "Kostenlos starten",
       "readDocs": "Docs lesen",
-      "trustLine": "Non-custodial · 15+ Chains · SOC2 in Vorbereitung · DSGVO / AML"
+      "trustLine": "Nicht verwahrend · 15+ Netzwerke · Verschlüsselt · DSGVO / AML"
     },
     "faq": {
       "eyebrow": "[ Antworten ]",
       "headline": "Häufige Fragen.",
       "q1": "Muss ich Krypto besitzen, um es zu akzeptieren?",
-      "a1": "Nein. Käufer zahlen in 15+ unterstützten Coins, und Dynopay kann automatisch in USDC oder USDT konvertieren und in Sekunden auf dein Wallet abwickeln. Du berührst nie eine Krypto-Börse.",
+      "a1": "Nein. Käufer zahlen in einer von 15+ unterstützten Coins, und Dynopay kann automatisch in USDC oder USDT umwandeln und auf dein Wallet auszahlen, sobald die Zahlung on-chain bestätigt ist. Du kommst nie mit einer Krypto-Börse in Berührung.",
       "q2": "Wo landen die Mittel?",
       "a2": "Direkt an einer Wallet-Adresse, die du kontrollierst — nicht von uns verwahrt. Dynopay ist non-custodial. Jede Abwicklung ist ein echter on-chain-Transfer an deine Adresse.",
       "q3": "Was kostet es?",
       "a3": "Zwischen 1,5% (Starter) und 0,5% (Enterprise), basierend auf 30-Tage-Volumen. Keine monatliche Gebühr, keine Setup-Gebühr, keine Chargebacks. Siehe die Gebühren-Seite für die vollständige Tier-Tabelle.",
       "q4": "Wie schnell ist die Abwicklung?",
-      "a4": "Median 4,2 Sekunden für Stablecoin-Rails (TRC-20, ERC-20 L2s) und unter einer Minute für BTC/ETH-Mainnet-Bestätigungen bei unserer Schwelle. Dein Dashboard zeigt den Live-TX-Status.",
+      "a4": "Das hängt vom Netzwerk ab. Stablecoin-Rails und schnelle Chains (TRC-20, Polygon, L2s) bestätigen meist in ein bis zwei Minuten; Bitcoin und Ethereum im Mainnet können bei hoher Auslastung länger dauern. Dein Dashboard zeigt den Transaktionsstatus live an, und die Mittel werden in die gewählte Stablecoin umgewandelt, sobald die Zahlung bestätigt ist.",
       "q5": "Unterstützt ihr Fiat, Rückerstattungen oder Abos?",
       "a5": "Rückerstattungen, ja – On-Chain-Umkehrungen mit einem Klick, die die Gelder direkt an die Adresse des Käufers zurücksenden. Fiat-Karten oder automatische wiederkehrende Abos bieten wir derzeit nicht an: Jede Zahlung ist eine direkte, einmalige Krypto-Zahlung an ein Wallet, das du kontrollierst – mit optionaler Auto-Konvertierung in USDC oder USDT. Wiederkehrende Zahlung nötig? Teile einfach denselben Link erneut.",
       "stillCurious": "Noch neugierig?",
@@ -290,6 +303,19 @@
     },
     "footer": {
       "systemsOperational": "Alle Systeme betriebsbereit"
+    },
+    "howitworks": {
+      "eyebrow": "[ In Minuten startklar ]",
+      "headline": "Von der Anmeldung zur ersten Zahlung.",
+      "body": "Keine Krypto-Erfahrung nötig. Drei Schritte und du nimmst Zahlungen an, die direkt in Stablecoin ausgezahlt werden.",
+      "stepLabel": "Schritt",
+      "step1title": "Kostenloses Konto erstellen",
+      "step1desc": "In einer Minute anmelden — ohne Karte, ohne Krypto-Kenntnisse.",
+      "step2title": "Link teilen oder Checkout einbauen",
+      "step2desc": "Sende einen Zahlungslink oder binde unser gehostetes Checkout in deine Website oder deinen Shop ein.",
+      "step3title": "In Stablecoin bezahlt werden",
+      "step3desc": "Jede Zahlung wird automatisch in USDC oder USDT umgewandelt und direkt an dich ausgezahlt.",
+      "cta": "Zahlungen annehmen"
     }
   },
   "checkout": {

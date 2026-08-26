@@ -1,124 +1,74 @@
-# DynoPay — Extending the Usability Restructuring to Every Public Surface
-### Buyer checkout · creator pages · store · order/receipt · auth & onboarding · landing · support — recommendation for approval
+# Landing page: cleaner + more visitors onboard and start accepting payments
 
----
+## Goal
+Make the homepage cleaner and steer a first-time visitor toward creating an account and
+taking their first payment. The page is already well-structured, but the hero leads with the
+creator "claim your @handle / send a tip" story, so it reads as a tipping demo rather than
+"accept payments here." A visitor who wants to *get paid* doesn't get one obvious path, and a
+few hero claims may need a credibility check.
 
-## Why this plan exists
+## What visitors see today (the relevant parts)
+- **Hero:** left side is a "claim your @handle" text box; right side is an animated creator
+  card with a "Send a tip · $X" button. Both eventually lead to sign-up, but the dominant
+  story on screen is creator tips.
+- A **live crypto price ticker** sits directly under the hero.
+- Below that: four **audience doors** (Merchants / Fundraisers / Creators / Developers), a
+  product-features band, a **stats + compliance-badges** band ("$42M+ settled", "0.5% fee",
+  "4.2s settle", SOC2 / KYC / GDPR / non-custodial), a docs/education band, a short FAQ, and a
+  dark closing call-to-action that repeats a **"First $500 fee-free"** offer.
+- The main sign-up button goes to the register page.
 
-The 6-move usability restructuring just shipped for the merchant app (responsive
-rulebook, side-panels, one story per sale, ⌘K, mobile finish, clarity microcopy,
-light default). Those moves deliberately excluded everything a **buyer, supporter,
-or visitor** touches. This plan closes that gap: the same principles, translated
-for public surfaces — because a checkout page has no sidebar to search and no
-tables to pin, the improvements change shape, not spirit.
+## Proposed changes (recommended scope)
+1. **One clear promise + one primary action in the hero.** Rewrite the hero so the headline
+   plainly says what DynoPay does for someone who wants to get paid (accept crypto, auto-convert
+   to stablecoin, low flat fee, fast settlement) with a single, unmistakable primary button —
+   "Start accepting payments" → sign up. Keep the live example card as a supporting visual that's
+   clearly labelled a demo, not a competing action.
+2. **Add a short "How it works" strip (3 steps),** e.g. 1) Create your free account →
+   2) Share a payment link or drop in the checkout → 3) Get paid and auto-settle to stablecoin.
+   This answers "how do I start?" on the page itself and is a reliable sign-up driver.
+3. **Declutter the hero.** More whitespace, fewer competing elements, and a decision on the
+   crypto price ticker (it gives an "exchange" feel that can distract from "accept payments").
+   Recommendation: move it lower or hide it on the homepage.
+4. **Honesty pass on the numbers and badges.** Confirm which stats and compliance badges are
+   real and defensible; replace any that aren't with honest, verifiable signals. Overstated hero
+   numbers erode trust with exactly the audience we're trying to convert.
+5. **Keep the four audience doors,** but make the "Merchants / accept payments" door the
+   visually primary one so the "I want to get paid" visitor is pulled in first.
+6. **One consistent reward message.** Keep the "First $500 fee-free" hook if it's a real, active
+   offer, and make it say the same thing in the hero and the closing section.
 
-One rule carries over unchanged: **the checkout handles real money on the live
-database — nothing in this plan touches payment logic, amounts, addresses, fees
-or currency math.** Everything here is structure, clarity and touch usability.
+New/changed copy will be kept in sync across the languages the site already supports.
 
----
+## Decisions to confirm or correct
+1. **Who is the #1 person to convert?** Assumed **merchants/sellers who want to accept payments**
+   (that's what "start accepting payment" implies), with creators / fundraisers / developers as
+   secondary doors. If the real growth target is creators/tips, that flips the hero's lead message.
+2. **Are the hero stats real?** "$42M+ settled", "0.5% fee", "4.2s settle", and the
+   SOC2 / KYC / GDPR / non-custodial badges — accurate and defensible today? If any are
+   aspirational, they'll be softened or replaced. (Which are true?)
+3. **Is "First $500 fee-free" live and correct?** Keep as-is, change the amount/terms, or remove?
+4. **The crypto price ticker under the hero** — keep it, move it lower, or hide it on the homepage?
+5. **How far to take it?**
+   - a) *Recommended:* focused conversion pass — hero rewrite + "How it works" + honesty pass.
+      Fastest, lowest risk.
+   - b) That, plus real social proof (customer logos / short testimonials) — needs assets from you.
+   - c) A fuller redesign of every homepage section.
 
-## The surfaces and what each one gets
+## Out of scope (unless requested)
+- Rebuilding the sign-up / onboarding flow itself (this plan drives people to it and makes the
+  first steps clear, but doesn't redesign registration).
+- Pricing, fee logic, or any payment functionality.
+- Legal/compliance page content.
 
-### 1. Buyer checkout (/pay) — the money moment
-Already the strongest page in the product; it gets additive improvements only:
-- **Open in wallet (mobile):** one tap opens the buyer's crypto wallet app with
-  the address and exact amount pre-filled (standard payment URIs — bitcoin:,
-  ethereum:, etc.), next to the existing QR/copy. On desktop nothing changes.
-- **Plain-English status:** while waiting/confirming, one human line under the
-  technical status — "We can see your payment — waiting for network
-  confirmations (usually 5–15 min)" — same tooltip system merchants now have.
-- **Copy honesty:** one-tap copy for amount and address separately, with a
-  clear "copied" response; 44px touch targets on every control.
-- **Scroll honesty:** the currency/network selector rows get the same edge-fade
-  hints as in-app lists — nothing scrollable is invisible anymore.
+## What "done" looks like
+On the first screen, a visitor understands "I can accept crypto payments here and settle to
+stablecoin," sees one obvious button to begin, and can grasp the three steps to their first
+payment — with trust signals that are honest and hold up to scrutiny.
 
-### 2. Creator page + tip flow
-- Tip presets, share controls and link rows: 44px targets, edge fades on any
-  horizontal rows.
-- After a supporter tips: clearer confirmation moment (what happens next, in
-  plain words) — no flow changes.
-- The sticky Support bar fix already shipped; this pass makes the rest match it.
-
-### 3. Public store + cart
-- **Cart becomes a side sheet** that slides over the product grid (same
-  stay-in-context pattern as the merchant panels) instead of a separate page —
-  buyers never lose their place browsing. Old cart URLs keep working.
-- Product grid: consistent card behavior across desktop/tablet/phone, tap-sized
-  quantity controls, edge fades on scrollable option rows.
-
-### 4. Public order/receipt page (order status a buyer revisits)
-- Same plain-English status lines as checkout (paid / confirming / completed /
-  refunded), and a clear "what to do if something looks wrong" line with the
-  merchant contact.
-
-### 5. Auth + onboarding
-- Touch pass: every input/button ≥44px on phones; OAuth buttons consistent.
-- Microcopy: password rules stated before the user fails them; error messages
-  say what to do next, not just what went wrong.
-- Onboarding steps show progress ("Step 2 of 3") and allow going back without
-  losing entered data. No step is added or removed.
-
-### 6. Landing/marketing + Help & Support + public status page
-- These were recently rebuilt, so they get a **consistency pass, not a rework**:
-  tap targets, edge fades on scrollable strips, the light theme verified
-  end-to-end, and naming aligned with the app (one name for the same feature
-  everywhere a visitor and a merchant see it).
-
----
-
-## Explicitly NOT in this plan
-- No changes to payment logic, wallet addresses, amount/fee math, tax, or
-  conversion — anywhere.
-- No new colors, fonts, or component styling — the shipped design system stays.
-- No redesign of landing/auth (recently rebuilt) — consistency only.
-- Email templates and admin pages stay out of scope.
-- All 6 languages preserved; every new label ships translated in all of them.
-
----
-
-## Decisions needed from you
-
-1. **Wallet deep-links on mobile checkout.** This is the one item with real
-   behavior added to the money page (still zero payment-logic change — it only
-   pre-fills the buyer's own wallet app).
-   a. Include it (recommended — biggest buyer win on mobile)
-   b. Skip it; visual/clarity improvements only on /pay
-2. **Store cart as a side sheet.**
-   a. Yes, slide-over cart, old URLs redirect (recommended)
-   b. Keep the separate cart page, only polish it
-3. **Checkout status wording.** The plain-English lines will be shown to real
-   buyers immediately.
-   a. Ship in all 6 languages at once (recommended)
-   b. English first, other languages after you review the tone
-4. **Scope.** Approve all 6 surfaces, or start with a subset? Recommended order
-   if phased: checkout → store/cart → auth/onboarding → creator → order page →
-   landing/support (buyer-money surfaces first).
-
----
-
-## Assumptions (will proceed on these unless you object)
-
-- The preview runs against the **live production database**: verification is
-  read-only — no test payments, no real tips, no orders placed. Checkout states
-  that only appear mid-payment are verified with visual/structural checks, not
-  by moving money.
-- Wallet deep-links use the standard open URI schemes (no third-party SDK, no
-  WalletConnect, no new dependencies).
-- The light theme default that already shipped applies to public pages as-is;
-  this plan only verifies and fixes stragglers.
-- "Same improvements" is interpreted as the principles (context, clarity,
-  touch, scroll honesty) — not literally porting merchant features like ⌘K or
-  bottom tabs onto public pages, which would not make sense for visitors.
-
----
-
-## What you'll see when it's done
-
-- A mobile buyer taps once and their wallet opens with everything pre-filled;
-  if they prefer QR or copy, both are one honest tap with clear feedback.
-- Every "what is happening with my money?" moment — checkout, tip, order
-  status — answers in plain language.
-- Browsing a store and managing the cart happens in one place, no page-hops.
-- Sign-up and login feel finished on a phone: nothing cramped, nothing vague.
-- No public surface is left behind the in-app quality bar.
+## Assumptions (used to keep moving; correct any and the plan adjusts)
+- Merchant/seller-first hero, creators/fundraisers/developers kept as secondary doors.
+- Hero stats and badges need an honesty review; anything not backed by real data will be softened
+  or replaced with defensible signals.
+- The "First $500 fee-free" offer is real and stays.
+- Scope = option (a), the focused conversion pass, unless you pick (b) or (c).

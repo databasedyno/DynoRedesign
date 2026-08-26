@@ -13,7 +13,7 @@ import { HomeWrapper } from "./styled";
  * JS into lazy chunks, so the header + hero hydrate first and become
  * interactive almost immediately. Do NOT convert these back to static
  * imports. ssr:true (default) is required — the HTML must not change. */
-const LivePriceStrip = dynamic(() => import("./LivePriceStrip"));
+const HowItWorksV3 = dynamic(() => import("./v3/HowItWorksV3"));
 const AudienceDoorsV3 = dynamic(() => import("./v3/AudienceDoorsV3"));
 const ProductFeatureCards = dynamic(() => import("./v3/ProductFeatureCards"));
 const NumbersTrustBand = dynamic(() => import("./v3/NumbersTrustBand"));
@@ -29,18 +29,18 @@ const FinalCTAAurora = dynamic(() => import("./v3/FinalCTAAurora"));
  * etc.) is retained in-repo but unwired from the stack below so it can be
  * A/B'd back on with a single import swap.
  *
- * Order (2026-07-21 — Coinbase-calm refinement: leaner + more whitespace + indigo accent):
- *   1. HeroPlayground        — headline + $500 fee-free reward hook + live @handle card
- *   2. LivePriceStrip        — real-time BTC/ETH/… ticker (self-hides if no data)
- *   3. AudienceDoorsV3       — four doors (Merchants / Fundraisers / Creators / Developers)
+ * Order (2026-08 — merchant-first conversion pass: one clear promise + one primary action):
+ *   1. HeroPlayground        — "accept crypto → settle in stablecoin" + primary CTA + checkout demo card
+ *   2. HowItWorksV3          — 3-step path to first payment (replaced the crypto price ticker)
+ *   3. AudienceDoorsV3       — four doors (Merchants primary / Fundraisers / Creators / Developers)
  *   4. ProductFeatureCards   — Coinbase-style "one idea per card" band (Checkout / Auto-convert / API)
- *   5. NumbersTrustBand      — four big stats + compliance badges
+ *   5. NumbersTrustBand      — honest stats + compliance badges
  *   6. LearnDocsCards        — education band (Docs / Learn / Fees)
  *   7. FAQCompact            — five real questions
- *   8. FinalCTAAurora        — dark close; bookends the $500 fee-free offer from the hero
+ *   8. FinalCTAAurora        — dark close; bookends the "first payment fee-free" offer from the hero
  *
- * Trimmed from the stack (kept in-repo, unwired) for a cleaner, airier page:
- * ProductStoryV3 (redundant with ProductFeatureCards) and TryItNowV3 (dev-niche → lives in /documentation).
+ * LivePriceStrip is retained in-repo but unwired (gave an "exchange" feel that distracted from
+ * "accept payments"). ProductStoryV3 + TryItNowV3 also kept in-repo, unwired.
  */
 const HomePage: FC = () => {
   useEffect(() => {
@@ -63,7 +63,7 @@ const HomePage: FC = () => {
   return (
     <HomeWrapper>
       <HeroPlayground />
-      <LivePriceStrip />
+      <HowItWorksV3 />
       <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
         <AudienceDoorsV3 />
       </Box>

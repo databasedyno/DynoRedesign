@@ -1,3 +1,47 @@
+# FEATURE (2026-08-26 fork) — Landing page merchant-first conversion pass — DONE (testing_agent iteration_90 = 100% frontend)
+
+Preview: https://43248c91-aedf-4589-b4ed-b1f6b9885177.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+
+APPROVED PLAN: make the homepage cleaner and steer a first-time MERCHANT toward sign-up. User decisions during
+build: "$42M is not real" → removed; hide the crypto price ticker (option a); reward is already "first payment
+fee-free" (not $500) → kept consistent. Scope = focused conversion pass (option a).
+
+IMPLEMENTED (Components/Page/Home/*, v3 Aurora design system):
+- HERO rewrite (v3/HeroPlayground.tsx, full rewrite): merchant-first headline "Accept crypto payments. / Settle
+  in stablecoin." + ONE primary CTA `hero-primary-cta` "Start accepting payments" → /auth/register?ref=hero_primary,
+  quiet secondary `hero-secondary-cta` "See how it works" (smooth-scroll to #how-it-works), and a low-key creator
+  path `hero-creator-link` → /for/creators. The old @handle-claim input + "Send a tip" card are GONE; the animated
+  card is now a non-navigating "Live demo" checkout (`hero-checkout-demo`, `hero-demo-pill`).
+- NEW v3/HowItWorksV3.tsx (id/testid `how-it-works`): 3 steps (Create account → Share link/checkout → Get paid in
+  stablecoin) + CTA `how-it-works-cta` → /auth/register?ref=how_it_works. Placed where the ticker was.
+- TICKER HIDDEN: LivePriceStrip unwired from Components/Page/Home/index.tsx (kept in-repo).
+- AUDIENCE DOORS (v3/AudienceDoorsV3.tsx): Merchants door is now visually PRIMARY — filled indigo gradient, white
+  text, "Start here" ribbon (`audience-door-merchant`); refactored dark-styling from `bg===#0A0A0A` to `d.dark`.
+- HONESTY PASS (v3/NumbersTrustBand.tsx + copy): dropped fake "$42M+ settled" and the sub-second "4.2s settle"
+  claim (contradicted checkout's own "5–15 min" confirming copy); stats now 0.5% · 15+ networks · 0 chargebacks ·
+  24/7. Badges: SOC2 → "Encrypted"; kept KYC/AML, GDPR, Non-custodial. Also fixed FAQ a4 (v3.faq) to honest
+  network-dependent timing, and removed SOC2 from HomeHeader TrustPill + HomeFooter TRUST array.
+- CONSISTENCY (beyond landing): /auth/register TrustStrip (Components/UI/AuthLayout/TrustStrip.tsx) + orphan
+  constants/trustStats.ts also had the fake "$42M+ processed / 1,000+ merchants / <1min" — replaced with honest
+  "15+ networks · 0.5% lowest fee · 24/7 settlement" across all 6 auth.json locales.
+- i18n: all new/changed copy synced across en/es/pt/fr/de/nl (landing.json v3.hero/howitworks/numbers/audience/faq;
+  auth.json trust* keys).
+
+VERIFIED: frontend tsc EXIT 0 · SSR HTML scan confirms new copy present and $42M/SOC2/4.2s ABSENT sitewide ·
+testing_agent iteration_90 = 100% frontend (hero single-CTA, demo card non-navigating, how-it-works + CTA nav,
+ticker gone, merchants door primary + all door navigations, honesty string scan all-absent, reward hook 3×,
+dark mode, mobile 390x844 no overflow, 0 React console errors). NOTE: automated screenshots blank on the external
+preview (Cloudflare-to-headless infra noise) — verified via testing_agent + SSR curl instead.
+
+FILES: Components/Page/Home/index.tsx, v3/HeroPlayground.tsx (rewrite), v3/HowItWorksV3.tsx (new),
+v3/AudienceDoorsV3.tsx, v3/NumbersTrustBand.tsx; Components/Layout/HomeHeader/index.tsx,
+Components/Layout/HomeFooter/index.tsx; Components/UI/AuthLayout/TrustStrip.tsx, constants/trustStats.ts;
+langs/locales/*/landing.json, langs/locales/*/auth.json.
+
+---
+
+
+
 # FEATURE (2026-08-26 fork) — Buyer Payment-Receipt email capture + Confirmation browser alert — DONE (testing_agent iteration_89 = 100%, backend curl-verified)
 
 Preview: https://43248c91-aedf-4589-b4ed-b1f6b9885177.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE, email OFF). Frontend + backend tsc EXIT 0.

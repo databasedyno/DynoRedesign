@@ -1,163 +1,46 @@
 import React, { memo, useEffect, useState } from "react";
-import { Box, Typography, InputBase, Button } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
-import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
+import { Box, Typography, Button } from "@mui/material";
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/router";
 import { useTranslation, Trans } from "react-i18next";
 import ArrowForward from "@mui/icons-material/ArrowForward";
-import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { AuroraInk, HeadlineXL, Eyebrow, Body } from "./styled.v3";
 import useLocalPrice from "@/hooks/useLocalPrice";
-import useDebounce from "@/hooks/useDebounce";
-import { API_ENDPOINTS } from "@/api/endpoints";
 import { BRAND_ACCENT } from "@/constants/theme";
 
-const SUGGESTED_HANDLES = ["alex", "maya", "lin", "jordan", "rae", "kai"];
-const TIP_VALUES = [3, 5, 10, 25, 50, 100];
-// Settlement stablecoins DynoPay auto-converts into ("the coin you keep").
-// Rotates in sync with the handle/amount reel so the mock shows a CHOICE of
-// coins per creator instead of implying USDC is the only settlement option.
+// Order-total demo amounts (merchant checkout, not tip jar) + the stablecoin
+// each auto-settles into. Rotates so the mock reads as a real store checkout.
+const AMOUNTS = [12, 29, 49, 84, 120, 250];
+const STORES = ["Acme Store", "Nova Goods", "Bean & Co.", "Studio Ky", "Lumen Shop", "Peak Gear"];
 const SETTLE_COINS = ["USDC", "USDT", "USDT", "USDC", "USDT", "USDC"];
 
 const HeroPlayground: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
   const { t } = useTranslation("landing");
-  // Country-aware ceremonial prices (PT → EUR, etc.) — restores the geo-pricing
-  // the pre-v3 landing had; v3 rewrite had hardcoded USD.
+  // Country-aware ceremonial prices (PT → EUR, etc.).
   const { fmt, code } = useLocalPrice();
   const reduced = useReducedMotion();
-  const [handle, setHandle] = useState("you");
-  const [tipIdx, setTipIdx] = useState(0);
-  const [rotIdx, setRotIdx] = useState(0);
-  const [claimBusy, setClaimBusy] = useState(false);
-  const [claimError, setClaimError] = useState("");
-  // Live "available / taken" check as the visitor types (public, read-only).
-  const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);
-  const [checkingHandle, setCheckingHandle] = useState(false);
-  const debouncedHandle = useDebounce(handle, 450);
-
-  const cleanHandle = (raw: string) =>
-    (raw === "you" ? "" : raw).trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 30);
-
-  // Show the spinner + clear any prior verdict/error as soon as the user types.
-  useEffect(() => {
-    const clean = cleanHandle(handle);
-    setAvailability(null);
-    setClaimError("");
-    setCheckingHandle(clean.length >= 3);
-  }, [handle]);
-
-  // Fire the availability check once typing settles.
-  useEffect(() => {
-    const clean = cleanHandle(debouncedHandle);
-    if (clean.length < 3) {
-      setCheckingHandle(false);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        let token = "";
-        try {
-          token = localStorage.getItem("dynopay.claimedHandleToken") || "";
-        } catch {
-          token = "";
-        }
-        const qs = `?handle=${encodeURIComponent(clean)}${token ? `&token=${encodeURIComponent(token)}` : ""}`;
-        const res = await fetch(`/api${API_ENDPOINTS.creator.checkHandlePublic}${qs}`);
-        const json = await res.json().catch(() => ({}));
-        const data = json?.data ?? json;
-        if (!cancelled) {
-          setAvailability(
-            data && typeof data.available === "boolean"
-              ? { available: data.available, reason: data.reason ?? null }
-              : null,
-          );
-        }
-      } catch {
-        if (!cancelled) setAvailability(null);
-      } finally {
-        if (!cancelled) setCheckingHandle(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedHandle]);
-
-  // Reserve the typed handle server-side (Redis TTL lock) so the name is HARD-held
-  // during signup, then carry it into the journey (localStorage + query param) so
-  // register shows it being reserved and /creator can pre-fill & finalise it.
-  const goClaim = async () => {
-    if (claimBusy) return;
-    const clean = (handle === "you" ? "" : handle)
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9_-]/g, "")
-      .slice(0, 30);
-
-    // Nothing meaningful typed → just head to signup.
-    if (clean.length < 3) {
-      router.push("/auth/register?ref=hero_claim");
-      return;
-    }
-
-    const persistAndGo = (token?: string) => {
-      try {
-        localStorage.setItem("dynopay.claimedHandle", clean);
-        if (token) localStorage.setItem("dynopay.claimedHandleToken", token);
-      } catch {
-        /* private mode — the query param still carries the handle */
-      }
-      router.push(`/auth/register?ref=hero_claim&handle=${encodeURIComponent(clean)}`);
-    };
-
-    setClaimError("");
-    setClaimBusy(true);
-    try {
-      let existingToken: string | undefined;
-      try {
-        existingToken = localStorage.getItem("dynopay.claimedHandleToken") || undefined;
-      } catch {
-        existingToken = undefined;
-      }
-      const res = await fetch(`/api${API_ENDPOINTS.creator.reserveHandle}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ handle: clean, token: existingToken }),
-      });
-      const json = await res.json().catch(() => ({}));
-      const data = json?.data ?? json;
-      if (data?.reserved || data?.available) {
-        persistAndGo(data?.token);
-      } else {
-        setClaimError(data?.reason || "That handle isn't available — try another.");
-      }
-    } catch {
-      // Network/cache hiccup → soft carry-through so signup is never blocked.
-      persistAndGo();
-    } finally {
-      setClaimBusy(false);
-    }
-  };
+  const [idx, setIdx] = useState(0);
 
   useEffect(() => {
     if (reduced) return;
-    const t = setInterval(() => {
-      setTipIdx((i) => (i + 1) % TIP_VALUES.length);
-      setRotIdx((i) => (i + 1) % SUGGESTED_HANDLES.length);
-    }, 2200);
-    return () => clearInterval(t);
+    const iv = setInterval(() => setIdx((i) => (i + 1) % AMOUNTS.length), 2400);
+    return () => clearInterval(iv);
   }, [reduced]);
 
-  const displayHandle = handle && handle !== "you" ? handle : SUGGESTED_HANDLES[rotIdx];
+  const scrollTo = (id: string) => {
+    if (typeof document === "undefined") return;
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const store = STORES[idx];
+  const coin = SETTLE_COINS[idx % SETTLE_COINS.length];
 
   return (
     <Box
@@ -170,7 +53,7 @@ const HeroPlayground: React.FC = () => {
         pb: { xs: 16, md: 26 },
       }}
     >
-      {/* Soft coral orb behind hero (minimal single-accent) */}
+      {/* Soft indigo orb behind hero (minimal single-accent) */}
       <Box
         aria-hidden
         sx={{
@@ -186,20 +69,6 @@ const HeroPlayground: React.FC = () => {
           pointerEvents: "none",
         }}
       />
-      {/* subtle grid */}
-      <Box
-        aria-hidden
-        sx={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          backgroundImage: `linear-gradient(${s.line} 1px, transparent 1px), linear-gradient(90deg, ${s.line} 1px, transparent 1px)`,
-          backgroundSize: "64px 64px",
-          display: "none",
-          maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%)",
-        }}
-      />
 
       <Box
         sx={{
@@ -209,12 +78,12 @@ const HeroPlayground: React.FC = () => {
           mx: "auto",
           px: { xs: 3, md: 5 },
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "1.15fr 1fr" },
+          gridTemplateColumns: { xs: "1fr", md: "1.1fr 1fr" },
           alignItems: "center",
-          gap: { xs: 7, md: 12 },
+          gap: { xs: 8, md: 12 },
         }}
       >
-        {/* LEFT — copy */}
+        {/* LEFT — one clear promise + one primary action */}
         <Box>
           <Eyebrow tone="coral" sx={{ mb: 3, display: "inline-flex", alignItems: "center", gap: 1 }}>
             <Box
@@ -237,147 +106,57 @@ const HeroPlayground: React.FC = () => {
             <AuroraInk>{t("v3.hero.headlineHighlight")}</AuroraInk> {t("v3.hero.headline2")}
           </HeadlineXL>
 
-          <Body sx={{ color: s.ink2, maxWidth: 540, mb: 4.5, fontSize: { xs: 16, md: 18 } }}>
-            <Trans
-              i18nKey="v3.hero.body"
-              ns="landing"
-              components={{ b: <b style={{ color: s.ink }} /> }}
-            />
+          <Body sx={{ color: s.ink2, maxWidth: 520, mb: 4.5, fontSize: { xs: 16, md: 18 } }}>
+            <Trans i18nKey="v3.hero.body" ns="landing" components={{ b: <b style={{ color: s.ink }} /> }} />
           </Body>
 
-          {/* Handle claim input */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              maxWidth: 480,
-              background: s.surface,
-              border: `1px solid ${s.lineStrong}`,
-              borderRadius: "999px",
-              pl: 2.5,
-              pr: 0.75,
-              py: 0.75,
-              gap: 1,
-              transition: "border-color .2s ease, box-shadow .2s ease",
-              "&:focus-within": {
-                borderColor: BRAND_ACCENT,
-                boxShadow: "0 0 0 4px rgba(79, 70, 229,0.14)",
-              },
-            }}
-          >
-            <Typography
+          {/* ONE primary action + a quiet secondary */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+            <Button
+              data-testid="hero-primary-cta"
+              onClick={() => router.push("/auth/register?ref=hero_primary")}
+              endIcon={<ArrowForward sx={{ fontSize: 18 }} />}
               sx={{
-                fontFamily: FONT_TECH,
-                fontSize: 15,
-                color: s.ink3,
-                whiteSpace: "nowrap",
+                borderRadius: "999px",
+                px: 3.5,
+                py: 1.5,
+                textTransform: "none",
+                fontFamily: FONT_BODY,
+                fontSize: 16,
+                fontWeight: 600,
+                color: "#fff",
+                background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #4338CA 100%)`,
+                boxShadow: "0 12px 30px -10px rgba(79, 70, 229,0.6)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #6366F1 0%, #4338CA 100%)",
+                  boxShadow: "0 14px 34px -10px rgba(79, 70, 229,0.72)",
+                },
               }}
             >
-              dynopay.me/@
-            </Typography>
-            <InputBase
-              value={handle === "you" ? "" : handle}
-              placeholder={displayHandle}
-              onChange={(e) => {
-                const v = e.target.value
-                  .toLowerCase()
-                  .replace(/[^a-z0-9_-]/g, "")
-                  .slice(0, 30);
-                setHandle(v || "you");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") goClaim();
-              }}
-              sx={{
-                flex: 1,
-                fontFamily: FONT_TECH,
-                fontSize: 15,
-                color: s.ink,
-                "& input::placeholder": { color: s.ink3, opacity: 1 },
-              }}
-              inputProps={{ "aria-label": t("v3.hero.chooseHandle") }}
-            />
-            {(() => {
-              const clean = cleanHandle(handle);
-              if (clean.length < 3) return null;
-              if (checkingHandle) {
-                return <CircularProgress size={16} sx={{ color: s.ink3, mr: 0.75 }} />;
-              }
-              if (availability?.available) {
-                return (
-                  <CheckCircleRoundedIcon
-                    data-testid="hero-handle-available"
-                    sx={{ fontSize: 20, color: "#22C55E", mr: 0.75 }}
-                  />
-                );
-              }
-              if (availability && !availability.available) {
-                return (
-                  <CancelRoundedIcon
-                    data-testid="hero-handle-taken"
-                    sx={{ fontSize: 20, color: "#EF4444", mr: 0.75 }}
-                  />
-                );
-              }
-              return null;
-            })()}
+              {t("v3.hero.primaryCta")}
+            </Button>
             <Button
-              onClick={goClaim}
-              disabled={claimBusy}
-              endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
+              data-testid="hero-secondary-cta"
+              onClick={() => scrollTo("how-it-works")}
               sx={{
                 borderRadius: "999px",
                 px: 2.5,
-                py: 1,
-                minWidth: 0,
+                py: 1.4,
                 textTransform: "none",
                 fontFamily: FONT_BODY,
-                fontSize: 14.5,
-                fontWeight: 600,
-                color: "#fff",
-                background: "#0A0A0A",
-                "&:hover": { background: "#1F1F1F" },
+                fontSize: 15,
+                fontWeight: 500,
+                color: s.ink,
+                border: `1px solid ${s.lineStrong}`,
+                background: "transparent",
+                "&:hover": { borderColor: BRAND_ACCENT, background: "transparent", color: BRAND_ACCENT },
               }}
             >
-              {t("v3.hero.claimBtn")}
+              {t("v3.hero.secondaryCta")}
             </Button>
           </Box>
 
-          {claimError ? (
-            <Typography
-              data-testid="hero-claim-error"
-              sx={{
-                mt: 1.25,
-                ml: 2,
-                fontFamily: FONT_BODY,
-                fontSize: 13,
-                color: "#EF4444",
-              }}
-            >
-              {claimError}
-            </Typography>
-          ) : (() => {
-            const clean = cleanHandle(handle);
-            if (clean.length < 3 || !availability) return null;
-            return availability.available ? (
-              <Typography
-                data-testid="hero-handle-hint"
-                sx={{ mt: 1.25, ml: 2, fontFamily: FONT_BODY, fontSize: 13, color: "#16A34A" }}
-              >
-                <Box component="span" sx={{ fontFamily: FONT_TECH }}>dynopay.me/@{clean}</Box>{" "}
-                {t("v3.hero.handleAvailable", { defaultValue: "is available" })}
-              </Typography>
-            ) : (
-              <Typography
-                data-testid="hero-handle-hint"
-                sx={{ mt: 1.25, ml: 2, fontFamily: FONT_BODY, fontSize: 13, color: "#EF4444" }}
-              >
-                {availability.reason || t("v3.hero.handleTaken", { defaultValue: "That handle isn't available — try another." })}
-              </Typography>
-            );
-          })()}
-
-          {/* Reward hook — the "$2,000 in crypto" equivalent (real feature: First $500 Fee-Free) */}
+          {/* Reward hook — the real "first payment fee-free" offer (bookended in the closing CTA) */}
           <Box
             sx={{
               display: "inline-flex",
@@ -392,14 +171,7 @@ const HeroPlayground: React.FC = () => {
             }}
           >
             <CardGiftcardRoundedIcon sx={{ fontSize: 17, color: BRAND_ACCENT }} />
-            <Typography
-              sx={{
-                fontFamily: FONT_BODY,
-                fontSize: 13.5,
-                fontWeight: 600,
-                color: s.dark ? "#818CF8" : "#4338CA",
-              }}
-            >
+            <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: s.dark ? "#818CF8" : "#4338CA" }}>
               <Trans i18nKey="v3.hero.rewardBadge" ns="landing" components={{ b: <b /> }} />
             </Typography>
           </Box>
@@ -410,16 +182,33 @@ const HeroPlayground: React.FC = () => {
             </Typography>
           </Box>
 
-          {/* Trust microcopy — legitimacy signals up front (Coinbase lesson) */}
+          {/* Trust microcopy — honest legitimacy signals */}
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, mt: 1.75 }}>
             <ShieldRoundedIcon sx={{ fontSize: 14, color: s.ink3 }} />
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, letterSpacing: "0.1em" }}>
               {t("v3.hero.trustLine")}
             </Typography>
           </Box>
+
+          {/* Quiet secondary path for creators — kept, but not competing */}
+          <Typography
+            data-testid="hero-creator-link"
+            onClick={() => router.push("/for/creators")}
+            sx={{
+              mt: 2.5,
+              fontFamily: FONT_BODY,
+              fontSize: 13.5,
+              color: s.ink3,
+              cursor: "pointer",
+              "&:hover": { color: BRAND_ACCENT },
+              "& span": { color: BRAND_ACCENT, fontWeight: 600 },
+            }}
+          >
+            <Trans i18nKey="v3.hero.creatorLink" ns="landing" components={{ s: <span /> }} />
+          </Typography>
         </Box>
 
-        {/* RIGHT — @handle floating card */}
+        {/* RIGHT — checkout demo card (supporting visual, clearly a demo) */}
         <Box sx={{ position: "relative", display: "flex", justifyContent: "center", perspective: "1200px" }}>
           <motion.div
             initial={{ opacity: 0, y: 30, rotate: -2 }}
@@ -428,6 +217,7 @@ const HeroPlayground: React.FC = () => {
             style={{ width: "100%", maxWidth: 420 }}
           >
             <Box
+              data-testid="hero-checkout-demo"
               sx={{
                 position: "relative",
                 borderRadius: "28px",
@@ -438,7 +228,6 @@ const HeroPlayground: React.FC = () => {
                 overflow: "hidden",
               }}
             >
-              {/* Coral corner glow (was rainbow) */}
               <Box
                 aria-hidden
                 sx={{
@@ -450,17 +239,17 @@ const HeroPlayground: React.FC = () => {
                   borderRadius: "50%",
                   background: BRAND_ACCENT,
                   filter: "blur(60px)",
-                  opacity: 0.10,
+                  opacity: 0.1,
                 }}
               />
               <Box sx={{ position: "relative", zIndex: 1 }}>
-                {/* Header */}
+                {/* Header — store identity + "Live demo" chip */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
                   <Box
                     sx={{
                       width: 44,
                       height: 44,
-                      borderRadius: "50%",
+                      borderRadius: "12px",
                       background: "#0A0A0A",
                       display: "flex",
                       alignItems: "center",
@@ -469,22 +258,21 @@ const HeroPlayground: React.FC = () => {
                       fontFamily: FONT_HERO,
                       fontWeight: 700,
                       fontSize: 18,
-                      border: "3px solid #fff",
-                      boxShadow: "0 6px 14px rgba(10,10,10,0.25)",
                     }}
                   >
-                    {(displayHandle[0] || "y").toUpperCase()}
+                    {store[0]}
                   </Box>
                   <Box>
-                    <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 17, color: "#0A0A0A", lineHeight: 1.1 }}>
-                      @{displayHandle}
+                    <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 16, color: "#0A0A0A", lineHeight: 1.1 }}>
+                      {store}
                     </Typography>
-                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, color: "#71717A", mt: 0.25 }}>
-                      dynopay.me/@{displayHandle}
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: "#71717A", mt: 0.25, display: "inline-flex", alignItems: "center", gap: 0.5 }}>
+                      <LockRoundedIcon sx={{ fontSize: 12 }} /> {t("v3.hero.demoCheckout")}
                     </Typography>
                   </Box>
                   <Box sx={{ flex: 1 }} />
                   <Box
+                    data-testid="hero-demo-pill"
                     sx={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -492,54 +280,43 @@ const HeroPlayground: React.FC = () => {
                       px: 1,
                       py: 0.4,
                       borderRadius: "999px",
-                      background: "rgba(34,197,94,0.10)",
-                      border: "1px solid rgba(34,197,94,0.35)",
+                      background: "rgba(10,10,10,0.05)",
+                      border: "1px solid rgba(10,10,10,0.10)",
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        background: "#22C55E",
-                      }}
-                    />
-                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10, color: "#166534", fontWeight: 600 }}>
-                      {t("v3.hero.livePill")}
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10, color: "#52525B", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      {t("v3.hero.demoLabel")}
                     </Typography>
                   </Box>
                 </Box>
 
-                {/* Amount ticker */}
+                {/* Amount due */}
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "#71717A", mb: 1 }}>
-                  {t("v3.hero.sendTipLabel")}
+                  {t("v3.hero.amountDueLabel")}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 2.5 }}>
-                  <motion.div
-                    key={tipIdx}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  >
+                  <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 44, color: "#0A0A0A", letterSpacing: "-0.03em", lineHeight: 1 }}>
-                      {fmt(TIP_VALUES[tipIdx])}
+                      {fmt(AMOUNTS[idx])}
                     </Typography>
                   </motion.div>
-                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#71717A", fontWeight: 500 }} data-testid="hero-settle-path">{code} → {SETTLE_COINS[rotIdx % SETTLE_COINS.length]}</Typography>
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#71717A", fontWeight: 500 }} data-testid="hero-settle-path">
+                    {code} → {coin}
+                  </Typography>
                 </Box>
 
-                {/* Chip row */}
+                {/* Example order chips */}
                 <Box sx={{ display: "flex", gap: 0.75, mb: 2.5, flexWrap: "wrap" }}>
-                  {TIP_VALUES.map((val, i) => (
+                  {AMOUNTS.map((val, i) => (
                     <Box
                       key={val}
                       sx={{
                         px: 1.25,
                         py: 0.5,
                         borderRadius: "999px",
-                        border: `1px solid ${i === tipIdx ? BRAND_ACCENT : "rgba(10,10,10,0.10)"}`,
-                        background: i === tipIdx ? "rgba(79, 70, 229,0.10)" : "transparent",
-                        color: i === tipIdx ? "#4338CA" : "#3F3F46",
+                        border: `1px solid ${i === idx ? BRAND_ACCENT : "rgba(10,10,10,0.10)"}`,
+                        background: i === idx ? "rgba(79, 70, 229,0.10)" : "transparent",
+                        color: i === idx ? "#4338CA" : "#3F3F46",
                         fontFamily: FONT_TECH,
                         fontSize: 12.5,
                         fontWeight: 600,
@@ -551,31 +328,31 @@ const HeroPlayground: React.FC = () => {
                   ))}
                 </Box>
 
-                {/* CTA */}
-                <Button
-                  fullWidth
-                  onClick={() => router.push("/auth/register")}
-                  startIcon={<FavoriteRoundedIcon sx={{ fontSize: 18 }} />}
+                {/* Demo "Pay" button — visual only, not a competing action */}
+                <Box
+                  aria-hidden
                   sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1,
                     borderRadius: "14px",
                     py: 1.4,
-                    textTransform: "none",
                     fontFamily: FONT_BODY,
                     fontSize: 15,
                     fontWeight: 600,
                     color: "#fff",
                     background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #4338CA 100%)`,
                     boxShadow: "0 10px 22px -8px rgba(79, 70, 229,0.55)",
-                    "&:hover": {
-                      background: "linear-gradient(135deg, #6366F1 0%, #4338CA 100%)",
-                      boxShadow: "0 12px 26px -8px rgba(79, 70, 229,0.7)",
-                    },
+                    userSelect: "none",
+                    cursor: "default",
                   }}
                 >
-                  {t("v3.hero.sendTipBtn")} · {fmt(TIP_VALUES[tipIdx])}
-                </Button>
+                  <LockRoundedIcon sx={{ fontSize: 17 }} />
+                  {t("v3.hero.payBtn")} {fmt(AMOUNTS[idx])}
+                </Box>
 
-                {/* Meta row */}
+                {/* Meta row — honest settlement line */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 2.5, pt: 2, borderTop: `1px dashed ${s.line}` }}>
                   <BoltRoundedIcon sx={{ fontSize: 15, color: "#5A6B00" }} />
                   <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, color: "#3F3F46" }}>
@@ -583,47 +360,6 @@ const HeroPlayground: React.FC = () => {
                   </Typography>
                 </Box>
               </Box>
-            </Box>
-          </motion.div>
-
-          {/* Floating chips */}
-          <motion.div
-            initial={{ opacity: 0, x: -20, y: 20 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              position: "absolute",
-              bottom: -14,
-              left: -6,
-              zIndex: 2,
-            }}
-          >
-            <Box
-              sx={{
-                display: "none",
-                background: "#0A0A0A",
-                color: "#F5F5F5",
-                fontFamily: FONT_TECH,
-                fontSize: 12,
-                fontWeight: 600,
-                px: 1.5,
-                py: 0.75,
-                borderRadius: "999px",
-                boxShadow: "0 10px 20px -6px rgba(10,10,10,0.35)",
-                alignItems: "center",
-                gap: 0.75,
-                ["@media (min-width: 900px)"]: { display: "inline-flex" },
-              }}
-            >
-              <Box
-                sx={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: "#22C55E",
-                }}
-              />
-              {`+${fmt(25)} · @rae · just now`}
             </Box>
           </motion.div>
         </Box>
