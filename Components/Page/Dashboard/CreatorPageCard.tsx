@@ -16,6 +16,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { useApiSWR } from "@/hooks/useApiSWR";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 // Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
@@ -56,7 +57,21 @@ const CreatorPageCard: React.FC = () => {
   const prettyUrl = prettyCreatorUrl(handle);
   const accentColor = (storefront?.theme_accent_color as string) || LIME;
 
-  const [stats, setStats] = useState<CreatorStats | null>(null);
+  const { data: stats } = useApiSWR<CreatorStats>(API_ENDPOINTS.creator.stats, {
+    enabled: Boolean(handle && published),
+    revalidateOnFocus: false,
+    select: (raw: any): CreatorStats => {
+      const d = raw?.data || {};
+      return {
+        total_visits: Number(d.total_visits || 0),
+        this_week_visits: Number(d.this_week_visits || 0),
+        supporters_count: Number(d.supporters_count || 0),
+        top_referrers: Array.isArray(d.top_referrers) ? d.top_referrers : [],
+        daily_visits: Array.isArray(d.daily_visits) ? d.daily_visits : [],
+        has_handle: Boolean(d.has_handle),
+      };
+    },
+  });
   const [copied, setCopied] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
@@ -92,28 +107,6 @@ const CreatorPageCard: React.FC = () => {
     if (!HANDLE_RE.test(claimDraft)) return "3–30 chars: lowercase letters, numbers, - or _ (start with a letter/number)";
     return null;
   }, [claimDraft]);
-
-  useEffect(() => {
-    // Stats are only meaningful once a handle is set & page is live.
-    if (!handle || !published) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await axiosBaseApi.get(API_ENDPOINTS.creator.stats);
-        if (cancelled) return;
-        const d = r?.data?.data || {};
-        setStats({
-          total_visits: Number(d.total_visits || 0),
-          this_week_visits: Number(d.this_week_visits || 0),
-          supporters_count: Number(d.supporters_count || 0),
-          top_referrers: Array.isArray(d.top_referrers) ? d.top_referrers : [],
-          daily_visits: Array.isArray(d.daily_visits) ? d.daily_visits : [],
-          has_handle: Boolean(d.has_handle),
-        });
-      } catch { /* silent */ }
-    })();
-    return () => { cancelled = true; };
-  }, [handle, published]);
 
   const copyUrl = () => {
     if (!publicUrl) return;

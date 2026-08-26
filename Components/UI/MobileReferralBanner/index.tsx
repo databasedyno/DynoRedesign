@@ -1,8 +1,9 @@
 import { brandFg } from "@/constants/theme";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { ContentCopyRounded, ShareRounded, CardGiftcardRounded } from "@mui/icons-material";
-import axiosBaseApi from "@/axiosConfig";
+import { useApiSWR } from "@/hooks/useApiSWR";
+import { API_ENDPOINTS } from "@/api/endpoints";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import copyToClipboard from "@/helpers/copyToClipboard";
@@ -11,20 +12,13 @@ const MobileReferralBanner: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation("referrals");
-  const [referralCode, setReferralCode] = useState<string>("");
-  const [referralLink, setReferralLink] = useState<string>("");
+  const { data } = useApiSWR<{ referral_code?: string; referral_link?: string }>(
+    API_ENDPOINTS.referral.myCode,
+    { unwrap: true, revalidateOnFocus: false },
+  );
+  const referralCode = data?.referral_code || "";
+  const referralLink = data?.referral_link || "";
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    axiosBaseApi
-      .get("/referral/my-code")
-      .then((res: any) => {
-        const data = res?.data?.data;
-        if (data?.referral_code) setReferralCode(data.referral_code);
-        if (data?.referral_link) setReferralLink(data.referral_link);
-      })
-      .catch(() => {});
-  }, []);
 
   if (!referralCode) return null;
 

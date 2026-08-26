@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
-import axiosBaseApi from "@/axiosConfig";
+import { useApiSWR } from "@/hooks/useApiSWR";
 import CreatorPageSettings, { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendingCard";
@@ -66,17 +66,10 @@ const PageTab = () => {
   });
   const onFormChange = useCallback((s: CreatorFormState) => setFormState(s), []);
 
-  const [stats, setStats] = useState<Stats | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await axiosBaseApi.get(API_ENDPOINTS.creator.stats);
-        if (!cancelled) setStats(r?.data?.data || null);
-      } catch { /* silent */ }
-    })();
-    return () => { cancelled = true; };
-  }, [storefront?.handle, storefront?.creator_page_enabled]);
+  const { data: stats } = useApiSWR<Stats>(API_ENDPOINTS.creator.stats, {
+    unwrap: true,
+    revalidateOnFocus: false,
+  });
 
   const hasHandle = mounted && Boolean(storefront?.handle);
   const isPublished = mounted && Boolean(storefront?.handle && storefront?.creator_page_enabled);

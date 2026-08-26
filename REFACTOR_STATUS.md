@@ -42,8 +42,53 @@
 #
 # LONG-RUNNING INCREMENTAL REFACTORS (chip away, not blockers):
 #   Item #1  17 server.ts boot .sync() → migrations
-#   Item #4  ~610 raw process.env reads → typed config
-#   Item #5  remaining read-only screens → useApiSWR
+#   Item #4  [DONE on Improvement] all runtime/service reads → typed config;
+#            only intentional exclusions remain (apis/tatumApi.ts, worker.ts, the
+#            config surface) + standalone one-off ops scripts/  (see 2026-08-26 note)
+#   Item #5  read-only screens → useApiSWR (WAVE 2026-08-26: MobileReferralBanner,
+#            CreatorPageCard stats, Storefront/PageTab stats). Payment/crypto/
+
+
+# ============================================================================
+# UPDATE — 2026-08-26 (pod 2a9c209f) — Item #4 CLOSED + Item #5 wave
+# Env: LIVE prod Railway DB, SAFE MODE. Frontend-only change (no backend touched).
+# ============================================================================
+#
+# ITEM #4 (typed config) — effectively COMPLETE on the Improvement branch.
+#   Measured the actual tree (not the multi-fork log): 188 `process.env` reads
+#   remain, and ALL of them are the intentionally-excluded set:
+#     - apis/tatumApi.ts (77)         → left by prior decision
+#     - worker.ts (writes process.env before import), utils/config.ts,
+#       utils/envValidator.ts, utils/loadtestGuard.ts → the config surface / boot
+#     - backend/scripts/* one-off ops CLIs (recovery/diagnostic/migration)
+#   A filtered scan of runtime SERVICE code (exclude the above + tests) returns
+#   ZERO remaining reads — controllers/services/routers/utils already read via
+#   `config.str/num/bool/raw`. Decision (user-approved 2026-08-26, option "a"):
+#   leave the ops scripts + intentional exclusions as-is (no runtime value,
+#   avoids config.ts side-effects in standalone scripts). Item #4 = DONE.
+#
+# ITEM #5 (useApiSWR) — new wave, 3 clean read-only fetches migrated:
+#   * Components/UI/MobileReferralBanner/index.tsx — GET /referral/my-code
+#     (axios-in-useEffect → useApiSWR, unwrap). Now shares the SWR cache key
+#     API_ENDPOINTS.referral.myCode with ReferralCodeCard + /referrals (dedup).
+#   * Components/Page/Dashboard/CreatorPageCard.tsx — GET creator.stats
+#     (conditional on handle && published → `enabled`; normalization kept in
+#     `select`, byte-identical to the old useEffect).
+#   * Components/Page/Storefront/PageTab.tsx — GET creator.stats (unwrap).
+#     Shares the creator.stats key with CreatorPageCard (different pages, never
+#     co-mounted; both consumers use `?? 0` / `|| []` so any transient cache
+#     shape mismatch is inert).
+#   Removed the now-dead axiosBaseApi imports from MobileReferralBanner + PageTab.
+#   Verified: tsc --noEmit = 0 errors; eslint (3 files) clean; `next dev`
+#   recompiled /dashboard + /storefront → ✓ 200 (no compile/runtime errors).
+#   NOT YET run through the frontend testing agent (preview is on the LIVE prod
+#   DB; these are read-only GET screens so rendering is safe — pending user OK).
+#   STILL BESPOKE by design (unchanged): LivePriceStrip (public SSR raw-fetch,
+#   no auth), ConversionBanner (optimistic toggle state), all payment/crypto/
+#   mutation-heavy forms.
+# ============================================================================
+
+#            mutation-heavy components stay bespoke by design.
 #   §9       storefront tab-panel testids + @handle onboarding-checklist chip
 #   §10      crypto-refund Phase C (on-chain forwarding) — pending prod validation
 # ============================================================================
