@@ -1029,6 +1029,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   })();
 
   return (
+    <>
     <PanelShell isDark={isDark} border={border} muted={muted}>
       {stripState && (
         <CheckoutStatusStrip
@@ -1384,7 +1385,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               onClick={() => doCopy(cryptoInfo.address, 'addr')}
               sx={{
                 background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
-                px: 1.5, py: 0.9, minHeight: 44, cursor: 'pointer', color: theme.palette.text.primary,
+                px: 1.5, py: 0.9, minHeight: 44, minWidth: 86, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
@@ -1418,7 +1419,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               onClick={() => doCopy(formatCryptoAmount(amountToSend, cryptoInfo.crypto_base), 'amt')}
               sx={{
                 background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
-                px: 1.5, py: 0.9, minHeight: 44, cursor: 'pointer', color: theme.palette.text.primary,
+                px: 1.5, py: 0.9, minHeight: 44, minWidth: 86, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
@@ -1563,8 +1564,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
 
       {/* Spacer so the mobile sticky pay bar never covers the footer/content */}
       {cryptoInfo && <Box sx={{ display: { xs: 'block', md: 'none' }, height: 92 }} />}
+    </PanelShell>
 
-      {/* ── Mobile sticky pay bar — amount + copy-address always in thumb reach ── */}
+      {/* ── Mobile sticky pay bar — amount + copy-address always in thumb reach.
+          Rendered as a FRAGMENT sibling of PanelShell (not a Box child) so the
+          portal node never trips MUI Box's PropTypes `children` check. ── */}
       {portalReady && cryptoInfo && phase !== 'confirmed' && createPortal(
         <Box
           data-testid="checkout-sticky-bar"
@@ -1644,7 +1648,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         </Box>,
         document.body,
       )}
-    </PanelShell>
+    </>
   )
 }
 
@@ -1708,6 +1712,13 @@ export const CheckoutStatusTimeline: React.FC<{
           {timerLabel}
         </Typography>
       </Box>
+      {/* Public-surfaces clarity pass: one plain-English line under the
+          technical status while the network confirms. */}
+      {detected && !isUnderpaid && phase !== 'confirmed' && (
+        <Typography data-testid="checkout-human-confirming" sx={{ fontSize: 12, color: muted, mb: 1.25 }}>
+          {t('checkout.humanConfirming', { defaultValue: 'We can see your payment — waiting for network confirmations (usually 5–15 min).' })}
+        </Typography>
+      )}
       {showTimerBar && (
         <Box
           data-testid="checkout-countdown-bar"

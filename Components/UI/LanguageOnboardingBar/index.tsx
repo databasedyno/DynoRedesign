@@ -7,6 +7,7 @@ import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import { setAppLanguage } from "@/helpers/setAppLanguage";
+import useEdgeFade from "@/hooks/useEdgeFade";
 
 import unitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import portugalFlag from "@/assets/Images/Icons/flags/portugal-flag.png";
@@ -36,6 +37,7 @@ const DISMISS_KEY = "lang_onboard";
  */
 export const LanguageOnboardingBar = () => {
   const theme = useTheme();
+  const chipsFade = useEdgeFade<HTMLDivElement>();
   const { t } = useTranslation("common");
   const router = useRouter();
   const [visible, setVisible] = useState(false);
@@ -136,8 +138,10 @@ export const LanguageOnboardingBar = () => {
         </Box>
       </Box>
 
-      {/* Chips — horizontally scrollable on small screens */}
+      {/* Chips — horizontally scrollable on small screens (edge fade =
+          honest scroll affordance, public-surfaces pass) */}
       <Box
+        ref={chipsFade.ref}
         sx={{
           display: "flex",
           alignItems: "center",
@@ -148,6 +152,8 @@ export const LanguageOnboardingBar = () => {
           py: 0.25,
           "&::-webkit-scrollbar": { display: "none" },
           scrollbarWidth: "none",
+          maskImage: chipsFade.maskImage,
+          WebkitMaskImage: chipsFade.WebkitMaskImage,
         }}
       >
         {LANGS.map((l) => (

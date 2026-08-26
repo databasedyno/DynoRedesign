@@ -970,3 +970,19 @@ User feedback: the testimonial section "looked common." Researched Stripe's appr
 
 **Not a code change**
 - GitHub authorize-screen logo is set in the user's GitHub OAuth App settings (they will upload it).
+
+## 2026-08-26 (pod 43248c91) — Public checkout verification COMPLETE + polish
+**Public Surfaces Usability Pass — final checkout verification (was TESTING PENDING)**
+- Verified plain-English confirming line in `CheckoutStatusTimeline` (CleanCheckoutV2.tsx) via
+  isolated SSR render (`scripts/qa/verify_timeline.tsx`, npx tsx): 8/8 assertions — line shows
+  ONLY in detected+not-confirmed state, absent in waiting/confirmed/underpaid.
+- Full live-checkout UI verified by frontend testing agent (iteration_88.json, 6/6 PASS) using a
+  fresh 24h QA payment link (link_id 260, deleted after testing): H1/amount/selects render, LTC
+  awaiting state with QR + address + copy buttons + `litecoin:` wallet deep-link, status timeline
+  Waiting/Detected/Confirmed + countdown bar, mobile sticky bar 48px buttons, all touch targets
+  >=44px, no horizontal overflow, 0 network errors, 0 React errors.
+**Polish (from test report, both verified)**
+- Copy address/amount buttons: added `minWidth: 86` — "Copy"→"Copied" no longer shifts layout (0.0px).
+- Moved mobile sticky-bar `createPortal` out of PanelShell children into a fragment sibling —
+  MUI Box PropTypes "Invalid prop children" dev warning eliminated (console now clean).
+- tsc --noEmit: 0 errors.

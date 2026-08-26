@@ -1,4 +1,118 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-26 (pod 43248c91) : PUBLIC SURFACES USABILITY PASS
+#   (approved plan: checkout · store/cart · auth · creator · order · landing)
+# ============================================================================
+## Decisions: 1a wallet deep-links, 2a cart side sheet, 3a all 6 languages, all surfaces.
+## ⚠️ LIVE PROD DB — read-only verification. NO currency selection on /pay
+## (creates a real address reservation), NO checkout submission, NO OTP requests.
+## Cart adds are SAFE (localStorage-only; /api/cart/quote is compute-only).
+
+### frontend
+  - task: "Checkout /pay: wallet deep-link (mobile), human status lines, 44px copy targets"
+    implemented: true
+    working: false
+    file: "Components/Page/Pay3Components/cryptoTransfer.tsx, langs */common.json (crypto.openInWallet/humanWaiting/humanConfirming)"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Open-in-wallet button ([data-testid=open-in-wallet-btn], <768px only) with standard URIs — NATIVE coins only (BTC/LTC/DOGE/BCH/SOL/ETH+wei/TRX); tokens+XRP excluded by design (wrong-asset/memo safety). String-exact wei (no BigInt — TS target). Human lines: waiting ([data-testid=human-status-waiting]) + confirming ([data-testid=human-status-confirming]). Copy buttons 44px on xs; network chips minHeight 44 xs. NOTE: address screen requires currency selection (WRITE) → verified structurally per plan; agent only checks the safe currency screen."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL: Payment link /pay?d=5fbe14cd5dccc44b91d20f43 returns 404 'Payment link not found or expired'. API endpoint /api/pay/getData returns 404. Cannot test currency tiles grid, mobile tap targets, or console errors because the payment page does not render. The error state displays correctly ('Payment link not found or expired' message), but the test payment link ID provided in the review request is invalid/expired. RECOMMENDATION: Provide a valid payment link ID for testing, or verify if this is expected behavior for expired links."
+      - working: "NA"
+        agent: "testing"
+        comment: "⚠️ RETEST (2026-08-26 21:25 UTC) — NEW payment link /pay?d=d601487e14b6dc06f8d6d6a03955bd1168762342c4e5cb6e: Payment link is VALID and renders correctly ($5.00 USD, 'QA — preview UI check' description visible). However, the link is showing the PAYMENT ADDRESS screen (Step 2) with Litecoin (LTC) pre-selected, NOT the currency selection screen (Step 1) with crypto tile grid. The crypto tile grid ([data-testid='crypto-tile-grid']) is NOT present on this page. The page shows NETWORK and CURRENCY dropdowns, QR code, and payment address (LSVpa2xWtRCQL46A9Kg25sEw1F2ff6sXwR). CANNOT TEST the requested features (crypto tile grid, BTC/ETH/USDT tiles, mobile tap target sizes ≥44px) because the currency selection screen is not accessible. The payment link appears to have a pre-selected cryptocurrency or someone has already progressed past Step 1. RECOMMENDATION: Provide a payment link that shows the currency selection screen (Step 1), or clarify if the test should be performed on the payment address screen (Step 2). Console errors: 2 React warnings about invalid prop children supplied to Box component (non-critical). Screenshots: test_a_desktop_1440x900.png, test_a_mobile_390x844.png show the payment address screen. Complied with read-only testing: did NOT click any tiles, did NOT enter emails, did NOT proceed with payment."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL IMPLEMENTATION ERROR (2026-08-26 21:31 UTC) — Features implemented in WRONG component. The app is using CleanCheckoutV2.tsx (NEXT_PUBLIC_CLEAN_CHECKOUT_V2=true in backend/.env), but the wallet deep-link and human status features were implemented in cryptoTransfer.tsx. TEST RESULTS: (1) [data-testid='human-status-waiting'] NOT FOUND in DOM. (2) [data-testid='open-in-wallet-btn'] NOT FOUND on mobile. (3) Copy buttons found but with WRONG test IDs: CleanCheckoutV2 uses 'clean-checkout-copy-address' and 'clean-checkout-copy-amount', not the generic IconButton selectors. (4) Copy button sizes on mobile: 40x40px (below 44px requirement) and 28x28px. (5) No 'copied' toast confirmation found. (6) React warnings CONFIRMED: 2 warnings 'Invalid prop children supplied to ForwardRef(Box)' in CleanCheckoutV2.tsx line 3407 (PanelShell component). ROOT CAUSE: Main agent added features to cryptoTransfer.tsx but the app renders CleanCheckoutV2.tsx. The required test IDs ([data-testid='human-status-waiting'], [data-testid='open-in-wallet-btn']) do NOT exist in CleanCheckoutV2. CleanCheckoutV2 has different test IDs: 'clean-checkout-open-wallet', 'clean-checkout-copy-address', 'clean-checkout-copy-amount'. RECOMMENDATION: Either (A) implement the features in CleanCheckoutV2.tsx with the correct test IDs from the review request, OR (B) disable CleanCheckoutV2 by setting NEXT_PUBLIC_CLEAN_CHECKOUT_V2=false to use cryptoTransfer.tsx. Screenshots show language modal blocking content initially, but payment page renders correctly after closing modal."
+  - task: "Store: cart sheet-first (Buy now opens MiniCart in place), 44px steppers, cart URL kept"
+    implemented: true
+    working: true
+    file: "Components/Page/Shop/MiniCart.tsx (OPEN_MINICART_EVENT + touch sizes), pages/[handle]/p/[slug].tsx (buyNow + View-cart open sheet; qty 44px), pages/[handle]/cart.tsx (44px steppers)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Test store: /csvcleanroom/p/utm-lab-campaign-url-builder-qa (devhub has store_enabled=false — merchant setting, not a bug). Cart is localStorage-only."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL TESTS PASSED (2026-08-26 21:08 UTC): (1) Product page renders correctly. (2) 'Buy now' button opens cart sheet/drawer WITHOUT navigation (URL stays on product page). (3) Quantity stepper buttons work correctly (+1 then -1 returns to original quantity). (4) Mobile 390x844: stepper buttons are exactly 44x44px (meets tap target requirement). (5) Cart sheet closes correctly. (6) 'Add to cart' → 'View cart' flow opens cart sheet in place without navigation. (7) Legacy URL /csvcleanroom/cart renders full cart page with item. All cart functionality is WORKING CORRECTLY. Screenshots: test_b_cart_sheet_open.png, test_b_cart_page.png."
+  - task: "Auth: register Step X of 3 progress; password rules shown on focus (reset-password + ForgotPasswordDialog)"
+    implemented: true
+    working: true
+    file: "pages/auth/register.tsx ([data-testid=register-progress]), pages/reset-password.tsx, Components/UI/ForgotPasswordDialog/index.tsx, langs */auth.json (stepOf)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Register progress: [data-testid=register-progress] shows 'Step X of 3' with 3 progress segments. Password rules: reset-password page shows PasswordValidation on focus (empty field). ForgotPasswordDialog also has the same pattern."
+      - working: true
+        agent: "testing"
+        comment: "✅ REGISTER PROGRESS PASSED (2026-08-26 21:08 UTC): (1) Progress indicator shows 'STEP 1 OF 3' correctly. (2) After clicking purpose option (Fundraise), progress updates to 'STEP 2 OF 3' correctly. (3) Email input accepts test@example.com (NOT submitted per instructions). Minor: Progress segments not detected by automated selector (expected 3, found 0) but the text indicator is correct and visible. ⚠️ PASSWORD RULES N/A: /reset-password requires a valid token to show the form. Without a valid reset token, the new-password form is not reachable. This is acceptable and expected behavior. Screenshots: test_c_register_step1.png, test_c_register_step2.png."
+  - task: "Creator tip: plain-English success next-step line"
+    implemented: true
+    working: true
+    file: "Components/Page/Creator/InlineTipCheckout.tsx ([data-testid=inline-tip-success-next]), langs */landing.json creator.inline.successNext — success state unreachable read-only; structural."
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Creator tip: plain-English success next-step line — success state unreachable read-only; structural."
+      - working: true
+        agent: "testing"
+        comment: "✅ CREATOR PAGE PASSED (2026-08-26 21:08 UTC): /devhub renders correctly. Support widget section found ([data-testid='creator-support-section']). Mobile 390x844: tip amount buttons are 51.125px tall (exceeds 44px tap target requirement). All creator page elements are WORKING CORRECTLY. Screenshot: test_f_creator_page.png. NOTE: Success next-step line not tested (requires payment submission which is prohibited in read-only mode)."
+  - task: "Order page: human status line + 'something looks wrong' merchant contact"
+    implemented: true
+    working: true
+    file: "pages/order/[publicRef].tsx ([data-testid=order-human-status], [data-testid=order-help-line]), langs */landing.json order.human.* + helpLine*"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Order page: human status line + 'something looks wrong' merchant contact"
+      - working: true
+        agent: "testing"
+        comment: "✅ ORDER PAGE PASSED (2026-08-26 21:08 UTC): /order/eef6276c228a71e1087904cb renders correctly. (1) Status chip shows 'EXPIRED' state correctly. (2) Human status line ([data-testid='order-human-status']) renders plain-English explanation: 'This payment window expired before a payment arrived. If you already sent funds, contact the seller below.' (3) Help line ([data-testid='order-help-line']) renders correctly: 'Something looks wrong? Contact Hostbay and mention order #EEF6276C. Visit their page'. (4) Merchant link ([data-testid='order-help-merchant-link']) shows 'Visit their page' and links to /hostbay. All order page elements are WORKING CORRECTLY. Screenshot: test_e_order_page.png."
+  - task: "Public strips edge fades: checkout RewardTierShelf + LanguageOnboardingBar"
+    implemented: true
+    working: "NA"
+    file: "Components/Page/Pay3Components/campaign/RewardTierShelf.tsx, Components/UI/LanguageOnboardingBar/index.tsx (shared useEdgeFade mask)"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Public strips edge fades: checkout RewardTierShelf + LanguageOnboardingBar (shared useEdgeFade mask)"
+      - working: "NA"
+        agent: "testing"
+        comment: "NOT TESTED: Edge fades are visual effects that require specific content/scrolling conditions. Cannot test without a valid payment link. This is a low-priority visual enhancement."
+
+### agent_communication
+  - agent: "main"
+    message: "All 6 public surfaces implemented; tsc EXIT 0; pages 200 (/pay?d=…, /csvcleanroom/shop, /order/<ref>, /auth/register, /reset-password). Requesting READ-ONLY verification; do NOT select a currency on /pay, do NOT submit checkout/OTP."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-26 21:08 UTC) — 5 of 6 tests executed. SUMMARY: 4 PASSED, 1 FAILED (payment link expired), 1 NOT TESTED (edge fades). ❌ CRITICAL ISSUE: Payment link /pay?d=5fbe14cd5dccc44b91d20f43 is EXPIRED/INVALID (404 error). Cannot test checkout currency screen, mobile tap targets, or wallet deep-links without a valid payment link. ✅ WORKING: Store cart sheet (all flows), register progress (step indicators), order page (human status + help line), creator page (support widget + tap targets). ⚠️ N/A: Password rules (requires valid reset token), edge fades (requires valid payment link). RECOMMENDATION: Provide a valid payment link ID to complete checkout testing."
+  - agent: "testing"
+    message: "⚠️ RETEST RESULT (2026-08-26 21:25 UTC) — Payment link /pay?d=d601487e14b6dc06f8d6d6a03955bd1168762342c4e5cb6e: Link is VALID (not 404), page renders correctly with $5.00 USD and 'QA — preview UI check' description. However, CANNOT TEST the requested currency selection screen because the link is showing the PAYMENT ADDRESS screen (Step 2) with Litecoin pre-selected, NOT the currency selection screen (Step 1) with crypto tile grid. The [data-testid='crypto-tile-grid'] element is not present. The page shows NETWORK/CURRENCY dropdowns, QR code, and payment address. This suggests: (1) the link was created with a pre-selected currency, (2) someone already clicked a currency tile, or (3) the link state persists. RECOMMENDATION: To test the currency selection screen (crypto tile grid, BTC/ETH/USDT tiles, mobile tap targets ≥44px), provide a payment link that shows Step 1, or clarify if testing should be performed on Step 2 (payment address screen with wallet deep-link button, human status lines, copy buttons). Complied with read-only testing: did NOT click tiles, did NOT enter emails, did NOT proceed."
+  - agent: "testing"
+    message: "❌ CRITICAL FAILURE (2026-08-26 21:31 UTC) — Wallet deep-link and human status features implemented in WRONG component. App uses CleanCheckoutV2.tsx (NEXT_PUBLIC_CLEAN_CHECKOUT_V2=true) but features were added to cryptoTransfer.tsx. Required test IDs [data-testid='human-status-waiting'] and [data-testid='open-in-wallet-btn'] NOT FOUND in rendered page. CleanCheckoutV2 uses different test IDs: 'clean-checkout-open-wallet', 'clean-checkout-copy-address', 'clean-checkout-copy-amount'. Copy buttons are 40x40px (below 44px requirement). React warnings confirmed: 2 'Invalid prop children supplied to Box' errors in CleanCheckoutV2.tsx:3407 (PanelShell). SOLUTION: Implement features in CleanCheckoutV2.tsx with correct test IDs OR disable CleanCheckoutV2 (set NEXT_PUBLIC_CLEAN_CHECKOUT_V2=false)."
+
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-26 (pod 43248c91) : DASHBOARD GREY-SPACE BUG FIX
 # ============================================================================
 ## User: "why this big grey space?" — huge blank area under the volume chart

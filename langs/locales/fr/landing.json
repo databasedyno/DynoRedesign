@@ -469,7 +469,8 @@
       "showQr": "Afficher le QR code",
       "hideQr": "Masquer le QR",
       "copy": "Copier",
-      "copied": "Copié"
+      "copied": "Copié",
+      "successNext": "Votre paiement est confirmé sur le réseau — rien d'autre à faire. {{name}} voit votre soutien immédiatement."
     },
     "support": {
       "anonymous": "Rendre mon soutien anonyme",
@@ -533,7 +534,18 @@
       "merchantVatId": "N° TVA du commerçant :",
       "customerVatId": "N° TVA du client :"
     },
-    "receiptSentTo": "Reçu envoyé à"
+    "receiptSentTo": "Reçu envoyé à",
+    "human": {
+      "pending": "En attente de la confirmation de votre paiement sur le réseau — généralement 5–15 minutes. Cette page se met à jour toute seule.",
+      "paid": "Paiement terminé — vos articles et votre reçu sont ci-dessous. Rien d'autre à faire.",
+      "expired": "Cette fenêtre de paiement a expiré avant l'arrivée d'un paiement. Si vous avez déjà envoyé des fonds, contactez le vendeur ci-dessous.",
+      "underpaid": "Le montant reçu était inférieur au total. Contactez le vendeur ci-dessous pour régler la différence.",
+      "refunded": "Cette commande a été remboursée. Selon le réseau, les fonds reviennent en quelques minutes à quelques heures.",
+      "refund_requested": "Un remboursement est en cours. Selon le réseau, il peut prendre quelques heures à apparaître."
+    },
+    "helpLine": "Quelque chose ne va pas ? Contactez {{merchant}} en mentionnant la commande #{{ref}}.",
+    "helpLineSeller": "le vendeur",
+    "helpLineLink": "Voir sa page"
   },
   "seo": {
     "home": "Accueil",

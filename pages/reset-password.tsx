@@ -52,13 +52,9 @@ const ResetPasswordPage = () => {
     const value = e.target.value;
     setNewPassword(value);
 
-    if (!value) {
-      setNewPasswordShowPasswordValidation(false);
-    } else if (passwordRegex.test(value)) {
-      setNewPasswordShowPasswordValidation(false);
-    } else {
-      setNewPasswordShowPasswordValidation(true);
-    }
+    // Public-surfaces clarity pass: keep the rules checklist visible until
+    // the password satisfies them (rules are stated BEFORE the user fails).
+    setNewPasswordShowPasswordValidation(!passwordRegex.test(value));
 
     if (newPasswordConfirm) {
       if (value && newPasswordConfirm && value !== newPasswordConfirm) {
@@ -76,7 +72,9 @@ const ResetPasswordPage = () => {
   };
 
   const handleNewPasswordFocus = () => {
-    if (newPassword && !passwordRegex.test(newPassword)) {
+    // Show the rules as soon as the field is focused — even while empty —
+    // so users never discover requirements via an error.
+    if (!passwordRegex.test(newPassword)) {
       setNewPasswordShowPasswordValidation(true);
     }
   };

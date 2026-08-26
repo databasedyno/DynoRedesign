@@ -11,7 +11,6 @@ import ProductImage from "@/Components/UI/ProductImage";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
-import { useRouter } from "next/router";
 import {
   Box, Container, Typography, Stack, Chip, TextField, IconButton, Divider,
   MenuItem, Select, FormControl, InputLabel, Button, Alert,
@@ -22,7 +21,7 @@ import ShoppingCartRounded from "@mui/icons-material/ShoppingCartRounded";
 import { Icon } from "@iconify/react";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
-import MiniCart from "@/Components/Page/Shop/MiniCart";
+import MiniCart, { OPEN_MINICART_EVENT } from "@/Components/Page/Shop/MiniCart";
 
 interface Merchant { handle: string; name: string; avatar?: string | null }
 interface Product {
@@ -47,7 +46,6 @@ function formatPrice(cents: number, ccy: string): string {
 }
 
 const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl, metaLang }) => {
-  const router = useRouter();
   const cart = useCart();
   const { t } = useTranslation("landing");
   const activeVariants = useMemo(() => (variants || []).filter((v) => v.is_active), [variants]);
@@ -85,7 +83,12 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
 
   const buyNow = () => {
     addToCart();
-    setTimeout(() => router.push(`/${merchant.handle}/cart`), 200);
+    // Stay-in-context (public-surfaces pass): open the cart SHEET over the
+    // product instead of page-hopping to /{handle}/cart. The cart page keeps
+    // working for old URLs and the sheet's "View full cart" link.
+    setTimeout(() => {
+      if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(OPEN_MINICART_EVENT));
+    }, 150);
   };
 
   const title = `${product.title} — @${merchant.handle} · Dynopay`;
@@ -177,16 +180,16 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
             ) : (
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography variant="body2">{t("shop.quantity", { defaultValue: "Quantity" })}</Typography>
-                <IconButton size="small" onClick={() => setQuantity((q) => Math.max(1, q - 1))} data-testid="product-detail-qty-dec">
+                <IconButton onClick={() => setQuantity((q) => Math.max(1, q - 1))} data-testid="product-detail-qty-dec" sx={{ width: 44, height: 44 }}>
                   <RemoveRounded fontSize="small" />
                 </IconButton>
                 <TextField
                   size="small"
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
-                  inputProps={{ "data-testid": "product-detail-qty-input", style: { textAlign: "center", width: 40 } }}
+                  inputProps={{ "data-testid": "product-detail-qty-input", inputMode: "numeric", style: { textAlign: "center", width: 40, minHeight: 28 } }}
                 />
-                <IconButton size="small" onClick={() => setQuantity((q) => q + 1)} data-testid="product-detail-qty-inc">
+                <IconButton onClick={() => setQuantity((q) => q + 1)} data-testid="product-detail-qty-inc" sx={{ width: 44, height: 44 }}>
                   <AddRounded fontSize="small" />
                 </IconButton>
                 {stockLeft != null && (
@@ -221,7 +224,16 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
 
             {added && (
               <Alert severity="success" data-testid="product-detail-added">
-                {t("shop.addedToCart", { defaultValue: "Added to cart." })} <Link href={`/${merchant.handle}/cart`}>{t("shop.viewCartArrow", { defaultValue: "View cart →" })}</Link>
+                {t("shop.addedToCart", { defaultValue: "Added to cart." })}{" "}
+                <Box
+                  component="button"
+                  type="button"
+                  data-testid="product-detail-view-cart"
+                  onClick={() => window.dispatchEvent(new CustomEvent(OPEN_MINICART_EVENT))}
+                  sx={{ background: "none", border: "none", p: 0, cursor: "pointer", font: "inherit", color: "inherit", textDecoration: "underline", fontWeight: 700 }}
+                >
+                  {t("shop.viewCartArrow", { defaultValue: "View cart →" })}
+                </Box>
               </Alert>
             )}
             {product.description_md && (

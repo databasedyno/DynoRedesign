@@ -19,6 +19,10 @@ import { useCart } from "@/contexts/CartContext";
 
 interface Props { handle: string }
 
+/** Fired by product pages ("Buy now" / "View cart") to open the cart sheet
+ *  in place — buyers keep their browsing position (stay-in-context pattern). */
+export const OPEN_MINICART_EVENT = "dynopay:open-minicart";
+
 interface Line {
   product_id: number | string;
   variant_id?: number | string | null;
@@ -76,6 +80,13 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
   // Keep the drawer contents fresh whenever it's open and the cart changes.
   useEffect(() => { if (open) refresh(); }, [open, itemsKey, refresh]);
 
+  // External open trigger (product page "Buy now" / "View cart").
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_MINICART_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_MINICART_EVENT, onOpen);
+  }, []);
+
   if (count <= 0 && !open) return null;
 
   const stepper = (l: Line) => {
@@ -87,7 +98,7 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
             size="small"
             data-testid="minicart-dec"
             onClick={() => cart.updateQuantity(handle, l.product_id as any, l.variant_id as any, l.quantity - 1)}
-            sx={{ border: "1px solid rgba(0,0,0,0.12)", width: 28, height: 28 }}
+            sx={{ border: "1px solid rgba(0,0,0,0.12)", width: { xs: 44, md: 28 }, height: { xs: 44, md: 28 } }}
           ><Icon icon="mdi:minus" width={15} /></IconButton>
         )}
         <Typography sx={{ minWidth: 22, textAlign: "center", fontWeight: 700, fontVariantNumeric: "tabular-nums" }} data-testid="minicart-qty">
@@ -98,7 +109,7 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
             size="small"
             data-testid="minicart-inc"
             onClick={() => cart.updateQuantity(handle, l.product_id as any, l.variant_id as any, l.quantity + 1)}
-            sx={{ border: "1px solid rgba(0,0,0,0.12)", width: 28, height: 28 }}
+            sx={{ border: "1px solid rgba(0,0,0,0.12)", width: { xs: 44, md: 28 }, height: { xs: 44, md: 28 } }}
           ><Icon icon="mdi:plus" width={15} /></IconButton>
         )}
       </Box>
@@ -140,7 +151,7 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
           <Typography variant="h6" sx={{ fontWeight: 800 }}>
             {t("checkout.store.yourCart", { defaultValue: "Your cart" })}
           </Typography>
-          <IconButton onClick={() => setOpen(false)} data-testid="minicart-close"><Icon icon="mdi:close" /></IconButton>
+          <IconButton onClick={() => setOpen(false)} data-testid="minicart-close" sx={{ minWidth: 44, minHeight: 44 }}><Icon icon="mdi:close" /></IconButton>
         </Box>
         <Divider />
 
@@ -173,7 +184,7 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
                 </Box>
                 <IconButton size="small" data-testid="minicart-remove"
                   onClick={() => cart.removeItem(handle, l.product_id as any, l.variant_id as any)}
-                  sx={{ alignSelf: "flex-start", color: "text.secondary" }}>
+                  sx={{ alignSelf: "flex-start", color: "text.secondary", minWidth: { xs: 44, md: "auto" }, minHeight: { xs: 44, md: "auto" } }}>
                   <Icon icon="mdi:trash-can-outline" width={18} />
                 </IconButton>
               </Box>

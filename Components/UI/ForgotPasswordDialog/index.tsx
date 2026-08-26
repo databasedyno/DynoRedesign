@@ -552,12 +552,12 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
                 const val = e.target.value.replace(/\s/g, "");
                 setNewPassword(val);
                 setError("");
-                if (!val) setShowPasswordValidation(false);
-                else if (passwordRegex.test(val)) setShowPasswordValidation(false);
-                else setShowPasswordValidation(true);
+                // Rules stay visible until satisfied (stated BEFORE failing).
+                setShowPasswordValidation(!passwordRegex.test(val));
               }}
               onFocus={() => {
-                if (newPassword && !passwordRegex.test(newPassword)) setShowPasswordValidation(true);
+                // Show rules on focus — even while the field is still empty.
+                if (!passwordRegex.test(newPassword)) setShowPasswordValidation(true);
               }}
               onBlur={() => { setTimeout(() => setShowPasswordValidation(false), 200); }}
               onKeyDown={(e) => { if (e.key === "Enter") handleResetPassword(); }}

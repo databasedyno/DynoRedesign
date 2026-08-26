@@ -124,7 +124,10 @@
     "noRlusdNetworks": "Nenhuma rede RLUSD configurada",
     "lowestFeeHint": "O TRC-20 geralmente tem as taxas de rede mais baixas.",
     "generatingAddress": "A gerar endereço…",
-    "trustNote": "Os fundos vão diretamente para o comerciante · montante bloqueado até o temporizador terminar"
+    "trustNote": "Os fundos vão diretamente para o comerciante · montante bloqueado até o temporizador terminar",
+    "openInWallet": "Abrir na app de carteira",
+    "humanWaiting": "Envie o valor exato acima — esta página atualiza sozinha assim que o seu pagamento aparecer.",
+    "humanConfirming": "Já vemos o seu pagamento — a aguardar confirmações da rede (normalmente 5–15 min). Pode manter esta página aberta ou voltar mais tarde."
   },
   "underpayment": {
     "title": "Pagamento Parcial Recebido",

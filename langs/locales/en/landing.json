@@ -469,7 +469,8 @@
       "showQr": "Show QR code",
       "hideQr": "Hide QR",
       "copy": "Copy",
-      "copied": "Copied"
+      "copied": "Copied",
+      "successNext": "Your payment is confirmed on the network — nothing else to do. {{name}} sees your support right away."
     },
     "support": {
       "anonymous": "Make my support anonymous",
@@ -533,7 +534,18 @@
       "merchantVatId": "Merchant VAT ID:",
       "customerVatId": "Customer VAT ID:"
     },
-    "receiptSentTo": "Receipt sent to"
+    "receiptSentTo": "Receipt sent to",
+    "human": {
+      "pending": "Waiting for your payment to confirm on the network — usually 5–15 minutes. This page updates by itself.",
+      "paid": "Payment complete — your items and receipt are below. Nothing else to do.",
+      "expired": "This payment window expired before a payment arrived. If you already sent funds, contact the seller below.",
+      "underpaid": "The amount received was less than the total. Contact the seller below to settle the difference.",
+      "refunded": "This order was refunded. Depending on the network, funds arrive back within minutes to a few hours.",
+      "refund_requested": "A refund is being processed. Depending on the network it can take a few hours to appear."
+    },
+    "helpLine": "Something looks wrong? Contact {{merchant}} and mention order #{{ref}}.",
+    "helpLineSeller": "the seller",
+    "helpLineLink": "Visit their page"
   },
   "seo": {
     "home": "Home",

@@ -958,6 +958,21 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')}{' '}
             {cryptoInfo?.crypto_base || confirmedAmount.cryptoLabel}
           </Typography>
+          {/* Public-surfaces clarity pass: one plain-English line on what
+              happens next — supporters know the moment is truly done. */}
+          <Typography
+            data-testid="inline-tip-success-next"
+            fontSize={12.5}
+            color={theme.palette.text.secondary}
+            mt={1}
+            sx={{ maxWidth: 340 }}
+          >
+            {t('creator.inline.successNext', {
+              defaultValue:
+                'Your payment is confirmed on the network — nothing else to do. {{name}} sees your support right away.',
+              name: effectiveTarget,
+            })}
+          </Typography>
         </Box>
 
         {showDonorMsg && (

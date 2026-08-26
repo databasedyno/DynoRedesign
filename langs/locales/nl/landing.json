@@ -469,7 +469,8 @@
       "showQr": "Toon QR-code",
       "hideQr": "QR verbergen",
       "copy": "Kopiëren",
-      "copied": "Gekopieerd"
+      "copied": "Gekopieerd",
+      "successNext": "Je betaling is bevestigd op het netwerk — je hoeft niets meer te doen. {{name}} ziet je steun meteen."
     },
     "support": {
       "anonymous": "Maak mijn steun anoniem",
@@ -533,7 +534,18 @@
       "merchantVatId": "BTW-nummer verkoper:",
       "customerVatId": "BTW-nummer klant:"
     },
-    "receiptSentTo": "Bon verzonden naar"
+    "receiptSentTo": "Bon verzonden naar",
+    "human": {
+      "pending": "Wachten tot je betaling op het netwerk is bevestigd — meestal 5–15 minuten. Deze pagina wordt vanzelf bijgewerkt.",
+      "paid": "Betaling voltooid — je items en bon staan hieronder. Je hoeft niets meer te doen.",
+      "expired": "Dit betaalvenster is verlopen voordat er een betaling aankwam. Heb je al geld gestuurd, neem dan hieronder contact op met de verkoper.",
+      "underpaid": "Het ontvangen bedrag was lager dan het totaal. Neem hieronder contact op met de verkoper om het verschil te regelen.",
+      "refunded": "Deze bestelling is terugbetaald. Afhankelijk van het netwerk is het geld binnen minuten tot enkele uren terug.",
+      "refund_requested": "Een terugbetaling wordt verwerkt. Afhankelijk van het netwerk kan het enkele uren duren."
+    },
+    "helpLine": "Klopt er iets niet? Neem contact op met {{merchant}} en vermeld bestelling #{{ref}}.",
+    "helpLineSeller": "de verkoper",
+    "helpLineLink": "Bekijk hun pagina"
   },
   "seo": {
     "home": "Home",

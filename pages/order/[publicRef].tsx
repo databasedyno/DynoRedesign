@@ -352,6 +352,22 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
           />
         </Stack>
 
+        {/* Public-surfaces clarity pass: one plain-English line answering
+            "what is happening with my money?" for every status. */}
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2, mt: -1.5 }}
+          data-testid="order-human-status"
+        >
+          {t(`order.human.${order.payment_status}`, {
+            defaultValue: t("order.human.pending", {
+              defaultValue:
+                "Waiting for your payment to confirm on the network — usually 5–15 minutes. This page updates by itself.",
+            }),
+          })}
+        </Typography>
+
         {polling && (
           <Alert severity="info" sx={{ mb: 2 }} data-testid="order-polling">
             {t("order.polling")}
@@ -497,6 +513,34 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
         )}
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
           {t("order.receiptSentTo")} <b>{order.buyer_email}</b>
+        </Typography>
+
+        {/* "What to do if something looks wrong" — merchant contact, plain words. */}
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block", mt: 1 }}
+          data-testid="order-help-line"
+        >
+          {t("order.helpLine", {
+            defaultValue:
+              "Something looks wrong? Contact {{merchant}} and mention order #{{ref}}.",
+            merchant: order.merchant?.name || t("order.helpLineSeller", { defaultValue: "the seller" }),
+            ref: order.public_ref.slice(0, 8).toUpperCase(),
+          })}
+          {order.merchant?.handle && (
+            <>
+              {" "}
+              <Box
+                component="a"
+                href={`/${order.merchant.handle}`}
+                sx={{ color: "inherit", fontWeight: 700, textDecoration: "underline" }}
+                data-testid="order-help-merchant-link"
+              >
+                {t("order.helpLineLink", { defaultValue: "Visit their page" })}
+              </Box>
+            </>
+          )}
         </Typography>
       </Container>
     </>

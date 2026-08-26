@@ -538,6 +538,52 @@ const Register = () => {
                 </Box>
               </Box>
 
+              {/* Public-surfaces pass: visible progress — signup is 3 short
+                  steps and users always know where they are. Going back
+                  (chips / "use a different email") keeps entered data. */}
+              {step !== "success" && (
+                <Box
+                  data-testid="register-progress"
+                  sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    {t("stepOf", {
+                      defaultValue: "Step {{current}} of {{total}}",
+                      current: step === "purpose" ? 1 : step === "input" ? 2 : 3,
+                      total: 3,
+                    })}
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                    {[1, 2, 3].map((i) => {
+                      const current = step === "purpose" ? 1 : step === "input" ? 2 : 3;
+                      return (
+                        <Box
+                          key={i}
+                          sx={{
+                            width: 18,
+                            height: 4,
+                            borderRadius: 2,
+                            backgroundColor:
+                              i <= current
+                                ? theme.palette.primary.main
+                                : theme.palette.action.selected,
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Box>
+              )}
+
               {/* ─── STEP 0: Purpose ─── */}
               {step === "purpose" && (
                 <>

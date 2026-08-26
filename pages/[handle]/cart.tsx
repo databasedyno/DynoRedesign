@@ -218,20 +218,20 @@ const CartPage: NextPageWithLayout = () => {
                     </Typography>
                   </Box>
                   <Stack direction="row" alignItems="center" spacing={0.5}>
-                    <IconButton size="small" onClick={() => updateQty(l, -1)} data-testid={`cart-line-dec-${l.product_id}`}>
+                    <IconButton size="small" onClick={() => updateQty(l, -1)} data-testid={`cart-line-dec-${l.product_id}`} sx={{ width: { xs: 44, md: 34 }, height: { xs: 44, md: 34 } }}>
                       <RemoveRounded fontSize="small" />
                     </IconButton>
                     <Typography sx={{ minWidth: 24, textAlign: "center" }} data-testid={`cart-line-qty-${l.product_id}`}>
                       {l.quantity}
                     </Typography>
-                    <IconButton size="small" onClick={() => updateQty(l, +1)} data-testid={`cart-line-inc-${l.product_id}`}>
+                    <IconButton size="small" onClick={() => updateQty(l, +1)} data-testid={`cart-line-inc-${l.product_id}`} sx={{ width: { xs: 44, md: 34 }, height: { xs: 44, md: 34 } }}>
                       <AddRounded fontSize="small" />
                     </IconButton>
                   </Stack>
                   <Typography sx={{ fontWeight: 700, minWidth: 96, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
                     {formatPrice(l.line_total_cents, currency)}
                   </Typography>
-                  <IconButton size="small" onClick={() => removeLine(l)} data-testid={`cart-line-remove-${l.product_id}`}>
+                  <IconButton size="small" onClick={() => removeLine(l)} data-testid={`cart-line-remove-${l.product_id}`} sx={{ width: { xs: 44, md: 34 }, height: { xs: 44, md: 34 } }}>
                     <DeleteOutlineRounded fontSize="small" />
                   </IconButton>
                 </Stack>

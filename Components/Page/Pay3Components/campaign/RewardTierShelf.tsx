@@ -9,10 +9,11 @@
  *   • Hover elevates + darkens border in the accent colour.
  *   • Empty state omitted — parent decides whether to render.
  */
-import React, { useRef } from "react";
+import React from "react";
 import { Box, Typography, useTheme, Button, IconButton } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
+import useEdgeFade from "@/hooks/useEdgeFade";
 
 export interface Tier {
   tier_id: number;
@@ -42,7 +43,10 @@ export default function RewardTierShelf({
   const accent = BRAND_ACCENT;
   const onAccent = "#0A0A0B";
   const border = theme.palette.divider;
-  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  // Public-surfaces pass: visible edge fade = honest scroll affordance
+  // (chevrons alone are easy to miss on touch).
+  const shelfFade = useEdgeFade<HTMLDivElement>();
+  const scrollerRef = shelfFade.ref;
 
   // Determine "most popular" by picking the median-priced tier as a reasonable
   // heuristic (mid-tier is what most Kickstarter campaigns highlight).
@@ -127,6 +131,9 @@ export default function RewardTierShelf({
           // Hide scrollbar
           "&::-webkit-scrollbar": { display: "none" },
           scrollbarWidth: "none",
+          // Edge fade — signals more tiers off-screen.
+          maskImage: shelfFade.maskImage,
+          WebkitMaskImage: shelfFade.WebkitMaskImage,
         }}
       >
         {tiers.map((tier) => {

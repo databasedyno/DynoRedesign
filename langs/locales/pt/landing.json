@@ -469,7 +469,8 @@
       "showQr": "Mostrar QR code",
       "hideQr": "Ocultar QR",
       "copy": "Copiar",
-      "copied": "Copiado"
+      "copied": "Copiado",
+      "successNext": "O seu pagamento está confirmado na rede — não há mais nada a fazer. {{name}} vê o seu apoio de imediato."
     },
     "support": {
       "anonymous": "Tornar o meu apoio anónimo",
@@ -533,7 +534,18 @@
       "merchantVatId": "NIF do comerciante:",
       "customerVatId": "NIF do cliente:"
     },
-    "receiptSentTo": "Recibo enviado para"
+    "receiptSentTo": "Recibo enviado para",
+    "human": {
+      "pending": "A aguardar a confirmação do seu pagamento na rede — normalmente 5–15 minutos. Esta página atualiza sozinha.",
+      "paid": "Pagamento concluído — os seus itens e o recibo estão abaixo. Não há mais nada a fazer.",
+      "expired": "Esta janela de pagamento expirou antes de chegar um pagamento. Se já enviou fundos, contacte o vendedor abaixo.",
+      "underpaid": "O valor recebido foi inferior ao total. Contacte o vendedor abaixo para acertar a diferença.",
+      "refunded": "Esta encomenda foi reembolsada. Conforme a rede, os fundos voltam em minutos a algumas horas.",
+      "refund_requested": "Um reembolso está a ser processado. Conforme a rede, pode demorar algumas horas a aparecer."
+    },
+    "helpLine": "Algo não parece certo? Contacte {{merchant}} e indique a encomenda #{{ref}}.",
+    "helpLineSeller": "o vendedor",
+    "helpLineLink": "Visitar a página"
   },
   "seo": {
     "home": "Início",

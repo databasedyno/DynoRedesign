@@ -103,7 +103,10 @@
     "noRlusdNetworks": "Keine RLUSD-Netzwerke konfiguriert",
     "lowestFeeHint": "TRC-20 hat normalerweise die niedrigsten Netzwerkgebühren.",
     "generatingAddress": "Adresse wird generiert…",
-    "trustNote": "Gelder gehen direkt an den Händler · Betrag gesperrt, bis der Timer endet"
+    "trustNote": "Gelder gehen direkt an den Händler · Betrag gesperrt, bis der Timer endet",
+    "openInWallet": "In Wallet-App öffnen",
+    "humanWaiting": "Senden Sie genau den oben angezeigten Betrag — diese Seite aktualisiert sich automatisch, sobald Ihre Zahlung erscheint.",
+    "humanConfirming": "Wir sehen Ihre Zahlung — warten auf Netzwerk-Bestätigungen (meist 5–15 Min.). Sie können die Seite offen lassen oder später zurückkommen."
   },
   "underpayment": {
     "title": "Teilzahlung Erhalten",

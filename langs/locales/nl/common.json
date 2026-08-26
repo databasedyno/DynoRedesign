@@ -103,7 +103,10 @@
     "noRlusdNetworks": "Geen RLUSD-netwerken geconfigureerd",
     "lowestFeeHint": "TRC-20 heeft meestal de laagste netwerkkosten.",
     "generatingAddress": "Adres aanmaken…",
-    "trustNote": "Fondsen gaan rechtstreeks naar de verkoper · bedrag vergrendeld totdat de timer eindigt"
+    "trustNote": "Fondsen gaan rechtstreeks naar de verkoper · bedrag vergrendeld totdat de timer eindigt",
+    "openInWallet": "Openen in wallet-app",
+    "humanWaiting": "Stuur exact het bovenstaande bedrag — deze pagina wordt vanzelf bijgewerkt zodra je betaling verschijnt.",
+    "humanConfirming": "We zien je betaling — wachten op netwerkbevestigingen (meestal 5–15 min). Je kunt deze pagina open laten of later terugkomen."
   },
   "underpayment": {
     "title": "Gedeeltelijke Betaling Ontvangen",

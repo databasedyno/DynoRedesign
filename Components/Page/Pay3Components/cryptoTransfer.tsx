@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { ArrowBack } from "@mui/icons-material";
 import {
   Box,
@@ -11,6 +11,7 @@ import {
   Tooltip,
   Button,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CopyIcon from "@/assets/Icons/CopyIcon";
@@ -239,6 +240,9 @@ const CryptoTransfer = ({
   const { t } = useTranslation('common');
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
+  // Phone-sized viewport → show the "Open in wallet" deep-link and grow
+  // touch targets to ≥44px (§ public-surfaces usability pass).
+  const isMobileCheckout = useMediaQuery("(max-width: 767.95px)");
   const dispatch = useDispatch();
   // Brand accent (lime) — used for selection + primary affordances to match
   // the landing page and donation checkout. Green (#10B981/#12B76A) is kept
@@ -604,6 +608,58 @@ const CryptoTransfer = ({
         severity: "success",
       },
     });
+  };
+
+  // ── "Open in wallet" deep-link (mobile only) ─────────────────────────────
+  // Standard open payment-URI schemes ONLY (no SDK, no WalletConnect). This
+  // pre-fills the buyer's own wallet app with the address (+ exact amount
+  // where the scheme supports it). ZERO payment-logic change — the same
+  // address/amount shown on screen, nothing else.
+  // Deliberately limited to NATIVE coins: token transfers (USDT/USDC/RLUSD)
+  // and memo chains (XRP) are excluded so a deep-link can never cause a
+  // wrong-asset or missing-memo mistake — those keep QR + copy only.
+  const toWei = (a: string): string | null => {
+    // Pure string math (no BigInt — TS target < ES2020): wei = int part
+    // concatenated with the fraction padded to 18 digits. Exact, no floats.
+    const [i, f = ""] = String(a).split(".");
+    if (!/^\d*$/.test(i) || !/^\d*$/.test(f)) return null;
+    const frac = (f + "0".repeat(18)).slice(0, 18);
+    return `${i || "0"}${frac}`.replace(/^0+(?=\d)/, "");
+  };
+  const walletUri = useMemo((): string | null => {
+    if (!cryptoDetails?.address || loading) return null;
+    const amt = isPartialPaymentMode && remainingPaymentInfo
+      ? remainingPaymentInfo.remainingAmount
+      : (selectedCurrency?.total_amount || selectedCurrency?.amount || 0);
+    const addr = cryptoDetails.address;
+    const a = String(amt);
+    if (!addr || !Number(amt)) return null;
+    switch (selectedCrypto) {
+      case "BTC":
+        return `bitcoin:${addr}?amount=${a}`;
+      case "LTC":
+        return `litecoin:${addr}?amount=${a}`;
+      case "DOGE":
+        return `dogecoin:${addr}?amount=${a}`;
+      case "BCH":
+        return addr.startsWith("bitcoincash:")
+          ? `${addr}?amount=${a}`
+          : `bitcoincash:${addr}?amount=${a}`;
+      case "SOL":
+        return `solana:${addr}?amount=${a}`;
+      case "ETH": {
+        const wei = toWei(a);
+        return wei ? `ethereum:${addr}?value=${wei}` : `ethereum:${addr}`;
+      }
+      case "TRX":
+        return `tron:${addr}`;
+      default:
+        return null;
+    }
+  }, [cryptoDetails?.address, loading, selectedCrypto, selectedCurrency, isPartialPaymentMode, remainingPaymentInfo]);
+  const openInWallet = () => {
+    if (!walletUri || typeof window === "undefined") return;
+    window.location.href = walletUri;
   };
   
   // Get polling interval based on chain (faster chains poll more frequently)
@@ -1808,7 +1864,7 @@ const CryptoTransfer = ({
                     : theme.palette.background.paper}
                   color={theme.palette.text.primary}
                   borderRadius="10px"
-                  sx={{ cursor: "pointer", transition: "border-color 0.15s ease, background-color 0.15s ease" }}
+                  sx={{ cursor: "pointer", transition: "border-color 0.15s ease, background-color 0.15s ease", minHeight: { xs: 44, md: "auto" } }}
                   onClick={() => handleNetworkChange(net)}
                   fontFamily="var(--font-sans)"
                 >
@@ -1885,7 +1941,7 @@ const CryptoTransfer = ({
                     : theme.palette.background.paper}
                   color={theme.palette.text.primary}
                   borderRadius="10px"
-                  sx={{ cursor: "pointer", transition: "border-color 0.15s ease, background-color 0.15s ease" }}
+                  sx={{ cursor: "pointer", transition: "border-color 0.15s ease, background-color 0.15s ease", minHeight: { xs: 44, md: "auto" } }}
                   onClick={() => handleRLUSDNetworkChange(net)}
                   fontFamily="var(--font-sans)"
                 >
@@ -2015,8 +2071,9 @@ const CryptoTransfer = ({
                       sx={{
                         bgcolor: theme.palette.action.hover,
                         p: 0.5,
-                        height: "26px",
-                        width: "26px",
+                        // ≥44px touch target on phones (public-surfaces pass).
+                        height: { xs: "44px", md: "26px" },
+                        width: { xs: "44px", md: "26px" },
                         borderRadius: "7px",
                         "&:hover": { bgcolor: theme.palette.action.selected },
                       }}
@@ -2026,6 +2083,31 @@ const CryptoTransfer = ({
                     </IconButton>
                   </Tooltip>
                 </Box>
+
+                {/* "Open in wallet" — mobile only, native coins only (standard
+                    payment URI; same address/amount as shown — no logic change) */}
+                {isMobileCheckout && walletUri && !loading && (
+                  <Button
+                    fullWidth
+                    onClick={openInWallet}
+                    data-testid="open-in-wallet-btn"
+                    sx={{
+                      mt: 1.5,
+                      minHeight: 46,
+                      borderRadius: "10px",
+                      textTransform: "none",
+                      fontFamily: "var(--font-sans)",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color: "#0A0A0F",
+                      backgroundColor: ACCENT,
+                      "&:hover": { backgroundColor: ACCENT, filter: "brightness(1.05)" },
+                    }}
+                    startIcon={<Icon icon="mdi:wallet-outline" width={18} />}
+                  >
+                    {t('crypto.openInWallet', { defaultValue: 'Open in wallet app' })}
+                  </Button>
+                )}
 
                 {/* Memo / Destination Tag - shown for XRP and RLUSD (XRPL) */}
                 {requiresMemo(selectedCrypto, selectedNetwork) && cryptoDetails?.memo && (
@@ -2120,25 +2202,37 @@ const CryptoTransfer = ({
                 
                 {/* Polling indicator */}
                 {isPolling && !isStart && (
-                  <Box 
-                    display="flex" 
-                    alignItems="center" 
-                    justifyContent="center" 
-                    gap={1}
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={0.5}
                     mt={2}
                     bgcolor={isDark ? 'rgba(16, 185, 129, 0.1)' : "#F0FDF4"}
                     borderRadius={2}
                     py={1}
                     px={2}
                   >
-                    <CircularProgress size={14} sx={{ color: "#10B981" }} />
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <CircularProgress size={14} sx={{ color: "#10B981" }} />
+                      <Typography
+                        variant="caption"
+                        color="#10B981"
+                        fontFamily="var(--font-sans)"
+                        fontWeight={500}
+                      >
+                        {t('crypto.monitoringPayment')}
+                      </Typography>
+                    </Box>
+                    {/* Plain-English line — what is happening + what to do */}
                     <Typography
+                      data-testid="human-status-waiting"
                       variant="caption"
-                      color="#10B981"
+                      sx={{ color: theme.palette.text.secondary, textAlign: "center" }}
                       fontFamily="var(--font-sans)"
-                      fontWeight={500}
                     >
-                      {t('crypto.monitoringPayment')}
+                      {t('crypto.humanWaiting', { defaultValue: 'Send the exact amount above — this page updates by itself once your payment appears.' })}
                     </Typography>
                   </Box>
                 )}
@@ -2329,8 +2423,9 @@ const CryptoTransfer = ({
                           sx={{
                             bgcolor: theme.palette.action.hover,
                             p: 0.5,
-                            height: "26px",
-                            width: "26px",
+                            // ≥44px touch target on phones.
+                            height: { xs: "44px", md: "26px" },
+                            width: { xs: "44px", md: "26px" },
                             borderRadius: "7px",
                             "&:hover": { bgcolor: theme.palette.action.selected },
                             mt: 0.75,
@@ -2443,6 +2538,17 @@ const CryptoTransfer = ({
                       fontFamily="var(--font-sans)"
                     >
                       {t('crypto.paymentDetectedDesc', { confirmations: 1 })}
+                    </Typography>
+                    {/* Plain-English reassurance while the network confirms */}
+                    <Typography
+                      data-testid="human-status-confirming"
+                      variant="body2"
+                      sx={{ color: theme.palette.text.secondary, mt: 0.75 }}
+                      fontSize={"12px"}
+                      fontWeight={400}
+                      fontFamily="var(--font-sans)"
+                    >
+                      {t('crypto.humanConfirming', { defaultValue: 'We can see your payment — waiting for network confirmations (usually 5–15 min). You can safely keep this page open or come back later.' })}
                     </Typography>
                   </Paper>
                 </Box>

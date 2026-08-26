@@ -124,7 +124,10 @@
     "noRlusdNetworks": "Aucun réseau RLUSD configuré",
     "lowestFeeHint": "Le TRC-20 a généralement les frais de réseau les plus bas.",
     "generatingAddress": "Génération de l'adresse…",
-    "trustNote": "Les fonds vont directement au marchand · montant bloqué jusqu'à la fin du minuteur"
+    "trustNote": "Les fonds vont directement au marchand · montant bloqué jusqu'à la fin du minuteur",
+    "openInWallet": "Ouvrir dans l'app portefeuille",
+    "humanWaiting": "Envoyez le montant exact ci-dessus — cette page se met à jour toute seule dès que votre paiement apparaît.",
+    "humanConfirming": "Nous voyons votre paiement — en attente des confirmations du réseau (généralement 5–15 min). Vous pouvez garder cette page ouverte ou revenir plus tard."
   },
   "underpayment": {
     "title": "Paiement Partiel Reçu",

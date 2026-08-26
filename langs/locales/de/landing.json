@@ -469,7 +469,8 @@
       "showQr": "QR-Code anzeigen",
       "hideQr": "QR ausblenden",
       "copy": "Kopieren",
-      "copied": "Kopiert"
+      "copied": "Kopiert",
+      "successNext": "Ihre Zahlung ist im Netzwerk bestätigt — nichts weiter zu tun. {{name}} sieht Ihre Unterstützung sofort."
     },
     "support": {
       "anonymous": "Meine Unterstützung anonym machen",
@@ -533,7 +534,18 @@
       "merchantVatId": "USt-IdNr. Händler:",
       "customerVatId": "USt-IdNr. Kunde:"
     },
-    "receiptSentTo": "Beleg gesendet an"
+    "receiptSentTo": "Beleg gesendet an",
+    "human": {
+      "pending": "Warten auf die Bestätigung Ihrer Zahlung im Netzwerk — meist 5–15 Minuten. Diese Seite aktualisiert sich automatisch.",
+      "paid": "Zahlung abgeschlossen — Ihre Artikel und Ihr Beleg stehen unten. Nichts weiter zu tun.",
+      "expired": "Dieses Zahlungsfenster ist abgelaufen, bevor eine Zahlung ankam. Falls Sie bereits Geld gesendet haben, kontaktieren Sie unten den Verkäufer.",
+      "underpaid": "Der erhaltene Betrag war geringer als die Summe. Kontaktieren Sie unten den Verkäufer, um die Differenz zu klären.",
+      "refunded": "Diese Bestellung wurde erstattet. Je nach Netzwerk sind die Gelder in Minuten bis wenigen Stunden zurück.",
+      "refund_requested": "Eine Erstattung wird bearbeitet. Je nach Netzwerk kann es einige Stunden dauern."
+    },
+    "helpLine": "Stimmt etwas nicht? Kontaktieren Sie {{merchant}} und nennen Sie Bestellung #{{ref}}.",
+    "helpLineSeller": "den Verkäufer",
+    "helpLineLink": "Seite besuchen"
   },
   "seo": {
     "home": "Startseite",

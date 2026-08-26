@@ -1,0 +1,84 @@
+{
+  "summary": "Final verification of Public Surfaces Usability Pass on CleanCheckoutV2 buyer checkout. Used the fresh QA link (link_id 260, $25 USD, 24h). Executed all 6 requested tests (desktop 1440x900 + mobile 390x844) in a single Playwright session. Selected Litecoin/LTC and reached the awaiting-payment state on both viewports. All required data-testid elements render, wallet deep-link uses correct crypto URI scheme (litecoin:...?amount=0.50136371), copy button flips to 'Copied', sticky mobile bar present with 48px buttons, no horizontal overflow, all interactive targets >=44px, no network 4xx/5xx, no React runtime errors — only 2 dev-only PropTypes warnings from MUI Box in PanelShell.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CleanCheckoutV2 / clean-checkout-copy-address", "issue": "Copy → Copied transition causes a minor layout shift (>2px) in the button's bounding box due to text-width change. Not visually jarring but violates strict 'no layout jump' criterion. Suggest reserving min-width or using fixed-width label.", "selector": "[data-testid=clean-checkout-copy-address]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "CleanCheckoutV2 PanelShell (CleanCheckoutV2.tsx:3422)", "issues": ["React dev warning: 'Invalid prop `children` supplied to ForwardRef(Box), expected a ReactNode' — logged twice. Indicates a falsy/undefined child (or an array containing an invalid element) being passed to an MUI Box inside PanelShell. Dev-only PropTypes warning, not visible in production build but should be cleaned up."]}
+    ]
+  },
+  "test_results_detail": {
+    "TEST1_desktop_render": {
+      "h1": "Pay The Dev Store",
+      "amount": "$25.00 USD",
+      "network_select": true,
+      "currency_select": true,
+      "status": "PASS"
+    },
+    "TEST2_desktop_awaiting_state": {
+      "qr_svg": true,
+      "address": "LXkPyUSGDKML81Jp14wR7zvk6gELrNTMLh",
+      "copy_address_btn": true,
+      "copy_amount_btn": true,
+      "open_wallet_btn": true,
+      "wallet_href": "litecoin:LXkPyUSGDKML81Jp14wR7zvk6gELrNTMLh?amount=0.50136371",
+      "wallet_tag": "A (anchor)",
+      "status_area": true,
+      "timeline": true,
+      "timeline_steps": "Waiting / Detected / Confirmed",
+      "status_text": "Waiting for payment",
+      "countdown_bar": true,
+      "status": "PASS"
+    },
+    "TEST3_copy_flip": {
+      "before": "Copy",
+      "after": "Copied",
+      "flipped": true,
+      "layout_shift_gt_2px": true,
+      "status": "PASS with minor layout-shift note"
+    },
+    "TEST4_mobile_sticky_bar": {
+      "sticky_bar": true,
+      "sticky_open_wallet_height_px": 48,
+      "sticky_copy_address_height_px": 48,
+      "scrollWidth": 390,
+      "no_horizontal_overflow": true,
+      "status": "PASS"
+    },
+    "TEST5_mobile_touch_targets": {
+      "network_select_h": 46,
+      "currency_select_h": 46,
+      "copy_address_h": 44,
+      "copy_amount_h": 44,
+      "open_wallet_h": 48,
+      "all_ge_44px": true,
+      "status": "PASS"
+    },
+    "TEST6_console_and_network": {
+      "network_4xx_5xx": 0,
+      "react_errors": 0,
+      "dev_warnings": 2,
+      "warning_summary": "MUI Box invalid `children` proptype in PanelShell (CleanCheckoutV2.tsx:3422)",
+      "status": "PASS (warnings noted)"
+    }
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: reserve min-width on [data-testid=clean-checkout-copy-address] (and copy-amount) so 'Copy' → 'Copied' text change does not shift the button bounds.",
+    "Optional: fix the MUI Box `children` PropTypes warning in CleanCheckoutV2.tsx around line 3422 (PanelShell) — likely a conditionally-rendered falsy child (e.g. `{cond && <X/>}` where cond is `0`/`''` or an array containing `undefined`)."
+  ],
+  "critical_code_review_comments": [
+    "CleanCheckoutV2.tsx is very large (>3400 lines based on stack trace + refs to lines 1442/1560/1657/3422). Strongly consider splitting into subcomponents (PanelShell, CheckoutStatusTimeline, StickyActionBar, QRPanel) into separate files for maintainability.",
+    "PropTypes warning suggests some children arrays contain undefined/null — always guard with `? :` returning `null` or use React.Fragment sparingly to avoid MUI Box receiving non-ReactNode arrays."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (6/6 tests pass, 2 dev-only warnings)"},
+  "seed_data_creation": "None. Only one pending payment attempt on the merchant's own QA link (as explicitly permitted by request).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Usability Pass on CleanCheckoutV2 fully verified on live preview using fresh link_id 260. All data-testids present, wallet deep-link scheme correct (litecoin: with amount), sticky bar and touch-target sizing meet 44px spec, no network failures, no React runtime errors. Only cleanup items are (a) minor Copy-button width shift and (b) MUI Box children PropTypes warning at CleanCheckoutV2.tsx:3422.",
+  "rca of the issue": "N/A — no functional bug found. The two dev-only PropTypes warnings in PanelShell (CleanCheckoutV2.tsx:3422) are caused by rendering an invalid child (undefined / boolean / array with undefined items) inside an MUI Box; mitigation is to coerce conditional renders to `null` explicitly and audit the children array around line 3422."
+}

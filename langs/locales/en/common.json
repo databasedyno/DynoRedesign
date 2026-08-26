@@ -125,7 +125,10 @@
     "noRlusdNetworks": "No RLUSD networks configured",
     "lowestFeeHint": "TRC-20 usually has the lowest network fees.",
     "generatingAddress": "Generating address…",
-    "trustNote": "Funds go directly to the merchant · amount locked until the timer ends"
+    "trustNote": "Funds go directly to the merchant · amount locked until the timer ends",
+    "openInWallet": "Open in wallet app",
+    "humanWaiting": "Send the exact amount above — this page updates by itself once your payment appears.",
+    "humanConfirming": "We can see your payment — waiting for network confirmations (usually 5–15 min). You can safely keep this page open or come back later."
   },
   "underpayment": {
     "title": "Partial Payment Received",
