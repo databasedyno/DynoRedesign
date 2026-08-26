@@ -431,7 +431,16 @@
       "emailRequired": "E-mail is verplicht zodat we je bon kunnen sturen.",
       "emailInvalid": "Voer een geldig e-mailadres in.",
       "emptyCart": "Je winkelwagen is leeg.",
-      "minTotal": "Het minimale bestelbedrag is {{min}}."
+      "minTotal": "Het minimale bestelbedrag is {{min}}.",
+      "subtotal": "Subtotaal",
+      "totalLabel": "Totaal",
+      "vatFallback": "Btw",
+      "reverseChargeSuffix": "Verleggingsregeling",
+      "inclSuffix": "incl.",
+      "vatValid": "✓ Geldig EU-btw-nummer — verleggingsregeling van toepassing, er wordt geen btw in rekening gebracht.",
+      "vatInvalid": "Dit btw-nummer kon niet worden gevalideerd — het standaardtarief wordt toegepast.",
+      "vatHint": "Bedrijven in de EU kunnen een btw-nummer invoeren voor de verleggingsregeling.",
+      "reverseChargeNotice": "EU B2B-verleggingsregeling: geen btw in rekening gebracht. Je moet de btw in je eigen lidstaat aangeven."
     }
   },
   "creator": {

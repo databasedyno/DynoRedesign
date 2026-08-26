@@ -431,7 +431,16 @@
       "emailRequired": "L'e-mail est requis pour vous envoyer votre reçu.",
       "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
       "emptyCart": "Votre panier est vide.",
-      "minTotal": "Le total minimum de commande est de {{min}}."
+      "minTotal": "Le total minimum de commande est de {{min}}.",
+      "subtotal": "Sous-total",
+      "totalLabel": "Total",
+      "vatFallback": "TVA",
+      "reverseChargeSuffix": "Autoliquidation",
+      "inclSuffix": "incl.",
+      "vatValid": "✓ Numéro de TVA UE valide — l'autoliquidation s'applique, aucune TVA ne sera facturée.",
+      "vatInvalid": "Ce numéro de TVA n'a pas pu être validé — la taxe standard s'appliquera.",
+      "vatHint": "Les entreprises de l'UE peuvent saisir un numéro de TVA pour l'autoliquidation.",
+      "reverseChargeNotice": "Autoliquidation B2B dans l'UE : aucune TVA facturée. Vous devez déclarer la TVA dans votre propre État membre."
     }
   },
   "creator": {

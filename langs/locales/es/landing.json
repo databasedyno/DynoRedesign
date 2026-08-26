@@ -431,7 +431,16 @@
       "emailRequired": "El correo es obligatorio para enviarte el recibo.",
       "emailInvalid": "Introduce un correo válido.",
       "emptyCart": "Tu carrito está vacío.",
-      "minTotal": "El total mínimo del pedido es {{min}}."
+      "minTotal": "El total mínimo del pedido es {{min}}.",
+      "subtotal": "Subtotal",
+      "totalLabel": "Total",
+      "vatFallback": "IVA",
+      "reverseChargeSuffix": "Inversión del sujeto pasivo",
+      "inclSuffix": "incl.",
+      "vatValid": "✓ ID de IVA de la UE válido — se aplica inversión del sujeto pasivo, no se cobrará IVA.",
+      "vatInvalid": "No se pudo validar este ID de IVA — se aplicará el impuesto estándar.",
+      "vatHint": "Las empresas de la UE pueden introducir un ID de IVA para la inversión del sujeto pasivo.",
+      "reverseChargeNotice": "Inversión del sujeto pasivo B2B en la UE: no se cobra IVA. Debes declarar el IVA en tu propio estado miembro."
     }
   },
   "creator": {

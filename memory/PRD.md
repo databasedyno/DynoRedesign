@@ -1,3 +1,26 @@
+# FEATURE (2026-06 fork) — S4.3 store-checkout VAT strings localized (6 langs) — DONE
+
+Preview: https://9ce6d8ae-5030-4fe3-992a-47e6471c8db2.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).
+
+Localized every hardcoded-English VAT string on the STORE payment page (pages/[handle]/checkout.tsx,
+i18n ns "landing"): VAT-input helper (valid EU / invalid / default hint), Subtotal, Total, the
+`tax_label || "VAT"` fallback, the "Reverse-charge" suffix, the "· incl." suffix, and the EU B2B
+reverse-charge notice. Added 9 keys to `checkout.store` in ALL 6 landing.json (en/es/pt/fr/de/nl):
+subtotal, totalLabel, vatFallback, reverseChargeSuffix, inclSuffix, vatValid, vatInvalid, vatHint,
+reverseChargeNotice. InlineTipCheckout.tsx has no VAT strings.
+
+VERIFIED: frontend tsc EXIT 0; German /demo/checkout screenshot — "Kasse", "USt-IdNr. (optional)",
+helper "Unternehmen in der EU können eine USt-IdNr. für Reverse-Charge angeben.", "Gesamt"
+(no English leftovers). Tax-summary rows (Subtotal/rate/reverse-charge) need a live EU-tax merchant
+quote to display — same simple key→t() swaps, tsc-verified + keys present in all locales.
+
+SEPARATE GAP FLAGGED (new backlog item L1, NOT in scope of this VAT ticket): pages/[handle]/cart.tsx
+uses NO i18n — the whole cart page is hardcoded English. Left untouched to avoid half-localizing it.
+
+---
+
+
+
 # BUGFIX (2026-06 fork) — Flutterwave webhook missing-`return` (headers-sent / unsigned-payload processing) — DONE
 
 Preview: https://9ce6d8ae-5030-4fe3-992a-47e6471c8db2.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).

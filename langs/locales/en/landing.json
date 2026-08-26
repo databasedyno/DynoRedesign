@@ -431,7 +431,16 @@
       "emailRequired": "Email is required so we can send your receipt.",
       "emailInvalid": "Please enter a valid email address.",
       "emptyCart": "Your cart is empty.",
-      "minTotal": "Minimum order total is {{min}}."
+      "minTotal": "Minimum order total is {{min}}.",
+      "subtotal": "Subtotal",
+      "totalLabel": "Total",
+      "vatFallback": "VAT",
+      "reverseChargeSuffix": "Reverse-charge",
+      "inclSuffix": "incl.",
+      "vatValid": "✓ Valid EU VAT ID — reverse-charge applies, no VAT will be charged.",
+      "vatInvalid": "This VAT ID couldn't be validated — standard tax will apply.",
+      "vatHint": "Businesses in the EU can enter a VAT ID for reverse-charge.",
+      "reverseChargeNotice": "EU B2B reverse-charge: no VAT charged. You must account for VAT in your own member state."
     }
   },
   "creator": {

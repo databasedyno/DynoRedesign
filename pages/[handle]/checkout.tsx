@@ -292,10 +292,10 @@ const CheckoutPage: NextPageWithLayout = () => {
             placeholder="e.g. DE123456789"
             helperText={
               quote?.reverse_charge
-                ? "✓ Valid EU VAT ID — reverse-charge applies, no VAT will be charged."
+                ? t("checkout.store.vatValid")
                 : vatId.trim() && quote && quote.customer_vat_id_valid === false
-                ? "This VAT ID couldn't be validated — standard tax will apply."
-                : "Businesses in the EU can enter a VAT ID for reverse-charge."
+                ? t("checkout.store.vatInvalid")
+                : t("checkout.store.vatHint")
             }
           />
         </Stack>
@@ -316,7 +316,7 @@ const CheckoutPage: NextPageWithLayout = () => {
           {quote?.apply_tax && (Number(quote?.tax_cents) > 0 || quote?.reverse_charge) && (
             <>
               <Stack direction="row" justifyContent="space-between">
-                <Typography variant="body2" color="text.secondary">Subtotal</Typography>
+                <Typography variant="body2" color="text.secondary">{t("checkout.store.subtotal")}</Typography>
                 <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="checkout-subtotal">
                   {formatPrice(Number(quote?.subtotal_cents ?? subtotalCents), quote?.currency || currency)}
                 </Typography>
@@ -324,8 +324,8 @@ const CheckoutPage: NextPageWithLayout = () => {
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="body2" color="text.secondary">
                   {quote?.reverse_charge
-                    ? `${quote?.tax_label || "VAT"} — Reverse-charge`
-                    : `${quote?.tax_label || "VAT"}${quote?.tax_rate != null ? ` (${Number(quote?.tax_rate)}%)` : ""}${quote?.tax_inclusive ? " · incl." : ""}`}
+                    ? `${quote?.tax_label || t("checkout.store.vatFallback")} — ${t("checkout.store.reverseChargeSuffix")}`
+                    : `${quote?.tax_label || t("checkout.store.vatFallback")}${quote?.tax_rate != null ? ` (${Number(quote?.tax_rate)}%)` : ""}${quote?.tax_inclusive ? ` · ${t("checkout.store.inclSuffix")}` : ""}`}
                 </Typography>
                 <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="checkout-tax">
                   {formatPrice(quote?.reverse_charge ? 0 : Number(quote?.tax_cents) || 0, quote?.currency || currency)}
@@ -334,14 +334,14 @@ const CheckoutPage: NextPageWithLayout = () => {
             </>
           )}
           <Stack direction="row" justifyContent="space-between">
-            <Typography sx={{ fontWeight: 700 }}>Total</Typography>
+            <Typography sx={{ fontWeight: 700 }}>{t("checkout.store.totalLabel")}</Typography>
             <Typography sx={{ fontWeight: 800, fontVariantNumeric: "tabular-nums" }} data-testid="checkout-total">
               {formatPrice(totalCents, quote?.currency || currency)}
             </Typography>
           </Stack>
           {quote?.reverse_charge && (
             <Typography variant="caption" color="text.secondary" data-testid="checkout-reverse-charge-notice">
-              EU B2B reverse-charge: no VAT charged. You must account for VAT in your own member state.
+              {t("checkout.store.reverseChargeNotice")}
             </Typography>
           )}
         </Stack>

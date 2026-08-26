@@ -11,6 +11,7 @@
 #   [x] Company rename Dynotech → "Dynopay Innovations, LDA" (email/PDF/invoice/footers)
 #   [x] emailService default-export barrel fix (was a DO/tsc build blocker)
 #   [x] Flutterwave webhook missing-`return` bug (§2) — testing_agent iter_85, 10/10 PASS
+#   [x] S4.3 store-checkout VAT strings localized (6 langs) — DE /checkout screenshot-verified
 #
 # STALE / OBSOLETE (do NOT pick up):
 #   S3.0 / S3.1 checkboxes below are stale — the model is LIVE.
@@ -21,7 +22,7 @@
 #   P1  A2  network-fees stale-while-revalidate   → never a cold fee lookup at checkout
 #   P1  A3  admin live money-path health dashboard → settlements/ledger/provider health
 #   P1  A1  reservation burst headroom            → per-merchant flash-sale backpressure
-#   P2  S4.3 VAT label fix                         → last untranslated store-checkout string
+#   P2  L1  cart-page i18n                        → /[handle]/cart is fully un-internationalized (all EN)
 #   P2  S4.4 "$10 minimum" hint                    → tips/support/donation inputs
 #   P2  S4.2 mobile chat polish                    → scroll-to-top overlaps open chat panel
 #   P2  B1  SMS AutoFill hint   ·  B2 font-flash polish / landing speed report
@@ -869,11 +870,24 @@ then validate with a small live amount before general availability.
 #   flagged by testing iteration_84 design_issues.) Approach: SupportChatWidget can
 #   set a body attr / CSS var when open; ScrollToTopButton hides on mobile when set.
 
-## S4.3 [ ] VAT Label Fix
-#   Finish the last untranslated VAT string flagged on the STORE payment page during
-#   the earlier i18n pass (iteration_81 follow-up). Check
-#   Components/Page/Creator/InlineTipCheckout.tsx + pages/[handle]/checkout.tsx and
-#   langs/locales/{en,es,pt,fr,de,nl}/landing.json for the hardcoded/ missing VAT key.
+## S4.3 [x] VAT Label Fix — DONE 2026-06 (fork dynopay-setup-5)
+#   DONE: localized ALL VAT strings on the STORE payment page pages/[handle]/checkout.tsx
+#   (ns "landing"): VAT-input helper (valid / invalid / hint), Subtotal, Total, the
+#   `tax_label || "VAT"` fallback, the "Reverse-charge" suffix, the "· incl." suffix, and the
+#   EU B2B reverse-charge notice. Added 9 keys to checkout.store in all 6 landing.json locales
+#   (subtotal, totalLabel, vatFallback, reverseChargeSuffix, inclSuffix, vatValid, vatInvalid,
+#   vatHint, reverseChargeNotice). Frontend tsc EXIT 0; German /demo/checkout screenshot-verified
+#   ("USt-IdNr. (optional)" + "Unternehmen in der EU können eine USt-IdNr. für Reverse-Charge
+#   angeben." + "Gesamt"). InlineTipCheckout.tsx has NO VAT strings (tips have no tax display).
+#   NOTE (separate follow-up L1): pages/[handle]/cart.tsx uses NO i18n at all — every string
+#   (Subtotal, "+ est. VAT", "Est. total:", "Continue shopping", "Checkout", "Your cart is empty.")
+#   is hardcoded English. That's a whole-page localization task, out of this VAT-only ticket's scope.
+
+## L1 [ ] Cart page (/[handle]/cart) full i18n
+#   pages/[handle]/cart.tsx has no useTranslation — localize all buyer-facing strings (add keys under
+#   landing.json -> a new `cart.store` object, mirror the checkout.store pattern). Surfaces: L169
+#   empty-cart, L170/242 "Continue shopping", L220 Subtotal, L227 est-tax line, L230 "Est. total:",
+#   L251 "Checkout", plus the page title/qty controls.
 
 ## S4.4 [ ] $10 Minimum Hint
 #   Show a clear "$10 minimum" helper on tips, support and donation amount inputs so

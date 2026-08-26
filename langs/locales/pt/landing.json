@@ -431,7 +431,16 @@
       "emailRequired": "O e-mail é obrigatório para enviarmos seu recibo.",
       "emailInvalid": "Insira um e-mail válido.",
       "emptyCart": "Seu carrinho está vazio.",
-      "minTotal": "O total mínimo do pedido é {{min}}."
+      "minTotal": "O total mínimo do pedido é {{min}}.",
+      "subtotal": "Subtotal",
+      "totalLabel": "Total",
+      "vatFallback": "IVA",
+      "reverseChargeSuffix": "Autoliquidação",
+      "inclSuffix": "incl.",
+      "vatValid": "✓ NIF de IVA da UE válido — aplica-se autoliquidação, não será cobrado IVA.",
+      "vatInvalid": "Não foi possível validar este NIF de IVA — será aplicado o imposto padrão.",
+      "vatHint": "Empresas na UE podem inserir um NIF de IVA para a autoliquidação.",
+      "reverseChargeNotice": "Autoliquidação B2B na UE: não é cobrado IVA. Você deve declarar o IVA no seu próprio Estado-Membro."
     }
   },
   "creator": {

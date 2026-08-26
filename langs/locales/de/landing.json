@@ -431,7 +431,16 @@
       "emailRequired": "E-Mail ist erforderlich, um dir den Beleg zu senden.",
       "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "emptyCart": "Dein Warenkorb ist leer.",
-      "minTotal": "Der Mindestbestellwert beträgt {{min}}."
+      "minTotal": "Der Mindestbestellwert beträgt {{min}}.",
+      "subtotal": "Zwischensumme",
+      "totalLabel": "Gesamt",
+      "vatFallback": "MwSt.",
+      "reverseChargeSuffix": "Reverse-Charge",
+      "inclSuffix": "inkl.",
+      "vatValid": "✓ Gültige EU-USt-IdNr. — Reverse-Charge gilt, es wird keine MwSt. berechnet.",
+      "vatInvalid": "Diese USt-IdNr. konnte nicht validiert werden — es gilt die reguläre Steuer.",
+      "vatHint": "Unternehmen in der EU können eine USt-IdNr. für Reverse-Charge angeben.",
+      "reverseChargeNotice": "EU-B2B-Reverse-Charge: keine MwSt. berechnet. Sie müssen die MwSt. in Ihrem eigenen Mitgliedstaat abführen."
     }
   },
   "creator": {
