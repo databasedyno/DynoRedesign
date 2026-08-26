@@ -7,8 +7,8 @@ build: "$42M is not real" → removed; hide the crypto price ticker (option a); 
 fee-free" (not $500) → kept consistent. Scope = focused conversion pass (option a).
 
 IMPLEMENTED (Components/Page/Home/*, v3 Aurora design system):
-- HERO rewrite (v3/HeroPlayground.tsx, full rewrite): merchant-first headline "Accept crypto payments. / Settle
-  in stablecoin." + ONE primary CTA `hero-primary-cta` "Start accepting payments" → /auth/register?ref=hero_primary,
+- HERO rewrite (v3/HeroPlayground.tsx, full rewrite): merchant-first headline "Accept crypto payments. / Get paid
+  your way." + ONE primary CTA `hero-primary-cta` "Start accepting payments" → /auth/register?ref=hero_primary,
   quiet secondary `hero-secondary-cta` "See how it works" (smooth-scroll to #how-it-works), and a low-key creator
   path `hero-creator-link` → /for/creators. The old @handle-claim input + "Send a tip" card are GONE; the animated
   card is now a non-navigating "Live demo" checkout (`hero-checkout-demo`, `hero-demo-pill`).
@@ -26,6 +26,10 @@ IMPLEMENTED (Components/Page/Home/*, v3 Aurora design system):
   "15+ networks · 0.5% lowest fee · 24/7 settlement" across all 6 auth.json locales.
 - i18n: all new/changed copy synced across en/es/pt/fr/de/nl (landing.json v3.hero/howitworks/numbers/audience/faq;
   auth.json trust* keys).
+- ACCURACY FIX (follow-up): reworded all "auto-converts to stablecoin" copy to show it is the merchant's CHOICE
+  ("Keep the original coin or auto-convert to USDC/USDT — your choice"); hero headline is now "Accept crypto
+  payments. / Get paid your way.", how-it-works step 3 "Get paid your way", and FAQ a1/a4 + numbers body reflect
+  the keep-vs-convert option. Matches the existing Merchants-door wording. Copy-only, all 6 locales.
 
 VERIFIED: frontend tsc EXIT 0 · SSR HTML scan confirms new copy present and $42M/SOC2/4.2s ABSENT sitewide ·
 testing_agent iteration_90 = 100% frontend (hero single-CTA, demo card non-navigating, how-it-works + CTA nav,
