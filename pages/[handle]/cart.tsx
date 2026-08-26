@@ -18,6 +18,7 @@ import RemoveRounded from "@mui/icons-material/RemoveRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
+import { useTranslation } from "react-i18next";
 
 interface NormalizedLine {
   product_id: number;
@@ -45,6 +46,7 @@ const CartPage: NextPageWithLayout = () => {
   const handle = typeof rawHandle === "string" ? rawHandle.toLowerCase() : "";
   const cart = useCart();
   const items = handle ? cart.getItems(handle) : [];
+  const { t } = useTranslation("landing");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ const CartPage: NextPageWithLayout = () => {
     })
       .then(async (r) => {
         const j = await r.json();
-        if (!r.ok) throw new Error(j?.message || "Cart validation failed");
+        if (!r.ok) throw new Error(j?.message || t("cart.store.validationError", { defaultValue: "Cart validation failed" }));
         return j;
       })
       .then((j) => {
@@ -95,10 +97,10 @@ const CartPage: NextPageWithLayout = () => {
         setCurrency(d.currency || "USD");
         setWarnings(Array.isArray(d.warnings) ? d.warnings : []);
       })
-      .catch((e) => setError(e?.message || "Failed to load cart"))
+      .catch((e) => setError(e?.message || t("cart.store.loadError", { defaultValue: "Failed to load cart" })))
       .finally(() => setLoading(false));
     // Re-run when local items change (stringify for equality)
-  }, [handle, JSON.stringify(items)]);
+  }, [handle, JSON.stringify(items), t]);
 
   // Session 57: estimated tax preview (based on buyer's timezone jurisdiction).
   useEffect(() => {
@@ -151,9 +153,9 @@ const CartPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head><title>Cart · @{handle} · Dynopay</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>{t("cart.store.pageTitle", { defaultValue: "Cart" })} · @{handle} · Dynopay</title><meta name="robots" content="noindex" /></Head>
       <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }} data-testid="cart-page">
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>Your cart</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>{t("cart.store.title", { defaultValue: "Your cart" })}</Typography>
         {loading && <LinearProgress data-testid="cart-loading" />}
         {error && <Alert severity="error" sx={{ mb: 2 }} data-testid="cart-error">{error}</Alert>}
         {warnings.length > 0 && (
@@ -166,8 +168,8 @@ const CartPage: NextPageWithLayout = () => {
 
         {normalized.length === 0 && !loading ? (
           <Stack spacing={2} alignItems="center" sx={{ py: 6 }}>
-            <Typography color="text.secondary" data-testid="cart-empty">Your cart is empty.</Typography>
-            <Link href={`/${handle}/shop`}>← Continue shopping</Link>
+            <Typography color="text.secondary" data-testid="cart-empty">{t("cart.store.empty", { defaultValue: "Your cart is empty." })}</Typography>
+            <Link href={`/${handle}/shop`}>← {t("cart.store.continueShopping", { defaultValue: "Continue shopping" })}</Link>
           </Stack>
         ) : (
           <>
@@ -190,7 +192,7 @@ const CartPage: NextPageWithLayout = () => {
                       <Typography variant="caption" color="text.secondary">{l.variant_snapshot.attributes.title}</Typography>
                     )}
                     <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                      {formatPrice(l.unit_price_cents, currency)} each
+                      {t("cart.store.unitEach", { price: formatPrice(l.unit_price_cents, currency), defaultValue: "{{price}} each" })}
                     </Typography>
                   </Box>
                   <Stack direction="row" alignItems="center" spacing={0.5}>
@@ -217,17 +219,25 @@ const CartPage: NextPageWithLayout = () => {
             <Divider sx={{ my: 3 }} />
             <Stack direction="row" alignItems="center" spacing={2}>
               <Box sx={{ flex: 1 }}>
-                <Typography variant="body2" color="text.secondary">Subtotal</Typography>
+                <Typography variant="body2" color="text.secondary">{t("cart.store.subtotal", { defaultValue: "Subtotal" })}</Typography>
                 <Typography variant="h5" sx={{ fontWeight: 700, fontVariantNumeric: "tabular-nums" }} data-testid="cart-subtotal">
                   {formatPrice(subtotalCents, currency)}
                 </Typography>
                 {quote?.apply_tax && Number(quote?.tax_cents) > 0 && (
                   <>
                     <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }} data-testid="cart-est-tax">
-                      {`+ est. ${quote?.tax_label || "VAT"}${quote?.tax_rate != null ? ` (${Number(quote?.tax_rate)}%)` : ""}: ${formatPrice(Number(quote?.tax_cents) || 0, quote?.currency || currency)}`}
+                      {t("cart.store.estTax", {
+                        label: quote?.tax_label || t("checkout.store.vatFallback", { defaultValue: "VAT" }),
+                        rate: quote?.tax_rate != null ? ` (${Number(quote?.tax_rate)}%)` : "",
+                        amount: formatPrice(Number(quote?.tax_cents) || 0, quote?.currency || currency),
+                        defaultValue: "+ est. {{label}}{{rate}}: {{amount}}",
+                      })}
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600, fontVariantNumeric: "tabular-nums" }} data-testid="cart-est-total">
-                      {`Est. total: ${formatPrice(Number(quote?.total_cents ?? subtotalCents), quote?.currency || currency)}`}
+                      {t("cart.store.estTotal", {
+                        amount: formatPrice(Number(quote?.total_cents ?? subtotalCents), quote?.currency || currency),
+                        defaultValue: "Est. total: {{amount}}",
+                      })}
                     </Typography>
                   </>
                 )}
@@ -239,7 +249,7 @@ const CartPage: NextPageWithLayout = () => {
                 sx={{ textTransform: "none" }}
                 data-testid="cart-continue-btn"
               >
-                Continue shopping
+                {t("cart.store.continueShopping", { defaultValue: "Continue shopping" })}
               </Button>
               <Button
                 variant="contained"
@@ -248,7 +258,7 @@ const CartPage: NextPageWithLayout = () => {
                 sx={{ textTransform: "none" }}
                 data-testid="cart-checkout-btn"
               >
-                Checkout
+                {t("cart.store.checkout", { defaultValue: "Checkout" })}
               </Button>
             </Stack>
           </>

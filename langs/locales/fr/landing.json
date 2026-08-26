@@ -472,7 +472,10 @@
     "support": {
       "anonymous": "Rendre mon soutien anonyme",
       "trustLine": "Checkout crypto sécurisé · sans compte",
-      "namePlaceholder": "Votre nom (facultatif)"
+      "namePlaceholder": "Votre nom (facultatif)",
+      "minHint": "{{min}} minimum",
+      "amountPlaceholder": "Montant (min. {{min}})",
+      "minError": "Veuillez saisir au moins {{min}}."
     },
     "qr": {
       "claimFirst": "Réservez d'abord un pseudo pour générer votre QR code.",
@@ -548,5 +551,20 @@
     "exploreMoreSubtitle": "Voyez comment vendeurs, créateurs et porteurs de campagne utilisent Dynopay pour être payés en crypto.",
     "relatedCountry": "Accepter la crypto en {{name}}",
     "relatedVertical": "Paiements en crypto pour {{name}}"
+  },
+  "cart": {
+    "store": {
+      "pageTitle": "Panier",
+      "title": "Votre panier",
+      "empty": "Votre panier est vide.",
+      "continueShopping": "Continuer mes achats",
+      "unitEach": "{{price}} l'unité",
+      "subtotal": "Sous-total",
+      "estTax": "+ {{label}} est.{{rate}} : {{amount}}",
+      "estTotal": "Total est. : {{amount}}",
+      "checkout": "Paiement",
+      "loadError": "Échec du chargement du panier",
+      "validationError": "Échec de la validation du panier"
+    }
   }
 }

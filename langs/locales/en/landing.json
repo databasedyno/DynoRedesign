@@ -472,7 +472,10 @@
     "support": {
       "anonymous": "Make my support anonymous",
       "trustLine": "Secure crypto checkout · no account needed",
-      "namePlaceholder": "Your name (optional)"
+      "namePlaceholder": "Your name (optional)",
+      "minHint": "{{min}} minimum",
+      "amountPlaceholder": "Amount (min {{min}})",
+      "minError": "Please enter at least {{min}}."
     },
     "qr": {
       "claimFirst": "Claim a handle first to generate your QR code.",
@@ -548,5 +551,20 @@
     "exploreMoreSubtitle": "See how sellers, creators, and fundraisers use Dynopay to get paid in crypto.",
     "relatedCountry": "Accept crypto in {{name}}",
     "relatedVertical": "Crypto payments for {{name}}"
+  },
+  "cart": {
+    "store": {
+      "pageTitle": "Cart",
+      "title": "Your cart",
+      "empty": "Your cart is empty.",
+      "continueShopping": "Continue shopping",
+      "unitEach": "{{price}} each",
+      "subtotal": "Subtotal",
+      "estTax": "+ est. {{label}}{{rate}}: {{amount}}",
+      "estTotal": "Est. total: {{amount}}",
+      "checkout": "Checkout",
+      "loadError": "Failed to load cart",
+      "validationError": "Cart validation failed"
+    }
   }
 }

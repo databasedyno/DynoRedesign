@@ -128,7 +128,7 @@ const SupportWidget = ({
   const submit = async () => {
     setError(null)
     if (!valid) {
-      setError(`Please enter at least ${fmtMoney(min)}.`)
+      setError(t("creator.support.minError", { min: fmtMoney(min), defaultValue: "Please enter at least {{min}}." }))
       return
     }
     const trimmedEmail = email.trim()
@@ -338,11 +338,19 @@ const SupportWidget = ({
             data-testid="support-custom-amount"
             value={customAmount}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomAmount(e.target.value)}
-            placeholder={`Amount (min ${min})`}
+            placeholder={t("creator.support.amountPlaceholder", { min, defaultValue: "Amount (min {{min}})" })}
             sx={{ ...fieldSx, paddingLeft: '28px', fontFamily: MONO, fontWeight: 700 }}
           />
         </Box>
       )}
+
+      {/* Platform minimum helper (S4.4) — buyers see the $10 floor upfront */}
+      <Box
+        sx={{ mt: 1, fontSize: 12, color: theme.palette.text.secondary, fontFamily: 'var(--font-sans)' }}
+        data-testid="support-min-hint"
+      >
+        {t("creator.support.minHint", { min: fmtMoney(min), defaultValue: "{{min}} minimum" })}
+      </Box>
 
       {/* Name */}
       <Box sx={{ mt: 1.5 }}>

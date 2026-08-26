@@ -11,6 +11,9 @@ const ScrollToTopButton = () => {
   const isMobile = useIsMobile("md");
 
   const [isVisible, setIsVisible] = useState(false);
+  // S4.2: on mobile, step aside while the support-chat panel is open so this
+  // button never sits on the panel's send-button row.
+  const [chatOpen, setChatOpen] = useState(false);
 
   const handleScroll = useCallback(() => {
     const shouldShow = window.scrollY > SCROLL_THRESHOLD;
@@ -26,6 +29,23 @@ const ScrollToTopButton = () => {
     };
   }, [handleScroll]);
 
+  // S4.2: track the support-chat panel open state (broadcast by SupportChatWidget).
+  useEffect(() => {
+    const read = () =>
+      setChatOpen(
+        typeof document !== "undefined" &&
+          document.body.hasAttribute("data-dp-support-chat-open")
+      );
+    read();
+    const onToggle = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && typeof detail.open === "boolean") setChatOpen(detail.open);
+      else read();
+    };
+    window.addEventListener("dynopay:support-chat-toggle", onToggle);
+    return () => window.removeEventListener("dynopay:support-chat-toggle", onToggle);
+  }, []);
+
   const scrollToTop = useCallback(() => {
     window.scrollTo({
       top: 0,
@@ -33,7 +53,7 @@ const ScrollToTopButton = () => {
     });
   }, []);
 
-  if (!isVisible) return null;
+  if (!isVisible || (isMobile && chatOpen)) return null;
 
   return (
     <Box

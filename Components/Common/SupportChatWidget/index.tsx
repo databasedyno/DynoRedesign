@@ -155,6 +155,24 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     return () => window.removeEventListener("dynopay:open-support-chat", openChat);
   }, []);
 
+  // S4.2: broadcast the panel's open/closed state so global chrome (the
+  // scroll-to-top button) can step aside on mobile and not overlap the panel's
+  // send-button row. Decoupled via a body attribute + a window event.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (open) {
+      document.body.setAttribute("data-dp-support-chat-open", "1");
+    } else {
+      document.body.removeAttribute("data-dp-support-chat-open");
+    }
+    window.dispatchEvent(
+      new CustomEvent("dynopay:support-chat-toggle", { detail: { open } })
+    );
+    return () => {
+      document.body.removeAttribute("data-dp-support-chat-open");
+    };
+  }, [open]);
+
   // Auto-scroll on new messages / typing indicator
   useEffect(() => {
     const el = listRef.current;

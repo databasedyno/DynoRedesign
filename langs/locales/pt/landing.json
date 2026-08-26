@@ -472,7 +472,10 @@
     "support": {
       "anonymous": "Tornar o meu apoio anónimo",
       "trustLine": "Checkout cripto seguro · sem conta necessária",
-      "namePlaceholder": "O seu nome (opcional)"
+      "namePlaceholder": "O seu nome (opcional)",
+      "minHint": "{{min}} mínimo",
+      "amountPlaceholder": "Valor (mín. {{min}})",
+      "minError": "Insira pelo menos {{min}}."
     },
     "qr": {
       "claimFirst": "Reserve primeiro um nome para gerar o seu código QR.",
@@ -548,5 +551,20 @@
     "exploreMoreSubtitle": "Veja como vendedores, criadores e organizadores de campanhas usam a Dynopay para receber em cripto.",
     "relatedCountry": "Aceitar cripto em {{name}}",
     "relatedVertical": "Pagamentos em cripto para {{name}}"
+  },
+  "cart": {
+    "store": {
+      "pageTitle": "Carrinho",
+      "title": "Seu carrinho",
+      "empty": "Seu carrinho está vazio.",
+      "continueShopping": "Continuar comprando",
+      "unitEach": "{{price}} cada",
+      "subtotal": "Subtotal",
+      "estTax": "+ {{label}} est.{{rate}}: {{amount}}",
+      "estTotal": "Total est.: {{amount}}",
+      "checkout": "Finalizar compra",
+      "loadError": "Falha ao carregar o carrinho",
+      "validationError": "Falha na validação do carrinho"
+    }
   }
 }

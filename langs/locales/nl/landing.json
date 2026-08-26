@@ -472,7 +472,10 @@
     "support": {
       "anonymous": "Maak mijn steun anoniem",
       "trustLine": "Veilige crypto-checkout · geen account nodig",
-      "namePlaceholder": "Jouw naam (optioneel)"
+      "namePlaceholder": "Jouw naam (optioneel)",
+      "minHint": "Minimaal {{min}}",
+      "amountPlaceholder": "Bedrag (min. {{min}})",
+      "minError": "Voer minimaal {{min}} in."
     },
     "qr": {
       "claimFirst": "Claim eerst een handle om je QR-code te genereren.",
@@ -548,5 +551,20 @@
     "exploreMoreSubtitle": "Bekijk hoe verkopers, creators en fundraisers Dynopay gebruiken om in crypto betaald te worden.",
     "relatedCountry": "Accepteer crypto in {{name}}",
     "relatedVertical": "Cryptobetalingen voor {{name}}"
+  },
+  "cart": {
+    "store": {
+      "pageTitle": "Winkelwagen",
+      "title": "Je winkelwagen",
+      "empty": "Je winkelwagen is leeg.",
+      "continueShopping": "Verder winkelen",
+      "unitEach": "{{price}} per stuk",
+      "subtotal": "Subtotaal",
+      "estTax": "+ gesch. {{label}}{{rate}}: {{amount}}",
+      "estTotal": "Gesch. totaal: {{amount}}",
+      "checkout": "Afrekenen",
+      "loadError": "Kan winkelwagen niet laden",
+      "validationError": "Validatie van winkelwagen mislukt"
+    }
   }
 }

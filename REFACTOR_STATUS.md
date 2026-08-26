@@ -938,7 +938,12 @@ then validate with a small live amount before general availability.
 #   Sketch: on signup / first settlement, group accounts by (payout wallet addr,
 #   verified email) → shared fee_free_remaining pool keyed by the group, not user_id.
 
-## S4.2 [ ] Mobile Chat Polish
+## S4.2 [x] Mobile Chat Polish — DONE 2026-08-26
+#   ✅ SupportChatWidget now broadcasts its open/closed state (body attr
+#      `data-dp-support-chat-open` + `dynopay:support-chat-toggle` event);
+#      ScrollToTopButton hides on mobile (`isMobile && chatOpen`) so the arrow no
+#      longer sits on the panel's send-button row. Desktop unchanged. Files:
+#      Components/Common/SupportChatWidget/index.tsx, Components/Layout/ScrollToTopButton.tsx.
 #   Hide/offset the scroll-to-top arrow (Components/Layout/ScrollToTopButton.tsx,
 #   now data-testid=scroll-to-top-button) while the MOBILE support-chat panel is
 #   OPEN so the arrow stops sitting on the panel's send-button row. (Cosmetic;
@@ -958,13 +963,26 @@ then validate with a small live amount before general availability.
 #   (Subtotal, "+ est. VAT", "Est. total:", "Continue shopping", "Checkout", "Your cart is empty.")
 #   is hardcoded English. That's a whole-page localization task, out of this VAT-only ticket's scope.
 
-## L1 [ ] Cart page (/[handle]/cart) full i18n
+## L1 [x] Cart page (/[handle]/cart) full i18n — DONE 2026-08-26
+#   ✅ pages/[handle]/cart.tsx now uses useTranslation("landing"); all buyer-facing
+#      strings localized via a new `cart.store` object added to ALL 6 locales
+#      (en/es/pt/fr/de/nl): pageTitle, title, empty, continueShopping, unitEach,
+#      subtotal, estTax, estTotal, checkout, loadError, validationError. Reuses
+#      checkout.store.vatFallback for the VAT label. Verified: tsc 0 errors, SSR
+#      renders localized strings, no raw keys leak, /[handle]/cart compiles.
 #   pages/[handle]/cart.tsx has no useTranslation — localize all buyer-facing strings (add keys under
 #   landing.json -> a new `cart.store` object, mirror the checkout.store pattern). Surfaces: L169
 #   empty-cart, L170/242 "Continue shopping", L220 Subtotal, L227 est-tax line, L230 "Est. total:",
 #   L251 "Checkout", plus the page title/qty controls.
 
-## S4.4 [ ] $10 Minimum Hint
+## S4.4 [x] $10 Minimum Hint — DONE 2026-08-26
+#   ✅ SupportWidget.tsx (tip/support/donation): added a persistent min helper
+#      (creator.support.minHint = "{{min}} minimum", data-testid=support-min-hint)
+#      + localized the custom-amount placeholder (creator.support.amountPlaceholder)
+#      and the below-min error (creator.support.minError) across all 6 locales.
+#      NOTE: the other two listed surfaces already had min messaging —
+#      CreatorPageSettings shows "min $10" (storefront.form.minFloorNote) and
+#      checkout.tsx shows checkout.store.minTotal when below the $10 floor.
 #   Show a clear "$10 minimum" helper on tips, support and donation amount inputs so
 #   buyers aren't surprised (iteration_81 follow-up — backend min already enforced at
 #   10). Surfaces: Components/Page/Creator/SupportWidget.tsx,

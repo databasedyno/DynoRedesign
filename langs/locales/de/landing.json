@@ -472,7 +472,10 @@
     "support": {
       "anonymous": "Meine Unterstützung anonym machen",
       "trustLine": "Sicheres Krypto-Checkout · kein Konto nötig",
-      "namePlaceholder": "Dein Name (optional)"
+      "namePlaceholder": "Dein Name (optional)",
+      "minHint": "Mindestens {{min}}",
+      "amountPlaceholder": "Betrag (min. {{min}})",
+      "minError": "Bitte gib mindestens {{min}} ein."
     },
     "qr": {
       "claimFirst": "Sichere dir zuerst einen Handle, um deinen QR-Code zu generieren.",
@@ -548,5 +551,20 @@
     "exploreMoreSubtitle": "So nutzen Händler, Creator und Kampagnenveranstalter Dynopay, um in Krypto bezahlt zu werden.",
     "relatedCountry": "Krypto in {{name}} akzeptieren",
     "relatedVertical": "Krypto-Zahlungen für {{name}}"
+  },
+  "cart": {
+    "store": {
+      "pageTitle": "Warenkorb",
+      "title": "Dein Warenkorb",
+      "empty": "Dein Warenkorb ist leer.",
+      "continueShopping": "Weiter einkaufen",
+      "unitEach": "{{price}} pro Stück",
+      "subtotal": "Zwischensumme",
+      "estTax": "+ gesch. {{label}}{{rate}}: {{amount}}",
+      "estTotal": "Gesch. Gesamt: {{amount}}",
+      "checkout": "Kasse",
+      "loadError": "Warenkorb konnte nicht geladen werden",
+      "validationError": "Warenkorb-Validierung fehlgeschlagen"
+    }
   }
 }
