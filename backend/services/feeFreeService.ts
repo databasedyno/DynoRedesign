@@ -1,14 +1,25 @@
 /**
- * Fee-Free Trial Service
- * 
- * Manages the "First $500 Fee-Free" promotion for new users.
- * Tracked per user account, not per company.
- * 
- * Key features:
- * - Track cumulative transaction volume per user
- * - Calculate fee-free remaining balance
- * - Atomic decrement to prevent race conditions
- * - Fee override: waive or reduce fees while balance remains
+ * First-Payment-Free Service
+ *
+ * Manages the "Your first payment is on us" promotion for new merchants.
+ * Tracked per USER ACCOUNT (user_id), NOT per company — one free payment total
+ * across ALL of that user's companies.
+ *
+ * Rule (decided 2026-08, replaces the old "first $500 of lifetime volume"):
+ *   - The merchant's FIRST successfully-settled payment has DynoPay's full
+ *     platform deduction (fixed fee + %) waived — any size, no cap.
+ *   - Blockchain / gas cost is SEPARATE and ALWAYS applies (never part of the
+ *     platform deduction), matching "fee-free except blockchain cost".
+ *   - After that first payment settles, the account graduates trial → standard
+ *     and every later payment is charged normally.
+ *
+ * Entitlement is DERIVED from existing state — no dedicated column needed:
+ *     available  ⟺  cumulative_volume_usd <= 0  AND  fee_tier === 'trial'
+ *   cumulative_volume_usd is incremented ONLY at settlement
+ *   (recordTransactionVolume), so "== 0" means "no successful payment yet" ⟺ the
+ *   next payment is the first. Already-transacted / graduated merchants
+ *   (cumulative > 0 OR fee_tier ≠ 'trial') are treated as having used their free
+ *   payment — a clean cut-over from the old $500 trial for existing accounts.
  */
 
 import { raw as envRaw } from "../utils/config";
@@ -16,7 +27,12 @@ import sequelize from "../utils/dbInstance";
 import { userModel } from "../models";
 import { log } from "../utils/loggers";
 
+// Legacy display sentinel (kept only so status payloads that still surface a
+// "total" figure don't break). The new model has NO dollar cap.
 const FREE_TRIAL_VOLUME_USD = parseFloat(envRaw("FREE_TRIAL_VOLUME_USD") || "500");
+
+// Float tolerance for the "no successful volume yet" check.
+const VOLUME_EPSILON = 0.00001;
 
 export interface FeeFreeStatus {
   user_id: number;
@@ -26,30 +42,40 @@ export interface FeeFreeStatus {
   fee_free_used_usd: number;
   fee_tier: string;
   is_fee_free: boolean;
+  /** NEW explicit flag: the account's one free payment is still available. */
+  first_payment_free: boolean;
   percentage_used: number;
 }
 
 /**
- * Trial entitlement is a function of LIFETIME volume — NOT of the stored
- * counter alone. The counter can drift upwards (a failed-settlement reversal
- * adds the amount back; see reverseTransactionVolume), which previously
- * resurrected the "first $500 fee-free" promo — welcome popup, banner and an
- * actual fee waiver — for established merchants who processed $20k+ long ago.
- * Clamping the stored value to (500 − lifetime volume) makes every surface
- * self-healing regardless of counter drift.
+ * Is the account's first-payment-free entitlement still available?
+ * True only for a genuine new merchant: no settled volume AND still on 'trial'.
+ * Graduated merchants (tier ≠ trial) and anyone who has transacted
+ * (cumulative > 0) are excluded even if a counter drifted.
  */
-export const resolveFeeFreeRemaining = (
+export const isFirstPaymentFreeAvailable = (
   cumulativeVolumeUsd: number,
-  storedRemainingUsd: number
-): number => {
-  const cumulative = Number.isFinite(cumulativeVolumeUsd) ? Math.max(0, cumulativeVolumeUsd) : 0;
-  const stored = Number.isFinite(storedRemainingUsd) ? storedRemainingUsd : 0;
-  const entitled = Math.max(0, FREE_TRIAL_VOLUME_USD - cumulative);
-  return Math.max(0, Math.min(stored, entitled));
+  feeTier: string
+): boolean => {
+  const cumulative = Number.isFinite(cumulativeVolumeUsd) ? cumulativeVolumeUsd : 0;
+  return cumulative <= VOLUME_EPSILON && (feeTier || "trial") === "trial";
 };
 
 /**
- * Get the fee-free status for a user
+ * Back-compat helper (still imported by controller/user/profile.ts). Under the
+ * first-payment-free model there is no dollar budget, so this simply reports the
+ * legacy sentinel while the freebie is available and 0 once it's used.
+ */
+export const resolveFeeFreeRemaining = (
+  cumulativeVolumeUsd: number,
+  _storedRemainingUsd?: number
+): number => {
+  const cumulative = Number.isFinite(cumulativeVolumeUsd) ? Math.max(0, cumulativeVolumeUsd) : 0;
+  return cumulative <= VOLUME_EPSILON ? FREE_TRIAL_VOLUME_USD : 0;
+};
+
+/**
+ * Get the first-payment-free status for a user account.
  */
 export const getFeeFreeStatus = async (userId: number): Promise<FeeFreeStatus | null> => {
   try {
@@ -61,18 +87,21 @@ export const getFeeFreeStatus = async (userId: number): Promise<FeeFreeStatus | 
 
     const data = user.get({ plain: true }) as any;
     const cumulative = parseFloat(data.cumulative_volume_usd || "0");
-    const remaining = resolveFeeFreeRemaining(cumulative, parseFloat(data.fee_free_remaining_usd || "0"));
-    const used = FREE_TRIAL_VOLUME_USD - remaining;
+    const tier = data.fee_tier || "trial";
+    const available = isFirstPaymentFreeAvailable(cumulative, tier);
 
     return {
       user_id: data.user_id,
       cumulative_volume_usd: cumulative,
-      fee_free_remaining_usd: Math.max(0, remaining),
+      // Legacy sentinel: > 0 while the freebie is available so any older surface
+      // still gated on `fee_free_remaining_usd > 0` keeps working; 0 once used.
+      fee_free_remaining_usd: available ? FREE_TRIAL_VOLUME_USD : 0,
       fee_free_total_usd: FREE_TRIAL_VOLUME_USD,
-      fee_free_used_usd: Math.min(used, FREE_TRIAL_VOLUME_USD),
-      fee_tier: data.fee_tier || "trial",
-      is_fee_free: remaining > 0,
-      percentage_used: Math.min(100, (used / FREE_TRIAL_VOLUME_USD) * 100),
+      fee_free_used_usd: available ? 0 : FREE_TRIAL_VOLUME_USD,
+      fee_tier: tier,
+      is_fee_free: available,
+      first_payment_free: available,
+      percentage_used: available ? 0 : 100,
     };
   } catch (error: any) {
     log(`[FeeFree] Error getting fee-free status for user ${userId}: ${error.message}`, "error");
@@ -82,8 +111,12 @@ export const getFeeFreeStatus = async (userId: number): Promise<FeeFreeStatus | 
 
 /**
  * Calculate the fee-free discount for a transaction.
- * Returns the portion of the transaction that should be fee-free.
- * 
+ *
+ * First-payment-free model: while the account's free payment is available, the
+ * ENTIRE payment is platform-fee-free (any size, no cap) — feeService then
+ * waives the full deduction because fee_free_amount === amount. Otherwise
+ * nothing is waived.
+ *
  * @param userId - The user making the transaction
  * @param transactionAmountUsd - The transaction amount in USD
  */
@@ -99,7 +132,7 @@ export const calculateFeeFreeDiscount = async (
   try {
     const status = await getFeeFreeStatus(userId);
 
-    if (!status || !status.is_fee_free || status.fee_free_remaining_usd <= 0) {
+    if (!status || !status.is_fee_free) {
       return {
         fee_free_amount: 0,
         fee_applicable_amount: transactionAmountUsd,
@@ -108,23 +141,13 @@ export const calculateFeeFreeDiscount = async (
       };
     }
 
-    const remaining = status.fee_free_remaining_usd;
-
-    if (transactionAmountUsd <= remaining) {
-      return {
-        fee_free_amount: transactionAmountUsd,
-        fee_applicable_amount: 0,
-        is_fully_free: true,
-        remaining_after: remaining - transactionAmountUsd,
-      };
-    } else {
-      return {
-        fee_free_amount: remaining,
-        fee_applicable_amount: transactionAmountUsd - remaining,
-        is_fully_free: false,
-        remaining_after: 0,
-      };
-    }
+    // First payment → the whole amount is platform-fee-free (no cap).
+    return {
+      fee_free_amount: transactionAmountUsd,
+      fee_applicable_amount: 0,
+      is_fully_free: true,
+      remaining_after: 0,
+    };
   } catch (error: any) {
     log(`[FeeFree] Error calculating discount for user ${userId}: ${error.message}`, "error");
     return {
@@ -137,8 +160,14 @@ export const calculateFeeFreeDiscount = async (
 };
 
 /**
- * Record a transaction and decrement the fee-free balance.
- * Uses atomic DB operation to prevent race conditions.
+ * Record a settled transaction's volume and consume the first-payment-free
+ * entitlement. Called at settlement (BEFORE settlement completes; reversed on
+ * failure — see reverseTransactionVolume).
+ *
+ * - Always adds to cumulative_volume_usd (drives volume-tier pricing/analytics).
+ * - Graduates the account trial → standard on its FIRST payment and zeroes the
+ *   legacy remaining counter. Idempotent for the 2nd+ payment (tier already
+ *   'standard' → CASE leaves it unchanged).
  */
 export const recordTransactionVolume = async (
   userId: number,
@@ -150,9 +179,8 @@ export const recordTransactionVolume = async (
     await userModel.update(
       {
         cumulative_volume_usd: sequelize.literal(`COALESCE("cumulative_volume_usd", 0) + ${amountUsd}`),
-        fee_free_remaining_usd: sequelize.literal(
-          `GREATEST(0, COALESCE("fee_free_remaining_usd", 0) - ${amountUsd})`
-        ),
+        fee_free_remaining_usd: 0,
+        fee_tier: sequelize.literal(`CASE WHEN "fee_tier" = 'trial' THEN 'standard' ELSE "fee_tier" END`),
       },
       {
         where: { user_id: userId },
@@ -160,26 +188,8 @@ export const recordTransactionVolume = async (
       }
     );
 
-    const updated = await userModel.findByPk(userId, {
-      attributes: ["fee_free_remaining_usd", "fee_tier"],
-      transaction: t,
-    });
-
-    if (updated) {
-      const remaining = parseFloat((updated as any).fee_free_remaining_usd || "0");
-      const currentTier = (updated as any).fee_tier;
-
-      if (remaining <= 0 && currentTier === "trial") {
-        await userModel.update(
-          { fee_tier: "standard" },
-          { where: { user_id: userId }, transaction: t }
-        );
-        log(`[FeeFree] User ${userId} exhausted fee-free balance. Tier: trial → standard`, "info");
-      }
-    }
-
     await t.commit();
-    log(`[FeeFree] User ${userId} recorded $${amountUsd} volume`, "info");
+    log(`[FeeFree] User ${userId} recorded $${amountUsd} volume (first-payment-free consumed if this was their first)`, "info");
     return getFeeFreeStatus(userId);
   } catch (error: any) {
     await t.rollback();
@@ -189,10 +199,15 @@ export const recordTransactionVolume = async (
 };
 
 /**
- * Reverse a previously recorded fee-free volume deduction.
- * Called when settlement fails AFTER recordTransactionVolume was called.
- * Atomic: restores fee_free_remaining_usd and decrements cumulative_volume_usd.
- * Also restores "trial" tier if the user was prematurely graduated to "standard".
+ * Reverse a previously recorded settlement volume. Called when settlement fails
+ * AFTER recordTransactionVolume ran.
+ *
+ * - Decrements cumulative_volume_usd (clamped at 0).
+ * - If the reversal brings the account back to ZERO settled volume, the failed
+ *   payment was the merchant's only/first one → RESTORE the first-payment-free
+ *   entitlement (standard → trial). If other successful payments remain
+ *   (cumulative still > 0), the entitlement stays consumed — an established
+ *   merchant is never handed a fresh free payment by a single reversal.
  */
 export const reverseTransactionVolume = async (
   userId: number,
@@ -206,16 +221,6 @@ export const reverseTransactionVolume = async (
         cumulative_volume_usd: sequelize.literal(
           `GREATEST(0, COALESCE("cumulative_volume_usd", 0) - ${amountUsd})`
         ),
-        // Never restore MORE than the trial the user is still entitled to for
-        // their (post-reversal) lifetime volume. Without this clamp a failed
-        // settlement handed a fresh fee-free balance to merchants who had
-        // already blown past the $500 trial months earlier.
-        fee_free_remaining_usd: sequelize.literal(
-          `LEAST(
-             COALESCE("fee_free_remaining_usd", 0) + ${amountUsd},
-             GREATEST(0, ${FREE_TRIAL_VOLUME_USD} - GREATEST(0, COALESCE("cumulative_volume_usd", 0) - ${amountUsd}))
-           )`
-        ),
       },
       {
         where: { user_id: userId },
@@ -223,28 +228,29 @@ export const reverseTransactionVolume = async (
       }
     );
 
-    // If the tier was prematurely switched to "standard" by the original record,
-    // restore it to "trial" if remaining is now > 0
     const updated = await userModel.findByPk(userId, {
-      attributes: ["fee_free_remaining_usd", "fee_tier"],
+      attributes: ["cumulative_volume_usd", "fee_tier"],
       transaction: t,
     });
 
     if (updated) {
-      const remaining = parseFloat((updated as any).fee_free_remaining_usd || "0");
+      const cumulative = parseFloat((updated as any).cumulative_volume_usd || "0");
       const currentTier = (updated as any).fee_tier;
 
-      if (remaining > 0 && currentTier === "standard") {
+      // Restore the freebie ONLY when the account is back to zero settled volume
+      // AND it had graduated to 'standard' (i.e. this reversed payment was the
+      // one that consumed it).
+      if (cumulative <= VOLUME_EPSILON && currentTier === "standard") {
         await userModel.update(
-          { fee_tier: "trial" },
+          { fee_tier: "trial", fee_free_remaining_usd: FREE_TRIAL_VOLUME_USD },
           { where: { user_id: userId }, transaction: t }
         );
-        log(`[FeeFree] User ${userId} fee-free balance restored ($${remaining}). Tier: standard → trial`, "info");
+        log(`[FeeFree] User ${userId} first-payment-free RESTORED (settlement reversed to $0 volume). Tier: standard → trial`, "info");
       }
     }
 
     await t.commit();
-    log(`[FeeFree] ↩️ User ${userId} REVERSED $${amountUsd} fee-free volume (settlement failed)`, "info");
+    log(`[FeeFree] ↩️ User ${userId} REVERSED $${amountUsd} settled volume (settlement failed)`, "info");
     return getFeeFreeStatus(userId);
   } catch (error: any) {
     await t.rollback();
@@ -258,4 +264,6 @@ export default {
   calculateFeeFreeDiscount,
   recordTransactionVolume,
   reverseTransactionVolume,
+  isFirstPaymentFreeAvailable,
+  resolveFeeFreeRemaining,
 };

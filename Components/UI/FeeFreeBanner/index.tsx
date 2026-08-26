@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Box, LinearProgress, Typography, useTheme, IconButton, useMediaQuery } from "@mui/material";
+import { Box, Typography, useTheme, IconButton, useMediaQuery } from "@mui/material";
 import CloseRounded from "@mui/icons-material/CloseRounded";
 import LocalOfferRounded from "@mui/icons-material/LocalOfferRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
@@ -105,11 +105,6 @@ const FeeFreeBanner: React.FC = () => {
 
   if (dismissed || suppressed || !showable || !data) return null;
 
-  const remaining = Math.max(0, Number(data.fee_free_remaining_usd || 0));
-  const total = Math.max(1, Number(data.fee_free_total_usd || 500));
-  const used = Math.max(0, total - remaining);
-  const pct = Math.min(100, Math.max(0, (used / total) * 100));
-
   return (
     <Box
       data-testid="fee-free-banner"
@@ -151,37 +146,21 @@ const FeeFreeBanner: React.FC = () => {
               whiteSpace: "nowrap",
             }}
           >
-            {isMobile ? "Fee-free" : "You're in! First $500 is fee-free"}
+            {isMobile ? "1st payment free" : "Your first payment is on us — 0% platform fee"}
           </Typography>
         </Box>
 
-        <Box sx={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 1 }}>
-          <LinearProgress
-            variant="determinate"
-            value={pct}
-            aria-label={`$${used.toFixed(0)} of $${total.toFixed(0)} used`}
-            sx={{
-              flex: 1,
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: "rgba(255,255,255,0.14)",
-              "& .MuiLinearProgress-bar": {
-                backgroundColor: "#3FD98A",
-                borderRadius: 3,
-              },
-            }}
-          />
+        <Box sx={{ flex: 1, minWidth: 0, display: { xs: "none", md: "block" } }}>
           <Typography
             component="span"
             sx={{
               fontFamily: "var(--font-sans), sans-serif",
-              fontSize: { xs: 11, md: 13 },
+              fontSize: 13,
               color: "rgba(255,255,255,0.85)",
               whiteSpace: "nowrap",
-              flexShrink: 0,
             }}
           >
-            ${remaining.toFixed(0)} / ${total.toFixed(0)} left
+            We waive our full platform fee — you only pay the network (blockchain) cost.
           </Typography>
         </Box>
 

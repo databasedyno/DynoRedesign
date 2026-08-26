@@ -243,12 +243,13 @@ const FeeFreeWelcomeModal: React.FC = () => {
               sx={{
                 color: "#3FD98A",
                 fontWeight: 800,
-                fontSize: 28,
+                fontSize: 24,
                 lineHeight: 1,
+                letterSpacing: "1px",
                 fontFamily: "var(--font-sans), Urbanist, sans-serif",
               }}
             >
-              ${Math.round(remaining)}
+              FREE
             </Typography>
             <Typography
               component="span"

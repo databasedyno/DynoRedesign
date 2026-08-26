@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Start free today",
-        "desc": "Your first $500 in volume is on us — no card required.",
+        "desc": "Your first payment is on us — no card required.",
         "cta": "Start free"
       }
     }
@@ -108,7 +108,7 @@
       "body": "One wallet for merchants, creators, fundraisers and developers. Storefronts, tips, campaigns and a clean API — all settled to the coin you choose, from <b>0.5%</b>.",
       "claimBtn": "Claim",
       "chooseHandle": "Choose your creator handle",
-      "rewardBadge": "New here? Your first <b>$500</b> in volume is on us.",
+      "rewardBadge": "New here? Your <b>first payment</b> is on us.",
       "bullets": "Free to start · No card · 15+ chains",
       "trustLine": "Non-custodial · SOC 2 track · GDPR / AML",
       "livePill": "LIVE",
@@ -242,7 +242,7 @@
       "headline1": "Get paid in",
       "headline2": "crypto today.",
       "body": "Free to start. No card. Live in under 10 minutes — bring your wallet, keep your money.",
-      "rewardBadge": "New here? Your first <b>$500</b> in volume is on us.",
+      "rewardBadge": "New here? Your <b>first payment</b> is on us.",
       "getStarted": "Start free",
       "readDocs": "Read the docs",
       "trustLine": "Non-custodial · 15+ chains · SOC2 track · GDPR / AML"

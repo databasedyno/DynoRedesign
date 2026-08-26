@@ -1,3 +1,43 @@
+# S3.0 i18n CLOSURE (2026-06 fork) — non-English "$500 free trial" → "first payment is on us" — DONE
+
+Preview: https://9ce6d8ae-5030-4fe3-992a-47e6471c8db2.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
+
+Completed the S3.0 follow-up: the "$500 free trial" → "first payment is on us" wording was only in the
+English locale. Translated the same keys into es/pt/fr/de/nl (5 languages) so non-English users no longer
+see the deprecated $500 offer.
+
+FILES CHANGED (15 = 5 locales × 3 files; 65 ins / 65 del, minimal diff, no reformatting):
+- langs/locales/{es,pt,fr,de,nl}/fees.json — feeFreeBannerTitle, feeFreeBannerDescription,
+  feeCalcFeeFreeNote, ffWelcomeTitle, ffWelcomeBody (dropped {{amount}}), ffWelcomeFootnote
+  (footnote rewritten from the old "fee-free balance" wording to "waived on your first payment").
+- langs/locales/{es,pt,fr,de,nl}/landing.json — nav.mega.featured.desc, v3.hero.rewardBadge,
+  v3.finalcta.rewardBadge (all dropped "first $500 volume" → "first payment").
+- langs/locales/{es,pt,fr,de,nl}/dashboardLayout.json — growFeeFreeBody, growFeeFreeTitle,
+  growTrialCompleteBody, growTrialCompleteTitle (was "fee-free trial completed" → "first payment complete").
+- createPaymentLinkScreen.json: NO CHANGE — its "500" hits are char-limits/placeholders, not the offer.
+- feeFreeBannerCta / ffWelcomeCta / ffWelcomeBadge / growReferralBody: left as-is (no $500 reference).
+
+VERIFIED (read-only, no DB writes): all 15 JSON files parse; `grep 500` across the 3 files × 5 locales
+returns ZERO trial references (only legit fee-tier numbers $100k–$500k / $500k+ / calculator slider $500
+remain). Screenshot of Spanish /fees: finalCTA reward badge now reads "primer pago corre por nuestra
+cuenta" (no "primeros $500").
+
+PENDING AUTO-REFRESH TOAST (P1) — verified ALREADY implemented (per user, leave as-is):
+Components/Page/Payouts/index.tsx L326-373 — SWR polls /api/dashboard/pending-summary every 30s, seeds the
+pending-id set on first load (no false toast), and on any id leaving the set fires a success toast
+("A pending payment just confirmed and settled") + dashboard.refreshDashboard(). Data source curl-verified
+(returns {count,total_usd,transactions}; 0 fresh-pending on this account so no live toast could be triggered
+without a prod write — deliberately not triggered). NOTE: toast copy is hardcoded English (not i18n).
+
+KNOWN PRE-EXISTING GAP (flagged, out of scope): the /fees v3 page HERO + fee CALCULATOR ("One number to
+remember", "Move the slider", "30-DAY VOLUME", "TIER"/"RATE", Starter/Growth/Scale/Enterprise) render in
+English even when the app language is non-English — a broader untranslated fees-v3 keyset, separate from
+the $500 task.
+
+---
+
+
+
 # BUGFIX (2026-06 fork: dynopay-setup-4) — Landing CTA audit final blocker: support-chat FAB — DONE (testing-agent iteration_84 = 100%)
 
 Preview: https://dynopay-setup-5.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)

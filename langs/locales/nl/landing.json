@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Begin vandaag gratis",
-        "desc": "Je eerste $500 aan volume is van ons — geen kaart nodig.",
+        "desc": "Je eerste betaling is van ons — geen kaart nodig.",
         "cta": "Gratis starten"
       }
     }
@@ -108,7 +108,7 @@
       "body": "Eén wallet voor verkopers, creators, fondsenwervers en developers. Winkels, fooien, campagnes en een strakke API — alles afgerekend in de munt die jij kiest, vanaf <b>0,5%</b>.",
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
-      "rewardBadge": "Nieuw hier? Je eerste <b>$500</b> aan volume is van ons.",
+      "rewardBadge": "Nieuw hier? Je <b>eerste betaling</b> is van ons.",
       "bullets": "Gratis te starten · Geen kaart · 15+ chains",
       "trustLine": "Non-custodial · SOC 2 in voorbereiding · GDPR / AML",
       "livePill": "LIVE",
@@ -242,7 +242,7 @@
       "headline1": "Krijg betaald in",
       "headline2": "crypto vandaag.",
       "body": "Gratis te starten. Geen kaart. Binnen 10 minuten live — neem je wallet mee, hou je geld.",
-      "rewardBadge": "Nieuw hier? Je eerste <b>$500</b> aan volume is van ons.",
+      "rewardBadge": "Nieuw hier? Je <b>eerste betaling</b> is van ons.",
       "getStarted": "Gratis starten",
       "readDocs": "Lees de docs",
       "trustLine": "Non-custodial · 15+ chains · SOC2 in voorbereiding · GDPR / AML"

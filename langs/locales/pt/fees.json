@@ -72,14 +72,14 @@
   "feeSectionSubtitle": "Veja exatamente o que receberá antes de aceitar qualquer pagamento.",
   "viewFullBreakdown": "Ver divisão completa de taxas",
   "headerFees": "Taxas",
-  "feeFreeBannerTitle": "Comece com $0 de taxas nos seus primeiros $500",
-  "feeFreeBannerDescription": "Novos comerciantes pagam zero taxas de plataforma nos primeiros $500 em transações. Depois disso, as taxas começam em apenas 1,5% e caem até 0,5% para comerciantes de alto volume — ainda muito abaixo do PayPal ou Stripe.",
+  "feeFreeBannerTitle": "Comece com $0 de taxas no seu primeiro pagamento",
+  "feeFreeBannerDescription": "Novos comerciantes pagam zero taxas de plataforma no seu primeiro pagamento — de qualquer valor. Depois disso, as taxas começam em apenas 1,5% e caem até 0,5% para comerciantes de alto volume — ainda muito abaixo do PayPal ou Stripe.",
   "feeFreeBannerCta": "Comece sem taxas",
-  "feeCalcFeeFreeNote": "Novo comerciante? Seus primeiros $500 em transações são isentos de taxas.",
+  "feeCalcFeeFreeNote": "Novo comerciante? Seu primeiro pagamento é 100% sem taxas de plataforma.",
   "ffWelcomeBadge": "Sem taxas",
-  "ffWelcomeTitle": "Bem-vindo! Os seus primeiros $500 são isentos de taxas",
-  "ffWelcomeBody": "Bem-vindo à Dynopay. Isentamos a nossa taxa de plataforma nos seus primeiros {{amount}} em volume de pagamentos — cada cêntimo vai diretamente para a sua carteira. Depois disso, as taxas começam em apenas 1,5% e diminuem à medida que cresce.",
+  "ffWelcomeTitle": "Bem-vindo! O seu primeiro pagamento é por nossa conta",
+  "ffWelcomeBody": "Bem-vindo à Dynopay. Isentamos totalmente a nossa taxa de plataforma no seu primeiro pagamento — de qualquer valor — para que cada centavo vá direto para a sua carteira. Você só paga o custo de rede (blockchain). Depois, as taxas começam em apenas 1,5% e caem à medida que você cresce.",
   "ffWelcomeCta": "Criar o seu primeiro link de pagamento",
   "ffWelcomeDismiss": "Entendi, obrigado!",
-  "ffWelcomeFootnote": "Acompanhe o seu saldo isento de taxas a qualquer momento no painel."
+  "ffWelcomeFootnote": "A taxa de plataforma é isenta automaticamente no seu primeiro pagamento."
 }

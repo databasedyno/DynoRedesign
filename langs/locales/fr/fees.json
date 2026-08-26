@@ -72,14 +72,14 @@
   "feeSectionSubtitle": "Voyez exactement ce que vous recevrez avant d'accepter un paiement.",
   "viewFullBreakdown": "Voir la répartition complète des frais",
   "headerFees": "Frais",
-  "feeFreeBannerTitle": "Commencez avec 0 $ de frais sur vos premiers 500 $",
-  "feeFreeBannerDescription": "Les nouveaux marchands ne paient aucun frais de plateforme sur leurs premiers 500$ de transactions. Ensuite, les frais commencent à seulement 1,5% et descendent jusqu'à 0,5% pour les marchands à fort volume — toujours bien en dessous de PayPal ou Stripe.",
+  "feeFreeBannerTitle": "Commencez avec 0 $ de frais sur votre premier paiement",
+  "feeFreeBannerDescription": "Les nouveaux marchands ne paient aucun frais de plateforme sur leur premier paiement — quel que soit le montant. Ensuite, les frais commencent à seulement 1,5% et descendent jusqu'à 0,5% pour les marchands à fort volume — toujours bien en dessous de PayPal ou Stripe.",
   "feeFreeBannerCta": "Commencer sans frais",
-  "feeCalcFeeFreeNote": "Nouveau marchand ? Vos premiers 500 $ de transactions sont sans frais.",
+  "feeCalcFeeFreeNote": "Nouveau marchand ? Votre premier paiement est 100% sans frais de plateforme.",
   "ffWelcomeBadge": "Sans frais",
-  "ffWelcomeTitle": "Bienvenue ! Vos premiers 500 $ sont sans frais",
-  "ffWelcomeBody": "Bienvenue chez Dynopay. Nous renonçons à nos frais de plateforme sur vos premiers {{amount}} de volume de paiements — chaque centime va directement dans votre portefeuille. Ensuite, les frais commencent à seulement 1,5 % et baissent à mesure que vous grandissez.",
+  "ffWelcomeTitle": "Bienvenue ! Votre premier paiement est offert",
+  "ffWelcomeBody": "Bienvenue sur Dynopay. Nous supprimons l'intégralité de nos frais de plateforme sur votre tout premier paiement — quel que soit le montant — pour que chaque centime aille directement dans votre portefeuille. Vous ne payez que le coût du réseau (blockchain). Ensuite, les frais commencent à seulement 1,5% et baissent à mesure que vous grandissez.",
   "ffWelcomeCta": "Créer votre premier lien de paiement",
   "ffWelcomeDismiss": "Compris, merci !",
-  "ffWelcomeFootnote": "Suivez votre solde sans frais à tout moment sur le tableau de bord."
+  "ffWelcomeFootnote": "Les frais de plateforme sont supprimés automatiquement sur votre premier paiement."
 }

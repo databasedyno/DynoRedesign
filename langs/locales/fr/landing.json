@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Commencez gratuitement",
-        "desc": "Vos 500 premiers $ de volume sont offerts — sans carte.",
+        "desc": "Votre premier paiement est offert — sans carte.",
         "cta": "Commencer gratuitement"
       }
     }
@@ -108,7 +108,7 @@
       "body": "Un seul portefeuille pour marchands, créateurs, collecteurs de fonds et développeurs. Boutiques, pourboires, campagnes et une API claire — le tout réglé dans la devise de votre choix, à partir de <b>0,5 %</b>.",
       "claimBtn": "Réserver",
       "chooseHandle": "Choisissez votre pseudo de créateur",
-      "rewardBadge": "Nouveau ici ? Vos premiers <b>500 $</b> de volume sont offerts.",
+      "rewardBadge": "Nouveau ici ? Votre <b>premier paiement</b> est offert.",
       "bullets": "Gratuit au départ · Sans carte · Plus de 15 chaînes",
       "trustLine": "Non-custodial · SOC 2 en cours · RGPD / AML",
       "livePill": "EN DIRECT",
@@ -242,7 +242,7 @@
       "headline1": "Encaissez en",
       "headline2": "crypto aujourd'hui.",
       "body": "Gratuit au départ. Sans carte. En ligne en moins de 10 minutes — apportez votre portefeuille, gardez votre argent.",
-      "rewardBadge": "Nouveau ici ? Vos premiers <b>500 $</b> de volume sont offerts.",
+      "rewardBadge": "Nouveau ici ? Votre <b>premier paiement</b> est offert.",
       "getStarted": "Commencer gratuitement",
       "readDocs": "Lire la doc",
       "trustLine": "Non-custodial · 15+ chaînes · SOC2 en cours · RGPD / AML"

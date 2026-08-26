@@ -1,6 +1,6 @@
 import { brandFg } from "@/constants/theme";
 import React, { memo } from "react";
-import { Box, Typography, LinearProgress, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
@@ -15,10 +15,6 @@ const FeeFreeWidget: React.FC = () => {
   // Don't render if no data or still loading
   if (loading || !data) return null;
 
-  const remaining = data.fee_free_remaining_usd;
-  const total = data.fee_free_total_usd;
-  const used = data.fee_free_used_usd;
-  const pctUsed = data.percentage_used;
   const isFree = data.is_fee_free;
 
   // If fee-free is exhausted, show a subtle completed banner
@@ -38,7 +34,7 @@ const FeeFreeWidget: React.FC = () => {
       >
         <Icon icon="mdi:check-circle" width={20} color={theme.palette.success.main} />
         <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary }}>
-          Fee-free promotion complete. ${total.toFixed(0)} processed fee-free.
+          First-payment-free used — you&apos;re on standard pricing now.
         </Typography>
       </Box>
     );
@@ -79,54 +75,25 @@ const FeeFreeWidget: React.FC = () => {
             borderRadius: 1,
           }}
         >
-          {pctUsed.toFixed(0)}% used
+          Active
         </Typography>
       </Box>
 
-      {/* Amount remaining */}
+      {/* First-payment-free explainer */}
       <Typography
         sx={{
-          fontSize: isMobile ? 22 : 26,
+          fontSize: isMobile ? 15 : 17,
           fontWeight: 800,
           color: theme.palette.text.primary,
-          lineHeight: 1.2,
+          lineHeight: 1.3,
           mb: 0.5,
         }}
       >
-        ${remaining.toFixed(2)}
-        <Typography
-          component="span"
-          sx={{ fontSize: isMobile ? 13 : 14, fontWeight: 500, color: theme.palette.text.secondary, ml: 0.5 }}
-        >
-          remaining
-        </Typography>
+        Your first payment is on us
       </Typography>
-
-      {/* Progress bar */}
-      <LinearProgress
-        variant="determinate"
-        value={pctUsed}
-        sx={{
-          height: 8,
-          borderRadius: 4,
-          bgcolor: `${theme.palette.primary.main}15`,
-          mb: 1,
-          "& .MuiLinearProgress-bar": {
-            borderRadius: 4,
-            bgcolor: pctUsed > 80 ? theme.palette.warning.main : theme.palette.primary.main,
-          },
-        }}
-      />
-
-      {/* Footer stats */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography sx={{ fontSize: isMobile ? 11 : 12, color: theme.palette.text.secondary }}>
-          ${used.toFixed(2)} of ${total.toFixed(0)} used
-        </Typography>
-        <Typography sx={{ fontSize: isMobile ? 11 : 12, color: theme.palette.text.secondary }}>
-          Total volume: ${(data.cumulative_volume_usd ?? 0).toFixed(2)}
-        </Typography>
-      </Box>
+      <Typography sx={{ fontSize: isMobile ? 12 : 13, color: theme.palette.text.secondary, lineHeight: 1.5 }}>
+        We waive our full platform fee (fixed + %) on your first payment — you only pay the network (blockchain) cost. Standard fees start after that.
+      </Typography>
     </Box>
   );
 };

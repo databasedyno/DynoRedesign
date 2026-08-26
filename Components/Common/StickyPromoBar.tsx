@@ -92,12 +92,12 @@ const StickyPromoBar: React.FC = () => {
         <CardGiftcardRounded sx={{ fontSize: 18 }} aria-hidden />
         {/* Shorter copy on mobile so the whole bar fits in one line at 375px iPhone width. */}
         <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-          Your first{' '}
-          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>$500</Box>{' '}
-          in payments is <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>fee-free</Box>
+          Your{' '}
+          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>first payment</Box>{' '}
+          is <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>fee-free</Box>
         </Box>
         <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
-          First <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>$500</Box>{' '}
+          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>1st payment</Box>{' '}
           <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>fee-free</Box>
         </Box>
       </Typography>

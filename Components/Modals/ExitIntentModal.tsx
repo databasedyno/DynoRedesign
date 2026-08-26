@@ -229,7 +229,7 @@ const ExitIntentModal: React.FC = () => {
                 },
               }}
             >
-              Claim $500 fee-free
+              Claim your first payment fee-free
             </Button>
             <Button
               variant="outlined"

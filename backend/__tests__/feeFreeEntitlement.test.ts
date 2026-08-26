@@ -1,15 +1,16 @@
 /**
- * Regression: "First $500 fee-free" must NEVER resurrect for an established merchant.
+ * First-Payment-Free entitlement (replaces the old "first $500 of lifetime
+ * volume" trial — decided 2026-08).
  *
- * Production incident (hostbay@moxx.co, user_id 1, $27.7k lifetime volume):
- *   1. A $75 ETH payment failed to settle and was retried every 20 min.
- *   2. Each failure called reverseTransactionVolume(1, 75), which restored
- *      LEAST(500, remaining + 75) → fee_free_remaining_usd flipped 0 → 75.
- *   3. getFeeFreeStatus derived is_fee_free purely from `remaining > 0`, so the
- *      welcome popup / banner / GrowPanel CTA came back — and $75 of real
- *      platform fees would have been waived for a graduated merchant.
- *
- * Entitlement is now a function of LIFETIME volume, clamped on read AND on write.
+ * Guarantees under test:
+ *   - A genuine new merchant (zero settled volume, 'trial') gets ONE fully
+ *     platform-fee-free payment of ANY size (no cap).
+ *   - Anyone who has already transacted (cumulative > 0) OR graduated
+ *     (fee_tier ≠ 'trial') is treated as having used it — clean cut-over, no
+ *     revival for established merchants (regression: hostbay, $27.7k lifetime).
+ *   - The first settled payment graduates the account trial → standard.
+ *   - A failed/reversed settlement restores the freebie ONLY when it drops the
+ *     account back to $0 settled volume.
  */
 
 const mockFindByPk = jest.fn();
@@ -39,13 +40,15 @@ jest.mock('../utils/loggers', () => ({
 }));
 
 import {
+  isFirstPaymentFreeAvailable,
   resolveFeeFreeRemaining,
   getFeeFreeStatus,
   calculateFeeFreeDiscount,
+  recordTransactionVolume,
   reverseTransactionVolume,
 } from '../services/feeFreeService';
 
-const userRow = (cumulative: number, remaining: number, tier = 'growth') => {
+const userRow = (cumulative: number, tier = 'trial', remaining = 0) => {
   const plain = {
     user_id: 1,
     cumulative_volume_usd: String(cumulative),
@@ -60,82 +63,123 @@ beforeEach(() => {
   mockUpdate.mockResolvedValue([1]);
 });
 
-describe('resolveFeeFreeRemaining', () => {
-  it('gives a brand-new user the full $500', () => {
-    expect(resolveFeeFreeRemaining(0, 500)).toBe(500);
+describe('isFirstPaymentFreeAvailable', () => {
+  it('is available for a brand-new merchant (no volume, trial)', () => {
+    expect(isFirstPaymentFreeAvailable(0, 'trial')).toBe(true);
   });
-
-  it('keeps a mid-trial balance untouched', () => {
-    expect(resolveFeeFreeRemaining(75, 425)).toBe(425);
+  it('is NOT available once the merchant has any settled volume', () => {
+    expect(isFirstPaymentFreeAvailable(75, 'trial')).toBe(false);
   });
-
-  it('returns 0 for a graduated merchant even when the counter drifted up', () => {
-    expect(resolveFeeFreeRemaining(27738.93, 75)).toBe(0);
+  it('is NOT available for a graduated merchant (standard) even at $0 volume', () => {
+    expect(isFirstPaymentFreeAvailable(0, 'standard')).toBe(false);
   });
-
-  it('clamps a stored balance that exceeds the remaining entitlement', () => {
-    expect(resolveFeeFreeRemaining(400, 500)).toBe(100);
+  it('is NOT available for an established $27.7k merchant', () => {
+    expect(isFirstPaymentFreeAvailable(27738.93, 'standard')).toBe(false);
   });
+});
 
-  it('never returns a negative balance', () => {
-    expect(resolveFeeFreeRemaining(600, -25)).toBe(0);
+describe('resolveFeeFreeRemaining (legacy compat for profile.ts)', () => {
+  it('reports the sentinel while unused (zero volume)', () => {
+    expect(resolveFeeFreeRemaining(0)).toBe(500);
+  });
+  it('reports 0 once the merchant has transacted', () => {
+    expect(resolveFeeFreeRemaining(75)).toBe(0);
   });
 });
 
 describe('getFeeFreeStatus', () => {
-  it('reports NOT fee-free for the $27.7k merchant with a drifted $75 balance', async () => {
-    mockFindByPk.mockResolvedValue(userRow(27738.93, 75));
+  it('reports first-payment-free AVAILABLE for a genuine new merchant', async () => {
+    mockFindByPk.mockResolvedValue(userRow(0, 'trial'));
+    const status = await getFeeFreeStatus(1);
+    expect(status?.is_fee_free).toBe(true);
+    expect(status?.first_payment_free).toBe(true);
+    expect(status?.fee_free_remaining_usd).toBe(500);
+    expect(status?.percentage_used).toBe(0);
+  });
+
+  it('reports USED for a merchant who already transacted (Q3a clean cut-over)', async () => {
+    mockFindByPk.mockResolvedValue(userRow(75, 'trial'));
     const status = await getFeeFreeStatus(1);
     expect(status?.is_fee_free).toBe(false);
+    expect(status?.first_payment_free).toBe(false);
     expect(status?.fee_free_remaining_usd).toBe(0);
-    expect(status?.fee_free_used_usd).toBe(500);
     expect(status?.percentage_used).toBe(100);
   });
 
-  it('still reports fee-free for a genuine new merchant', async () => {
-    mockFindByPk.mockResolvedValue(userRow(0, 500, 'trial'));
+  it('reports USED for the established $27.7k merchant (no revival)', async () => {
+    mockFindByPk.mockResolvedValue(userRow(27738.93, 'standard'));
     const status = await getFeeFreeStatus(1);
-    expect(status?.is_fee_free).toBe(true);
-    expect(status?.fee_free_remaining_usd).toBe(500);
-    expect(status?.fee_free_used_usd).toBe(0);
+    expect(status?.is_fee_free).toBe(false);
+    expect(status?.first_payment_free).toBe(false);
   });
 });
 
 describe('calculateFeeFreeDiscount', () => {
-  it('charges full platform fees to a graduated merchant with a drifted balance', async () => {
-    mockFindByPk.mockResolvedValue(userRow(27738.93, 75));
+  it('waives the FULL first payment for a new merchant (small amount)', async () => {
+    mockFindByPk.mockResolvedValue(userRow(0, 'trial'));
+    const d = await calculateFeeFreeDiscount(1, 75);
+    expect(d.fee_free_amount).toBe(75);
+    expect(d.fee_applicable_amount).toBe(0);
+    expect(d.is_fully_free).toBe(true);
+  });
+
+  it('waives the FULL first payment with NO cap (large amount, Q2a)', async () => {
+    mockFindByPk.mockResolvedValue(userRow(0, 'trial'));
+    const d = await calculateFeeFreeDiscount(1, 10000);
+    expect(d.fee_free_amount).toBe(10000);
+    expect(d.is_fully_free).toBe(true);
+  });
+
+  it('charges full platform fees once the freebie is used', async () => {
+    mockFindByPk.mockResolvedValue(userRow(75, 'trial'));
     const d = await calculateFeeFreeDiscount(1, 75);
     expect(d.fee_free_amount).toBe(0);
     expect(d.fee_applicable_amount).toBe(75);
     expect(d.is_fully_free).toBe(false);
   });
 
-  it('waives fees within the trial for a new merchant', async () => {
-    mockFindByPk.mockResolvedValue(userRow(0, 500, 'trial'));
+  it('charges full platform fees to the established $27.7k merchant', async () => {
+    mockFindByPk.mockResolvedValue(userRow(27738.93, 'standard'));
     const d = await calculateFeeFreeDiscount(1, 75);
-    expect(d.fee_free_amount).toBe(75);
-    expect(d.is_fully_free).toBe(true);
+    expect(d.fee_free_amount).toBe(0);
+    expect(d.is_fully_free).toBe(false);
+  });
+});
+
+describe('recordTransactionVolume', () => {
+  it('adds volume, zeroes the legacy counter and graduates trial → standard on the first payment', async () => {
+    mockFindByPk.mockResolvedValue(userRow(75, 'standard'));
+    await recordTransactionVolume(1, 75);
+
+    const writes = mockUpdate.mock.calls[0][0] as any;
+    expect(writes.cumulative_volume_usd.__sql).toContain('COALESCE("cumulative_volume_usd", 0) + 75');
+    expect(writes.fee_free_remaining_usd).toBe(0);
+    // Graduate to standard on the account's first payment (idempotent afterwards).
+    expect(writes.fee_tier.__sql).toContain(`CASE WHEN "fee_tier" = 'trial' THEN 'standard'`);
   });
 });
 
 describe('reverseTransactionVolume', () => {
-  it('clamps the restored balance to the post-reversal entitlement (no LEAST($500, …) revival)', async () => {
-    mockFindByPk.mockResolvedValue(userRow(27738.93, 0));
+  it('restores first-payment-free when the reversal drops the account back to $0 volume', async () => {
+    // After the decrement the account is back to 0 volume on 'standard'.
+    mockFindByPk.mockResolvedValueOnce(userRow(0, 'standard'));
+    mockFindByPk.mockResolvedValue(userRow(0, 'trial'));
     await reverseTransactionVolume(1, 75);
 
-    const sql = (mockUpdate.mock.calls[0][0] as any).fee_free_remaining_usd.__sql as string;
-    // Entitlement clamp present …
-    expect(sql).toContain('GREATEST(0, 500 - GREATEST(0, COALESCE("cumulative_volume_usd", 0) - 75))');
-    // … and the old unconditional cap is gone.
-    expect(sql).not.toMatch(/LEAST\(\s*500\s*,/);
-  });
-
-  it('does not re-flag a graduated merchant back to the trial tier', async () => {
-    mockFindByPk.mockResolvedValue(userRow(27738.93, 0, 'standard'));
-    await reverseTransactionVolume(1, 75);
-    const tierWrites = mockUpdate.mock.calls.filter(
+    const tierRestores = mockUpdate.mock.calls.filter(
       (c) => (c[0] as any)?.fee_tier === 'trial',
     );
-    expect(tierWrites).toHaveLength(0);
+    expect(tierRestores).toHaveLength(1);
+  });
+
+  it('does NOT restore for an established merchant with remaining volume', async () => {
+    // After the decrement the merchant still has $27.6k of settled volume.
+    mockFindByPk.mockResolvedValue(userRow(27663.93, 'standard'));
+    await reverseTransactionVolume(1, 75);
+
+    const tierRestores = mockUpdate.mock.calls.filter(
+      (c) => (c[0] as any)?.fee_tier === 'trial',
+    );
+    expect(tierRestores).toHaveLength(0);
   });
 });

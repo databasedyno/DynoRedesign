@@ -70,16 +70,16 @@
   "feeSectionTitle": "Check Your Fees Instantly",
   "feeSectionHighlight": "Fees Instantly",
   "feeSectionSubtitle": "See exactly what you'll receive before accepting any payment.",
-  "feeFreeBannerTitle": "Start with $0 fees on your first $500",
-  "feeFreeBannerDescription": "New merchants pay zero platform fees on their first $500 in transactions. After that, fees start at just 1.5% and drop as low as 0.5% for high-volume merchants — still far below PayPal or Stripe.",
+  "feeFreeBannerTitle": "Start with $0 fees on your first payment",
+  "feeFreeBannerDescription": "New merchants pay zero platform fees on their first payment — any size. After that, fees start at just 1.5% and drop as low as 0.5% for high-volume merchants — still far below PayPal or Stripe.",
   "feeFreeBannerCta": "Get Started Fee-Free",
-  "feeCalcFeeFreeNote": "New merchant? Your first $500 in transactions is fee-free.",
+  "feeCalcFeeFreeNote": "New merchant? Your first payment is 100% platform-fee-free.",
   "viewFullBreakdown": "View Full Fee Breakdown",
   "headerFees": "Fees",
-  "ffWelcomeBadge": "Fee-free",
-  "ffWelcomeTitle": "You're in! Your first $500 is fee-free",
-  "ffWelcomeBody": "Welcome to Dynopay. We waive our platform fee on your first {{amount}} in payment volume — every cent goes straight to your wallet. After that, fees start at just 1.5% and drop as you grow.",
+  "ffWelcomeBadge": "1st payment",
+  "ffWelcomeTitle": "You're in! Your first payment is on us",
+  "ffWelcomeBody": "Welcome to Dynopay. We waive our full platform fee on your very first payment — any size — so every cent goes straight to your wallet. You only ever pay the network (blockchain) cost. After that, fees start at just 1.5% and drop as you grow.",
   "ffWelcomeCta": "Create your first payment link",
   "ffWelcomeDismiss": "Got it, thanks!",
-  "ffWelcomeFootnote": "Track your fee-free balance anytime on the dashboard."
+  "ffWelcomeFootnote": "The platform fee is waived automatically on your first payment."
 }
