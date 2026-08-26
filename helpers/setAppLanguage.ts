@@ -12,6 +12,19 @@ function isSupported(lng: string): boolean {
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(lng);
 }
 
+// Mirror the chosen language into a cookie so server-rendered pages (e.g. the
+// public shop/product SEO <Head> meta) can localize snippets. This is the only
+// server-visible language signal and is written ONLY on an explicit user choice
+// — never auto-detected — matching the app's "explicit choice only" i18n policy.
+function writeLangCookie(base: string): void {
+  try {
+    if (typeof document === "undefined") return;
+    document.cookie = `dp_lang=${encodeURIComponent(base)}; path=/; max-age=31536000; samesite=lax`;
+  } catch {
+    /* private mode — ignore */
+  }
+}
+
 function isLoggedIn(): boolean {
   try {
     return typeof window !== "undefined" && !!localStorage.getItem("token");
@@ -69,6 +82,7 @@ export async function setAppLanguage(lng: string): Promise<void> {
   } catch {
     /* private mode — ignore */
   }
+  writeLangCookie(base);
 
   if (isLoggedIn() && !isCheckoutSurface()) {
     const ok = await saveLanguageToAccount(base);
@@ -132,6 +146,7 @@ export async function reconcileLanguageOnAuth(): Promise<void> {
       try {
         localStorage.setItem(LS_LANG, serverLang);
       } catch {}
+      writeLangCookie(serverLang);
     }
   } catch {
     /* best-effort — network/401 failures never block the UI */

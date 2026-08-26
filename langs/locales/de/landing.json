@@ -564,7 +564,8 @@
       "estTotal": "Gesch. Gesamt: {{amount}}",
       "checkout": "Kasse",
       "loadError": "Warenkorb konnte nicht geladen werden",
-      "validationError": "Warenkorb-Validierung fehlgeschlagen"
+      "validationError": "Warenkorb-Validierung fehlgeschlagen",
+      "browseShop": "Zum Shop"
     }
   },
   "shop": {

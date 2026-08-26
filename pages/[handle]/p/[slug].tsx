@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
+import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
 import { useRouter } from "next/router";
 import {
   Box, Container, Typography, Stack, Chip, TextField, IconButton, Divider,
@@ -36,7 +37,7 @@ interface Variant {
   variant_id: number; attributes?: any; price_cents: number;
   stock_count: number | null; image_url?: string; is_active: boolean;
 }
-interface DetailProps { merchant: Merchant; product: Product; variants: Variant[]; siteUrl: string }
+interface DetailProps { merchant: Merchant; product: Product; variants: Variant[]; siteUrl: string; metaLang: string }
 
 function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
@@ -45,7 +46,7 @@ function formatPrice(cents: number, ccy: string): string {
   } catch { return `${n.toFixed(2)} ${ccy}`; }
 }
 
-const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl }) => {
+const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl, metaLang }) => {
   const router = useRouter();
   const cart = useCart();
   const { t } = useTranslation("landing");
@@ -88,7 +89,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
   };
 
   const title = `${product.title} — @${merchant.handle} · Dynopay`;
-  const description = product.subtitle || product.description_md?.slice(0, 200) || `Buy ${product.title} with crypto.`;
+  const description = product.subtitle || product.description_md?.slice(0, 200) || shopSeoStrings(metaLang).productDesc.replace("{title}", product.title);
   const url = `${siteUrl}/${merchant.handle}/p/${product.slug}`;
   const cover = product.cover_image_url;
 
@@ -101,6 +102,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         {cover && <meta property="og:image" content={cover} />}
+        <meta key="og:locale" property="og:locale" content={metaLang} />
       </Head>
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="product-detail">
         <Typography variant="body2" sx={{ mb: 2 }}>
@@ -255,16 +257,23 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     if (process.env.NODE_ENV === "production" && creatorHost && reqHost && reqHost !== creatorHost) {
       return { redirect: { destination: `${siteUrl}${ctx.resolvedUrl}`, permanent: true } };
     }
-    // Public catalog content — cacheable at the edge but kept SHORT because it
-    // carries live PRICES: an edited price must propagate in seconds, not the
-    // ~5 min a long stale-while-revalidate window would allow.
-    ctx.res.setHeader("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+    // Localized SEO meta from an explicit signal only (?lang= or dp_lang cookie).
+    const metaLang = resolveMetaLang(ctx.query as Record<string, unknown>, ctx.req.headers.cookie);
+    const queryLang = String((ctx.query as { lang?: unknown })?.lang || "").split("-")[0].toLowerCase();
+    // Shared edge cache stays for the English default / URL-keyed ?lang=; a
+    // cookie-driven non-English render is private so it can't poison the cache.
+    if (metaLang === "en" || queryLang === metaLang) {
+      ctx.res.setHeader("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+    } else {
+      ctx.res.setHeader("Cache-Control", "private, no-store");
+    }
     return {
       props: {
         merchant: data.merchant,
         product: data.product,
         variants: Array.isArray(data.variants) ? data.variants : [],
         siteUrl,
+        metaLang,
       },
     };
   } catch (e) {

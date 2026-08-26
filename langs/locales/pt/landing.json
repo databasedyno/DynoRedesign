@@ -564,7 +564,8 @@
       "estTotal": "Total est.: {{amount}}",
       "checkout": "Finalizar compra",
       "loadError": "Falha ao carregar o carrinho",
-      "validationError": "Falha na validação do carrinho"
+      "validationError": "Falha na validação do carrinho",
+      "browseShop": "Explorar a loja"
     }
   },
   "shop": {

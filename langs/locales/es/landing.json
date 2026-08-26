@@ -564,7 +564,8 @@
       "estTotal": "Total est.: {{amount}}",
       "checkout": "Pago",
       "loadError": "No se pudo cargar el carrito",
-      "validationError": "Error al validar el carrito"
+      "validationError": "Error al validar el carrito",
+      "browseShop": "Explorar la tienda"
     }
   },
   "shop": {

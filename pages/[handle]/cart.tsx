@@ -16,6 +16,8 @@ import {
 import AddRounded from "@mui/icons-material/AddRounded";
 import RemoveRounded from "@mui/icons-material/RemoveRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
+import StorefrontRounded from "@mui/icons-material/StorefrontRounded";
+import ShoppingBagOutlined from "@mui/icons-material/ShoppingBagOutlined";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
 import { useTranslation } from "react-i18next";
@@ -167,9 +169,29 @@ const CartPage: NextPageWithLayout = () => {
         )}
 
         {normalized.length === 0 && !loading ? (
-          <Stack spacing={2} alignItems="center" sx={{ py: 6 }}>
-            <Typography color="text.secondary" data-testid="cart-empty">{t("cart.store.empty", { defaultValue: "Your cart is empty." })}</Typography>
-            <Link href={`/${handle}/shop`}>← {t("cart.store.continueShopping", { defaultValue: "Continue shopping" })}</Link>
+          <Stack spacing={2.5} alignItems="center" sx={{ py: 8 }} data-testid="cart-empty-state">
+            <Box
+              sx={{
+                width: 72, height: 72, borderRadius: "50%",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                bgcolor: "action.hover", color: "text.secondary",
+              }}
+            >
+              <ShoppingBagOutlined sx={{ fontSize: 34 }} />
+            </Box>
+            <Typography color="text.secondary" sx={{ fontSize: 16 }} data-testid="cart-empty">
+              {t("cart.store.empty", { defaultValue: "Your cart is empty." })}
+            </Typography>
+            <Button
+              variant="contained"
+              component={Link as any}
+              href={`/${handle}/shop`}
+              startIcon={<StorefrontRounded />}
+              sx={{ textTransform: "none", borderRadius: 999, px: 3.5, py: 1.1, fontWeight: 700 }}
+              data-testid="cart-empty-browse-btn"
+            >
+              {t("cart.store.browseShop", { defaultValue: "Browse the shop" })}
+            </Button>
           </Stack>
         ) : (
           <>

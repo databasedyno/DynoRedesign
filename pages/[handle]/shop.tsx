@@ -18,18 +18,21 @@ import { Container } from "@mui/material";
 import { NextPageWithLayout } from "@/pages/_app";
 import { ShopClient } from "@/Components/Page/Shop";
 import type { ShopMerchant, ShopProduct } from "@/Components/Page/Shop/types";
+import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
 
 interface ShopPageProps {
   merchant: ShopMerchant;
   products: ShopProduct[];
   siteUrl: string;
+  metaLang: string;
 }
 
-const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteUrl }) => {
-  const title = `${merchant.name} — Shop · Dynopay`;
+const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteUrl, metaLang }) => {
+  const seo = shopSeoStrings(metaLang);
+  const title = `${merchant.name} — ${seo.shopSuffix} · Dynopay`;
   const description =
     merchant.bio ||
-    `Support ${merchant.name} — buy digital products, back campaigns, and tip in crypto. Direct to their wallet.`;
+    seo.shopDesc.replace("{name}", merchant.name);
   const url = `${siteUrl}/${merchant.handle}/shop`;
   const ogImage =
     merchant.avatar || `${siteUrl}/og/default-shop.png`;
@@ -85,6 +88,7 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
         <meta property="og:url" content={url} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:site_name" content="Dynopay" />
+        <meta key="og:locale" property="og:locale" content={metaLang} />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -158,14 +162,23 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     if (process.env.NODE_ENV === "production" && creatorHost && reqHost && reqHost !== creatorHost) {
       return { redirect: { destination: `${siteUrl}${ctx.resolvedUrl}`, permanent: true } };
     }
-    // Public catalog content — cacheable at the edge but kept SHORT because the
-    // grid shows live PRICES; a price edit should propagate in seconds.
-    ctx.res.setHeader("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+    // Localized SEO meta from an explicit signal only (?lang= or dp_lang cookie).
+    const metaLang = resolveMetaLang(ctx.query as Record<string, unknown>, ctx.req.headers.cookie);
+    const queryLang = String((ctx.query as { lang?: unknown })?.lang || "").split("-")[0].toLowerCase();
+    // Shared edge cache is safe for the English default or a URL-keyed ?lang=;
+    // a cookie-driven non-English render is kept private so it can't poison the
+    // shared cache for the next (default-language) visitor.
+    if (metaLang === "en" || queryLang === metaLang) {
+      ctx.res.setHeader("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+    } else {
+      ctx.res.setHeader("Cache-Control", "private, no-store");
+    }
     return {
       props: {
         merchant: data.merchant,
         products: Array.isArray(data.products) ? data.products : [],
         siteUrl,
+        metaLang,
       },
     };
   } catch (e) {

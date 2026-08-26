@@ -564,7 +564,8 @@
       "estTotal": "Total est. : {{amount}}",
       "checkout": "Paiement",
       "loadError": "Échec du chargement du panier",
-      "validationError": "Échec de la validation du panier"
+      "validationError": "Échec de la validation du panier",
+      "browseShop": "Parcourir la boutique"
     }
   },
   "shop": {

@@ -1,3 +1,39 @@
+# FEATURES (2026-06 fork) — Shop SEO meta i18n + Cart empty-state CTA — DONE (tsc + curl + DE screenshot)
+
+Preview: https://2a9c209f-72ac-4dba-8d0c-579d0240c83b.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0. No DB writes.
+
+## 1) Shop / product SEO <Head> localization (SSR, crawler-visible) — DONE
+The app i18n is client-only (SSR always English), so localized search snippets need a server-visible signal.
+New helper `helpers/shopSeoMeta.ts`: `resolveMetaLang(query, cookieHeader)` resolves language from an EXPLICIT
+signal only — `?lang=` query param (wins) or the `dp_lang` cookie — else `en` (NO Accept-Language/IP auto-detect,
+matching the app's "explicit choice only" i18n policy). `shopSeoStrings(lang)` holds 3 SEO strings × 6 langs
+(shopSuffix, shopDesc{name}, productDesc{title}) — kept in the helper (SSR-only, not in landing.json).
+  - pages/[handle]/shop.tsx: getServerSideProps computes `metaLang`; component renders localized `<title>`
+    (`{name} — {shopSuffix} · Dynopay`), fallback description (used only when merchant has no bio), and og:locale.
+  - pages/[handle]/p/[slug].tsx: same — localized fallback product description (used only when no subtitle/desc)
+    + og:locale. Product title stays `{title} — @{handle} · Dynopay` (no translatable chrome).
+  - `dp_lang` cookie is written by `helpers/setAppLanguage.ts` (writeLangCookie) on every explicit language
+    choice + in reconcileLanguageOnAuth — the only server-visible lang signal, so a buyer's chosen language
+    localizes the crawled/shared meta.
+  - Edge-cache safety: English default OR URL-keyed `?lang=` keeps the existing `s-maxage=15, SWR=30`; a
+    cookie-driven non-English render is `Cache-Control: private, no-store` so it can't poison the shared cache.
+  - og:locale duplicate fix: `_app.tsx` global og:locale + both page-level ones now share `key="og:locale"`
+    so next/head dedupes and the page value wins (exactly one og:locale per page).
+  VERIFIED (curl): /devhub/shop?lang=fr → `<title>… — Boutique · Dynopay</title>` + og:locale fr; default →
+  "Shop" + og:locale en; /devhub/p/talk-to-a-developer?lang=fr → og:locale fr; all HTTP 200; no compile errors.
+  NOTE: for merchants who set a bio / product subtitle, the description stays as their authored content
+  (correct) — only the FALLBACK description + title suffix + og:locale localize.
+
+## 2) Cart empty-state CTA — DONE
+pages/[handle]/cart.tsx empty state upgraded from a plain text link to a friendly centered block: a circular
+ShoppingBagOutlined icon, the "Your cart is empty." message (data-testid `cart-empty`), and a prominent pill
+StorefrontRounded button "Browse the shop" → `/{handle}/shop` (data-testid `cart-empty-browse-btn`, wrapper
+`cart-empty-state`). New key `cart.store.browseShop` added to all 6 landing.json (en/es/pt/fr/de/nl).
+VERIFIED (DE screenshot): "Dein Warenkorb ist leer." + "Zum Shop" button → /devhub/shop.
+
+---
+
+
 # FEATURES (2026-06 fork) — Store-toggle i18n + preview chip + FULL shop buyer-journey i18n (6 langs) — DONE (tsc + DE screenshots)
 
 Preview: https://2a9c209f-72ac-4dba-8d0c-579d0240c83b.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Creator handle @devhub (company 1). Frontend tsc EXIT 0.

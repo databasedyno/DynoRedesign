@@ -564,7 +564,8 @@
       "estTotal": "Est. total: {{amount}}",
       "checkout": "Checkout",
       "loadError": "Failed to load cart",
-      "validationError": "Cart validation failed"
+      "validationError": "Cart validation failed",
+      "browseShop": "Browse the shop"
     }
   },
   "shop": {

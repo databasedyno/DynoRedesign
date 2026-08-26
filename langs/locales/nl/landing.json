@@ -564,7 +564,8 @@
       "estTotal": "Gesch. totaal: {{amount}}",
       "checkout": "Afrekenen",
       "loadError": "Kan winkelwagen niet laden",
-      "validationError": "Validatie van winkelwagen mislukt"
+      "validationError": "Validatie van winkelwagen mislukt",
+      "browseShop": "Naar de winkel"
     }
   },
   "shop": {

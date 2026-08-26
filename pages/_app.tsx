@@ -552,7 +552,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta key="og:image:width" property="og:image:width" content="1200" />
         <meta key="og:image:height" property="og:image:height" content="630" />
         <meta property="og:site_name" content="Dynopay" />
-        <meta property="og:locale" content={i18n.language || "en"} />
+        <meta key="og:locale" property="og:locale" content={i18n.language || "en"} />
 
         {/* ─── Twitter Cards ─── */}
         <meta name="twitter:card" content="summary_large_image" />
