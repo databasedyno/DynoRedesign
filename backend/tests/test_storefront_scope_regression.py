@@ -7,7 +7,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://dynopay-setup-5.preview.emergentagent.com"
+BASE_URL = "https://blockchain-bridge-3.preview.emergentagent.com"
 LOCAL_HEALTH = "http://localhost:8001/health"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
