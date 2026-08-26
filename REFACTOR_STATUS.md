@@ -739,3 +739,100 @@ then validate with a small live amount before general availability.
 #   BUILD OPTIONS offered: (a) advice only; (b) simplest guard = payout wallet +
 #   verified email share the cap; (c) full (b)+phone+progressive+Veriff KYC.
 #   → AWAITING user pick before implementing anything on the LIVE fee logic.
+
+# ============================================================================
+# S3. FEE MODEL CHANGE — "$500 fee-free trial" → "FIRST PAYMENT fee-free"
+# 2026-06 (fork: dynopay-setup-4) — AWAITING USER SIGN-OFF (money math, LIVE DB)
+# Status legend:  [ ] todo   [~] in progress   [x] done
+# ============================================================================
+
+## S3.0 [ ] Decision confirmed with user — REPLACE the $500 trial with first-payment-free
+# USER DECISION (verbatim intent): "making the first payment fee free is fine.
+# platform fee will not be deducted except blockchain cost for the first payment
+# on the account level, not company."
+#
+# WHAT EXISTS TODAY (grounding — reuse, don't rebuild):
+#   - backend/services/feeFreeService.ts — "first $500 of LIFETIME VOLUME fee-free",
+#     already ACCOUNT-level (userModel.user_id), NOT per company. Columns on
+#     userModel: cumulative_volume_usd, fee_free_remaining_usd, fee_tier
+#     ('trial' → 'standard'). Env: FREE_TRIAL_VOLUME_USD (default 500).
+#     Funcs: getFeeFreeStatus, calculateFeeFreeDiscount, recordTransactionVolume,
+#     reverseTransactionVolume, resolveFeeFreeRemaining (clamps to 500 − lifetime).
+#   - backend/services/feeService.ts::calculateTransactionFees (L185-238) applies
+#     the fee-free discount: totalDeduction = fixed_fee + transactionFee(%);
+#     feeFreeDiscount = totalDeduction * (fee_free_amount/amount) → waives BOTH the
+#     % platform fee AND the fixed per-tx fee proportionally. (On-chain GAS is a
+#     SEPARATE cost handled in sweep/forwarding — never part of totalDeduction, so
+#     it is ALWAYS borne = matches "except blockchain cost".)
+#   - Callers of record/reverse: controller/payment/settlement/{settleTransaction,
+#     verifyPayment,chainVerification,receipt}.ts (fires at SETTLEMENT).
+#   - Status API: GET /api/company/fee-free-status (companyController.getFeeFreeStatus).
+#   - FRONTEND surfaces that show "$500 fee-free" (all read useFeeFreeStatus /
+#     /company/fee-free-status): Components/Common/StickyPromoBar.tsx,
+#     Components/Modals/ExitIntentModal.tsx ("Claim $500 fee-free"),
+#     Components/Modals/FeeFreeWelcomeModal.tsx, Components/UI/FeeFreeBanner/index.tsx,
+#     Components/UI/FeeFreeWidget (+ hooks/useFeeFreeStatus), plus fees/landing copy.
+#
+# TARGET MODEL:
+#   - Entitlement = the merchant's FIRST payment only (account-level, per user_id;
+#     one free payment total across ALL that user's companies).
+#   - On that one payment, waive DynoPay's full platform deduction (fixed + %);
+#     blockchain/gas cost still applies (unchanged, separate).
+#   - After the first payment settles → account fee_tier trial → standard; all
+#     later payments charged normally.
+#
+# SAFETY: touches LIVE prod fee/money math. Build behind unit tests
+# (extend backend/__tests__/feeFreeEntitlement.test.ts), verify before it can
+# affect real settlement. Do NOT abuse the FREE_TRIAL_VOLUME_USD env.
+
+## S3.1 [ ] OPEN DECISIONS asked of user (answers pending; defaults if "go")
+#   Q1 What is "the first payment"?
+#       (a) first SUCCESSFULLY SETTLED payment [DEFAULT/recommended — abandoned
+#           invoice won't burn the freebie; matches where recordTransactionVolume
+#           fires today at settlement]
+#       (b) first payment created/attempted
+#   Q2 Cap on the free payment size?
+#       (a) no cap — first payment fully platform-fee-free regardless of size [DEFAULT]
+#       (b) waive only up to $X of the first payment (user supplies $X)
+#   Q3 Existing merchants (signed up under old $500 trial, some already transacted):
+#       (a) anyone who has ALREADY transacted = free payment already used (clean
+#           cut-over) [DEFAULT]
+#       (b) give EVERYONE one fresh free payment under the new rule
+#   Q4 Copy/UI:
+#       (a) rewrite ALL "$500 fee-free" surfaces to "first payment is on us / fee-free"
+#           [DEFAULT]
+#       (b) backend logic only for now; copy later
+#   DEFAULTS IF USER SAYS "GO": 1a, 2a, 3a, 4a.
+
+# ============================================================================
+# S4. NEXT-ACTION BACKLOG (user-selected 2026-06) — not yet started
+# ============================================================================
+
+## S4.1 [ ] Fee-Free Guard (ALTERNATIVE to S3 — anti-abuse cap, if $500 model KEPT)
+#   Build the simple anti-abuse cap so duplicate accounts sharing a payout wallet
+#   OR verified email split ONE $500 allowance (instead of each getting a fresh $500).
+#   NOTE: this is the "keep the $500 model but stop abuse" path. It is MUTUALLY
+#   EXCLUSIVE with S3 (first-payment-free) — if the user proceeds with S3, S4.1 is
+#   obsolete. Only build ONE of {S3, S4.1}. Confirm with user which path wins.
+#   Sketch: on signup / first settlement, group accounts by (payout wallet addr,
+#   verified email) → shared fee_free_remaining pool keyed by the group, not user_id.
+
+## S4.2 [ ] Mobile Chat Polish
+#   Hide/offset the scroll-to-top arrow (Components/Layout/ScrollToTopButton.tsx,
+#   now data-testid=scroll-to-top-button) while the MOBILE support-chat panel is
+#   OPEN so the arrow stops sitting on the panel's send-button row. (Cosmetic;
+#   flagged by testing iteration_84 design_issues.) Approach: SupportChatWidget can
+#   set a body attr / CSS var when open; ScrollToTopButton hides on mobile when set.
+
+## S4.3 [ ] VAT Label Fix
+#   Finish the last untranslated VAT string flagged on the STORE payment page during
+#   the earlier i18n pass (iteration_81 follow-up). Check
+#   Components/Page/Creator/InlineTipCheckout.tsx + pages/[handle]/checkout.tsx and
+#   langs/locales/{en,es,pt,fr,de,nl}/landing.json for the hardcoded/ missing VAT key.
+
+## S4.4 [ ] $10 Minimum Hint
+#   Show a clear "$10 minimum" helper on tips, support and donation amount inputs so
+#   buyers aren't surprised (iteration_81 follow-up — backend min already enforced at
+#   10). Surfaces: Components/Page/Creator/SupportWidget.tsx,
+#   Components/Page/Creator/CreatorPageSettings.tsx, pages/[handle]/checkout.tsx.
+
