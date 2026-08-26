@@ -7,7 +7,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://checkout-deployment-1.preview.emergentagent.com"
+BASE_URL = "https://repo-link-setup.preview.emergentagent.com"
 LOCAL_HEALTH = "http://localhost:8001/health"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

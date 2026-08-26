@@ -16,9 +16,39 @@
 
 
 # ============================================================================
+# 2026-08-26 (pod 43248c91) RE-SETUP #4 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
+# ----------------------------------------------------------------------------
+# - Preview URL: https://43248c91-aedf-4589-b4ed-b1f6b9885177.preview.emergentagent.com
+# - Branch: Improvement
+# - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
+#     /app/.env (frontend) + /app/backend/.env (backend),
+#     then `bash scripts/pod-bootstrap.sh` -> POD READY in 25s (deps pre-installed).
+# - SAFE MODE (preview talks to the LIVE prod Railway DB):
+#     ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (paste had jobs=true — overridden;
+#       boot log confirms all workers skipped: reconciliation/BullMQ/cron/digest)
+#     DISABLE_OUTBOUND_EMAIL=true (no Brevo email)
+#     REDIS_PUBLIC_URL -> nozomi.proxy.rlwy.net:15794/1 (isolated Redis DB index 1)
+#     DATABASE_URL set explicitly (postgres@roundhouse.proxy.rlwy.net:23599/railway, ssl reject=false)
+#     BINANCE_PROXY_URL + SSH_TUNNEL_* commented (geo-blocked; FX via Tatum, 10 cached prices)
+#     NEXTAUTH_SECRET freshly generated (paste had literal placeholder "openssl rand -base64 32")
+#     /app/.env NEXT_PUBLIC_BASE_URL EMPTY (relative /api browser calls; SSR uses INTERNAL_API_URL=:8001)
+# - Merchant login for testing: hostbay@moxx.co / Katiekendra123@ (user_id=1, "Hostbay")
+# - VERIFIED (read-only, no writes to prod):
+#     GET :8001/health -> healthy (database=connected, redis=connected,
+#       background_jobs.eligible=false = SAFE MODE, tatum operational CLOSED)
+#     GET :8001/api/public/tickers -> live prices (BTC ~$78.5k, ETH ~$2.46k)
+#     POST :8001/api/user/login (hostbay@moxx.co) -> 200 "Login Successful!" (user_id=1)
+#     Boot migrations: "0 applied, 6 already present" => NO schema changes to prod
+#     External /auth/login renders full UI (screenshot: logo, email flow,
+#       Google + GitHub buttons, language picker)
+# - NOTE for testing agents: WIRED TO PRODUCTION DB. Prefer READ-ONLY checks.
+# ============================================================================
+
+
+# ============================================================================
 # 2026-08-26 (pod 6c9c118d) RE-SETUP #3 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://6c9c118d-88bc-48a3-b4be-0cbe808dc256.preview.emergentagent.com
+# - Preview URL: https://repo-link-setup.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/.env (30 lines, frontend) + /app/backend/.env (216 lines, backend),
@@ -48,7 +78,7 @@
 # ============================================================================
 # 2026-08-26 (new pod) RE-SETUP #2 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://checkout-deployment-1.preview.emergentagent.com
+# - Preview URL: https://repo-link-setup.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/.env (frontend) + /app/backend/.env (backend), then `bash scripts/pod-bootstrap.sh`
@@ -75,7 +105,7 @@
 # ============================================================================
 # 2026-08-26 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://checkout-deployment-1.preview.emergentagent.com
+# - Preview URL: https://repo-link-setup.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase used):
 #     /app/.env (34 lines, frontend) + /app/backend/.env (245 lines, backend),
@@ -141,7 +171,7 @@
 # ============================================================================
 # 2026-08-25 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://checkout-deployment-1.preview.emergentagent.com
+# - Preview URL: https://repo-link-setup.preview.emergentagent.com
 # - Branch: Improvement
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env (41 lines) + /app/backend/.env (226 lines) written by hand,
@@ -170,7 +200,7 @@
 # ============================================================================
 # 2026-08-25 (later) RE-SETUP (current pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://checkout-deployment-1.preview.emergentagent.com
+# - Preview URL: https://repo-link-setup.preview.emergentagent.com
 # - Branch: Improvement (latest, contains all other branches)
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env + /app/backend/.env written by hand, then
@@ -197,7 +227,7 @@
 # ============================================================================
 # 2026-08-25 RE-SETUP (prior pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://checkout-deployment-1.preview.emergentagent.com
+# - Preview URL: https://repo-link-setup.preview.emergentagent.com
 # - Env files REBUILT from a fresh full cred paste by the user (no vault passphrase
 #   this session; env.vault.enc NOT used). /app/.env + /app/backend/.env written by
 #   hand, then `bash scripts/pod-bootstrap.sh` synced URLs + enforced SAFE MODE.
@@ -223,7 +253,7 @@
 # ============================================================================
 # 2026-08-24 RE-SETUP (this session) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://checkout-deployment-1.preview.emergentagent.com
+# - Preview URL: https://repo-link-setup.preview.emergentagent.com
 # - Env files were REBUILT DIRECTLY from a fresh full cred paste by the user
 #   (NOT restored from env.vault.enc — no passphrase was provided this session).
 # - /app/backend/.env and /app/.env written by hand; SAFE MODE enforced:
@@ -249,7 +279,7 @@
 # DynoPay — Emergent Preview Setup Notes (prod-connected, SAFE MODE)
 
 ## Status: RUNNING — connected to the user's LIVE Railway PostgreSQL + Redis
-- Preview URL: https://checkout-deployment-1.preview.emergentagent.com
+- Preview URL: https://repo-link-setup.preview.emergentagent.com
 - Architecture: Next.js (`:3000`) + Node/Express backend (`server.ts` on `:3300`) behind a
   Python/uvicorn proxy (`server.py` on `:8001`, the `/api/*` ingress target). Proxy forwards
   `/api/*` to Node and stubs `/api/auth/*` (NextAuth) with empty JSON.
@@ -296,7 +326,7 @@
 # ============================================================================
 # 2026-08-26 — 9-ISSUE STOREFRONT/CHECKOUT FIX BATCH (this session)
 # ----------------------------------------------------------------------------
-# Preview URL (CORRECT): https://checkout-deployment-1.preview.emergentagent.com
+# Preview URL (CORRECT): https://repo-link-setup.preview.emergentagent.com
 #   (bootstrap auto-detected a STALE url d6d663a8-... from a read-only supervisor
 #    APP_URL — it is DEAD/502. All env URL keys were re-pointed to dynopay-setup-4.)
 # Merchant login (owns @devhub): hostbay@moxx.co / Katiekendra123@  (user_id=1, company_id=1)

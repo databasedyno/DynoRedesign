@@ -12,7 +12,7 @@ import subprocess
 from typing import Dict, Any, List, Union
 
 # Base URL - using the frontend environment variable as specified
-BASE_URL = "https://checkout-deployment-1.preview.emergentagent.com"
+BASE_URL = "https://repo-link-setup.preview.emergentagent.com"
 
 class AutoConvertTester:
     def __init__(self, base_url: str):

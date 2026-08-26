@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://checkout-deployment-1.preview.emergentagent.com",
+        "origin": "https://repo-link-setup.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

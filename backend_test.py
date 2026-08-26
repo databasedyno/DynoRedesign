@@ -12,7 +12,7 @@ from urllib.parse import quote
 
 # Configuration
 BASE_URL = "http://localhost:8001"
-EXTERNAL_URL = "https://6c9c118d-88bc-48a3-b4be-0cbe808dc256.preview.emergentagent.com"
+EXTERNAL_URL = "https://repo-link-setup.preview.emergentagent.com"
 
 # Test credentials
 LOGIN_EMAIL = "hostbay@moxx.co"
