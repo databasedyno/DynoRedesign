@@ -203,8 +203,22 @@
 #   domain-bound code format (e.g. "@dynopay.com #123456") to the OTP SMS body.
 #   Files: OTP SMS send path (Telnyx/Infobip) in services/*sms*/otp senders.
 
-### B2. [ ] Font-flash polish & landing speed report (carried from prior sessions)
-#   (Pre-existing backlog items — see CHANGELOG; not started.)
+### B2. [x] Font-flash polish & landing speed report — DONE 2026-08-26
+#   ✅ Landing speed report written to /app/LANDING_SPEED_REPORT.md (static/config
+#      audit + resource facts; authoritative CWV still need a prod-build Lighthouse
+#      on staging — R3). Finding: font-flash is already well solved (font-display
+#      swap everywhere, 0 optional; self-hosted next/font Geist/Unbounded/IBM Plex;
+#      Manrope = primary heading/hero, preloaded; metric-matched "Manrope Fallback"
+#      = no CLS on swap; LivePriceStrip reserved-height CLS fix).
+#   ✅ Polish shipped: converted the 5 preloaded Manrope weights .woff -> .woff2
+#      (~22-24% smaller, ~45 KB off the cold-load critical path). globals.css lists
+#      woff2 first + woff fallback across the canonical + 20 legacy-alias @font-face
+#      blocks; _document.tsx preloads woff2 (type=font/woff2). display:swap +
+#      metric fallback unchanged -> no cold-load FOUT risk. Files: public/fonts/
+#      Manrope-*.woff2 (new), styles/globals.css, pages/_document.tsx.
+#   Remaining recommendations (staging-gated) captured in the report: R1 trim
+#   preloaded weights to above-the-fold set, R2 confirm LCP-image priority,
+#   R3 prod-build Lighthouse + CWV budget in CI (ties into §2 / A4).
 
 # ============================================================================
 

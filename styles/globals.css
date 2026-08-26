@@ -163,42 +163,48 @@ a {
 
 @font-face {
   font-family: "Manrope";
-  src: url("/fonts/Manrope-Light.woff") format("woff");
+  src: url("/fonts/Manrope-Light.woff2") format("woff2"),
+       url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "Manrope";
-  src: url("/fonts/Manrope-Regular.woff") format("woff");
+  src: url("/fonts/Manrope-Regular.woff2") format("woff2"),
+       url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "Manrope";
-  src: url("/fonts/Manrope-Medium.woff") format("woff");
+  src: url("/fonts/Manrope-Medium.woff2") format("woff2"),
+       url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "Manrope";
-  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "Manrope";
-  src: url("/fonts/Manrope-Bold.woff") format("woff");
+  src: url("/fonts/Manrope-Bold.woff2") format("woff2"),
+       url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "Manrope";
-  src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
+  src: url("/fonts/Manrope-ExtraBold.woff2") format("woff2"),
+       url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
@@ -231,49 +237,56 @@ a {
    (or prefer the --font-display / --font-hero vars, which already include it). */
 @font-face {
   font-family: "UrbanistLight";
-  src: url("/fonts/Manrope-Light.woff") format("woff");
+  src: url("/fonts/Manrope-Light.woff2") format("woff2"),
+       url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "UrbanistRegular";
-  src: url("/fonts/Manrope-Regular.woff") format("woff");
+  src: url("/fonts/Manrope-Regular.woff2") format("woff2"),
+       url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "UrbanistMedium";
-  src: url("/fonts/Manrope-Medium.woff") format("woff");
+  src: url("/fonts/Manrope-Medium.woff2") format("woff2"),
+       url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "UrbanistSemiBold";
-  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "UrbanistSemibold";
-  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "UrbanistBold";
-  src: url("/fonts/Manrope-Bold.woff") format("woff");
+  src: url("/fonts/Manrope-Bold.woff2") format("woff2"),
+       url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "UrbanistExtraBold";
-  src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
+  src: url("/fonts/Manrope-ExtraBold.woff2") format("woff2"),
+       url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
@@ -282,49 +295,56 @@ a {
 /* --- Legacy weight-carrying aliases (Outfit*) → Manrope --- */
 @font-face {
   font-family: "OutfitLight";
-  src: url("/fonts/Manrope-Light.woff") format("woff");
+  src: url("/fonts/Manrope-Light.woff2") format("woff2"),
+       url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "OutfitRegular";
-  src: url("/fonts/Manrope-Regular.woff") format("woff");
+  src: url("/fonts/Manrope-Regular.woff2") format("woff2"),
+       url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "OutfitMedium";
-  src: url("/fonts/Manrope-Medium.woff") format("woff");
+  src: url("/fonts/Manrope-Medium.woff2") format("woff2"),
+       url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "OutfitSemiBold";
-  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "OutfitSemibold";
-  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "OutfitBold";
-  src: url("/fonts/Manrope-Bold.woff") format("woff");
+  src: url("/fonts/Manrope-Bold.woff2") format("woff2"),
+       url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
 }
 @font-face {
   font-family: "OutfitExtraBold";
-  src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
+  src: url("/fonts/Manrope-ExtraBold.woff2") format("woff2"),
+       url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */

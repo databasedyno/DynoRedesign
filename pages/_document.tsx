@@ -37,11 +37,11 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
             headings) — paired with font-display:swap + the metric-matched
             "Manrope Fallback" in globals.css so headings/labels never stick on
             a mismatched fallback and never visibly resize on a cold load. */}
-        <link rel="preload" href="/fonts/Manrope-Regular.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Manrope-Medium.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Manrope-SemiBold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Manrope-Bold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Manrope-ExtraBold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-Medium.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-SemiBold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-ExtraBold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
         {/* Fonts now served via next/font (Geist Sans + Geist Mono). See _app.tsx.
             Legacy Manrope woffs kept in /public/fonts as fallback for any
