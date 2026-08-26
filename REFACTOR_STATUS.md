@@ -328,11 +328,14 @@ convention, but every hook/component re-defines its own `fetcher`.
 
 ## 2. Also surfaced (not yet actioned — your call)
 
-- 🐞 **Flutterwave handler bug** (`webhooks/index.ts`): on a bad `verif-hash` it sends `res.status(401).end()`
-  but does **not** `return`, so the handler keeps processing (and later throws "headers already sent").
-  Exact behaviour was **preserved** during the Item-3 refactor and flagged for a separate fix.
+- ✅ **Flutterwave handler bug** (`webhooks/index.ts`) — FIXED 2026-06 (fork dynopay-setup-5). On a bad/missing
+  `verif-hash` the handler now `res.status(401).end(); return;` (was: sent 401 but did NOT return → kept
+  processing the unsigned payload + double-wrote the response → ERR_HTTP_HEADERS_SENT). Also hardened the
+  catch block (`if (!res.headersSent) res.status(500).end();`). Verified by testing_agent iteration_85
+  (10/10 backend auth tests PASS; 401 on missing/wrong/empty hash; zero headers-sent errors; no Redis
+  write for rejected requests; /health still healthy).
 - 🛡️ **CI `tsc` gate** — add a pre-merge type-check so a `tsc` error blocks the PR instead of silently
-  failing at deploy time (would have caught the DO blocker).
+  failing at deploy time (would have caught the DO blocker). [still open — infra]
 
 ---
 

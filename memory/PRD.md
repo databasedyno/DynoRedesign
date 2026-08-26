@@ -1,3 +1,28 @@
+# BUGFIX (2026-06 fork) — Flutterwave webhook missing-`return` (headers-sent / unsigned-payload processing) — DONE
+
+Preview: https://9ce6d8ae-5030-4fe3-992a-47e6471c8db2.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).
+
+Pre-existing bug flagged in REFACTOR_STATUS.md §2 (de-scoped in prior "crypto-only" sessions), now fixed at
+user request. `backend/webhooks/index.ts::flutterwaveWebHook` — on a bad/missing `verif-hash` it sent
+`res.status(401).end()` but did NOT `return`, so it kept processing the UNSIGNED payload
+(getRedisItem/setRedisItem) then called `res.status(200).end()` → ERR_HTTP_HEADERS_SENT + an unauthenticated
+Redis write. FIX: added `return;` after the 401; hardened the catch block to
+`if (!res.headersSent) res.status(500).end();` (500 for genuine internal errors instead of masking as 401).
+Routes: POST /api/webhook + POST /api/failed_webhook (shared handler).
+
+VERIFIED (testing_agent iteration_85, backend-only, non-destructive): 10/10 auth tests PASS — 401 on
+missing/wrong/empty hash + malformed body; ZERO "headers already sent"/ERR_HTTP_HEADERS_SENT; NO Redis write
+for rejected requests (confirmed `flw-txt-qa*` scan empty after fix); /health healthy. backend tsc EXIT 0.
+NOTE: backend is ts-node (NO hot reload) — restart required after backend TS edits (done). Cleaned one stray
+test Redis key the pre-restart stale process wrote (`flw-txt-TEST_flw-txt-qa-invalid-sig:json`).
+
+Prior finish's emailService barrel fix (default-export missing `sendCreatorHandleUpdatedEmail`) remains in
+place (backend tsc EXIT 0).
+
+---
+
+
+
 # FEATURES (2026-06 fork) — Fees v3 full localization + localized Payouts toast + Dynotech→Dynopay rename — DONE
 
 Preview: https://9ce6d8ae-5030-4fe3-992a-47e6471c8db2.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, backend tsc EXIT 0.

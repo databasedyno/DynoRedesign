@@ -527,11 +527,12 @@ const flutterwaveWebHook = async (
 ) => {
   try {
     // Centralized inbound verifier — plain shared-secret equality on `verif-hash`.
-    // NOTE (pre-existing behaviour, intentionally preserved): this sends 401 but
-    // does NOT `return`, so the handler continues below. Flagged for a separate fix.
+    // Reject unauthenticated callbacks immediately (401 + return) so we never
+    // process an unsigned payload or double-write the response.
     const signature = req.headers["verif-hash"];
     if (!verifyFlutterwaveHash(signature)) {
       res.status(401).end();
+      return;
     }
     const payload: IWebHook = req.body;
     const txRef = payload.txRef.includes("customer")
@@ -550,7 +551,8 @@ const flutterwaveWebHook = async (
   } catch (e) {
     const message = getErrorMessage(e);
     apiLogger.error(message, { from: "flutterwave_webhook" }, new Error(e));
-    res.status(401).end();
+    // Guard against ERR_HTTP_HEADERS_SENT if a response was already sent above.
+    if (!res.headersSent) res.status(500).end();
   }
 };
 const tatumWebHook = async (req: express.Request, res: express.Response) => {
