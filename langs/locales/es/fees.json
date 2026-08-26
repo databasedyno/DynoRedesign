@@ -122,10 +122,10 @@
     "secEyebrow": "[ 04 · Lo que no tocamos ]",
     "secTitle": "Sin custodia por diseño.",
     "sec1Title": "Tus claves, tus monedas.",
-    "sec1Body": "Dynopay nunca retiene tus fondos. Cada liquidación es una transferencia on-chain directa a la dirección de billetera que tú controlas.",
+    "sec1Body": "Dynopay nunca retiene tus fondos. Cada liquidación es una transferencia on-chain directa a la dirección de monedero que tú controlas: quédate con la moneda en la que cobras o conviértela automáticamente a una stablecoin, tú eliges.",
     "sec2Title": "KYC / AML donde se requiera.",
     "sec2Body": "Cumplimiento adaptado a cada país integrado. Los usuarios en jurisdicciones reguladas pasan la verificación en el momento justo — sin recopilar de más.",
-    "sec3Title": "En camino a SOC2, listo para RGPD.",
+    "sec3Title": "Cifrado, listo para GDPR.",
     "sec3Body": "Secretos cifrados en Google KMS, PII minimizada, registro de auditoría conservado. Exporta o elimina cuando lo pidas."
   }
 }

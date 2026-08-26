@@ -122,10 +122,10 @@
     "secEyebrow": "[ 04 · Was wir nicht anfassen ]",
     "secTitle": "Nicht-verwahrend von Grund auf.",
     "sec1Title": "Ihre Schlüssel, Ihre Coins.",
-    "sec1Body": "Dynopay hält niemals Ihre Gelder. Jede Auszahlung ist eine direkte On-Chain-Überweisung an die Wallet-Adresse, die Sie kontrollieren.",
+    "sec1Body": "Dynopay hält deine Mittel nie. Jede Auszahlung ist ein direkter On-Chain-Transfer an die Wallet-Adresse, die du kontrollierst — behalte die Coin, in der du bezahlt wirst, oder wandle sie automatisch in eine Stablecoin um, deine Wahl.",
     "sec2Title": "KYC / AML, wo erforderlich.",
     "sec2Body": "Länderspezifische Compliance ist eingebaut. Nutzer in regulierten Ländern werden im richtigen Moment geprüft — ohne übermäßige Datenerfassung.",
-    "sec3Title": "Auf dem Weg zu SOC2, DSGVO-bereit.",
+    "sec3Title": "Verschlüsselt, DSGVO-bereit.",
     "sec3Body": "Verschlüsselte Secrets in Google KMS, PII minimiert, Audit-Trail aufbewahrt. Export oder Löschung auf Anfrage."
   }
 }

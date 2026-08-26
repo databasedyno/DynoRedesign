@@ -122,10 +122,10 @@
     "secEyebrow": "[ 04 · What we don't touch ]",
     "secTitle": "Non-custodial by design.",
     "sec1Title": "Your keys, your coins.",
-    "sec1Body": "Dynopay never holds your funds. Every settlement is a direct on-chain transfer to the wallet address you control.",
+    "sec1Body": "Dynopay never holds your funds. Every settlement is a direct on-chain transfer to the wallet address you control — keep the coin you're paid in, or auto-convert to a stablecoin, your choice.",
     "sec2Title": "KYC / AML where required.",
     "sec2Body": "Country-aware compliance built in. Users in regulated jurisdictions get gated at the right moment — no over-collection.",
-    "sec3Title": "SOC2-track, GDPR ready.",
+    "sec3Title": "Encrypted, GDPR ready.",
     "sec3Body": "Encrypted secrets in Google KMS, PII minimised, audit trail retained. Export or delete on request."
   }
 }

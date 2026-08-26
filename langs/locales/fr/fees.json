@@ -122,10 +122,10 @@
     "secEyebrow": "[ 04 · Ce que nous ne touchons pas ]",
     "secTitle": "Non-dépositaire par conception.",
     "sec1Title": "Vos clés, vos cryptos.",
-    "sec1Body": "Dynopay ne détient jamais vos fonds. Chaque règlement est un transfert on-chain direct vers l'adresse de portefeuille que vous contrôlez.",
+    "sec1Body": "Dynopay ne détient jamais vos fonds. Chaque règlement est un transfert on-chain direct vers l'adresse de portefeuille que vous contrôlez — gardez la crypto reçue ou convertissez-la automatiquement en stablecoin, à vous de choisir.",
     "sec2Title": "KYC / AML là où c'est requis.",
     "sec2Body": "Conformité adaptée à chaque pays intégrée. Les utilisateurs dans les juridictions réglementées sont vérifiés au bon moment — sans surcollecte.",
-    "sec3Title": "En voie SOC2, prêt pour le RGPD.",
+    "sec3Title": "Chiffré, prêt pour le RGPD.",
     "sec3Body": "Secrets chiffrés dans Google KMS, PII minimisées, piste d'audit conservée. Export ou suppression sur demande."
   }
 }

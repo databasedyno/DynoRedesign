@@ -122,10 +122,10 @@
     "secEyebrow": "[ 04 · O que não tocamos ]",
     "secTitle": "Sem custódia por design.",
     "sec1Title": "Suas chaves, suas moedas.",
-    "sec1Body": "A Dynopay nunca retém seus fundos. Cada liquidação é uma transferência on-chain direta para o endereço de carteira que você controla.",
+    "sec1Body": "A Dynopay nunca retém seus fundos. Cada liquidação é uma transferência on-chain direta para o endereço de carteira que você controla — fique com a moeda em que recebe ou converta automaticamente para uma stablecoin, você escolhe.",
     "sec2Title": "KYC / AML quando exigido.",
     "sec2Body": "Conformidade adaptada a cada país já integrada. Usuários em jurisdições reguladas são verificados no momento certo — sem coleta excessiva.",
-    "sec3Title": "Rumo ao SOC2, pronto para RGPD.",
+    "sec3Title": "Criptografado, pronto para GDPR.",
     "sec3Body": "Segredos criptografados no Google KMS, PII minimizada, trilha de auditoria mantida. Exporte ou exclua quando solicitar."
   }
 }

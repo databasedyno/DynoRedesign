@@ -122,10 +122,10 @@
     "secEyebrow": "[ 04 · Wat we niet aanraken ]",
     "secTitle": "Niet-custodiaal van nature.",
     "sec1Title": "Jouw sleutels, jouw coins.",
-    "sec1Body": "Dynopay houdt nooit je geld vast. Elke afwikkeling is een directe on-chain overboeking naar het walletadres dat jij beheert.",
+    "sec1Body": "Dynopay houdt je geld nooit vast. Elke uitbetaling is een directe on-chain overboeking naar het walletadres dat jij beheert — houd de munt waarin je betaald wordt of zet die automatisch om naar een stablecoin, jouw keuze.",
     "sec2Title": "KYC / AML waar vereist.",
     "sec2Body": "Landspecifieke compliance ingebouwd. Gebruikers in gereguleerde rechtsgebieden worden op het juiste moment geverifieerd — zonder te veel te verzamelen.",
-    "sec3Title": "Op weg naar SOC2, AVG-klaar.",
+    "sec3Title": "Versleuteld, AVG-klaar.",
     "sec3Body": "Versleutelde secrets in Google KMS, PII geminimaliseerd, audittrail bewaard. Exporteren of verwijderen op verzoek."
   }
 }

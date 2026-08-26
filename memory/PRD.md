@@ -30,6 +30,10 @@ IMPLEMENTED (Components/Page/Home/*, v3 Aurora design system):
   ("Keep the original coin or auto-convert to USDC/USDT — your choice"); hero headline is now "Accept crypto
   payments. / Get paid your way.", how-it-works step 3 "Get paid your way", and FAQ a1/a4 + numbers body reflect
   the keep-vs-convert option. Matches the existing Merchants-door wording. Copy-only, all 6 locales.
+- CONSISTENCY (follow-up): /for/merchants SEO page (data/seo-pages/verticals/merchants.json) already framed
+  auto-convert as "Optional… convert on your own terms" → no change. /fees (fees.json v3.sec1Body) now states the
+  keep-or-convert choice explicitly, and sec3Title "SOC2-track, GDPR ready." → "Encrypted, GDPR ready." (drops the
+  last SOC2 claim sitewide). All 6 locales. Verified via SSR curl on /, /fees, /for/merchants.
 
 VERIFIED: frontend tsc EXIT 0 · SSR HTML scan confirms new copy present and $42M/SOC2/4.2s ABSENT sitewide ·
 testing_agent iteration_90 = 100% frontend (hero single-CTA, demo card non-navigating, how-it-works + CTA nav,
