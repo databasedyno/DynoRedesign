@@ -34,7 +34,7 @@ from xml.etree import ElementTree as ET
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-PREVIEW_BASE = "https://a1e9a54e-6d51-47fb-98d3-e91ce0a11738.preview.emergentagent.com"
+PREVIEW_BASE = "https://checkout-deployment-1.preview.emergentagent.com"
 API_BASE = f"{PREVIEW_BASE}/api"
 
 # Test credentials (from test_credentials.md)

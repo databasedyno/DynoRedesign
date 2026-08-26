@@ -304,7 +304,7 @@ and progress on the **5 leftover refactor recommendations** from the prior agent
 
 - **Environment used:** Emergent preview pod, backend on `ts-node --transpile-only` (port 3300 behind a
   Python proxy on 8001), Next.js frontend (port 3000). Preview URL:
-  `https://dynopay-setup-6.preview.emergentagent.com`
+  `https://checkout-deployment-1.preview.emergentagent.com`
 - **Database during this session:** pointed at a **STAGING** Railway Postgres (an empty schema clone of
   prod — 70 tables, no data) for safe testing. Prod values are preserved (commented) in
   `backend/.env` for a one-line switch-back. **SAFE MODE** throughout (`ENABLE_BACKGROUND_JOBS=false`,
@@ -811,7 +811,7 @@ then validate with a small live amount before general availability.
 
 # ============================================================================
 # CURRENT SESSION PLAN — 2026-06 (fork: dynopay-setup-4)
-# Preview: https://dynopay-setup-6.preview.emergentagent.com
+# Preview: https://checkout-deployment-1.preview.emergentagent.com
 # Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
 # Status legend:  [ ] todo   [~] in progress   [x] done
 # ============================================================================

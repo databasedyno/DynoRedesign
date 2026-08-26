@@ -12,7 +12,7 @@ import time
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://a1e9a54e-6d51-47fb-98d3-e91ce0a11738.preview.emergentagent.com"
+EXTERNAL_BASE = "https://checkout-deployment-1.preview.emergentagent.com"
 
 # Performance threshold
 FAST_THRESHOLD_MS = 300  # Well under 300ms
