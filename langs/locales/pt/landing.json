@@ -443,6 +443,18 @@
       "vatInvalid": "Não foi possível validar este NIF de IVA — será aplicado o imposto padrão.",
       "vatHint": "Empresas na UE podem inserir um NIF de IVA para a autoliquidação.",
       "reverseChargeNotice": "Autoliquidação B2B na UE: não é cobrado IVA. Você deve declarar o IVA no seu próprio Estado-Membro."
+    },
+    "receiptEmail": {
+      "label": "Envie-me um recibo (opcional)",
+      "helper": "Enviaremos o seu recibo por e-mail assim que o pagamento for confirmado.",
+      "saved": "O recibo será enviado para este e-mail.",
+      "invalid": "Introduza um e-mail válido."
+    },
+    "notify": {
+      "title": "Pagamento confirmado ✓",
+      "body": "O seu pagamento para {{name}} foi confirmado.",
+      "cta": "Avise-me quando confirmar",
+      "enabled": "Você receberá um alerta do navegador quando confirmar."
     }
   },
   "creator": {

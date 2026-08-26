@@ -443,6 +443,18 @@
       "vatInvalid": "Dit btw-nummer kon niet worden gevalideerd — het standaardtarief wordt toegepast.",
       "vatHint": "Bedrijven in de EU kunnen een btw-nummer invoeren voor de verleggingsregeling.",
       "reverseChargeNotice": "EU B2B-verleggingsregeling: geen btw in rekening gebracht. Je moet de btw in je eigen lidstaat aangeven."
+    },
+    "receiptEmail": {
+      "label": "Stuur mij een bon (optioneel)",
+      "helper": "We e-mailen je bon zodra deze betaling is bevestigd.",
+      "saved": "De bon wordt naar dit e-mailadres gestuurd.",
+      "invalid": "Voer een geldig e-mailadres in."
+    },
+    "notify": {
+      "title": "Betaling bevestigd ✓",
+      "body": "Je betaling aan {{name}} is bevestigd.",
+      "cta": "Waarschuw mij bij bevestiging",
+      "enabled": "Je krijgt een browsermelding zodra deze is bevestigd."
     }
   },
   "creator": {

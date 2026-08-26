@@ -2442,6 +2442,50 @@ export const setRefundAddress = async (
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SET CUSTOMER RECEIPT EMAIL — public checkout ("Email me a receipt")
+// The buyer can optionally supply an email on the checkout so the existing
+// post-payment receipt email (sendCustomerPaymentConfirmationEmail) has a
+// recipient. Contact info ONLY — never touches amounts / addresses / fees /
+// currency math. We merge it into the same Redis checkout session object
+// (`customer-<ref>`) that the settlement path reads for the receipt recipient.
+// ═══════════════════════════════════════════════════════════════════════════
+export const setCustomerEmail = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const { data, email } = req.body || {};
+    if (!data || typeof data !== "string") {
+      return errorResponseHelper(res, 400, "Missing payment reference.");
+    }
+    const raw = String(email || "").trim().toLowerCase();
+    if (!raw) {
+      return errorResponseHelper(res, 400, "Email is required.");
+    }
+    if (raw.length > 254) {
+      return errorResponseHelper(res, 400, "Email is too long.");
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) {
+      return errorResponseHelper(res, 400, "Enter a valid email address.");
+    }
+
+    // The checkout session that settlement reads for the receipt recipient is
+    // stored in Redis under `customer-<ref>` (see cryptoCheckout.getData). Merge
+    // the buyer's email into it so the receipt has somewhere to go.
+    const key = "customer-" + data;
+    const item = (await getRedisItem(key)) as Record<string, any> | null;
+    if (!item) {
+      return errorResponseHelper(res, 404, "Payment session not found or expired.");
+    }
+    await setRedisItem(key, { ...item, email: raw });
+    apiLogger.info(`[setCustomerEmail] receipt email attached to session ${String(data).slice(0, 10)}…`);
+    return successResponseHelper(res, 200, "Receipt email saved.", { saved: true });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {});
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CREATOR VANITY PAGE — public profile at dynopay.me/{handle}
 // Returns the creator's public info + their active donation campaigns and
 // reusable payment links. No auth (crawler-friendly for the SSR page).

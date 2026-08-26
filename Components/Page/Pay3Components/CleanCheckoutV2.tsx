@@ -53,6 +53,8 @@ import {
   useTheme,
 } from '@mui/material'
 import { Icon } from '@iconify/react'
+import { usePaymentNotification } from '@/hooks/usePaymentNotification'
+import { ReceiptEmailField, NotifyMeInline } from './checkoutExtras'
 import { QRCodeSVG } from 'qrcode.react'
 import Logo from '@/assets/Icons/Logo'
 import CheckoutStatusStrip from '@/Components/UI/CheckoutStatusStrip'
@@ -319,6 +321,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const [receiptState, setReceiptState] = useState<'idle' | 'busy' | 'done' | 'error'>('idle')
   const [showRefundInput, setShowRefundInput] = useState<boolean>(false)
   const [refundAddress, setRefundAddress] = useState<string>('')
+  // Optional buyer receipt email ("Email me a receipt"). Saved to the checkout
+  // session so the existing post-payment receipt email fires for anonymous
+  // payers. Contact info only — never affects amounts / addresses / fees.
+  const [receiptEmail, setReceiptEmail] = useState<string>('')
+  const [emailSaved, setEmailSaved] = useState<boolean>(false)
   const [confirmedAmount, setConfirmedAmount] = useState<{
     crypto: number
     fiat: number
@@ -337,6 +344,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const mountedRef = useRef(true)
   const pollRef = useRef<any>(null)
   const timerRef = useRef<any>(null)
+  // Browser "Payment confirmed" alert (opt-in). Lets the buyer switch tabs
+  // while the network confirms and still get pinged on settlement.
+  const notif = usePaymentNotification()
+  const notifiedRef = useRef(false)
 
   useEffect(() => {
     mountedRef.current = true
@@ -710,6 +721,16 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     await api('/pay/setRefundAddress', { data: d, refund_address: addr.trim() }, meta_.token)
   }, [d, meta_])
 
+  // ─── Save the optional receipt email (best-effort, non-blocking) ──
+  const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+  const emailInvalid = receiptEmail.trim().length > 0 && !emailValid(receiptEmail)
+  const saveReceiptEmail = useCallback(async () => {
+    const v = receiptEmail.trim().toLowerCase()
+    if (!v || !emailValid(v) || !meta_?.token) return
+    const r = await api('/pay/setCustomerEmail', { data: d, email: v }, meta_.token)
+    if (r.ok && mountedRef.current) setEmailSaved(true)
+  }, [receiptEmail, d, meta_])
+
   const timerLabel = useMemo(() => {
     const m = Math.floor(timeLeft / 60)
     const s = timeLeft % 60
@@ -820,6 +841,19 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const feeIsEstimate = feePayerIsCustomer && !feeExact
   const showBreakdown = !!meta_ && (feePayerIsCustomer || taxAmt > 0)
   const fmtFiat = (n: number) => `${fiatSymbol}${formatWithSeparators(n, meta_?.base_currency || 'USD')}`
+
+  // Fire the opt-in browser alert the instant the payment confirms so a buyer
+  // who switched tabs is pinged. Ref-guarded so it fires exactly once.
+  useEffect(() => {
+    if (phase !== 'confirmed' || notifiedRef.current) return
+    notifiedRef.current = true
+    const who = isContribution ? (campaignTitle || merchantName) : merchantName
+    notif.notify(
+      t('checkout.notify.title', { defaultValue: 'Payment confirmed \u2713' }),
+      t('checkout.notify.body', { defaultValue: 'Your payment to {{name}} is confirmed.', name: who }),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase])
 
   // ─── LOADING ──────────────────────────────────────────────────────
   if (phase === 'loading_meta' || phase === 'creating_payment') {
@@ -1239,6 +1273,22 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         </Box>
       </Box>
 
+      {/* Optional "Email me a receipt" — attaches a recipient to the checkout
+          session so the post-payment receipt email fires for anonymous payers. */}
+      <ReceiptEmailField
+        value={receiptEmail}
+        onChange={(v) => { setReceiptEmail(v); setEmailSaved(false) }}
+        onSave={saveReceiptEmail}
+        saved={emailSaved}
+        invalid={emailInvalid}
+        label={t('checkout.receiptEmail.label', { defaultValue: 'Email me a receipt (optional)' })}
+        helper={t('checkout.receiptEmail.helper', { defaultValue: "We'll email your receipt the moment this payment confirms." })}
+        savedLabel={t('checkout.receiptEmail.saved', { defaultValue: "Receipt will be sent to this email." })}
+        invalidLabel={t('checkout.receiptEmail.invalid', { defaultValue: 'Enter a valid email address.' })}
+        muted={muted}
+        border={border}
+      />
+
       {/* Partial-payment (underpaid) banner — tells the buyer exactly how much
           MORE to send to the SAME address shown below to complete the payment. */}
       {phase === 'underpaid' && partial && cryptoInfo && (
@@ -1286,6 +1336,20 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         >
           {t('checkout.payPrefix', { defaultValue: 'Pay' })} <strong>{formatCryptoAmount(amountToSend, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}</strong> {t('checkout.payOn', { defaultValue: 'on' })} {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
         </Typography>
+      )}
+
+      {/* Opt-in browser alert while waiting on confirmations */}
+      {cryptoInfo && (phase === 'awaiting_payment' || phase === 'underpaid') && (
+        <NotifyMeInline
+          supported={notif.supported}
+          permission={notif.permission}
+          onEnable={() => { void notif.requestPermission() }}
+          ctaLabel={t('checkout.notify.cta', { defaultValue: 'Notify me when it confirms' })}
+          enabledLabel={t('checkout.notify.enabled', { defaultValue: "You'll get a browser alert when it confirms." })}
+          muted={muted}
+          border={border}
+          accent={LIME}
+        />
       )}
 
       {/* QR code — crisp & responsive; tap the QR to copy the address */}

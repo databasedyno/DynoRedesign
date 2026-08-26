@@ -443,6 +443,18 @@
       "vatInvalid": "This VAT ID couldn't be validated — standard tax will apply.",
       "vatHint": "Businesses in the EU can enter a VAT ID for reverse-charge.",
       "reverseChargeNotice": "EU B2B reverse-charge: no VAT charged. You must account for VAT in your own member state."
+    },
+    "receiptEmail": {
+      "label": "Email me a receipt (optional)",
+      "helper": "We'll email your receipt the moment this payment confirms.",
+      "saved": "Receipt will be sent to this email.",
+      "invalid": "Enter a valid email address."
+    },
+    "notify": {
+      "title": "Payment confirmed ✓",
+      "body": "Your payment to {{name}} is confirmed.",
+      "cta": "Notify me when it confirms",
+      "enabled": "You'll get a browser alert when it confirms."
     }
   },
   "creator": {

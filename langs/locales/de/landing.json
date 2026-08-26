@@ -443,6 +443,18 @@
       "vatInvalid": "Diese USt-IdNr. konnte nicht validiert werden — es gilt die reguläre Steuer.",
       "vatHint": "Unternehmen in der EU können eine USt-IdNr. für Reverse-Charge angeben.",
       "reverseChargeNotice": "EU-B2B-Reverse-Charge: keine MwSt. berechnet. Sie müssen die MwSt. in Ihrem eigenen Mitgliedstaat abführen."
+    },
+    "receiptEmail": {
+      "label": "Beleg per E-Mail senden (optional)",
+      "helper": "Wir senden Ihren Beleg per E-Mail, sobald die Zahlung bestätigt ist.",
+      "saved": "Der Beleg wird an diese E-Mail gesendet.",
+      "invalid": "Geben Sie eine gültige E-Mail-Adresse ein."
+    },
+    "notify": {
+      "title": "Zahlung bestätigt ✓",
+      "body": "Ihre Zahlung an {{name}} ist bestätigt.",
+      "cta": "Benachrichtige mich bei Bestätigung",
+      "enabled": "Sie erhalten eine Browser-Benachrichtigung bei Bestätigung."
     }
   },
   "creator": {

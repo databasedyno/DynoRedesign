@@ -16,6 +16,7 @@ import {
   getCreatorProfile,
   getCreatorPublicAnalytics,
   setRefundAddress,
+  setCustomerEmail,
 } from "./payment/paymentLinkController";
 import {
   getNetworkFees,
@@ -2181,6 +2182,7 @@ export default {
   getCreatorProfile,
   getCreatorPublicAnalytics,
   setRefundAddress,
+  setCustomerEmail,
   getPaymentMeta,
   cryptoVerification,
   checkingUSDT,

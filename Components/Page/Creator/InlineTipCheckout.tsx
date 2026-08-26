@@ -19,6 +19,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, Button, CircularProgress, Collapse, TextField, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
+import { usePaymentNotification } from '@/hooks/usePaymentNotification'
+import { ReceiptEmailField, NotifyMeInline } from '@/Components/Page/Pay3Components/checkoutExtras'
 import { formatCryptoAmount, formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
 import fireConfettiBurst from '@/utils/confettiBurst'
@@ -198,6 +200,9 @@ interface InlineTipCheckoutProps {
   /** Optional label shown in place of the creator handle (e.g. the link
    *  title or campaign title). Falls back to creatorName / @handle. */
   targetLabel?: string
+  /** Show the optional "Email me a receipt" field. Default true. The store
+   *  checkout sets this false because it already collects the buyer email. */
+  collectReceiptEmail?: boolean
 }
 
 const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
@@ -211,6 +216,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   onConfirmed,
   mode = 'tip',
   targetLabel,
+  collectReceiptEmail = true,
 }) => {
   const { t } = useTranslation('landing')
   const theme = useTheme()
@@ -241,6 +247,14 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   const [showRefundInput, setShowRefundInput] = useState<boolean>(false)
   const [refundAddress, setRefundAddress] = useState<string>('')
   const [refundSaved, setRefundSaved] = useState<boolean>(false)
+  // Optional buyer receipt email ("Email me a receipt") — attaches a recipient
+  // to the checkout session so the post-payment receipt email fires.
+  const [receiptEmail, setReceiptEmail] = useState<string>('')
+  const [emailSaved, setEmailSaved] = useState<boolean>(false)
+
+  // Browser "Payment confirmed" alert (opt-in) so the supporter can tab away.
+  const notif = usePaymentNotification()
+  const notifiedRef = useRef<boolean>(false)
 
   // Best-effort, non-blocking. Backend endpoint is idempotent per ref.
   const saveRefundAddress = useCallback(async (addr: string) => {
@@ -248,6 +262,16 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
     const r = await api('/pay/setRefundAddress', { data: d, refund_address: addr.trim() }, meta_.token)
     if (r.ok) setRefundSaved(true)
   }, [d, meta_])
+
+  // Save the optional receipt email (best-effort, non-blocking).
+  const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+  const emailInvalid = receiptEmail.trim().length > 0 && !emailValid(receiptEmail)
+  const saveReceiptEmail = useCallback(async () => {
+    const v = receiptEmail.trim().toLowerCase()
+    if (!v || !emailValid(v) || !meta_?.token) return
+    const r = await api('/pay/setCustomerEmail', { data: d, email: v }, meta_.token)
+    if (r.ok) setEmailSaved(true)
+  }, [receiptEmail, d, meta_])
 
   const pollRef = useRef<any>(null)
   const timerRef = useRef<any>(null)
@@ -383,7 +407,16 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   useEffect(() => {
     // Celebration burst the moment the supporter's payment is CONFIRMED.
     // Decorative only (never throws), skipped for reduced-motion users.
-    if (phase === 'confirmed') { fireConfettiBurst(); onConfirmed?.() }
+    if (phase === 'confirmed') {
+      fireConfettiBurst(); onConfirmed?.()
+      if (!notifiedRef.current) {
+        notifiedRef.current = true
+        notif.notify(
+          t('checkout.notify.title', { defaultValue: 'Payment confirmed \u2713' }),
+          t('checkout.notify.body', { defaultValue: 'Your payment to {{name}} is confirmed.', name: effectiveTarget }),
+        )
+      }
+    }
   }, [phase])
 
   useEffect(() => {
@@ -627,6 +660,23 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             )
           })}
         </Box>
+        {collectReceiptEmail && (
+          <Box sx={{ mt: 2 }}>
+            <ReceiptEmailField
+              value={receiptEmail}
+              onChange={(v) => { setReceiptEmail(v); setEmailSaved(false) }}
+              onSave={saveReceiptEmail}
+              saved={emailSaved}
+              invalid={emailInvalid}
+              label={t('checkout.receiptEmail.label', { defaultValue: 'Email me a receipt (optional)' })}
+              helper={t('checkout.receiptEmail.helper', { defaultValue: "We'll email your receipt the moment this payment confirms." })}
+              savedLabel={t('checkout.receiptEmail.saved', { defaultValue: 'Receipt will be sent to this email.' })}
+              invalidLabel={t('checkout.receiptEmail.invalid', { defaultValue: 'Enter a valid email address.' })}
+              muted={theme.palette.text.secondary}
+              border={border}
+            />
+          </Box>
+        )}
         {backLink(t('creator.inline.back', { defaultValue: 'Back' }))}
       </Box>
     )
@@ -786,6 +836,18 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             {t("creator.inline.waitingPayment")}
           </Typography>
         </Box>
+
+        {/* Opt-in browser alert while waiting on confirmations */}
+        <NotifyMeInline
+          supported={notif.supported}
+          permission={notif.permission}
+          onEnable={() => { void notif.requestPermission() }}
+          ctaLabel={t('checkout.notify.cta', { defaultValue: 'Notify me when it confirms' })}
+          enabledLabel={t('checkout.notify.enabled', { defaultValue: "You'll get a browser alert when it confirms." })}
+          muted={theme.palette.text.secondary}
+          border={border}
+          accent={LIME}
+        />
 
         {/* Optional refund address (#3) — where to refund if the buyer sends
             the wrong asset/network. Collapsed by default to keep the flow clean. */}

@@ -443,6 +443,18 @@
       "vatInvalid": "No se pudo validar este ID de IVA — se aplicará el impuesto estándar.",
       "vatHint": "Las empresas de la UE pueden introducir un ID de IVA para la inversión del sujeto pasivo.",
       "reverseChargeNotice": "Inversión del sujeto pasivo B2B en la UE: no se cobra IVA. Debes declarar el IVA en tu propio estado miembro."
+    },
+    "receiptEmail": {
+      "label": "Envíame un recibo (opcional)",
+      "helper": "Te enviaremos el recibo por correo en cuanto se confirme el pago.",
+      "saved": "El recibo se enviará a este correo.",
+      "invalid": "Introduce un correo electrónico válido."
+    },
+    "notify": {
+      "title": "Pago confirmado ✓",
+      "body": "Tu pago a {{name}} está confirmado.",
+      "cta": "Avísame cuando se confirme",
+      "enabled": "Recibirás una alerta del navegador cuando se confirme."
     }
   },
   "creator": {

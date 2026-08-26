@@ -443,6 +443,18 @@
       "vatInvalid": "Ce numéro de TVA n'a pas pu être validé — la taxe standard s'appliquera.",
       "vatHint": "Les entreprises de l'UE peuvent saisir un numéro de TVA pour l'autoliquidation.",
       "reverseChargeNotice": "Autoliquidation B2B dans l'UE : aucune TVA facturée. Vous devez déclarer la TVA dans votre propre État membre."
+    },
+    "receiptEmail": {
+      "label": "Envoyez-moi un reçu (facultatif)",
+      "helper": "Nous vous enverrons votre reçu par e-mail dès la confirmation du paiement.",
+      "saved": "Le reçu sera envoyé à cette adresse e-mail.",
+      "invalid": "Saisissez une adresse e-mail valide."
+    },
+    "notify": {
+      "title": "Paiement confirmé ✓",
+      "body": "Votre paiement à {{name}} est confirmé.",
+      "cta": "Prévenez-moi lors de la confirmation",
+      "enabled": "Vous recevrez une alerte du navigateur lors de la confirmation."
     }
   },
   "creator": {

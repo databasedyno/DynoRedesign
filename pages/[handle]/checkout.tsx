@@ -247,6 +247,7 @@ const CheckoutPage: NextPageWithLayout = () => {
               siteUrl={typeof window !== "undefined" ? window.location.origin : ""}
               mode="link"
               targetLabel={orderLabel}
+              collectReceiptEmail={false}
               onConfirmed={() => cart.clearCart(handle)}
               onCancel={() => router.push(`/${handle}/cart`)}
               onNewTip={() => router.push(`/${handle}/shop`)}

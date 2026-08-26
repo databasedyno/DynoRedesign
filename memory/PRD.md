@@ -1,3 +1,49 @@
+# FEATURE (2026-08-26 fork) — Buyer Payment-Receipt email capture + Confirmation browser alert — DONE (testing_agent iteration_89 = 100%, backend curl-verified)
+
+Preview: https://43248c91-aedf-4589-b4ed-b1f6b9885177.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE, email OFF). Frontend + backend tsc EXIT 0.
+
+USER REQUEST (2 features): (1) buyers get a simple emailed receipt right after payment confirms; (2) a browser
+notification when the payment confirms so buyers can switch tabs. User choices: email field on the currency-
+selection step of BOTH main crypto checkout (CleanCheckoutV2) AND creator tip (InlineTipCheckout); browser
+notification on main checkout + creator tip + store checkout (store already collects email → field hidden there).
+
+INVESTIGATION FINDING: the RECEIPT EMAIL BACKEND ALREADY EXISTS and fires on settlement —
+sendCustomerPaymentConfirmationEmail (payment links/tips, with PDF) + sendOrderReceiptEmail (store orders, via
+handleCartPaymentSettled). The GAP: the public crypto checkout (CleanCheckoutV2 / InlineTipCheckout) never captured
+a buyer email, so anonymous payers on a shared link got NO receipt (only worked if the merchant pre-set the email).
+
+IMPLEMENTED (no money-path changes — amounts/addresses/fees/currency untouched; email = contact info only):
+- BACKEND: new POST /api/pay/setCustomerEmail (paymentLinkController.setCustomerEmail, route in paymentRouter with
+  paymentRateLimiter+customerAuthMiddleware). Validates email (400 on invalid, 404 if session missing), then merges
+  it into the SAME Redis checkout session object `customer-<ref>` that the settlement path reads
+  (customerData?.email) → the existing receipt email now has a recipient. Re-exported via paymentController barrel.
+- FRONTEND shared: hooks/usePaymentNotification.ts (Notifications API wrapper — requestPermission/notify, no VAPID/SW,
+  fires foreground on the open checkout tab) + Components/Page/Pay3Components/checkoutExtras.tsx (ReceiptEmailField +
+  NotifyMeInline). testids: checkout-receipt-email-field/-input/-saved/-error, checkout-notify-btn/-enabled.
+- CleanCheckoutV2.tsx: optional "Email me a receipt" field below the Network/Currency selects (save-on-blur →
+  /pay/setCustomerEmail); NotifyMeInline opt-in on the awaiting screen; browser alert fires once on 'confirmed'.
+- InlineTipCheckout.tsx: same email field on its currency-select step (new prop collectReceiptEmail default true) +
+  notify opt-in on awaiting + alert on confirm. Covers creator tips AND store checkout (store embeds this component).
+- pages/[handle]/checkout.tsx: passes collectReceiptEmail={false} (store already collects buyer email → no dup field).
+- i18n: checkout.receiptEmail.{label,helper,saved,invalid} + checkout.notify.{title,body,cta,enabled} added to ALL 6
+  landing.json locales (en/es/pt/fr/de/nl).
+
+VERIFIED: backend curl e2e (login → create QA link → getData → setCustomerEmail 200 'Receipt email saved' → invalid
+email 400 → QA link deleted). testing_agent iteration_89 = 100% (email field renders desktop+mobile; valid email
+blur → POST 200 + green 'Receipt will be sent…'; invalid → error; awaiting screen renders; 0 console errors). NOTE:
+the notify BUTTON is hidden in headless Chromium (no Notification API) — graceful + expected; renders in real
+browsers. CANNOT e2e-verify live email delivery (DISABLE_OUTBOUND_EMAIL=true in preview) or the notification firing
+on 'confirmed' (needs a real on-chain confirmation) — both are code+compile verified and fire in production.
+
+FILES: backend/controller/payment/paymentLinkController.ts, backend/controller/paymentController.ts,
+backend/routes/paymentRouter.ts; hooks/usePaymentNotification.ts (new),
+Components/Page/Pay3Components/checkoutExtras.tsx (new), Components/Page/Pay3Components/CleanCheckoutV2.tsx,
+Components/Page/Creator/InlineTipCheckout.tsx, pages/[handle]/checkout.tsx, langs/locales/*/landing.json.
+
+---
+
+
+
 # FEATURE (2026-06 fork) — Unified referral program ("give 50% off, get 50% off") — DONE (FE screenshot-verified; cron prod-only)
 
 Preview: https://repo-link-setup.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend + backend tsc EXIT 0.

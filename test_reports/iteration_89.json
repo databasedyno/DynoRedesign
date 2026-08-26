@@ -1,0 +1,28 @@
+{
+  "summary": "Verified DynoPay public crypto checkout receipt-email field and awaiting-screen notify opt-in on CleanCheckoutV2 at desktop (1920x800) and mobile (390x844). All 5 acceptance criteria pass; zero React console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "panel_renders": "PASS — [data-testid=clean-checkout-panel] visible on desktop and mobile",
+    "receipt_email_field_renders": "PASS — [checkout-receipt-email-field] + [checkout-receipt-email-input] present below Network/Currency selects on both viewports",
+    "invalid_email_error": "PASS — 'not-an-email' + blur shows [checkout-receipt-email-error] with text 'Enter a valid email address.'; saved confirmation NOT shown",
+    "valid_email_save": "PASS — 'qa-buyer@example.com' + blur triggers POST /api/pay/setCustomerEmail returning HTTP 200; [checkout-receipt-email-saved] shows 'Receipt will be sent to this email.'; error hidden",
+    "awaiting_screen": "PASS — Selecting Litecoin + LTC reserves address and renders WAITING screen with 'Pay 0.09913161 LTC on Litecoin', QR code, and address (only performed once as instructed)",
+    "notify_button": "ACCEPTABLE — [checkout-notify-btn] not rendered in headless Chromium (Notification API unsupported/denied). Per task instructions this is acceptable; no crash, awaiting screen renders normally.",
+    "console_errors": "PASS — 0 console errors captured across full flow",
+    "mobile_390x844": "PASS — panel + receipt email field render normally, no layout break"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100%"},
+  "seed_data_creation": "None. Used the provided QA payment link. Reserved one LTC address on Litecoin network as authorized by main agent.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Notify button rendering depends on `Notification` API + not-denied permission; in headless Playwright it is expected to be hidden. To actually verify the notify button appears, use a real browser with notifications available, or grant notifications via BrowserContext(permissions=['notifications']) on the page origin before load."
+}

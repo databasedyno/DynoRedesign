@@ -61,6 +61,16 @@ paymentRouter.post(
   paymentController.setRefundAddress
 );
 
+// Optional buyer receipt email (public checkout "Email me a receipt").
+// Attaches a recipient to the checkout session so the post-payment receipt
+// email fires for anonymous payers. Same customer-session auth + rate limit.
+paymentRouter.post(
+  "/setCustomerEmail",
+  paymentRateLimiter,
+  customerAuthMiddleware,
+  paymentController.setCustomerEmail
+);
+
 paymentRouter.post(
   "/createCryptoPayment",
   paymentRateLimiter,
