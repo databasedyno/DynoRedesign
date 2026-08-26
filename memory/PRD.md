@@ -1,3 +1,28 @@
+# FEATURE (2026-06 fork) — Creator page Store-visibility UX (turn shop off / hide products from tip page) — DONE (live round-trip verified)
+
+Preview: https://2a9c209f-72ac-4dba-8d0c-579d0240c83b.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB "roundhouse", SAFE MODE). Creator/company handle under STOREFRONT_PER_COMPANY=true is @devhub (company_id 1).
+
+USER PRODUCT REQUIREMENT: "it is unclear how to turn off store product from appearing on creator tip page or turn store off — we need a better UX." Fixed by adding two clearly-labelled toggles to the Storefront > Page settings (Components/Page/Creator/CreatorPageSettings.tsx):
+  1. "Online store" (master, store_enabled) — OFF hides the /shop page + every product link everywhere; page becomes tip-only. Products are kept, not deleted.
+  2. "Show my shop on this page" (creator_page_show_products) — OFF hides just the Shop section from the public creator/tip page /[handle]; the /shop page + direct product links keep working. Disabled/greyed when the master store is OFF (checked = storeEnabled && showProductsOnPage).
+
+BACKEND (was already in the files from the prior session, but the running process predated them — REQUIRED A BACKEND RESTART this session to load the new code + apply the migration):
+  - Migration 0006_add_storefront_visibility_flags (backend/migrations/bootMigrations.ts) — additive, idempotent `ADD COLUMN IF NOT EXISTS store_enabled/creator_page_show_products BOOLEAN DEFAULT true` on BOTH tbl_company + tbl_user. APPLIED ON LIVE PROD this session ("1 applied, 5 present"); metadata-only, no table rewrite.
+  - controller/storefrontScope.ts STOREFRONT_COLUMNS + resolveStorefrontByHandle now include the two columns.
+  - controller/user/creatorProfile.ts GET returns them; PUT /api/user/creator/profile accepts+persists them (partial PUT safe — each field gated on !== undefined).
+  - controller/product/shopController.ts: /api/shop/:handle 404s when store_enabled === false.
+  - pages/[handle].tsx SSR: fetches products only when store_enabled !== false AND creator_page_show_products !== false.
+
+FRONTEND: CreatorFormState gained storeEnabled/showProductsOnPage (also added to the initial state in Components/Page/Storefront/PageTab.tsx to satisfy the type). State seeded from GET, included in dirty/canSave check + persistProfile PUT body. testids: creator-store-section, store-enabled-switch, show-products-switch. Copy uses t("storefront.form.storeTitle/storeDesc/showProductsTitle/showProductsDesc", {defaultValue}) — renders English default; safe fallback in other locales (no locale keys added yet).
+
+VERIFIED (LIVE, flip → verify → restore, account left exactly as found):
+  - frontend tsc EXIT 0.
+  - API round-trip: store_enabled=false → /api/shop/devhub 404; restore → 200. creator_page_show_products=false → shop still 200 (page-only hide); restore → 200.
+  - Full UI save loop: toggled "Show my shop on this page" OFF via UI → clicked "Save changes" → "Creator page saved" toast → persisted creator_page_show_products=false → toggled back ON + saved → restored to true.
+
+---
+
+
 # FEATURE (2026-06 fork) — S4.3 store-checkout VAT strings localized (6 langs) — DONE
 
 Preview: https://blockchain-bridge-3.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).

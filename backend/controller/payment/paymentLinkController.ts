@@ -2686,6 +2686,9 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
         // Whether the creator wants their 30-day analytics widget shown publicly.
         // The SSR page uses this to decide if it should even fetch analytics.
         public_analytics_enabled: c.public_analytics_enabled !== false,
+        // Store visibility: master switch + creator-page shop toggle (default true).
+        store_enabled: c.store_enabled !== false,
+        creator_page_show_products: c.creator_page_show_products !== false,
       },
       support_widget: supportWidget,
       links,

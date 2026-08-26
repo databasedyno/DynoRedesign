@@ -37,6 +37,9 @@ export interface CreatorFormState {
   swAllowMessage: boolean;
   swThanks: string;
   swShowSupporters: boolean;
+  // Store visibility (Session 2026-08-26)
+  storeEnabled: boolean;
+  showProductsOnPage: boolean;
   // Custom theme (Session 60) — mirrored to the live preview so it renders
   // exactly what CreatorProfile publishes (accent / cover style / gradient).
   accentColor: string | null;
@@ -121,6 +124,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   // visible on the creator's /:handle page. Merchant always sees their own
   // analytics in the panel below regardless of this toggle.
   const [publicAnalyticsEnabled, setPublicAnalyticsEnabled] = useState(true);
+  // Store visibility (Session 2026-08-26)
+  const [storeEnabled, setStoreEnabled] = useState(true);
+  const [showProductsOnPage, setShowProductsOnPage] = useState(true);
   // analyticsData / analyticsLoading are SWR-derived below (keyed by handle).
   const [analyticsTogglingBusy, setAnalyticsTogglingBusy] = useState(false);
   const [seeded, setSeeded] = useState(false);
@@ -175,6 +181,8 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSwThanks(p.support_widget_thanks_message || "");
       setSwShowSupporters(p.support_widget_show_supporters !== false);
       setPublicAnalyticsEnabled(p.public_analytics_enabled !== false);
+      setStoreEnabled(p.store_enabled !== false);
+      setShowProductsOnPage(p.creator_page_show_products !== false);
       // Theme (Session 60)
       setThemeAccent(p.theme_accent_color || null);
       setThemeCoverStyle((p.theme_cover_style as CoverStyle) || null);
@@ -188,11 +196,12 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     onChange?.({
       handle, bio, enabled, coverImage, socialLinks,
       swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters,
+      storeEnabled, showProductsOnPage,
       name,
       // Theme (Session 60) — so the live preview matches the published page.
       accentColor: themeAccent, coverStyle: themeCoverStyle, coverGradient: themeCoverGradient,
     } as any);
-  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, themeAccent, themeCoverStyle, themeCoverGradient, onChange]);
+  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, storeEnabled, showProductsOnPage, themeAccent, themeCoverStyle, themeCoverGradient, onChange]);
 
   // Open + reveal the tip box (Support Widget) when the dashboard "Set up tips" CTA fires.
   useEffect(() => {
@@ -319,7 +328,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       !socialsEqualSaved ||
       supportWidgetChanged ||
       themeChanged ||
-      publicAnalyticsEnabled !== (profile?.public_analytics_enabled !== false)
+      publicAnalyticsEnabled !== (profile?.public_analytics_enabled !== false) ||
+      storeEnabled !== (profile?.store_enabled !== false) ||
+      showProductsOnPage !== (profile?.creator_page_show_products !== false)
     );
 
   // If the user changed their handle, open the change-warning modal first
@@ -360,6 +371,8 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         theme_cover_style: themeCoverStyle,
         theme_cover_gradient: themeCoverGradient,
         public_analytics_enabled: publicAnalyticsEnabled,
+        store_enabled: storeEnabled,
+        creator_page_show_products: showProductsOnPage,
       });
       dispatch({
         type: TOAST_SHOW,
@@ -1035,6 +1048,46 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           onToggle={() => setPublicAnalyticsEnabled((v) => !v)}
           toggleBusy={analyticsTogglingBusy}
         />
+      </Box>
+
+      {/* ── Store visibility (Session 2026-08-26) ── */}
+      <Box
+        id="store-visibility"
+        sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }}
+        data-testid="creator-store-section"
+      >
+        {/* Master: store on / off */}
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
+          <Box sx={{ pr: 1 }}>
+            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>{t("storefront.form.storeTitle", { defaultValue: "Online store" })}</Typography>
+            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
+              {t("storefront.form.storeDesc", { defaultValue: "Turn your store OFF to hide your shop page and every product link everywhere — this page becomes tip-only. Your products are saved and come back the moment you turn the store on again." })}
+            </Typography>
+          </Box>
+          <Switch
+            checked={storeEnabled}
+            onChange={(e) => setStoreEnabled(e.target.checked)}
+            data-testid="store-enabled-switch"
+            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+          />
+        </Box>
+
+        {/* Sub: show the shop on the creator page (only relevant when the store is on) */}
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mt: 1.5, pt: 1.5, borderTop: `1px solid ${border}`, opacity: storeEnabled ? 1 : 0.5 }}>
+          <Box sx={{ pr: 1 }}>
+            <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>{t("storefront.form.showProductsTitle", { defaultValue: "Show my shop on this page" })}</Typography>
+            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
+              {t("storefront.form.showProductsDesc", { defaultValue: "Show the shop section on this creator page. Turn it OFF for a clean tip-only page — your shop page and direct product links keep working." })}
+            </Typography>
+          </Box>
+          <Switch
+            checked={storeEnabled && showProductsOnPage}
+            disabled={!storeEnabled}
+            onChange={(e) => setShowProductsOnPage(e.target.checked)}
+            data-testid="show-products-switch"
+            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+          />
+        </Box>
       </Box>
 
       {/* Enable toggle */}

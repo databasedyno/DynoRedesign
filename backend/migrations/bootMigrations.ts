@@ -193,6 +193,30 @@ const createServiceHealthDailyTable = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0006 — Storefront visibility controls.
+ *  - store_enabled: master storefront on/off (false => /shop + product pages 404
+ *    and no products on the creator page).
+ *  - creator_page_show_products: hide the Shop section from the creator page
+ *    /[handle] only (the /shop page + direct product links still work).
+ * Additive, nullable, DEFAULT true => metadata-only in Postgres (no table rewrite),
+ * fully idempotent. Mirrored on both storefront holders (tbl_company when
+ * STOREFRONT_PER_COMPANY is ON, tbl_user for the legacy path).
+ */
+const addStorefrontVisibilityFlags = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_company"
+       ADD COLUMN IF NOT EXISTS "store_enabled" BOOLEAN DEFAULT true,
+       ADD COLUMN IF NOT EXISTS "creator_page_show_products" BOOLEAN DEFAULT true`
+  );
+  await sequelize.query(
+    `ALTER TABLE "tbl_user"
+       ADD COLUMN IF NOT EXISTS "store_enabled" BOOLEAN DEFAULT true,
+       ADD COLUMN IF NOT EXISTS "creator_page_show_products" BOOLEAN DEFAULT true`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -201,5 +225,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0003_add_payout_digest_pref", up: addPayoutDigestPref },
     { version: "0004_crypto_refund_flow", up: createRefundTables },
     { version: "0005_service_health_daily", up: createServiceHealthDailyTable },
+    { version: "0006_add_storefront_visibility_flags", up: addStorefrontVisibilityFlags },
   ];
 }

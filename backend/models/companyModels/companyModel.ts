@@ -81,6 +81,16 @@ const STOREFRONT_COMPANY_COLUMNS = STOREFRONT_PER_COMPANY
         allowNull: true,
         defaultValue: true,
       },
+      store_enabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
+      },
+      creator_page_show_products: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
+      },
       public_analytics_enabled: {
         type: DataTypes.BOOLEAN,
         allowNull: true,

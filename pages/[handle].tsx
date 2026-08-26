@@ -84,7 +84,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     // merge) so the one link a merchant shares also shows what they sell.
     // Best-effort: a shop failure must never take the page down.
     let products: CreatorShopProduct[] = []
-    if (String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? 'true').toLowerCase() !== 'false') {
+    // Respect the merchant's store-visibility settings: hide products from this
+    // page when the store is OFF (store_enabled=false) OR when they've turned off
+    // "show products on my page" (creator_page_show_products=false).
+    const showProductsOnPage =
+      data.creator?.store_enabled !== false &&
+      data.creator?.creator_page_show_products !== false
+    if (showProductsOnPage && String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? 'true').toLowerCase() !== 'false') {
       try {
         const sr = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, { headers: { Accept: 'application/json' } })
         if (sr.ok) {

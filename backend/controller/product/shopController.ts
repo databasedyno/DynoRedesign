@@ -82,6 +82,10 @@ export const getShopByHandle = async (
     if (!owner) {
       return errorResponseHelper(res, 404, "Shop not found.");
     }
+    // Master store switch OFF => hide the storefront entirely.
+    if (owner.store_enabled === false) {
+      return errorResponseHelper(res, 404, "Shop not found.");
+    }
 
     const products = await productModel.findAll({
       where: {
@@ -146,6 +150,7 @@ export const getShopProductBySlug = async (
 
     const owner = await resolveStorefrontByHandle(handle);
     if (!owner) return errorResponseHelper(res, 404, "Shop not found.");
+    if (owner.store_enabled === false) return errorResponseHelper(res, 404, "Shop not found.");
 
     const product: any = await productModel.findOne({
       where: {

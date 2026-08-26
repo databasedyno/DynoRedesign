@@ -60,6 +60,8 @@ const PageTab = () => {
     swAllowMessage: true,
     swThanks: "",
     swShowSupporters: true,
+    storeEnabled: true,
+    showProductsOnPage: true,
     accentColor: null,
     coverStyle: null,
     coverGradient: null,

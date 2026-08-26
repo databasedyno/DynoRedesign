@@ -43,6 +43,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
       theme_accent_color, theme_cover_style, theme_cover_gradient,
       public_analytics_enabled,
+      store_enabled, creator_page_show_products,
     } = req.body as {
       handle?: string;
       name?: string | null;
@@ -63,6 +64,8 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       theme_cover_style?: string | null;
       theme_cover_gradient?: string | null;
       public_analytics_enabled?: boolean;
+      store_enabled?: boolean;
+      creator_page_show_products?: boolean;
     };
     const updates: Record<string, unknown> = {};
     // Reservation key to release once the handle is successfully assigned.
@@ -153,6 +156,12 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
     }
     if (public_analytics_enabled !== undefined) {
       updates.public_analytics_enabled = Boolean(public_analytics_enabled);
+    }
+    if (store_enabled !== undefined) {
+      updates.store_enabled = Boolean(store_enabled);
+    }
+    if (creator_page_show_products !== undefined) {
+      updates.creator_page_show_products = Boolean(creator_page_show_products);
     }
 
     // Cover image: URL string (uploaded via /user/creator/upload-cover) or null to clear
@@ -374,6 +383,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
         "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
         "theme_accent_color", "theme_cover_style", "theme_cover_gradient",
         "public_analytics_enabled",
+        "store_enabled", "creator_page_show_products",
       ],
     });
     return successResponseHelper(res, 200, "Creator page updated", fresh?.dataValues || updates);

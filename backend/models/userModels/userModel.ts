@@ -284,6 +284,18 @@ const userModel = sequelize.define(
       comment: "Show lifetime supporters count on the widget",
     },
     // ── Creator Page Analytics (Session 2026-08-05) ──
+    store_enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
+      comment: "Master storefront on/off. false => /shop + product pages 404 and no products on the creator page.",
+    },
+    creator_page_show_products: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
+      comment: "Show the Shop section on the creator page /[handle]. false hides it there only; /shop + product links still work.",
+    },
     public_analytics_enabled: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

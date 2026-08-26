@@ -31,6 +31,7 @@ export const STOREFRONT_COLUMNS = [
   "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
   "theme_accent_color", "theme_cover_style", "theme_cover_gradient",
   "public_analytics_enabled",
+  "store_enabled", "creator_page_show_products",
 ];
 
 /** Read a requested company_id from body/query/header (raw, unvalidated). */
@@ -137,6 +138,8 @@ export interface StorefrontOwner {
   theme_cover_style: string | null;
   theme_cover_gradient: string | null;
   public_analytics_enabled: boolean | null;
+  store_enabled: boolean | null;
+  creator_page_show_products: boolean | null;
 }
 
 /**
@@ -163,7 +166,8 @@ export async function resolveStorefrontByHandle(
               c.support_widget_preset_amounts, c.support_widget_currency, c.support_widget_min_amount,
               c.support_widget_allow_message, c.support_widget_thanks_message, c.support_widget_show_supporters,
               c.theme_accent_color, c.theme_cover_style, c.theme_cover_gradient,
-              c.public_analytics_enabled
+              c.public_analytics_enabled,
+              c.store_enabled, c.creator_page_show_products
        FROM tbl_company c
        JOIN tbl_user u ON u.user_id = c.user_id
        WHERE LOWER(c.handle) = :handle ${requireEnabled ? "AND c.creator_page_enabled = true" : ""}
@@ -178,7 +182,8 @@ export async function resolveStorefrontByHandle(
             support_widget_enabled, support_widget_style, support_widget_label,
             support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
             support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
-            theme_accent_color, theme_cover_style, theme_cover_gradient, public_analytics_enabled
+            theme_accent_color, theme_cover_style, theme_cover_gradient, public_analytics_enabled,
+            store_enabled, creator_page_show_products
      FROM tbl_user
      WHERE LOWER(handle) = :handle ${requireEnabled ? "AND creator_page_enabled = true" : ""}
      LIMIT 1`,
