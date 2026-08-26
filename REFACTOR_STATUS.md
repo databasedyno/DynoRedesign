@@ -28,6 +28,15 @@
 #   P2  B1  SMS AutoFill hint   ·  B2 font-flash polish / landing speed report
 #   P2  A4  reusable staging load-test kit         → make loadtest_money_path.ts repeatable
 #
+# ⭐ IMMEDIATE NEXT — recommended picks (updated 2026-06, fork dynopay-setup-5):
+#   1. L1   Localize the whole /[handle]/cart page (add landing.json `cart.store`, mirror
+#           checkout.store) so non-English buyers get a fully localized cart, not just checkout.
+#   2. S4.4 Add a clear "$10 minimum" helper on tip / support / donation amount inputs (backend
+#           min already enforced at 1000 cents) so buyers aren't surprised at submit.
+#   3. A3   Build the admin live money-path health dashboard (settlements / ledger balance /
+#           provider health) so issues surface before merchants notice.
+#   4. A2   Add stale-while-revalidate to network-fees so no checkout ever waits on a cold lookup.
+#
 # INFRA / HYGIENE:
 #   §2  CI `tsc` gate — block PRs on type errors (would have caught the DO blocker)
 #
