@@ -1,5 +1,6 @@
 import express from "express";
 import { apiController } from "../controller";
+import customerDirectoryController from "../controller/customerDirectoryController";
 import { apiMiddleware, authMiddleware } from "../middleware";
 
 const apiRouter = express.Router();
@@ -32,6 +33,10 @@ apiRouter.delete("/deletePlan/:id", authMiddleware, apiController.deletePlan);
 
 // Customer Management
 apiRouter.post("/getApiCustomers", authMiddleware, apiController.getApiCustomers);
+// Unified payments-derived customer directory (the re-imagined Customers page).
+// NOTE: registered BEFORE the legacy /customers + /customer/:id routes.
+apiRouter.get("/customers/directory", authMiddleware, customerDirectoryController.getCustomerDirectory);
+apiRouter.get("/customers/directory/detail", authMiddleware, customerDirectoryController.getCustomerDirectoryDetail);
 apiRouter.get("/customers", authMiddleware, apiController.getCustomersWithBalances);
 apiRouter.get("/customer/:id", authMiddleware, apiController.getCustomerDetail);
 apiRouter.put("/updateCustomer/:id", authMiddleware, apiController.updateCustomer);

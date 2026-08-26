@@ -1,4 +1,80 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-26 (pod 6c9c118d) : CUSTOMERS PAGE RE-IMAGINED
+#   Payments-derived CRM-lite directory (unified identities + anonymous buckets)
+# ============================================================================
+
+## User problem statement (this session)
+"The customer feature in-app needs to be re-imaged. Customers are saved from created
+payment links etc. Recommend something consistent with the product and flow."
+Approved scope: (1a) collapse anonymous/placeholder payers into ONE bucket per channel,
+(2a) "Request payment" quick action (prefills /create-pay-link?email=), (3a) CSV export,
+plus a responsive-clean pass across mobile/tablet/desktop.
+
+## ⚠️ Environment: LIVE PROD Railway DB, SAFE MODE (bg jobs OFF, email OFF)
+Login (2-step): hostbay@moxx.co / Katiekendra123@ . READ-ONLY testing only — no payments,
+no user creation, no mutations. New endpoints are read-only aggregations (no writes).
+
+### backend
+  - task: "Unified customer directory: GET /api/userApi/customers/directory (+ /detail)"
+    implemented: true
+    working: true
+    file: "backend/controller/customerDirectoryController.ts (new), backend/routes/apiRouter.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW read-only aggregation replacing the old wallet-centric list (which showed 23 @dynopay.internal placeholder rows, $0 balances and counted the WRONG table for payments). Unifies payer identity by email across tbl_product_order.buyer_email > tbl_customer.email (non-internal) > tbl_payment_link.email; payments folded from tbl_user_transaction using the same joins as dashboard recent-transactions; channel taxonomy via resolveTransactionSource; paid statuses via PROCESSED_STATUSES; USD via PROCESSED_USD_EXPR; display status via deriveTxDisplayStatus. Anonymous payments collapse into anon:<channel> buckets (empty buckets dropped). Segments: prospect/new/active/repeat/dormant. Aggregates: total_customers, revenue_usd, repeat_rate, new_this_month, anonymous_*. Redis cache 60s per user+company. Detail returns profile + payments(<=50) + links sent + store orders + wallet(if any). Verified manually via curl: list (6 persons + 3 anon buckets, $26.6k API/$933 links/$9 tip), person detail (2 links + 2 orders), anon:api detail (533 tx, display statuses correct), segment filter, 60s cache. tsc EXIT 0."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 12 TESTS PASSED (2026-08-26 pod 6c9c118d) — Unified customer directory endpoints are WORKING CORRECTLY. **TEST 1 (Basic directory list)**: ✅ HTTP 200, found 9 customers (6 persons + 3 anonymous), all required fields present (key/kind/name/email/channels/payments_count/pending_count/links_count/ltv_usd/first_seen/last_payment/segment), aggregates complete (total_customers/revenue_usd=$27607.26/identified_revenue_usd/repeat_rate/new_this_month/anonymous_payments/anonymous_revenue_usd), pagination metadata correct. **TEST 2 (Segment: anonymous)**: ✅ HTTP 200, all 3 customers are kind='anonymous'. **TEST 3 (Segment: prospects)**: ✅ HTTP 200, all 6 customers are segment='prospect'. **TEST 4 (Search: qa.tester)**: ✅ HTTP 200, 1 customer matched, all kind='person' and contain 'qa.tester' in email/name. **TEST 5 (Sort: ltv)**: ✅ HTTP 200, 9 customers sorted by ltv_usd descending (ties allowed). **TEST 6 (Pagination)**: ✅ HTTP 200 for both pages, page 1: 2 customers, page 2: 2 customers, total=9, pages=5, keys disjoint between pages. **TEST 7 (Detail: anon:api)**: ✅ HTTP 200, profile.key='anon:api', 50 payments returned (payments_total=533), all payment statuses valid (successful/completed/done/pending/unpaid), all required payment fields present (usd_value/status/channel/createdAt). **TEST 8 (Detail: person with URL-encoded + and @)**: ✅ HTTP 200, profile.kind='person', 2 links, 2 orders (arrays present). **TEST 9 (Detail: nonexistent)**: ✅ HTTP 404 correctly returned. **TEST 10 (Auth required)**: ✅ HTTP 401 correctly returned when no Authorization header. **TEST 11 (Legacy endpoint regression)**: ✅ HTTP 200, GET /api/userApi/customers still works (20 customers), backward compatibility maintained. **TEST 12 (Health check)**: ✅ HTTP 200, status='healthy', database='connected', background_jobs.eligible=false (SAFE MODE confirmed). The unified customer directory feature is PRODUCTION-READY."
+
+### frontend
+  - task: "Customers page rewrite: stats, segments, channel chips, drawer, CSV, request-payment"
+    implemented: true
+    working: true
+    file: "Components/Page/Customers/index.tsx (rewritten), Components/Page/CreatePaymentLink/index.tsx (?email= prefill), api/endpoints.ts, langs/locales/{en,es,pt,fr,de,nl}/common.json"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Screenshot-verified by main agent at 390/768/1024/1920, dark+light: stat row (Customers/Revenue/Repeat rate/New 30d, 2x2 below md), segment chips (All/Repeat/New/Dormant/Invited/Anonymous), search+sort+CSV toolbar, table >=768 (Channels col >=lg, Last-payment col + chevron >=900) / card list <768 via useTableCardView, detail drawer (right 460px desktop, bottom sheet mobile) with KPIs + payment history (TransactionSourceBadge + StatusDot) + orders + links sent + wallet card only when wallet exists, Request payment deep-links to /create-pay-link?email=... (verified: field prefilled + advanced options auto-open). i18n keys added to all 6 locales. tsc + eslint clean."
+
+### What to verify (BACKEND) — deep_testing_backend_v2  [STRICTLY READ-ONLY]
+Base: use REACT_APP_BACKEND_URL-equivalent external preview URL or localhost:8001.
+Login POST /api/user/login {hostbay@moxx.co / Katiekendra123@} -> data.accessToken (Bearer).
+1. GET /api/userApi/customers/directory -> 200; data.customers[] each has key/kind/name/email/
+   channels[]/payments_count/pending_count/links_count/ltv_usd/first_seen/last_payment/segment;
+   data.aggregates has total_customers/revenue_usd/repeat_rate/new_this_month/anonymous_payments.
+2. Segments: ?segment=anonymous -> only kind=anonymous rows; ?segment=prospects -> only segment=prospect.
+3. Search: ?search=qa.tester -> only matching person rows (no anonymous rows).
+4. Sort: ?sort=ltv -> descending ltv_usd.
+5. Pagination: ?limit=2&page=1 vs page=2 -> disjoint rows, pages consistent.
+6. Detail: GET /api/userApi/customers/directory/detail?key=anon:api -> 200 profile+payments (statuses
+   in successful/completed/pending/unpaid); ?key=qa.tester+dyno@example.com (URL-encode +) -> 200 with
+   links[] and orders[]; ?key=nonexistent@x.com -> 404.
+7. Auth: no Bearer -> 401/403. Legacy GET /api/userApi/customers still 200 (regression).
+DO NOT create/update/delete anything. DO NOT hit payment/checkout/email endpoints. GETs + the single
+login POST only (login updates last_login — acceptable, same as prior sessions).
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  session: "2026-08-26 pod 6c9c118d — customers re-image"
+
+### agent_communication
+  - agent: "main"
+    message: "Customers re-image complete (backend directory endpoints + full page rewrite + prefill + i18n + responsive pass). Backend endpoints manually curl-verified against live data. Requesting scoped READ-ONLY backend regression via deep_testing_backend_v2 per the 'What to verify' list above. Frontend NOT to be tested without explicit user permission."
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETE (2026-08-26 pod 6c9c118d) — ALL 12 TESTS PASSED (100% pass rate). The unified customer directory endpoints are VERIFIED and PRODUCTION-READY. **SUMMARY**: (1) Basic directory list ✅ — 9 customers (6 persons + 3 anonymous), all fields present, aggregates complete ($27607.26 revenue). (2) Segment: anonymous ✅ — 3 customers, all kind='anonymous'. (3) Segment: prospects ✅ — 6 customers, all segment='prospect'. (4) Search: qa.tester ✅ — 1 match, kind='person'. (5) Sort: ltv ✅ — 9 customers sorted descending. (6) Pagination ✅ — Pages disjoint, metadata correct. (7) Detail: anon:api ✅ — 50 payments (total 533), all statuses valid. (8) Detail: person with URL-encoded + and @ ✅ — kind='person', 2 links, 2 orders. (9) Detail: nonexistent ✅ — 404 correctly returned. (10) Auth required ✅ — 401 without Bearer token. (11) Legacy endpoint ✅ — Backward compatibility maintained. (12) Health check ✅ — SAFE MODE confirmed (background_jobs.eligible=false). **SAFETY COMPLIANCE**: Strictly READ-ONLY testing (ONE login POST + GET requests only). No writes to LIVE prod DB except login last_login update. Main agent can summarize and finish."
+
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-26 (pod a1e9a54e) : UNIFIED REFERRAL PROGRAM
 #   "Give 50% off, get 50% off" — Option A + landing/in-app clarity
 # ============================================================================

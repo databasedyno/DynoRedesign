@@ -1,3 +1,20 @@
+# FEATURE (2026-08-26, pod 6c9c118d) — CUSTOMERS PAGE RE-IMAGINED — DONE (backend 12/12 tested; FE screenshot-verified)
+# - New READ-ONLY endpoints: GET /api/userApi/customers/directory (+ /detail?key=) in
+#   backend/controller/customerDirectoryController.ts — unify payer identity by email across
+#   product orders / tbl_customer (non-internal) / payment-link recipients; payments folded from
+#   tbl_user_transaction (same joins + taxonomy as dashboard/transactions: resolveTransactionSource,
+#   PROCESSED_STATUSES, PROCESSED_USD_EXPR, deriveTxDisplayStatus). Anonymous payments collapse into
+#   anon:<channel> buckets. Segments prospect/new/active/repeat/dormant. Redis cache 60s. Legacy
+#   /userApi/customers endpoint kept (regression-tested).
+# - Frontend Components/Page/Customers/index.tsx fully rewritten: stats (Customers/Revenue/Repeat
+#   rate/New 30d), segment chips, search+sort+CSV export, table >=768 (Channels >=lg, LastPayment+
+#   chevron >=900) / cards <768, detail drawer (bottom sheet on mobile) w/ KPIs + payment history +
+#   orders + links + wallet-only-if-exists, "Request payment" -> /create-pay-link?email=<x> (prefill
+#   added in CreatePaymentLink; advanced options auto-open). i18n in all 6 locales (common.json
+#   customers.*, incl. new pageDescription). Verified at 390/768/1024/1920, dark+light.
+# ----------------------------------------------------------------------------
+
+
 # ============================================================================
 # 2026-08-26 (pod 6c9c118d) RE-SETUP #3 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------

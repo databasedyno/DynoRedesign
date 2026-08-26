@@ -314,6 +314,27 @@ const CreatePaymentLinkPage = ({
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerEmailError, setCustomerEmailError] = useState("");
 
+  // Deep-link prefill from the Customers page ("Request payment"):
+  // /create-pay-link?email=<payer>&name=<payer name>. Applies once when the
+  // router is ready, and auto-opens the "Advanced options" <details> so the
+  // prefilled email is visible.
+  const routerForPrefill = useRouter();
+  const [prefillApplied, setPrefillApplied] = useState(false);
+  useEffect(() => {
+    if (!routerForPrefill.isReady || prefillApplied) return;
+    const qEmail =
+      typeof routerForPrefill.query.email === "string" ? routerForPrefill.query.email.trim() : "";
+    if (!qEmail) return;
+    setCustomerEmail(qEmail);
+    setPrefillApplied(true);
+    // Native <details> — open it via DOM so we don't fight the user afterwards.
+    setTimeout(() => {
+      document
+        .querySelector('[data-testid="pay-link-advanced-options"]')
+        ?.setAttribute("open", "");
+    }, 0);
+  }, [routerForPrefill.isReady, routerForPrefill.query.email, prefillApplied]);
+
   // Touched fields for Payment Settings tab
   const [paymentSettingsTouched, setPaymentSettingsTouched] = useState({
     value: false,

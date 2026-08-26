@@ -1,3 +1,20 @@
+# SESSION 2026-06 — Fix Save-to-GitHub blocker (R2 file-size budget)
+- Root cause: the NEW backend file `backend/controller/customerDirectoryController.ts` was 583 lines,
+  exceeding the 500-line budget for new files enforced by the husky `pre-commit` hook
+  (`backend/scripts/check-file-size.mjs`). This made the hook exit 1 and blocked every `git commit`
+  / Save-to-GitHub. (Legacy grandfathered files that grew are WARN-only, non-blocking.)
+- Fix (strangler pattern, per the script's own guidance — split, don't grandfather):
+  extracted the data layer into `backend/controller/customerDirectoryService.ts` (398 lines:
+  types, constants, helpers, resolveCompanyScope, TX_QUERY, buildDirectory — all exported).
+  The controller now only holds the two route handlers + imports from the service (204 lines).
+- Behaviorally IDENTICAL — pure code move, no logic/route change. `apiRouter.ts` default-import unchanged.
+- Verified: `tsc --noEmit` clean; full `.husky/pre-commit` runs green (preflight-tsc OK, file-size OK,
+  secrets OK); both endpoints work read-only on the live prod DB via `hostbay@moxx.co`:
+  GET /api/userApi/customers/directory (total 9, aggregates present) and
+  GET /api/userApi/customers/directory/detail?key=anon:api (payments_total 533).
+
+
+
 # SESSION 2026-08-21 (later) — UI/UX Reimagining blueprint (DOCUMENT-ONLY)
 - User request: reimagine UI/UX of all pages for Coinbase/BitPay-class cleanliness on all screen sizes;
   document recommendations for review before any code changes.

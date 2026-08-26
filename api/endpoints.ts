@@ -146,6 +146,9 @@ export const API_ENDPOINTS = {
   userApi: {
     customers: "/userApi/customers",
     customer: (customerId: PathId) => `/userApi/customer/${customerId}`,
+    // Unified payments-derived customer directory (re-imagined Customers page)
+    customersDirectory: "/userApi/customers/directory",
+    customersDirectoryDetail: "/userApi/customers/directory/detail",
   },
 } as const;
 

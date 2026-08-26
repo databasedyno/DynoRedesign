@@ -1,7 +1,20 @@
+/**
+ * Customers — re-imagined as a payments-derived CRM-lite (2026-08).
+ *
+ * Shows everyone who has paid (or been asked to pay) the merchant, unified by
+ * email across payment links, store orders, tips, donations and API payments.
+ * Anonymous payments (no contact captured) collapse into ONE bucket per
+ * channel instead of dozens of "@dynopay.internal" placeholder rows.
+ *
+ * Data: GET /userApi/customers/directory (+ /detail) — see
+ * backend/controller/customerDirectoryController.ts for the contract.
+ * Channel chips reuse <TransactionSourceBadge> so classification is visually
+ * identical to /transactions and the dashboard.
+ */
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { MONO } from "@/styles/uiKit";
 import { avatarGradient } from "@/helpers/avatarGradient";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,133 +26,178 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
   IconButton,
   Skeleton,
   useTheme,
   Pagination,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Alert,
+  Drawer,
   CircularProgress,
   Tooltip,
+  MenuItem,
+  Select,
+  Alert,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import PeopleAltRounded from "@mui/icons-material/PeopleAltRounded";
-import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalletRounded";
-import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
-import CodeRounded from "@mui/icons-material/CodeRounded";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import PaymentsRounded from "@mui/icons-material/PaymentsRounded";
+import ReplayRounded from "@mui/icons-material/ReplayRounded";
+import PersonAddAltRounded from "@mui/icons-material/PersonAddAltRounded";
 import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import InfoOutlined from "@mui/icons-material/InfoOutlined";
+import ContentCopyRounded from "@mui/icons-material/ContentCopyRounded";
+import CheckRounded from "@mui/icons-material/CheckRounded";
+import FileDownloadOutlined from "@mui/icons-material/FileDownloadOutlined";
+import SendRounded from "@mui/icons-material/SendRounded";
+import CodeRounded from "@mui/icons-material/CodeRounded";
+import LinkRounded from "@mui/icons-material/LinkRounded";
+import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
+import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
+import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
+import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
+import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalletRounded";
 import axiosBaseApi from "@/axiosConfig";
 import { useApiSWR } from "@/hooks/useApiSWR";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
-import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
-import { useUsdRates } from "@/hooks/useUsdRates";
+import { formatCryptoAmount } from "@/utils/currencyFormat";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
-import useIsMobile from "@/hooks/useIsMobile";
 import useTableCardView from "@/hooks/useTableCardView";
+import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
 import CustomButton from "@/Components/UI/Buttons";
-import { StatusDot } from "@/Components/UI/StatusDot";
+import { StatusDot, StatusTone } from "@/Components/UI/StatusDot";
+import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
-interface Customer {
-  customer_id: string;
-  id: number;
-  customer_name: string;
-  email: string;
-  mobile: string | null;
-  company_id: number;
-  company_name: string;
-  wallet_balance: number;
-  wallet_currency: string;
-  transaction_count: number;
-  createdAt: string;
-}
+/* ------------------------------------------------------------------ types */
 
-interface CustomerDetail {
-  customer: any;
-  wallet: any;
-  transactions: {
-    data: any[];
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  };
+type Channel = "payment_link" | "api" | "tip" | "product" | "contribution" | "direct";
+type Segment = "prospect" | "new" | "active" | "repeat" | "dormant" | "anonymous";
+
+interface DirectoryEntry {
+  key: string;
+  kind: "person" | "anonymous";
+  name: string | null;
+  email: string | null;
+  mobile: string | null;
+  channels: Channel[];
+  payments_count: number;
+  pending_count: number;
+  links_count: number;
+  ltv_usd: number;
+  first_seen: string | null;
+  last_payment: string | null;
+  segment: Segment;
+  has_wallet: boolean;
+  wallet_balance: number;
+  wallet_currency: string | null;
+  customer_ids: number[];
 }
 
 interface Aggregates {
   total_customers: number;
-  total_balance: number;
-  currency: string;
+  revenue_usd: number;
+  identified_revenue_usd: number;
+  repeat_rate: number;
+  new_this_month: number;
+  anonymous_payments: number;
+  anonymous_revenue_usd: number;
 }
 
-/**
- * Customer record "source" classification (mirrors backend
- * dashboardController.ts recent-transactions CASE logic):
- *  - legacy-api-…@dynopay.internal  → synthetic record minted by
- *    legacyApiAuthMiddleware for merchant-API payments that carried no
- *    customer info. Display as "API payments" — never show the fake email.
- *  - recovered-…@dynopay.internal   → placeholder minted by merchantApi
- *    payment recovery. Display as "Recovered payment".
- *  - any other @dynopay.internal    → checkout-created placeholder.
- *  - real email                     → actual customer, shown as-is.
- */
-type CustomerKind = "api" | "recovered" | "internal" | "real";
+interface DetailPayment {
+  id: number;
+  transaction_id: string | null;
+  usd_value: number;
+  base_amount: number | string | null;
+  base_currency: string | null;
+  crypto_amount: number | string | null;
+  crypto_currency: string | null;
+  status: string;
+  channel: Channel;
+  title: string | null;
+  createdAt: string;
+  transaction_reference: string | null;
+}
 
-const classifyCustomer = (email?: string | null): CustomerKind => {
-  if (!email || !email.endsWith("@dynopay.internal")) return "real";
-  if (email.startsWith("legacy-api-")) return "api";
-  if (email.startsWith("recovered-")) return "recovered";
-  return "internal";
+interface DetailData {
+  profile: DirectoryEntry;
+  payments: DetailPayment[];
+  payments_total: number;
+  links: Array<Record<string, any>>;
+  orders: Array<Record<string, any>>;
+  wallet: { amount: number; wallet_type: string | null } | null;
+}
+
+/* ------------------------------------------------------------- constants */
+
+const SEGMENT_FILTERS = ["all", "repeat", "new", "dormant", "prospects", "anonymous"] as const;
+type SegmentFilter = (typeof SEGMENT_FILTERS)[number];
+
+const statusTone = (status: string): StatusTone => {
+  const s = (status || "").toLowerCase();
+  if (["successful", "success", "completed", "done", "settled"].includes(s)) return "settled";
+  if (["pending", "processing", "confirmed"].includes(s)) return "pending";
+  if (["failed", "cancelled", "expired"].includes(s)) return "failed";
+  if (s === "unpaid") return "unpaid";
+  return "neutral";
 };
+
+const anonIcon = (channel: string, size = 18) => {
+  switch (channel) {
+    case "api":
+      return <CodeRounded sx={{ fontSize: size }} />;
+    case "payment_link":
+      return <LinkRounded sx={{ fontSize: size }} />;
+    case "tip":
+      return <AutoAwesomeRounded sx={{ fontSize: size }} />;
+    case "product":
+      return <Inventory2Rounded sx={{ fontSize: size }} />;
+    case "contribution":
+      return <FavoriteRounded sx={{ fontSize: size }} />;
+    default:
+      return <DonutSmallRounded sx={{ fontSize: size }} />;
+  }
+};
+
+/* ---------------------------------------------------------------- page */
 
 const CustomersPage: React.FC = () => {
   const router = useRouter();
   const theme = useTheme();
+  const cardView = useTableCardView(); // < 768px → card list
   const isMobile = useIsMobile("md");
-  const cardView = useTableCardView();
+  const isTablet = useIsMobile("lg"); // < 1200px → condensed table
   const { t } = useTranslation("common");
+  const fx = useDisplayFx();
+
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [segment, setSegment] = useState<SegmentFilter>("all");
+  const [sort, setSort] = useState("recent");
   const [page, setPage] = useState(1);
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerDetail | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailKey, setDetailKey] = useState<string | null>(null);
+  const [detail, setDetail] = useState<DetailData | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [txPage, setTxPage] = useState(1);
-
-  // Wallet management states
-  const [walletModalOpen, setWalletModalOpen] = useState(false);
-  const [walletAction, setWalletAction] = useState<"credit" | "debit" | null>(null);
-  const [walletAmount, setWalletAmount] = useState("");
-  const [walletDescription, setWalletDescription] = useState("");
-  const [walletLoading, setWalletLoading] = useState(false);
-  const [walletError, setWalletError] = useState("");
-  const [walletSuccess, setWalletSuccess] = useState("");
-
-  // Get company's base currency from API state if available
-  const apiState = useSelector((state: any) => state?.api);
+  const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
-
-  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const isDark = theme.palette.mode === "dark";
   const cardBg = isDark ? "rgba(255,255,255,0.04)" : "#FFFFFF";
   const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "#E9ECF2";
   const softBg = isDark ? "rgba(255,255,255,0.05)" : "#F6F7F9";
+  const accent = isDark ? "#818CF8" : "#4F46E5";
 
-  // Debounce search input
+  const eyebrowSx = {
+    fontSize: "11px",
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase" as const,
+    color: theme.palette.text.secondary,
+    fontFamily: "var(--font-sans)",
+  };
+  const sansSx = { fontFamily: "var(--font-sans)" };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -148,277 +206,258 @@ const CustomersPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const fetchCustomers = useCallback(() => {
-    mutateCustomers();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  /* --------------------------------------------------------- list fetch */
+  const listParams = new URLSearchParams();
+  listParams.set("page", String(page));
+  listParams.set("limit", "20");
+  listParams.set("segment", segment);
+  listParams.set("sort", sort);
+  if (debouncedSearch.trim()) listParams.set("search", debouncedSearch.trim());
+  if (selectedCompanyId) listParams.set("company_id", String(selectedCompanyId));
 
-  const customersParams = new URLSearchParams();
-  customersParams.set("page", String(page));
-  customersParams.set("limit", "20");
-  if (debouncedSearch && debouncedSearch.trim()) customersParams.set("search", debouncedSearch.trim());
-  if (selectedCompanyId) customersParams.set("company_id", String(selectedCompanyId));
-  const { data: customersResp, isLoading: customersLoading, mutate: mutateCustomers } = useApiSWR<any>(
-    [`${API_ENDPOINTS.userApi.customers}?${customersParams.toString()}`, selectedCompanyId],
+  const { data: resp, isLoading } = useApiSWR<any>(
+    [`${API_ENDPOINTS.userApi.customersDirectory}?${listParams.toString()}`, selectedCompanyId],
     { unwrap: true, keepPreviousData: true }
   );
-  const customers: Customer[] = customersResp?.customers || [];
-  const totalPages: number = customersResp?.pages || 1;
-  const total: number = customersResp?.total || 0;
-  const aggregates: Aggregates =
-    customersResp?.aggregates || { total_customers: 0, total_balance: 0, currency: "USD" };
-  const loading = customersLoading && customersResp === undefined;
-  const baseCurrency = apiState?.apiData?.[0]?.base_currency || aggregates.currency || "USD";
+  const customers: DirectoryEntry[] = resp?.customers || [];
+  const totalPages: number = resp?.pages || 1;
+  const total: number = resp?.total || 0;
+  const aggregates: Aggregates = resp?.aggregates || {
+    total_customers: 0,
+    revenue_usd: 0,
+    identified_revenue_usd: 0,
+    repeat_rate: 0,
+    new_this_month: 0,
+    anonymous_payments: 0,
+    anonymous_revenue_usd: 0,
+  };
+  const loading = isLoading && resp === undefined;
 
-  const openDetail = async (customerId: string) => {
+  /* ---------------------------------------------------------- detail */
+  const openDetail = async (key: string) => {
+    setDetailKey(key);
+    setDetail(null);
     setDetailLoading(true);
-    setDetailOpen(true);
-    setTxPage(1);
     try {
-      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customer(customerId));
-      setSelectedCustomer(res.data?.data || null);
+      const params: Record<string, string> = { key };
+      if (selectedCompanyId) params.company_id = String(selectedCompanyId);
+      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customersDirectoryDetail, { params });
+      setDetail(res.data?.data || null);
     } catch (err) {
       console.error("Failed to fetch customer detail", err);
     } finally {
       setDetailLoading(false);
     }
   };
+  const closeDetail = () => {
+    setDetailKey(null);
+    setDetail(null);
+    setCopied(false);
+  };
 
-  const fetchDetailTransactions = async (customerId: string, p: number) => {
+  /* ---------------------------------------------------------- helpers */
+  const fmtDate = (d?: string | null) =>
+    d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—";
+
+  const anonName = (key: string) => {
+    const ch = key.replace(/^anon:/, "");
+    const map: Record<string, string> = {
+      api: t("customers.anonApi", { defaultValue: "API payments" }),
+      payment_link: t("customers.anonPaymentLink", { defaultValue: "Payment link payers" }),
+      tip: t("customers.anonTip", { defaultValue: "Tip supporters" }),
+      product: t("customers.anonProduct", { defaultValue: "Store buyers" }),
+      contribution: t("customers.anonContribution", { defaultValue: "Donors" }),
+      direct: t("customers.anonDirect", { defaultValue: "Direct payments" }),
+    };
+    return map[ch] || map.direct;
+  };
+
+  const displayName = (c: DirectoryEntry) =>
+    c.kind === "anonymous" ? anonName(c.key) : c.name || c.email || "—";
+
+  const segmentLabel = (s: Segment) => {
+    const map: Record<Segment, string> = {
+      prospect: t("customers.segProspect", { defaultValue: "Invited" }),
+      new: t("customers.segNew", { defaultValue: "New" }),
+      active: t("customers.segActive", { defaultValue: "Active" }),
+      repeat: t("customers.segRepeat", { defaultValue: "Repeat" }),
+      dormant: t("customers.segDormant", { defaultValue: "Dormant" }),
+      anonymous: t("customers.segAnonymous", { defaultValue: "Anonymous" }),
+    };
+    return map[s];
+  };
+
+  const segmentTone = (s: Segment): StatusTone => {
+    if (s === "repeat") return "settled";
+    if (s === "new") return "info";
+    if (s === "dormant") return "unpaid";
+    if (s === "prospect") return "pending";
+    if (s === "anonymous") return "neutral";
+    return "neutral";
+  };
+
+  const requestPayment = (c: DirectoryEntry) => {
+    const q = new URLSearchParams();
+    if (c.email) q.set("email", c.email);
+    if (c.name) q.set("name", c.name);
+    router.push(`/create-pay-link?${q.toString()}`);
+  };
+
+  const copyEmail = async (email: string) => {
     try {
-      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customer(customerId), { params: { page: p, limit: 10 } });
-      setSelectedCustomer(res.data?.data || null);
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
+
+  /* --------------------------------------------------------- CSV export */
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("page", "1");
+      params.set("limit", "1000");
+      params.set("segment", segment);
+      params.set("sort", sort);
+      if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
+      if (selectedCompanyId) params.set("company_id", String(selectedCompanyId));
+      const res = await axiosBaseApi.get(`${API_ENDPOINTS.userApi.customersDirectory}?${params.toString()}`);
+      const rows: DirectoryEntry[] = res.data?.data?.customers || [];
+      const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      const header = ["name", "email", "mobile", "segment", "channels", "payments", "pending", "lifetime_value_usd", "first_seen", "last_payment"];
+      const lines = [header.join(",")].concat(
+        rows.map((r) =>
+          [
+            esc(r.kind === "anonymous" ? anonName(r.key) : r.name || ""),
+            esc(r.email || ""),
+            esc(r.mobile || ""),
+            esc(r.segment),
+            esc(r.channels.join("|")),
+            r.payments_count,
+            r.pending_count,
+            r.ltv_usd.toFixed(2),
+            esc(r.first_seen ? r.first_seen.slice(0, 10) : ""),
+            esc(r.last_payment ? r.last_payment.slice(0, 10) : ""),
+          ].join(",")
+        )
+      );
+      const blob = new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `customers-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  /** Format an amount for display. Uses crypto-aware precision (up to 8
-   *  decimals for BTC/ETH/etc., 2 for fiat) so small crypto balances like
-   *  0.00047333 BTC no longer collapse to "0.00". */
-  const fmtAmount = (v: unknown, cur?: string) =>
-    formatCryptoAmount(Number(v || 0), cur || baseCurrency);
-
-  // Fiat estimate ("≈ €12.34") shown next to CRYPTO-denominated amounts, in
-  // the merchant's chosen display currency. crypto → USD (live ticker) →
-  // display currency (cached backend FX). Returns null for fiat amounts or
-  // when we can't price it, so callers can hide the estimate.
-  const { toUsd } = useUsdRates();
-  const fx = useDisplayFx();
-  const fiatEstimate = useCallback(
-    (amount: unknown, currency?: string | null): string | null => {
-      if (!isCryptoCurrency(currency)) return null;
-      const usd = toUsd(Number(amount || 0), currency);
-      if (usd == null) return null;
-      return fx.formatFromUsd(usd);
-    },
-    [toUsd, fx],
-  );
-
-  const openWalletModal = (action: "credit" | "debit") => {
-    setWalletAction(action);
-    setWalletAmount("");
-    setWalletDescription("");
-    setWalletError("");
-    setWalletSuccess("");
-    setWalletModalOpen(true);
-  };
-
-  const closeWalletModal = () => {
-    setWalletModalOpen(false);
-    setWalletAction(null);
-    setWalletAmount("");
-    setWalletDescription("");
-    setWalletError("");
-    setWalletSuccess("");
-  };
-
-  const handleWalletOperation = async () => {
-    if (!selectedCustomer || !walletAction) return;
-
-    // Validation
-    if (!walletAmount || isNaN(Number(walletAmount)) || Number(walletAmount) <= 0) {
-      setWalletError(t("customers.validAmountError"));
-      return;
-    }
-
-    if (!walletDescription.trim()) {
-      setWalletError(t("customers.descriptionRequired"));
-      return;
-    }
-
-    setWalletLoading(true);
-    setWalletError("");
-    setWalletSuccess("");
-
-    try {
-      const endpoint = `/admin/customers/${selectedCustomer.customer.customer_id}/${walletAction}`;
-      const res = await axiosBaseApi.post(endpoint, {
-        amount: Number(walletAmount),
-        description: walletDescription.trim(),
-      });
-
-      if (res.data?.success) {
-        setWalletSuccess(
-          t(walletAction === "credit" ? "customers.creditSuccess" : "customers.debitSuccess", {
-            amount: getCurrencySymbol(
-              selectedCustomer.wallet?.wallet_type || baseCurrency,
-              fmtAmount(walletAmount, selectedCustomer.wallet?.wallet_type || baseCurrency)
-            ),
-          })
-        );
-
-        // Refresh customer details
-        const detailRes = await axiosBaseApi.get(API_ENDPOINTS.userApi.customer(selectedCustomer.customer.customer_id));
-        setSelectedCustomer(detailRes.data?.data || null);
-
-        // Refresh customer list
-        fetchCustomers();
-
-        // Close modal after 1.5 seconds
-        setTimeout(() => {
-          closeWalletModal();
-        }, 1500);
-      }
-    } catch (err: any) {
-      console.error("Wallet operation error:", err);
-      setWalletError(err.response?.data?.message || t("customers.walletOpFailed"));
+      console.error("CSV export failed", err);
     } finally {
-      setWalletLoading(false);
+      setExporting(false);
     }
   };
 
-  /** Humanized display fields for a customer record */
-  const displayFor = useCallback(
-    (name?: string | null, email?: string | null) => {
-      const kind0 = classifyCustomer(email);
-      // Rows minted by merchant-API payment recovery carry the literal DB name
-      // "Recovered Customer" (with either a real email or an internal
-      // placeholder one) — always an API-origin record, so show the friendly
-      // label regardless of how the email classified (UI/UX audit fix).
-      const kind =
-        (name || "").trim() === "Recovered Customer" ? "recovered" : kind0;
-      if (kind === "api") {
-        return {
-          kind,
-          name: t("customers.apiCustomerName"),
-          email: t("customers.noCustomerDetails"),
-          internal: true,
-        };
-      }
-      if (kind === "recovered") {
-        return {
-          kind,
-          name: t("customers.recoveredCustomerName"),
-          email:
-            email && !email.endsWith("@dynopay.internal")
-              ? email
-              : t("customers.noCustomerDetails"),
-          internal: true,
-        };
-      }
-      if (kind === "internal") {
-        return {
-          kind,
-          name: name || t("customers.unnamed"),
-          email: t("customers.noCustomerDetails"),
-          internal: true,
-        };
-      }
-      return { kind, name: name || t("customers.unnamed"), email: email || "-", internal: false };
-    },
-    [t]
-  );
-
-  // Any API-origin placeholder rows on this page? Drives the explainer banner.
-  const hasApiRecords = customers.some(
-    (c) => displayFor(c.customer_name, c.email).internal
-  );
-
-  const eyebrowSx = {
-    fontSize: "11px",
-    fontWeight: 600,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase" as const,
-    color: theme.palette.text.secondary,
-    fontFamily: "var(--font-sans)",
-  };
-
-  const headCellSx = {
-    ...eyebrowSx,
-    fontSize: "11.5px",
-    borderBottom: `1px solid ${cardBorder}`,
-    py: 1.5,
-    bgcolor: "transparent",
-  };
-
+  /* ------------------------------------------------------------ stats */
   const statCards = useMemo(
     () => [
       {
-        id: "total-customers",
-        label: t("customers.totalCustomers"),
+        id: "customers",
+        label: t("customers.statCustomers", { defaultValue: "Customers" }),
+        value: String(aggregates.total_customers),
         icon: <PeopleAltRounded sx={{ fontSize: 18 }} />,
-        value: formatNumberWithComma(aggregates.total_customers),
       },
       {
-        id: "total-balance",
-        label: t("customers.totalWalletBalance"),
-        icon: <AccountBalanceWalletRounded sx={{ fontSize: 18 }} />,
-        value: getCurrencySymbol(baseCurrency, fmtAmount(aggregates.total_balance || 0, baseCurrency)),
+        id: "revenue",
+        label: t("customers.statRevenue", { defaultValue: "Revenue" }),
+        value: fx.formatFromUsd(aggregates.revenue_usd) || `$${aggregates.revenue_usd.toFixed(2)}`,
+        icon: <PaymentsRounded sx={{ fontSize: 18 }} />,
       },
       {
-        id: "base-currency",
-        label: t("customers.baseCurrency"),
-        icon: <CurrencyExchangeRounded sx={{ fontSize: 18 }} />,
-        value: baseCurrency,
+        id: "repeat",
+        label: t("customers.statRepeatRate", { defaultValue: "Repeat rate" }),
+        value: `${Math.round(aggregates.repeat_rate * 100)}%`,
+        icon: <ReplayRounded sx={{ fontSize: 18 }} />,
+      },
+      {
+        id: "new",
+        label: t("customers.statNew30d", { defaultValue: "New (30d)" }),
+        value: String(aggregates.new_this_month),
+        icon: <PersonAddAltRounded sx={{ fontSize: 18 }} />,
       },
     ],
-    [aggregates, baseCurrency, t]
+    [aggregates, fx, t]
   );
 
-  const ApiChip = ({ small }: { small?: boolean }) => (
-    <Tooltip title={t("customers.apiRecordHint")} arrow>
-      <Box
-        component="span"
-        data-testid="customer-api-chip"
-        sx={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "5px",
-          fontSize: small ? "10.5px" : "11px",
-          fontWeight: 600,
-          fontFamily: "var(--font-sans)",
-          color: theme.palette.text.secondary,
-          cursor: "help",
-          whiteSpace: "nowrap",
-        }}
-      >
-        <CodeRounded sx={{ fontSize: small ? 13 : 14, color: theme.palette.text.secondary }} />
-        {t("customers.sourceApi")}
-      </Box>
-    </Tooltip>
+  const segmentChipLabel = (s: SegmentFilter) => {
+    const map: Record<SegmentFilter, string> = {
+      all: t("customers.filterAll", { defaultValue: "All" }),
+      repeat: t("customers.filterRepeat", { defaultValue: "Repeat" }),
+      new: t("customers.filterNew", { defaultValue: "New" }),
+      dormant: t("customers.filterDormant", { defaultValue: "Dormant" }),
+      prospects: t("customers.filterProspects", { defaultValue: "Invited" }),
+      anonymous: t("customers.filterAnonymous", { defaultValue: "Anonymous" }),
+    };
+    return map[s];
+  };
+
+  /* -------------------------------------------------------- row pieces */
+  const renderAvatar = (c: DirectoryEntry, size = 40) => (
+    <Box
+      sx={{
+        width: size,
+        height: size,
+        borderRadius: `${Math.round(size / 4)}px`,
+        flexShrink: 0,
+        bgcolor: c.kind === "anonymous" ? softBg : undefined,
+        background: c.kind === "anonymous" ? undefined : avatarGradient(displayName(c)),
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: 700,
+        color: c.kind === "anonymous" ? theme.palette.text.secondary : "#FFFFFF",
+        fontSize: Math.round(size * 0.38),
+        ...sansSx,
+      }}
+      aria-hidden="true"
+    >
+      {c.kind === "anonymous"
+        ? anonIcon(c.key.replace(/^anon:/, ""), Math.round(size * 0.45))
+        : (displayName(c)[0] || "?").toUpperCase()}
+    </Box>
   );
 
-  const selectedDisplay = selectedCustomer
-    ? displayFor(selectedCustomer.customer?.customer_name, selectedCustomer.customer?.email)
-    : null;
+  const renderChannelChips = (c: DirectoryEntry, max = 3) => (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexWrap: "wrap" }}>
+      {c.channels.slice(0, max).map((ch) => (
+        <TransactionSourceBadge key={ch} source={{ type: ch }} compact />
+      ))}
+      {c.channels.length > max && (
+        <Typography component="span" sx={{ fontSize: "11px", color: theme.palette.text.secondary, ...sansSx }}>
+          +{c.channels.length - max}
+        </Typography>
+      )}
+    </Box>
+  );
 
+  const secondaryLine = (c: DirectoryEntry) => {
+    if (c.kind === "anonymous") return t("customers.anonHint", { defaultValue: "No contact details captured" });
+    if (c.name) return c.email || "—";
+    // Title already shows the email — avoid repeating it on the second line.
+    if (c.payments_count === 0 && c.links_count > 0)
+      return t("customers.linksSentShort", { count: c.links_count, defaultValue: "{{count}} payment request sent" });
+    return t("customers.firstSeenShort", { date: fmtDate(c.first_seen), defaultValue: "First seen {{date}}" });
+  };
+
+  /* ============================================================ render */
   return (
     <Box sx={{ px: { xs: 2, md: 0 }, py: { xs: 1, md: 0 } }}>
-      {/* Aggregate stat cards — dashboard design language */}
+      {/* Stats — 2×2 on phones, 4-up from sm */}
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-          gap: { xs: "12px", md: "16px" },
+          gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+          gap: { xs: "10px", md: "16px" },
           mb: { xs: 2, md: 3 },
         }}
       >
@@ -430,24 +469,28 @@ const CustomersPage: React.FC = () => {
               bgcolor: cardBg,
               border: `1px solid ${cardBorder}`,
               borderRadius: "14px",
-              p: { xs: "16px 18px", md: "18px 22px" },
+              p: { xs: "12px 14px", md: "18px 22px" },
               display: "flex",
               flexDirection: "column",
-              gap: "10px",
+              gap: { xs: "6px", md: "10px" },
+              minWidth: 0,
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Typography sx={eyebrowSx}>{card.label}</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+              <Typography sx={{ ...eyebrowSx, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {card.label}
+              </Typography>
               <Box
                 sx={{
-                  width: 30,
-                  height: 30,
+                  width: 28,
+                  height: 28,
                   borderRadius: "8px",
                   bgcolor: softBg,
-                  display: "flex",
+                  display: { xs: "none", md: "flex" },
                   alignItems: "center",
                   justifyContent: "center",
                   color: theme.palette.text.secondary,
+                  flexShrink: 0,
                 }}
               >
                 {card.icon}
@@ -456,70 +499,31 @@ const CustomersPage: React.FC = () => {
             <Typography
               className="tabular-nums"
               sx={{
-                fontSize: { xs: "24px", md: "28px" },
+                fontSize: { xs: "20px", md: "clamp(17px, 1.9vw, 28px)" },
                 fontWeight: 700,
                 lineHeight: 1.15,
                 color: theme.palette.text.primary,
                 fontFamily: MONO,
                 fontVariantNumeric: "tabular-nums",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
-              {loading ? <Skeleton width={90} /> : card.value}
+              {loading ? <Skeleton width={70} /> : card.value}
             </Typography>
           </Box>
         ))}
       </Box>
 
-      {/* Search + count */}
-      {hasApiRecords && (
-        <Box
-          data-testid="customers-api-banner"
-          sx={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 1.25,
-            mb: 2,
-            px: 2,
-            py: 1.5,
-            borderRadius: "12px",
-            border: `1px solid ${
-              theme.palette.mode === "dark"
-                ? "rgba(129,140,248,0.35)"
-                : "rgba(79,70,229,0.25)"
-            }`,
-            backgroundColor:
-              theme.palette.mode === "dark"
-                ? "rgba(99,102,241,0.10)"
-                : "rgba(79,70,229,0.06)",
-          }}
-        >
-          <InfoOutlinedIcon
-            sx={{
-              fontSize: 18,
-              mt: "1px",
-              color: theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
-            }}
-          />
-          <Typography
-            sx={{
-              fontSize: "13px",
-              lineHeight: 1.5,
-              color: theme.palette.text.secondary,
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            {t("customers.apiRecordHint")}
-          </Typography>
-        </Box>
-      )}
+      {/* Toolbar: search + sort + export */}
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          gap: 2,
-          mb: 2,
-          flexWrap: "wrap",
+          gap: 1.25,
+          mb: 1.5,
+          flexWrap: { xs: "wrap", sm: "nowrap" },
         }}
       >
         <TextField
@@ -536,28 +540,140 @@ const CustomersPage: React.FC = () => {
             ),
           }}
           sx={{
-            width: { xs: "100%", sm: 380 },
+            flexGrow: 1,
+            minWidth: { xs: "100%", sm: 220 },
+            maxWidth: { sm: 380 },
             "& .MuiOutlinedInput-root": {
               borderRadius: "10px",
               bgcolor: cardBg,
-              fontFamily: "var(--font-sans)",
+              ...sansSx,
               fontSize: "14px",
               "& fieldset": { borderColor: cardBorder },
             },
           }}
         />
+        <Select
+          value={sort}
+          size="small"
+          data-testid="customers-sort-select"
+          onChange={(e) => {
+            setSort(e.target.value);
+            setPage(1);
+          }}
+          sx={{
+            borderRadius: "10px",
+            bgcolor: cardBg,
+            ...sansSx,
+            fontSize: "13px",
+            minWidth: 150,
+            flexGrow: { xs: 1, sm: 0 },
+            "& fieldset": { borderColor: cardBorder },
+          }}
+        >
+          <MenuItem value="recent" sx={{ fontSize: "13px", ...sansSx }}>
+            {t("customers.sortRecent", { defaultValue: "Most recent" })}
+          </MenuItem>
+          <MenuItem value="ltv" sx={{ fontSize: "13px", ...sansSx }}>
+            {t("customers.sortLtv", { defaultValue: "Highest value" })}
+          </MenuItem>
+          <MenuItem value="payments" sx={{ fontSize: "13px", ...sansSx }}>
+            {t("customers.sortPayments", { defaultValue: "Most payments" })}
+          </MenuItem>
+          <MenuItem value="name" sx={{ fontSize: "13px", ...sansSx }}>
+            {t("customers.sortName", { defaultValue: "Name" })}
+          </MenuItem>
+        </Select>
+        <Tooltip title={t("customers.exportCsvHint", { defaultValue: "Download the current list as CSV" })} arrow>
+          <span>
+            <IconButton
+              onClick={exportCsv}
+              disabled={exporting || loading || total === 0}
+              data-testid="customers-export-csv"
+              sx={{
+                border: `1px solid ${cardBorder}`,
+                borderRadius: "10px",
+                bgcolor: cardBg,
+                width: 40,
+                height: 40,
+              }}
+              aria-label={t("customers.exportCsv", { defaultValue: "Export CSV" })}
+            >
+              {exporting ? (
+                <CircularProgress size={16} />
+              ) : (
+                <FileDownloadOutlined sx={{ fontSize: 19, color: theme.palette.text.secondary }} />
+              )}
+            </IconButton>
+          </span>
+        </Tooltip>
+      </Box>
+
+      {/* Segment chips — horizontally scrollable on small screens */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 0.75,
+          mb: 2,
+          overflowX: "auto",
+          pb: 0.5,
+          "&::-webkit-scrollbar": { display: "none" },
+          scrollbarWidth: "none",
+        }}
+        data-testid="customers-segment-chips"
+      >
+        {SEGMENT_FILTERS.map((s) => {
+          const active = segment === s;
+          return (
+            <Box
+              key={s}
+              component="button"
+              data-testid={`customers-segment-${s}`}
+              onClick={() => {
+                setSegment(s);
+                setPage(1);
+              }}
+              sx={{
+                appearance: "none",
+                border: `1px solid ${active ? accent : cardBorder}`,
+                bgcolor: active ? (isDark ? "rgba(99,102,241,0.15)" : "rgba(79,70,229,0.07)") : cardBg,
+                color: active ? accent : theme.palette.text.secondary,
+                borderRadius: "999px",
+                px: 1.5,
+                py: 0.6,
+                fontSize: "12.5px",
+                fontWeight: 600,
+                ...sansSx,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                transition: "all 120ms ease",
+              }}
+            >
+              {segmentChipLabel(s)}
+            </Box>
+          );
+        })}
+        <Box sx={{ flexGrow: 1 }} />
         {!loading && total > 0 && (
           <Typography
             data-testid="customers-count-label"
-            sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
+            sx={{
+              fontSize: "12.5px",
+              color: theme.palette.text.secondary,
+              ...sansSx,
+              whiteSpace: "nowrap",
+              alignSelf: "center",
+              display: { xs: "none", sm: "block" },
+            }}
           >
             {t("customers.countLabel", { count: total })}
           </Typography>
         )}
       </Box>
 
-      {/* Customers — card list (<768) / table (>=768). §4.2 shared breakpoint. */}
+      {/* ---------------------------------------------------------- list */}
       {cardView ? (
+        /* ------------------------------------------- mobile card list */
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }} data-testid="customers-card-list">
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => (
@@ -567,791 +683,705 @@ const CustomersPage: React.FC = () => {
               </Box>
             ))
           ) : customers.length === 0 ? (
-            <Box sx={{ p: 4, borderRadius: "12px", border: `1px solid ${cardBorder}`, bgcolor: cardBg, textAlign: "center" }}>
-              <Typography sx={{ fontWeight: 600, color: theme.palette.text.primary, fontFamily: "var(--font-sans)", mb: 0.5 }}>
-                {search ? t("customers.noCustomersSearch") : t("customers.noCustomersTitle")}
-              </Typography>
-              {!search && (
-                <Box sx={{ mt: 1.5, display: "flex", justifyContent: "center" }}>
-                  <CustomButton
-                    label={t("customers.noCustomersCtaCreate", { defaultValue: "Create a payment link" })}
-                    variant="primary"
-                    size="small"
-                    onClick={() => router.push("/create-pay-link")}
-                  />
-                </Box>
-              )}
-            </Box>
+            <EmptyState
+              search={debouncedSearch}
+              segment={segment}
+              t={t}
+              theme={theme}
+              cardBg={cardBg}
+              cardBorder={cardBorder}
+              onCreate={() => router.push("/create-pay-link")}
+            />
           ) : (
-            customers.map((customer) => {
-              const d = displayFor(customer.customer_name, customer.email);
-              const est = fiatEstimate(customer.wallet_balance, customer.wallet_currency);
-              return (
-                <Box
-                  key={customer.customer_id}
-                  data-testid={`customer-card-${customer.customer_id}`}
-                  onClick={() => openDetail(customer.customer_id)}
-                  sx={{
-                    p: 2,
-                    borderRadius: "12px",
-                    border: `1px solid ${cardBorder}`,
-                    bgcolor: cardBg,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                    "&:active": { bgcolor: softBg },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "10px",
-                      flexShrink: 0,
-                      bgcolor: d.internal ? softBg : undefined,
-                      background: d.internal ? undefined : avatarGradient(d.name),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 700,
-                      color: d.internal ? theme.palette.text.secondary : "#FFFFFF",
-                      fontSize: 15,
-                      fontFamily: "var(--font-sans)",
-                    }}
-                  >
-                    {d.internal ? <CodeRounded sx={{ fontSize: 20 }} /> : d.name.charAt(0).toUpperCase()}
-                  </Box>
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "14px",
-                          fontFamily: "var(--font-sans)",
-                          color: theme.palette.text.primary,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {d.name}
-                      </Typography>
-                      {d.internal && <ApiChip small />}
-                    </Box>
+            customers.map((c) => (
+              <Box
+                key={c.key}
+                data-testid={`customer-card-${c.key}`}
+                onClick={() => openDetail(c.key)}
+                sx={{
+                  p: "14px 16px",
+                  borderRadius: "12px",
+                  border: `1px solid ${cardBorder}`,
+                  bgcolor: cardBg,
+                  cursor: "pointer",
+                  "&:active": { bgcolor: softBg },
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  {renderAvatar(c)}
+                  <Box sx={{ minWidth: 0, flexGrow: 1 }}>
                     <Typography
                       sx={{
-                        fontSize: "12px",
-                        color: theme.palette.text.secondary,
-                        fontStyle: d.internal ? "italic" : "normal",
-                        fontFamily: "var(--font-sans)",
+                        fontWeight: 600,
+                        fontSize: "14.5px",
+                        color: theme.palette.text.primary,
+                        ...sansSx,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {d.email}
+                      {displayName(c)}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "12.5px",
+                        color: theme.palette.text.secondary,
+                        ...sansSx,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {secondaryLine(c)}
                     </Typography>
                   </Box>
                   <Box sx={{ textAlign: "right", flexShrink: 0 }}>
                     <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "14px",
-                        fontFamily: MONO,
-                        fontVariantNumeric: "tabular-nums",
-                        color: theme.palette.text.primary,
-                      }}
+                      className="tabular-nums"
+                      sx={{ fontWeight: 700, fontSize: "14.5px", fontFamily: MONO, color: theme.palette.text.primary }}
                     >
-                      {getCurrencySymbol(
-                        customer.wallet_currency || baseCurrency,
-                        fmtAmount(customer.wallet_balance || 0, customer.wallet_currency || baseCurrency)
-                      )}
+                      {fx.formatFromUsd(c.ltv_usd) || `$${c.ltv_usd.toFixed(2)}`}
                     </Typography>
-                    {est && (
-                      <Typography sx={{ fontSize: "11px", color: theme.palette.text.secondary, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
-                        {`\u2248 ${est}`}
-                      </Typography>
-                    )}
+                    <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                      {t("customers.paymentsShort", { count: c.payments_count, defaultValue: "{{count}} payments" })}
+                    </Typography>
                   </Box>
-                  <ChevronRightRounded sx={{ fontSize: 20, color: theme.palette.text.disabled, flexShrink: 0 }} />
                 </Box>
-              );
-            })
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
+                  <StatusDot tone={segmentTone(c.segment)}>{segmentLabel(c.segment)}</StatusDot>
+                  {renderChannelChips(c, 2)}
+                  <Box sx={{ flexGrow: 1 }} />
+                  <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                    {c.last_payment ? fmtDate(c.last_payment) : t("customers.noPaymentsYet", { defaultValue: "No payments yet" })}
+                  </Typography>
+                </Box>
+              </Box>
+            ))
           )}
         </Box>
       ) : (
-      <Box
-        sx={{
-          bgcolor: cardBg,
-          border: `1px solid ${cardBorder}`,
-          borderRadius: "14px",
-          overflow: "hidden",
-        }}
-      >
-        <TableContainer>
-          <Table>
+        /* --------------------------------------------------- table view */
+        <TableContainer
+          sx={{
+            borderRadius: "14px",
+            border: `1px solid ${cardBorder}`,
+            bgcolor: cardBg,
+          }}
+          data-testid="customers-table"
+        >
+          <Table size="small" sx={{ minWidth: isMobile ? 560 : 640 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={headCellSx}>{t("customers.colCustomer")}</TableCell>
-                {!isMobile && <TableCell sx={headCellSx}>{t("customers.colEmail")}</TableCell>}
-                <TableCell sx={headCellSx} align="right">{t("customers.colWalletBalance")}</TableCell>
-                {!isMobile && <TableCell sx={headCellSx} align="right">{t("customers.colTransactions")}</TableCell>}
-                {!isMobile && <TableCell sx={headCellSx}>{t("customers.colCreated")}</TableCell>}
-                <TableCell sx={{ ...headCellSx, width: 48 }} />
+                {[
+                  { label: t("customers.colCustomer"), align: "left" as const },
+                  ...(isTablet
+                    ? []
+                    : [{ label: t("customers.colChannels", { defaultValue: "Channels" }), align: "left" as const }]),
+                  { label: t("customers.colPayments", { defaultValue: "Payments" }), align: "right" as const },
+                  { label: t("customers.colLifetimeValue", { defaultValue: "Lifetime value" }), align: "right" as const },
+                  // < 900px: drop "Last payment" so Status never falls off-screen
+                  ...(isMobile
+                    ? []
+                    : [{ label: t("customers.colLastPayment", { defaultValue: "Last payment" }), align: "left" as const }]),
+                  { label: t("customers.colStatus"), align: "left" as const },
+                  ...(isMobile ? [] : [{ label: "", align: "right" as const }]),
+                ].map((col, i) => (
+                  <TableCell
+                    key={i}
+                    align={col.align}
+                    sx={{ ...eyebrowSx, py: 1.5, borderColor: cardBorder, whiteSpace: "nowrap" }}
+                  >
+                    {col.label}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {loading
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell sx={{ borderColor: cardBorder }}><Skeleton /></TableCell>
-                      {!isMobile && <TableCell sx={{ borderColor: cardBorder }}><Skeleton /></TableCell>}
-                      <TableCell sx={{ borderColor: cardBorder }}><Skeleton /></TableCell>
-                      {!isMobile && <TableCell sx={{ borderColor: cardBorder }}><Skeleton /></TableCell>}
-                      {!isMobile && <TableCell sx={{ borderColor: cardBorder }}><Skeleton /></TableCell>}
-                      <TableCell sx={{ borderColor: cardBorder }}><Skeleton /></TableCell>
-                    </TableRow>
-                  ))
-                : customers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 8, border: "none" }}>
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5 }}>
-                          <Box
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell colSpan={7} sx={{ borderColor: cardBorder }}>
+                      <Skeleton height={36} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : customers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ border: 0, py: 6 }}>
+                    <EmptyState
+                      search={debouncedSearch}
+                      segment={segment}
+                      t={t}
+                      theme={theme}
+                      cardBg="transparent"
+                      cardBorder="transparent"
+                      onCreate={() => router.push("/create-pay-link")}
+                    />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                customers.map((c) => (
+                  <TableRow
+                    key={c.key}
+                    hover
+                    data-testid={`customer-row-${c.key}`}
+                    onClick={() => openDetail(c.key)}
+                    sx={{ cursor: "pointer", "&:last-child td": { borderBottom: 0 } }}
+                  >
+                    <TableCell sx={{ borderColor: cardBorder, py: 1.25, maxWidth: 320 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+                        {renderAvatar(c, 36)}
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography
                             sx={{
-                              width: 56,
-                              height: 56,
-                              borderRadius: "16px",
-                              bgcolor: softBg,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
+                              fontWeight: 600,
+                              fontSize: "13.5px",
+                              color: theme.palette.text.primary,
+                              ...sansSx,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
                             }}
                           >
-                            <PeopleAltRounded sx={{ fontSize: 28, color: theme.palette.text.disabled }} />
-                          </Box>
-                          {search ? (
-                            <Typography sx={{ color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
-                              {t("customers.noCustomersSearch")}
-                            </Typography>
-                          ) : (
-                            <>
-                              <Typography
-                                sx={{
-                                  fontWeight: 600,
-                                  color: theme.palette.text.primary,
-                                  fontSize: isMobile ? 15 : 16,
-                                  fontFamily: "var(--font-sans)",
-                                }}
-                              >
-                                {t("customers.noCustomersTitle")}
-                              </Typography>
-                              <Typography
-                                sx={{
-                                  color: theme.palette.text.secondary,
-                                  fontSize: isMobile ? 12 : 13,
-                                  maxWidth: 420,
-                                  lineHeight: 1.55,
-                                  fontFamily: "var(--font-sans)",
-                                }}
-                              >
-                                {t("customers.noCustomersDesc")}
-                              </Typography>
-                              <Box sx={{ display: "flex", gap: 1.5, mt: 1, flexWrap: "wrap", justifyContent: "center" }}>
-                                <CustomButton
-                                  label={t("customers.noCustomersCtaCreate", { defaultValue: "Create a payment link" })}
-                                  variant="primary"
-                                  size="small"
-                                  data-testid="customers-empty-primary-cta"
-                                  onClick={() => router.push("/create-pay-link")}
-                                />
-                                <CustomButton
-                                  label={t("customers.noCustomersCtaDocs")}
-                                  variant="secondary"
-                                  size="small"
-                                  data-testid="customers-empty-docs-cta"
-                                  onClick={() => router.push("/documentation")}
-                                />
-                                <CustomButton
-                                  label={t("customers.noCustomersCtaKeys")}
-                                  variant="secondary"
-                                  size="small"
-                                  data-testid="customers-empty-keys-cta"
-                                  onClick={() => router.push("/developer-keys")}
-                                />
-                              </Box>
-                            </>
-                          )}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  )
-                : customers.map((customer) => {
-                    const d = displayFor(customer.customer_name, customer.email);
-                    return (
-                      <TableRow
-                        key={customer.customer_id}
-                        hover
-                        data-testid={`customer-row-${customer.customer_id}`}
-                        sx={{
-                          cursor: "pointer",
-                          "&:last-child td": { borderBottom: "none" },
-                          "&:hover": { bgcolor: softBg },
-                        }}
-                        onClick={() => openDetail(customer.customer_id)}
-                      >
-                        <TableCell sx={{ borderColor: cardBorder, py: "14px" }}>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                            <Box
-                              sx={{
-                                width: 36,
-                                height: 36,
-                                borderRadius: "10px",
-                                flexShrink: 0,
-                                bgcolor: d.internal ? softBg : undefined,
-                                background: d.internal ? undefined : avatarGradient(d.name),
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: 700,
-                                color: d.internal
-                                  ? theme.palette.text.secondary
-                                  : "#FFFFFF",
-                                fontSize: 14,
-                                fontFamily: "var(--font-sans)",
-                              }}
-                            >
-                              {d.internal ? <CodeRounded sx={{ fontSize: 18 }} /> : d.name.charAt(0).toUpperCase()}
-                            </Box>
-                            <Box sx={{ minWidth: 0 }}>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Typography
-                                  sx={{
-                                    fontWeight: 600,
-                                    fontSize: "14px",
-                                    fontFamily: "var(--font-sans)",
-                                    color: theme.palette.text.primary,
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                  }}
-                                >
-                                  {d.name}
-                                </Typography>
-                                {d.internal && <ApiChip small />}
-                              </Box>
-                              {isMobile && (
-                                <Typography
-                                  sx={{
-                                    fontSize: "12px",
-                                    color: theme.palette.text.secondary,
-                                    fontStyle: d.internal ? "italic" : "normal",
-                                    fontFamily: "var(--font-sans)",
-                                  }}
-                                >
-                                  {d.email}
-                                </Typography>
-                              )}
-                            </Box>
-                          </Box>
-                        </TableCell>
-                        {!isMobile && (
-                          <TableCell sx={{ borderColor: cardBorder }}>
-                            <Typography
-                              sx={{
-                                fontSize: "13.5px",
-                                color: theme.palette.text.secondary,
-                                fontStyle: d.internal ? "italic" : "normal",
-                                fontFamily: "var(--font-sans)",
-                              }}
-                            >
-                              {d.email}
-                            </Typography>
-                          </TableCell>
-                        )}
-                        <TableCell align="right" sx={{ borderColor: cardBorder }}>
-                          <Typography
-                            className="tabular-nums"
-                            sx={{ fontWeight: 600, fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
-                          >
-                            {getCurrencySymbol(
-                              customer.wallet_currency || baseCurrency,
-                              fmtAmount(customer.wallet_balance || 0, customer.wallet_currency || baseCurrency)
-                            )}
+                            {displayName(c)}
                           </Typography>
-                          {(() => {
-                            const est = fiatEstimate(customer.wallet_balance, customer.wallet_currency);
-                            return est ? (
-                              <Typography
-                                data-testid="customer-fiat-estimate"
-                                sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
-                              >
-                                {`\u2248 ${est}`}
-                              </Typography>
-                            ) : null;
-                          })()}
-                        </TableCell>
-                        {!isMobile && (
-                          <TableCell align="right" sx={{ borderColor: cardBorder }}>
-                            <Typography
-                              className="tabular-nums"
-                              sx={{ fontSize: "13.5px", color: theme.palette.text.secondary, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
-                            >
-                              {t("customers.txns", { count: customer.transaction_count })}
-                            </Typography>
-                          </TableCell>
-                        )}
-                        {!isMobile && (
-                          <TableCell sx={{ borderColor: cardBorder }}>
-                            <Typography sx={{ fontSize: "13.5px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
-                              {formatDate(customer.createdAt)}
-                            </Typography>
-                          </TableCell>
-                        )}
-                        <TableCell align="right" sx={{ borderColor: cardBorder, pr: 2 }}>
-                          <ChevronRightRounded sx={{ fontSize: 20, color: theme.palette.text.disabled, verticalAlign: "middle" }} />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                          <Typography
+                            sx={{
+                              fontSize: "12px",
+                              color: theme.palette.text.secondary,
+                              ...sansSx,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {secondaryLine(c)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </TableCell>
+                    {!isTablet && (
+                      <TableCell sx={{ borderColor: cardBorder }}>
+                        {renderChannelChips(c)}
+                      </TableCell>
+                    )}
+                    <TableCell align="right" sx={{ borderColor: cardBorder }}>
+                      <Typography
+                        component="span"
+                        className="tabular-nums"
+                        sx={{ fontSize: "13px", fontFamily: MONO, color: theme.palette.text.primary }}
+                      >
+                        {c.payments_count}
+                      </Typography>
+                      {c.pending_count > 0 && (
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "11px", color: "#B45309", ml: 0.75, ...sansSx }}
+                        >
+                          +{c.pending_count} {t("customers.pendingShort", { defaultValue: "pending" })}
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell align="right" sx={{ borderColor: cardBorder }}>
+                      <Typography
+                        component="span"
+                        className="tabular-nums"
+                        sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO, color: theme.palette.text.primary }}
+                      >
+                        {fx.formatFromUsd(c.ltv_usd) || `$${c.ltv_usd.toFixed(2)}`}
+                      </Typography>
+                    </TableCell>
+                    {!isMobile && (
+                      <TableCell sx={{ borderColor: cardBorder, whiteSpace: "nowrap" }}>
+                        <Typography component="span" sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                          {c.last_payment ? fmtDate(c.last_payment) : "—"}
+                        </Typography>
+                      </TableCell>
+                    )}
+                    <TableCell sx={{ borderColor: cardBorder, whiteSpace: "nowrap" }}>
+                      <StatusDot tone={segmentTone(c.segment)}>{segmentLabel(c.segment)}</StatusDot>
+                    </TableCell>
+                    {!isMobile && (
+                      <TableCell align="right" sx={{ borderColor: cardBorder, width: 36, pr: 1.5 }}>
+                        <ChevronRightRounded sx={{ fontSize: 18, color: theme.palette.text.secondary, verticalAlign: "middle" }} />
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
-      </Box>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Pagination count={totalPages} page={page} onChange={(_, p) => setPage(p)} color="primary" />
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2.5 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, p) => setPage(p)}
+            size={isMobile ? "small" : "medium"}
+            data-testid="customers-pagination"
+          />
         </Box>
       )}
 
-      {/* Mobile-only bottom clearance (session 72) so the pagination clears the
-          fixed support-chat FAB + bottom nav pill on mobile. */}
-      {isMobile && totalPages > 1 && <Box sx={{ height: "96px", flexShrink: 0 }} />}
-
-      {/* Customer Detail Dialog */}
-      <Dialog
-        open={detailOpen}
-        onClose={() => setDetailOpen(false)}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: "16px", maxHeight: "85vh", backgroundImage: "none" } }}
+      {/* ------------------------------------------------- detail drawer */}
+      <Drawer
+        anchor={isMobile ? "bottom" : "right"}
+        open={!!detailKey}
+        onClose={closeDetail}
+        data-testid="customer-detail-drawer"
+        PaperProps={{
+          sx: {
+            width: isMobile ? "100%" : 460,
+            maxHeight: isMobile ? "92vh" : "100%",
+            borderTopLeftRadius: isMobile ? "16px" : 0,
+            borderTopRightRadius: isMobile ? "16px" : 0,
+            bgcolor: isDark ? "#101014" : "#FFFFFF",
+            backgroundImage: "none",
+          },
+        }}
       >
-        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1.5 }}>
-          {selectedDisplay && !detailLoading ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
-              <Box
+        {detailLoading || !detail ? (
+          <Box sx={{ p: 6, display: "flex", justifyContent: "center" }}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          <DetailPanel
+            detail={detail}
+            t={t}
+            theme={theme}
+            fx={fx}
+            cardBorder={cardBorder}
+            softBg={softBg}
+            copied={copied}
+            onCopyEmail={copyEmail}
+            onRequestPayment={requestPayment}
+            onClose={closeDetail}
+            fmtDate={fmtDate}
+            displayName={displayName}
+            segmentLabel={segmentLabel}
+            segmentTone={segmentTone}
+            renderAvatar={renderAvatar}
+          />
+        )}
+      </Drawer>
+    </Box>
+  );
+};
+
+/* --------------------------------------------------------- empty state */
+const EmptyState: React.FC<{
+  search: string;
+  segment: string;
+  t: any;
+  theme: any;
+  cardBg: string;
+  cardBorder: string;
+  onCreate: () => void;
+}> = ({ search, segment, t, theme, cardBg, cardBorder, onCreate }) => (
+  <Box
+    sx={{
+      p: 4,
+      borderRadius: "12px",
+      border: cardBorder === "transparent" ? 0 : `1px solid ${cardBorder}`,
+      bgcolor: cardBg,
+      textAlign: "center",
+    }}
+    data-testid="customers-empty-state"
+  >
+    <Typography sx={{ fontWeight: 600, color: theme.palette.text.primary, fontFamily: "var(--font-sans)", mb: 0.5 }}>
+      {search
+        ? t("customers.noCustomersSearch")
+        : segment !== "all"
+          ? t("customers.noCustomersSegment", { defaultValue: "No customers in this segment yet" })
+          : t("customers.noCustomersTitle")}
+    </Typography>
+    <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
+      {!search && segment === "all" && t("customers.noCustomersHint", { defaultValue: "Customers appear here automatically when someone pays a link, buys from your store, tips or donates." })}
+    </Typography>
+    {!search && segment === "all" && (
+      <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+        <CustomButton
+          label={t("customers.noCustomersCtaCreate", { defaultValue: "Create a payment link" })}
+          variant="primary"
+          size="small"
+          onClick={onCreate}
+        />
+      </Box>
+    )}
+  </Box>
+);
+
+/* --------------------------------------------------------- detail panel */
+const DetailPanel: React.FC<{
+  detail: DetailData;
+  t: any;
+  theme: any;
+  fx: ReturnType<typeof useDisplayFx>;
+  cardBorder: string;
+  softBg: string;
+  copied: boolean;
+  onCopyEmail: (email: string) => void;
+  onRequestPayment: (c: DirectoryEntry) => void;
+  onClose: () => void;
+  fmtDate: (d?: string | null) => string;
+  displayName: (c: DirectoryEntry) => string;
+  segmentLabel: (s: Segment) => string;
+  segmentTone: (s: Segment) => StatusTone;
+  renderAvatar: (c: DirectoryEntry, size?: number) => React.ReactNode;
+}> = ({
+  detail,
+  t,
+  theme,
+  fx,
+  cardBorder,
+  softBg,
+  copied,
+  onCopyEmail,
+  onRequestPayment,
+  onClose,
+  fmtDate,
+  displayName,
+  segmentLabel,
+  segmentTone,
+  renderAvatar,
+}) => {
+  const c = detail.profile;
+  const sansSx = { fontFamily: "var(--font-sans)" };
+  const isPerson = c.kind === "person";
+
+  const kpi = (label: string, value: React.ReactNode) => (
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Typography
+        sx={{
+          fontSize: "10.5px",
+          fontWeight: 700,
+          letterSpacing: "0.07em",
+          textTransform: "uppercase",
+          color: theme.palette.text.secondary,
+          ...sansSx,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography
+        className="tabular-nums"
+        sx={{
+          fontSize: "15px",
+          fontWeight: 700,
+          fontFamily: MONO,
+          color: theme.palette.text.primary,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {value}
+      </Typography>
+    </Box>
+  );
+
+  const sectionTitle = (label: string) => (
+    <Typography
+      sx={{
+        fontSize: "11px",
+        fontWeight: 700,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        color: theme.palette.text.secondary,
+        ...sansSx,
+        mb: 1,
+        mt: 2.5,
+      }}
+    >
+      {label}
+    </Typography>
+  );
+
+  return (
+    <Box sx={{ p: { xs: 2, md: 2.5 }, overflowY: "auto" }}>
+      {/* header */}
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, mb: 2 }}>
+        {renderAvatar(c, 46)}
+        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+          <Typography
+            sx={{
+              fontWeight: 700,
+              fontSize: "16.5px",
+              color: theme.palette.text.primary,
+              ...sansSx,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+            data-testid="customer-detail-name"
+          >
+            {displayName(c)}
+          </Typography>
+          {isPerson && c.email && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
+              <Typography
                 sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "12px",
-                  flexShrink: 0,
-                  bgcolor: selectedDisplay.internal ? softBg : undefined,
-                  background: selectedDisplay.internal ? undefined : avatarGradient(selectedDisplay.name),
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 700,
-                  color: selectedDisplay.internal
-                    ? theme.palette.text.secondary
-                    : "#FFFFFF",
-                  fontSize: 16,
-                  fontFamily: "var(--font-sans)",
+                  fontSize: "12.5px",
+                  color: theme.palette.text.secondary,
+                  ...sansSx,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {selectedDisplay.internal ? <CodeRounded sx={{ fontSize: 20 }} /> : selectedDisplay.name.charAt(0).toUpperCase()}
-              </Box>
-              <Box sx={{ minWidth: 0 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography sx={{ fontWeight: 700, fontSize: "17px", fontFamily: "var(--font-sans)" }} noWrap>
-                    {selectedDisplay.name}
-                  </Typography>
-                  {selectedDisplay.internal && <ApiChip />}
+                {c.email}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => onCopyEmail(c.email!)}
+                data-testid="customer-detail-copy-email"
+                sx={{ p: 0.4 }}
+                aria-label={t("customers.copyEmail", { defaultValue: "Copy email" })}
+              >
+                {copied ? (
+                  <CheckRounded sx={{ fontSize: 14, color: "#10B981" }} />
+                ) : (
+                  <ContentCopyRounded sx={{ fontSize: 13, color: theme.palette.text.secondary }} />
+                )}
+              </IconButton>
+            </Box>
+          )}
+          {!isPerson && (
+            <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
+              {t("customers.anonHint", { defaultValue: "No contact details captured" })}
+            </Typography>
+          )}
+          {c.mobile && (
+            <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
+              {c.mobile}
+            </Typography>
+          )}
+          <Box sx={{ mt: 0.75 }}>
+            <StatusDot tone={segmentTone(c.segment)}>{segmentLabel(c.segment)}</StatusDot>
+          </Box>
+        </Box>
+        <IconButton onClick={onClose} size="small" data-testid="customer-detail-close" aria-label="Close">
+          <CloseIcon sx={{ fontSize: 20 }} />
+        </IconButton>
+      </Box>
+
+      {/* actions */}
+      {isPerson && c.email && (
+        <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+          <CustomButton
+            label={t("customers.requestPayment", { defaultValue: "Request payment" })}
+            variant="primary"
+            size="small"
+            startIcon={<SendRounded sx={{ fontSize: 15 }} />}
+            onClick={() => onRequestPayment(c)}
+            data-testid="customer-detail-request-payment"
+          />
+        </Box>
+      )}
+
+      {/* KPIs */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 1.5,
+          p: "12px 14px",
+          borderRadius: "12px",
+          border: `1px solid ${cardBorder}`,
+          bgcolor: softBg,
+        }}
+      >
+        {kpi(
+          t("customers.kpiLifetime", { defaultValue: "Lifetime" }),
+          fx.formatFromUsd(c.ltv_usd) || `$${c.ltv_usd.toFixed(2)}`
+        )}
+        {kpi(t("customers.kpiPayments", { defaultValue: "Payments" }), c.payments_count)}
+        {kpi(t("customers.kpiFirstSeen", { defaultValue: "First seen" }), fmtDate(c.first_seen))}
+      </Box>
+
+      {/* wallet — API-platform feature, only when it actually exists */}
+      {detail.wallet && (
+        <Box
+          sx={{
+            mt: 1.5,
+            p: "12px 14px",
+            borderRadius: "12px",
+            border: `1px solid ${cardBorder}`,
+            display: "flex",
+            alignItems: "center",
+            gap: 1.25,
+          }}
+          data-testid="customer-detail-wallet"
+        >
+          <AccountBalanceWalletRounded sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+          <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, ...sansSx, flexGrow: 1 }}>
+            {t("customers.walletBalance", { defaultValue: "Wallet balance" })}
+          </Typography>
+          <Typography className="tabular-nums" sx={{ fontSize: "14px", fontWeight: 700, fontFamily: MONO }}>
+            {formatCryptoAmount(Number(detail.wallet.amount || 0), detail.wallet.wallet_type || "USD")}{" "}
+            {detail.wallet.wallet_type || "USD"}
+          </Typography>
+        </Box>
+      )}
+
+      {/* payments */}
+      {sectionTitle(
+        t("customers.paymentsSection", {
+          defaultValue: "Payments",
+        }) + (detail.payments_total ? ` · ${detail.payments_total}` : "")
+      )}
+      {detail.payments.length === 0 ? (
+        <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, ...sansSx }}>
+          {t("customers.noPaymentsYet", { defaultValue: "No payments yet" })}
+        </Typography>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          {detail.payments.map((p) => (
+            <Box
+              key={p.id}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                py: 1,
+                borderBottom: `1px solid ${cardBorder}`,
+                "&:last-child": { borderBottom: 0 },
+              }}
+              data-testid={`customer-detail-payment-${p.id}`}
+            >
+              <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
+                  <TransactionSourceBadge source={{ type: p.channel, title: p.title }} compact />
                 </Box>
-                <Typography
-                  sx={{
-                    fontSize: "12.5px",
-                    color: theme.palette.text.secondary,
-                    fontStyle: selectedDisplay.internal ? "italic" : "normal",
-                    fontFamily: "var(--font-sans)",
-                  }}
-                  noWrap
-                >
-                  {selectedDisplay.email}
+                <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx, mt: 0.25 }}>
+                  {fmtDate(p.createdAt)}
                 </Typography>
               </Box>
-            </Box>
-          ) : (
-            <Typography variant="h6" component="div" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
-              {t("customers.customerDetails")}
-            </Typography>
-          )}
-          <IconButton onClick={() => setDetailOpen(false)} data-testid="customer-detail-close">
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers sx={{ borderColor: cardBorder }}>
-          {detailLoading ? (
-            <Box sx={{ py: 4 }}>
-              <Skeleton height={40} />
-              <Skeleton height={40} />
-              <Skeleton height={40} />
-            </Box>
-          ) : selectedCustomer ? (
-            <Box>
-              {selectedDisplay?.internal && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: 1.25,
-                    alignItems: "flex-start",
-                    p: "12px 14px",
-                    borderRadius: "10px",
-                    bgcolor: softBg,
-                    border: `1px solid ${cardBorder}`,
-                    mb: 2.5,
-                  }}
-                  data-testid="customer-api-hint"
-                >
-                  <InfoOutlined sx={{ fontSize: 17, color: theme.palette.text.secondary, mt: "1px" }} />
-                  <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, lineHeight: 1.55, fontFamily: "var(--font-sans)" }}>
-                    {t("customers.apiRecordHint")}
-                  </Typography>
-                </Box>
-              )}
-
-              {/* Customer info grid */}
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-                  gap: 1.5,
-                  mb: 3,
-                }}
-              >
-                {[
-                  { label: t("customers.name"), value: selectedDisplay?.name || "-" },
-                  {
-                    label: t("customers.email"),
-                    value: selectedDisplay?.email || "-",
-                    italic: selectedDisplay?.internal,
-                  },
-                  { label: t("customers.mobile"), value: selectedCustomer.customer?.mobile || "-" },
-                  { label: t("customers.company"), value: selectedCustomer.customer?.company_name || "-" },
-                  { label: t("customers.created"), value: formatDate(selectedCustomer.customer?.createdAt) },
-                ].map((f, i) => (
-                  <Box key={i} sx={{ p: "12px 16px", borderRadius: "10px", bgcolor: softBg, border: `1px solid ${cardBorder}` }}>
-                    <Typography sx={{ ...eyebrowSx, mb: 0.5 }}>{f.label}</Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: "14px",
-                        fontFamily: "var(--font-sans)",
-                        fontStyle: f.italic ? "italic" : "normal",
-                        color: f.italic ? theme.palette.text.secondary : theme.palette.text.primary,
-                        wordBreak: "break-word",
-                      }}
-                    >
-                      {f.value}
-                    </Typography>
-                  </Box>
-                ))}
-                <Box
-                  sx={{
-                    p: "12px 16px",
-                    borderRadius: "10px",
-                    bgcolor: isDark ? "rgba(255,255,255,0.07)" : "#111214",
-                    border: `1px solid ${cardBorder}`,
-                  }}
-                >
-                  <Typography sx={{ ...eyebrowSx, mb: 0.5, color: isDark ? theme.palette.text.secondary : "rgba(255,255,255,0.65)" }}>
-                    {t("customers.walletBalance")}
-                  </Typography>
-                  <Typography
-                    className="tabular-nums"
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: "20px",
-                      fontFamily: "var(--font-sans)",
-                      color: isDark ? theme.palette.text.primary : "#FFFFFF",
-                    }}
-                  >
-                    {getCurrencySymbol(
-                      selectedCustomer.wallet?.wallet_type || baseCurrency,
-                      fmtAmount(selectedCustomer.wallet?.amount || 0, selectedCustomer.wallet?.wallet_type || baseCurrency)
-                    )}
-                  </Typography>
-                  {(() => {
-                    const est = fiatEstimate(
-                      selectedCustomer.wallet?.amount,
-                      selectedCustomer.wallet?.wallet_type,
-                    );
-                    return est ? (
-                      <Typography
-                        data-testid="customer-detail-fiat-estimate"
-                        sx={{
-                          fontSize: "12px",
-                          fontFamily: "var(--font-sans)",
-                          color: isDark ? theme.palette.text.secondary : "rgba(255,255,255,0.7)",
-                          mt: 0.25,
-                        }}
-                      >
-                        {`\u2248 ${est}`}
-                      </Typography>
-                    ) : null;
-                  })()}
-                </Box>
+              <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                <Typography className="tabular-nums" sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO }}>
+                  {p.usd_value > 0
+                    ? fx.formatFromUsd(p.usd_value) || `$${p.usd_value.toFixed(2)}`
+                    : `${formatCryptoAmount(Number(p.crypto_amount || p.base_amount || 0), p.crypto_currency || p.base_currency || "USD")} ${p.crypto_currency || p.base_currency || ""}`}
+                </Typography>
+                <StatusDot tone={statusTone(p.status)}>{t(`customers.status_${p.status}`, { defaultValue: p.status })}</StatusDot>
               </Box>
+            </Box>
+          ))}
+        </Box>
+      )}
 
-              {/* Wallet Management Buttons */}
-              <Box sx={{ display: "flex", gap: 1.5, mb: 3, flexWrap: "wrap" }}>
-                <Button
-                  variant="outlined"
-                  startIcon={<AddIcon sx={{ fontSize: 18 }} />}
-                  onClick={() => openWalletModal("credit")}
-                  data-testid="customer-credit-btn"
-                  sx={{
-                    flex: isMobile ? "1 1 100%" : "0 0 auto",
-                    textTransform: "none",
-                    borderRadius: "10px",
-                    fontWeight: 600,
-                    fontFamily: "var(--font-sans)",
-                    color: "#0E9F6E",
-                    borderColor: isDark ? "rgba(16,185,129,0.4)" : "rgba(14,159,110,0.45)",
-                    "&:hover": { borderColor: "#0E9F6E", bgcolor: "rgba(14,159,110,0.06)" },
-                  }}
-                >
-                  {t("customers.creditWallet")}
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<RemoveIcon sx={{ fontSize: 18 }} />}
-                  onClick={() => openWalletModal("debit")}
-                  data-testid="customer-debit-btn"
-                  sx={{
-                    flex: isMobile ? "1 1 100%" : "0 0 auto",
-                    textTransform: "none",
-                    borderRadius: "10px",
-                    fontWeight: 600,
-                    fontFamily: "var(--font-sans)",
-                    color: theme.palette.error.main,
-                    borderColor: isDark ? "rgba(239,68,68,0.4)" : "rgba(239,68,68,0.45)",
-                    "&:hover": { borderColor: theme.palette.error.main, bgcolor: "rgba(239,68,68,0.06)" },
-                  }}
-                >
-                  {t("customers.debitWallet")}
-                </Button>
+      {/* orders */}
+      {detail.orders.length > 0 && (
+        <>
+          {sectionTitle(t("customers.ordersSection", { defaultValue: "Store orders" }))}
+          {detail.orders.map((o) => (
+            <Box
+              key={String(o.order_id)}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                py: 0.9,
+                borderBottom: `1px solid ${cardBorder}`,
+                "&:last-child": { borderBottom: 0 },
+              }}
+            >
+              <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                <Typography sx={{ fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary, ...sansSx }}>
+                  {String(o.order_number || o.public_ref || `#${o.order_id}`)}
+                </Typography>
+                <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                  {fmtDate(o.paid_at || o.createdAt)}
+                </Typography>
               </Box>
+              <Box sx={{ textAlign: "right" }}>
+                <Typography className="tabular-nums" sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO }}>
+                  {(Number(o.total_cents || 0) / 100).toFixed(2)} {String(o.currency || "USD")}
+                </Typography>
+                <StatusDot tone={statusTone(String(o.payment_status))}>
+                  {t(`customers.status_${o.payment_status}`, { defaultValue: String(o.payment_status || "") })}
+                </StatusDot>
+              </Box>
+            </Box>
+          ))}
+        </>
+      )}
 
-              {/* Transaction history */}
-              <Typography sx={{ ...eyebrowSx, mb: 1.5 }}>{t("customers.transactions")}</Typography>
-              {selectedCustomer.transactions?.data?.length === 0 ? (
-                <Box sx={{ py: 4, textAlign: "center" }}>
-                  <Typography sx={{ color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", fontSize: "13.5px" }}>
-                    {t("customers.noCustomerTransactions")}
+      {/* payment links sent */}
+      {detail.links.length > 0 && (
+        <>
+          {sectionTitle(t("customers.linksSection", { defaultValue: "Links sent" }))}
+          {detail.links.map((l) => (
+            <Box
+              key={String(l.link_id)}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                py: 0.9,
+                borderBottom: `1px solid ${cardBorder}`,
+                "&:last-child": { borderBottom: 0 },
+              }}
+            >
+              <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: theme.palette.text.primary,
+                    ...sansSx,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {String(l.title || t("customers.paymentLinkFallback", { defaultValue: "Payment link" }))}
+                </Typography>
+                <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                  {fmtDate(String(l.createdAt))}
+                </Typography>
+              </Box>
+              <Box sx={{ textAlign: "right" }}>
+                {Number(l.base_amount) > 0 && (
+                  <Typography className="tabular-nums" sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO }}>
+                    {Number(l.base_amount).toFixed(2)} {String(l.base_currency || "")}
                   </Typography>
-                </Box>
-              ) : (
-                <>
-                  <TableContainer sx={{ borderRadius: "10px", border: `1px solid ${cardBorder}` }}>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={headCellSx}>{t("customers.colType")}</TableCell>
-                          <TableCell sx={headCellSx} align="right">{t("customers.colAmount")}</TableCell>
-                          <TableCell sx={headCellSx}>{t("customers.colStatus")}</TableCell>
-                          <TableCell sx={headCellSx}>{t("customers.colDate")}</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {(selectedCustomer.transactions?.data || []).map((tx: any, idx: number) => (
-                          <TableRow key={idx} sx={{ "&:last-child td": { borderBottom: "none" } }}>
-                            <TableCell sx={{ borderColor: cardBorder }}>
-                              <StatusDot tone={tx.transaction_type === "CREDIT" ? "settled" : "neutral"}>
-                                {tx.transaction_type || tx.type || "N/A"}
-                              </StatusDot>
-                            </TableCell>
-                            <TableCell align="right" sx={{ borderColor: cardBorder }}>
-                              <Typography className="tabular-nums" sx={{ fontWeight: 600, fontSize: "13.5px", fontFamily: "var(--font-sans)" }}>
-                                {getCurrencySymbol(
-                                  tx.currency || baseCurrency,
-                                  fmtAmount(tx.amount || 0, tx.currency || baseCurrency)
-                                )}
-                              </Typography>
-                              {(() => {
-                                const est = fiatEstimate(tx.amount, tx.currency);
-                                return est ? (
-                                  <Typography
-                                    data-testid="customer-tx-fiat-estimate"
-                                    sx={{ fontSize: "11px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
-                                  >
-                                    {`\u2248 ${est}`}
-                                  </Typography>
-                                ) : null;
-                              })()}
-                            </TableCell>
-                            <TableCell sx={{ borderColor: cardBorder }}>
-                              <StatusDot
-                                tone={
-                                  tx.status === "successful"
-                                    ? "settled"
-                                    : tx.status === "pending"
-                                      ? "pending"
-                                      : "neutral"
-                                }
-                              >
-                                {tx.status || "N/A"}
-                              </StatusDot>
-                            </TableCell>
-                            <TableCell sx={{ borderColor: cardBorder }}>
-                              <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
-                                {formatDate(tx.createdAt)}
-                              </Typography>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  {selectedCustomer.transactions?.pages > 1 && (
-                    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-                      <Pagination
-                        count={selectedCustomer.transactions.pages}
-                        page={txPage}
-                        onChange={(_, p) => {
-                          setTxPage(p);
-                          fetchDetailTransactions(selectedCustomer.customer?.customer_id, p);
-                        }}
-                        size="small"
-                        color="primary"
-                      />
-                    </Box>
-                  )}
-                </>
-              )}
-            </Box>
-          ) : (
-            <Box sx={{ py: 4, textAlign: "center" }}>
-              <Typography sx={{ color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
-                {t("customers.customerNotFound")}
-              </Typography>
-            </Box>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Wallet Management Modal */}
-      <Dialog
-        open={walletModalOpen}
-        onClose={closeWalletModal}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: "16px", backgroundImage: "none" } }}
-      >
-        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {walletAction === "credit" ? (
-              <AddIcon sx={{ color: "#0E9F6E" }} />
-            ) : (
-              <RemoveIcon sx={{ color: "error.main" }} />
-            )}
-            <Typography variant="h6" component="div" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
-              {walletAction === "credit" ? t("customers.creditWallet") : t("customers.debitWallet")}
-            </Typography>
-          </Box>
-          <IconButton onClick={closeWalletModal} disabled={walletLoading}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers sx={{ borderColor: cardBorder }}>
-          {walletSuccess && (
-            <Alert severity="success" sx={{ mb: 2, borderRadius: "10px" }}>
-              {walletSuccess}
-            </Alert>
-          )}
-          {walletError && (
-            <Alert severity="error" sx={{ mb: 2, borderRadius: "10px" }}>
-              {walletError}
-            </Alert>
-          )}
-
-          {selectedCustomer && (
-            <Box sx={{ mb: 2, p: "12px 16px", borderRadius: "10px", bgcolor: softBg, border: `1px solid ${cardBorder}` }}>
-              <Typography sx={{ ...eyebrowSx, mb: 0.5 }}>{t("customers.currentBalance")}</Typography>
-              <Typography className="tabular-nums" sx={{ fontWeight: 700, fontSize: "22px", fontFamily: "var(--font-sans)" }}>
-                {getCurrencySymbol(
-                  selectedCustomer.wallet?.wallet_type || baseCurrency,
-                  fmtAmount(selectedCustomer.wallet?.amount || 0, selectedCustomer.wallet?.wallet_type || baseCurrency)
                 )}
-              </Typography>
+                <StatusDot tone={statusTone(String(l.status))}>
+                  {t(`customers.status_${l.status}`, { defaultValue: String(l.status || "") })}
+                </StatusDot>
+              </Box>
             </Box>
-          )}
+          ))}
+        </>
+      )}
 
-          <TextField
-            fullWidth
-            label={t("customers.amount")}
-            type="number"
-            value={walletAmount}
-            onChange={(e) => setWalletAmount(e.target.value)}
-            placeholder={t("customers.enterAmount")}
-            disabled={walletLoading}
-            data-testid="wallet-amount-input"
-            sx={{ mb: 2, "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  {getCurrencySymbol(selectedCustomer?.wallet?.wallet_type || baseCurrency, "").replace(/[\d,. ]/g, "") || "$"}
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <TextField
-            fullWidth
-            label={t("customers.descriptionReason")}
-            multiline
-            rows={3}
-            value={walletDescription}
-            onChange={(e) => setWalletDescription(e.target.value)}
-            placeholder={t("customers.enterDescription")}
-            disabled={walletLoading}
-            data-testid="wallet-description-input"
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={closeWalletModal}
-            disabled={walletLoading}
-            sx={{ textTransform: "none", borderRadius: "10px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}
-          >
-            {t("customers.cancel")}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleWalletOperation}
-            disabled={walletLoading || !walletAmount || !walletDescription}
-            startIcon={walletLoading ? <CircularProgress size={16} /> : undefined}
-            data-testid="wallet-submit-btn"
-            sx={{
-              textTransform: "none",
-              borderRadius: "10px",
-              fontWeight: 600,
-              fontFamily: "var(--font-sans)",
-              boxShadow: "none",
-              bgcolor: walletAction === "credit" ? "#0E9F6E" : theme.palette.error.main,
-              "&:hover": {
-                bgcolor: walletAction === "credit" ? "#0B8459" : theme.palette.error.dark,
-                boxShadow: "none",
-              },
-            }}
-          >
-            {walletLoading ? t("customers.processing") : walletAction === "credit" ? t("customers.creditWallet") : t("customers.debitWallet")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* anonymous explainer */}
+      {!isPerson && (
+        <Alert
+          severity="info"
+          icon={false}
+          sx={{
+            mt: 2.5,
+            borderRadius: "12px",
+            fontSize: "12.5px",
+            ...sansSx,
+            bgcolor: softBg,
+            color: theme.palette.text.secondary,
+            border: `1px solid ${cardBorder}`,
+          }}
+          data-testid="customer-detail-anon-hint"
+        >
+          {t("customers.anonExplainer", {
+            defaultValue:
+              "These payments arrived without contact details (e.g. API payments or checkouts where email was optional). New store checkouts now always capture an email.",
+          })}
+        </Alert>
+      )}
     </Box>
   );
 };
