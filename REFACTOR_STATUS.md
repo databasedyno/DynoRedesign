@@ -1,4 +1,46 @@
 # ============================================================================
+# ▶ NEXT ACTIONS — 2026-06 (fork dynopay-setup-5)  ·  READ THIS FIRST
+# Recommended order. Detailed specs live in the dated sections below.
+# Legend: [ ] todo  [~] in progress  [x] done  ·  P0 now / P1 soon / P2 later
+# ----------------------------------------------------------------------------
+#
+# JUST SHIPPED THIS FORK (context):
+#   [x] S3.0 first-payment-free — backend + ALL-locale copy (en/es/pt/fr/de/nl)
+#   [x] /fees v3 page fully localized (hero+tiers+calculator+comparison+security)
+#   [x] Payouts "pending confirmed" toast localized (6 langs, common.json)
+#   [x] Company rename Dynotech → "Dynopay Innovations, LDA" (email/PDF/invoice/footers)
+#   [x] emailService default-export barrel fix (was a DO/tsc build blocker)
+#   [x] Flutterwave webhook missing-`return` bug (§2) — testing_agent iter_85, 10/10 PASS
+#
+# STALE / OBSOLETE (do NOT pick up):
+#   S3.0 / S3.1 checkboxes below are stale — the model is LIVE.
+#   S4.1 "Fee-Free anti-abuse cap" is OBSOLETE — it was the "keep $500" alternative;
+#        the first-payment-free model won, so S4.1 no longer applies.
+#
+# RECOMMENDED NEXT ACTIONS (priority order):
+#   P1  A2  network-fees stale-while-revalidate   → never a cold fee lookup at checkout
+#   P1  A3  admin live money-path health dashboard → settlements/ledger/provider health
+#   P1  A1  reservation burst headroom            → per-merchant flash-sale backpressure
+#   P2  S4.3 VAT label fix                         → last untranslated store-checkout string
+#   P2  S4.4 "$10 minimum" hint                    → tips/support/donation inputs
+#   P2  S4.2 mobile chat polish                    → scroll-to-top overlaps open chat panel
+#   P2  B1  SMS AutoFill hint   ·  B2 font-flash polish / landing speed report
+#   P2  A4  reusable staging load-test kit         → make loadtest_money_path.ts repeatable
+#
+# INFRA / HYGIENE:
+#   §2  CI `tsc` gate — block PRs on type errors (would have caught the DO blocker)
+#
+# LONG-RUNNING INCREMENTAL REFACTORS (chip away, not blockers):
+#   Item #1  17 server.ts boot .sync() → migrations
+#   Item #4  ~610 raw process.env reads → typed config
+#   Item #5  remaining read-only screens → useApiSWR
+#   §9       storefront tab-panel testids + @handle onboarding-checklist chip
+#   §10      crypto-refund Phase C (on-chain forwarding) — pending prod validation
+# ============================================================================
+
+
+
+# ============================================================================
 # NEXT ACTIONS BACKLOG — 2026-08-25 (pod f054383c)
 # Source: OTP AutoFill fix session + Checkout/Payment load-test session.
 # Status legend:  [ ] todo   [~] in progress   [x] done
