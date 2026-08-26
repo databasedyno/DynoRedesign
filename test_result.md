@@ -1,4 +1,57 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-26 (pod a1e9a54e) : env re-setup (SAFE MODE, email OFF)
+#   + fix SLOW bot-scan 404s on /api/pay/creator/* + landing FAQ copy fix
+# ============================================================================
+
+## User problem statement (this session)
+1) Set up the app from pasted production creds — DONE (/health healthy, SAFE MODE,
+   DISABLE_OUTBOUND_EMAIL=true, background jobs OFF, worker=secondary, prod Railway DB).
+2) BUG: unknown creator paths (bot/vuln scans like `sftp-config.json`) were 404ing
+   in ~600ms because the handler did a REMOTE Railway DB lookup before 404.
+   FIX: reject malformed handles (any char outside [a-z0-9_-] or len>40) BEFORE the DB
+   in resolveStorefrontByHandle() (covers getCreatorProfile + tip/cart/checkout) AND
+   inline in getCreatorPublicAnalytics() (it queries tbl_user directly).
+3) Landing FAQ copy fix (frontend i18n only, no test needed here): FAQ answer a5 in
+   6 langs no longer claims Apple Pay / card via Flutterwave / recurring subscriptions.
+
+### backend
+  - task: "Fast-path 404 for malformed creator handles (kill remote-DB round-trip on bot scans)"
+    implemented: true
+    working: true
+    file: "backend/controller/storefrontScope.ts (resolveStorefrontByHandle), backend/controller/payment/paymentLinkController.ts (getCreatorPublicAnalytics)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ROOT CAUSE: GET /api/pay/creator/:handle (getCreatorProfile via resolveStorefrontByHandle) and GET /api/pay/creator/:handle/analytics (getCreatorPublicAnalytics, direct tbl_user query) ran a remote Railway DB lookup even for obviously-invalid handles like 'sftp-config.json' -> ~600ms 404. FIX: added a format guard (len>40 || /[^a-z0-9_-]/) that returns null/404 BEFORE any DB call. It is a strict superset of the creation rule HANDLE_RE=/^[a-z0-9][a-z0-9_-]{2,29}$/ so no valid creator page is affected. Main-agent curl (localhost:8001): sftp-config.json 604ms->128ms, sftp-config.json/analytics 601ms->128ms, valid handle 'devhub' still 200, 'nonexistenthandle123' still 404 (valid format -> still hits DB, correct)."
+      - working: true
+        agent: "testing"
+        comment: "✅ FIX VERIFIED (2026-08-26 13:44 UTC) — Fast-path 404 for malformed creator handles is WORKING CORRECTLY. All 5 tests PASSED (100% pass rate). **PERFORMANCE TESTS (localhost:8001)**: (1) GET /api/pay/creator/sftp-config.json -> ✅ HTTP 404 in 127.04ms (well under 300ms threshold; previously ~600ms = 4.7× improvement). (2) GET /api/pay/creator/sftp-config.json/analytics -> ✅ HTTP 404 in 134.65ms (well under 300ms; previously ~600ms = 4.5× improvement). **REGRESSION TESTS**: (3) GET /api/pay/creator/devhub -> ✅ HTTP 200 in 623.89ms (valid creator page still resolves correctly with storefront data). (4) GET /api/pay/creator/nonexistenthandle123 -> ✅ HTTP 404 in 382.39ms (valid-format handle correctly still hits DB and returns 404 as expected). (5) GET http://localhost:8001/health -> ✅ status='healthy', database='connected', redis='connected', background_jobs.eligible=false (SAFE MODE confirmed). **NOTE**: External URL (K8s ingress) has ~294-346ms network overhead (sftp-config.json: 420.66ms, analytics: 481.01ms) — this is expected K8s routing latency and NOT a bug in the fix. The fast-path guard is working correctly: malformed handles (any char outside [a-z0-9_-] or len>40) are rejected BEFORE any DB query, achieving ~4.5× performance improvement. Valid handles and valid-format nonexistent handles still work correctly. The fix is PRODUCTION-READY."
+
+### What to verify (BACKEND) — deep_testing_backend_v2  [STRICTLY READ-ONLY, prod DB, SAFE MODE]
+1. GET /api/pay/creator/sftp-config.json -> 404 AND fast (well under 300ms; was ~600ms).
+2. GET /api/pay/creator/sftp-config.json/analytics -> 404 AND fast (was ~600ms).
+3. Regression: GET /api/pay/creator/devhub -> 200 (valid creator page still resolves).
+4. Regression: GET /api/pay/creator/nonexistenthandle123 -> 404 (valid FORMAT, still DB-checked, correctly not found).
+5. Confirm /health -> healthy (db+redis connected, background_jobs.eligible=false = SAFE MODE).
+DO NOT log in and mutate data, DO NOT trigger emails/payments/sweeps. Read-only GETs + /health only.
+Test merchant (if needed, read-only): hostbay@moxx.co / Katiekendra123@ (user_id=1). Preview handle in DB: devhub.
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  session: "pod a1e9a54e (2026-08-26) — env re-setup #2 + slow-404 fix"
+
+### agent_communication
+  - agent: "main"
+    message: "Please verify the 5 read-only checks above against the LIVE Railway prod DB in SAFE MODE. This is a NODE/TS backend behind a Python uvicorn proxy on :8001 — use the external preview ingress for /api/* (but /health only works on localhost:8001 per K8s rules). Do NOT mutate anything."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-26 13:44 UTC) — ALL 5 TESTS PASSED (100% pass rate). Fast-path 404 bug fix VERIFIED and PRODUCTION-READY. **PERFORMANCE**: Malformed handles (sftp-config.json, sftp-config.json/analytics) now return 404 in ~127-135ms on localhost (previously ~600ms = 4.5× improvement). **REGRESSION**: Valid creator handle 'devhub' still returns 200 with storefront data. Valid-format nonexistent handle still correctly hits DB and returns 404. **SAFE MODE**: Health check confirmed (background_jobs.eligible=false). **NOTE**: External URL has ~294-346ms K8s ingress network overhead (expected, not a bug). The fast-path guard is working correctly — malformed handles are rejected BEFORE any DB query. Main agent can summarize and finish."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-25 (pod f054383c) : LOAD-TEST the checkout/payment
 #   path (sweeps + settlement) under concurrency + a checkout capacity fix
 # ============================================================================

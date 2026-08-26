@@ -259,7 +259,7 @@
       "q4": "Wie schnell ist die Abwicklung?",
       "a4": "Median 4,2 Sekunden für Stablecoin-Rails (TRC-20, ERC-20 L2s) und unter einer Minute für BTC/ETH-Mainnet-Bestätigungen bei unserer Schwelle. Dein Dashboard zeigt den Live-TX-Status.",
       "q5": "Unterstützt ihr Fiat, Rückerstattungen oder Abos?",
-      "a5": "Du bekommst ein on-chain Äquivalent von allem: Rückerstattungen sind One-Click-Umkehrungen, Abos sind wiederkehrende Zahlungslinks, und das Checkout akzeptiert Apple Pay / Karte via Flutterwave als Fallback — automatisch auf dein Krypto-Wallet übertragen.",
+      "a5": "Rückerstattungen, ja – On-Chain-Umkehrungen mit einem Klick, die die Gelder direkt an die Adresse des Käufers zurücksenden. Fiat-Karten oder automatische wiederkehrende Abos bieten wir derzeit nicht an: Jede Zahlung ist eine direkte, einmalige Krypto-Zahlung an ein Wallet, das du kontrollierst – mit optionaler Auto-Konvertierung in USDC oder USDT. Wiederkehrende Zahlung nötig? Teile einfach denselben Link erneut.",
       "stillCurious": "Noch neugierig?",
       "askUs": "Frag uns alles →"
     },

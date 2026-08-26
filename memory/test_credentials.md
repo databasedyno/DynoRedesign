@@ -1,4 +1,31 @@
 # ============================================================================
+# 2026-08-26 (new pod) RE-SETUP #2 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
+# ----------------------------------------------------------------------------
+# - Preview URL: https://a1e9a54e-6d51-47fb-98d3-e91ce0a11738.preview.emergentagent.com
+# - Branch: Improvement
+# - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
+#     /app/.env (frontend) + /app/backend/.env (backend), then `bash scripts/pod-bootstrap.sh`
+#     -> POD READY (db+redis connected, frontend 200).
+# - SAFE MODE (preview talks to the LIVE prod Railway DB):
+#     ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (no sweeps/settlement/cron/payouts/webhook worker)
+#     DISABLE_OUTBOUND_EMAIL=true (no Brevo email — user-confirmed)
+#     REDIS_PUBLIC_URL -> nozomi.proxy.rlwy.net:15794/1 (isolated Redis DB index 1)
+#     DATABASE_URL set explicitly (postgres@roundhouse.proxy.rlwy.net:23599/railway, ssl reject=false)
+#     BINANCE_PROXY_URL + SSH_TUNNEL_HOST commented (no tunnel in preview; Binance geo-blocked -> FX via Tatum)
+#     NEXTAUTH_SECRET freshly generated (paste had literal placeholder "openssl rand -base64 32")
+#     /app/.env NEXT_PUBLIC_BASE_URL EMPTY (relative /api browser calls; SSR uses INTERNAL_API_URL=:8001)
+# - Merchant login for testing: hostbay@moxx.co / Katiekendra123@ (user_id=1, "Hostbay")
+# - VERIFIED (read-only, no writes to prod):
+#     GET :8001/health -> healthy (database=connected, redis=connected,
+#       background_jobs.eligible=false = SAFE MODE, tatum operational CLOSED, binance geo-blocked/10 cached prices)
+#     GET :8001/api/public/tickers -> live prices (BTC ~$78.1k, ETH ~$2.4k)
+#     POST :8001/api/user/login (hostbay@moxx.co) -> 200 "Login Successful!"
+#     external preview / -> 200.
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-08-26 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
 # - Preview URL: https://dynopay-setup-6.preview.emergentagent.com

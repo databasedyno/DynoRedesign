@@ -259,7 +259,7 @@
       "q4": "How fast is settlement?",
       "a4": "Median 4.2 seconds for stablecoin rails (TRC-20, ERC-20 L2s) and under a minute for BTC/ETH mainnet confirmations at our threshold. Your dashboard shows live TX status the entire way.",
       "q5": "Do you support fiat, refunds, or subscriptions?",
-      "a5": "You get an on-chain equivalent of everything: refunds are one-click reversals, subscriptions are recurring payment links, and the checkout accepts Apple Pay / card via Flutterwave as a fallback — auto-swept to your crypto wallet.",
+      "a5": "Refunds, yes — one-click, on-chain reversals that send funds straight back to the buyer's address. We don't do fiat cards or auto-recurring subscriptions today: every charge is a direct, one-time crypto payment settled to a wallet you control, with optional auto-convert to USDC or USDT. Need a repeat payment? Just reshare the same link.",
       "stillCurious": "Still curious?",
       "askUs": "Ask us anything →"
     },

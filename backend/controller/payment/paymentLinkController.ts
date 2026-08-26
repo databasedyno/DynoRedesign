@@ -278,6 +278,14 @@ export const getCreatorPublicAnalytics = async (req: express.Request, res: expre
     const handle = String(req.params.handle || "").trim().toLowerCase();
     if (!handle) return errorResponseHelper(res, 400, "Handle is required");
 
+    // Fast-path: reject malformed handles (bot/vuln scans like
+    // "sftp-config.json", ".env", "wp-login.php") before the DB query — a
+    // guaranteed 404 should never cost a remote round-trip. Strict superset of
+    // the creation rule (/^[a-z0-9][a-z0-9_-]{2,29}$/), so no real page is lost.
+    if (handle.length > 40 || /[^a-z0-9_-]/.test(handle)) {
+      return errorResponseHelper(res, 404, "Creator page not found");
+    }
+
     const [creator] = (await sequelize.query(
       `SELECT user_id, creator_page_enabled, public_analytics_enabled, support_widget_currency
          FROM tbl_user

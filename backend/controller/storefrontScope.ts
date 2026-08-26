@@ -156,6 +156,13 @@ export async function resolveStorefrontByHandle(
   const clean = String(handle || "").trim().toLowerCase();
   if (!clean) return null;
 
+  // Fast-path: a real vanity handle only ever contains [a-z0-9_-] and is short
+  // (creation enforces /^[a-z0-9][a-z0-9_-]{2,29}$/). Bot/vuln scanners probe
+  // paths like "sftp-config.json", ".env", "wp-login.php" — reject these BEFORE
+  // touching the DB so the guaranteed-404 never costs a remote round-trip. This
+  // check is a strict superset of the creation rule, so no valid handle is lost.
+  if (clean.length > 40 || /[^a-z0-9_-]/.test(clean)) return null;
+
   if (STOREFRONT_PER_COMPANY) {
     const rows = (await sequelize.query(
       `SELECT c.company_id, c.user_id,

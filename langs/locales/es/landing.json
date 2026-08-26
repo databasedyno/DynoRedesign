@@ -259,7 +259,7 @@
       "q4": "¿Cómo de rápida es la liquidación?",
       "a4": "Mediana de 4,2 segundos para redes stablecoin (TRC-20, ERC-20 L2s) y menos de un minuto para confirmaciones BTC/ETH mainnet en nuestro umbral. Tu panel muestra el estado de la TX en vivo.",
       "q5": "¿Soportáis fiat, reembolsos o suscripciones?",
-      "a5": "Tienes el equivalente on-chain de todo: los reembolsos son reversiones de un clic, las suscripciones son enlaces de pago recurrentes, y el checkout acepta Apple Pay / tarjeta vía Flutterwave como respaldo — auto-transferido a tu cartera cripto.",
+      "a5": "Reembolsos, sí: reversiones on-chain con un clic que devuelven los fondos directamente a la dirección del comprador. Hoy no ofrecemos tarjetas fiat ni suscripciones recurrentes automáticas: cada cobro es un pago cripto directo y único a una wallet que tú controlas, con conversión automática opcional a USDC o USDT. ¿Necesitas un pago recurrente? Simplemente vuelve a compartir el mismo enlace.",
       "stillCurious": "¿Aún con dudas?",
       "askUs": "Pregúntanos lo que quieras →"
     },

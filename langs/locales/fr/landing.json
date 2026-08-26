@@ -259,7 +259,7 @@
       "q4": "Quelle est la vitesse de règlement ?",
       "a4": "Médiane de 4,2 secondes pour les rails stablecoin (TRC-20, ERC-20 L2s) et moins d'une minute pour les confirmations BTC/ETH mainnet à notre seuil. Votre dashboard montre le statut TX en direct.",
       "q5": "Vous gérez fiat, remboursements et abonnements ?",
-      "a5": "Vous avez l'équivalent on-chain de tout : remboursements en un clic, abonnements via liens de paiement récurrents, checkout accepte Apple Pay / carte via Flutterwave en secours — auto-basculé vers votre wallet crypto.",
+      "a5": "Les remboursements, oui : des annulations on-chain en un clic qui renvoient les fonds directement à l'adresse de l'acheteur. Nous ne proposons pas de cartes fiat ni d'abonnements récurrents automatiques aujourd'hui : chaque paiement est un règlement crypto direct et unique vers un wallet que vous contrôlez, avec conversion automatique optionnelle en USDC ou USDT. Besoin d'un paiement récurrent ? Repartagez simplement le même lien.",
       "stillCurious": "Toujours curieux ?",
       "askUs": "Posez-nous n'importe quelle question →"
     },
