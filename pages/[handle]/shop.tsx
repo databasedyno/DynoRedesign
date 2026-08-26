@@ -18,7 +18,7 @@ import { Container } from "@mui/material";
 import { NextPageWithLayout } from "@/pages/_app";
 import { ShopClient } from "@/Components/Page/Shop";
 import type { ShopMerchant, ShopProduct } from "@/Components/Page/Shop/types";
-import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
+import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
 
 interface ShopPageProps {
   merchant: ShopMerchant;
@@ -36,6 +36,11 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
   const url = `${siteUrl}/${merchant.handle}/shop`;
   const ogImage =
     merchant.avatar || `${siteUrl}/og/default-shop.png`;
+  // hreflang / canonical: English is the default (bare URL); every other locale
+  // is served under ?lang=xx. Each variant is self-canonical and lists the full
+  // alternate cluster so Google indexes every localized shop cleanly.
+  const altHref = (lng: string) => (lng === "en" ? url : `${url}?lang=${lng}`);
+  const canonical = altHref(metaLang);
 
   // ── SEO JSON-LD ──
   const storeJsonLd = {
@@ -79,13 +84,20 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href={url} />
+        <link key="canonical" rel="canonical" href={canonical} />
+        {/* hreflang alternates — one per supported ?lang= variant + x-default.
+            Keys match _app's fallback cluster so these (correct, per-handle) tags
+            dedupe/override the app-shell defaults. */}
+        {SEO_SUPPORTED.map((lng) => (
+          <link key={lng} rel="alternate" hrefLang={lng} href={altHref(lng)} />
+        ))}
+        <link key="x-default" rel="alternate" hrefLang="x-default" href={url} />
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:url" content={url} />
+        <meta property="og:url" content={canonical} key="og:url" />
         <meta property="og:image" content={ogImage} />
         <meta property="og:site_name" content="Dynopay" />
         <meta key="og:locale" property="og:locale" content={metaLang} />

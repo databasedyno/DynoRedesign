@@ -37,9 +37,12 @@ const MONITORED_SERVICES = [
     check: async (): Promise<HealthCheckResult> => {
       const start = Date.now();
       try {
-        // Check payment tables are accessible
-        await sequelize.query("SELECT COUNT(*) FROM tbl_payment_link LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT COUNT(*) FROM tbl_customer_transaction LIMIT 1", { type: QueryTypes.SELECT });
+        // Lightweight accessibility probe — `SELECT 1 ... LIMIT 1` stops at the
+        // first row, so it stays fast regardless of table size. (A COUNT(*) here
+        // full-scans tbl_customer_transaction on prod and pushed latency over the
+        // 1000ms "degraded" threshold even though payments were perfectly healthy.)
+        await sequelize.query("SELECT 1 FROM tbl_payment_link LIMIT 1", { type: QueryTypes.SELECT });
+        await sequelize.query("SELECT 1 FROM tbl_customer_transaction LIMIT 1", { type: QueryTypes.SELECT });
         return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {
         return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };
@@ -52,10 +55,10 @@ const MONITORED_SERVICES = [
     check: async (): Promise<HealthCheckResult> => {
       const start = Date.now();
       try {
-        // Check wallet tables
-        await sequelize.query("SELECT COUNT(*) FROM tbl_user_wallet LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT COUNT(*) FROM tbl_user_addresses LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT COUNT(*) FROM tbl_admin_wallet LIMIT 1", { type: QueryTypes.SELECT });
+        // Check wallet tables are accessible (lightweight probe — see note above)
+        await sequelize.query("SELECT 1 FROM tbl_user_wallet LIMIT 1", { type: QueryTypes.SELECT });
+        await sequelize.query("SELECT 1 FROM tbl_user_addresses LIMIT 1", { type: QueryTypes.SELECT });
+        await sequelize.query("SELECT 1 FROM tbl_admin_wallet LIMIT 1", { type: QueryTypes.SELECT });
         return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {
         return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };
@@ -83,9 +86,9 @@ const MONITORED_SERVICES = [
     check: async (): Promise<HealthCheckResult> => {
       const start = Date.now();
       try {
-        // Check user and company tables (dashboard dependencies)
-        await sequelize.query("SELECT COUNT(*) FROM tbl_user LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT COUNT(*) FROM tbl_company LIMIT 1", { type: QueryTypes.SELECT });
+        // Check user and company tables (dashboard dependencies) — lightweight probe
+        await sequelize.query("SELECT 1 FROM tbl_user LIMIT 1", { type: QueryTypes.SELECT });
+        await sequelize.query("SELECT 1 FROM tbl_company LIMIT 1", { type: QueryTypes.SELECT });
         return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {
         return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };

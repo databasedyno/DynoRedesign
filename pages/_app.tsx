@@ -565,7 +565,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         {SUPPORTED_LANGS.map((lang) => (
           <link key={lang} rel="alternate" hrefLang={lang} href={canonicalUrl} />
         ))}
-        <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
+        <link key="x-default" rel="alternate" hrefLang="x-default" href={canonicalUrl} />
 
         {/* ─── JSON-LD Structured Data ─── */}
         {pathname === "/" && (

@@ -1,0 +1,45 @@
+{
+  "summary": "Verified hreflang + canonical + og:locale SEO tags on public shop and product pages (devhub / talk-to-a-developer) for languages en/es/pt/fr/de/nl. All 4 acceptance criteria from the review pass. Wrote pytest regression suite (5 tests, all green).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "shop + product page <head> meta",
+        "issues": [
+          "og:url meta tag still uses broken production host 'https://dynopay.com//shop' (missing handle, double slash). This is OUTSIDE the review's scope (which only asserts canonical + hreflang have no broken host, both of which are correct), but it is a real residual SEO leak on the same app-shell fallback and worth fixing by the main agent. Seen on: shop (bare), shop?lang=fr, and product page (bare + ?lang=de) — pattern is 'dynopay.com//shop' and 'dynopay.com//p'."
+        ]
+      }
+    ]
+  },
+  "acceptance_criteria_results": {
+    "shop_default_no_lang": "PASS — exactly 1 canonical=…/devhub/shop, 7 hreflang alternates (en,es,pt,fr,de,nl,x-default) with correct per-lang URLs, no duplicates, no broken host in any <link> tag, og:locale=en (1 tag).",
+    "shop_lang_fr": "PASS — canonical is self-referential (…/devhub/shop?lang=fr), 7 hreflang alternates correct, og:locale=fr (1 tag), <title> localized to 'The Dev Store — Boutique · Dynopay'.",
+    "product_lang_de": "PASS — canonical self-ref (…/devhub/p/talk-to-a-developer?lang=de), 7 hreflang alternates correct, og:locale=de (1 tag).",
+    "product_default_regression": "PASS — HTTP 200, canonical=bare URL, 7 hreflang cluster present, og:locale=en (1 tag)."
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_seo_hreflang.py",
+    "/app/test_reports/pytest/seo_hreflang.xml"
+  ],
+  "action_items": [
+    "OPTIONAL / out-of-scope: fix og:url meta tag to also override the app-shell fallback — currently emits 'https://dynopay.com//shop' and 'https://dynopay.com//p' (broken host with double slash + stripped handle). Same key-based dedupe pattern that fixed canonical/hreflang should be applied to og:url in pages/[handle]/shop.tsx and pages/[handle]/p/[slug].tsx."
+  ],
+  "critical_code_review_comments": [
+    "Attribute is emitted as React camelCase `hrefLang=\"…\"` which serializes to lowercase-preserving-camelcase in the SSR HTML. Any downstream tooling grepping with case-sensitive `hreflang=` will miss the tags — use case-insensitive matching (as done here). Not a bug per se, HTML attributes are case-insensitive, but worth noting for other test/QA scripts.",
+    "The app-shell fallback in _app.tsx uses a hardcoded broken 'https://dynopay.com//<path>' base for canonical/hreflang/og. Page-level next/head keys correctly override canonical + hreflang, but og:url is NOT keyed the same way and leaks through — see action item."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_seo_hreflang.py"
+  ],
+  "success_rate": {"backend": "N/A (frontend-only review)", "frontend": "100% (5/5 SEO tests pass)"},
+  "seed_data_creation": "None — read-only prod DB per instructions.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "SEO hreflang/canonical implementation is verified working on shop + product pages. Regression suite lives at /app/backend/tests/test_seo_hreflang.py — includes a retry loop for occasional Cloudflare edge 404 flaps. Remaining known issue (out of this review's scope): og:url meta tag still emits the broken 'dynopay.com//<path>' from the _app.tsx fallback because it isn't overridden with a matching next/head key at the page level.",
+  "rca of the issue": "N/A — feature verified as correctly implemented. Residual og:url leak RCA: pages/_app.tsx emits <meta property=\"og:url\" content=\"https://dynopay.com//<path>\"/> using a broken hardcoded fallback that strips the handle and yields a double slash. pages/[handle]/shop.tsx and pages/[handle]/p/[slug].tsx keyed their canonical + hreflang tags so next/head dedupes and page values win, but og:url was not added to that override list, so the broken app-shell value survives into the final SSR HTML."
+}

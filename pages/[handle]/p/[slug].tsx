@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
-import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
+import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
 import { useRouter } from "next/router";
 import {
   Box, Container, Typography, Stack, Chip, TextField, IconButton, Divider,
@@ -91,6 +91,9 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
   const title = `${product.title} — @${merchant.handle} · Dynopay`;
   const description = product.subtitle || product.description_md?.slice(0, 200) || shopSeoStrings(metaLang).productDesc.replace("{title}", product.title);
   const url = `${siteUrl}/${merchant.handle}/p/${product.slug}`;
+  // hreflang / canonical: English default = bare URL; other locales = ?lang=xx.
+  const altHref = (lng: string) => (lng === "en" ? url : `${url}?lang=${lng}`);
+  const canonical = altHref(metaLang);
   const cover = product.cover_image_url;
 
   return (
@@ -98,9 +101,15 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href={url} />
+        <link key="canonical" rel="canonical" href={canonical} />
+        {/* hreflang alternates — keys match _app's cluster so these override it */}
+        {SEO_SUPPORTED.map((lng) => (
+          <link key={lng} rel="alternate" hrefLang={lng} href={altHref(lng)} />
+        ))}
+        <link key="x-default" rel="alternate" hrefLang="x-default" href={url} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} key="og:url" />
         {cover && <meta property="og:image" content={cover} />}
         <meta key="og:locale" property="og:locale" content={metaLang} />
       </Head>

@@ -1,3 +1,67 @@
+# FEATURE + INVESTIGATION (2026-06 fork) — Shop hreflang tags + "Save to GitHub" pre-hook check — DONE (testing_agent iteration_87)
+
+## 1) hreflang / canonical / og for localized shop + product pages — DONE (verified)
+Added a full hreflang alternate cluster to the public shop + product page <Head> so Google indexes every
+`?lang=` variant cleanly:
+  - pages/[handle]/shop.tsx and pages/[handle]/p/[slug].tsx: `altHref(lng)= lng==='en'? url : `${url}?lang=${lng}``;
+    canonical is SELF-referential (`altHref(metaLang)`); emit `<link rel="alternate" hreflang>` for each
+    SEO_SUPPORTED lang (en→bare, es/pt/fr/de/nl→?lang=xx) + `x-default`→bare. og:url also set to the
+    self-referential canonical.
+  - CRITICAL dedupe: pages/_app.tsx emits a GLOBAL fallback canonical + hreflang + og:url that, for these
+    dynamic routes, points at a BROKEN `https://dynopay.com//shop` (handle stripped → double slash). The
+    page-level tags reuse _app's next/head KEYS so they override it: key="canonical", per-lang key={lng}
+    (matches _app's key={lang}), key="x-default" (ADDED key to _app line 568 which previously had none),
+    and key="og:url". Result: exactly ONE canonical + ONE tag per hreflang value + ONE og:url per page, all
+    with the correct per-handle host — the broken `dynopay.com//…` fallback no longer leaks.
+  - helpers/shopSeoMeta.ts SEO_SUPPORTED exported for the loop.
+VERIFIED (testing_agent iteration_87, 5/5 SEO regression tests at backend/tests/test_seo_hreflang.py): shop
+default + ?lang=fr, product ?lang=de + default all pass — 1 canonical, 7 alternates (6 langs + x-default),
+localized title/og:locale, no broken host. og:url leak fixed afterward and curl-confirmed clean.
+
+## 2) "Won't Save to GitHub — check the 500-line pre-hook" — INVESTIGATED (pre-hook is NOT the blocker)
+Ran the FULL husky pre-commit hook (.husky/pre-commit) with everything staged → EXIT 0:
+  - scripts/preflight-tsc.sh (backend tsc) → OK.
+  - backend/scripts/check-file-size.mjs (blocks only if a NEW backend .ts > 500 lines; legacy grandfathered via
+    backend/scripts/file-size-baseline.json, warn-only on growth) → "OK — no new backend file exceeds 500 lines".
+    Explicit scan confirmed ZERO non-baseline backend files over 500 lines.
+  - scripts/check-secrets.mjs → OK. scripts/check-contrast.mjs → warn-only (`|| true`, never blocks).
+No tracked .env (gitignored), no live secrets in tracked files, largest tracked file ~9MB SVG (under limits).
+Local commits work (platform per-step auto-commits present in git log). CONCLUSION: the local pre-commit hook,
+including the 500-line rule, passes and is not what blocks the save — the failure is at the GitHub push /
+platform layer (most likely GitHub push protection scanning full commit HISTORY for secrets, or expired
+GitHub authorization / repo write access). Guidance relayed to the user via support_agent (re-authorize
+GitHub, push to a new branch, rotate+clean history if a historical secret is flagged, else contact support
+with job id).
+
+---
+
+
+# BUG FIX (2026-06 fork) — System Status page: "Payment Processing" showed Degraded — FIXED (testing_agent verified, iteration_86)
+
+SYMPTOM: /system-status (dynopay.com + dev preview) showed the "Payment Processing" service as **Degraded** (amber), which also forced the overall banner to "Degraded".
+
+ROOT CAUSE (backend/services/monitoringService.ts): the health check for `payment_processing` ran
+`SELECT COUNT(*) FROM tbl_payment_link LIMIT 1` + `SELECT COUNT(*) FROM tbl_customer_transaction LIMIT 1`.
+On the LIVE prod DB `tbl_customer_transaction` is very large, so `COUNT(*)` full-scans it (~1060ms combined).
+The monitor flags any HEALTHY service whose latency > 1000ms as "degraded" (runHealthChecks line ~163). The
+`LIMIT 1` was a no-op on an aggregate. So payments were perfectly healthy but reported degraded purely from a
+slow monitoring query. The SAME anti-pattern existed in `wallet_services` (already 460ms, near the threshold)
+and `dashboard`.
+
+FIX: converted all those COUNT(*) probes to a lightweight `SELECT 1 FROM <table> LIMIT 1` accessibility probe
+(stops at the first row → fast regardless of table size; still healthy iff the query succeeds). Backend was
+restarted (ts-node, no hot reload) so the in-pod monitor re-ran the checks.
+
+VERIFIED (testing_agent iteration_86, read-only on live prod DB): payment_processing latency 1060ms→310ms,
+status degraded→operational; all 5 services operational; GET /api/status overall_status='operational';
+/system-status banner 'All Systems Operational'. NOTE: GET /api/status/services is Cloudflare edge-cached ~60s;
+POST /api/status/check is CSRF-protected (don't call). DEPLOY NOTE: the production dynopay.com backend will
+fully reflect this once redeployed with the new monitoringService.ts (the dev pod shares the prod DB and its
+monitor already writes the corrected operational checks).
+
+---
+
+
 # FEATURES (2026-06 fork) — Shop SEO meta i18n + Cart empty-state CTA — DONE (tsc + curl + DE screenshot)
 
 Preview: https://2a9c209f-72ac-4dba-8d0c-579d0240c83b.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0. No DB writes.
