@@ -1,6 +1,6 @@
 # REFACTOR STATUS
 
-_Last updated: 2026-06_
+_Last updated: 2026-08-26_
 
 ## Context
 The husky `pre-commit` hook (`backend/scripts/check-file-size.mjs`, R2 budget from
@@ -19,6 +19,40 @@ The husky `pre-commit` hook (`backend/scripts/check-file-size.mjs`, R2 budget fr
   EXIT 0 · both endpoints work read-only on live prod DB (`hostbay@moxx.co`):
   `GET /api/userApi/customers/directory` (total 9, aggregates present),
   `GET /api/userApi/customers/directory/detail?key=anon:api` (payments_total 533).
+
+## DONE — Buyer Payment-Receipt email capture + Confirmation browser alert (2026-08-26)
+Feature request: (1) buyers get an emailed receipt right after payment confirms; (2) a browser
+notification when the payment confirms so they can switch tabs. User choices: email field on the
+currency-select step of BOTH main crypto checkout + creator tip; browser alert on all 3 checkout
+surfaces (store checkout already collects email → field hidden there).
+- **Finding:** the receipt-email backend ALREADY fires on settlement (`sendCustomerPaymentConfirmationEmail`
+  + `sendOrderReceiptEmail`); the gap was that the public checkout never captured a buyer email, so
+  anonymous payers on a shared link got nothing.
+- **New backend:** `POST /api/pay/setCustomerEmail` — `paymentLinkController.setCustomerEmail` (route in
+  `paymentRouter.ts`, paymentRateLimiter + customerAuthMiddleware). Validates email (400 invalid / 404 no
+  session) and merges it into the SAME Redis checkout session `customer-<ref>` that settlement reads
+  (`customerData?.email`). No money-path change — contact info only.
+- **New frontend (shared):** `hooks/usePaymentNotification.ts` (Notifications API wrapper, no VAPID/SW) +
+  `Components/Page/Pay3Components/checkoutExtras.tsx` (`ReceiptEmailField` + `NotifyMeInline`).
+- **Wired:** `CleanCheckoutV2.tsx` (email field + notify opt-in + fire-on-confirm),
+  `InlineTipCheckout.tsx` (same, new `collectReceiptEmail` prop; covers tips AND store checkout),
+  `pages/[handle]/checkout.tsx` (`collectReceiptEmail={false}`). i18n keys added to all 6 landing.json locales.
+- **File-size note:** all edits landed in GRANDFATHERED legacy files (paymentLinkController +11,
+  paymentController +3); the two NEW files are FRONTEND (hooks/, Components/) so the R2 backend budget does
+  not apply. No new backend file → no 500-line blocker introduced.
+- **Verified:** frontend+backend `tsc` EXIT 0 · backend curl e2e (login → QA link → getData →
+  setCustomerEmail 200 → invalid 400 → QA link deleted) · testing_agent iteration_89 = 100% (field renders
+  desktop+mobile, valid save → 200 + confirmation, invalid → error, 0 console errors). CANNOT e2e in preview:
+  live email delivery (`DISABLE_OUTBOUND_EMAIL=true`) + notification firing on `confirmed` (needs real
+  on-chain confirmation) — both code+compile verified, fire in production.
+
+## NOTE — "Save to GitHub didn't commit" (2026-08-26 investigation)
+User suspected a >500-line file blocked the GitHub save. **Confirmed NOT the cause:** the R2 file-size check
+is warn-only for legacy files and exits 0 (only NEW backend `.ts` > 500 lines block). Ran the full commit
+gates on the receipt/notify changes: file-size PASS (exit 0), `tsc` clean, secrets guard OK (17 staged files,
+no live key patterns — the lone `GOCSPX-…` hit in PRD.md is a redacted placeholder). Most likely real cause
+is platform/GitHub-side (push protection GH013 scanning history, expired GitHub auth, or repo perms) — routed
+to support_agent; asked user for the exact Save-to-GitHub error to confirm.
 
 ## NEXT ACTION ITEMS (from finish handoff — not started)
 Priority order; each is independently shippable.
@@ -42,8 +76,9 @@ These do NOT block commits, but each is a candidate to refactor down and remove 
 - `controller/product/productController.ts` — 873 (baseline 784)
 - `controller/product/cartController.ts` — 890 (baseline 832)
 - `controller/payment/settlement/settleTransaction.ts` — 1110 (baseline 1082)
-- plus small +1..+7 drifts across apis/tatumApi.ts, adminController, apiController, companyController,
+- plus small +1..+11 drifts across apis/tatumApi.ts, adminController, apiController, companyController,
   invoiceController, kycController, cryptoCheckout, feeController, chainVerification, paymentController,
+  paymentLinkController (2723 vs baseline 2712, +11 from setCustomerEmail),
   publishableKeyController, referralController.
 - Rule: only files NOT in the baseline block; the above are all grandfathered.
 
