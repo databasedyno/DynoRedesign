@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Empieza gratis hoy",
-        "desc": "Tu primer pago corre por nuestra cuenta — sin tarjeta.",
+        "desc": "Eximimos nuestra comisión de plataforma en tu primer pago — sin tarjeta.",
         "cta": "Empieza gratis"
       }
     }
@@ -108,7 +108,7 @@
       "body": "Una sola billetera para comercios, creadores, recaudadores y desarrolladores. Tiendas, propinas, campañas y una API sencilla: todo liquidado en la moneda que elijas, desde el <b>0,5 %</b>.",
       "claimBtn": "Reservar",
       "chooseHandle": "Elige tu nombre de creador",
-      "rewardBadge": "¿Eres nuevo? Tu <b>primer pago</b> corre por nuestra cuenta.",
+      "rewardBadge": "¿Eres nuevo? Eximimos nuestra <b>comisión de plataforma</b> en tu primer pago.",
       "bullets": "Gratis para empezar · Sin tarjeta · Más de 15 redes",
       "trustLine": "Sin custodia · Vía SOC 2 · RGPD / AML",
       "livePill": "EN VIVO",
@@ -242,7 +242,7 @@
       "headline1": "Cobra en",
       "headline2": "cripto hoy.",
       "body": "Gratis para empezar. Sin tarjeta. En marcha en menos de 10 minutos: trae tu billetera, quédate con tu dinero.",
-      "rewardBadge": "¿Eres nuevo? Tu <b>primer pago</b> corre por nuestra cuenta.",
+      "rewardBadge": "¿Eres nuevo? Eximimos nuestra <b>comisión de plataforma</b> en tu primer pago.",
       "getStarted": "Empieza gratis",
       "readDocs": "Leer la documentación",
       "trustLine": "Sin custodia · 15+ redes · Vía SOC2 · RGPD / AML"
@@ -261,7 +261,9 @@
       "q5": "¿Soportáis fiat, reembolsos o suscripciones?",
       "a5": "Reembolsos, sí: reversiones on-chain con un clic que devuelven los fondos directamente a la dirección del comprador. Hoy no ofrecemos tarjetas fiat ni suscripciones recurrentes automáticas: cada cobro es un pago cripto directo y único a una wallet que tú controlas, con conversión automática opcional a USDC o USDT. ¿Necesitas un pago recurrente? Simplemente vuelve a compartir el mismo enlace.",
       "stillCurious": "¿Aún con dudas?",
-      "askUs": "Pregúntanos lo que quieras →"
+      "askUs": "Pregúntanos lo que quieras →",
+      "q6": "¿Hay un programa de referidos?",
+      "a6": "Sí. Comparte tu enlace de referido y, cuando un comercio se registra, ambos obtienen 50% menos comisiones de Dynopay durante 30 días. El descuento de tu amigo empieza al registrarse; el tuyo se activa cuando recibe su primer pago."
     },
     "learn": {
       "eyebrow": "[ A tu ritmo ]",

@@ -27,7 +27,11 @@ const PUBLIC_PAGES: SitemapEntry[] = [
   { path: "/aml-policy",        changefreq: "yearly",   priority: 0.4 },
 ];
 
-function buildAllEntries(): SitemapEntry[] {
+/** English is the default (bare URL); every other language is served at ?lang=xx. */
+const altHref = (loc: string, lang: string): string =>
+  lang === "en" ? loc : `${loc}?lang=${lang}`;
+
+function staticEntries(): SitemapEntry[] {
   const seoEntries: SitemapEntry[] = getAllSEOPagesIndex().map((p) => ({
     path: p.urlPath,
     // SEO pages regenerate offline every few weeks — "monthly" fits our cadence.
@@ -37,27 +41,31 @@ function buildAllEntries(): SitemapEntry[] {
   return [...PUBLIC_PAGES, ...seoEntries];
 }
 
-function generateSitemap(): string {
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  const allEntries = buildAllEntries();
-
-  const urls = allEntries.map((entry) => {
-    const loc = `${SITE_URL}${entry.path}`;
-
-    // hreflang alternates for each supported language
-    const hreflangs = SUPPORTED_LANGS.map(
-      (lang) => `      <xhtml:link rel="alternate" hreflang="${lang}" href="${loc}" />`
-    ).join("\n");
-
-    return `  <url>
+/**
+ * One <url> per canonical page, with hreflang alternates pointing at the REAL
+ * ?lang= variants (+ x-default) so Google can discover and index every
+ * localized version. English is self-canonical at the bare URL.
+ */
+function renderUrl(entry: SitemapEntry, today: string): string {
+  const loc = `${SITE_URL}${entry.path}`;
+  const lastmod = entry.lastmod || today;
+  const hreflangs = SUPPORTED_LANGS.map(
+    (lang) =>
+      `    <xhtml:link rel="alternate" hreflang="${lang}" href="${altHref(loc, lang)}" />`
+  ).join("\n");
+  return `  <url>
     <loc>${loc}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
 ${hreflangs}
-      <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />
   </url>`;
-  }).join("\n");
+}
+
+function generateSitemap(entries: SitemapEntry[]): string {
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const urls = entries.map((e) => renderUrl(e, today)).join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -66,8 +74,54 @@ ${urls}
 </urlset>`;
 }
 
+/**
+ * Pull every indexable storefront + live product from the backend (read-only)
+ * and turn them into /{handle}/shop and /{handle}/p/{slug} sitemap entries.
+ * Fails soft (returns []) so the sitemap always renders the static pages even
+ * if the catalog feature is off or the backend is briefly unavailable.
+ */
+async function fetchStorefrontEntries(): Promise<SitemapEntry[]> {
+  const base = (
+    process.env.INTERNAL_API_URL ||
+    process.env.INTERNAL_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    ""
+  ).replace(/\/+$/, "");
+  if (!base) return [];
+  try {
+    const r = await fetch(`${base}/api/shop-sitemap`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!r.ok) return [];
+    const json = await r.json();
+    const data = json?.data || {};
+    const shops: Array<{ handle: string }> = Array.isArray(data.shops) ? data.shops : [];
+    const products: Array<{ handle: string; slug: string; lastmod?: string | null }> =
+      Array.isArray(data.products) ? data.products : [];
+
+    const shopEntries: SitemapEntry[] = shops
+      .filter((s) => s && s.handle)
+      .map((s) => ({ path: `/${s.handle}/shop`, changefreq: "weekly", priority: 0.7 }));
+
+    const productEntries: SitemapEntry[] = products
+      .filter((p) => p && p.handle && p.slug)
+      .map((p) => ({
+        path: `/${p.handle}/p/${p.slug}`,
+        changefreq: "weekly",
+        priority: 0.6,
+        lastmod: p.lastmod || undefined,
+      }));
+
+    return [...shopEntries, ...productEntries];
+  } catch {
+    return [];
+  }
+}
+
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const sitemap = generateSitemap();
+  const storefrontEntries = await fetchStorefrontEntries();
+  const sitemap = generateSitemap([...staticEntries(), ...storefrontEntries]);
 
   res.setHeader("Content-Type", "text/xml; charset=utf-8");
   res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");

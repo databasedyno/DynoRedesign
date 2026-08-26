@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Comece grátis hoje",
-        "desc": "O seu primeiro pagamento é por nossa conta — sem cartão.",
+        "desc": "Isentamos a nossa taxa de plataforma no seu primeiro pagamento — sem cartão.",
         "cta": "Comece grátis"
       }
     }
@@ -108,7 +108,7 @@
       "body": "Uma carteira para lojistas, criadores, arrecadadores e desenvolvedores. Lojas, gorjetas, campanhas e uma API simples — tudo liquidado na moeda que você escolher, a partir de <b>0,5%</b>.",
       "claimBtn": "Reservar",
       "chooseHandle": "Escolha o seu nome de criador",
-      "rewardBadge": "É novo por aqui? Seu <b>primeiro pagamento</b> é por nossa conta.",
+      "rewardBadge": "É novo por aqui? Isentamos a nossa <b>taxa de plataforma</b> no seu primeiro pagamento.",
       "bullets": "Grátis para começar · Sem cartão · Mais de 15 redes",
       "trustLine": "Sem custódia · Rota SOC 2 · RGPD / AML",
       "livePill": "AO VIVO",
@@ -242,7 +242,7 @@
       "headline1": "Receba em",
       "headline2": "cripto hoje.",
       "body": "Grátis para começar. Sem cartão. No ar em menos de 10 minutos — traga sua carteira, fique com seu dinheiro.",
-      "rewardBadge": "É novo por aqui? Seu <b>primeiro pagamento</b> é por nossa conta.",
+      "rewardBadge": "É novo por aqui? Isentamos a nossa <b>taxa de plataforma</b> no seu primeiro pagamento.",
       "getStarted": "Comece grátis",
       "readDocs": "Ler a documentação",
       "trustLine": "Sem custódia · 15+ redes · Rota SOC2 · RGPD / AML"
@@ -261,7 +261,9 @@
       "q5": "Suportam fiat, reembolsos ou subscrições?",
       "a5": "Reembolsos, sim — reversões on-chain com um clique que devolvem os fundos diretamente para o endereço do comprador. Não oferecemos cartões fiat nem subscrições recorrentes automáticas hoje: cada cobrança é um pagamento cripto direto e único para uma carteira que você controla, com conversão automática opcional para USDC ou USDT. Precisa de um pagamento recorrente? Basta partilhar o mesmo link novamente.",
       "stillCurious": "Ainda curioso?",
-      "askUs": "Pergunte-nos qualquer coisa →"
+      "askUs": "Pergunte-nos qualquer coisa →",
+      "q6": "Existe um programa de indicação?",
+      "a6": "Sim. Compartilhe seu link de indicação e, quando um comerciante se cadastra, vocês dois ganham 50% menos taxas da Dynopay por 30 dias. O desconto do seu amigo começa ao se cadastrar; o seu é liberado quando ele recebe o primeiro pagamento."
     },
     "learn": {
       "eyebrow": "[ Ao seu ritmo ]",

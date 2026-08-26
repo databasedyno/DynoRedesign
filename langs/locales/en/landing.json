@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Start free today",
-        "desc": "Your first payment is on us — no card required.",
+        "desc": "We waive our platform fee on your first payment — no card required.",
         "cta": "Start free"
       }
     }
@@ -108,7 +108,7 @@
       "body": "One wallet for merchants, creators, fundraisers and developers. Storefronts, tips, campaigns and a clean API — all settled to the coin you choose, from <b>0.5%</b>.",
       "claimBtn": "Claim",
       "chooseHandle": "Choose your creator handle",
-      "rewardBadge": "New here? Your <b>first payment</b> is on us.",
+      "rewardBadge": "New here? We waive our <b>platform fee</b> on your first payment.",
       "bullets": "Free to start · No card · 15+ chains",
       "trustLine": "Non-custodial · SOC 2 track · GDPR / AML",
       "livePill": "LIVE",
@@ -242,7 +242,7 @@
       "headline1": "Get paid in",
       "headline2": "crypto today.",
       "body": "Free to start. No card. Live in under 10 minutes — bring your wallet, keep your money.",
-      "rewardBadge": "New here? Your <b>first payment</b> is on us.",
+      "rewardBadge": "New here? We waive our <b>platform fee</b> on your first payment.",
       "getStarted": "Start free",
       "readDocs": "Read the docs",
       "trustLine": "Non-custodial · 15+ chains · SOC2 track · GDPR / AML"
@@ -261,7 +261,9 @@
       "q5": "Do you support fiat, refunds, or subscriptions?",
       "a5": "Refunds, yes — one-click, on-chain reversals that send funds straight back to the buyer's address. We don't do fiat cards or auto-recurring subscriptions today: every charge is a direct, one-time crypto payment settled to a wallet you control, with optional auto-convert to USDC or USDT. Need a repeat payment? Just reshare the same link.",
       "stillCurious": "Still curious?",
-      "askUs": "Ask us anything →"
+      "askUs": "Ask us anything →",
+      "q6": "Is there a referral program?",
+      "a6": "Yes. Share your referral link and when a merchant signs up you both get 50% off Dynopay fees for 30 days. Your friend's discount starts the moment they join; yours unlocks once they take their first payment."
     },
     "learn": {
       "eyebrow": "[ Get up to speed ]",

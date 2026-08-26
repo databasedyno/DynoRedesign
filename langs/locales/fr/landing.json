@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Commencez gratuitement",
-        "desc": "Votre premier paiement est offert — sans carte.",
+        "desc": "Nous offrons nos frais de plateforme sur votre premier paiement — sans carte.",
         "cta": "Commencer gratuitement"
       }
     }
@@ -108,7 +108,7 @@
       "body": "Un seul portefeuille pour marchands, créateurs, collecteurs de fonds et développeurs. Boutiques, pourboires, campagnes et une API claire — le tout réglé dans la devise de votre choix, à partir de <b>0,5 %</b>.",
       "claimBtn": "Réserver",
       "chooseHandle": "Choisissez votre pseudo de créateur",
-      "rewardBadge": "Nouveau ici ? Votre <b>premier paiement</b> est offert.",
+      "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
       "bullets": "Gratuit au départ · Sans carte · Plus de 15 chaînes",
       "trustLine": "Non-custodial · SOC 2 en cours · RGPD / AML",
       "livePill": "EN DIRECT",
@@ -242,7 +242,7 @@
       "headline1": "Encaissez en",
       "headline2": "crypto aujourd'hui.",
       "body": "Gratuit au départ. Sans carte. En ligne en moins de 10 minutes — apportez votre portefeuille, gardez votre argent.",
-      "rewardBadge": "Nouveau ici ? Votre <b>premier paiement</b> est offert.",
+      "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
       "getStarted": "Commencer gratuitement",
       "readDocs": "Lire la doc",
       "trustLine": "Non-custodial · 15+ chaînes · SOC2 en cours · RGPD / AML"
@@ -261,7 +261,9 @@
       "q5": "Vous gérez fiat, remboursements et abonnements ?",
       "a5": "Les remboursements, oui : des annulations on-chain en un clic qui renvoient les fonds directement à l'adresse de l'acheteur. Nous ne proposons pas de cartes fiat ni d'abonnements récurrents automatiques aujourd'hui : chaque paiement est un règlement crypto direct et unique vers un wallet que vous contrôlez, avec conversion automatique optionnelle en USDC ou USDT. Besoin d'un paiement récurrent ? Repartagez simplement le même lien.",
       "stillCurious": "Toujours curieux ?",
-      "askUs": "Posez-nous n'importe quelle question →"
+      "askUs": "Posez-nous n'importe quelle question →",
+      "q6": "Existe-t-il un programme de parrainage ?",
+      "a6": "Oui. Partagez votre lien de parrainage : lorsqu'un marchand s'inscrit, vous obtenez tous les deux 50% de frais Dynopay en moins pendant 30 jours. La réduction de votre ami commence dès son inscription ; la vôtre est débloquée dès son premier paiement."
     },
     "learn": {
       "eyebrow": "[ À votre rythme ]",

@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import Referral from '../models/referralModels/referralModel';
 import ReferralReward from '../models/referralModels/referralRewardModel';
 import User from '../models/userModels/userModel';
+import { redeemUserReferralCode as svcRedeemUserReferral, redeemRefereeCode as svcRedeemReferee } from '../services/referralService';
 import { Op } from 'sequelize';
 import { IUserType } from '../utils/types';
 
@@ -181,70 +182,56 @@ export const applyReferralCode = async (req: Request, res: Response) => {
       });
     }
 
-    // Find the referrer
-    const referrer = await User.findOne({
-      where: { referral_code },
-    });
+    const code = String(referral_code).trim();
+    const newUserId = Number(user_id);
 
-    if (!referrer) {
-      return res.status(404).json({
-        message: "Invalid referral code",
-      });
-    }
-
-    // Check if user is trying to refer themselves
-    if ((referrer as unknown as Record<string, unknown>).user_id === user_id) {
-      return res.status(400).json({
-        message: "You cannot refer yourself",
-      });
-    }
-
-    // Check if referral already exists
-    const existingReferral = await Referral.findOne({
-      where: {
-        referrer_user_id: (referrer as unknown as Record<string, unknown>).user_id,
-        referred_user_id: user_id,
-      },
-    });
-
-    if (existingReferral) {
-      return res.status(400).json({
-        message: "Referral already applied",
-      });
-    }
-
-    // Create referral record
-    const referral = await Referral.create({
-      referrer_user_id: (referrer as unknown as Record<string, unknown>).user_id,
-      referred_user_id: user_id,
-      referral_code,
-      status: 'pending',
-      activation_requirement: 'first_transaction_100',
-      bonus_amount: 10.00,
-      bonus_currency: 'USD',
-      referee_discount_percent: 50.00,
-      referee_discount_duration_days: 30,
-      referred_at: new Date(),
-      expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
-    } as Record<string, unknown>);
-
-    // Update referred_by_code in user table
-    await User.update(
-      { referred_by_code: referral_code },
-      { where: { user_id } }
-    );
-
-    return res.status(200).json({
-      message: "Referral code applied successfully",
-      data: {
-        referral_id: referral.referral_id,
-        status: referral.status,
-        bonus_info: {
-          referrer_bonus: `$${referral.bonus_amount} ${referral.bonus_currency}`,
-          referee_discount: `${referral.referee_discount_percent}% off fees for ${referral.referee_discount_duration_days} days`,
+    // ── ONE clear flow ────────────────────────────────────────────────────
+    // A single code field/endpoint now resolves EITHER code type, always
+    // through the unified referralService (single source of truth):
+    //   1) USER REFERRAL CODE (organic, tbl_user.referral_code) — the primary
+    //      program: welcomes the invitee with a 50%/30d fee discount NOW, and
+    //      rewards the referrer once the invitee completes a qualifying payment.
+    //   2) LEGACY REFEREE CODE (email invite, tbl_referee_code) — welcomes the
+    //      invitee and rewards the referrer immediately.
+    const referrer = await User.findOne({ where: { referral_code: code } });
+    if (referrer) {
+      const r = await svcRedeemUserReferral({ referralCode: code, newUserId });
+      if (!r.success) {
+        return res.status(400).json({ message: r.message });
+      }
+      return res.status(200).json({
+        message: "Referral code applied successfully",
+        data: {
+          code_type: "referral",
+          status: "pending",
+          bonus_info: {
+            referrer_bonus: "50% off fees for 30 days (unlocked after the invitee's first $100 payment)",
+            referee_discount: `${r.discountPercent}% off fees for ${r.discountDays} days`,
+          },
         },
-      },
+      });
+    }
+
+    // Fall back to a legacy referee code so ONE field accepts either type.
+    const referee = await svcRedeemReferee({
+      code,
+      userEmail: req.body.email || "",
+      userId: newUserId,
     });
+    if (referee.success) {
+      return res.status(200).json({
+        message: "Referral code applied successfully",
+        data: {
+          code_type: "referee",
+          status: "active",
+          bonus_info: {
+            referee_discount: `${referee.discountPercent}% off fees for ${referee.discountDays} days`,
+          },
+        },
+      });
+    }
+
+    return res.status(404).json({ message: "Invalid referral code" });
   } catch (error) {
     apiLogger.error("Error in applyReferralCode:", error);
     return res.status(500).json({
@@ -255,41 +242,61 @@ export const applyReferralCode = async (req: Request, res: Response) => {
 };
 
 /**
- * Validate referral code
+ * Validate referral code — accepts EITHER a user referral code OR a legacy
+ * referee code, so the UI only ever needs a single "referral code" field.
  * POST /api/referral/validate
  */
 export const validateReferralCode = async (req: Request, res: Response) => {
   try {
-    const { referral_code } = req.body;
+    const raw = req.body.referral_code || req.body.code;
 
-    if (!referral_code) {
+    if (!raw) {
       return res.status(400).json({
         message: "Referral code is required",
-      });
-    }
-
-    const referrer = await User.findOne({
-      where: { referral_code },
-      attributes: ['user_id', 'name', 'email'],
-    });
-
-    if (!referrer) {
-      return res.status(404).json({
-        message: "Invalid referral code",
         valid: false,
       });
     }
 
-    return res.status(200).json({
-      message: "Referral code is valid",
-      valid: true,
-      data: {
-        referrer_name: (referrer as unknown as Record<string, unknown>).name,
-        bonus_info: {
-          referrer_bonus: "$10 USD",
-          referee_discount: "50% off fees for 30 days",
+    const code = String(raw).trim();
+
+    // 1) User referral code (organic)
+    const referrer = await User.findOne({
+      where: { referral_code: code },
+      attributes: ['user_id', 'name', 'email'],
+    });
+    if (referrer) {
+      return res.status(200).json({
+        message: "Referral code is valid",
+        valid: true,
+        data: {
+          code_type: "referral",
+          referrer_name: (referrer as unknown as Record<string, unknown>).name,
+          bonus_info: {
+            referrer_bonus: "50% off fees for 30 days",
+            referee_discount: "50% off fees for 30 days",
+          },
         },
-      },
+      });
+    }
+
+    // 2) Legacy referee code (email invite)
+    const RefereeCode = (await import('../models/referralModels/refereeCodeModel')).default;
+    const rc = await RefereeCode.findOne({ where: { code: code.toUpperCase() } });
+    if (rc && new Date() <= rc.expires_at && rc.status !== 'used') {
+      return res.status(200).json({
+        message: "Referral code is valid",
+        valid: true,
+        data: {
+          code_type: "referee",
+          referee_discount: `${rc.discount_percent}% off fees for ${rc.discount_duration_days} days`,
+          expires_at: rc.expires_at,
+        },
+      });
+    }
+
+    return res.status(404).json({
+      message: "Invalid referral code",
+      valid: false,
     });
   } catch (error) {
     apiLogger.error("Error in validateReferralCode:", error);

@@ -30,6 +30,7 @@ import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
+import { redeemUserReferralCode } from "../../services/referralService";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 
 export const phoneTypeCheck = async (req: express.Request, res: express.Response) => {
@@ -268,28 +269,18 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     // Create wallets
     await createUserWallets(createdUser.dataValues.user_id);
 
-    // Handle referral
+    // Referral: unified service — creates the referral record AND grants the
+    // invitee their 50%/30d welcome discount (single source of truth; replaces
+    // the old inline block whose broken require path silently no-op'd).
     if (referral_code) {
       try {
-        const referrer = await userModel.findOne({ where: { referral_code } });
-        if (referrer) {
-          const Referral = require('../models/referralModels/referralModel').default;
-          await Referral.create({
-            referrer_user_id: referrer.dataValues.user_id,
-            referred_user_id: createdUser.dataValues.user_id,
-            referral_code,
-            status: 'pending',
-            activation_requirement: 'first_transaction_100',
-            bonus_amount: 10.00,
-            bonus_currency: 'USD',
-            referee_discount_percent: 50.00,
-            referee_discount_duration_days: 30,
-            referred_at: new Date(),
-            expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-          });
-        }
+        const r = await redeemUserReferralCode({
+          referralCode: referral_code,
+          newUserId: createdUser.dataValues.user_id,
+        });
+        if (!r.success) userLogger.info(`[RegisterPhone] referral not applied: ${r.message}`);
       } catch (refError) {
-        userLogger.error("Error creating referral record:", refError);
+        userLogger.error("Error applying referral:", refError);
       }
     }
     

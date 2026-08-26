@@ -13,7 +13,8 @@
  * grid is scoped to that company_id. When OFF it stays user/account-scoped.
  */
 import express from "express";
-import { Op } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
+import sequelize from "../../utils/dbInstance";
 import { productVariantModel } from "../../models";
 import productModel from "../../models/userModels/productModel";
 import {
@@ -184,5 +185,90 @@ export const getShopProductBySlug = async (
   } catch (e: any) {
     apiLogger.error("[shopController] getShopProductBySlug:", e?.message || e);
     return errorResponseHelper(res, 500, e?.message || "Get product failed");
+  }
+};
+
+/**
+ * getSitemapEntries — public, READ-ONLY feed of every indexable storefront +
+ * live product, consumed by pages/sitemap.xml.tsx to emit localized (?lang=)
+ * URLs with hreflang. Visibility mirrors the public shop endpoints exactly:
+ *   - shop shown unless store_enabled = false (NULL/true both visible)
+ *   - product must be status='live' AND not soft-deleted
+ * Handle + store flag live on tbl_company under STOREFRONT_PER_COMPANY, else
+ * on tbl_user (legacy). Results are LOWER()ed + capped well under the 50k
+ * sitemap URL ceiling. No auth, no writes.
+ */
+export const getSitemapEntries = async (
+  _req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const SHOP_LIMIT = 20000;
+    const PRODUCT_LIMIT = 40000;
+
+    let shops: Array<{ handle: string }>;
+    let products: Array<{ handle: string; slug: string; updated_at: string | null }>;
+
+    if (STOREFRONT_PER_COMPANY) {
+      shops = (await sequelize.query(
+        `SELECT LOWER(handle) AS handle
+           FROM tbl_company
+          WHERE handle IS NOT NULL AND handle <> ''
+            AND COALESCE(store_enabled, true) = true
+          GROUP BY LOWER(handle)
+          ORDER BY LOWER(handle)
+          LIMIT :lim`,
+        { replacements: { lim: SHOP_LIMIT }, type: QueryTypes.SELECT }
+      )) as Array<{ handle: string }>;
+
+      products = (await sequelize.query(
+        `SELECT LOWER(c.handle) AS handle, p.slug AS slug, p."updatedAt" AS updated_at
+           FROM tbl_product p
+           JOIN tbl_company c ON c.company_id = p.company_id
+          WHERE p.status = 'live' AND p.deleted_at IS NULL
+            AND c.handle IS NOT NULL AND c.handle <> ''
+            AND COALESCE(c.store_enabled, true) = true
+          ORDER BY LOWER(c.handle), p.slug
+          LIMIT :lim`,
+        { replacements: { lim: PRODUCT_LIMIT }, type: QueryTypes.SELECT }
+      )) as Array<{ handle: string; slug: string; updated_at: string | null }>;
+    } else {
+      shops = (await sequelize.query(
+        `SELECT LOWER(handle) AS handle
+           FROM tbl_user
+          WHERE handle IS NOT NULL AND handle <> ''
+            AND COALESCE(store_enabled, true) = true
+          GROUP BY LOWER(handle)
+          ORDER BY LOWER(handle)
+          LIMIT :lim`,
+        { replacements: { lim: SHOP_LIMIT }, type: QueryTypes.SELECT }
+      )) as Array<{ handle: string }>;
+
+      products = (await sequelize.query(
+        `SELECT LOWER(u.handle) AS handle, p.slug AS slug, p."updatedAt" AS updated_at
+           FROM tbl_product p
+           JOIN tbl_user u ON u.user_id = p.merchant_user_id
+          WHERE p.status = 'live' AND p.deleted_at IS NULL
+            AND u.handle IS NOT NULL AND u.handle <> ''
+            AND COALESCE(u.store_enabled, true) = true
+          ORDER BY LOWER(u.handle), p.slug
+          LIMIT :lim`,
+        { replacements: { lim: PRODUCT_LIMIT }, type: QueryTypes.SELECT }
+      )) as Array<{ handle: string; slug: string; updated_at: string | null }>;
+    }
+
+    // Sitemaps don't need to be real-time — cache 15 min at the edge.
+    res.setHeader("Cache-Control", "public, s-maxage=900, stale-while-revalidate=3600");
+    return successResponseHelper(res, 200, "Sitemap entries", {
+      shops: shops.map((s) => ({ handle: s.handle })),
+      products: products.map((p) => ({
+        handle: p.handle,
+        slug: p.slug,
+        lastmod: p.updated_at ? new Date(p.updated_at).toISOString().split("T")[0] : null,
+      })),
+    });
+  } catch (e: any) {
+    apiLogger.error("[shopController] getSitemapEntries:", e?.message || e);
+    return errorResponseHelper(res, 500, e?.message || "Sitemap entries failed");
   }
 };

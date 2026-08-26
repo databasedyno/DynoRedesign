@@ -1,4 +1,140 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-26 (pod a1e9a54e) : UNIFIED REFERRAL PROGRAM
+#   "Give 50% off, get 50% off" — Option A + landing/in-app clarity
+# ============================================================================
+
+## What was requested (fork continuation)
+User decisions on the dual referral/invitation system:
+  1b) Referrer's 50%/30d reward unlocks ONLY after the invited merchant's first
+      real ($100+) payment (previously the reward was DEAD CODE — never fired).
+  2b) The "become a merchant" customer invite is sent ONLY AFTER the customer
+      actually completes a payment (was previously embedded in the payment-link
+      request email at link creation). Unify to 50%/30d for BOTH parties.
+  + Make the referral benefit CLEAR on the landing page and in-app to drive onboarding.
+
+## Backend changes (compile-clean; cron is prod-only, dormant in SAFE MODE)
+- services/referralService.ts:
+    * createRefereeCode: discount_duration_days 90 -> 30 (unify to 50%/30d); return
+      now includes unsubscribeToken.
+    * redeemRefereeCode: REMOVED the immediate 10%/30d referrer reward. Now records a
+      PENDING tbl_referral row (activation_requirement 'first_transaction_100') so the
+      referrer reward is deferred to the invitee's first payment — same path as the
+      organic user-referral program. Referee still gets 50%/30d immediately.
+- utils/crons/referralRewardMonitor.ts (NEW) — setupReferralRewardCron() every 15 min:
+    A) processPendingReferrerRewards: finds pending referrals whose referred merchant
+       has a successful customer_transaction >= $100 since referred_at, then calls
+       referralService.processReferrerReward (idempotent; only acts on pending).
+    B) sendPostPaymentInvites: for recent (30 min) successful payments by customers with
+       NO Dynopay account, createRefereeCode + sendRefereeInviteEmail (post-payment invite).
+- server.ts: import + setupReferralRewardCron() registered inside registerLeaderCronJobs()
+    (runs ONLY when WORKER_ROLE=primary + ENABLE_BACKGROUND_JOBS=true — i.e. prod, NOT preview).
+- controller/payment/paymentLinkController.ts: REMOVED the "🎁 Special Offer" referee-code
+    block from the payment-request email (invite no longer sent at link creation).
+- services/email/linkCampaignEmails.ts: NEW sendRefereeInviteEmail (one-time post-payment
+    invite; honours DISABLE_OUTBOUND_EMAIL); exported via emailService barrel.
+
+## Frontend changes (verified via screenshots)
+- referrals.json (6 locales): referrerReward 10%->50%; refereeRewardDesc 90->30 days;
+    referrerRewardDesc "unlocks after your friend's first payment"; step3Desc + benefit lines
+    + pageDescription "Give 50% off, get 50% off".
+- dashboardLayout.json (6 locales): growReferralBody ("$50 fee-free credit"->unified),
+    growTrialCompleteBody (same), attnReferralTitle ("earn commission"->"both save 50%"),
+    attnReferralBody ("lifetime revenue share"->unified 50%/30d).
+- landing.json (6 locales) + Components/Page/Home/v3/FAQCompact.tsx: NEW FAQ q6/a6
+    "Is there a referral program?" explaining the 50%/30d benefit + the first-payment unlock.
+- auth.json (6 locales) + pages/auth/register.tsx: green benefit hint under the referral-code
+    input (data-testid referral-benefit-hint) "Get 50% off Dynopay fees for 30 days."
+
+## Verification
+- backend `yarn build` (tsc) EXIT 0; frontend `tsc --noEmit` EXIT 0.
+- /health healthy (db+redis connected, background_jobs.eligible=false = SAFE MODE) after restart.
+- READ-ONLY: POST /api/referral/validate (Bearer, code DYNO-9XVPUY) -> valid, code_type referral,
+    bonus_info referrer_bonus="50% off fees for 30 days", referee_discount="50% off fees for 30 days".
+- Screenshots: /referrals shows "50% Off Fees" for BOTH parties + "unlocks after your friend's
+    first payment"; landing FAQ shows the referral Q&A; /auth/register shows the green benefit hint.
+- Stale-claim grep across all 6 locales -> ZERO ("lifetime revenue"/"$50 credit"/"10% Off"/"90 days" gone).
+- NOT e2e-tested (impossible in SAFE MODE): the payment-triggered cron (referrer reward + post-payment
+    invite) — background jobs OFF + outbound email OFF in preview. Code-verified + compiles + registered;
+    will run on the prod cron leader. No writes made to the LIVE prod DB this session.
+
+# ============================================================================
+
+
+
+# ============================================================================
+# CURRENT SESSION — 2026-08-26 (pod a1e9a54e) : 3 ENHANCEMENTS
+#   #1 Localized sitemap  #2 Live status incidents + per-service budgets
+#   #3 Referral clarity (unify referral + referee code into one flow)
+# ============================================================================
+
+## What was requested (user picked these 3)
+1) Localized Sitemap: add every shop + product page (+ ?lang= variants w/ hreflang) to sitemap.xml
+2) Live Status Incidents: auto-open + auto-resolve public incident notes on degrade/recovery,
+   with per-service latency budgets instead of a blanket 1000ms rule
+3) Referral Clarity: merge the referral code + referee code into ONE flow that both rewards the
+   referrer and welcomes the invited user
+
+### backend
+  - task: "#1 Localized sitemap feed (/api/shop-sitemap) + sitemap.xml with ?lang= hreflang"
+    implemented: true
+    working: true
+    file: "backend/controller/product/shopController.ts (getSitemapEntries), backend/routes/productRouter.ts, pages/sitemap.xml.tsx"
+    priority: "high"
+    needs_retesting: false
+    stuck_count: 0
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "New READ-ONLY GET /api/shop-sitemap returns all indexable shops (store_enabled != false) + live products (status='live', not deleted), mirroring shopController visibility. sitemap.xml now lists /{handle}/shop + /{handle}/p/{slug} plus static/SEO pages, each with hreflang alternates (en=bare, es/pt/fr/de/nl=?lang=xx, x-default). Verified via curl: 6 shops + 6 products emitted; sitemap.xml 200 text/xml."
+      - working: true
+        agent: "testing"
+        comment: "✅ FEATURE #1 VERIFIED (2026-08-26 14:15 UTC) — Localized sitemap is WORKING CORRECTLY. **TEST 1 (GET /api/shop-sitemap)**: ✅ HTTP 200 JSON returned. data.shops[] contains 6 shops including 'devhub' (shop_handles: ['balouch', 'csvcleanroom', 'devhub', 'ratanakses', 'sarv', 'tree']). data.products[] contains 6 products, each with handle+slug (sample: {handle:'csvcleanroom', slug:'csv-cleanroom-local-csv-cleaner-and-deduplicator', lastmod:'2026-08-14'}). **TEST 2 (GET /sitemap.xml)**: ✅ HTTP 200 text/xml (26155 bytes, 29 URL entries). Contains '/devhub/shop': ✓. Contains at least one '/p/' product URL: ✓. Contains '?lang=de' hreflang alternates: ✓. Contains 'hreflang=\"x-default\"': ✓. All required localized sitemap elements are present. The feature is PRODUCTION-READY."
+  - task: "#2 Per-service latency budgets + auto-derived status incidents"
+    implemented: true
+    working: true
+    file: "backend/services/monitoringService.ts (LATENCY_BUDGETS, getDerivedIncidents), backend/controller/statusController.ts (getIncidents/getIncident merge, budgets in status)"
+    priority: "high"
+    needs_retesting: false
+    stuck_count: 0
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Replaced blanket 1000ms degraded rule with per-service budgets (api_gateway 600, payment 800, wallet 900, webhook 600, dashboard 700; outage thresholds too), sized above real Railway-infra baselines so healthy services aren't mislabeled. New getDerivedIncidents() computes incidents from real tbl_service_health history (READ-ONLY, no new table): a bad run auto-opens an incident; recovery auto-adds a 'X recovered' resolved entry. /api/status/incidents now merges derived + manual. Verified: budgets in /api/status/services; a real 'Wallet Services recovered' derived incident returned."
+      - working: true
+        agent: "testing"
+        comment: "✅ FEATURE #2 VERIFIED (2026-08-26 14:15 UTC) — Status per-service budgets + auto-incidents are WORKING CORRECTLY. **TEST 3 (GET /api/status/services)**: ✅ HTTP 200. 5 services returned. Per-service budgets confirmed (example: unknown: degraded=700ms, outage=4000ms). Budgets are NOT all flat 1000ms (variation confirmed). Each service has degraded_ms + outage_ms fields. **TEST 4 (GET /api/status/incidents)**: ✅ HTTP 200. 3 incidents returned. All incidents have required fields (title, description, status, severity, date, started_at, resolved_at, duration_minutes, services_affected, auto, formatted_date). 1 auto-derived incident found with auto=true (title: 'Wallet Services recovered', status: 'resolved'). The auto-incident generation and per-service budget features are PRODUCTION-READY."
+  - task: "#3 Referral clarity — unify referral + referee code through one service"
+    implemented: true
+    working: true
+    file: "backend/controller/referralController.ts (applyReferralCode/validateReferralCode accept both code types), backend/controller/user/registrationEmail.ts + registrationPhone.ts (signup routes through referralService.redeemUserReferralCode)"
+    priority: "high"
+    needs_retesting: false
+    stuck_count: 0
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ROOT ISSUE: two parallel systems (tbl_user.referral_code vs tbl_referee_code); the signup inline blocks used a BROKEN require('../models/...') path (resolves to non-existent backend/controller/models) so referrals were silently NEVER created AND the advertised 50%/30d invitee discount was never granted. FIX: signup (email immediate + email OTP + phone) now routes through the unified referralService.redeemUserReferralCode (creates referral row + grants invitee 50%/30d discount + increments referrer count). referralController.validateReferralCode + applyReferralCode now accept EITHER a user referral code OR a legacy referee code (one field). Verified READ-ONLY via Bearer: POST /api/referral/validate with hostbay's real code DYNO-9XVPUY -> valid, code_type=referral, referrer_name Hostbay; invalid code -> not valid. NOTE: apply + signup NOT runtime-tested (would create real users/referrals + grant discounts on the LIVE prod DB) — code-verified only."
+      - working: true
+        agent: "testing"
+        comment: "✅ FEATURE #3 VERIFIED (2026-08-26 14:15 UTC) — Referral clarity (unified validate) is WORKING CORRECTLY. **TEST 5 (POST /api/user/login)**: ✅ HTTP 200, accessToken obtained (length: 2411). **TEST 6 (GET /api/referral/my-code with Bearer)**: ✅ HTTP 200, referral_code obtained: 'DYNO-9XVPUY'. **TEST 7 (POST /api/referral/validate with valid code DYNO-9XVPUY)**: ✅ HTTP 200, valid=true, code_type='referral', referrer_name='Hostbay', bonus_info present (referrer_bonus: '50% off fees for 30 days', referee_discount: '50% off fees for 30 days'). The unified validate endpoint correctly accepts and validates user referral codes. **TEST 8 (POST /api/referral/validate with invalid code 'NOPE-INVALID-XYZ')**: ✅ HTTP 404, invalid code correctly rejected. The referral clarity feature is PRODUCTION-READY. NOTE: As per safety rules, did NOT test /api/referral/apply with valid code (would write to prod DB) and did NOT test signup (would create real users)."
+
+### What to verify (BACKEND) — deep_testing_backend_v2  [STRICTLY READ-ONLY, prod DB, SAFE MODE]
+CSRF NOTE: /api/referral/validate + /apply are CSRF-protected for cookie auth; a Bearer JWT (login) BYPASSES CSRF. Use a Bearer token for those POSTs. Do NOT call /apply with a VALID code (it writes/grants a discount on prod). Do NOT sign up.
+1. GET /api/shop-sitemap -> 200 JSON with shops[] (has "devhub") + products[] (each {handle, slug}).
+2. GET /sitemap.xml (frontend :3000 or preview) -> 200 text/xml; contains /devhub/shop AND at least one /{handle}/p/{slug}; each URL has <xhtml:link hreflang="de" ... ?lang=de> style alternates + x-default.
+3. GET /api/status/services -> 200; each service has degraded_ms + outage_ms (NOT a flat 1000 for all).
+4. GET /api/status/incidents -> 200; incidents[] present (may include auto-derived ones with auto=true and titles like "... recovered", merged with 2 manual ones). Each item has title, description, status, formatted_date, services_affected.
+5. #3 read-only: login hostbay@moxx.co / Katiekendra123@ -> accessToken. GET /api/referral/my-code (Bearer) -> referral_code. POST /api/referral/validate (Bearer) {referral_code: <that code>} -> valid:true, code_type "referral". POST /api/referral/validate (Bearer) {referral_code:"NOPE-INVALID"} -> valid:false / 404. (Do NOT test /apply with a valid code.)
+6. /health -> healthy (SAFE MODE, background_jobs.eligible=false).
+
+### agent_communication
+  - agent: "main"
+    message: "Node/TS backend behind Python uvicorn proxy on :8001. Prod Railway DB, SAFE MODE. STRICTLY READ-ONLY. For referral POSTs, login first and send Authorization: Bearer <accessToken> (bypasses CSRF). Never call /api/referral/apply with a valid code and never sign up — those write to prod. Report status + a note per check."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-26 14:15 UTC) — ALL 9 TESTS PASSED (100% pass rate). All 3 new read-only features are VERIFIED and PRODUCTION-READY. **FEATURE #1 (Localized sitemap)**: ✅ GET /api/shop-sitemap returns 6 shops (including 'devhub') + 6 products with handle+slug. ✅ GET /sitemap.xml returns 200 text/xml (29 URL entries) with /devhub/shop, product URLs (/p/), ?lang=de hreflang alternates, and x-default. **FEATURE #2 (Status per-service budgets + auto-incidents)**: ✅ GET /api/status/services returns 5 services with per-service degraded_ms + outage_ms (NOT all 1000ms). ✅ GET /api/status/incidents returns 3 incidents including 1 auto-derived incident (auto=true, title: 'Wallet Services recovered'). **FEATURE #3 (Referral clarity)**: ✅ Login successful, referral code 'DYNO-9XVPUY' obtained. ✅ POST /api/referral/validate with valid code returns valid=true, code_type='referral', referrer_name='Hostbay', bonus_info present. ✅ POST /api/referral/validate with invalid code returns 404 (correctly rejected). **HEALTH CHECK**: ✅ GET /health returns status=healthy, database=connected, redis=connected, background_jobs.eligible=false (SAFE MODE confirmed). **SAFETY COMPLIANCE**: Did NOT call /api/referral/apply with valid code (would write to prod). Did NOT sign up any users (would write to prod). All tests were STRICTLY READ-ONLY. Main agent can summarize and finish."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-26 (pod a1e9a54e) : env re-setup (SAFE MODE, email OFF)
 #   + fix SLOW bot-scan 404s on /api/pay/creator/* + landing FAQ copy fix
 # ============================================================================

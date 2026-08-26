@@ -229,7 +229,7 @@ const ExitIntentModal: React.FC = () => {
                 },
               }}
             >
-              Claim your first payment fee-free
+              Claim 0% platform fee on your first payment
             </Button>
             <Button
               variant="outlined"

@@ -93,6 +93,7 @@ import {
   sendPaymentLinkCreatedEmail,
   sendCrowdfundingCampaignCreatedEmail,
   sendRefereeCodeReminderEmail,
+  sendRefereeInviteEmail,
   sendPaymentLinkReminderEmail,
 } from "./email/linkCampaignEmails";
 import {
@@ -182,6 +183,7 @@ export default {
   sendPaymentLinkCreatedEmail,
   sendCrowdfundingCampaignCreatedEmail,
   sendRefereeCodeReminderEmail,
+  sendRefereeInviteEmail,
   sendPaymentLinkReminderEmail,
   // KYC
   sendKYCRequiredEmail,

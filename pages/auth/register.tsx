@@ -747,6 +747,21 @@ const Register = () => {
                         placeholder={t("referralCodePlaceholder")}
                         label={t("referralCode")}
                       />
+                      <Typography
+                        data-testid="referral-benefit-hint"
+                        sx={{
+                          mt: 0.75,
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: theme.palette.border?.success || "#12B76A",
+                          fontFamily: "var(--font-sans)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        {t("referralBenefitHint")}
+                      </Typography>
                     </Box>
                   )}
 

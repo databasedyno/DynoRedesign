@@ -284,6 +284,70 @@ export const sendRefereeCodeReminderEmail = async (
 };
 
 /**
+ * Referee Invite email — sent ONCE, after a customer completes a payment,
+ * inviting them to open their own Dynopay merchant account with a one-time
+ * discount. Follow-ups are handled by sendRefereeCodeReminderEmail.
+ */
+export const sendRefereeInviteEmail = async (
+  recipientEmail: string,
+  code: string,
+  discountPercent: number,
+  discountDurationDays: number,
+  unsubscribeToken?: string
+) => {
+  try {
+    const baseUrl = FRONTEND_BASE_URL;
+    const signupUrl = `${baseUrl}/signup?ref=${code}`;
+    const recipientName = recipientEmail.split('@')[0] || "there";
+
+    const unsubscribeLine = unsubscribeToken
+      ? `<p style="font-size: 13px; color: #6b7280; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb;"><a href="${baseUrl}/unsubscribe?token=${unsubscribeToken}" style="color: #6b7280;">Unsubscribe</a> from these emails</p>`
+      : "";
+
+    const message = `
+<p>Thanks for paying with Dynopay! Did you know you can accept crypto payments for your own business too?</p>
+
+<div style="margin: 24px 0; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); border-left: 4px solid #12B76A; border-radius: 0 8px 8px 0;">
+  <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 18px;">A welcome gift for you</h3>
+  <p style="margin: 0 0 8px 0; color: #14532d; font-size: 16px;">
+    <strong>${discountPercent}% OFF</strong> all Dynopay fees for <strong>${discountDurationDays} days</strong>
+  </p>
+  <p style="margin: 0; font-size: 14px;">
+    Your code: <strong style="background: #dcfce7; padding: 6px 12px; border-radius: 4px; font-family: monospace; font-size: 16px;">${code}</strong>
+  </p>
+</div>
+
+<h4 style="margin: 24px 0 12px 0; color: ${EMAIL_TOKENS.brandDeep};">Why Dynopay?</h4>
+<ul style="margin: 0; padding-left: 20px; color: #4a4a4a;">
+  <li>Accept Bitcoin, Ethereum, USDT, USDC and 15+ more coins</li>
+  <li>Non-custodial — funds settle straight to a wallet you control</li>
+  <li>Instant notifications and a clean dashboard</li>
+  <li>Lower fees than traditional payment processors</li>
+</ul>
+
+<div style="text-align: center; margin: 32px 0;">
+  <a href="${signupUrl}" style="display: inline-block; background: linear-gradient(135deg, ${EMAIL_TOKENS.brandHover} 0%, ${EMAIL_TOKENS.brand} 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">Start accepting crypto</a>
+</div>
+${unsubscribeLine}
+    `.trim();
+
+    const htmlBody = dynoPayEmailTemplate("Your welcome gift from Dynopay", `${p(`Hey ${recipientName},`)}\n${message}`);
+
+    const info = await mailTransporter({
+      to: recipientEmail,
+      name: recipientName,
+      subject: `You've got ${discountPercent}% off Dynopay fees`,
+      body: htmlBody,
+    });
+
+    apiLogger.info(`[Email] Referee invite sent to ${recipientEmail}`);
+    return info;
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendRefereeInviteEmail' });
+  }
+};
+
+/**
  * Payment Link Reminder email
  */
 export const sendPaymentLinkReminderEmail = async (

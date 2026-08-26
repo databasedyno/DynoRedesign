@@ -98,6 +98,28 @@ const MONITORED_SERVICES = [
 ];
 
 /**
+ * Per-service latency budgets (ms). A healthy-but-slow check is DEGRADED once it
+ * crosses `degraded`, and an OUTAGE once it crosses `outage` (or the check throws).
+ * Replaces the old blanket 1000ms rule so a naturally-heavier probe (e.g. the
+ * 3-table wallet probe) isn't mislabeled degraded while a fast one (api_gateway)
+ * is held to a tight budget. Tune per service without touching the check logic.
+ */
+const LATENCY_BUDGETS: Record<string, { degraded: number; outage: number }> = {
+  // Budgets sized with headroom above each service's real observed baseline
+  // (dominated by the ~280ms RTT to the managed Railway DB/Redis) so a
+  // naturally-heavier probe (3-table wallet check) gets a looser budget than a
+  // light one (api_gateway SELECT 1) WITHOUT false-flagging healthy services.
+  api_gateway: { degraded: 600, outage: 3000 },
+  payment_processing: { degraded: 800, outage: 4000 },
+  wallet_services: { degraded: 900, outage: 4000 },
+  webhook_delivery: { degraded: 600, outage: 3000 },
+  dashboard: { degraded: 700, outage: 4000 },
+};
+const DEFAULT_BUDGET = { degraded: 1000, outage: 5000 };
+export const budgetFor = (serviceId: string): { degraded: number; outage: number } =>
+  LATENCY_BUDGETS[serviceId] || DEFAULT_BUDGET;
+
+/**
  * Upsert the PERMANENT daily rollup for one service+day from the raw checks.
  *
  * Recomputes today's aggregate from tbl_service_health (cheap — ≤96 rows/day)
@@ -157,11 +179,14 @@ export const runHealthChecks = async (): Promise<void> => {
     try {
       const result = await service.check();
       
+      const budget = budgetFor(service.id);
       let status: "operational" | "degraded" | "outage" = "operational";
       if (!result.healthy) {
         status = "outage";
-      } else if (result.latency > 1000) {
-        status = "degraded"; // Slow response = degraded
+      } else if (result.latency > budget.outage) {
+        status = "outage"; // Pathologically slow = as good as down
+      } else if (result.latency > budget.degraded) {
+        status = "degraded"; // Slow response = degraded (per-service budget)
       }
       
       await serviceHealthModel.create({
@@ -299,12 +324,122 @@ export const calculateServiceUptime = async (
 };
 
 /**
- * Get all monitored services info
+ * Get all monitored services info (incl. their per-service latency budgets so
+ * the status page / API can show the threshold each service is held to).
  */
 export const getMonitoredServices = () => MONITORED_SERVICES.map(s => ({
   id: s.id,
-  name: s.name
+  name: s.name,
+  degraded_ms: budgetFor(s.id).degraded,
+  outage_ms: budgetFor(s.id).outage,
 }));
+
+export interface DerivedIncident {
+  id: string;
+  service_id: string;
+  service_name: string;
+  severity: "degraded" | "outage";
+  status: "resolved" | "ongoing";
+  title: string;
+  description: string;
+  started_at: string;
+  resolved_at: string | null;
+  duration_minutes: number | null;
+  services_affected: string[];
+  auto: true;
+}
+
+/**
+ * Derive incidents from the raw health-check history (READ-ONLY — no writes, no
+ * new table). A contiguous run of degraded/outage checks for a service becomes
+ * ONE incident: it auto-OPENS at the first bad check and auto-RESOLVES at the
+ * first operational check that follows (recovery). A run with no recovery yet is
+ * an ONGOING incident. Noise guard: a lone single degraded blip is ignored
+ * unless it's an outage. The raw table keeps ~7 days, so this is the public
+ * "recent incidents / status history" feed and updates itself as the monitor
+ * cron writes new checks (on the primary worker).
+ */
+export const getDerivedIncidents = async (windowDays = 7): Promise<DerivedIncident[]> => {
+  const rows = await sequelize.query<{
+    service_id: string;
+    service_name: string;
+    status: string;
+    check_timestamp: string;
+  }>(
+    `SELECT service_id, service_name, status, check_timestamp
+       FROM tbl_service_health
+      WHERE check_timestamp >= NOW() - (:days || ' days')::interval
+      ORDER BY service_id, check_timestamp ASC`,
+    { replacements: { days: windowDays }, type: QueryTypes.SELECT }
+  );
+
+  const byService = new Map<string, typeof rows>();
+  for (const r of rows) {
+    const list = byService.get(r.service_id);
+    if (list) list.push(r);
+    else byService.set(r.service_id, [r]);
+  }
+
+  const incidents: DerivedIncident[] = [];
+
+  for (const [sid, list] of byService) {
+    let run:
+      | { start: string; lastBad: string; worst: "degraded" | "outage"; name: string; count: number }
+      | null = null;
+
+    const flush = (resolvedAt: string | null) => {
+      if (!run) return;
+      // Noise guard: drop a lone single degraded check (keep any outage).
+      if (run.count < 2 && run.worst !== "outage") {
+        run = null;
+        return;
+      }
+      const started = new Date(run.start);
+      const end = resolvedAt ? new Date(resolvedAt) : null;
+      const dur = end ? Math.max(1, Math.round((end.getTime() - started.getTime()) / 60000)) : null;
+      const sev = run.worst;
+      incidents.push({
+        id: `auto-${sid}-${run.start}`,
+        service_id: sid,
+        service_name: run.name,
+        severity: sev,
+        status: resolvedAt ? "resolved" : "ongoing",
+        title: resolvedAt
+          ? `${run.name} recovered`
+          : `${run.name} ${sev === "outage" ? "outage" : "degraded performance"}`,
+        description: resolvedAt
+          ? `${run.name} experienced ${sev === "outage" ? "an outage" : "degraded performance"} and has recovered.`
+          : `${run.name} is currently ${sev === "outage" ? "experiencing an outage" : "showing degraded performance"}. We're investigating.`,
+        started_at: run.start,
+        resolved_at: resolvedAt,
+        duration_minutes: dur,
+        services_affected: [sid],
+        auto: true,
+      });
+      run = null;
+    };
+
+    for (const r of list) {
+      const bad = r.status === "degraded" || r.status === "outage";
+      if (bad) {
+        if (!run) {
+          run = { start: r.check_timestamp, lastBad: r.check_timestamp, worst: r.status as "degraded" | "outage", name: r.service_name, count: 1 };
+        } else {
+          run.lastBad = r.check_timestamp;
+          run.count += 1;
+          if (r.status === "outage") run.worst = "outage";
+        }
+      } else if (run) {
+        // First operational check after a bad run = recovery.
+        flush(r.check_timestamp);
+      }
+    }
+    if (run) flush(null); // trailing, unresolved run = ongoing incident
+  }
+
+  incidents.sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
+  return incidents;
+};
 
 /**
  * Prune old health check records to prevent unbounded table growth
@@ -342,6 +477,8 @@ export default {
   getCurrentServiceStatus,
   calculateServiceUptime,
   getMonitoredServices,
+  getDerivedIncidents,
+  budgetFor,
   pruneOldHealthChecks,
   MONITORED_SERVICES
 };

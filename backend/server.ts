@@ -33,6 +33,7 @@ import { paymentController } from "./controller";
 import sequelize from "./utils/dbInstance";
 import config from "./utils/config";
 import { setupWeeklySummaryCron, setupWalletReminderCron, setupHealthCheckCron, setupRefereeCodeReminderCron, setupPaymentLinkReminderCron, setupOnboardingMonitorCron, setupFirstPaymentMonitorCron } from "./utils/cronJobs";
+import { setupReferralRewardCron } from "./utils/crons/referralRewardMonitor";
 import { getOptimizationDiagnostics } from "./services/tronEnergyService";
 import { migrateWebhookUrls } from "./services/migrateWebhookUrls";
 import { registerAccountProvisioningHooks } from "./services/accountProvisioning";
@@ -1186,6 +1187,10 @@ setupOnboardingMonitorCron();
 
 // First payment monitor — detects merchants' first successful payment, emails admin (C)
 setupFirstPaymentMonitorCron();
+
+// Referral reward monitor — unlocks referrer 50%/30d reward after the invited
+// merchant's first $100+ payment + sends post-payment "become a merchant" invites
+setupReferralRewardCron();
 
 // ═══════════════════════════════════════════════════════════════════════
 // RELIABILITY: Payment Watchdog — detect stuck payments every 2 minutes

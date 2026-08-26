@@ -7,6 +7,7 @@ import { QueryTypes } from "sequelize";
 import monitoringService from "../services/monitoringService";
 // serviceHealthModel import removed - not used
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
+import { getServiceUptime, getAllServicesUptime, getUptimeChart } from "./status/uptimeController";
 
 // Cache TTL for status data (60 seconds - health checks run in background)
 const STATUS_CACHE_TTL = 60;
@@ -65,6 +66,8 @@ const getStatus = async (_req: express.Request, res: express.Response) => {
         status: current?.status || "operational",
         uptime: "99.99", // Default uptime - actual calculation done in background
         latency: current?.latency_ms || 0,
+        degraded_ms: service.degraded_ms,
+        outage_ms: service.outage_ms,
         last_check: current?.last_check || new Date().toISOString()
       };
     });
@@ -117,6 +120,8 @@ const getServicesStatus = async (_req: express.Request, res: express.Response) =
           uptime: `${uptimeData.uptime_percentage.toFixed(2)}%`,
           uptime_value: uptimeData.uptime_percentage,
           latency_ms: current?.latency_ms || 0,
+          degraded_ms: service.degraded_ms,
+          outage_ms: service.outage_ms,
           total_checks: uptimeData.total_checks,
           failed_checks: uptimeData.failed_checks,
           last_check: current?.last_check || null
@@ -169,200 +174,6 @@ const getServiceStatus = async (req: express.Request, res: express.Response) => 
 };
 
 /**
- * GET /api/status/service/:serviceId/uptime
- * Get REAL uptime history for a specific service
- */
-const getServiceUptime = async (req: express.Request, res: express.Response) => {
-  try {
-    const { serviceId } = req.params;
-    const days = parseInt(req.query.days as string) || 90;
-    
-    const services = monitoringService.getMonitoredServices();
-    const service = services.find(s => s.id === serviceId);
-
-    if (!service) {
-      return errorResponseHelper(res, 404, "Service not found");
-    }
-
-    const dailyStatus = await monitoringService.getDailyServiceStatus(serviceId, days);
-    const uptimeData = await monitoringService.calculateServiceUptime(serviceId, days);
-    
-    // Fill in missing days with "no_data" status
-    const today = new Date();
-    const allDays: Array<{ date: string; status: string; checks: number; avg_latency: number }> = [];
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      const existing = dailyStatus.find(d => d.date === dateStr);
-      if (existing) {
-        allDays.push(existing);
-      } else {
-        allDays.push({ date: dateStr, status: "no_data", checks: 0, avg_latency: 0 });
-      }
-    }
-    
-    // Calculate summary
-    const operational = allDays.filter(d => d.status === "operational").length;
-    const degraded = allDays.filter(d => d.status === "degraded").length;
-    const outage = allDays.filter(d => d.status === "outage").length;
-    const noData = allDays.filter(d => d.status === "no_data").length;
-    
-    const response = {
-      service_id: service.id,
-      service_name: service.name,
-      period_days: days,
-      uptime_percentage: uptimeData.uptime_percentage.toFixed(2),
-      total_checks: uptimeData.total_checks,
-      failed_checks: uptimeData.failed_checks,
-      summary: {
-        operational_days: operational,
-        degraded_days: degraded,
-        outage_days: outage,
-        no_data_days: noData
-      },
-      daily_status: allDays
-    };
-
-    successResponseHelper(res, 200, "Service uptime data retrieved", response);
-  } catch (e) {
-
-      handleControllerError(res, e, apiLogger);
-  }
-};
-
-/**
- * GET /api/status/services/uptime
- * Get REAL uptime history for ALL services
- */
-const getAllServicesUptime = async (req: express.Request, res: express.Response) => {
-  try {
-    const days = parseInt(req.query.days as string) || 90;
-    const services = monitoringService.getMonitoredServices();
-    
-    const servicesUptime = await Promise.all(
-      services.map(async (service) => {
-        const dailyStatus = await monitoringService.getDailyServiceStatus(service.id, days);
-        const uptimeData = await monitoringService.calculateServiceUptime(service.id, days);
-        
-        // Fill in missing days
-        const today = new Date();
-        const allDays: Array<{ date: string; status: string }> = [];
-        
-        for (let i = days - 1; i >= 0; i--) {
-          const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          const dateStr = date.toISOString().split('T')[0];
-          
-          const existing = dailyStatus.find(d => d.date === dateStr);
-          allDays.push({ 
-            date: dateStr, 
-            status: existing?.status || "no_data" 
-          });
-        }
-        
-        const operational = allDays.filter(d => d.status === "operational").length;
-        const degraded = allDays.filter(d => d.status === "degraded").length;
-        const outage = allDays.filter(d => d.status === "outage").length;
-        
-        return {
-          service_id: service.id,
-          service_name: service.name,
-          period_days: days,
-          uptime_percentage: uptimeData.uptime_percentage.toFixed(2),
-          total_checks: uptimeData.total_checks,
-          summary: {
-            operational_days: operational,
-            degraded_days: degraded,
-            outage_days: outage
-          },
-          daily_status: allDays
-        };
-      })
-    );
-
-    successResponseHelper(res, 200, "All services uptime data retrieved", { services: servicesUptime });
-  } catch (e) {
-
-      handleControllerError(res, e, apiLogger);
-  }
-};
-
-/**
- * GET /api/status/uptime
- * Get overall 90-day uptime data (aggregate of all services)
- */
-const getUptimeChart = async (req: express.Request, res: express.Response) => {
-  try {
-    const days = parseInt(req.query.days as string) || 90;
-    const services = monitoringService.getMonitoredServices();
-    
-    // Get all service daily statuses
-    const allServicesData = await Promise.all(
-      services.map(s => monitoringService.getDailyServiceStatus(s.id, days))
-    );
-    
-    // Aggregate by date - worst status wins
-    const today = new Date();
-    const aggregatedDays: Array<{ date: string; status: string }> = [];
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      // Check all services for this date
-      let dayStatus = "no_data";
-      let hasData = false;
-      
-      for (const serviceData of allServicesData) {
-        const dayData = serviceData.find(d => d.date === dateStr);
-        if (dayData) {
-          hasData = true;
-          if (dayData.status === "outage") {
-            dayStatus = "outage";
-            break; // Worst case, stop checking
-          } else if (dayData.status === "degraded" && dayStatus !== "outage") {
-            dayStatus = "degraded";
-          } else if (dayData.status === "operational" && dayStatus === "no_data") {
-            dayStatus = "operational";
-          }
-        }
-      }
-      
-      if (hasData && dayStatus === "no_data") {
-        dayStatus = "operational";
-      }
-      
-      aggregatedDays.push({ date: dateStr, status: dayStatus });
-    }
-    
-    const operational = aggregatedDays.filter(d => d.status === "operational").length;
-    const degraded = aggregatedDays.filter(d => d.status === "degraded").length;
-    const outage = aggregatedDays.filter(d => d.status === "outage").length;
-    const daysWithData = days - aggregatedDays.filter(d => d.status === "no_data").length;
-    
-    const response = {
-      period_days: days,
-      uptime_percentage: daysWithData > 0 ? ((operational / daysWithData) * 100).toFixed(2) : "100.00",
-      summary: {
-        operational_days: operational,
-        degraded_days: degraded,
-        outage_days: outage
-      },
-      daily_status: aggregatedDays
-    };
-
-    successResponseHelper(res, 200, "Uptime data retrieved", response);
-  } catch (e) {
-
-      handleControllerError(res, e, apiLogger);
-  }
-};
-
-/**
  * POST /api/status/check
  * Manually trigger health checks (admin endpoint)
  */
@@ -384,29 +195,58 @@ const triggerHealthCheck = async (_req: express.Request, res: express.Response) 
 
 /**
  * GET /api/status/incidents
- * Get recent incidents
+ * Recent incidents = AUTO-derived from real monitoring history (open + resolved)
+ * merged with any manually-curated entries. Newest first.
  */
 const getIncidents = async (req: express.Request, res: express.Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 10;
     const status = req.query.status as string;
-    
-    let filteredIncidents = [...INCIDENTS];
-    
-    if (status) {
-      filteredIncidents = filteredIncidents.filter(i => i.status === status);
+
+    const fmt = (d: string | Date) =>
+      new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+
+    // Auto-incidents from the REAL health-check history (no writes; derived live).
+    let derived: Awaited<ReturnType<typeof monitoringService.getDerivedIncidents>> = [];
+    try {
+      derived = await monitoringService.getDerivedIncidents(7);
+    } catch (err) {
+      apiLogger.error("[Status] getDerivedIncidents failed:", getErrorMessage(err));
     }
-    
+
+    const derivedNorm = derived.map((i) => {
+      const when = i.resolved_at || i.started_at;
+      return {
+        id: i.id,
+        title: i.title,
+        description: i.description,
+        status: i.status, // "resolved" | "ongoing"
+        severity: i.severity,
+        date: when,
+        started_at: i.started_at,
+        resolved_at: i.resolved_at,
+        duration_minutes: i.duration_minutes,
+        services_affected: i.services_affected,
+        auto: true,
+        formatted_date: fmt(when),
+      };
+    });
+
+    const staticNorm = INCIDENTS.map((i) => ({
+      ...i,
+      auto: false,
+      formatted_date: fmt(i.date),
+    }));
+
+    let all: Array<Record<string, unknown>> = [...derivedNorm, ...staticNorm];
+    if (status) all = all.filter((i) => i.status === status);
+    all.sort(
+      (a, b) => new Date(String(b.date)).getTime() - new Date(String(a.date)).getTime()
+    );
+
     const response = {
-      total: filteredIncidents.length,
-      incidents: filteredIncidents.slice(0, limit).map(incident => ({
-        ...incident,
-        formatted_date: new Date(incident.date).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        })
-      }))
+      total: all.length,
+      incidents: all.slice(0, limit),
     };
 
     successResponseHelper(res, 200, "Incidents retrieved", response);
@@ -418,27 +258,38 @@ const getIncidents = async (req: express.Request, res: express.Response) => {
 
 /**
  * GET /api/status/incidents/:id
- * Get a specific incident
+ * Get a specific incident (manual numeric id OR an auto-derived "auto-..." id).
  */
 const getIncident = async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
-    const incident = INCIDENTS.find(i => i.id === parseInt(id));
+    const fmt = (d: string | Date) =>
+      new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
-    if (!incident) {
-      return errorResponseHelper(res, 404, "Incident not found");
+    const staticMatch = INCIDENTS.find((i) => String(i.id) === String(id));
+    if (staticMatch) {
+      return successResponseHelper(res, 200, "Incident retrieved", {
+        ...staticMatch,
+        auto: false,
+        formatted_date: fmt(staticMatch.date),
+      });
     }
 
-    const response = {
-      ...incident,
-      formatted_date: new Date(incident.date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      })
-    };
-
-    successResponseHelper(res, 200, "Incident retrieved", response);
+    let derived: Awaited<ReturnType<typeof monitoringService.getDerivedIncidents>> = [];
+    try {
+      derived = await monitoringService.getDerivedIncidents(7);
+    } catch (err) {
+      apiLogger.error("[Status] getDerivedIncidents failed:", getErrorMessage(err));
+    }
+    const d = derived.find((i) => i.id === id);
+    if (!d) {
+      return errorResponseHelper(res, 404, "Incident not found");
+    }
+    return successResponseHelper(res, 200, "Incident retrieved", {
+      ...d,
+      date: d.resolved_at || d.started_at,
+      formatted_date: fmt(d.resolved_at || d.started_at),
+    });
   } catch (e) {
 
       handleControllerError(res, e, apiLogger);

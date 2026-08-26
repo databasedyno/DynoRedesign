@@ -70,6 +70,8 @@ productRouter.get("/products/:productId/orders", authMiddleware, productCtrl.lis
 productRouter.post("/products/orders/:orderId/refund", authMiddleware, orderCtrl.refundOrder);
 
 // ── Public shop (rate-limited) ────────────────────────────────────────
+// Sitemap feed FIRST so it can't be shadowed by the /shop/:handle param route.
+productRouter.get("/shop-sitemap", paymentRateLimiter, shopCtrl.getSitemapEntries);
 productRouter.get("/shop/:handle", paymentRateLimiter, shopCtrl.getShopByHandle);
 productRouter.get("/shop/:handle/products/:slug", paymentRateLimiter, shopCtrl.getShopProductBySlug);
 

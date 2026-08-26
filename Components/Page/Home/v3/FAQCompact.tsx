@@ -18,6 +18,7 @@ const FAQCompact: React.FC = () => {
     { q: t("v3.faq.q3"), a: t("v3.faq.a3") },
     { q: t("v3.faq.q4"), a: t("v3.faq.a4") },
     { q: t("v3.faq.q5"), a: t("v3.faq.a5") },
+    { q: t("v3.faq.q6"), a: t("v3.faq.a6") },
   ];
 
   return (

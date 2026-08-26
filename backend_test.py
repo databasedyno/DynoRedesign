@@ -1,97 +1,62 @@
 #!/usr/bin/env python3
 """
-DynoPay Backend Verification — Image Upload Bug Fixes (2026-08-25)
-===================================================================
-PRODUCTION DATABASE - MINIMAL WRITES ONLY (benign test uploads)
+DynoPay Backend Verification — 3 New Read-Only Features (2026-08-26)
+=====================================================================
+PRODUCTION DATABASE - STRICTLY READ-ONLY (SAFE MODE)
 
 Test Cases (per review_request):
-1. Health check (localhost:8001/health)
-2. Profile photo PNG upload -> Spaces CDN URL
-3. All image types (GIF, WEBP/BMP) -> Spaces CDN URLs
-4. Non-image rejection (text/plain)
-5. Company logo read-only check (company 71 SMADAV)
-6. Transparent fallback pixel verification (decode IDAT chunk)
-7. Refund merchant email unit tests (ts-node)
-8. Cleanup (remove test profile photo)
+FEATURE #1 — Localized sitemap:
+1. GET /api/shop-sitemap -> 200 JSON with shops[] (has "devhub") + products[] (each {handle, slug})
+2. GET /sitemap.xml -> 200 text/xml; contains /devhub/shop AND at least one /p/ URL; has hreflang alternates with ?lang=de + x-default
+
+FEATURE #2 — Status per-service budgets + auto-incidents:
+3. GET /api/status/services -> 200; each service has degraded_ms + outage_ms (NOT flat 1000)
+4. GET /api/status/incidents -> 200; incidents[] present (may include auto-derived ones with auto=true)
+
+FEATURE #3 — Referral clarity:
+5. POST /api/user/login -> get accessToken
+6. GET /api/referral/my-code with Bearer -> get referral_code
+7. POST /api/referral/validate with Bearer and valid code -> valid:true, code_type "referral"
+8. POST /api/referral/validate with Bearer and invalid code -> valid:false / 404
+
+FEATURE health:
+9. GET /health -> status healthy, database connected, redis connected, background_jobs.eligible == false (SAFE MODE)
+
+CRITICAL SAFETY RULES:
+- Do NOT sign up / register any user (writes to prod).
+- Do NOT call POST /api/referral/apply with a VALID code (it creates a referral + grants a fee discount on prod).
+- Only /api/referral/validate (read-only) and, if you want, /apply with a deliberately INVALID code (returns 404, no write).
 """
 
 import requests
-import io
-import zlib
-import struct
-from PIL import Image
+import re
+from xml.etree import ElementTree as ET
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://dynopay-setup-6.preview.emergentagent.com"
-API_BASE = f"{EXTERNAL_BASE}/api"
+PREVIEW_BASE = "https://a1e9a54e-6d51-47fb-98d3-e91ce0a11738.preview.emergentagent.com"
+API_BASE = f"{PREVIEW_BASE}/api"
 
-# Test credentials
+# Test credentials (from test_credentials.md)
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
-# Expected Spaces CDN URL prefix
-EXPECTED_CDN_PREFIX = "https://dynopay-uploads-6708cc37.ams3.cdn.digitaloceanspaces.com/images/"
-
 # Global token storage
 access_token = None
-
-def create_test_image(format='PNG', size=(50, 50), color=(255, 100, 100)):
-    """Create a small test image in memory"""
-    img = Image.new('RGB', size, color)
-    img_bytes = io.BytesIO()
-    img.save(img_bytes, format=format)
-    img_bytes.seek(0)
-    return img_bytes
-
-def login():
-    """Login and get access token"""
-    global access_token
-    print("\n" + "="*70)
-    print("AUTHENTICATION")
-    print("="*70)
-    
-    url = f"{API_BASE}/user/login"
-    payload = {
-        "email": TEST_EMAIL,
-        "password": TEST_PASSWORD
-    }
-    
-    print(f"\n[LOGIN] POST {url}")
-    print(f"Payload: {payload}")
-    
-    try:
-        response = requests.post(url, json=payload, timeout=10)
-        print(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            if 'data' in data and 'accessToken' in data['data']:
-                access_token = data['data']['accessToken']
-                print(f"✅ Login successful! Token obtained (length: {len(access_token)})")
-                return True
-            else:
-                print(f"❌ Login response missing accessToken: {response.text[:300]}")
-                return False
-        else:
-            print(f"❌ Login failed with status {response.status_code}: {response.text[:300]}")
-            return False
-    except Exception as e:
-        print(f"❌ Login error: {str(e)}")
-        return False
+referral_code = None
 
 def test_health_check():
     """
-    TEST 1: Health check
-    Expected: status=healthy, database=connected, redis=connected, background_jobs.eligible=false
+    TEST 9: Health check
+    Expected: status=healthy, database=connected, redis=connected, background_jobs.eligible=false (SAFE MODE)
     """
     print("\n" + "="*70)
-    print("TEST 1: Health Check (localhost:8001/health)")
+    print("TEST 9: Health Check (SAFE MODE verification)")
     print("="*70)
     
     url = f"{LOCALHOST_BASE}/health"
     
-    print(f"\n[TEST 1] GET {url}")
+    print(f"\n[TEST 9] GET {url}")
     print(f"Expected: status=healthy, database=connected, redis=connected, background_jobs.eligible=false")
     
     try:
@@ -108,18 +73,86 @@ def test_health_check():
             bg_jobs = data.get('background_jobs', {}).get('eligible')
             
             if status == 'healthy' and database == 'connected' and redis == 'connected' and bg_jobs == False:
-                print(f"✅ TEST 1 PASSED: Health check returned all expected values")
+                print(f"✅ TEST 9 PASSED: Health check returned all expected values")
                 print(f"   - status: {status}")
                 print(f"   - database: {database}")
                 print(f"   - redis: {redis}")
                 print(f"   - background_jobs.eligible: {bg_jobs} (SAFE MODE confirmed)")
                 return True
             else:
-                print(f"⚠️ TEST 1 PARTIAL: Got 200 but values don't match:")
+                print(f"❌ TEST 9 FAILED: Values don't match:")
                 print(f"   - status: {status} (expected: healthy)")
                 print(f"   - database: {database} (expected: connected)")
                 print(f"   - redis: {redis} (expected: connected)")
                 print(f"   - background_jobs.eligible: {bg_jobs} (expected: false)")
+                return False
+        else:
+            print(f"❌ TEST 9 FAILED: Expected 200, got {response.status_code}")
+            print(f"Response: {response.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"❌ TEST 9 ERROR: {str(e)}")
+        return False
+
+def test_shop_sitemap():
+    """
+    TEST 1: GET /api/shop-sitemap
+    Expected: 200 JSON with shops[] (has "devhub") + products[] (each {handle, slug})
+    """
+    print("\n" + "="*70)
+    print("TEST 1: Localized Sitemap Feed (/api/shop-sitemap)")
+    print("="*70)
+    
+    url = f"{API_BASE}/shop-sitemap"
+    
+    print(f"\n[TEST 1] GET {url}")
+    print(f"Expected: 200 JSON with data.shops[] (includes 'devhub') + data.products[] (each has handle, slug)")
+    
+    try:
+        response = requests.get(url, timeout=10)
+        print(f"\nActual Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Response keys: {data.keys()}")
+            
+            # Check for data.shops and data.products
+            if 'data' in data:
+                shops = data['data'].get('shops', [])
+                products = data['data'].get('products', [])
+                
+                print(f"\nShops count: {len(shops)}")
+                print(f"Products count: {len(products)}")
+                
+                # Check if "devhub" is in shops
+                shop_handles = [shop.get('handle') for shop in shops if isinstance(shop, dict)]
+                print(f"Shop handles: {shop_handles}")
+                
+                devhub_found = 'devhub' in shop_handles
+                
+                # Check if products have handle and slug
+                products_valid = True
+                if products:
+                    sample_product = products[0]
+                    print(f"Sample product: {sample_product}")
+                    products_valid = all(
+                        isinstance(p, dict) and 'handle' in p and 'slug' in p 
+                        for p in products
+                    )
+                
+                if devhub_found and products_valid:
+                    print(f"✅ TEST 1 PASSED: /api/shop-sitemap returned valid data")
+                    print(f"   - 'devhub' found in shops: {devhub_found}")
+                    print(f"   - Products have handle+slug: {products_valid}")
+                    return True
+                else:
+                    print(f"❌ TEST 1 FAILED:")
+                    print(f"   - 'devhub' found in shops: {devhub_found}")
+                    print(f"   - Products have handle+slug: {products_valid}")
+                    return False
+            else:
+                print(f"❌ TEST 1 FAILED: Response missing 'data' key")
+                print(f"Response: {data}")
                 return False
         else:
             print(f"❌ TEST 1 FAILED: Expected 200, got {response.status_code}")
@@ -129,75 +162,76 @@ def test_health_check():
         print(f"❌ TEST 1 ERROR: {str(e)}")
         return False
 
-def test_profile_photo_png():
+def test_sitemap_xml():
     """
-    TEST 2: Profile photo PNG upload
-    Expected: HTTP 200, photo URL starts with Spaces CDN prefix
+    TEST 2: GET /sitemap.xml
+    Expected: 200 text/xml; contains /devhub/shop AND at least one /p/ URL; 
+              has hreflang alternates with ?lang=de + x-default
     """
     print("\n" + "="*70)
-    print("TEST 2: Profile Photo PNG Upload -> Spaces CDN URL")
+    print("TEST 2: Sitemap XML with Localized Hreflang Alternates")
     print("="*70)
     
-    url = f"{API_BASE}/user/updateUser"
-    headers = {
-        "Authorization": f"Bearer {access_token}"
-    }
+    url = f"{PREVIEW_BASE}/sitemap.xml"
     
-    # Create a small PNG test image
-    img_bytes = create_test_image(format='PNG', size=(50, 50), color=(255, 100, 100))
-    
-    files = {
-        'image': ('test_profile.png', img_bytes, 'image/png')
-    }
-    data = {
-        'data': '{}'
-    }
-    
-    print(f"\n[TEST 2] PUT {url}")
-    print(f"Files: image=test_profile.png (50x50 PNG, mimetype=image/png)")
-    print(f"Data: data={{}}")
-    print(f"Expected: HTTP 200, photo URL starts with {EXPECTED_CDN_PREFIX}")
+    print(f"\n[TEST 2] GET {url}")
+    print(f"Expected: 200 text/xml with /devhub/shop, at least one /p/ URL, hreflang alternates (?lang=de + x-default)")
     
     try:
-        response = requests.put(url, headers=headers, files=files, data=data, timeout=15)
+        response = requests.get(url, timeout=10)
         print(f"\nActual Status: {response.status_code}")
+        print(f"Content-Type: {response.headers.get('Content-Type')}")
         
         if response.status_code == 200:
-            resp_json = response.json()
-            print(f"Response: {resp_json}")
+            content_type = response.headers.get('Content-Type', '')
             
-            # Try to extract photo URL from response
-            photo_url = None
-            if 'data' in resp_json:
-                photo_url = resp_json['data'].get('photo')
+            if 'xml' not in content_type.lower():
+                print(f"❌ TEST 2 FAILED: Expected text/xml, got {content_type}")
+                return False
             
-            if photo_url:
-                print(f"Photo URL: {photo_url}")
-                if photo_url.startswith(EXPECTED_CDN_PREFIX):
-                    print(f"✅ TEST 2 PASSED: Photo uploaded to Spaces CDN")
-                    print(f"   URL: {photo_url}")
-                    
-                    # Verify the CDN URL is accessible
-                    try:
-                        cdn_response = requests.get(photo_url, timeout=10)
-                        if cdn_response.status_code == 200 and cdn_response.headers.get('Content-Type', '').startswith('image/'):
-                            print(f"   ✅ CDN URL accessible: {cdn_response.status_code} {cdn_response.headers.get('Content-Type')}")
-                            return True
-                        else:
-                            print(f"   ⚠️ CDN URL returned {cdn_response.status_code} {cdn_response.headers.get('Content-Type')}")
-                            return True  # Still pass the main test
-                    except Exception as e:
-                        print(f"   ⚠️ CDN URL check failed: {e}")
-                        return True  # Still pass the main test
-                else:
-                    print(f"❌ TEST 2 FAILED: Photo URL does not start with Spaces CDN prefix")
-                    print(f"   Expected prefix: {EXPECTED_CDN_PREFIX}")
-                    print(f"   Actual URL: {photo_url}")
-                    return False
+            xml_content = response.text
+            print(f"XML content length: {len(xml_content)} bytes")
+            
+            # Check for /devhub/shop
+            devhub_shop_found = '/devhub/shop' in xml_content
+            print(f"Contains '/devhub/shop': {devhub_shop_found}")
+            
+            # Check for at least one product URL (/p/)
+            product_url_found = '/p/' in xml_content
+            print(f"Contains at least one '/p/' URL: {product_url_found}")
+            
+            # Check for hreflang alternates with ?lang=de
+            lang_de_found = '?lang=de' in xml_content
+            print(f"Contains '?lang=de' alternate: {lang_de_found}")
+            
+            # Check for x-default hreflang
+            x_default_found = 'hreflang="x-default"' in xml_content
+            print(f"Contains 'hreflang=\"x-default\"': {x_default_found}")
+            
+            # Try to parse XML to verify structure
+            try:
+                root = ET.fromstring(xml_content)
+                # Count URL entries
+                namespaces = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+                urls = root.findall('.//ns:url', namespaces)
+                print(f"Total URL entries in sitemap: {len(urls)}")
+            except Exception as e:
+                print(f"⚠️ XML parsing warning: {e}")
+            
+            if devhub_shop_found and product_url_found and lang_de_found and x_default_found:
+                print(f"✅ TEST 2 PASSED: Sitemap XML contains all required elements")
+                print(f"   - /devhub/shop: ✓")
+                print(f"   - Product URLs (/p/): ✓")
+                print(f"   - ?lang=de alternates: ✓")
+                print(f"   - x-default hreflang: ✓")
+                return True
             else:
-                print(f"⚠️ TEST 2: Could not extract photo URL from response, but got 200")
-                print(f"   Response: {resp_json}")
-                return True  # Partial pass
+                print(f"❌ TEST 2 FAILED: Missing required elements:")
+                print(f"   - /devhub/shop: {devhub_shop_found}")
+                print(f"   - Product URLs (/p/): {product_url_found}")
+                print(f"   - ?lang=de alternates: {lang_de_found}")
+                print(f"   - x-default hreflang: {x_default_found}")
+                return False
         else:
             print(f"❌ TEST 2 FAILED: Expected 200, got {response.status_code}")
             print(f"Response: {response.text[:500]}")
@@ -206,230 +240,188 @@ def test_profile_photo_png():
         print(f"❌ TEST 2 ERROR: {str(e)}")
         return False
 
-def test_all_image_types():
+def test_status_services():
     """
-    TEST 3: All image types (GIF, WEBP/BMP)
-    Expected: HTTP 200 for each, Spaces CDN URLs
+    TEST 3: GET /api/status/services
+    Expected: 200; each service has degraded_ms + outage_ms (NOT flat 1000 for all)
     """
     print("\n" + "="*70)
-    print("TEST 3: All Image Types (GIF, WEBP/BMP) -> Spaces CDN URLs")
+    print("TEST 3: Status Per-Service Budgets")
     print("="*70)
     
-    url = f"{API_BASE}/user/updateUser"
-    headers = {
-        "Authorization": f"Bearer {access_token}"
-    }
+    url = f"{API_BASE}/status/services"
     
-    # Test GIF
-    print(f"\n[TEST 3a] Testing GIF upload")
-    img_gif = create_test_image(format='GIF', size=(50, 50), color=(100, 255, 100))
-    files_gif = {
-        'image': ('test_profile.gif', img_gif, 'image/gif')
-    }
-    data = {'data': '{}'}
+    print(f"\n[TEST 3] GET {url}")
+    print(f"Expected: 200; each service has degraded_ms + outage_ms (per-service, NOT all 1000)")
     
     try:
-        response_gif = requests.put(url, headers=headers, files=files_gif, data=data, timeout=15)
-        print(f"GIF Status: {response_gif.status_code}")
+        response = requests.get(url, timeout=10)
+        print(f"\nActual Status: {response.status_code}")
         
-        gif_pass = False
-        if response_gif.status_code == 200:
-            resp_json = response_gif.json()
-            photo_url = resp_json.get('data', {}).get('photo') if 'data' in resp_json else None
-            if photo_url and photo_url.startswith(EXPECTED_CDN_PREFIX):
-                print(f"✅ GIF upload successful: {photo_url}")
-                gif_pass = True
-            else:
-                print(f"⚠️ GIF upload returned 200 but URL: {photo_url}")
-                gif_pass = True  # Partial pass
-        else:
-            print(f"❌ GIF upload failed: {response_gif.status_code}")
-            print(f"Response: {response_gif.text[:300]}")
-    except Exception as e:
-        print(f"❌ GIF upload error: {str(e)}")
-        gif_pass = False
-    
-    # Test WEBP (or BMP if WEBP fails)
-    print(f"\n[TEST 3b] Testing WEBP upload")
-    try:
-        img_webp = create_test_image(format='WEBP', size=(50, 50), color=(100, 100, 255))
-        files_webp = {
-            'image': ('test_profile.webp', img_webp, 'image/webp')
-        }
-        
-        response_webp = requests.put(url, headers=headers, files=files_webp, data=data, timeout=15)
-        print(f"WEBP Status: {response_webp.status_code}")
-        
-        webp_pass = False
-        if response_webp.status_code == 200:
-            resp_json = response_webp.json()
-            photo_url = resp_json.get('data', {}).get('photo') if 'data' in resp_json else None
-            if photo_url and photo_url.startswith(EXPECTED_CDN_PREFIX):
-                print(f"✅ WEBP upload successful: {photo_url}")
-                webp_pass = True
-            else:
-                print(f"⚠️ WEBP upload returned 200 but URL: {photo_url}")
-                webp_pass = True  # Partial pass
-        else:
-            print(f"❌ WEBP upload failed: {response_webp.status_code}")
-            print(f"Response: {response_webp.text[:300]}")
-    except Exception as e:
-        print(f"⚠️ WEBP not supported, trying BMP: {str(e)}")
-        # Fallback to BMP
-        try:
-            img_bmp = create_test_image(format='BMP', size=(50, 50), color=(100, 100, 255))
-            files_bmp = {
-                'image': ('test_profile.bmp', img_bmp, 'image/bmp')
-            }
+        if response.status_code == 200:
+            data = response.json()
             
-            response_bmp = requests.put(url, headers=headers, files=files_bmp, data=data, timeout=15)
-            print(f"BMP Status: {response_bmp.status_code}")
-            
-            webp_pass = False
-            if response_bmp.status_code == 200:
-                resp_json = response_bmp.json()
-                photo_url = resp_json.get('data', {}).get('photo') if 'data' in resp_json else None
-                if photo_url and photo_url.startswith(EXPECTED_CDN_PREFIX):
-                    print(f"✅ BMP upload successful: {photo_url}")
-                    webp_pass = True
+            if 'data' in data and 'services' in data['data']:
+                services = data['data']['services']
+                print(f"\nServices count: {len(services)}")
+                
+                # Check each service for degraded_ms and outage_ms
+                all_have_budgets = True
+                budgets = {}
+                
+                for service in services:
+                    service_name = service.get('service_name', 'unknown')
+                    degraded_ms = service.get('degraded_ms')
+                    outage_ms = service.get('outage_ms')
+                    
+                    budgets[service_name] = {
+                        'degraded_ms': degraded_ms,
+                        'outage_ms': outage_ms
+                    }
+                    
+                    if degraded_ms is None or outage_ms is None:
+                        all_have_budgets = False
+                
+                print(f"\nPer-service budgets:")
+                for service_name, budget in budgets.items():
+                    print(f"  {service_name}: degraded={budget['degraded_ms']}ms, outage={budget['outage_ms']}ms")
+                
+                # Check if they are NOT all the same flat 1000
+                degraded_values = [b['degraded_ms'] for b in budgets.values() if b['degraded_ms'] is not None]
+                outage_values = [b['outage_ms'] for b in budgets.values() if b['outage_ms'] is not None]
+                
+                all_degraded_1000 = all(v == 1000 for v in degraded_values)
+                all_outage_1000 = all(v == 1000 for v in outage_values)
+                
+                has_variation = not (all_degraded_1000 and all_outage_1000)
+                
+                if all_have_budgets and has_variation:
+                    print(f"\n✅ TEST 3 PASSED: Per-service budgets are present and vary")
+                    print(f"   - All services have degraded_ms + outage_ms: {all_have_budgets}")
+                    print(f"   - Budgets are per-service (NOT all 1000): {has_variation}")
+                    return True
                 else:
-                    print(f"⚠️ BMP upload returned 200 but URL: {photo_url}")
-                    webp_pass = True  # Partial pass
+                    print(f"\n❌ TEST 3 FAILED:")
+                    print(f"   - All services have budgets: {all_have_budgets}")
+                    print(f"   - Budgets vary (NOT all 1000): {has_variation}")
+                    return False
             else:
-                print(f"❌ BMP upload failed: {response_bmp.status_code}")
-                print(f"Response: {response_bmp.text[:300]}")
-        except Exception as e2:
-            print(f"❌ BMP upload error: {str(e2)}")
-            webp_pass = False
-    
-    if gif_pass and webp_pass:
-        print(f"\n✅ TEST 3 PASSED: All image types accepted and uploaded to Spaces CDN")
-        return True
-    else:
-        print(f"\n❌ TEST 3 FAILED: Some image types failed (GIF: {gif_pass}, WEBP/BMP: {webp_pass})")
+                print(f"❌ TEST 3 FAILED: Response missing 'data.services'")
+                print(f"Response: {data}")
+                return False
+        else:
+            print(f"❌ TEST 3 FAILED: Expected 200, got {response.status_code}")
+            print(f"Response: {response.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"❌ TEST 3 ERROR: {str(e)}")
         return False
 
-def test_non_image_rejection():
+def test_status_incidents():
     """
-    TEST 4: Non-image rejection (text/plain)
-    Expected: 4xx/5xx with message containing "Invalid file type"
+    TEST 4: GET /api/status/incidents
+    Expected: 200; incidents[] present (may include auto-derived ones with auto=true)
     """
     print("\n" + "="*70)
-    print("TEST 4: Non-Image Rejection (text/plain)")
+    print("TEST 4: Status Auto-Derived Incidents")
     print("="*70)
     
-    url = f"{API_BASE}/user/updateUser"
-    headers = {
-        "Authorization": f"Bearer {access_token}"
-    }
+    url = f"{API_BASE}/status/incidents"
     
-    # Create a text file
-    text_content = io.BytesIO(b"This is a text file, not an image")
-    
-    files = {
-        'image': ('test.txt', text_content, 'text/plain')
-    }
-    data = {
-        'data': '{}'
-    }
-    
-    print(f"\n[TEST 4] PUT {url}")
-    print(f"Files: image=test.txt (mimetype=text/plain)")
-    print(f"Expected: 4xx/5xx with message containing 'Invalid file type'")
+    print(f"\n[TEST 4] GET {url}")
+    print(f"Expected: 200; data.incidents[] present (may include auto=true, titles like '... recovered')")
     
     try:
-        response = requests.put(url, headers=headers, files=files, data=data, timeout=15)
+        response = requests.get(url, timeout=10)
         print(f"\nActual Status: {response.status_code}")
-        print(f"Response: {response.text[:500]}")
         
-        if response.status_code >= 400:
-            message = response.text.lower()
-            if 'invalid' in message and 'file' in message and 'type' in message:
-                print(f"✅ TEST 4 PASSED: Non-image correctly rejected with {response.status_code}")
-                print(f"   Message contains 'Invalid file type'")
-                return True
+        if response.status_code == 200:
+            data = response.json()
+            
+            if 'data' in data and 'incidents' in data['data']:
+                incidents = data['data']['incidents']
+                print(f"\nIncidents count: {len(incidents)}")
+                
+                # Check structure of incidents
+                if incidents:
+                    sample_incident = incidents[0]
+                    print(f"Sample incident keys: {sample_incident.keys()}")
+                    
+                    # Check for required fields
+                    required_fields = ['title', 'description', 'status', 'formatted_date', 'services_affected']
+                    all_have_fields = all(
+                        all(field in incident for field in required_fields)
+                        for incident in incidents
+                    )
+                    
+                    # Check for auto-derived incidents
+                    auto_incidents = [i for i in incidents if i.get('auto') == True]
+                    print(f"Auto-derived incidents: {len(auto_incidents)}")
+                    
+                    if auto_incidents:
+                        print(f"Sample auto-derived incident:")
+                        print(f"  Title: {auto_incidents[0].get('title')}")
+                        print(f"  Status: {auto_incidents[0].get('status')}")
+                    
+                    if all_have_fields:
+                        print(f"\n✅ TEST 4 PASSED: Incidents endpoint working correctly")
+                        print(f"   - Total incidents: {len(incidents)}")
+                        print(f"   - Auto-derived incidents: {len(auto_incidents)}")
+                        print(f"   - All have required fields: {all_have_fields}")
+                        return True
+                    else:
+                        print(f"\n❌ TEST 4 FAILED: Some incidents missing required fields")
+                        return False
+                else:
+                    print(f"\n✅ TEST 4 PASSED: Incidents endpoint working (empty array is valid)")
+                    return True
             else:
-                print(f"⚠️ TEST 4 PARTIAL: Got {response.status_code} but message doesn't contain expected text")
-                print(f"   Response: {response.text[:300]}")
-                return True  # Still pass - rejection is working
+                print(f"❌ TEST 4 FAILED: Response missing 'data.incidents'")
+                print(f"Response: {data}")
+                return False
         else:
-            print(f"❌ TEST 4 FAILED: Expected 4xx/5xx, got {response.status_code}")
+            print(f"❌ TEST 4 FAILED: Expected 200, got {response.status_code}")
+            print(f"Response: {response.text[:500]}")
             return False
     except Exception as e:
         print(f"❌ TEST 4 ERROR: {str(e)}")
         return False
 
-def test_company_logo_readonly():
+def test_login():
     """
-    TEST 5: Company logo read-only check (company 71 SMADAV)
-    Expected: photo URL is Spaces CDN URL, GET returns 200 image/jpeg ~33135 bytes
+    TEST 5: POST /api/user/login
+    Expected: 200, capture data.accessToken
     """
+    global access_token
+    
     print("\n" + "="*70)
-    print("TEST 5: Company Logo Read-Only Check (company 71 SMADAV)")
+    print("TEST 5: User Login (for referral testing)")
     print("="*70)
     
-    url = f"{API_BASE}/company/getCompany"
-    headers = {
-        "Authorization": f"Bearer {access_token}"
+    url = f"{API_BASE}/user/login"
+    payload = {
+        "email": TEST_EMAIL,
+        "password": TEST_PASSWORD
     }
     
-    print(f"\n[TEST 5] GET {url}")
-    print(f"Expected: company_id=71 'SMADAV' photo is Spaces CDN URL")
+    print(f"\n[TEST 5] POST {url}")
+    print(f"Payload: {payload}")
     
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.post(url, json=payload, timeout=10)
         print(f"\nActual Status: {response.status_code}")
         
         if response.status_code == 200:
-            resp_json = response.json()
-            companies = resp_json.get('data', [])
+            data = response.json()
             
-            # Find company 71
-            company_71 = None
-            for company in companies:
-                if company.get('company_id') == 71:
-                    company_71 = company
-                    break
-            
-            if company_71:
-                company_name = company_71.get('company_name')
-                photo_url = company_71.get('photo')
-                
-                print(f"Found company 71: {company_name}")
-                print(f"Photo URL: {photo_url}")
-                
-                if photo_url and photo_url.startswith(EXPECTED_CDN_PREFIX):
-                    print(f"✅ Company 71 photo is Spaces CDN URL")
-                    
-                    # Verify the CDN URL is accessible
-                    try:
-                        cdn_response = requests.get(photo_url, timeout=10)
-                        content_type = cdn_response.headers.get('Content-Type', '')
-                        content_length = len(cdn_response.content)
-                        
-                        print(f"GET {photo_url}")
-                        print(f"Status: {cdn_response.status_code}")
-                        print(f"Content-Type: {content_type}")
-                        print(f"Content-Length: {content_length} bytes")
-                        
-                        if cdn_response.status_code == 200 and 'image/jpeg' in content_type:
-                            print(f"✅ TEST 5 PASSED: Company 71 logo accessible via Spaces CDN")
-                            print(f"   Expected ~33135 bytes, got {content_length} bytes")
-                            return True
-                        else:
-                            print(f"❌ TEST 5 FAILED: CDN URL returned {cdn_response.status_code} {content_type}")
-                            return False
-                    except Exception as e:
-                        print(f"❌ TEST 5 FAILED: CDN URL check error: {e}")
-                        return False
-                else:
-                    print(f"❌ TEST 5 FAILED: Company 71 photo URL does not start with Spaces CDN prefix")
-                    print(f"   Expected prefix: {EXPECTED_CDN_PREFIX}")
-                    print(f"   Actual URL: {photo_url}")
-                    return False
+            if 'data' in data and 'accessToken' in data['data']:
+                access_token = data['data']['accessToken']
+                print(f"✅ TEST 5 PASSED: Login successful")
+                print(f"   Token obtained (length: {len(access_token)})")
+                return True
             else:
-                print(f"❌ TEST 5 FAILED: Company 71 not found in response")
-                print(f"   Companies: {[c.get('company_id') for c in companies]}")
+                print(f"❌ TEST 5 FAILED: Response missing accessToken")
+                print(f"Response: {data}")
                 return False
         else:
             print(f"❌ TEST 5 FAILED: Expected 200, got {response.status_code}")
@@ -439,211 +431,201 @@ def test_company_logo_readonly():
         print(f"❌ TEST 5 ERROR: {str(e)}")
         return False
 
-def decode_png_pixel(png_bytes):
-    """Decode the first pixel from a 1x1 PNG"""
-    try:
-        # PNG structure: signature (8 bytes) + chunks
-        # We need to find the IDAT chunk and decompress it
-        
-        # Skip PNG signature (8 bytes)
-        offset = 8
-        
-        while offset < len(png_bytes):
-            # Read chunk length (4 bytes, big-endian)
-            chunk_length = struct.unpack('>I', png_bytes[offset:offset+4])[0]
-            offset += 4
-            
-            # Read chunk type (4 bytes)
-            chunk_type = png_bytes[offset:offset+4].decode('ascii')
-            offset += 4
-            
-            if chunk_type == 'IDAT':
-                # Found IDAT chunk - decompress it
-                compressed_data = png_bytes[offset:offset+chunk_length]
-                decompressed = zlib.decompress(compressed_data)
-                
-                # For a 1x1 RGBA PNG, the decompressed data should be:
-                # [filter_type, R, G, B, A] = 5 bytes
-                # filter_type is usually 0 (None)
-                
-                if len(decompressed) >= 5:
-                    filter_type = decompressed[0]
-                    pixel_bytes = list(decompressed[1:5])
-                    return pixel_bytes
-                else:
-                    return None
-            
-            # Skip chunk data + CRC (4 bytes)
-            offset += chunk_length + 4
-        
-        return None
-    except Exception as e:
-        print(f"Error decoding PNG: {e}")
-        return None
-
-def test_transparent_fallback():
+def test_referral_my_code():
     """
-    TEST 6: Transparent fallback pixel verification
-    Expected: GET /images/media_definitely_missing_xyz.png returns 200 image/png,
-              decoded pixel is [0,0,0,0] (fully transparent), NOT [0,255,0,127] (green)
+    TEST 6: GET /api/referral/my-code with Bearer
+    Expected: 200, capture data.referral_code
     """
+    global referral_code
+    
     print("\n" + "="*70)
-    print("TEST 6: Transparent Fallback Pixel Verification")
+    print("TEST 6: Get My Referral Code")
     print("="*70)
     
-    url = f"{LOCALHOST_BASE}/images/media_definitely_missing_xyz.png"
+    url = f"{API_BASE}/referral/my-code"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
     
     print(f"\n[TEST 6] GET {url}")
-    print(f"Expected: 200 image/png, pixel bytes [0,0,0,0] (fully transparent)")
-    print(f"Bug was: pixel bytes [0,255,0,127] (semi-transparent green)")
+    print(f"Headers: Authorization: Bearer <token>")
     
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, headers=headers, timeout=10)
         print(f"\nActual Status: {response.status_code}")
-        print(f"Content-Type: {response.headers.get('Content-Type')}")
-        print(f"Content-Length: {len(response.content)} bytes")
         
         if response.status_code == 200:
-            content_type = response.headers.get('Content-Type', '')
-            if 'image/png' in content_type:
-                # Decode the pixel
-                pixel_bytes = decode_png_pixel(response.content)
-                
-                if pixel_bytes:
-                    print(f"Decoded pixel bytes: {pixel_bytes}")
-                    
-                    # Check if fully transparent [0,0,0,0]
-                    if pixel_bytes == [0, 0, 0, 0]:
-                        print(f"✅ TEST 6 PASSED: Fallback pixel is fully transparent [0,0,0,0]")
-                        return True
-                    elif pixel_bytes == [0, 255, 0, 127]:
-                        print(f"❌ TEST 6 FAILED: BUG NOT FIXED - Fallback pixel is still green [0,255,0,127]")
-                        return False
-                    else:
-                        print(f"⚠️ TEST 6: Unexpected pixel bytes: {pixel_bytes}")
-                        print(f"   Expected: [0,0,0,0] (fully transparent)")
-                        return False
-                else:
-                    print(f"❌ TEST 6 FAILED: Could not decode pixel from PNG")
-                    return False
+            data = response.json()
+            
+            if 'data' in data and 'referral_code' in data['data']:
+                referral_code = data['data']['referral_code']
+                print(f"✅ TEST 6 PASSED: Got referral code")
+                print(f"   Referral code: {referral_code}")
+                return True
             else:
-                print(f"❌ TEST 6 FAILED: Expected image/png, got {content_type}")
+                print(f"❌ TEST 6 FAILED: Response missing referral_code")
+                print(f"Response: {data}")
                 return False
         else:
             print(f"❌ TEST 6 FAILED: Expected 200, got {response.status_code}")
+            print(f"Response: {response.text[:500]}")
             return False
     except Exception as e:
         print(f"❌ TEST 6 ERROR: {str(e)}")
         return False
 
-def test_refund_unit_tests():
+def test_referral_validate_valid():
     """
-    TEST 7: Refund merchant email unit tests
-    Expected: ts-node tests/test_refund_logic.ts -> "68 passed, 0 failed"
+    TEST 7: POST /api/referral/validate with Bearer and valid code
+    Expected: 200, valid:true, code_type "referral", referrer_name present
     """
     print("\n" + "="*70)
-    print("TEST 7: Refund Merchant Email Unit Tests")
+    print("TEST 7: Validate Referral Code (Valid Code)")
     print("="*70)
     
-    print(f"\n[TEST 7] Running: cd /app/backend && node_modules/.bin/ts-node --transpile-only tests/test_refund_logic.ts")
-    print(f"Expected: Final line '68 passed, 0 failed'")
+    url = f"{API_BASE}/referral/validate"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    payload = {
+        "referral_code": referral_code
+    }
+    
+    print(f"\n[TEST 7] POST {url}")
+    print(f"Headers: Authorization: Bearer <token>")
+    print(f"Payload: {payload}")
+    print(f"Expected: 200, valid:true, code_type='referral', referrer_name present")
     
     try:
-        import subprocess
-        result = subprocess.run(
-            ["node_modules/.bin/ts-node", "--transpile-only", "tests/test_refund_logic.ts"],
-            cwd="/app/backend",
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        print(f"\nActual Status: {response.status_code}")
         
-        print(f"\nExit code: {result.returncode}")
-        print(f"STDOUT:\n{result.stdout}")
-        if result.stderr:
-            print(f"STDERR:\n{result.stderr}")
-        
-        # Check for "68 passed, 0 failed" in output
-        if result.returncode == 0 and "68 passed" in result.stdout and "0 failed" in result.stdout:
-            print(f"✅ TEST 7 PASSED: All 68 refund unit tests passed")
-            return True
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Response: {data}")
+            
+            valid = data.get('valid')
+            code_type = data.get('data', {}).get('code_type') if 'data' in data else None
+            referrer_name = data.get('data', {}).get('referrer_name') if 'data' in data else None
+            
+            if valid == True and code_type == 'referral' and referrer_name:
+                print(f"✅ TEST 7 PASSED: Valid referral code validated correctly")
+                print(f"   - valid: {valid}")
+                print(f"   - code_type: {code_type}")
+                print(f"   - referrer_name: {referrer_name}")
+                return True
+            else:
+                print(f"❌ TEST 7 FAILED: Response values don't match:")
+                print(f"   - valid: {valid} (expected: True)")
+                print(f"   - code_type: {code_type} (expected: 'referral')")
+                print(f"   - referrer_name: {referrer_name} (expected: present)")
+                return False
         else:
-            print(f"❌ TEST 7 FAILED: Unit tests did not pass")
+            print(f"❌ TEST 7 FAILED: Expected 200, got {response.status_code}")
+            print(f"Response: {response.text[:500]}")
             return False
     except Exception as e:
         print(f"❌ TEST 7 ERROR: {str(e)}")
         return False
 
-def test_cleanup():
+def test_referral_validate_invalid():
     """
-    TEST 8: Cleanup - remove test profile photo
-    Expected: HTTP 200
+    TEST 8: POST /api/referral/validate with Bearer and invalid code
+    Expected: valid:false (HTTP 404 or 200 with valid:false)
     """
     print("\n" + "="*70)
-    print("TEST 8: Cleanup (Remove Test Profile Photo)")
+    print("TEST 8: Validate Referral Code (Invalid Code)")
     print("="*70)
     
-    url = f"{API_BASE}/user/updateUser"
+    url = f"{API_BASE}/referral/validate"
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
-    
-    data = {
-        'data': '{"remove_photo":true}'
+    payload = {
+        "referral_code": "NOPE-INVALID-XYZ"
     }
     
-    print(f"\n[TEST 8] PUT {url}")
-    print(f"Data: data={{\"remove_photo\":true}}")
-    print(f"Expected: HTTP 200")
+    print(f"\n[TEST 8] POST {url}")
+    print(f"Headers: Authorization: Bearer <token>")
+    print(f"Payload: {payload}")
+    print(f"Expected: valid:false (HTTP 404 or 200 with valid:false)")
     
     try:
-        response = requests.put(url, headers=headers, data=data, timeout=15)
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
         print(f"\nActual Status: {response.status_code}")
         
-        if response.status_code == 200:
-            print(f"✅ TEST 8 PASSED: Test profile photo removed")
+        if response.status_code == 404:
+            print(f"✅ TEST 8 PASSED: Invalid code correctly rejected with 404")
             return True
+        elif response.status_code == 200:
+            data = response.json()
+            print(f"Response: {data}")
+            
+            valid = data.get('valid')
+            
+            if valid == False:
+                print(f"✅ TEST 8 PASSED: Invalid code correctly rejected with valid:false")
+                return True
+            else:
+                print(f"❌ TEST 8 FAILED: Expected valid:false, got valid:{valid}")
+                return False
         else:
-            print(f"⚠️ TEST 8: Expected 200, got {response.status_code}")
-            print(f"Response: {response.text[:300]}")
-            return True  # Non-critical cleanup
+            print(f"⚠️ TEST 8: Unexpected status {response.status_code}")
+            print(f"Response: {response.text[:500]}")
+            # Still pass if it's a 4xx error (rejection is working)
+            return response.status_code >= 400 and response.status_code < 500
     except Exception as e:
-        print(f"⚠️ TEST 8 ERROR: {str(e)}")
-        return True  # Non-critical cleanup
+        print(f"❌ TEST 8 ERROR: {str(e)}")
+        return False
 
 def main():
     """Run all tests"""
     print("\n" + "="*70)
     print("DYNOPAY BACKEND VERIFICATION")
-    print("Image Upload Bug Fixes (2026-08-25)")
+    print("3 New Read-Only Features (2026-08-26)")
     print("="*70)
-    print(f"External Base: {EXTERNAL_BASE}")
+    print(f"Preview Base: {PREVIEW_BASE}")
     print(f"Localhost Base: {LOCALHOST_BASE}")
     print(f"Test User: {TEST_EMAIL}")
-    print("⚠️  PRODUCTION DATABASE - MINIMAL WRITES ONLY")
+    print("⚠️  PRODUCTION DATABASE - STRICTLY READ-ONLY (SAFE MODE)")
     print("="*70)
     
-    # Step 1: Health check (no auth needed)
-    health_result = test_health_check()
+    # Run all tests in order
+    results = {}
     
-    # Step 2: Login
-    if not login():
-        print("\n❌ TESTING ABORTED: Login failed")
-        return
+    # FEATURE health (test first to verify SAFE MODE)
+    results["Test 9: Health Check (SAFE MODE)"] = test_health_check()
     
-    # Step 3: Run all test cases
-    results = {
-        "Test 1: Health Check": health_result,
-        "Test 2: Profile Photo PNG Upload": test_profile_photo_png(),
-        "Test 3: All Image Types (GIF, WEBP/BMP)": test_all_image_types(),
-        "Test 4: Non-Image Rejection": test_non_image_rejection(),
-        "Test 5: Company Logo Read-Only Check": test_company_logo_readonly(),
-        "Test 6: Transparent Fallback Pixel": test_transparent_fallback(),
-        "Test 7: Refund Merchant Email Unit Tests": test_refund_unit_tests(),
-        "Test 8: Cleanup": test_cleanup()
-    }
+    # FEATURE #1 — Localized sitemap
+    results["Test 1: Shop Sitemap Feed"] = test_shop_sitemap()
+    results["Test 2: Sitemap XML with Hreflang"] = test_sitemap_xml()
     
-    # Step 4: Summary
+    # FEATURE #2 — Status per-service budgets + auto-incidents
+    results["Test 3: Status Per-Service Budgets"] = test_status_services()
+    results["Test 4: Status Auto-Derived Incidents"] = test_status_incidents()
+    
+    # FEATURE #3 — Referral clarity (requires login first)
+    login_success = test_login()
+    results["Test 5: User Login"] = login_success
+    
+    if login_success:
+        my_code_success = test_referral_my_code()
+        results["Test 6: Get My Referral Code"] = my_code_success
+        
+        if my_code_success:
+            results["Test 7: Validate Valid Referral Code"] = test_referral_validate_valid()
+        else:
+            print("\n⚠️ Skipping Test 7 (no referral code obtained)")
+            results["Test 7: Validate Valid Referral Code"] = False
+        
+        results["Test 8: Validate Invalid Referral Code"] = test_referral_validate_invalid()
+    else:
+        print("\n⚠️ Skipping Tests 6-8 (login failed)")
+        results["Test 6: Get My Referral Code"] = False
+        results["Test 7: Validate Valid Referral Code"] = False
+        results["Test 8: Validate Invalid Referral Code"] = False
+    
+    # Summary
     print("\n" + "="*70)
     print("TEST SUMMARY")
     print("="*70)
@@ -658,9 +640,9 @@ def main():
     print(f"\nTotal: {passed}/{total} tests passed ({int(passed/total*100)}% pass rate)")
     
     if passed == total:
-        print("\n🎉 ALL TESTS PASSED - Image upload bug fixes verified successfully!")
+        print("\n🎉 ALL TESTS PASSED - 3 new read-only features verified successfully!")
     else:
-        print(f"\n⚠️  {total - passed} test(s) failed - Bug fixes incomplete or issues detected")
+        print(f"\n⚠️  {total - passed} test(s) failed - Features incomplete or issues detected")
     
     print("="*70)
 

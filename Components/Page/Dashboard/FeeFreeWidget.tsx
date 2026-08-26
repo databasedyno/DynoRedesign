@@ -89,7 +89,7 @@ const FeeFreeWidget: React.FC = () => {
           mb: 0.5,
         }}
       >
-        Your first payment is on us
+        Your first payment is platform-fee-free
       </Typography>
       <Typography sx={{ fontSize: isMobile ? 12 : 13, color: theme.palette.text.secondary, lineHeight: 1.5 }}>
         We waive our full platform fee (fixed + %) on your first payment — you only pay the network (blockchain) cost. Standard fees start after that.

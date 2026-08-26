@@ -53,7 +53,7 @@ export const createRefereeCode = async (params: {
   referrerCompanyId: number;
   referrerUserId: number;
   paymentLinkId?: number;
-}): Promise<{ code: string; discount: number; duration: number } | null> => {
+}): Promise<{ code: string; discount: number; duration: number; unsubscribeToken: string } | null> => {
   const { customerEmail, referrerCompanyId, referrerUserId, paymentLinkId } = params;
   const email = customerEmail.toLowerCase();
 
@@ -93,7 +93,7 @@ export const createRefereeCode = async (params: {
     payment_link_id: paymentLinkId,
     status: 'sent',
     discount_percent: 50,
-    discount_duration_days: 90,
+    discount_duration_days: 30,
     sent_at: new Date(),
     expires_at: expiresAt,
   } as Record<string, unknown>);
@@ -104,6 +104,7 @@ export const createRefereeCode = async (params: {
     code: refereeCode.code,
     discount: refereeCode.discount_percent,
     duration: refereeCode.discount_duration_days,
+    unsubscribeToken: (refereeCode as unknown as { unsubscribe_token: string }).unsubscribe_token,
   };
 };
 
@@ -170,36 +171,42 @@ export const redeemRefereeCode = async (params: {
     { where: { user_id: userId } }
   );
 
-  // Apply reward to referrer (10% for 30 days)
-  const referrerDiscountExpiresAt = new Date();
-  referrerDiscountExpiresAt.setDate(referrerDiscountExpiresAt.getDate() + 30);
-
-  // Check if referrer already has a better discount
-  const referrer = await User.findByPk(refereeCode.referrer_user_id);
-  const referrerData = referrer as unknown as Record<string, unknown> | null;
-  const currentDiscount = Number(referrerData?.fee_discount_percent || 0);
-  const currentExpiry = referrerData?.fee_discount_expires_at as Date | null;
-
-  // Stack discounts or extend - use the better deal
-  if (!currentExpiry || new Date() > currentExpiry || currentDiscount < 10) {
-    await User.update(
-      {
-        fee_discount_percent: 10,
-        fee_discount_expires_at: referrerDiscountExpiresAt,
-        fee_discount_reason: 'referrer_reward',
+  // UNIFIED referral program (Option A): the referrer's 50%/30d reward is now
+  // DEFERRED — it unlocks only after this invited user takes their first
+  // qualifying ($100+) payment, exactly like the organic user-referral program.
+  // We record a pending referral so the reward monitor can process it later
+  // (utils/crons/referralRewardMonitor.ts). No immediate referrer discount.
+  if (refereeCode.referrer_user_id !== userId) {
+    const existingReferral = await Referral.findOne({
+      where: {
+        referred_user_id: userId,
+        status: { [Op.in]: ['pending', 'active', 'rewarded'] },
       },
-      { where: { user_id: refereeCode.referrer_user_id } }
-    );
+    });
+    if (!existingReferral) {
+      await Referral.create({
+        referrer_user_id: refereeCode.referrer_user_id,
+        referred_user_id: userId,
+        referral_code: refereeCode.code,
+        status: 'pending',
+        activation_requirement: 'first_transaction_100',
+        bonus_amount: 0,
+        bonus_currency: 'USD',
+        referee_discount_percent: refereeCode.discount_percent,
+        referee_discount_duration_days: refereeCode.discount_duration_days,
+        referred_at: new Date(),
+        expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      } as Record<string, unknown>);
+
+      // Increment referrer's referral count (once per invited user)
+      await User.increment(
+        { referral_count: 1 },
+        { where: { user_id: refereeCode.referrer_user_id } }
+      );
+    }
   }
 
-  // Increment referrer's referral count
-  await User.increment(
-    { referral_count: 1 },
-    { where: { user_id: refereeCode.referrer_user_id } }
-  );
-
-  apiLogger.info(`[RefereeCode] Code ${code} redeemed by user ${userId}`);
-  apiLogger.info(`[RefereeCode] Referrer ${refereeCode.referrer_user_id} rewarded with 10% off for 30 days`);
+  apiLogger.info(`[RefereeCode] Code ${code} redeemed by user ${userId} — referrer reward deferred to first payment`);
 
   return {
     success: true,

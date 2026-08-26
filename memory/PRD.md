@@ -1,3 +1,41 @@
+# FEATURE (2026-06 fork) — Unified referral program ("give 50% off, get 50% off") — DONE (FE screenshot-verified; cron prod-only)
+
+Preview: https://a1e9a54e-6d51-47fb-98d3-e91ce0a11738.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend + backend tsc EXIT 0.
+
+INVESTIGATION FINDING: two overlapping referral systems existed —
+  (1) User referral code `DYNO-XXXX` (merchant→merchant): referee got 50%/30d on signup, referrer
+      SUPPOSED to get 50%/30d after invitee's $100 payment — but processReferrerReward/processReferralReward
+      were DEAD CODE (never called anywhere), so the referrer was NEVER actually rewarded.
+  (2) Referee code `REF-XXXX` (merchant→their paying customer): invite embedded in the payment-request
+      email at LINK CREATION; referee got 50%/90d, referrer got 10%/30d immediately.
+Plus contradictory copy everywhere ("$50 fee-free credit", "lifetime revenue share", "10% off", "90 days").
+
+USER DECISIONS: (1b) referrer reward only after invitee's first $100 payment; (2b) send the customer invite
+only AFTER the customer actually pays; unify BOTH to 50%/30d. + make benefit clear on landing + in-app.
+
+IMPLEMENTED:
+- Unified reward = 50%/30d for both. Referrer reward DEFERRED for both entry points via pending tbl_referral
+  rows, unlocked by NEW cron utils/crons/referralRewardMonitor.ts (setupReferralRewardCron, every 15 min,
+  registered in registerLeaderCronJobs -> prod-leader only). Same cron sends post-payment "become a merchant"
+  invites (createRefereeCode + new sendRefereeInviteEmail) to paying customers with no account.
+- Removed the invite-at-link-creation block from paymentLinkController; createRefereeCode now 50%/30d.
+- Fixed ALL referral copy in 6 locales (referrals.json, dashboardLayout.json, landing.json FAQ q6, auth.json
+  register hint). New landing FAQ "Is there a referral program?" + green benefit hint on /auth/register.
+
+VERIFIED: FE screenshots (/referrals 50%+50% + "unlocks after first payment"; landing FAQ; register hint);
+/api/referral/validate returns unified 50%/50%; tsc clean; /health healthy SAFE MODE. The payment-triggered
+cron is prod-only (dormant in preview: ENABLE_BACKGROUND_JOBS=false + DISABLE_OUTBOUND_EMAIL=true) — code +
+compile verified, no LIVE prod-DB writes this session.
+
+FILES: backend/services/referralService.ts, backend/utils/crons/referralRewardMonitor.ts (new),
+backend/server.ts, backend/controller/payment/paymentLinkController.ts, backend/services/email/linkCampaignEmails.ts,
+backend/services/emailService.ts; Components/Page/Home/v3/FAQCompact.tsx, pages/auth/register.tsx,
+langs/locales/{en,es,pt,fr,de,nl}/{referrals,dashboardLayout,landing,auth}.json.
+
+---
+
+
+
 # FEATURE + INVESTIGATION (2026-06 fork) — Shop hreflang tags + "Save to GitHub" pre-hook check — DONE (testing_agent iteration_87)
 
 ## 1) hreflang / canonical / og for localized shop + product pages — DONE (verified)

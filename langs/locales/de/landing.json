@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Jetzt kostenlos starten",
-        "desc": "Deine erste Zahlung geht auf uns — ohne Karte.",
+        "desc": "Wir erlassen unsere Plattformgebühr bei deiner ersten Zahlung — ohne Karte.",
         "cta": "Kostenlos starten"
       }
     }
@@ -108,7 +108,7 @@
       "body": "Eine Wallet für Händler, Creator, Fundraiser und Entwickler. Shops, Trinkgelder, Kampagnen und eine saubere API – alles in der Coin deiner Wahl abgerechnet, ab <b>0,5 %</b>.",
       "claimBtn": "Sichern",
       "chooseHandle": "Wähle deinen Creator-Handle",
-      "rewardBadge": "Neu hier? Deine <b>erste Zahlung</b> geht auf uns.",
+      "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
       "bullets": "Kostenlos starten · Keine Karte · Über 15 Chains",
       "trustLine": "Non-custodial · SOC 2 in Vorbereitung · DSGVO / AML",
       "livePill": "LIVE",
@@ -242,7 +242,7 @@
       "headline1": "Werde bezahlt in",
       "headline2": "Krypto heute.",
       "body": "Kostenlos starten. Keine Karte. In unter 10 Minuten live – bring deine Wallet mit, behalte dein Geld.",
-      "rewardBadge": "Neu hier? Deine <b>erste Zahlung</b> geht auf uns.",
+      "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
       "getStarted": "Kostenlos starten",
       "readDocs": "Docs lesen",
       "trustLine": "Non-custodial · 15+ Chains · SOC2 in Vorbereitung · DSGVO / AML"
@@ -261,7 +261,9 @@
       "q5": "Unterstützt ihr Fiat, Rückerstattungen oder Abos?",
       "a5": "Rückerstattungen, ja – On-Chain-Umkehrungen mit einem Klick, die die Gelder direkt an die Adresse des Käufers zurücksenden. Fiat-Karten oder automatische wiederkehrende Abos bieten wir derzeit nicht an: Jede Zahlung ist eine direkte, einmalige Krypto-Zahlung an ein Wallet, das du kontrollierst – mit optionaler Auto-Konvertierung in USDC oder USDT. Wiederkehrende Zahlung nötig? Teile einfach denselben Link erneut.",
       "stillCurious": "Noch neugierig?",
-      "askUs": "Frag uns alles →"
+      "askUs": "Frag uns alles →",
+      "q6": "Gibt es ein Empfehlungsprogramm?",
+      "a6": "Ja. Teile deinen Empfehlungslink — meldet sich ein Händler an, bekommt ihr beide 30 Tage lang 50% weniger Dynopay-Gebühren. Der Rabatt deines Freundes startet sofort bei der Anmeldung; deiner wird nach seiner ersten Zahlung freigeschaltet."
     },
     "learn": {
       "eyebrow": "[ In deinem Tempo ]",

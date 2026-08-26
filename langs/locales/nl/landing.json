@@ -68,7 +68,7 @@
       },
       "featured": {
         "title": "Begin vandaag gratis",
-        "desc": "Je eerste betaling is van ons — geen kaart nodig.",
+        "desc": "Wij schelden onze platformkosten kwijt bij je eerste betaling — geen kaart nodig.",
         "cta": "Gratis starten"
       }
     }
@@ -108,7 +108,7 @@
       "body": "Eén wallet voor verkopers, creators, fondsenwervers en developers. Winkels, fooien, campagnes en een strakke API — alles afgerekend in de munt die jij kiest, vanaf <b>0,5%</b>.",
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
-      "rewardBadge": "Nieuw hier? Je <b>eerste betaling</b> is van ons.",
+      "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
       "bullets": "Gratis te starten · Geen kaart · 15+ chains",
       "trustLine": "Non-custodial · SOC 2 in voorbereiding · GDPR / AML",
       "livePill": "LIVE",
@@ -242,7 +242,7 @@
       "headline1": "Krijg betaald in",
       "headline2": "crypto vandaag.",
       "body": "Gratis te starten. Geen kaart. Binnen 10 minuten live — neem je wallet mee, hou je geld.",
-      "rewardBadge": "Nieuw hier? Je <b>eerste betaling</b> is van ons.",
+      "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
       "getStarted": "Gratis starten",
       "readDocs": "Lees de docs",
       "trustLine": "Non-custodial · 15+ chains · SOC2 in voorbereiding · GDPR / AML"
@@ -261,7 +261,9 @@
       "q5": "Ondersteunen jullie fiat, refunds of abonnementen?",
       "a5": "Refunds, ja — on-chain terugboekingen met één klik die het geld rechtstreeks terugsturen naar het adres van de koper. Fiat-kaarten of automatische terugkerende abonnementen bieden we vandaag niet aan: elke betaling is een directe, eenmalige crypto-betaling naar een wallet die jij beheert, met optionele auto-conversie naar USDC of USDT. Terugkerende betaling nodig? Deel gewoon dezelfde link opnieuw.",
       "stillCurious": "Nog steeds nieuwsgierig?",
-      "askUs": "Vraag ons wat je wilt →"
+      "askUs": "Vraag ons wat je wilt →",
+      "q6": "Is er een verwijzingsprogramma?",
+      "a6": "Ja. Deel je verwijzingslink en wanneer een verkoper zich aanmeldt, krijgen jullie allebei 30 dagen 50% korting op Dynopay-kosten. De korting van je vriend start meteen bij aanmelding; die van jou wordt vrijgespeeld zodra hij zijn eerste betaling ontvangt."
     },
     "learn": {
       "eyebrow": "[ Op je eigen tempo ]",

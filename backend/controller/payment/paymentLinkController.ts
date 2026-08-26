@@ -912,40 +912,13 @@ export const createPaymentLink = async (
 
     await setRedisItem("customer-" + uniqueRef, redisPayload);
 
-    // Send payment link email with referee code (if email provided)
+    // Send payment link email (if a customer email was provided).
     // Skipped for donation campaigns — there is no single "customer" to bill.
+    // NOTE: the "become a merchant" 50%-off invite is NO LONGER embedded here.
+    // Under the unified referral program it is emailed only AFTER the customer
+    // actually completes a payment (see utils/crons/referralRewardMonitor.ts).
     if (!isDonation && email && email.trim() !== "") {
       try {
-        // Import referee code service
-        const { createRefereeCode } = await import("../../services/referralService");
-        
-        // Try to create referee code (will return null if email has account or already received code)
-        const refereeCodeData = await createRefereeCode({
-          customerEmail: email,
-          referrerCompanyId: company_id || userData.company_id,
-          referrerUserId: userData.user_id,
-          paymentLinkId: links.dataValues.link_id,
-        });
-
-        // Build email content
-        let refereeCodeSection = "";
-        if (refereeCodeData) {
-          refereeCodeSection = `
-            <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); border-left: 4px solid #22c55e; border-radius: 0 8px 8px 0;">
-              <h3 style="margin: 0 0 10px 0; color: #166534; font-size: 16px;">🎁 Special Offer for You!</h3>
-              <p style="margin: 0 0 10px 0; color: #14532d; font-size: 14px;">
-                Want to accept crypto payments for your own business? Join Dynopay and get <strong>${refereeCodeData.discount}% off</strong> all fees for <strong>${refereeCodeData.duration} days</strong>!
-              </p>
-              <p style="margin: 0; font-size: 14px;">
-                Use code: <strong style="background: #dcfce7; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${refereeCodeData.code}</strong>
-              </p>
-              <p style="margin: 10px 0 0 0; font-size: 12px; color: #166534;">
-                This code is exclusive to you and expires in 30 days.
-              </p>
-            </div>
-          `;
-        }
-
         // Get company name if available
         let companyName = "Dynopay Merchant";
         if (company_id) {
@@ -967,8 +940,6 @@ You have received a payment request from <strong>${companyName}</strong>.
 <div style="text-align: center; margin: 24px 0;">
   <a href="${payload.payment_link}" style="display: inline-block; background: linear-gradient(135deg, #f47323 0%, #e05a00 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">Pay Now</a>
 </div>
-
-${refereeCodeSection}
         `.trim();
 
         await sendEmail(
@@ -979,7 +950,7 @@ ${refereeCodeSection}
           false                                                                           // showImage
         );
 
-        cronLogger.info(`[PaymentLink] Email sent to ${email}${refereeCodeData ? ` with referee code ${refereeCodeData.code}` : ''}`);
+        cronLogger.info(`[PaymentLink] Payment request email sent to ${email}`);
       } catch (emailError) {
         cronLogger.error("[PaymentLink] Failed to send email:", emailError);
         // Don't fail the request if email fails

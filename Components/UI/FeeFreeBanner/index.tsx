@@ -146,7 +146,7 @@ const FeeFreeBanner: React.FC = () => {
               whiteSpace: "nowrap",
             }}
           >
-            {isMobile ? "1st payment free" : "Your first payment is on us — 0% platform fee"}
+            {isMobile ? "0% platform fee" : "Your first payment: 0% platform fee"}
           </Typography>
         </Box>
 
