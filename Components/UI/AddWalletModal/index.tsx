@@ -510,14 +510,19 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         }
       }}
       sx={{
+        // Move 2 (usability restructuring): add-wallet is a right-side PANEL
+        // that slides over the wallet list (full-screen sheet <768px) instead
+        // of a centered pop-up hiding the list behind it.
+        "& .MuiDialog-container": { justifyContent: "flex-end", alignItems: "stretch" },
         "& .MuiDialog-paper": {
           width: "100%",
-          maxWidth: "481px",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
+          maxWidth: { xs: "100%", md: "481px" },
+          height: "100%",
+          maxHeight: "100%",
+          m: 0,
           p: 2,
-          borderRadius: "18px",
+          borderRadius: 0,
+          overflowY: "auto",
           border: (t) =>
             `1px solid ${
               t.palette.mode === "dark"
@@ -526,8 +531,8 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             }`,
           boxShadow: (t) =>
             t.palette.mode === "dark"
-              ? "0 24px 60px -20px rgba(0,0,0,0.7)"
-              : "0 24px 60px -30px rgba(15,15,20,0.25)",
+              ? "-24px 0 60px -20px rgba(0,0,0,0.7)"
+              : "-24px 0 60px -30px rgba(15,15,20,0.25)",
         },
       }}
     >

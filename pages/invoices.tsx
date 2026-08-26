@@ -39,6 +39,7 @@ import { Icon, MONO } from "@/styles/uiKit";
 import { useSelector } from "react-redux";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 
 interface Invoice {
   invoice_id: number;
@@ -87,6 +88,21 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const muiTheme = useTheme();
   const isMobile = useIsMobile("md");
   const cardView = useTableCardView();
+  // §4.2 rulebook: pinned first (invoice #) column + edge-fade scroll hints ≥768px.
+  const { ref: invScrollRef, showLeft: invScrolledX, showRight: invMoreRight } = useEdgeFades<HTMLDivElement>();
+  const invFrozenShadow = invScrolledX
+    ? muiTheme.palette.mode === "dark"
+      ? "8px 0 12px -8px rgba(0,0,0,0.6)"
+      : "8px 0 12px -8px rgba(15,15,20,0.22)"
+    : "none";
+  const invStickyFirstSx = {
+    position: "sticky" as const,
+    left: 0,
+    zIndex: 1,
+    backgroundColor: muiTheme.palette.background.paper,
+    boxShadow: invFrozenShadow,
+    transition: "box-shadow 160ms ease",
+  };
   const { t } = useTranslation("common");
 
   const [activeTab, setActiveTab] = useState(0);
@@ -464,7 +480,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   )}
                 </Box>
               ) : (
-              <TableContainer>
+              <Box sx={{ position: "relative" }}>
+              <TableContainer ref={invScrollRef}>
                 <Table size={isMobile ? "small" : "medium"}>
                   <TableHead>
                     <TableRow>
@@ -474,6 +491,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
+                          ...invStickyFirstSx,
+                          zIndex: 2,
                         }}
                       >
                         {t("invoices.colInvoiceNumber")}
@@ -682,7 +701,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             onClick={() => openInvoicePreview(inv)}
                             sx={{ cursor: "pointer" }}
                           >
-                            <TableCell>
+                            <TableCell sx={invStickyFirstSx}>
                               <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
                                 <Typography
                                   sx={{
@@ -789,6 +808,9 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              {/* §4.2 — right edge fade signals more columns off-screen. */}
+              <EdgeFades showLeft={false} showRight={invMoreRight} />
+              </Box>
               )}
 
               {/* Pagination */}

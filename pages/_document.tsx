@@ -116,7 +116,9 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
   // Help & Support is dual-purpose: FOLLOW the in-app theme preference (so a
   // dark merchant keeps dark) but DEFAULT to light for logged-out visitors.
   var storageKey = (context === 'inapp' || isHelp) ? 'theme-mode-inapp' : 'theme-mode-public';
-  var defaultMode = (context === 'inapp' && !isHelp) ? 'dark' : 'light';
+  // 2026-08 usability plan (decision 1a): LIGHT is the default everywhere;
+  // saved dark preferences (localStorage/cookie) still win below.
+  var defaultMode = 'light';
 
   // Start from the ROUTE default. Only a stored preference (or auth-path
   // inheritance) may override it — and reading storage is isolated so its

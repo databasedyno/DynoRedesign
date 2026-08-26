@@ -42,5 +42,31 @@
   "editLinkTooltip": "Bewerk link",
   "viewTransactionsTooltip": "Bekijk transacties",
   "viewLinkTooltip": "Bekijk details",
-  "deleteLinkTooltip": "Verwijder link"
+  "deleteLinkTooltip": "Verwijder link",
+  "quickCreate": {
+    "title": "Betaallink aanmaken",
+    "successTitle": "Link klaar om te delen",
+    "close": "Sluiten",
+    "previewLabel": "De koper ziet",
+    "previewPlaceholder": "Waar is deze betaling voor?",
+    "amountLabel": "Bedrag",
+    "descriptionLabel": "Omschrijving",
+    "descriptionPlaceholder": "bijv. Logo-ontwerp — laatste betaling",
+    "emailLabel": "E-mail van klant (optioneel)",
+    "errorAmount": "Voer een bedrag groter dan 0 in",
+    "errorDescription": "Een korte omschrijving is verplicht",
+    "errorEmail": "Voer een geldig e-mailadres in of laat leeg",
+    "errorGeneric": "Kon de link niet aanmaken — probeer het opnieuw.",
+    "creating": "Aanmaken…",
+    "submit": "Link aanmaken",
+    "allOptionsHint": "Belastingen, vervaldatum, redirects of een donatie nodig?",
+    "allOptions": "Alle opties",
+    "copied": "Betaallink gekopieerd!",
+    "copyFailed": "Kopiëren mislukt — selecteer en kopieer handmatig.",
+    "copyLink": "Link kopiëren",
+    "share": "Delen",
+    "openLink": "Link openen",
+    "createAnother": "Nog een aanmaken",
+    "done": "Klaar"
+  }
 }

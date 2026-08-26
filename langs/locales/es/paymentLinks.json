@@ -42,5 +42,31 @@
   "editLinkTooltip": "Editar enlace",
   "viewTransactionsTooltip": "Ver transacciones",
   "viewLinkTooltip": "Ver detalles",
-  "deleteLinkTooltip": "Eliminar enlace"
+  "deleteLinkTooltip": "Eliminar enlace",
+  "quickCreate": {
+    "title": "Crear enlace de pago",
+    "successTitle": "Enlace listo para compartir",
+    "close": "Cerrar",
+    "previewLabel": "El comprador verá",
+    "previewPlaceholder": "¿Para qué es este pago?",
+    "amountLabel": "Importe",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "p. ej., Diseño de logo — pago final",
+    "emailLabel": "Email del cliente (opcional)",
+    "errorAmount": "Introduce un importe mayor que 0",
+    "errorDescription": "Se requiere una breve descripción",
+    "errorEmail": "Introduce un email válido o déjalo vacío",
+    "errorGeneric": "No se pudo crear el enlace — inténtalo de nuevo.",
+    "creating": "Creando…",
+    "submit": "Crear enlace",
+    "allOptionsHint": "¿Necesitas impuestos, caducidad, redirecciones o una donación?",
+    "allOptions": "Todas las opciones",
+    "copied": "¡Enlace de pago copiado!",
+    "copyFailed": "Error al copiar — selecciona y copia manualmente.",
+    "copyLink": "Copiar enlace",
+    "share": "Compartir",
+    "openLink": "Abrir enlace",
+    "createAnother": "Crear otro",
+    "done": "Hecho"
+  }
 }

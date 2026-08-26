@@ -53,5 +53,11 @@
   "sourceProductShort": "Store",
   "sourceContributionShort": "Donation",
   "sourceDirectShort": "Direct",
-  "sourcePaymentLinks": "Payment links"
+  "sourcePaymentLinks": "Payment links",
+  "statusTipConverted": "Settled and auto-converted to your payout currency.",
+  "statusTipPending": "Waiting for the buyer's payment to appear on the blockchain.",
+  "statusTipConfirming": "Payment seen on-chain — waiting for enough confirmations.",
+  "statusTipSettled": "Confirmed and credited to your balance.",
+  "statusTipFailed": "This payment did not complete — no funds moved.",
+  "statusTipUnpaid": "The buyer opened the checkout but has not paid yet."
 }

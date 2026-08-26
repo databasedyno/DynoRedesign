@@ -151,7 +151,21 @@ export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({
   minHeight: 0,
   overflowX: "auto",
   overflowY: "auto",
-  scrollbarWidth: "none",
+  // §4.2 — thin visible scrollbar so it's obvious the table scrolls sideways.
+  scrollbarWidth: "thin",
+  scrollbarColor:
+    theme.palette.mode === "dark"
+      ? "rgba(255,255,255,0.28) transparent"
+      : "rgba(15,15,20,0.28) transparent",
+  "&::-webkit-scrollbar": { height: 8, width: 8 },
+  "&::-webkit-scrollbar-track": { background: "transparent" },
+  "&::-webkit-scrollbar-thumb": {
+    borderRadius: 8,
+    backgroundColor:
+      theme.palette.mode === "dark"
+        ? "rgba(255,255,255,0.22)"
+        : "rgba(15,15,20,0.22)",
+  },
   [theme.breakpoints.down("md")]: {
     overflowX: "auto",
     WebkitOverflowScrolling: "touch",

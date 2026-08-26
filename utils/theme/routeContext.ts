@@ -126,7 +126,11 @@ export function getDefaultThemeForPath(pathname: string | undefined | null): The
 }
 
 export function getDefaultThemeForContext(context: ThemeContext): ThemeMode {
-  return context === "inapp" ? "dark" : "light";
+  // 2026-08 usability plan (decision 1a): the app now defaults to LIGHT for
+  // everyone — the design system is light-first and reads "bank", not
+  // "trading terminal". Merchants who explicitly chose dark keep it via
+  // their saved localStorage/cookie preference (readPreferredMode).
+  return "light";
 }
 
 export function getStorageKeyForContext(context: ThemeContext): string {

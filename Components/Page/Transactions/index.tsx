@@ -107,6 +107,14 @@ const TransactionPage = () => {
     if (mapped) setSelectedSource(mapped);
   }, [router.isReady, router.query.source]);
 
+  // Move 4 (⌘K palette): seed the search filter from a `?search=` deep link
+  // (e.g. "Search transactions for <id>" in the global command palette).
+  useEffect(() => {
+    if (!router.isReady || !router.query.search) return;
+    const q = String(router.query.search);
+    if (q) setSearchTerm(q);
+  }, [router.isReady, router.query.search]);
+
   const transactionState = useSelector(
     (state: rootReducer) => state.transactionReducer,
   );
@@ -120,7 +128,6 @@ const TransactionPage = () => {
     if (transactionState.loading) return;
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     dispatch(TransactionAction(TRANSACTION_FETCH, payload));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedCompanyId]);
 
   // "First payment received" celebration ─────────────────────────────────────
@@ -455,6 +462,7 @@ const TransactionPage = () => {
         onSettledOnlyChange={setSettledExport}
         initialWallet={selectedWallet}
         initialSource={selectedSource}
+        initialSearch={searchTerm}
       />
       {taxSummary.total > 0 && (
         <Box

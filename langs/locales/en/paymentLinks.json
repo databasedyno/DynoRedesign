@@ -42,5 +42,31 @@
   "editLinkTooltip": "Edit link",
   "viewTransactionsTooltip": "View transactions",
   "viewLinkTooltip": "View details",
-  "deleteLinkTooltip": "Delete link"
+  "deleteLinkTooltip": "Delete link",
+  "quickCreate": {
+    "title": "Create payment link",
+    "successTitle": "Link ready to share",
+    "close": "Close",
+    "previewLabel": "Buyer will see",
+    "previewPlaceholder": "What is this payment for?",
+    "amountLabel": "Amount",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "e.g. Logo design — final payment",
+    "emailLabel": "Customer email (optional)",
+    "errorAmount": "Enter an amount greater than 0",
+    "errorDescription": "A short description is required",
+    "errorEmail": "Enter a valid email or leave empty",
+    "errorGeneric": "Could not create the link — please try again.",
+    "creating": "Creating…",
+    "submit": "Create link",
+    "allOptionsHint": "Need taxes, expiry, redirects or a donation?",
+    "allOptions": "All options",
+    "copied": "Payment link copied!",
+    "copyFailed": "Copy failed — select and copy manually.",
+    "copyLink": "Copy link",
+    "share": "Share",
+    "openLink": "Open link",
+    "createAnother": "Create another",
+    "done": "Done"
+  }
 }

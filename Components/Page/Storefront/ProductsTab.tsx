@@ -284,8 +284,11 @@ const ProductsTab = () => {
                     )}
                     <IconButton
                       size="small"
-                      onClick={() => router.push(`/pay-links/products/${p.product_id}/orders`)}
-                      title="Orders"
+                      // Move 3 (one story per sale): product sales now live in
+                      // Transactions (source=product). The legacy per-product
+                      // orders page stays reachable by URL for refund handling.
+                      onClick={() => router.push("/transactions?source=orders")}
+                      title="Sales"
                       data-testid={`product-row-orders-${p.product_id}`}
                     >
                       <ReceiptLongRounded fontSize="small" />

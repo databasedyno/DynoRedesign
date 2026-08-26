@@ -7,6 +7,7 @@ import { formatNumberWithComma } from "@/helpers";
 import { DeltaChip, CB_TOKENS } from "../coinbase/styled";
 import { StatCard } from "./styled";
 import { Icon, MONO } from "@/styles/uiKit";
+import useEdgeFade from "@/hooks/useEdgeFade";
 
 interface Props {
   stats: any;
@@ -141,6 +142,8 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation(["dashboardLayout", "common"]);
+  // Move 5: swipe affordance for the phone KPI row.
+  const kpiFade = useEdgeFade<HTMLDivElement>();
 
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
   // Semantic per-KPI accents — brand indigo, info blue, amber.
@@ -219,14 +222,32 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
   return (
     <Box
       data-testid="dash2026-kpi-strip"
+      ref={kpiFade.ref}
       sx={{
-        display: "grid",
-        gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
+        // Move 5: phones get a SWIPEABLE KPI row (snap-scroll + edge fade)
+        // instead of a tall 2×2 stack; ≥600px stays a grid.
+        display: { xs: "flex", sm: "grid" },
+        gridTemplateColumns: { sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
         gap: { xs: 1.5, md: 2 },
+        overflowX: { xs: "auto", sm: "visible" },
+        scrollSnapType: { xs: "x mandatory", sm: "none" },
+        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: "none",
+        "&::-webkit-scrollbar": { display: "none" },
+        maskImage: { xs: kpiFade.maskImage, sm: "none" },
+        WebkitMaskImage: { xs: kpiFade.WebkitMaskImage, sm: "none" },
       }}
     >
       {cards.map((c) => (
-        <StatCard key={c.key} data-testid={`dash2026-kpi-${c.key}`}>
+        <StatCard
+          key={c.key}
+          data-testid={`dash2026-kpi-${c.key}`}
+          sx={{
+            flex: { xs: "0 0 72%", sm: "unset" },
+            minWidth: { xs: 0, sm: "unset" },
+            scrollSnapAlign: { xs: "start", sm: "unset" },
+          }}
+        >
           <Box
             sx={{
               display: "flex",

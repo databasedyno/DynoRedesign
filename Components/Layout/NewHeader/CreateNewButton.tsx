@@ -6,6 +6,8 @@ import AddRounded from "@mui/icons-material/AddRounded";
 import LinkRounded from "@mui/icons-material/LinkRounded";
 import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
+import QuickCreateLinkPanel from "@/Components/Page/Payment-link/QuickCreateLinkPanel";
+import { QUICK_CREATE_LINK_EVENT } from "@/Components/Common/CommandPalette";
 
 /**
  * CreateNewButton — the ONE create control in the app chrome (audit F3 / N3).
@@ -28,6 +30,10 @@ const CreateNewButton: React.FC = () => {
   const theme = useTheme();
   const { t } = useTranslation("dashboardLayout");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // Move 2 (usability restructuring): pay-link creation is panel-first — the
+  // side panel keeps the merchant in context; the full page stays reachable
+  // via the panel's "All options" link.
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
 
@@ -54,6 +60,14 @@ const CreateNewButton: React.FC = () => {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // Move 4: the ⌘K palette's "Create payment link" action opens the same
+  // quick-create panel via a window event (decoupled from the palette).
+  useEffect(() => {
+    const onQuickCreate = () => setQuickCreateOpen(true);
+    window.addEventListener(QUICK_CREATE_LINK_EVENT, onQuickCreate);
+    return () => window.removeEventListener(QUICK_CREATE_LINK_EVENT, onQuickCreate);
   }, []);
 
   const isDark = theme.palette.mode === "dark";
@@ -112,7 +126,14 @@ const CreateNewButton: React.FC = () => {
           },
         }}
       >
-        <MenuItem onClick={() => go("/create-pay-link")} data-testid="header-create-paylink" sx={{ py: 1 }}>
+        <MenuItem
+          onClick={() => {
+            close();
+            setQuickCreateOpen(true);
+          }}
+          data-testid="header-create-paylink"
+          sx={{ py: 1 }}
+        >
           <ListItemIcon sx={{ minWidth: 32 }}>
             <LinkRounded sx={{ fontSize: 19 }} />
           </ListItemIcon>
@@ -131,6 +152,8 @@ const CreateNewButton: React.FC = () => {
           />
         </MenuItem>
       </Menu>
+
+      <QuickCreateLinkPanel open={quickCreateOpen} onClose={() => setQuickCreateOpen(false)} />
     </>
   );
 };

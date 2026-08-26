@@ -53,5 +53,11 @@
   "sourceProductShort": "Winkel",
   "sourceContributionShort": "Donatie",
   "sourceDirectShort": "Direct",
-  "sourcePaymentLinks": "Betaallinks"
+  "sourcePaymentLinks": "Betaallinks",
+  "statusTipConverted": "Afgewikkeld en automatisch omgezet naar je uitbetalingsvaluta.",
+  "statusTipPending": "Wachten tot de betaling van de koper op de blockchain verschijnt.",
+  "statusTipConfirming": "Betaling gezien op de blockchain — wachten op voldoende bevestigingen.",
+  "statusTipSettled": "Bevestigd en bijgeschreven op je saldo.",
+  "statusTipFailed": "Deze betaling is niet voltooid — er is geen geld verplaatst.",
+  "statusTipUnpaid": "De koper heeft de checkout geopend maar nog niet betaald."
 }

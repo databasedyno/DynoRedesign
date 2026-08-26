@@ -67,6 +67,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import { StatusDot, StatusTone } from "@/Components/UI/StatusDot";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 
 /* ------------------------------------------------------------------ types */
 
@@ -171,6 +172,15 @@ const CustomersPage: React.FC = () => {
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  // Move 4 (⌘K palette): seed the search box from a `?search=` deep link.
+  const [searchSeeded, setSearchSeeded] = useState(false);
+  useEffect(() => {
+    if (!router.isReady || searchSeeded) return;
+    const q = typeof router.query.search === "string" ? router.query.search : "";
+    if (q) setSearch(q);
+    setSearchSeeded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, searchSeeded]);
   const [segment, setSegment] = useState<SegmentFilter>("all");
   const [sort, setSort] = useState("recent");
   const [page, setPage] = useState(1);
@@ -185,6 +195,21 @@ const CustomersPage: React.FC = () => {
   const isDark = theme.palette.mode === "dark";
   const cardBg = isDark ? "rgba(255,255,255,0.04)" : "#FFFFFF";
   const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "#E9ECF2";
+  // §4.2 rulebook: pinned first (Customer) column + edge-fade scroll hints ≥768px.
+  const { ref: custScrollRef, showLeft: custScrolledX, showRight: custMoreRight } = useEdgeFades<HTMLDivElement>();
+  const custFrozenShadow = custScrolledX
+    ? isDark
+      ? "8px 0 12px -8px rgba(0,0,0,0.6)"
+      : "8px 0 12px -8px rgba(15,15,20,0.22)"
+    : "none";
+  const custStickyFirstSx = {
+    position: "sticky" as const,
+    left: 0,
+    zIndex: 1,
+    backgroundColor: isDark ? "#131316" : "#FFFFFF", // opaque ≈ cardBg over page bg
+    boxShadow: custFrozenShadow,
+    transition: "box-shadow 160ms ease",
+  };
   const softBg = isDark ? "rgba(255,255,255,0.05)" : "#F6F7F9";
   const accent = isDark ? "#818CF8" : "#4F46E5";
 
@@ -762,7 +787,9 @@ const CustomersPage: React.FC = () => {
         </Box>
       ) : (
         /* --------------------------------------------------- table view */
+        <Box sx={{ position: "relative" }}>
         <TableContainer
+          ref={custScrollRef}
           sx={{
             borderRadius: "14px",
             border: `1px solid ${cardBorder}`,
@@ -790,7 +817,13 @@ const CustomersPage: React.FC = () => {
                   <TableCell
                     key={i}
                     align={col.align}
-                    sx={{ ...eyebrowSx, py: 1.5, borderColor: cardBorder, whiteSpace: "nowrap" }}
+                    sx={{
+                      ...eyebrowSx,
+                      py: 1.5,
+                      borderColor: cardBorder,
+                      whiteSpace: "nowrap",
+                      ...(i === 0 ? { ...custStickyFirstSx, zIndex: 2 } : {}),
+                    }}
                   >
                     {col.label}
                   </TableCell>
@@ -829,7 +862,7 @@ const CustomersPage: React.FC = () => {
                     onClick={() => openDetail(c.key)}
                     sx={{ cursor: "pointer", "&:last-child td": { borderBottom: 0 } }}
                   >
-                    <TableCell sx={{ borderColor: cardBorder, py: 1.25, maxWidth: 320 }}>
+                    <TableCell sx={{ borderColor: cardBorder, py: 1.25, maxWidth: 320, ...custStickyFirstSx }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
                         {renderAvatar(c, 36)}
                         <Box sx={{ minWidth: 0 }}>
@@ -913,6 +946,9 @@ const CustomersPage: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        {/* §4.2 — right edge fade signals more columns off-screen. */}
+        <EdgeFades showLeft={false} showRight={custMoreRight} />
+        </Box>
       )}
 
       {totalPages > 1 && (

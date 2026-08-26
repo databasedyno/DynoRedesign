@@ -42,5 +42,31 @@
   "editLinkTooltip": "Editar link",
   "viewTransactionsTooltip": "Ver transações",
   "viewLinkTooltip": "Ver detalhes",
-  "deleteLinkTooltip": "Eliminar link"
+  "deleteLinkTooltip": "Eliminar link",
+  "quickCreate": {
+    "title": "Criar link de pagamento",
+    "successTitle": "Link pronto para partilhar",
+    "close": "Fechar",
+    "previewLabel": "O comprador verá",
+    "previewPlaceholder": "Para que é este pagamento?",
+    "amountLabel": "Valor",
+    "descriptionLabel": "Descrição",
+    "descriptionPlaceholder": "ex.: Design de logo — pagamento final",
+    "emailLabel": "Email do cliente (opcional)",
+    "errorAmount": "Insira um valor maior que 0",
+    "errorDescription": "É necessária uma breve descrição",
+    "errorEmail": "Insira um email válido ou deixe vazio",
+    "errorGeneric": "Não foi possível criar o link — tente novamente.",
+    "creating": "A criar…",
+    "submit": "Criar link",
+    "allOptionsHint": "Precisa de impostos, expiração, redirecionamentos ou doação?",
+    "allOptions": "Todas as opções",
+    "copied": "Link de pagamento copiado!",
+    "copyFailed": "Falha ao copiar — selecione e copie manualmente.",
+    "copyLink": "Copiar link",
+    "share": "Partilhar",
+    "openLink": "Abrir link",
+    "createAnother": "Criar outro",
+    "done": "Concluído"
+  }
 }

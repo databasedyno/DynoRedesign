@@ -141,6 +141,19 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }} data-testid="product-orders">
+      {/* Move 3 (one story per sale): sales now live in Transactions. This
+          legacy page stays reachable for the order-level refund flow only. */}
+      <Alert
+        severity="info"
+        data-testid="orders-moved-banner"
+        action={
+          <Button size="small" onClick={() => router.push("/transactions?source=orders")} data-testid="orders-moved-cta">
+            View in Transactions
+          </Button>
+        }
+      >
+        Product sales now appear in Transactions with a &quot;product&quot; label — this page remains for refunds.
+      </Alert>
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? <LinearProgress data-testid="product-orders-loading" /> : (
         <PanelCard title="">

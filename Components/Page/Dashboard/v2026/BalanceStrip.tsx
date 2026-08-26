@@ -99,6 +99,8 @@ const BalanceStrip: React.FC<Props> = ({
 
   // ── Custom date-range picker ──
   const [customAnchor, setCustomAnchor] = useState<null | HTMLElement>(null);
+  // Move 5: phone-only range dropdown (replaces the pill row < 600px).
+  const [rangeMenuAnchor, setRangeMenuAnchor] = useState<null | HTMLElement>(null);
   const customActive = !!(custom && custom.startDate && custom.endDate);
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
   const defaultStart = useMemo(() => {
@@ -173,6 +175,46 @@ const BalanceStrip: React.FC<Props> = ({
   const { big, suffix } = useMemo(() => splitAmount(activeStr), [activeStr]);
   const showSkeleton = loading || (metric === "period" && chartLoading);
 
+  // Move 6: plain-English "how is today going" line under the main number,
+  // e.g. "Busier than yesterday — 3 more payments, smaller average".
+  const insight = useMemo(() => {
+    const ts = stats?.todaySummary;
+    if (!ts) return null;
+    const todayTx = Number(ts.transactionsToday ?? 0);
+    const yesterdayTx = Number(ts.transactionsYesterday ?? 0);
+    if (todayTx === 0 && yesterdayTx === 0) return null;
+    if (todayTx === 0) {
+      return t("heroInsightNoneYet", {
+        defaultValue: "No payments yet today — yesterday had {{count}}",
+        count: yesterdayTx,
+      });
+    }
+    const diff = todayTx - yesterdayTx;
+    const avgToday = todayTx > 0 ? Number(ts.volumeToday ?? 0) / todayTx : 0;
+    const avgYesterday = yesterdayTx > 0 ? Number(ts.volumeYesterday ?? 0) / yesterdayTx : 0;
+    if (diff > 0) {
+      if (avgYesterday > 0 && avgToday < avgYesterday * 0.95) {
+        return t("heroInsightBusierSmaller", {
+          defaultValue: "Busier than yesterday — {{count}} more payments, smaller average",
+          count: diff,
+        });
+      }
+      return t("heroInsightBusier", {
+        defaultValue: "Busier than yesterday — {{count}} more payments",
+        count: diff,
+      });
+    }
+    if (diff < 0) {
+      return t("heroInsightQuieter", {
+        defaultValue: "Quieter than yesterday — {{count}} fewer payments",
+        count: Math.abs(diff),
+      });
+    }
+    return t("heroInsightSteady", {
+      defaultValue: "Steady — same number of payments as yesterday",
+    });
+  }, [stats?.todaySummary, t]);
+
   const metricLabels: Record<Metric, string> = {
     period: t("heroPeriodVolume", { defaultValue: "This period" }),
     lifetime: t("heroLifetimeVolume", { defaultValue: "Lifetime volume" }),
@@ -204,11 +246,63 @@ const BalanceStrip: React.FC<Props> = ({
         </Eyebrow>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+          {/* Move 5: on phones the 5 range pills collapse into ONE dropdown. */}
+          <Box sx={{ display: { xs: "block", sm: "none" } }}>
+            <PillButton
+              active
+              onClick={(e: React.MouseEvent<HTMLElement>) => setRangeMenuAnchor(e.currentTarget)}
+              data-testid="dash2026-range-dropdown"
+              aria-haspopup="menu"
+              sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, minHeight: 44 }}
+            >
+              {customActive ? customLabel : RANGES.find((r) => r.id === range)?.label || "30D"}
+              <Icon name="chevron-down" size={14} />
+            </PillButton>
+            <Menu
+              anchorEl={rangeMenuAnchor}
+              open={Boolean(rangeMenuAnchor)}
+              onClose={() => setRangeMenuAnchor(null)}
+            >
+              {RANGES.map((r) => (
+                <MenuItem
+                  key={r.id}
+                  selected={range === r.id && !customActive}
+                  data-testid={`dash2026-range-menu-${r.id}`}
+                  onClick={() => {
+                    onRangeChange(r.id);
+                    setRangeMenuAnchor(null);
+                  }}
+                  sx={{ minHeight: 44 }}
+                >
+                  {r.label}
+                </MenuItem>
+              ))}
+              <MenuItem
+                selected={customActive}
+                data-testid="dash2026-range-menu-custom"
+                onClick={() => {
+                  // Anchor the custom-range popover to the dropdown BUTTON
+                  // (the menu item unmounts when the menu closes).
+                  const anchorBtn = rangeMenuAnchor;
+                  setRangeMenuAnchor(null);
+                  if (anchorBtn) {
+                    setDraftStart(custom?.startDate || defaultStart);
+                    setDraftEnd(custom?.endDate || today);
+                    setCustomAnchor(anchorBtn);
+                  }
+                }}
+                sx={{ minHeight: 44 }}
+              >
+                {t("customRange", { defaultValue: "Custom range" })}
+              </MenuItem>
+            </Menu>
+          </Box>
+
           <Box
             data-testid="dash2026-range"
             role="tablist"
             sx={{
-              display: "flex",
+              display: { xs: "none", sm: "flex" },
               alignItems: "center",
               gap: 0.5,
               p: 0.5,
@@ -341,6 +435,24 @@ const BalanceStrip: React.FC<Props> = ({
               </>
             )}
           </Box>
+
+          {/* Move 6 (clarity microcopy): one plain-English line that reads the
+              day for the merchant; hidden when there is nothing to say. */}
+          {!showSkeleton && insight && (
+            <Box
+              component="p"
+              data-testid="dash2026-hero-insight"
+              sx={{
+                m: 0,
+                mt: 0.75,
+                fontFamily: "var(--font-sans)",
+                fontSize: 13,
+                color: muted,
+              }}
+            >
+              {insight}
+            </Box>
+          )}
         </Box>
       </Box>
 

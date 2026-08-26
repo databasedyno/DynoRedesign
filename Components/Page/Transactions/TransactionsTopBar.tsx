@@ -51,7 +51,7 @@ import {
   WalletSelectorButton,
 } from "./styled";
 
-const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: string }> = ({
+const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: string; initialSearch?: string }> = ({
   onSearch,
   onDateRangeChange,
   onWalletChange,
@@ -61,6 +61,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
   onSettledOnlyChange,
   initialWallet,
   initialSource,
+  initialSearch,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
@@ -99,6 +100,13 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
       setSelectedSource(initialSource);
     }
   }, [initialSource]);
+
+  // Move 4 (⌘K palette): show a `?search=` deep-link query in the input.
+  useEffect(() => {
+    if (initialSearch && initialSearch !== searchTerm) {
+      setSearchTerm(initialSearch);
+    }
+  }, [initialSearch]);
 
   const handleSourceChange = (value: TransactionSourceType | "all") => {
     setSelectedSource(value);

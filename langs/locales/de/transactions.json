@@ -53,5 +53,11 @@
   "sourceProductShort": "Shop",
   "sourceContributionShort": "Spende",
   "sourceDirectShort": "Direkt",
-  "sourcePaymentLinks": "Zahlungslinks"
+  "sourcePaymentLinks": "Zahlungslinks",
+  "statusTipConverted": "Abgewickelt und automatisch in Ihre Auszahlungswährung umgewandelt.",
+  "statusTipPending": "Warten, bis die Zahlung des Käufers auf der Blockchain erscheint.",
+  "statusTipConfirming": "Zahlung auf der Blockchain gesehen — warten auf genügend Bestätigungen.",
+  "statusTipSettled": "Bestätigt und Ihrem Guthaben gutgeschrieben.",
+  "statusTipFailed": "Diese Zahlung wurde nicht abgeschlossen — keine Gelder bewegt.",
+  "statusTipUnpaid": "Der Käufer hat den Checkout geöffnet, aber noch nicht bezahlt."
 }

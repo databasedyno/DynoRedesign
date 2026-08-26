@@ -7,6 +7,7 @@ import ThemeToggle from "@/Components/UI/ThemeToggle";
 import UserMenu from "@/Components/UI/UserMenu";
 import NewSidebar from "@/Components/Layout/NewSidebar";
 import CreateNewButton from "@/Components/Layout/NewHeader/CreateNewButton";
+import GlobalSearchButton from "@/Components/Common/CommandPalette";
 import NotificationsBell from "@/Components/Layout/NewHeader/NotificationsBell";
 import { useWalletData } from "@/hooks/useWalletData";
 import { rootReducer } from "@/utils/types";
@@ -180,7 +181,9 @@ const NewHeader = () => {
 
         <RightSection>
           {/* Audit §4.1 header: `+ New · 🔔 inbox · account switcher`.
-              One create control (law 3) and the inbox's new home (F8). */}
+              One create control (law 3) and the inbox's new home (F8).
+              Move 4: global search (⌘K / magnifier) joins the chrome. */}
+          <GlobalSearchButton />
           <CreateNewButton />
           <NotificationsBell />
           {/* Mobile theme toggle - visible only on mobile */}

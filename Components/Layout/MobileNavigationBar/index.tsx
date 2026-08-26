@@ -9,6 +9,7 @@ import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import LanguageIcon from "@mui/icons-material/Language";
+import MoreHorizRounded from "@mui/icons-material/MoreHorizRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, useTheme } from "@mui/material";
 import Image from "next/image";
@@ -132,9 +133,12 @@ const MobileNavigationBar = () => {
   // called. The bottom bar keeps 3 primary items; a creator's primary is their
   // page, a business's is the dashboard.
   const publicPageItem = {
+    // Move 6: ONE consistent name for the public page everywhere — "Your page"
+    // (was "Storefront" here, "Creator page" in quick-actions, "Checkout
+    // page" for businesses).
     label: isIndividual
-      ? t("storefront", { defaultValue: "Storefront" })
-      : t("checkoutPage", { defaultValue: "Checkout page" }),
+      ? t("storefront", { defaultValue: "Your page" })
+      : t("checkoutPage", { defaultValue: "Your page" }),
     icon: "creator",
     path: "/storefront",
     id: "storefront",
@@ -167,15 +171,32 @@ const MobileNavigationBar = () => {
     id: "customers",
   };
 
-  // First row items (3 items — Coinbase-style)
-  // UX-2026-08-02: Reduced from 5 → 3 to mirror Coinbase's mobile pattern
-  // (Home / Trade / Transactions in Coinbase = Dashboard / Pay Links /
-  // Transactions for a merchant). "Create", "Wallets", and the "Account"
-  // expand drawer moved into the top-left hamburger menu (NewHeader) so
-  // nothing is lost — just reorganised into a cleaner bottom bar.
-  const firstRowItems = isIndividual
-    ? [publicPageItem, payLinksItem, transactionsItem]
-    : [dashboardItem, payLinksItem, transactionsItem];
+  // Move 5 (usability restructuring): the confirmed phone tab set is
+  // **Home · Payments · Wallet · More**. "Payments" is the umbrella for
+  // pay-links + transactions (active for both routes); everything else lives
+  // under More (which re-activates the previously unreachable expanded rows).
+  const paymentsItem = {
+    label: t("navPayments", { defaultValue: "Payments" }),
+    icon: "payment-links",
+    path: "/pay-links",
+    id: "payments",
+  };
+  const walletItem = {
+    label: t("navWallet", { defaultValue: "Wallet" }),
+    icon: "wallets",
+    path: "/wallet",
+    id: "wallet",
+  };
+  const moreItem = {
+    label: t("navMore", { defaultValue: "More" }),
+    icon: "more",
+    path: null as string | null,
+    id: "more",
+  };
+  const homeItem = isIndividual
+    ? publicPageItem
+    : { ...dashboardItem, label: t("navHome", { defaultValue: "Home" }) };
+  const firstRowItems = [homeItem, paymentsItem, walletItem, moreItem];
 
   // Second row items (expanded) - shown when expanded
   // UX-2026-07-14: Added Creator page (Session 40+) and Products (Session 47)
@@ -185,6 +206,8 @@ const MobileNavigationBar = () => {
   const secondRowItems = [
     // A creator's dashboard sits after their page; a business already has it first.
     ...(isIndividual ? [dashboardItem] : [publicPageItem]),
+    payLinksItem,
+    transactionsItem,
     ...(reveal.receipts ? [receiptsItem] : []),
     ...(reveal.customers ? [customersItem] : []),
   ];
@@ -302,7 +325,14 @@ const MobileNavigationBar = () => {
             />
           );
         case "more":
-          return <KeyboardArrowUpIcon />;
+          return (
+            <MoreHorizRounded
+              sx={{
+                fontSize: 20,
+                color: active ? brandFg(isDark) : theme.palette.text.secondary,
+              }}
+            />
+          );
         case "close":
           return <KeyboardArrowDownIcon />;
         case "language":
@@ -322,7 +352,12 @@ const MobileNavigationBar = () => {
             {/* First row - 3 items (Coinbase pattern, Session 97c) */}
             <FirstRow>
               {firstRowItems.map((item) => {
-                const active = isActiveRoute(item.path);
+                const active =
+                  item.id === "payments"
+                    ? isActiveRoute("/pay-links") || isActiveRoute("/transactions")
+                    : item.id === "more"
+                      ? isExpanded
+                      : isActiveRoute(item.path);
                 const isCreate = item.icon === "add";
                 const supportedIcons = [
                   "dashboard",

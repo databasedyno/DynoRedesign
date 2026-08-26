@@ -55,6 +55,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import Toast from "@/Components/UI/Toast";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
+import { useEdgeFades } from "@/Components/Common/ScrollHint";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTableCardView from "@/hooks/useTableCardView";
 import {
@@ -160,6 +161,30 @@ const PaymentLinksTable = ({
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   const theme = useTheme();
   const isMobile = useTableCardView();
+  // §4.2 rulebook: pinned first (ID) column + edge-fade scroll hints ≥768px.
+  const { ref: hscrollRef, showLeft: hasScrolledX, showRight: hasMoreRight } = useEdgeFades<HTMLDivElement>();
+  const frozenEdgeShadow = hasScrolledX
+    ? theme.palette.mode === "dark"
+      ? "8px 0 12px -8px rgba(0,0,0,0.6)"
+      : "8px 0 12px -8px rgba(15,15,20,0.22)"
+    : "none";
+  const headBg = theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light;
+  const stickyFirstHeadSx = {
+    position: "sticky" as const,
+    left: 0,
+    zIndex: 3,
+    backgroundColor: headBg,
+    boxShadow: frozenEdgeShadow,
+    transition: "box-shadow 160ms ease",
+  };
+  const stickyFirstCellSx = {
+    position: "sticky" as const,
+    left: 0,
+    zIndex: 1,
+    backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#FFFFFF",
+    boxShadow: frozenEdgeShadow,
+    transition: "box-shadow 160ms ease",
+  };
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>("");
   const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");
@@ -570,8 +595,8 @@ const PaymentLinksTable = ({
           </>
         ) : (
         /* DESKTOP: Table layout */
-        <TransactionsTableContainer>
-          <TransactionsTableScrollWrapper>
+        <TransactionsTableContainer sx={{ position: "relative" }}>
+          <TransactionsTableScrollWrapper ref={hscrollRef}>
             <Table>
               <TableHead
                 sx={{
@@ -582,7 +607,7 @@ const PaymentLinksTable = ({
                 }}
               >
                 <TableRow sx={{ backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light }}>
-                  <TableCell>
+                  <TableCell sx={stickyFirstHeadSx}>
                     <Header label="linkIdHeader" />
                   </TableCell>
                   <TableCell>
@@ -615,6 +640,14 @@ const PaymentLinksTable = ({
                       right: 0,
                       zIndex: 3,
                       backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light,
+                      // §4.2 — left-edge shadow doubles as the "more content
+                      // to the right" scroll hint.
+                      boxShadow: hasMoreRight
+                        ? theme.palette.mode === "dark"
+                          ? "-8px 0 12px -8px rgba(0,0,0,0.6)"
+                          : "-8px 0 12px -8px rgba(15,15,20,0.22)"
+                        : "none",
+                      transition: "box-shadow 160ms ease",
                     }}
                   >
                     <Header label="actionsHeader" />
@@ -656,7 +689,7 @@ const PaymentLinksTable = ({
                       borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
                     }}
                   >
-                    <TableBodyCell sx={{ pl: "15px" }}>{row.id}</TableBodyCell>
+                    <TableBodyCell sx={{ pl: "15px", ...stickyFirstCellSx }}>{row.id}</TableBodyCell>
                     <TableBodyCell>
                       {row.linkType === "donation" ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 130 }}>
@@ -717,6 +750,12 @@ const PaymentLinksTable = ({
                         right: 0,
                         zIndex: 2,
                         backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#FFFFFF",
+                        boxShadow: hasMoreRight
+                          ? theme.palette.mode === "dark"
+                            ? "-8px 0 12px -8px rgba(0,0,0,0.6)"
+                            : "-8px 0 12px -8px rgba(15,15,20,0.22)"
+                          : "none",
+                        transition: "box-shadow 160ms ease",
                       }}
                     >
                       <Box
@@ -865,6 +904,8 @@ const PaymentLinksTable = ({
               </TableBody>
             </Table>
           </TransactionsTableScrollWrapper>
+          {/* §4.2 — scroll hints: the pinned ID column (left) and sticky
+              actions column (right) carry edge shadows while scrollable. */}
 
           <TableFooter>
             <RowsPerPageSelector

@@ -228,7 +228,13 @@ const Dashboard2026: React.FC = () => {
           {/* Row 1½ — quick actions */}
           <ActionsRow />
 
-          {/* Row 2 — chart (8) + rail (4) */}
+          {/* Rows 2-5 — one grid: the LEFT column (chart → KPIs → activity →
+              assets) flows beside the RIGHT rail (fee tier · grow · referral).
+              Previously the rail and chart shared a single grid row, so the
+              3-card rail's height left a huge empty space under the short
+              chart before Row 3 could start. The rail now spans the rows and
+              the left content climbs up next to it. Mobile (xs) DOM order is
+              unchanged: chart → rail → KPIs → activity → assets. */}
           <Box
             sx={{
               display: "grid",
@@ -240,19 +246,24 @@ const Dashboard2026: React.FC = () => {
               alignItems: "start",
             }}
           >
-            <VolumeChart
-              chartData={chartData}
-              loading={loading}
-              chartLoading={chartLoading}
-              currencySymbol={stats?.currencySymbol}
-              rangeLabel={rangeLabel}
-            />
+            <Box sx={{ minWidth: 0, gridColumn: { lg: "1" } }}>
+              <VolumeChart
+                chartData={chartData}
+                loading={loading}
+                chartLoading={chartLoading}
+                currencySymbol={stats?.currencySymbol}
+                rangeLabel={rangeLabel}
+              />
+            </Box>
             <Box
               sx={{
                 display: "grid",
                 gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", lg: "1fr" },
                 gap: stackGap,
                 alignItems: "start",
+                gridColumn: { lg: "2" },
+                gridRow: { lg: "1 / span 4" },
+                minWidth: 0,
               }}
             >
               <FeeTierCard />
@@ -263,24 +274,30 @@ const Dashboard2026: React.FC = () => {
               />
               <ReferralCodeCard />
             </Box>
+
+            {/* Row 3 — KPIs */}
+            <Box sx={{ minWidth: 0, gridColumn: { lg: "1" } }}>
+              <KpiStrip stats={stats} chartData={chartData} loading={loading} />
+            </Box>
+
+            {/* Row 4 — recent activity */}
+            <Box sx={{ minWidth: 0, gridColumn: { lg: "1" } }}>
+              <RecentTransactionsWidget
+                transactions={recentTransactions as any[]}
+                loading={loading}
+              />
+            </Box>
+
+            {/* Row 5 — assets breakdown (kept, below the fold) */}
+            <Box sx={{ minWidth: 0, gridColumn: { lg: "1" } }}>
+              <AssetsCard
+                assets={chartAssets}
+                rangeLabel={rangeLabel}
+                currencySymbol={stats?.currencySymbol}
+                loading={loading || chartLoading}
+              />
+            </Box>
           </Box>
-
-          {/* Row 3 — KPIs */}
-          <KpiStrip stats={stats} chartData={chartData} loading={loading} />
-
-          {/* Row 4 — recent activity */}
-          <RecentTransactionsWidget
-            transactions={recentTransactions as any[]}
-            loading={loading}
-          />
-
-          {/* Row 5 — assets breakdown (kept, below the fold) */}
-          <AssetsCard
-            assets={chartAssets}
-            rangeLabel={rangeLabel}
-            currencySymbol={stats?.currencySymbol}
-            loading={loading || chartLoading}
-          />
         </Box>
       )}
     </Box>

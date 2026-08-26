@@ -163,7 +163,7 @@ const NewSidebar = ({
     const publicPage: SidebarItem = {
       // One name everywhere: the page's own H1 says "Storefront", so the nav
       // row matches it for BOTH personas (UI/UX audit consistency fix).
-      label: t("storefront", { defaultValue: "Storefront" }),
+      label: t("storefront", { defaultValue: "Your page" }),
       icon: "creator",
       path: "/storefront",
       isNew: !hasClaimedCreator,

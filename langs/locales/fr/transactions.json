@@ -53,5 +53,11 @@
   "sourceProductShort": "Boutique",
   "sourceContributionShort": "Don",
   "sourceDirectShort": "Direct",
-  "sourcePaymentLinks": "Liens de paiement"
+  "sourcePaymentLinks": "Liens de paiement",
+  "statusTipConverted": "Réglé et converti automatiquement dans votre devise de paiement.",
+  "statusTipPending": "En attente que le paiement de l'acheteur apparaisse sur la blockchain.",
+  "statusTipConfirming": "Paiement vu sur la blockchain — en attente de confirmations suffisantes.",
+  "statusTipSettled": "Confirmé et crédité sur votre solde.",
+  "statusTipFailed": "Ce paiement n'a pas abouti — aucun fonds déplacé.",
+  "statusTipUnpaid": "L'acheteur a ouvert le paiement mais n'a pas encore payé."
 }
