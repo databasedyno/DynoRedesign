@@ -39,7 +39,7 @@
 # ============================================================================
 # 2026-08-25 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-5.preview.emergentagent.com
 # - Branch: Improvement
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env (41 lines) + /app/backend/.env (226 lines) written by hand,
@@ -68,7 +68,7 @@
 # ============================================================================
 # 2026-08-25 (later) RE-SETUP (current pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-5.preview.emergentagent.com
 # - Branch: Improvement (latest, contains all other branches)
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env + /app/backend/.env written by hand, then
@@ -95,7 +95,7 @@
 # ============================================================================
 # 2026-08-25 RE-SETUP (prior pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-5.preview.emergentagent.com
 # - Env files REBUILT from a fresh full cred paste by the user (no vault passphrase
 #   this session; env.vault.enc NOT used). /app/.env + /app/backend/.env written by
 #   hand, then `bash scripts/pod-bootstrap.sh` synced URLs + enforced SAFE MODE.
@@ -121,7 +121,7 @@
 # ============================================================================
 # 2026-08-24 RE-SETUP (this session) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-5.preview.emergentagent.com
 # - Env files were REBUILT DIRECTLY from a fresh full cred paste by the user
 #   (NOT restored from env.vault.enc — no passphrase was provided this session).
 # - /app/backend/.env and /app/.env written by hand; SAFE MODE enforced:
@@ -147,7 +147,7 @@
 # DynoPay — Emergent Preview Setup Notes (prod-connected, SAFE MODE)
 
 ## Status: RUNNING — connected to the user's LIVE Railway PostgreSQL + Redis
-- Preview URL: https://dynopay-setup-4.preview.emergentagent.com
+- Preview URL: https://dynopay-setup-5.preview.emergentagent.com
 - Architecture: Next.js (`:3000`) + Node/Express backend (`server.ts` on `:3300`) behind a
   Python/uvicorn proxy (`server.py` on `:8001`, the `/api/*` ingress target). Proxy forwards
   `/api/*` to Node and stubs `/api/auth/*` (NextAuth) with empty JSON.
@@ -194,7 +194,7 @@
 # ============================================================================
 # 2026-08-26 — 9-ISSUE STOREFRONT/CHECKOUT FIX BATCH (this session)
 # ----------------------------------------------------------------------------
-# Preview URL (CORRECT): https://dynopay-setup-4.preview.emergentagent.com
+# Preview URL (CORRECT): https://dynopay-setup-5.preview.emergentagent.com
 #   (bootstrap auto-detected a STALE url d6d663a8-... from a read-only supervisor
 #    APP_URL — it is DEAD/502. All env URL keys were re-pointed to dynopay-setup-4.)
 # Merchant login (owns @devhub): hostbay@moxx.co / Katiekendra123@  (user_id=1, company_id=1)
