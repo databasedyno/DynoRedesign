@@ -95,6 +95,54 @@ const MONITORED_SERVICES = [
 ];
 
 /**
+ * Upsert the PERMANENT daily rollup for one service+day from the raw checks.
+ *
+ * Recomputes today's aggregate from tbl_service_health (cheap — ≤96 rows/day)
+ * and writes a single durable row per (service_id, check_date). This table is
+ * never pruned, so the 90-day status chart keeps real history across redeploys
+ * even though the raw table is trimmed to 7 days.
+ */
+const upsertDailyRollup = async (
+  serviceId: string,
+  serviceName: string,
+  dateStr: string
+): Promise<void> => {
+  await sequelize.query(
+    `INSERT INTO "tbl_service_health_daily"
+       (service_id, service_name, check_date, total_checks, operational_checks,
+        degraded_checks, outage_checks, avg_latency_ms, worst_status,
+        first_check_at, last_check_at, updated_at)
+     SELECT
+       :serviceId, :serviceName, :dateStr,
+       COUNT(*),
+       SUM(CASE WHEN status = 'operational' THEN 1 ELSE 0 END),
+       SUM(CASE WHEN status = 'degraded'    THEN 1 ELSE 0 END),
+       SUM(CASE WHEN status = 'outage'      THEN 1 ELSE 0 END),
+       COALESCE(ROUND(AVG(latency_ms))::int, 0),
+       CASE
+         WHEN SUM(CASE WHEN status = 'outage'   THEN 1 ELSE 0 END) > 0 THEN 'outage'
+         WHEN SUM(CASE WHEN status = 'degraded' THEN 1 ELSE 0 END) > 0 THEN 'degraded'
+         ELSE 'operational'
+       END,
+       MIN(check_timestamp), MAX(check_timestamp), NOW()
+     FROM "tbl_service_health"
+     WHERE service_id = :serviceId AND check_date = :dateStr
+     ON CONFLICT (service_id, check_date) DO UPDATE SET
+       service_name       = EXCLUDED.service_name,
+       total_checks       = EXCLUDED.total_checks,
+       operational_checks = EXCLUDED.operational_checks,
+       degraded_checks    = EXCLUDED.degraded_checks,
+       outage_checks      = EXCLUDED.outage_checks,
+       avg_latency_ms     = EXCLUDED.avg_latency_ms,
+       worst_status       = EXCLUDED.worst_status,
+       first_check_at     = LEAST("tbl_service_health_daily".first_check_at, EXCLUDED.first_check_at),
+       last_check_at      = GREATEST("tbl_service_health_daily".last_check_at, EXCLUDED.last_check_at),
+       updated_at         = NOW()`,
+    { replacements: { serviceId, serviceName, dateStr }, type: QueryTypes.INSERT }
+  );
+};
+
+/**
  * Run health checks for all services and store results
  */
 export const runHealthChecks = async (): Promise<void> => {
@@ -140,11 +188,23 @@ export const runHealthChecks = async (): Promise<void> => {
       });
     }
   }
+
+  // Update the permanent daily rollup for each service (never pruned) so the
+  // public 90-day status chart accumulates real history across redeploys.
+  for (const service of MONITORED_SERVICES) {
+    try {
+      await upsertDailyRollup(service.id, service.name, today);
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      log(`[Monitor] Error updating daily rollup for ${service.name}: ${err.message}`, "error");
+    }
+  }
 };
 
 /**
- * Get daily status for a service (aggregated from all checks that day)
- * Returns the worst status for each day
+ * Get daily status for a service — reads the PERMANENT daily rollup
+ * (tbl_service_health_daily), so history is not lost when the raw 7-day table
+ * is pruned. One row per day; `worst_status` is the day's worst observed state.
  */
 export const getDailyServiceStatus = async (
   serviceId: string,
@@ -152,28 +212,28 @@ export const getDailyServiceStatus = async (
 ): Promise<Array<{ date: string; status: string; checks: number; avg_latency: number }>> => {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
-  
+
   const results = await sequelize.query<{ date: string; status: string; checks: number; avg_latency: number }>(
-    `SELECT 
+    `SELECT
       check_date as date,
-      CASE 
-        WHEN SUM(CASE WHEN status = 'outage' THEN 1 ELSE 0 END) > 0 THEN 'outage'
-        WHEN SUM(CASE WHEN status = 'degraded' THEN 1 ELSE 0 END) > 0 THEN 'degraded'
+      CASE
+        WHEN total_checks = 0 THEN 'no_data'
+        WHEN outage_checks::float / total_checks >= 0.05 THEN 'outage'
+        WHEN (outage_checks + degraded_checks)::float / total_checks >= 0.10 THEN 'degraded'
         ELSE 'operational'
       END as status,
-      COUNT(*) as checks,
-      ROUND(AVG(latency_ms)) as avg_latency
-    FROM tbl_service_health
+      total_checks as checks,
+      avg_latency_ms as avg_latency
+    FROM tbl_service_health_daily
     WHERE service_id = :serviceId
     AND check_date >= :startDate
-    GROUP BY check_date
     ORDER BY check_date ASC`,
     {
       replacements: { serviceId, startDate: startDate.toISOString().split('T')[0] },
       type: QueryTypes.SELECT
     }
   );
-  
+
   return results;
 };
 
@@ -199,7 +259,8 @@ export const getCurrentServiceStatus = async (): Promise<Array<{
 };
 
 /**
- * Calculate uptime percentage for a service
+ * Calculate uptime percentage for a service — from the PERMANENT daily rollup
+ * so it reflects the full retained history (not just the raw 7-day window).
  */
 export const calculateServiceUptime = async (
   serviceId: string,
@@ -210,10 +271,10 @@ export const calculateServiceUptime = async (
   
   const results = await sequelize.query<{ total_checks: string; operational_checks: string; failed_checks: string }>(
     `SELECT 
-      COUNT(*) as total_checks,
-      SUM(CASE WHEN status = 'operational' THEN 1 ELSE 0 END) as operational_checks,
-      SUM(CASE WHEN status = 'outage' THEN 1 ELSE 0 END) as failed_checks
-    FROM tbl_service_health
+      COALESCE(SUM(total_checks), 0) as total_checks,
+      COALESCE(SUM(operational_checks), 0) as operational_checks,
+      COALESCE(SUM(outage_checks), 0) as failed_checks
+    FROM tbl_service_health_daily
     WHERE service_id = :serviceId
     AND check_date >= :startDate`,
     {
