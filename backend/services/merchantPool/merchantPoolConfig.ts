@@ -19,6 +19,13 @@ export const POOL_CONFIG = {
   
   // Pre-warming: minimum AVAILABLE addresses to maintain per merchant per chain
   MIN_AVAILABLE: config.num("MERCHANT_POOL_MIN_AVAILABLE", 2),
+
+  // Burst headroom: how many PRE_RESERVED addresses to keep hot per merchant per
+  // chain. These feed the lock-free fast path in reserveAddress (each is claimed
+  // via an atomic optimistic UPDATE, so growing this never risks over-reservation).
+  // A higher value lets a merchant's flash-sale burst be absorbed without hitting
+  // the per-merchant Redis lock. Env-tunable for known high-traffic events.
+  PRE_RESERVE_TARGET: config.num("MERCHANT_PRE_RESERVE_TARGET", 6),
   
   // Timeout settings
   RESERVATION_TIMEOUT_MINUTES: config.num("RESERVATION_TIMEOUT_MINUTES", 120),

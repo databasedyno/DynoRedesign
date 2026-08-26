@@ -22,6 +22,14 @@ import { addAddressToMerchantPool } from "./merchantPoolWallet";
 import { recordPoolTransaction } from "./merchantPoolTransaction";
 
 /**
+ * Max PRE_RESERVED rows to consider in the lock-free fast path per call. A
+ * burst of concurrent same-merchant checkouts spreads across these candidates
+ * (each claimed via an atomic optimistic UPDATE), so a loser retries another
+ * row instead of taking the per-merchant lock.
+ */
+const FAST_PATH_CANDIDATE_LIMIT = 16;
+
+/**
  * Reserve an address from merchant's pool for a payment
  */
 export const reserveAddress = async (
@@ -41,7 +49,14 @@ export const reserveAddress = async (
   const effectiveCompanyId = companyId && companyId > 0 ? companyId : null;
   
   try {
-    const preReserved = await merchantTempAddressModel.findOne({
+    // Fetch a BATCH of pre-reserved candidates (lock-free). Under a burst of
+    // concurrent same-merchant checkouts, each request claims a row via an
+    // atomic optimistic UPDATE (WHERE status='PRE_RESERVED'); a loser tries the
+    // NEXT candidate instead of dropping to the per-merchant Redis lock. A
+    // random start offset spreads concurrent callers so they don't all collide
+    // on the same top row. Growing POOL_CONFIG.PRE_RESERVE_TARGET therefore
+    // linearly grows lock-free burst headroom with zero over-reservation risk.
+    const preReservedCandidates = await merchantTempAddressModel.findAll({
       where: {
         owner_user_id: userId,
         wallet_type: walletType,
@@ -51,65 +66,76 @@ export const reserveAddress = async (
         ["admin_fee_balance", "DESC"],
         ["total_transactions", "DESC"],
       ],
+      limit: FAST_PATH_CANDIDATE_LIMIT,
     });
-    
-    if (preReserved) {
+
+    const candidateCount = preReservedCandidates.length;
+    if (candidateCount > 0) {
       const reservedUntil = new Date();
       reservedUntil.setMinutes(reservedUntil.getMinutes() + POOL_CONFIG.RESERVATION_TIMEOUT_MINUTES);
-      
-      const [updatedCount] = await merchantTempAddressModel.update(
-        {
-          status: "RESERVED",
-          current_payment_id: paymentId,
-          current_company_id: effectiveCompanyId,
-          expected_amount: expectedAmount,
-          received_amount: 0,
-          is_partial_payment: false,
-          partial_payment_timestamp: null,
-          reserved_until: reservedUntil,
-          locked_at: new Date(),
-          last_payment_context: null,
-        },
-        {
-          where: {
-            temp_address_id: preReserved.dataValues.temp_address_id,
-            status: "PRE_RESERVED", // Optimistic lock — only succeeds if still PRE_RESERVED
+      const startOffset = Math.floor(Math.random() * candidateCount);
+
+      for (let attempt = 0; attempt < candidateCount; attempt++) {
+        const preReserved = preReservedCandidates[(startOffset + attempt) % candidateCount];
+
+        const [updatedCount] = await merchantTempAddressModel.update(
+          {
+            status: "RESERVED",
+            current_payment_id: paymentId,
+            current_company_id: effectiveCompanyId,
+            expected_amount: expectedAmount,
+            received_amount: 0,
+            is_partial_payment: false,
+            partial_payment_timestamp: null,
+            reserved_until: reservedUntil,
+            locked_at: new Date(),
+            last_payment_context: null,
           },
-        }
-      );
-      
-      if (updatedCount > 0) {
-        cronLogger.info(`[MerchantPool] ⚡ FAST PATH: Used pre-reserved ${walletType} address for payment ${paymentId}`);
-        cronLogger.info(`[MerchantPool]    - Address: ${preReserved.dataValues.wallet_address}`);
-        cronLogger.info(`[MerchantPool]    - Merchant: ${userId}, Company: ${effectiveCompanyId}`);
-        
-        // Async: Update subscription with company info (non-blocking)
-        const addressToSubscribe = preReserved.dataValues.wallet_address;
-        const addressId = preReserved.dataValues.temp_address_id;
-        (async () => {
-          try {
-            const subResult = await tatumApi.createSubscriptionBlockBeeStyle(
-              addressToSubscribe as string,
-              walletType,
-              effectiveCompanyId || 0,
-              userId,
-              addressId as number
-            );
-            if (subResult?.id) {
-              await preReserved.update({ subscription_id: subResult.id });
-            }
-          } catch (subError: unknown) {
-            cronLogger.error(`[MerchantPool] ⚠️ Async subscription update failed:`, (subError as Error).message);
+          {
+            where: {
+              temp_address_id: preReserved.dataValues.temp_address_id,
+              status: "PRE_RESERVED", // Optimistic lock — only succeeds if still PRE_RESERVED
+            },
           }
-        })();
-        
-        // Trigger background replenishment (fire-and-forget)
-        replenishPreReservedPool(userId, walletType).catch(() => {});
-        
-        return preReserved;
+        );
+
+        if (updatedCount > 0) {
+          cronLogger.info(`[MerchantPool] ⚡ FAST PATH: Used pre-reserved ${walletType} address for payment ${paymentId}`);
+          cronLogger.info(`[MerchantPool]    - Address: ${preReserved.dataValues.wallet_address}`);
+          cronLogger.info(`[MerchantPool]    - Merchant: ${userId}, Company: ${effectiveCompanyId}`);
+
+          // Async: Update subscription with company info (non-blocking)
+          const addressToSubscribe = preReserved.dataValues.wallet_address;
+          const addressId = preReserved.dataValues.temp_address_id;
+          (async () => {
+            try {
+              const subResult = await tatumApi.createSubscriptionBlockBeeStyle(
+                addressToSubscribe as string,
+                walletType,
+                effectiveCompanyId || 0,
+                userId,
+                addressId as number
+              );
+              if (subResult?.id) {
+                await preReserved.update({ subscription_id: subResult.id });
+              }
+            } catch (subError: unknown) {
+              cronLogger.error(`[MerchantPool] ⚠️ Async subscription update failed:`, (subError as Error).message);
+            }
+          })();
+
+          // Trigger background replenishment (fire-and-forget)
+          replenishPreReservedPool(userId, walletType).catch(() => {});
+
+          return preReserved;
+        }
+        // updatedCount === 0: another concurrent request grabbed THIS row —
+        // try the next pre-reserved candidate before falling back to the lock.
       }
-      // If updatedCount === 0, another concurrent request grabbed it — fall through to standard flow
-      cronLogger.info(`[MerchantPool] Pre-reserved address was grabbed by another request, falling back to standard flow`);
+
+      // Every pre-reserved candidate was grabbed concurrently — fall through to
+      // the standard (locked) flow.
+      cronLogger.info(`[MerchantPool] All ${candidateCount} pre-reserved ${walletType} addresses grabbed concurrently, falling back to standard flow`);
     }
   } catch (fastPathErr) {
     cronLogger.warn(`[MerchantPool] Fast path failed, falling through to standard flow:`, (fastPathErr as Error).message);
@@ -704,9 +730,11 @@ export const processQueuedPayments = async (tempAddressId: number): Promise<void
 // ═══════════════════════════════════════════════════════════════════════
 
 /**
- * Number of addresses to keep pre-reserved per merchant per currency
+ * Number of addresses to keep pre-reserved per merchant per currency.
+ * Env-tunable via MERCHANT_PRE_RESERVE_TARGET (see POOL_CONFIG). A larger value
+ * gives the lock-free fast path more burst headroom for flash-sales.
  */
-const PRE_RESERVE_TARGET = 2;
+const PRE_RESERVE_TARGET = POOL_CONFIG.PRE_RESERVE_TARGET;
 
 /**
  * Replenish pre-reserved addresses for a specific merchant+currency.

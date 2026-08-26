@@ -456,30 +456,28 @@ export const getBlockchainNetworkFee = async (
   throw new Error(`Unsupported blockchain: ${chain}`);
 };
 
-/**
- * Get fees for all supported blockchains
- */
-export const getAllBlockchainFees = async (): Promise<Record<string, BlockchainFeeResult>> => {
-  // Aggregate cache: the checkout page calls this on every load, and under
-  // concurrency the 15-chain fan-out (each request doing 15 sub-lookups) was
-  // the top latency hotspot (p95 ~13s at 1000 VUs). Cache the assembled map
-  // for a short window so N concurrent callers share ONE Redis GET. Values are
-  // already per-chain cached (5 min), so a 60s aggregate is strictly fresh.
-  const AGG_CACHE_KEY = "all_blockchain_fees_v1";
-  const AGG_CACHE_TTL_MS = 60 * 1000;
-  try {
-    const cached = await getRedisItem(AGG_CACHE_KEY) as
-      { fees?: Record<string, BlockchainFeeResult>; ts?: number } | null;
-    if (cached?.fees && Number(cached.ts) > Date.now() - AGG_CACHE_TTL_MS) {
-      return cached.fees;
-    }
-  } catch { /* cache read is best-effort — fall through to recompute */ }
+// ── Aggregate fee cache (stale-while-revalidate) ──────────────────────────
+// The checkout page calls getAllBlockchainFees on every load; the 15-chain
+// fan-out was the top latency hotspot (p95 ~13s at 1000 VUs), so the assembled
+// map is cached. SWR removes the last cold spot: a request that finds the cache
+// STALE (but still usable) serves the last-good map INSTANTLY and refreshes in
+// the background, so no user request ever waits on the recompute. A module-level
+// single-flight guard makes at most ONE recompute run at a time (per process).
+const AGG_CACHE_KEY = "all_blockchain_fees_v1";
+const AGG_FRESH_TTL_MS = 60 * 1000;       // within this: serve cache as-is, no refresh
+const AGG_STALE_TTL_MS = 10 * 60 * 1000;  // within this: serve stale + refresh in background
+const AGG_SUPPORTED_CHAINS = ['BTC', 'ETH', 'LTC', 'DOGE', 'TRX', 'USDT_ERC20', 'USDC_ERC20', 'RLUSD_ERC20', 'USDT_TRC20', 'SOL', 'XRP', 'RLUSD', 'POLYGON', 'USDT_POLYGON', 'BCH'];
 
-  const chains = ['BTC', 'ETH', 'LTC', 'DOGE', 'TRX', 'USDT_ERC20', 'USDC_ERC20', 'RLUSD_ERC20', 'USDT_TRC20', 'SOL', 'XRP', 'RLUSD', 'POLYGON', 'USDT_POLYGON', 'BCH'];
+let aggRefreshInFlight: Promise<Record<string, BlockchainFeeResult>> | null = null;
+
+// Recompute the full fee map (15-chain fan-out) and cache it if reasonably
+// complete. Per-chain values are themselves cached (5 min), so this is cheap
+// once warm. Never throws for a partial result — returns whatever it assembled.
+const computeAndCacheAllBlockchainFees = async (): Promise<Record<string, BlockchainFeeResult>> => {
   const results: Record<string, BlockchainFeeResult> = {};
 
   await Promise.all(
-    chains.map(async (chain) => {
+    AGG_SUPPORTED_CHAINS.map(async (chain) => {
       try {
         results[chain] = await getBlockchainNetworkFee(chain);
       } catch (error) {
@@ -490,13 +488,56 @@ export const getAllBlockchainFees = async (): Promise<Record<string, BlockchainF
   );
 
   // Only cache a reasonably complete result so a transient all-fail burst
-  // doesn't get pinned for 60s.
+  // doesn't get pinned.
   if (Object.keys(results).length >= 8) {
     try { await setRedisItem(AGG_CACHE_KEY, { fees: results, ts: Date.now() }); }
     catch { /* best-effort */ }
   }
 
   return results;
+};
+
+// Single-flight wrapper: concurrent cold callers OR a background trigger share
+// ONE in-flight recompute instead of stampeding the fee providers.
+const refreshAllBlockchainFeesSingleFlight = (): Promise<Record<string, BlockchainFeeResult>> => {
+  if (!aggRefreshInFlight) {
+    aggRefreshInFlight = computeAndCacheAllBlockchainFees().finally(() => {
+      aggRefreshInFlight = null;
+    });
+  }
+  return aggRefreshInFlight;
+};
+
+/**
+ * Get fees for all supported blockchains (stale-while-revalidate).
+ */
+export const getAllBlockchainFees = async (): Promise<Record<string, BlockchainFeeResult>> => {
+  let cached: { fees?: Record<string, BlockchainFeeResult>; ts?: number } | null = null;
+  try {
+    cached = await getRedisItem(AGG_CACHE_KEY) as
+      { fees?: Record<string, BlockchainFeeResult>; ts?: number } | null;
+  } catch { /* cache read is best-effort — fall through to (single-flight) recompute */ }
+
+  const age = cached?.ts ? Date.now() - Number(cached.ts) : Infinity;
+
+  // FRESH: serve immediately, no work.
+  if (cached?.fees && age < AGG_FRESH_TTL_MS) {
+    return cached.fees;
+  }
+
+  // STALE-but-usable: serve the last-good map instantly, refresh in the
+  // background (single-flight). A failing refresh must never reject the request.
+  if (cached?.fees && age < AGG_STALE_TTL_MS) {
+    void refreshAllBlockchainFeesSingleFlight().catch((error) => {
+      const msg = (error as { message?: string })?.message || String(error);
+      cronLogger.error(`[BlockchainFeeService] background fee refresh failed:`, msg);
+    });
+    return cached.fees;
+  }
+
+  // COLD / too stale: block on the recompute (shared via single-flight so a
+  // burst of cold callers still triggers only ONE fan-out).
+  return refreshAllBlockchainFeesSingleFlight();
 };
 
 /**

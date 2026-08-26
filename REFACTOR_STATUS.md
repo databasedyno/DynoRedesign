@@ -117,7 +117,22 @@
 #   13,400ms → 687ms (~20×); 0 server 5xx. Testing agent confirmed 8.7× on the
 #   prod-preview backend (478ms cold → 55ms warm). Live in prod (safe).
 
-### A1. [ ] Reservation burst headroom (per-merchant throughput ceiling)
+### A1. [x] Reservation burst headroom — DONE 2026-08-26 (code; staging load-test pending)
+#   ✅ Fix (option a, done right), in services/merchantPool/merchantPoolReservation.ts
+#      + merchantPoolConfig.ts:
+#      (1) the lock-free fast path now fetches a BATCH of PRE_RESERVED candidates
+#          (limit 16) and RETRIES the atomic optimistic claim across them — with a
+#          random start offset to spread concurrent callers — instead of dropping
+#          to the per-merchant Redis lock on the first lost race;
+#      (2) PRE_RESERVE_TARGET is now env-tunable (MERCHANT_PRE_RESERVE_TARGET,
+#          default 6, was hardcoded 2) so the pool gives more lock-free headroom.
+#      Each claim stays an atomic `UPDATE … WHERE status='PRE_RESERVED'` → ZERO
+#      over-reservation risk; the standard locked flow is unchanged.
+#      Verified: tsc 0 errors, 49 unit tests pass, backend boots healthy.
+#      NOTE: the 1000-VU acceptance (scripts/loadtest_money_path.ts) must run on the
+#      ISOLATED staging clone (it refuses against prod 'roundhouse'), so it was NOT
+#      run in this prod-connected preview.
+#   ── original finding ──
 #   FINDING (not a bug): `reserveAddress` serializes per merchant on Redis lock
 #   `reserve-address:<uid>:<walletType>` with acquireLock(retries=3, delay=100ms).
 #   Under a burst of MANY simultaneous checkouts for the SAME merchant, losers
@@ -133,7 +148,13 @@
 #   ACCEPTANCE: 1000 concurrent same-merchant checkouts → <5% backpressure, still
 #   zero over-reservation (re-run scripts/loadtest_money_path.ts).
 
-### A2. [ ] network-fees stale-while-revalidate
+### A2. [x] network-fees stale-while-revalidate — DONE & verified 2026-08-26
+#   ✅ getAllBlockchainFees now SWR: FRESH (<60s) served as-is; STALE (<10m) served
+#      INSTANTLY + single-flight background refresh (module `aggRefreshInFlight`);
+#      COLD/too-stale blocks on a single-flight recompute. Verified live: the first
+#      call AFTER the 60s window was 45ms (stale served) vs ~800ms cold before;
+#      warm 45ms; 49 unit tests pass; tsc 0 errors. File: services/blockchainFeeService.ts.
+#   ── original finding ──
 #   Current 60s aggregate cache still has ONE slow request per 60s window when it
 #   expires (herd mostly hits per-chain caches, so it's cheap, but not zero).
 #   Add SWR: serve the last good payload instantly and refresh in the background
