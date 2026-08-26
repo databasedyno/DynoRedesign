@@ -173,12 +173,15 @@ async function validateCart(
       if (it.quantity === 0) continue;
     }
 
-    const lineTotal = unitPrice * Number(it.quantity);
+    // One-off service products (#2c) are always quantity 1 regardless of what
+    // the client submits — buyers can't stack a "Talk to a Developer".
+    const lineQty = product.hide_quantity ? 1 : Number(it.quantity);
+    const lineTotal = unitPrice * lineQty;
     subtotalCents += lineTotal;
     normalized.push({
       product_id: Number(product.product_id),
       variant_id: variant ? Number(variant.variant_id) : null,
-      quantity: Number(it.quantity),
+      quantity: lineQty,
       unit_price_cents: unitPrice,
       line_total_cents: lineTotal,
       // Tax metadata carried through so startCheckout can compute per-item
@@ -192,6 +195,7 @@ async function validateCart(
         product_type: product.product_type,
         digital_delivery_type: product.digital_delivery_type,
         tax_category: product.tax_category || "digital",
+        hide_quantity: !!product.hide_quantity,
       },
       variant_snapshot: variant
         ? {
@@ -273,10 +277,11 @@ export const startCheckout = async (
     const body = req.body || {};
     const buyer = body.buyer || {};
     const buyerEmail = String(buyer.email || "").trim().toLowerCase();
-    // Email is OPTIONAL — buyers can pay without it (they still get the on-screen
-    // order page). Validate the format only when one is actually provided.
-    if (buyerEmail && !buyerEmail.includes("@"))
-      return errorResponseHelper(res, 400, "Please enter a valid email address.");
+    // Email is REQUIRED on the storefront checkout — buyers need a receipt /
+    // download links, and (when no name is supplied) the confirmation email is
+    // addressed to the email itself.
+    if (!buyerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail))
+      return errorResponseHelper(res, 400, "A valid email is required so we can send your receipt.");
 
     // Resolve merchant — the vanity handle lives on the COMPANY when
     // storefront-per-company is ON, so resolve it via resolveStorefrontByHandle

@@ -67,6 +67,14 @@ export const LanguageOnboardingBar = () => {
     return () => window.removeEventListener("focus", evaluate);
   }, [router.pathname]);
 
+  // Publish the bar's footprint as a CSS var so floating UI (e.g. the storefront
+  // mini-cart pill) can lift itself clear of the bar instead of being covered.
+  useEffect(() => {
+    const el = document.documentElement;
+    el.style.setProperty("--dp-lang-bar", visible ? "76px" : "0px");
+    return () => { el.style.setProperty("--dp-lang-bar", "0px"); };
+  }, [visible]);
+
   const hide = () => {
     try {
       localStorage.setItem(DISMISS_KEY, "1");

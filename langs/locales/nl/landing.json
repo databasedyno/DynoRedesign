@@ -306,7 +306,10 @@
     },
     "refund": {
       "label": "Voorkeurs-terugbetaalmethode (optioneel)",
-      "help": "Als je het verkeerde asset stuurt of het verkeerde netwerk gebruikt, proberen we terug te betalen naar dit adres (minus netwerkkosten)."
+      "help": "Als je betaling niet kan worden voltooid, storten we terug naar dit adres (minus netwerkkosten). Gebruik een adres op hetzelfde netwerk waarmee je betaalt.",
+      "toggle": "Voeg een terugbetaaladres toe (optioneel)",
+      "placeholder": "Je wallet-adres voor terugbetalingen",
+      "saved": "Terugbetaaladres opgeslagen"
     },
     "qrAlt": "QR-code voor betaling",
     "bank": {
@@ -412,7 +415,24 @@
       "error": "Kon de ontvangst niet ophalen — probeer het opnieuw."
     },
     "processingFee": "Verwerkingskosten",
-    "totalYouPay": "Totaal dat je betaalt"
+    "totalYouPay": "Totaal dat je betaalt",
+    "store": {
+      "title": "Afrekenen",
+      "backToCart": "← Terug naar winkelwagen",
+      "completeTitle": "Voltooi je betaling",
+      "completeSubtitle": "Betaal hieronder met crypto. Deze pagina wordt automatisch bijgewerkt zodra je betaling is bevestigd.",
+      "orderPrefix": "Bestelling",
+      "emailLabel": "E-mail voor bon & updates",
+      "emailHelp": "We e-mailen je bon en eventuele downloadlinks hierheen.",
+      "nameLabel": "Naam (optioneel)",
+      "vatLabel": "Btw-nummer (optioneel)",
+      "pay": "Betaal met crypto →",
+      "poweredBy": "Mogelijk gemaakt door Dynopay · Betaling gaat rechtstreeks naar de wallet van de verkoper",
+      "emailRequired": "E-mail is verplicht zodat we je bon kunnen sturen.",
+      "emailInvalid": "Voer een geldig e-mailadres in.",
+      "emptyCart": "Je winkelwagen is leeg.",
+      "minTotal": "Het minimale bestelbedrag is {{min}}."
+    }
   },
   "creator": {
     "card": {
@@ -426,7 +446,19 @@
       "includeMemo": "Voeg memo/tag toe:",
       "waitingPayment": "Wacht op betaling · ververst automatisch elke 10s",
       "partialReceived": "Gedeeltelijke betaling ontvangen",
-      "monitoringRemainder": "Bewaakt het restant…"
+      "monitoringRemainder": "Bewaakt het restant…",
+      "pickCrypto": "Kies een crypto om {{amount}} te betalen",
+      "accepts": "{{name}} accepteert:",
+      "merchantAccepts": "Deze verkoper accepteert:",
+      "creatorAccepts": "Deze maker accepteert:",
+      "sendAmount": "Stuur {{amount}} {{coin}}",
+      "generatingAddress": "Je {{coin}}-adres wordt aangemaakt…",
+      "changeAmount": "Bedrag wijzigen",
+      "back": "Terug",
+      "showQr": "Toon QR-code",
+      "hideQr": "QR verbergen",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd"
     },
     "support": {
       "anonymous": "Maak mijn steun anoniem",

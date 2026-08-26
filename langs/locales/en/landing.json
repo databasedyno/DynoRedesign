@@ -306,7 +306,10 @@
     },
     "refund": {
       "label": "Preferred refund method (optional)",
-      "help": "If you send the wrong asset or use the wrong network, we'll try to refund to this address (minus network fees)."
+      "help": "If your payment can’t be completed, we’ll refund to this address (minus network fees). Use an address on the same network you’re paying with.",
+      "toggle": "Add a refund address (optional)",
+      "placeholder": "Your wallet address for refunds",
+      "saved": "Refund address saved"
     },
     "qrAlt": "Payment QR Code",
     "bank": {
@@ -412,7 +415,24 @@
       "error": "Could not fetch the receipt — please try again."
     },
     "processingFee": "Processing fee",
-    "totalYouPay": "Total you pay"
+    "totalYouPay": "Total you pay",
+    "store": {
+      "title": "Checkout",
+      "backToCart": "← Back to cart",
+      "completeTitle": "Complete your payment",
+      "completeSubtitle": "Pay with crypto below. This page updates automatically once your payment is confirmed.",
+      "orderPrefix": "Order",
+      "emailLabel": "Email for receipt & updates",
+      "emailHelp": "We'll email your receipt and any download links here.",
+      "nameLabel": "Name (optional)",
+      "vatLabel": "VAT ID (optional)",
+      "pay": "Pay with crypto →",
+      "poweredBy": "Powered by Dynopay · Payment settles directly to the merchant's wallet",
+      "emailRequired": "Email is required so we can send your receipt.",
+      "emailInvalid": "Please enter a valid email address.",
+      "emptyCart": "Your cart is empty.",
+      "minTotal": "Minimum order total is {{min}}."
+    }
   },
   "creator": {
     "card": {
@@ -426,7 +446,19 @@
       "includeMemo": "Include memo/tag:",
       "waitingPayment": "Waiting for payment · auto-updates every 10s",
       "partialReceived": "Partial payment received",
-      "monitoringRemainder": "Monitoring for the remainder…"
+      "monitoringRemainder": "Monitoring for the remainder…",
+      "pickCrypto": "Pick a crypto to pay {{amount}}",
+      "accepts": "{{name}} accepts:",
+      "merchantAccepts": "This merchant accepts:",
+      "creatorAccepts": "This creator accepts:",
+      "sendAmount": "Send {{amount}} {{coin}}",
+      "generatingAddress": "Generating your {{coin}} address…",
+      "changeAmount": "Change amount",
+      "back": "Back",
+      "showQr": "Show QR code",
+      "hideQr": "Hide QR",
+      "copy": "Copy",
+      "copied": "Copied"
     },
     "support": {
       "anonymous": "Make my support anonymous",

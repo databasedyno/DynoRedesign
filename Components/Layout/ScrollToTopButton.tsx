@@ -39,7 +39,10 @@ const ScrollToTopButton = () => {
     <Box
       sx={{
         position: "fixed",
-        bottom: isMobile ? 8 : 32,
+        // Sit ABOVE the support-chat FAB (bottom-right, ~56px) instead of on
+        // top of it — otherwise this button swallows clicks meant for the chat
+        // FAB once the page is scrolled. On mobile also clear the language bar.
+        bottom: isMobile ? "calc(var(--dp-lang-bar, 0px) + 88px)" : 96,
         right: isMobile ? 16 : 24,
         zIndex: (theme) => theme.zIndex.tooltip + 1,
         transition: "opacity 0.3s ease, transform 0.3s ease",

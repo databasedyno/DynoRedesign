@@ -336,6 +336,8 @@ function pickProductPayload(body: any) {
     out.apply_tax_override = null;
   }
 
+  if (typeof body.hide_quantity === "boolean") out.hide_quantity = body.hide_quantity;
+
   return out;
 }
 

@@ -306,7 +306,10 @@
     },
     "refund": {
       "label": "Méthode de remboursement préférée (facultatif)",
-      "help": "Si vous envoyez le mauvais actif ou utilisez le mauvais réseau, nous essaierons de rembourser à cette adresse (moins les frais réseau)."
+      "help": "Si votre paiement ne peut aboutir, nous rembourserons à cette adresse (hors frais de réseau). Utilisez une adresse sur le même réseau que celui du paiement.",
+      "toggle": "Ajouter une adresse de remboursement (facultatif)",
+      "placeholder": "Votre adresse de portefeuille pour les remboursements",
+      "saved": "Adresse de remboursement enregistrée"
     },
     "qrAlt": "QR code de paiement",
     "bank": {
@@ -412,7 +415,24 @@
       "error": "Impossible de récupérer le reçu — veuillez réessayer."
     },
     "processingFee": "Frais de traitement",
-    "totalYouPay": "Total que vous payez"
+    "totalYouPay": "Total que vous payez",
+    "store": {
+      "title": "Paiement",
+      "backToCart": "← Retour au panier",
+      "completeTitle": "Finalisez votre paiement",
+      "completeSubtitle": "Payez en crypto ci-dessous. Cette page se met à jour automatiquement une fois votre paiement confirmé.",
+      "orderPrefix": "Commande",
+      "emailLabel": "E-mail pour reçu et mises à jour",
+      "emailHelp": "Nous vous enverrons votre reçu et les liens de téléchargement ici.",
+      "nameLabel": "Nom (facultatif)",
+      "vatLabel": "Numéro de TVA (facultatif)",
+      "pay": "Payer en crypto →",
+      "poweredBy": "Propulsé par Dynopay · Le paiement est réglé directement sur le portefeuille du marchand",
+      "emailRequired": "L'e-mail est requis pour vous envoyer votre reçu.",
+      "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+      "emptyCart": "Votre panier est vide.",
+      "minTotal": "Le total minimum de commande est de {{min}}."
+    }
   },
   "creator": {
     "card": {
@@ -426,7 +446,19 @@
       "includeMemo": "Inclure le memo/tag :",
       "waitingPayment": "En attente du paiement · mise à jour toutes les 10s",
       "partialReceived": "Paiement partiel reçu",
-      "monitoringRemainder": "Surveillance du reste…"
+      "monitoringRemainder": "Surveillance du reste…",
+      "pickCrypto": "Choisissez une crypto pour payer {{amount}}",
+      "accepts": "{{name}} accepte :",
+      "merchantAccepts": "Ce marchand accepte :",
+      "creatorAccepts": "Ce créateur accepte :",
+      "sendAmount": "Envoyez {{amount}} {{coin}}",
+      "generatingAddress": "Génération de votre adresse {{coin}}…",
+      "changeAmount": "Modifier le montant",
+      "back": "Retour",
+      "showQr": "Afficher le QR code",
+      "hideQr": "Masquer le QR",
+      "copy": "Copier",
+      "copied": "Copié"
     },
     "support": {
       "anonymous": "Rendre mon soutien anonyme",

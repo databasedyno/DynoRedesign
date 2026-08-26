@@ -23,7 +23,7 @@ from PIL import Image
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://dynopay-setup-3.preview.emergentagent.com"
+EXTERNAL_BASE = "https://dynopay-setup-4.preview.emergentagent.com"
 API_BASE = f"{EXTERNAL_BASE}/api"
 
 # Test credentials

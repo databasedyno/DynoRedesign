@@ -1,4 +1,5 @@
 import { FC, memo, useEffect } from "react";
+import { Box } from "@mui/material";
 import dynamic from "next/dynamic";
 import HeroPlayground from "./v3/HeroPlayground";
 import { HomeWrapper } from "./styled";
@@ -63,8 +64,12 @@ const HomePage: FC = () => {
     <HomeWrapper>
       <HeroPlayground />
       <LivePriceStrip />
-      <AudienceDoorsV3 />
-      <ProductFeatureCards />
+      <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
+        <AudienceDoorsV3 />
+      </Box>
+      <Box id="features" component="div" sx={{ scrollMarginTop: "88px" }}>
+        <ProductFeatureCards />
+      </Box>
       <NumbersTrustBand />
       <LearnDocsCards />
       <FAQCompact />

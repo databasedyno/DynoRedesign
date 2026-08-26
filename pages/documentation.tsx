@@ -1794,26 +1794,7 @@ app.post('/webhooks/dynopay', (req, res) => {
           </Box>
         </Container>
 
-        {/* Back to top */}
-        <Fade in={showTop}>
-          <Fab
-            size="small"
-            aria-label="Back to top"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            sx={{
-              position: "fixed",
-              bottom: { xs: 88, md: 96 },
-              right: 24,
-              zIndex: 1300,
-              background: dk ? "#818CF8" : BRAND_ACCENT,
-              color: dk ? "#0A0A0A" : "#FFFFFF",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
-              "&:hover": { background: dk ? "#b8e600" : "#222222" },
-            }}
-          >
-            <KeyboardArrowUpIcon />
-          </Fab>
-        </Fade>
+        {/* Back-to-top is provided globally by <ScrollToTopButton/> in the layout. */}
       </PageWrapper>
     </>
   );

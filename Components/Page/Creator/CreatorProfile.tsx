@@ -417,11 +417,15 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
           )}
 
           {/* ── Social links row (optional) ── */}
-          {creator.social_links && Object.keys(creator.social_links).length > 0 && (
-            <Box
-              data-testid='creator-socials'
-              sx={{ display: 'flex', gap: 1.25, mt: 3, flexWrap: 'wrap', justifyContent: 'center' }}
-            >
+          {creator.social_links && Object.keys(creator.social_links).filter((k) => (creator.social_links as Record<string,string>)[k]).length > 0 && (
+            <Box data-testid='creator-socials-block' sx={{ mt: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1 }}>
+                {t('creator.socials.label', { defaultValue: `Find ${creator.name} on` })}
+              </Typography>
+              <Box
+                data-testid='creator-socials'
+                sx={{ display: 'flex', gap: 1.25, flexWrap: 'wrap', justifyContent: 'center' }}
+              >
               {Object.entries(creator.social_links).map(([platform, url]) => {
                 if (!url) return null
                 return (
@@ -448,6 +452,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
                   </Box>
                 )
               })}
+              </Box>
             </Box>
           )}
         </Box>

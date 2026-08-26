@@ -39,7 +39,7 @@
 # ============================================================================
 # 2026-08-25 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://7aaa188d-49a7-4e85-a5da-1814289af15b.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
 # - Branch: Improvement
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env (41 lines) + /app/backend/.env (226 lines) written by hand,
@@ -68,7 +68,7 @@
 # ============================================================================
 # 2026-08-25 (later) RE-SETUP (current pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-setup-3.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
 # - Branch: Improvement (latest, contains all other branches)
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env + /app/backend/.env written by hand, then
@@ -95,7 +95,7 @@
 # ============================================================================
 # 2026-08-25 RE-SETUP (prior pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-setup-3.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
 # - Env files REBUILT from a fresh full cred paste by the user (no vault passphrase
 #   this session; env.vault.enc NOT used). /app/.env + /app/backend/.env written by
 #   hand, then `bash scripts/pod-bootstrap.sh` synced URLs + enforced SAFE MODE.
@@ -121,7 +121,7 @@
 # ============================================================================
 # 2026-08-24 RE-SETUP (this session) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://dynopay-setup-3.preview.emergentagent.com
+# - Preview URL: https://dynopay-setup-4.preview.emergentagent.com
 # - Env files were REBUILT DIRECTLY from a fresh full cred paste by the user
 #   (NOT restored from env.vault.enc — no passphrase was provided this session).
 # - /app/backend/.env and /app/.env written by hand; SAFE MODE enforced:
@@ -147,7 +147,7 @@
 # DynoPay — Emergent Preview Setup Notes (prod-connected, SAFE MODE)
 
 ## Status: RUNNING — connected to the user's LIVE Railway PostgreSQL + Redis
-- Preview URL: https://dynopay-setup-3.preview.emergentagent.com
+- Preview URL: https://dynopay-setup-4.preview.emergentagent.com
 - Architecture: Next.js (`:3000`) + Node/Express backend (`server.ts` on `:3300`) behind a
   Python/uvicorn proxy (`server.py` on `:8001`, the `/api/*` ingress target). Proxy forwards
   `/api/*` to Node and stubs `/api/auth/*` (NextAuth) with empty JSON.
@@ -189,3 +189,40 @@
   tatum operational, binance_websocket geo-blocked as expected).
 - GET /api/public/tickers, /api/public/fx-rates -> 200 with live rates.
 - Frontend /, /auth/login, /dashboard, /pay -> 200; login page renders full UI, no console errors.
+
+
+# ============================================================================
+# 2026-08-26 — 9-ISSUE STOREFRONT/CHECKOUT FIX BATCH (this session)
+# ----------------------------------------------------------------------------
+# Preview URL (CORRECT): https://dynopay-setup-4.preview.emergentagent.com
+#   (bootstrap auto-detected a STALE url d6d663a8-... from a read-only supervisor
+#    APP_URL — it is DEAD/502. All env URL keys were re-pointed to dynopay-setup-4.)
+# Merchant login (owns @devhub): hostbay@moxx.co / Katiekendra123@  (user_id=1, company_id=1)
+# Test creator handle: devhub | product #9 "Talk to a Developer" ($100, slug talk-to-a-developer)
+# STILL SAFE MODE + LIVE PROD DB: DISABLE_OUTBOUND_EMAIL=true (emails only logged as
+#   "[Email] SUPPRESSED"), background jobs OFF. Prefer non-destructive tests.
+# ⚠️ NEVER change the merchant's handle in tests (would break devhub's live URL).
+#
+# Fixes in this batch:
+#  #1 CartContext.tsx — product/variant id coerced to Number (string-vs-number === bug
+#     silently no-op'd qty +/- and remove).
+#  #2 MiniCart.tsx (new) — floating cart pill (bottom-left) + drawer on shop & product
+#     pages; email now REQUIRED on store checkout (backend cartController.startCheckout);
+#     buyer emails fall back to email when no name (orderEmails.ts).
+#  #2c product "one-off service (hide quantity)" toggle — new tbl_product.hide_quantity
+#     column (migration addProductHideQuantity.ts, applied to prod), ProductEditor toggle
+#     data-testid=product-hide-quantity-toggle, product page hides qty stepper.
+#  #3 InlineTipCheckout refund-address field (data-testid inline-refund-toggle/-input)
+#     -> POST /pay/setRefundAddress (backend already supported it).
+#  #4 store checkout "Change amount" -> /{handle}/cart (was /shop); cart cleared only on
+#     confirmed payment (onConfirmed); order number persists on refresh (sessionStorage).
+#  #5 store checkout + inline pay strings now i18n (checkout.store.* + creator.inline.*
+#     added to all 6 langs en/es/pt/fr/de/nl).
+#  #6 SupportChatWidget desktop occlusion for data-dyno-anchor="cta"; publish row marked.
+#  #7 backend social allowlist now includes telegram+facebook (was stripping them);
+#     creator contact socials row now labelled "Find {name} on".
+#  #8 $10 floor on tip/support/store (SupportWidget, CreatorPageSettings, backend
+#     creatorProfile min>=10, store checkout min total 1000c).
+#  #9 sendCreatorHandleUpdatedEmail (accountEmails.ts) fired on handle reserve/change
+#     (email suppressed in preview; do NOT trigger by changing the live handle).
+# ============================================================================

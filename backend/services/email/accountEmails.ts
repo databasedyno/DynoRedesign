@@ -245,6 +245,44 @@ export const sendUserProfileUpdatedEmail = async (
 };
 
 /**
+ * Creator handle reserved / updated (#9 — process email).
+ * Notifies the merchant when their public handle (username) is first set or
+ * later changed, with the resulting page URL. Inline English copy — kept
+ * out of the email-i18n system to stay self-contained.
+ */
+export const sendCreatorHandleUpdatedEmail = async (
+  email: string,
+  name: string,
+  handle: string,
+  isNew: boolean
+) => {
+  try {
+    const pageUrl = `${FRONTEND_BASE_URL}/${handle}`;
+    const now = new Date();
+    const date = now.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+    const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+    const heading = isNew ? "Your creator handle is live" : "Your creator handle was updated";
+    const subject = isNew ? `Your handle @${handle} is reserved` : `Your handle is now @${handle}`;
+    const content = `${p(name ? `Hi ${escapeHtml(name)},` : "Hi there,")}
+    ${p(isNew
+      ? "Your creator handle has been reserved — your public page and storefront are now available at the link below."
+      : "Your creator handle has been updated. Your public page and storefront now live at the new link below — remember to update any links you've already shared.")}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow("Handle", `@${escapeHtml(handle)}`)}
+        ${dataRow("Page URL", escapeHtml(pageUrl))}
+        ${dataRow("Date", `${date} at ${time}`, true)}
+      </table>
+    `, "#12B76A")}`;
+    const html = dynoPayEmailTemplate(heading, content, true, "View my page", pageUrl);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[CreatorHandle] Handle ${isNew ? "reserved" : "updated"} email sent to ${email} (@${handle})`);
+  } catch (e) {
+    apiLogger.error("[CreatorHandle] Email error:", e);
+  }
+};
+
+/**
  * Template 17: Security Alert
  */
 export const sendSecurityAlertEmail = async (

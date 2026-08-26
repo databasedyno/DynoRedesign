@@ -17,8 +17,10 @@ import {
 import AddRounded from "@mui/icons-material/AddRounded";
 import RemoveRounded from "@mui/icons-material/RemoveRounded";
 import ShoppingCartRounded from "@mui/icons-material/ShoppingCartRounded";
+import { Icon } from "@iconify/react";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
+import MiniCart from "@/Components/Page/Shop/MiniCart";
 
 interface Merchant { handle: string; name: string; avatar?: string | null }
 interface Product {
@@ -27,6 +29,7 @@ interface Product {
   base_price_cents: number; currency: string;
   cover_image_url?: string; gallery_images?: Array<{ url: string; alt?: string }>;
   has_variants?: boolean; base_stock?: number | null; sold_count?: number;
+  hide_quantity?: boolean;
 }
 interface Variant {
   variant_id: number; attributes?: any; price_cents: number;
@@ -71,7 +74,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
     cart.addItem(merchant.handle, {
       product_id: product.product_id,
       variant_id: selectedVariant?.variant_id ?? null,
-      quantity,
+      quantity: product.hide_quantity ? 1 : quantity,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
@@ -147,26 +150,39 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
               </FormControl>
             )}
 
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography variant="body2">Quantity</Typography>
-              <IconButton size="small" onClick={() => setQuantity((q) => Math.max(1, q - 1))} data-testid="product-detail-qty-dec">
-                <RemoveRounded fontSize="small" />
-              </IconButton>
-              <TextField
+            {/* Quantity selector — hidden for one-off "service" products (#2c),
+                e.g. "Talk to a Developer", where a quantity makes no sense. */}
+            {product.hide_quantity ? (
+              <Chip
                 size="small"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
-                inputProps={{ "data-testid": "product-detail-qty-input", style: { textAlign: "center", width: 40 } }}
+                variant="outlined"
+                icon={<Icon icon="mdi:account-wrench-outline" width={16} />}
+                label="One-off service"
+                data-testid="product-detail-service-badge"
+                sx={{ alignSelf: "flex-start" }}
               />
-              <IconButton size="small" onClick={() => setQuantity((q) => q + 1)} data-testid="product-detail-qty-inc">
-                <AddRounded fontSize="small" />
-              </IconButton>
-              {stockLeft != null && (
-                <Typography variant="caption" color="text.secondary">
-                  {stockLeft} left
-                </Typography>
-              )}
-            </Stack>
+            ) : (
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="body2">Quantity</Typography>
+                <IconButton size="small" onClick={() => setQuantity((q) => Math.max(1, q - 1))} data-testid="product-detail-qty-dec">
+                  <RemoveRounded fontSize="small" />
+                </IconButton>
+                <TextField
+                  size="small"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
+                  inputProps={{ "data-testid": "product-detail-qty-input", style: { textAlign: "center", width: 40 } }}
+                />
+                <IconButton size="small" onClick={() => setQuantity((q) => q + 1)} data-testid="product-detail-qty-inc">
+                  <AddRounded fontSize="small" />
+                </IconButton>
+                {stockLeft != null && (
+                  <Typography variant="caption" color="text.secondary">
+                    {stockLeft} left
+                  </Typography>
+                )}
+              </Stack>
+            )}
 
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
               <Button
@@ -206,6 +222,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
           </Stack>
         </Box>
       </Container>
+      <MiniCart handle={merchant.handle} />
     </>
   );
 };

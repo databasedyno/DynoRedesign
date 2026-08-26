@@ -1,13 +1,16 @@
 /**
  * Checkout page (public).
  * Route: /{handle}/checkout
- * Collects buyer email + optional name; POST /api/checkout; redirects to
- * CleanCheckoutV2 at /pay?d=<payment_ref>.
+ * Collects buyer email (required) + optional name; POST /api/checkout; then
+ * mounts the inline crypto checkout ON THIS PAGE (same UX as the creator tip
+ * flow). "Change amount" returns to the cart; the cart is only cleared once
+ * the payment is confirmed.
  */
 import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import {
   Box, Container, Typography, Stack, TextField, Button, LinearProgress,
   Alert, Divider,
@@ -15,6 +18,9 @@ import {
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
 import InlineTipCheckout from "@/Components/Page/Creator/InlineTipCheckout";
+
+// Platform floor: minimum order total is $10 (matches tips / donations).
+const MIN_TOTAL_CENTS = 1000;
 
 function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
@@ -25,6 +31,7 @@ function formatPrice(cents: number, ccy: string): string {
 
 const CheckoutPage: NextPageWithLayout = () => {
   const router = useRouter();
+  const { t } = useTranslation("landing");
   const rawHandle = router.query.handle;
   const handle = typeof rawHandle === "string" ? rawHandle.toLowerCase() : "";
   const cart = useCart();
@@ -46,10 +53,18 @@ const CheckoutPage: NextPageWithLayout = () => {
   const [payRef, setPayRef] = useState<string | null>(null);
   const [orderPublicRef, setOrderPublicRef] = useState<string | null>(null);
 
-  // Refresh persistence: /{handle}/checkout?pay=<ref> re-opens the inline payment.
+  // Refresh persistence: /{handle}/checkout?pay=<ref> re-opens the inline
+  // payment AND restores the order number (stashed at submit) so the order
+  // reference stays visible on this page after a reload.
   useEffect(() => {
     const qp = router.query.pay;
     if (typeof qp === "string" && qp && !payRef) setPayRef(qp);
+    if (typeof qp === "string" && qp && !orderPublicRef && typeof window !== "undefined") {
+      try {
+        const saved = window.sessionStorage.getItem("last_order_ref");
+        if (saved) setOrderPublicRef(saved);
+      } catch {}
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query.pay]);
 
@@ -61,12 +76,16 @@ const CheckoutPage: NextPageWithLayout = () => {
     }
   }, []);
 
-  // Email is OPTIONAL — valid when blank, or when it's a well-formed address.
+  // Email is REQUIRED on the store — buyers need a receipt / download links,
+  // and (when no name is given) the confirmation email is addressed to it.
   const emailValid = useMemo(() => {
     const v = email.trim();
-    return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   }, [email]);
   const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+
+  const totalCents = Number(quote?.total_cents ?? subtotalCents) || 0;
+  const belowMin = lines.length > 0 && totalCents > 0 && totalCents < MIN_TOTAL_CENTS;
 
   useEffect(() => {
     if (!handle) return;
@@ -142,8 +161,9 @@ const CheckoutPage: NextPageWithLayout = () => {
 
   const submit = async () => {
     setError(null);
-    if (!emailValid) { setError("Please enter a valid email address, or leave it blank."); return; }
-    if (lines.length === 0) { setError("Your cart is empty."); return; }
+    if (!emailValid) { setError(t("checkout.store.emailRequired", { defaultValue: "Email is required so we can send your receipt." })); return; }
+    if (lines.length === 0) { setError(t("checkout.store.emptyCart", { defaultValue: "Your cart is empty." })); return; }
+    if (belowMin) { setError(t("checkout.store.minTotal", { min: formatPrice(MIN_TOTAL_CENTS, currency), defaultValue: `Minimum order total is ${formatPrice(MIN_TOTAL_CENTS, currency)}.` })); return; }
     setSubmitting(true);
     try {
       const r = await fetch(`${base}/api/checkout`, {
@@ -156,7 +176,7 @@ const CheckoutPage: NextPageWithLayout = () => {
             variant_id: i.variant_id,
             quantity: i.quantity,
           })),
-          buyer: { email: email.trim() || undefined, name: name.trim() || undefined },
+          buyer: { email: email.trim(), name: name.trim() || undefined },
           customer_vat_id: vatId.trim() || undefined,
           timezone,
         }),
@@ -166,9 +186,9 @@ const CheckoutPage: NextPageWithLayout = () => {
       const orderRef = j?.data?.order_public_ref;
       const paymentRef = j?.data?.payment_ref;
       if (!paymentRef) throw new Error("Missing payment reference");
-      // Clear cart for this handle (order is now paid-pending on the server side)
-      cart.clearCart(handle);
-      // Stash the order ref so the buyer can find their order from success page fallback
+      // Stash the order ref so it survives a refresh + lets the success page
+      // find the order. The cart is NOT cleared until payment is confirmed,
+      // so "Change amount" can return to the cart with items intact.
       if (orderRef && typeof window !== "undefined") {
         try { window.sessionStorage.setItem("last_order_ref", orderRef); } catch {}
       }
@@ -187,25 +207,37 @@ const CheckoutPage: NextPageWithLayout = () => {
     }
   };
 
+  const orderLabel = orderPublicRef
+    ? `${t("checkout.store.orderPrefix", { defaultValue: "Order" })} ${orderPublicRef.slice(0, 8).toUpperCase()}`
+    : `@${handle}`;
+
   return (
     <>
       <Head><title>Checkout · @{handle} · Dynopay</title><meta name="robots" content="noindex" /></Head>
       <Container maxWidth="sm" sx={{ py: { xs: 3, md: 5 } }} data-testid="checkout-page">
         {!payRef && (
           <Typography variant="body2" sx={{ mb: 2 }}>
-            <Link href={`/${handle}/cart`} style={{ color: "inherit" }}>← Back to cart</Link>
+            <Link href={`/${handle}/cart`} style={{ color: "inherit" }} data-testid="checkout-back-to-cart">
+              {t("checkout.store.backToCart", { defaultValue: "← Back to cart" })}
+            </Link>
           </Typography>
         )}
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>Checkout</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
+          {t("checkout.store.title", { defaultValue: "Checkout" })}
+        </Typography>
 
         {payRef ? (
           <Box data-testid="checkout-inline-pay">
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-              Complete your payment
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }} data-testid="checkout-complete-title">
+              {t("checkout.store.completeTitle", { defaultValue: "Complete your payment" })}
             </Typography>
+            {orderPublicRef && (
+              <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }} data-testid="checkout-order-number">
+                {orderLabel}
+              </Typography>
+            )}
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {orderPublicRef ? `Order ${orderPublicRef.slice(0, 8).toUpperCase()} — ` : ""}
-              pay with crypto below. This page updates automatically once your payment is confirmed.
+              {t("checkout.store.completeSubtitle", { defaultValue: "Pay with crypto below. This page updates automatically once your payment is confirmed." })}
             </Typography>
             <InlineTipCheckout
               d={payRef}
@@ -214,8 +246,9 @@ const CheckoutPage: NextPageWithLayout = () => {
               style="support"
               siteUrl={typeof window !== "undefined" ? window.location.origin : ""}
               mode="link"
-              targetLabel={orderPublicRef ? `Order ${orderPublicRef.slice(0, 8).toUpperCase()}` : `@${handle}`}
-              onCancel={() => router.push(`/${handle}/shop`)}
+              targetLabel={orderLabel}
+              onConfirmed={() => cart.clearCart(handle)}
+              onCancel={() => router.push(`/${handle}/cart`)}
               onNewTip={() => router.push(`/${handle}/shop`)}
             />
           </Box>
@@ -233,23 +266,25 @@ const CheckoutPage: NextPageWithLayout = () => {
 
         <Stack spacing={2}>
           <TextField
-            label="Email for receipt & updates (optional)"
+            label={t("checkout.store.emailLabel", { defaultValue: "Email for receipt & updates" })}
             type="email"
+            required
             fullWidth
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            error={email.trim().length > 0 && !emailValid}
             inputProps={{ "data-testid": "checkout-email-input" }}
-            helperText="Optional — add it and we'll email your receipt + any download links."
+            helperText={t("checkout.store.emailHelp", { defaultValue: "We'll email your receipt and any download links here." })}
           />
           <TextField
-            label="Name (optional)"
+            label={t("checkout.store.nameLabel", { defaultValue: "Name (optional)" })}
             fullWidth
             value={name}
             onChange={(e) => setName(e.target.value)}
             inputProps={{ "data-testid": "checkout-name-input" }}
           />
           <TextField
-            label="VAT ID (optional)"
+            label={t("checkout.store.vatLabel", { defaultValue: "VAT ID (optional)" })}
             fullWidth
             value={vatId}
             onChange={(e) => setVatId(e.target.value.toUpperCase())}
@@ -301,7 +336,7 @@ const CheckoutPage: NextPageWithLayout = () => {
           <Stack direction="row" justifyContent="space-between">
             <Typography sx={{ fontWeight: 700 }}>Total</Typography>
             <Typography sx={{ fontWeight: 800, fontVariantNumeric: "tabular-nums" }} data-testid="checkout-total">
-              {formatPrice(Number(quote?.total_cents ?? subtotalCents), quote?.currency || currency)}
+              {formatPrice(totalCents, quote?.currency || currency)}
             </Typography>
           </Stack>
           {quote?.reverse_charge && (
@@ -311,19 +346,25 @@ const CheckoutPage: NextPageWithLayout = () => {
           )}
         </Stack>
 
+        {belowMin && (
+          <Alert severity="info" sx={{ mb: 2 }} data-testid="checkout-min-total">
+            {t("checkout.store.minTotal", { min: formatPrice(MIN_TOTAL_CENTS, currency), defaultValue: `Minimum order total is ${formatPrice(MIN_TOTAL_CENTS, currency)}.` })}
+          </Alert>
+        )}
+
         <Button
           variant="contained"
           size="large"
           fullWidth
           onClick={submit}
-          disabled={submitting || validating || !emailValid || lines.length === 0}
+          disabled={submitting || validating || !emailValid || lines.length === 0 || belowMin}
           sx={{ textTransform: "none", py: 1.5 }}
           data-testid="checkout-pay-btn"
         >
-          Pay with crypto →
+          {t("checkout.store.pay", { defaultValue: "Pay with crypto →" })}
         </Button>
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", mt: 1.5 }}>
-          Powered by Dynopay · Payment settles directly to the merchant’s wallet
+          {t("checkout.store.poweredBy", { defaultValue: "Powered by Dynopay · Payment settles directly to the merchant’s wallet" })}
         </Typography>
         </>
         )}

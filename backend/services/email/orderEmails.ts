@@ -122,7 +122,7 @@ export const sendOrderReceiptEmail = async (
   merchantVatId?: string | null,
 ) => {
   try {
-    const name = buyerName || "there";
+    const name = buyerName || buyerEmail || "there";
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
     const subject = `Your order ${shortRef} is confirmed — Dynopay`;
 
@@ -212,7 +212,7 @@ export const sendOrderExpiredEmail = async (
   shopUrl: string
 ) => {
   try {
-    const name = buyerName || "there";
+    const name = buyerName || buyerEmail || "there";
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
     const subject = `Your order ${shortRef} was not completed — Dynopay`;
     const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });
@@ -247,7 +247,7 @@ export const sendOrderRefundedEmail = async (
   orderPublicUrl: string
 ) => {
   try {
-    const name = buyerName || "there";
+    const name = buyerName || buyerEmail || "there";
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
     const subject = `Refund confirmed for order ${shortRef} — Dynopay`;
     const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });
@@ -286,7 +286,7 @@ export const sendOrderShippedEmail = async (
   orderPublicUrl: string
 ) => {
   try {
-    const name = buyerName || "there";
+    const name = buyerName || buyerEmail || "there";
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
     const subject = `Your order ${shortRef} has shipped — Dynopay`;
 
@@ -327,7 +327,7 @@ export const sendDigitalDownloadReminderEmail = async (
   orderPublicUrl: string
 ) => {
   try {
-    const name = buyerName || "there";
+    const name = buyerName || buyerEmail || "there";
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
     const subject = `Reminder — your download links expire soon (order ${shortRef})`;
     const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });

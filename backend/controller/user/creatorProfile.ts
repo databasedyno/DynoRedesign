@@ -67,6 +67,9 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
     const updates: Record<string, unknown> = {};
     // Reservation key to release once the handle is successfully assigned.
     let reservedKeyToRelease: string | null = null;
+    // Handle-change tracking for the notification email (#9).
+    let previousHandle: string | null = null;
+    let handleChanged = false;
 
     // Storefront-per-company: write to the ACTIVE company instead of tbl_user.
     const perCompany = STOREFRONT_PER_COMPANY;
@@ -91,6 +94,18 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       const handle = normalizeHandle(rawHandle);
       const err = validateHandle(handle);
       if (err) return errorResponseHelper(res, 400, err);
+      // Snapshot the current handle so we can email the merchant when it's
+      // first reserved or later changed (#9).
+      try {
+        if (perCompany) {
+          const c = await companyModel.findOne({ where: { company_id: activeCompanyId, user_id: userData.user_id }, attributes: ["handle"] });
+          previousHandle = ((c?.dataValues as { handle?: string } | undefined)?.handle) || null;
+        } else {
+          const cur = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
+          previousHandle = cur?.dataValues?.handle || null;
+        }
+      } catch { /* non-fatal — email is best-effort */ }
+      handleChanged = previousHandle !== handle;
       const taken = perCompany
         ? await isHandleTaken(handle, { companyId: activeCompanyId ?? undefined })
         : await isHandleOwnedByUser(handle, userData.user_id);
@@ -156,7 +171,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
 
     // Social links: allowlist platforms + basic URL validation
     if (social_links !== undefined) {
-      const ALLOWED = ["twitter", "instagram", "youtube", "tiktok", "website"] as const;
+      const ALLOWED = ["twitter", "instagram", "youtube", "tiktok", "telegram", "facebook", "website"] as const;
       const cleaned: Record<string, string> = {};
       const src = (social_links && typeof social_links === "object") ? social_links : {};
       for (const key of ALLOWED) {
@@ -217,8 +232,10 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
     }
     if (support_widget_min_amount !== undefined) {
       const min = Number(support_widget_min_amount);
-      if (!Number.isFinite(min) || min <= 0 || min > 1000000) {
-        return errorResponseHelper(res, 400, "Minimum amount must be a positive number.");
+      // Platform floor: the minimum supportable amount is $10 (matches
+      // tips / donations / store). Reject anything below it.
+      if (!Number.isFinite(min) || min < 10 || min > 1000000) {
+        return errorResponseHelper(res, 400, "Minimum amount must be at least 10.");
       }
       updates.support_widget_min_amount = Math.round(min * 100) / 100;
     }
@@ -309,6 +326,29 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
     // Handle successfully assigned → release its reservation lock (if any).
     if (reservedKeyToRelease) {
       await redis.del(reservedKeyToRelease).catch(() => {});
+    }
+
+    // #9 — notify the merchant when their handle (username) is reserved/changed.
+    if (handleChanged && typeof updates.handle === "string") {
+      (async () => {
+        try {
+          const acct = await userModel.findOne({
+            where: { user_id: userData.user_id },
+            attributes: ["email", "name"],
+          });
+          const to = acct?.dataValues?.email;
+          if (to) {
+            await emailService.sendCreatorHandleUpdatedEmail(
+              to,
+              acct?.dataValues?.name || "",
+              updates.handle as string,
+              !previousHandle
+            );
+          }
+        } catch (e) {
+          userLogger.error("[CreatorHandle] notify failed", e);
+        }
+      })();
     }
 
     if (perCompany) {

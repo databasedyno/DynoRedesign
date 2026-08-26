@@ -27,6 +27,23 @@ export interface CartItem {
   added_at: number;
 }
 
+/**
+ * IDs travel through the app as both numbers (backend normalized lines) and
+ * strings (SSR JSON projections, e.g. product_id:"9"). Coerce to a number (or
+ * null) so line-matching never fails on a string-vs-number `===` mismatch,
+ * which silently broke qty +/- and remove in the cart.
+ */
+const nId = (v: unknown): number | null => {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+const sameLine = (
+  i: CartItem,
+  productId: number | string | null,
+  variantId: number | string | null
+): boolean => nId(i.product_id) === nId(productId) && nId(i.variant_id) === nId(variantId);
+
 type PerHandleState = { items: CartItem[]; last_synced_at?: number };
 type StoreShape = { [handle: string]: PerHandleState };
 
@@ -89,17 +106,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     (handle: string, item: Omit<CartItem, "added_at">) => {
       setStore((prev) => {
         const cur = prev[handle]?.items || [];
-        const idx = cur.findIndex(
-          (i) =>
-            i.product_id === item.product_id &&
-            (i.variant_id || null) === (item.variant_id || null)
-        );
+        const idx = cur.findIndex((i) => sameLine(i, item.product_id, item.variant_id ?? null));
         let next: CartItem[];
         if (idx >= 0) {
           next = [...cur];
           next[idx] = { ...next[idx], quantity: next[idx].quantity + item.quantity };
         } else {
-          next = [...cur, { ...item, added_at: Date.now() }];
+          next = [...cur, { ...item, product_id: nId(item.product_id) as number, variant_id: nId(item.variant_id ?? null), added_at: Date.now() }];
         }
         return { ...prev, [handle]: { items: next, last_synced_at: Date.now() } };
       });
@@ -118,8 +131,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const cur = prev[handle]?.items || [];
         const next = cur
           .map((i) =>
-            i.product_id === productId &&
-            (i.variant_id || null) === (variantId || null)
+            sameLine(i, productId, variantId)
               ? { ...i, quantity: Math.max(0, Math.floor(quantity)) }
               : i
           )
@@ -134,13 +146,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     (handle: string, productId: number, variantId: number | null) => {
       setStore((prev) => {
         const cur = prev[handle]?.items || [];
-        const next = cur.filter(
-          (i) =>
-            !(
-              i.product_id === productId &&
-              (i.variant_id || null) === (variantId || null)
-            )
-        );
+        const next = cur.filter((i) => !sameLine(i, productId, variantId));
         return { ...prev, [handle]: { items: next, last_synced_at: Date.now() } };
       });
     },
@@ -177,17 +183,13 @@ export function useCart(): CartContextValue {
     addItem: (handle, item) => {
       const s = readStore();
       const cur = s[handle]?.items || [];
-      const idx = cur.findIndex(
-        (i) =>
-          i.product_id === item.product_id &&
-          (i.variant_id || null) === (item.variant_id || null)
-      );
+      const idx = cur.findIndex((i) => sameLine(i, item.product_id, item.variant_id ?? null));
       const next: CartItem[] =
         idx >= 0
           ? cur.map((i, k) =>
               k === idx ? { ...i, quantity: i.quantity + item.quantity } : i
             )
-          : [...cur, { ...item, added_at: Date.now() }];
+          : [...cur, { ...item, product_id: nId(item.product_id) as number, variant_id: nId(item.variant_id ?? null), added_at: Date.now() }];
       writeStore({ ...s, [handle]: { items: next, last_synced_at: Date.now() } });
     },
     updateQuantity: (handle, pid, vid, qty) => {
@@ -195,7 +197,7 @@ export function useCart(): CartContextValue {
       const cur = s[handle]?.items || [];
       const next = cur
         .map((i) =>
-          i.product_id === pid && (i.variant_id || null) === (vid || null)
+          sameLine(i, pid, vid)
             ? { ...i, quantity: Math.max(0, Math.floor(qty)) }
             : i
         )
@@ -205,9 +207,7 @@ export function useCart(): CartContextValue {
     removeItem: (handle, pid, vid) => {
       const s = readStore();
       const cur = s[handle]?.items || [];
-      const next = cur.filter(
-        (i) => !(i.product_id === pid && (i.variant_id || null) === (vid || null))
-      );
+      const next = cur.filter((i) => !sameLine(i, pid, vid));
       writeStore({ ...s, [handle]: { items: next, last_synced_at: Date.now() } });
     },
     clearCart: (handle) => {

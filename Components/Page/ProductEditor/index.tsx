@@ -56,6 +56,7 @@ interface ProductRow {
   cover_image_url?: string;
   gallery_images?: GalleryItem[];
   has_variants?: boolean;
+  hide_quantity?: boolean;
   base_stock?: number | null;
   digital_delivery_type?: "url" | "file" | "license_key" | null;
   digital_delivery_payload?: any;
@@ -122,6 +123,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [baseStock, setBaseStock] = useState<string>("");
   const [taxCategory, setTaxCategory] = useState<"digital" | "physical" | "service" | "exempt">("digital");
   const [applyTaxOverride, setApplyTaxOverride] = useState<"inherit" | "on" | "off">("inherit");
+  const [hideQuantity, setHideQuantity] = useState<boolean>(false);
 
   useEffect(() => {
     if (mode !== "edit" || !productId) return;
@@ -161,6 +163,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         setHasVariants(!!p.has_variants);
         setBaseStock(p.base_stock == null ? "" : String(p.base_stock));
         setTaxCategory((p.tax_category as any) || "digital");
+        setHideQuantity(!!p.hide_quantity);
         setApplyTaxOverride(
           p.apply_tax_override === true
             ? "on"
@@ -210,6 +213,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       tax_category: taxCategory,
       apply_tax_override:
         applyTaxOverride === "on" ? true : applyTaxOverride === "off" ? false : null,
+      hide_quantity: hideQuantity,
     };
     if (deliveryType === "url") {
       payload.digital_delivery_payload = { access_url: accessUrl.trim() };
@@ -1022,6 +1026,17 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             </Typography>
           </Stack>
 
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Switch
+              checked={hideQuantity}
+              onChange={(e) => setHideQuantity(e.target.checked)}
+              inputProps={{ "aria-label": "One-off service", ...({ "data-testid": "product-hide-quantity-toggle" } as any) }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              One-off service (hide the quantity selector). Turn on for products like “Talk to a Developer” where a quantity makes no sense — buyers purchase it once.
+            </Typography>
+          </Stack>
+
           {hasVariants && variants.length === 0 && (
             <Typography variant="caption" color="text.secondary">
               No variants yet. Click “Add variant” to create one.
@@ -1148,7 +1163,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       </PanelCard>
 
       <Divider />
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={1} justifyContent="flex-end">
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={1} justifyContent="flex-end" data-dyno-anchor="cta">
         <CustomButton
           label="Save draft"
           variant="outlined"

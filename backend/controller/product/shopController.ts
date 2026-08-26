@@ -43,6 +43,7 @@ function publicProductProjection(p: any) {
     category: p.category,
     has_variants: !!p.has_variants,
     base_stock: p.base_stock,
+    hide_quantity: !!p.hide_quantity,
     sold_count: p.sold_count || 0,
     service_duration_minutes: p.service_duration_minutes,
     // Note: NEVER leak digital_delivery_payload to public.

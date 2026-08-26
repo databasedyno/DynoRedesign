@@ -17,7 +17,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/material'
+import { Box, Button, CircularProgress, Collapse, TextField, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { formatCryptoAmount, formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
@@ -187,6 +187,10 @@ interface InlineTipCheckoutProps {
   siteUrl: string
   onNewTip: () => void
   onCancel: () => void
+  /** Fired once the payment reaches the confirmed phase. The store checkout
+   *  uses this to clear the cart only after a successful payment (so
+   *  "Change amount" can return to the cart with items intact beforehand). */
+  onConfirmed?: () => void
   /** Copy mode. Default 'tip' (original creator-page behavior). Use 'link'
    *  for a regular payment-link inline checkout on the creator page, or
    *  'donation' for a donation contribution inline checkout. */
@@ -204,6 +208,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   siteUrl,
   onNewTip,
   onCancel,
+  onConfirmed,
   mode = 'tip',
   targetLabel,
 }) => {
@@ -231,6 +236,18 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   const [timeLeft, setTimeLeft] = useState<number>(0) // seconds
   const [copiedFlag, setCopiedFlag] = useState<string>('')
   const [qrExpanded, setQrExpanded] = useState<boolean>(false)
+  // Optional buyer refund address — if they send the wrong asset/network we
+  // try to refund here (minus network fees). Mirrors CleanCheckoutV2.
+  const [showRefundInput, setShowRefundInput] = useState<boolean>(false)
+  const [refundAddress, setRefundAddress] = useState<string>('')
+  const [refundSaved, setRefundSaved] = useState<boolean>(false)
+
+  // Best-effort, non-blocking. Backend endpoint is idempotent per ref.
+  const saveRefundAddress = useCallback(async (addr: string) => {
+    if (!meta_?.token || !addr.trim()) return
+    const r = await api('/pay/setRefundAddress', { data: d, refund_address: addr.trim() }, meta_.token)
+    if (r.ok) setRefundSaved(true)
+  }, [d, meta_])
 
   const pollRef = useRef<any>(null)
   const timerRef = useRef<any>(null)
@@ -366,7 +383,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   useEffect(() => {
     // Celebration burst the moment the supporter's payment is CONFIRMED.
     // Decorative only (never throws), skipped for reduced-motion users.
-    if (phase === 'confirmed') fireConfettiBurst()
+    if (phase === 'confirmed') { fireConfettiBurst(); onConfirmed?.() }
   }, [phase])
 
   useEffect(() => {
@@ -557,11 +574,14 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
     return (
       <Box>
         <Typography fontWeight={800} fontSize={16} color={theme.palette.text.primary}>
-          Pick a crypto to pay {sym}
-          {formatWithSeparators(meta_.amount, meta_.base_currency)}
+          {t('creator.inline.pickCrypto', { amount: `${sym}${formatWithSeparators(meta_.amount, meta_.base_currency)}`, defaultValue: `Pick a crypto to pay ${sym}${formatWithSeparators(meta_.amount, meta_.base_currency)}` })}
         </Typography>
         <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.5}>
-          {creatorName ? `${creatorName} accepts:` : (mode === 'link' ? 'This merchant accepts:' : 'This creator accepts:')}
+          {creatorName
+            ? t('creator.inline.accepts', { name: creatorName, defaultValue: `${creatorName} accepts:` })
+            : (mode === 'link'
+                ? t('creator.inline.merchantAccepts', { defaultValue: 'This merchant accepts:' })
+                : t('creator.inline.creatorAccepts', { defaultValue: 'This creator accepts:' }))}
         </Typography>
         <Box
           data-testid="inline-tip-currency-picker"
@@ -607,7 +627,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             )
           })}
         </Box>
-        {backLink('Back')}
+        {backLink(t('creator.inline.back', { defaultValue: 'Back' }))}
       </Box>
     )
   }
@@ -618,7 +638,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
       <Box sx={{ py: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
         <CircularProgress size={26} />
         <Typography fontSize={13} color={theme.palette.text.secondary}>
-          Generating your {selectedCurrency} address…
+          {t('creator.inline.generatingAddress', { coin: selectedCurrency, defaultValue: `Generating your ${selectedCurrency} address…` })}
         </Typography>
       </Box>
     )
@@ -633,7 +653,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <Icon icon={info?.icon || 'mdi:coin'} width={22} color={info?.iconColor} />
             <Typography fontWeight={800} fontSize={15}>
-              Send {formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
+              {t('creator.inline.sendAmount', { amount: formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base), coin: cryptoInfo.crypto_base, defaultValue: `Send ${formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} ${cryptoInfo.crypto_base}` })}
             </Typography>
           </Box>
           <Typography
@@ -687,7 +707,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             }}
           >
             <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={13} />
-            {copiedFlag === 'addr' ? 'Copied' : 'Copy'}
+            {copiedFlag === 'addr' ? t('creator.inline.copied', { defaultValue: 'Copied' }) : t('creator.inline.copy', { defaultValue: 'Copy' })}
           </Box>
         </Box>
 
@@ -731,7 +751,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               }}
             >
               <Icon icon="mdi:qrcode" width={14} />
-              {qrExpanded ? 'Hide QR' : 'Show QR code'}
+              {qrExpanded ? t('creator.inline.hideQr', { defaultValue: 'Hide QR' }) : t('creator.inline.showQr', { defaultValue: 'Show QR code' })}
             </Box>
             {qrExpanded && (
               <Box sx={{ mt: 1.25, p: 1.25, borderRadius: '10px', backgroundColor: '#FFFFFF' }}>
@@ -767,7 +787,44 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           </Typography>
         </Box>
 
-        {backLink('Change amount')}
+        {/* Optional refund address (#3) — where to refund if the buyer sends
+            the wrong asset/network. Collapsed by default to keep the flow clean. */}
+        <Box sx={{ mt: 1.5 }} data-testid="inline-refund-block">
+          <Button
+            variant="text"
+            size="small"
+            onClick={() => setShowRefundInput((v) => !v)}
+            data-testid="inline-refund-toggle"
+            sx={{ textTransform: 'none', fontSize: 12.5, color: theme.palette.text.secondary, fontWeight: 600 }}
+          >
+            <Icon icon={showRefundInput ? 'mdi:chevron-up' : 'mdi:chevron-down'} width={16} style={{ marginRight: 4 }} />
+            {t('checkout.refund.toggle', { defaultValue: 'Add a refund address (optional)' })}
+          </Button>
+          <Collapse in={showRefundInput}>
+            <Box sx={{ mt: 1 }}>
+              <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, mb: 0.75, lineHeight: 1.5 }}>
+                {t('checkout.refund.help', { defaultValue: 'If your payment can’t be completed, we’ll refund to this address (minus network fees). Use an address on the same network you’re paying with.' })}
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={refundAddress}
+                onChange={(e) => { setRefundAddress(e.target.value); setRefundSaved(false); }}
+                onBlur={() => saveRefundAddress(refundAddress)}
+                placeholder={t('checkout.refund.placeholder', { defaultValue: 'Your wallet address for refunds' })}
+                inputProps={{ 'data-testid': 'inline-refund-input', spellCheck: false, style: { fontFamily: MONO, fontSize: 12.5 } }}
+              />
+              {refundSaved && (
+                <Typography sx={{ fontSize: 11.5, color: LIME, mt: 0.5, fontWeight: 700 }} data-testid="inline-refund-saved">
+                  <Icon icon="mdi:check-circle" width={13} style={{ verticalAlign: 'middle', marginRight: 3 }} />
+                  {t('checkout.refund.saved', { defaultValue: 'Refund address saved' })}
+                </Typography>
+              )}
+            </Box>
+          </Collapse>
+        </Box>
+
+        {backLink(t('creator.inline.changeAmount', { defaultValue: 'Change amount' }))}
       </Box>
     )
   }
@@ -832,7 +889,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             }}
           >
             <Icon icon={copiedFlag === 'addr2' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
-            {copiedFlag === 'addr2' ? 'Copied' : 'Copy'}
+            {copiedFlag === 'addr2' ? t('creator.inline.copied', { defaultValue: 'Copied' }) : t('creator.inline.copy', { defaultValue: 'Copy' })}
           </Box>
         </Box>
 
@@ -862,7 +919,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           <Typography sx={{ fontSize: 11.5, fontWeight: 700 }}>{t("creator.inline.monitoringRemainder")}</Typography>
         </Box>
 
-        {backLink('Change amount')}
+        {backLink(t('creator.inline.changeAmount', { defaultValue: 'Change amount' }))}
       </Box>
     )
   }

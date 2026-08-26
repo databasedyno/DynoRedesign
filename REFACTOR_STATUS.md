@@ -172,7 +172,7 @@ and progress on the **5 leftover refactor recommendations** from the prior agent
 
 - **Environment used:** Emergent preview pod, backend on `ts-node --transpile-only` (port 3300 behind a
   Python proxy on 8001), Next.js frontend (port 3000). Preview URL:
-  `https://dynopay-setup-3.preview.emergentagent.com`
+  `https://dynopay-setup-4.preview.emergentagent.com`
 - **Database during this session:** pointed at a **STAGING** Railway Postgres (an empty schema clone of
   prod — 70 tables, no data) for safe testing. Prod values are preserved (commented) in
   `backend/.env` for a one-line switch-back. **SAFE MODE** throughout (`ENABLE_BACKGROUND_JOBS=false`,
@@ -672,3 +672,63 @@ then validate with a small live amount before general availability.
 - **SAFETY:** this MOVES REAL FUNDS on the LIVE prod DB — build behind a flag, unit-test the state
   machine + fee math, and DO NOT trigger live forwarding during development without explicit approval.
 
+
+
+# ============================================================================
+# CURRENT SESSION PLAN — 2026-06 (fork: dynopay-setup-4)
+# Preview: https://dynopay-setup-4.preview.emergentagent.com
+# Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
+# Status legend:  [ ] todo   [~] in progress   [x] done
+# ============================================================================
+
+## S1. Landing/marketing CTA audit — final blocker (from testing iteration_83)
+# CONTEXT: full CTA audit done (iter_82 = 100% of 60+ CTAs work on the correct
+# preview URL). iter_83 verified the scroll-to-top vs chat-FAB overlap + the
+# duplicate /documentation back-to-top are FIXED, but found ONE remaining HIGH
+# blocker:
+#
+# ### S1.1 [~] HIGH — support-chat FAB unclickable behind the language bar
+#   ROOT CAUSE (iter_83 rca): the SupportChatWidget FAB is fixed at bottom:24px
+#   with zIndex 1451; the LanguageOnboardingBar (shown to logged-OUT visitors) is
+#   fixed full-width at the bottom, height ~76px (--dp-lang-bar), zIndex 1500.
+#   The FAB's lower half (incl. its centre) falls inside the bar, so real-user
+#   clicks + Playwright normal clicks hit the language bar ("intercepts pointer
+#   events") on /, /fees, /documentation at 1920x1080 AND 390x844. Works only
+#   after the bar is dismissed. Handler wiring is fine (dispatch_event opens it).
+#
+#   FIX (mirror the pattern ScrollToTopButton already uses):
+#   - Components/Common/SupportChatWidget/index.tsx:
+#       * fabBottom → offset by the language bar var, e.g.
+#         home:  { xs: calc(var(--dp-lang-bar,0px)+24px),  md: same }
+#         client:{ xs: calc(var(--dp-lang-bar,0px)+108px), md: calc(var(--dp-lang-bar,0px)+24px) }
+#       * support-chat-panel bottom: add the same var (currently a numeric-only
+#         template literal that breaks if fabBottom becomes a calc() string).
+#       * occlusion-detection JS (bottomPx): add the computed --dp-lang-bar px so
+#         the FAB rect probe stays accurate while the bar is visible.
+#   - Components/Layout/ScrollToTopButton.tsx: desktop bottom 96 → 
+#     calc(var(--dp-lang-bar,0px)+96) so it stays clear of the lifted FAB when the
+#     bar is visible (mobile already uses the var).
+#   ACCEPTANCE: scroll >600px WITHOUT dismissing the language bar, NORMAL click on
+#   [data-testid=support-chat-button] opens the panel on /, /fees, /documentation
+#   at 1920x1080 and 390x844. Re-run frontend testing agent.
+#
+# ### S1.2 [ ] MEDIUM — mobile FAB "occluding" state can hide with no re-entry
+#   iter_83: in one mobile run the FAB was in occluding state (translateX(96px),
+#   aria-hidden, off-screen) leaving no way to open support chat while it persists.
+#   Intentional per code, but review a reveal-on-scroll-stop fallback. Lower prio.
+
+## S2. $500 fee-free allowance abuse — recommendation (product policy)
+# USER Q: "what if a user makes a new account every time they hit $500? it hampers
+# our fees." RECOMMENDATION (delivered to user; build scope pending their pick):
+#   1. Allowance = per VERIFIED merchant/business, LIFETIME (not per account).
+#      Copy: "first $500 of lifetime processed volume."
+#   2. Tie to identity + payout signals (verified email+phone, payout wallet addr,
+#      Veriff KYC once volume grows) — accounts sharing wallet/phone/tax-id share
+#      ONE allowance.
+#   3. Progressive unlock: first $100–$250 free immediately, remainder after
+#      email+phone verification or first successful payment (low friction).
+#   4. Flag suspected duplicates for review + apply shared cap — DON'T hard-block.
+#   5. Terms + fee copy: duplicate/linked accounts get no fresh allowance.
+#   BUILD OPTIONS offered: (a) advice only; (b) simplest guard = payout wallet +
+#   verified email share the cap; (c) full (b)+phone+progressive+Veriff KYC.
+#   → AWAITING user pick before implementing anything on the LIVE fee logic.

@@ -109,10 +109,10 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [swEnabled, setSwEnabled] = useState(false);
   const [swStyle, setSwStyle] = useState<SupportStyle>("coffee");
   const [swLabel, setSwLabel] = useState("");
-  const [swPresets, setSwPresets] = useState<number[]>([3, 5, 10, 25]);
+  const [swPresets, setSwPresets] = useState<number[]>([10, 25, 50, 100]);
   const [swPresetDraft, setSwPresetDraft] = useState("");
   const [swCurrency, setSwCurrency] = useState("USD");
-  const [swMinAmount, setSwMinAmount] = useState(1);
+  const [swMinAmount, setSwMinAmount] = useState(10);
   const [swAllowMessage, setSwAllowMessage] = useState(true);
   const [swThanks, setSwThanks] = useState("");
   const [swShowSupporters, setSwShowSupporters] = useState(true);
@@ -167,10 +167,10 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSwPresets(
         Array.isArray(p.support_widget_preset_amounts) && p.support_widget_preset_amounts.length
           ? p.support_widget_preset_amounts.map((n: unknown) => Number(n)).filter((n: number) => Number.isFinite(n) && n > 0)
-          : [3, 5, 10, 25],
+          : [10, 25, 50, 100],
       );
       setSwCurrency(p.support_widget_currency || "USD");
-      setSwMinAmount(Number(p.support_widget_min_amount) > 0 ? Number(p.support_widget_min_amount) : 1);
+      setSwMinAmount(Math.max(10, Number(p.support_widget_min_amount) || 0));
       setSwAllowMessage(p.support_widget_allow_message !== false);
       setSwThanks(p.support_widget_thanks_message || "");
       setSwShowSupporters(p.support_widget_show_supporters !== false);
@@ -282,7 +282,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
   const savedPresets = useMemo(() => {
     const p = profile?.support_widget_preset_amounts;
-    return Array.isArray(p) && p.length ? p.map((n: unknown) => Number(n)) : [3, 5, 10, 25];
+    return Array.isArray(p) && p.length ? p.map((n: unknown) => Number(n)) : [10, 25, 50, 100];
   }, [profile?.support_widget_preset_amounts]);
 
   const supportWidgetChanged = useMemo(() => (
@@ -291,7 +291,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     swLabel !== (profile?.support_widget_label || "") ||
     JSON.stringify(swPresets) !== JSON.stringify(savedPresets) ||
     swCurrency !== (profile?.support_widget_currency || "USD") ||
-    Number(swMinAmount) !== (Number(profile?.support_widget_min_amount) > 0 ? Number(profile?.support_widget_min_amount) : 1) ||
+    Number(swMinAmount) !== Math.max(10, Number(profile?.support_widget_min_amount) || 0) ||
     swAllowMessage !== (profile?.support_widget_allow_message !== false) ||
     swThanks !== (profile?.support_widget_thanks_message || "") ||
     swShowSupporters !== (profile?.support_widget_show_supporters !== false)
@@ -352,7 +352,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         support_widget_label: swLabel.trim() || null,
         support_widget_preset_amounts: swPresets,
         support_widget_currency: swCurrency.trim().toUpperCase(),
-        support_widget_min_amount: Number(swMinAmount) > 0 ? Number(swMinAmount) : 1,
+        support_widget_min_amount: Math.max(10, Number(swMinAmount) || 10),
         support_widget_allow_message: swAllowMessage,
         support_widget_thanks_message: swThanks.trim() || null,
         support_widget_show_supporters: swShowSupporters,
@@ -954,15 +954,16 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 </Box>
               </Box>
               <Box>
-                <Typography sx={labelSx}>{t("storefront.form.minAmount", { defaultValue: "Minimum amount" })}</Typography>
+                <Typography sx={labelSx}>{t("storefront.form.minAmount", { defaultValue: "Minimum amount" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>({t("storefront.form.minFloorNote", { defaultValue: "min $10" })})</Typography></Typography>
                 <Box
                   component="input"
                   type="number"
                   data-testid="support-widget-min"
                   value={swMinAmount}
-                  min={0.01}
+                  min={10}
                   step="any"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwMinAmount(Number(e.target.value))}
+                  onBlur={(e: React.FocusEvent<HTMLInputElement>) => setSwMinAmount(Math.max(10, Number(e.target.value) || 10))}
                   sx={inputSx}
                 />
               </Box>

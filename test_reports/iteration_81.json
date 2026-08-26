@@ -1,0 +1,39 @@
+{
+  "summary": "Frontend-only Playwright verification of the 9 storefront/checkout/creator fixes on https://dynopay-setup-4.preview.emergentagent.com (LIVE prod DB, SAFE MODE). 9/9 targeted behaviors PASS functionally (#1 cart controls, #2a mini-cart, #2 email-required, #2c one-off service toggle, #3 refund address, #4 order number + change-amount->cart, #5 store checkout i18n, #6 chat-bubble/publish occlusion, #7 telegram social separation, #8 $10 minimum). No payment was submitted (stopped at awaiting-payment screen); order EEF6276C left pending as expected. Found 3 real UI defects (blocking overlay on mini-cart FAB, broken 'Find The on' name label, untranslated VAT helper) + 1 layout overlap in merchant storefront products toolbar.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "MiniCart FAB vs language onboarding bar", "issue": "The first-visit 'Choose your language' bar (data-testid=language-onboarding-bar, fixed bottom, full width) sits on top of the bottom-left mini-cart pill and intercepts pointer events — Playwright normal click on minicart-fab times out with 'language-onboarding-bar intercepts pointer events'. Every first-time visitor (i.e. every real shopper) cannot open the mini-cart until they dismiss the language bar. Fix: raise the FAB above the bar / offset the FAB bottom by the bar height while it is visible.", "selector": "[data-testid=\"minicart-fab\"] / [data-testid=\"language-onboarding-bar\"]", "priority": "HIGH"},
+      {"component": "CreatorProfile socials label", "issue": "Label renders 'FIND THE ON' instead of 'Find The Dev Store on'. Root cause: CreatorProfile.tsx:423 uses `Find ${creator.name.split(' ')[0]} on` — first word of 'The Dev Store' is 'The'. Same first-name truncation appears in SupportWidget.tsx:386 placeholder 'Say something nice to The (optional)'. Use the full display name (or handle) when the first token is an article/short word.", "selector": "[data-testid=\"creator-socials-block\"]", "priority": "MEDIUM"},
+      {"component": "Checkout i18n", "issue": "After switching to Spanish, one string stays English: 'Businesses in the EU can enter a VAT ID for reverse-charge.' (VAT field helper). All other checkout copies translate correctly (Pago / Correo para recibo y novedades / Pagar con cripto).", "selector": "[data-testid=\"checkout-page\"]", "priority": "MEDIUM"},
+      {"component": "Merchant Storefront > Products toolbar", "issue": "'Search products...' input visually overlaps/collides with the action row ('View product orders →', 'View my page', 'New product') — the buttons render on top of the search field (see screenshot storefront.png).", "selector": "[data-testid=\"products-search-input\"]", "priority": "MEDIUM"},
+      {"component": "SupportWidget custom amount", "issue": "Minor UX: entering a custom amount below $10 only silently disables the Buy button and drops the amount from its label ('Buy'), with no visible '$10 minimum' hint.", "selector": "[data-testid=\"support-custom-amount\"]", "priority": "LOW"},
+      {"component": "Shop grid", "issue": "Note (not a regression): /devhub/shop product cards have no add-to-cart control, so the review step '#1 on /devhub/shop add the product to cart' can only be done from the product detail page. If an in-grid add-to-cart is intended, it is missing.", "selector": "[data-testid=\"shop-product-card-9\"]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Product detail / shop", "issues": ["Product image placeholder is a broken/empty grey box (no image on product 9) — renders as a large empty square next to the details"]},
+      {"screen": "Creator page", "issues": ["Telegram appears both in the 'Find … on' socials row and in the 'Share this page' row (share intent) — rows are correctly separated but the duplicate glyph can confuse"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix mini-cart FAB being blocked by the language onboarding bar (z-index / bottom offset) — HIGH, breaks cart access for first-time visitors",
+    "Fix 'Find The on' label (CreatorProfile.tsx:423) and 'Say something nice to The' placeholder (SupportWidget.tsx:386) — use full display name",
+    "Translate the VAT helper string on /[handle]/checkout",
+    "Fix products toolbar overlap on /storefront?tab=products (search input vs buttons)",
+    "Optionally show a '$10 minimum' inline hint on the support widget custom amount"
+  ],
+  "critical_code_review_comments": [
+    "Hardcoded English interpolation in defaultValue (`Find ${name.split(' ')[0]} on`) bypasses i18n and breaks for multi-word store names.",
+    "Floating UI layers (minicart FAB bottom-left, support chat FAB bottom-right, language onboarding bar full-width bottom) need one shared z-index/offset system; the chat FAB occlusion logic (data-dyno-anchor='cta') works, but the language bar has no such handling."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "100% of the 9 requested behaviors functionally pass; 4 additional UI defects found"},
+  "seed_data_creation": "Public checkout created 2 pending orders on @devhub (7EC21DF2, EEF6276C) — no crypto sent, will expire. Saved merchant changes as authorised: product 9 hide_quantity=ON, creator telegram=https://t.me/devhub, support min amount=10.",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "Merchant hostbay@moxx.co / Katiekendra123@ — login is 2-step (email -> Continue -> [data-testid=password-input] -> signin-submit-btn), verified working",
+  "context_for_next_testing_agent": "Verified in detail: (#1) /devhub/cart +/- and remove work (1->2->3->2, subtotal $100->$200->$300->$200, remove empties cart). (#2a) minicart-fab/badge/drawer/inc/dec/subtotal/checkout+viewfull all work (drawer 1->2 = $100->$200); FAB click requires dismissing language-onboarding-bar first. (#2) checkout-pay-btn disabled for empty+invalid email, enabled for valid. (#2c) product-hide-quantity-toggle turned ON, 'Update live product' saved, public PDP now shows product-detail-service-badge 'One-off service' with no qty stepper (left ON intentionally). (#3) inline-refund-toggle -> inline-refund-input -> 'Refund address saved' works on the LTC awaiting screen. (#4) checkout-order-number 'Order EEF6276C' persists across reload of ?pay=..., 'Change amount' navigates to /devhub/cart. (#5) ES switch translates title/labels/CTA (except VAT helper). (#6) support-chat-button computed opacity 0 / pointer-events none when publish row on screen; product-publish-btn clicked successfully at 1920x1000. (#7) creator-socials-block present with telegram href, visually above the separate 'Share this page' row. (#8) support-widget-min has min=10 and clamps 3->10 on blur, persists after reload; public presets are $10/$25/$50/$100 and custom $5 disables submit. NOT tested: payment confirmation/cart-clear-on-confirm (would require sending crypto), handle change (#9, forbidden), mobile viewports.",
+  "rca_of_the_issue": "MiniCart FAB overlay: the language onboarding bar is a full-width fixed element at the bottom of the viewport rendered after/above the FAB in stacking order, so it captures clicks on the bottom-left pill. Socials label: name.split(' ')[0] first-token heuristic produces 'The' for store name 'The Dev Store'."
+}

@@ -425,7 +425,6 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     if (typeof window === "undefined") return;
     const FAB_SIZE = 56;
     const rightPx = 16;
-    const bottomPx = layout === "client" ? 108 : 24;
     let raf = 0;
     let clearTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -448,7 +447,19 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         const role = el.getAttribute?.("role");
         if (role === "button" || role === "link" || role === "tab") return true;
         // Opt-in blocking: any element with data-dyno-anchor="cta" (Save,
-        // Continue, Update buttons that must never be overlapped).
+        // Continue, Update, Publish buttons that must never be overlapped).
+        if (el.getAttribute?.("data-dyno-anchor") === "cta") return true;
+        el = el.parentElement;
+        hops++;
+      }
+      return false;
+    };
+    // Desktop-only blocking is restricted to opt-in CTAs so the FAB doesn't
+    // over-tuck on the many pages with bottom-right buttons.
+    const isCta = (node: Element | null): boolean => {
+      let el: Element | null = node;
+      let hops = 0;
+      while (el && hops < 6) {
         if (el.getAttribute?.("data-dyno-anchor") === "cta") return true;
         el = el.parentElement;
         hops++;
@@ -478,12 +489,14 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     const check = () => {
       raf = 0;
       try {
-        if (window.innerWidth > 900 || open) {
+        if (open) {
           applyOcclusion(false);
           return;
         }
         const vw = window.innerWidth;
         const vh = window.innerHeight;
+        const desktop = vw > 900;
+        const bottomPx = (!desktop && layout === "client") ? 108 : 24;
         // FAB square bounding box in viewport
         const leftEdge = vw - rightPx - FAB_SIZE;
         const rightEdge = vw - rightPx;
@@ -501,7 +514,8 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             const stack = document.elementsFromPoint(x, y);
             for (const node of stack) {
               if (insideChat(node)) continue;
-              if (isInteractive(node)) { hit = true; break outer; }
+              const blocks = desktop ? isCta(node) : isInteractive(node);
+              if (blocks) { hit = true; break outer; }
               break; // first non-chat element = what's beneath; stop probing stack
             }
           }

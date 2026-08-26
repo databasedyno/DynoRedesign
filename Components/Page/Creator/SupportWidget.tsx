@@ -56,14 +56,20 @@ const SupportWidget = ({
   const title = (widget.label && widget.label.trim()) || meta.title
   // Premium gradient pair — Aurora indigo → violet (Quiet Money public surfaces)
   const GRAD = `linear-gradient(135deg, ${LIME} 0%, #7C3AED 100%)`
-  const presets =
+  // Platform floor: the minimum supportable amount is $10 everywhere
+  // (tip / coffee / support / donation / store), regardless of the stored
+  // per-creator setting. Guarantees the floor even for legacy widgets saved
+  // with a lower minimum.
+  const MIN_FLOOR = 10
+  const presets = (
     Array.isArray(widget.preset_amounts) && widget.preset_amounts.length
       ? widget.preset_amounts
-      : [3, 5, 10, 25]
+      : [10, 25, 50, 100]
+  ).filter((p) => Number(p) >= MIN_FLOOR)
   const currency = widget.currency || 'USD'
   const sym = getCurrencySymbolFromFormat(currency)
-  const min = Number(widget.min_amount) > 0 ? Number(widget.min_amount) : 1
-  const firstName = (creatorName || handle).split(' ')[0]
+  const min = Math.max(MIN_FLOOR, Number(widget.min_amount) || 0)
+  const firstName = creatorName || handle
 
   const [selected, setSelected] = useState<number | 'custom'>(presets[0] ?? 'custom')
   const [customAmount, setCustomAmount] = useState('')

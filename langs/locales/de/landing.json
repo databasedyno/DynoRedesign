@@ -306,7 +306,10 @@
     },
     "refund": {
       "label": "Bevorzugte Rückerstattungsmethode (optional)",
-      "help": "Wenn du den falschen Vermögenswert oder das falsche Netzwerk verwendest, versuchen wir, an diese Adresse zurückzuerstatten (abzüglich Netzwerkgebühren)."
+      "help": "Falls deine Zahlung nicht abgeschlossen werden kann, erstatten wir an diese Adresse (abzüglich Netzwerkgebühren). Nutze eine Adresse im selben Netzwerk, mit dem du zahlst.",
+      "toggle": "Rückerstattungsadresse hinzufügen (optional)",
+      "placeholder": "Deine Wallet-Adresse für Rückerstattungen",
+      "saved": "Rückerstattungsadresse gespeichert"
     },
     "qrAlt": "Zahlungs-QR-Code",
     "bank": {
@@ -412,7 +415,24 @@
       "error": "Beleg konnte nicht abgerufen werden — bitte versuchen Sie es erneut."
     },
     "processingFee": "Bearbeitungsgebühr",
-    "totalYouPay": "Gesamtbetrag, den Sie zahlen"
+    "totalYouPay": "Gesamtbetrag, den Sie zahlen",
+    "store": {
+      "title": "Kasse",
+      "backToCart": "← Zurück zum Warenkorb",
+      "completeTitle": "Zahlung abschließen",
+      "completeSubtitle": "Zahle unten mit Krypto. Diese Seite aktualisiert sich automatisch, sobald deine Zahlung bestätigt ist.",
+      "orderPrefix": "Bestellung",
+      "emailLabel": "E-Mail für Beleg & Updates",
+      "emailHelp": "Wir senden dir Beleg und Download-Links hierhin.",
+      "nameLabel": "Name (optional)",
+      "vatLabel": "USt-IdNr. (optional)",
+      "pay": "Mit Krypto zahlen →",
+      "poweredBy": "Bereitgestellt von Dynopay · Zahlung geht direkt an die Wallet des Händlers",
+      "emailRequired": "E-Mail ist erforderlich, um dir den Beleg zu senden.",
+      "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "emptyCart": "Dein Warenkorb ist leer.",
+      "minTotal": "Der Mindestbestellwert beträgt {{min}}."
+    }
   },
   "creator": {
     "card": {
@@ -426,7 +446,19 @@
       "includeMemo": "Memo/Tag einfügen:",
       "waitingPayment": "Warte auf Zahlung · aktualisiert alle 10s",
       "partialReceived": "Teilzahlung erhalten",
-      "monitoringRemainder": "Überwache den Rest…"
+      "monitoringRemainder": "Überwache den Rest…",
+      "pickCrypto": "Wähle eine Kryptowährung für {{amount}}",
+      "accepts": "{{name}} akzeptiert:",
+      "merchantAccepts": "Dieser Händler akzeptiert:",
+      "creatorAccepts": "Dieser Creator akzeptiert:",
+      "sendAmount": "Sende {{amount}} {{coin}}",
+      "generatingAddress": "Deine {{coin}}-Adresse wird erstellt…",
+      "changeAmount": "Betrag ändern",
+      "back": "Zurück",
+      "showQr": "QR-Code anzeigen",
+      "hideQr": "QR ausblenden",
+      "copy": "Kopieren",
+      "copied": "Kopiert"
     },
     "support": {
       "anonymous": "Meine Unterstützung anonym machen",

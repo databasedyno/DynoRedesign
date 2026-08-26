@@ -173,6 +173,16 @@ const productModel = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: true,
     },
+    /**
+     * When TRUE the buyer can't pick a quantity — the product is a one-off
+     * service (e.g. "Talk to a Developer"). Product page hides the qty
+     * stepper and cart/checkout treat it as quantity = 1.
+     */
+    hide_quantity: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     tableName: "tbl_product",

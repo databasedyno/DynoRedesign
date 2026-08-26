@@ -306,7 +306,10 @@
     },
     "refund": {
       "label": "Método de reembolso preferido (opcional)",
-      "help": "Se enviar o ativo errado ou usar a rede errada, tentaremos reembolsar para este endereço (menos taxas de rede)."
+      "help": "Se o seu pagamento não puder ser concluído, reembolsaremos para este endereço (menos taxas de rede). Use um endereço da mesma rede que está a usar para pagar.",
+      "toggle": "Adicionar endereço de reembolso (opcional)",
+      "placeholder": "Seu endereço de carteira para reembolsos",
+      "saved": "Endereço de reembolso salvo"
     },
     "qrAlt": "Código QR de pagamento",
     "bank": {
@@ -412,7 +415,24 @@
       "error": "Não foi possível obter o recibo — por favor, tente novamente."
     },
     "processingFee": "Taxa de processamento",
-    "totalYouPay": "Total que paga"
+    "totalYouPay": "Total que paga",
+    "store": {
+      "title": "Finalizar compra",
+      "backToCart": "← Voltar ao carrinho",
+      "completeTitle": "Conclua seu pagamento",
+      "completeSubtitle": "Pague com cripto abaixo. Esta página é atualizada automaticamente assim que o pagamento for confirmado.",
+      "orderPrefix": "Pedido",
+      "emailLabel": "E-mail para recibo e atualizações",
+      "emailHelp": "Enviaremos seu recibo e links de download aqui.",
+      "nameLabel": "Nome (opcional)",
+      "vatLabel": "NIF/IVA (opcional)",
+      "pay": "Pagar com cripto →",
+      "poweredBy": "Desenvolvido por Dynopay · O pagamento é liquidado diretamente na carteira do comerciante",
+      "emailRequired": "O e-mail é obrigatório para enviarmos seu recibo.",
+      "emailInvalid": "Insira um e-mail válido.",
+      "emptyCart": "Seu carrinho está vazio.",
+      "minTotal": "O total mínimo do pedido é {{min}}."
+    }
   },
   "creator": {
     "card": {
@@ -426,7 +446,19 @@
       "includeMemo": "Incluir memo/tag:",
       "waitingPayment": "A aguardar pagamento · atualização automática a cada 10s",
       "partialReceived": "Pagamento parcial recebido",
-      "monitoringRemainder": "A monitorizar o restante…"
+      "monitoringRemainder": "A monitorizar o restante…",
+      "pickCrypto": "Escolha uma cripto para pagar {{amount}}",
+      "accepts": "{{name}} aceita:",
+      "merchantAccepts": "Este comerciante aceita:",
+      "creatorAccepts": "Este criador aceita:",
+      "sendAmount": "Envie {{amount}} {{coin}}",
+      "generatingAddress": "Gerando seu endereço de {{coin}}…",
+      "changeAmount": "Alterar valor",
+      "back": "Voltar",
+      "showQr": "Mostrar QR code",
+      "hideQr": "Ocultar QR",
+      "copy": "Copiar",
+      "copied": "Copiado"
     },
     "support": {
       "anonymous": "Tornar o meu apoio anónimo",

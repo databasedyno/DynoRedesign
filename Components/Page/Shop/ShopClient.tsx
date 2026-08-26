@@ -18,6 +18,7 @@ import ShopHero from "./ShopHero";
 import ShopToolbar from "./ShopToolbar";
 import ProductCard from "./ProductCard";
 import ShopEmpty from "./ShopEmpty";
+import MiniCart from "./MiniCart";
 import type { ShopMerchant, ShopProduct, SortKey } from "./types";
 
 interface Props {
@@ -162,6 +163,7 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
           )}
         </>
       )}
+      <MiniCart handle={merchant.handle} />
     </Box>
   );
 }
