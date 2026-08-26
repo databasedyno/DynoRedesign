@@ -482,6 +482,9 @@
     "qr": {
       "claimFirst": "Sichere dir zuerst einen Handle, um deinen QR-Code zu generieren.",
       "printHint": "Druck ihn aus, füg ihn zu deinem Kanal-Banner hinzu oder kleb ihn auf Sticker. Jede Kamera scannt ihn direkt zu deiner Tip-Seite."
+    },
+    "sticky": {
+      "supportName": "{{name}} unterstützen"
     }
   },
   "order": {

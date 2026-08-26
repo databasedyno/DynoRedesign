@@ -482,6 +482,9 @@
     "qr": {
       "claimFirst": "Claim eerst een handle om je QR-code te genereren.",
       "printHint": "Print hem, zet hem op je kanaalbanner of plak hem op stickers. Elke camera scant hem direct naar je tip-pagina."
+    },
+    "sticky": {
+      "supportName": "Steun {{name}}"
     }
   },
   "order": {

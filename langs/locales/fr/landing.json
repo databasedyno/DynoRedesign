@@ -482,6 +482,9 @@
     "qr": {
       "claimFirst": "Réservez d'abord un pseudo pour générer votre QR code.",
       "printHint": "Imprimez-le, ajoutez-le à votre bannière ou collez-le sur des stickers. N'importe quelle caméra le scanne directement vers votre page de pourboires."
+    },
+    "sticky": {
+      "supportName": "Soutenir {{name}}"
     }
   },
   "order": {

@@ -482,6 +482,9 @@
     "qr": {
       "claimFirst": "Claim a handle first to generate your QR code.",
       "printHint": "Print it, add to your channel banner, or slap it on stickers. Any camera scans it straight to your tip page."
+    },
+    "sticky": {
+      "supportName": "Support {{name}}"
     }
   },
   "order": {

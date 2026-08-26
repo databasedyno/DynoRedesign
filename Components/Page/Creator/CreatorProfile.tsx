@@ -153,6 +153,10 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
   // Portal-mount guard for the mobile sticky Support bar (SSR-safe).
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
+  // Hide the sticky Support bar while its scroll target (featured campaign /
+  // support widget) is already visible — otherwise mobile shows TWO support
+  // CTAs at once (the inline "Support me" form + the sticky bar).
+  const [supportTargetInView, setSupportTargetInView] = useState(false)
   useEffect(() => {
     setCanNativeShare(typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function')
   }, [])
@@ -244,6 +248,23 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
     }
   }
   const closeInlineCheckout = () => setActiveLink(null)
+
+  // Observe the sticky bar's scroll target so the bar auto-hides while the
+  // support form / featured campaign is on screen (no duplicate CTAs).
+  useEffect(() => {
+    if (!mounted || activeLink || typeof document === 'undefined') return
+    const sel = featured
+      ? '[data-testid="creator-featured"]'
+      : '[data-testid="creator-support-section"]'
+    const el = document.querySelector(sel)
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(
+      (entries) => setSupportTargetInView(entries[0]?.isIntersecting ?? false),
+      { threshold: 0.2 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [mounted, activeLink, featured, supportWidget?.enabled])
 
   const renderLinkCard = (l: CreatorLink) => (
     <Box
@@ -724,7 +745,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
           the viewport. Scrolls to the featured campaign / support widget.
           Wrapped in a Fragment because a raw portal object fails MUI's
           `children: PropTypes.node` check on the parent Box (dev warning). ── */}
-      {mounted && !activeLink && (featured || supportWidget?.enabled) && (
+      {mounted && !activeLink && !supportTargetInView && (featured || supportWidget?.enabled) && (
         <>
           {createPortal(
         <Box
@@ -757,7 +778,15 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
                 : '[data-testid="creator-support-section"]'
               const el = typeof document !== 'undefined' ? document.querySelector(sel) : null
               if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                // scrollIntoView({behavior:'smooth'}) can silently no-op when
+                // invoked from a position:fixed portal on mobile — compute the
+                // centered offset and drive window.scrollTo directly instead.
+                const rect = el.getBoundingClientRect()
+                const top = Math.max(
+                  0,
+                  window.scrollY + rect.top - Math.max(0, (window.innerHeight - rect.height) / 2),
+                )
+                window.scrollTo({ top, behavior: 'smooth' })
               } else if (featured) {
                 go(featured.url)
               }
@@ -770,11 +799,17 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               fontWeight: 800,
               backgroundColor: accent,
               color: INK,
+              // Long creator names ("The Dev Store", brands…) must never wrap
+              // or get cut mid-word — ellipsize inside the pill instead.
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: 'block',
               '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
               '&:active': { transform: 'scale(0.99)' },
             }}
           >
-            Support {creator.name.split(' ')[0]}
+            {t('creator.sticky.supportName', { name: creator.name, defaultValue: 'Support {{name}}' })}
           </Button>
         </Box>,
         document.body,

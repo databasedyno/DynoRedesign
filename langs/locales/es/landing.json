@@ -482,6 +482,9 @@
     "qr": {
       "claimFirst": "Reserva primero un nombre para generar tu código QR.",
       "printHint": "Imprímelo, añádelo al banner de tu canal, o pégalo en stickers. Cualquier cámara lo escanea directo a tu página de propinas."
+    },
+    "sticky": {
+      "supportName": "Apoyar a {{name}}"
     }
   },
   "order": {

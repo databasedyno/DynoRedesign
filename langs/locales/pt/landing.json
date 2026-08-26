@@ -482,6 +482,9 @@
     "qr": {
       "claimFirst": "Reserve primeiro um nome para gerar o seu código QR.",
       "printHint": "Imprima-o, adicione ao banner do canal, ou cole em autocolantes. Qualquer câmara lê-o direto para a sua página de gorjetas."
+    },
+    "sticky": {
+      "supportName": "Apoiar {{name}}"
     }
   },
   "order": {
