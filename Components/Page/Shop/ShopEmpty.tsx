@@ -12,6 +12,7 @@
  */
 import React from "react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Box, Typography, Button, Stack, useTheme } from "@mui/material";
 import type { ShopMerchant } from "./types";
 import { brandFg } from "@/constants/theme";
@@ -45,28 +46,29 @@ const ILLUSTRATION = (
 export default function ShopEmpty({ merchant, isOwner }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation("landing");
 
   const cards = [
     {
-      title: "Add your first product",
-      body: "List a digital download, ebook or service. Get paid in crypto, direct to your wallet.",
-      cta: isOwner ? "Add product" : "Learn more",
+      title: t("shop.emptyAddTitle", { defaultValue: "Add your first product" }),
+      body: t("shop.emptyAddBody", { defaultValue: "List a digital download, ebook or service. Get paid in crypto, direct to your wallet." }),
+      cta: isOwner ? t("shop.emptyAddCtaOwner", { defaultValue: "Add product" }) : t("shop.emptyAddCtaVisitor", { defaultValue: "Learn more" }),
       href: isOwner ? "/pay-links/products/new" : "/documentation",
       testid: "shop-empty-cta-add-product",
       icon: "📦",
     },
     {
-      title: "Launch a crowdfunding campaign",
-      body: "Story, gallery, reward tiers, deadline — everything a GoFundMe page has, settled in crypto.",
-      cta: "Start campaign",
+      title: t("shop.emptyCampaignTitle", { defaultValue: "Launch a crowdfunding campaign" }),
+      body: t("shop.emptyCampaignBody", { defaultValue: "Story, gallery, reward tiers, deadline — everything a GoFundMe page has, settled in crypto." }),
+      cta: t("shop.emptyCampaignCta", { defaultValue: "Start campaign" }),
       href: "/create-pay-link?type=donation",
       testid: "shop-empty-cta-campaign",
       icon: "🚀",
     },
     {
-      title: "Enable tips on your handle",
-      body: "Turn on the Creator page tip jar — supporters send any amount, you keep it all.",
-      cta: "Open Creator",
+      title: t("shop.emptyTipsTitle", { defaultValue: "Enable tips on your handle" }),
+      body: t("shop.emptyTipsBody", { defaultValue: "Turn on the Creator page tip jar — supporters send any amount, you keep it all." }),
+      cta: t("shop.emptyTipsCta", { defaultValue: "Open Creator" }),
       href: "/creator",
       testid: "shop-empty-cta-tips",
       icon: "☕",
@@ -102,8 +104,8 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
         }}
       >
         {isOwner
-          ? "Your shop is a blank canvas — let's fix that."
-          : `${merchant.name} is setting up their shop.`}
+          ? t("shop.emptyOwnerTitle", { defaultValue: "Your shop is a blank canvas — let's fix that." })
+          : t("shop.emptyVisitorTitle", { name: merchant.name, defaultValue: `${merchant.name} is setting up their shop.` })}
       </Typography>
 
       <Typography
@@ -116,8 +118,8 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
         }}
       >
         {isOwner
-          ? "You can list products, launch a crowdfunding page, or turn on tips — each brings a different kind of supporter to your handle."
-          : "In the meantime, explore what creators on Dynopay build — a full product catalog, campaign pages, tips, and inline crypto checkout."}
+          ? t("shop.emptyOwnerBody", { defaultValue: "You can list products, launch a crowdfunding page, or turn on tips — each brings a different kind of supporter to your handle." })
+          : t("shop.emptyVisitorBody", { defaultValue: "In the meantime, explore what creators on Dynopay build — a full product catalog, campaign pages, tips, and inline crypto checkout." })}
       </Typography>
 
       <Stack

@@ -11,6 +11,7 @@
  * cover is a CSS gradient so we can't hit a broken asset.
  */
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -53,6 +54,7 @@ const WHATSAPP_ICON = (
 export default function ShopHero({ merchant, products, shopUrl }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation("landing");
   const [copied, setCopied] = useState(false);
 
   // Derive brand tint from merchant name (deterministic hue).
@@ -69,7 +71,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
   );
   const productCount = products.length;
 
-  const shareText = `Check out ${merchant.name}'s shop on Dynopay`;
+  const shareText = t("shop.shareText", { name: merchant.name, defaultValue: `Check out ${merchant.name}'s shop on Dynopay` });
   const encoded = encodeURIComponent(shareText + " " + shopUrl);
   const shareLinks = {
     x: `https://twitter.com/intent/tweet?text=${encoded}`,
@@ -207,7 +209,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
           >
             <Chip
               size="small"
-              label={`${productCount} ${productCount === 1 ? "product" : "products"}`}
+              label={t(productCount === 1 ? "shop.productOne" : "shop.productOther", { count: productCount, defaultValue: `${productCount} ${productCount === 1 ? "product" : "products"}` })}
               sx={{
                 bgcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.85)",
                 color: isDark ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.85)",
@@ -219,7 +221,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
             {totalSold > 0 && (
               <Chip
                 size="small"
-                label={`${totalSold} sold`}
+                label={t("shop.soldCount", { count: totalSold, defaultValue: `${totalSold} sold` })}
                 sx={{
                   bgcolor: isDark ? "rgba(5,177,105,0.16)" : "rgba(5,177,105,0.10)",
                   color: isDark ? "#3FD98A" : "#05936A",
@@ -236,7 +238,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
                   {"\u26A1"}
                 </Box>
               }
-              label="Instant crypto checkout"
+              label={t("shop.instantCheckout", { defaultValue: "Instant crypto checkout" })}
               sx={{
                 bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.75)",
                 color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.75)",
@@ -269,55 +271,55 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
               color: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.5)",
             }}
           >
-            Share
+            {t("shop.share", { defaultValue: "Share" })}
           </Typography>
-          <Tooltip title="Share on X">
+          <Tooltip title={t("shop.shareOnX", { defaultValue: "Share on X" })}>
             <IconButton
               size="small"
               component="a"
               href={shareLinks.x}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Share on X"
+              aria-label={t("shop.shareOnX", { defaultValue: "Share on X" })}
               sx={shareBtnSx}
               data-testid="shop-share-x"
             >
               {X_ICON}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Share on Threads">
+          <Tooltip title={t("shop.shareOnThreads", { defaultValue: "Share on Threads" })}>
             <IconButton
               size="small"
               component="a"
               href={shareLinks.threads}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Share on Threads"
+              aria-label={t("shop.shareOnThreads", { defaultValue: "Share on Threads" })}
               sx={shareBtnSx}
               data-testid="shop-share-threads"
             >
               {THREADS_ICON}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Share on WhatsApp">
+          <Tooltip title={t("shop.shareOnWhatsApp", { defaultValue: "Share on WhatsApp" })}>
             <IconButton
               size="small"
               component="a"
               href={shareLinks.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Share on WhatsApp"
+              aria-label={t("shop.shareOnWhatsApp", { defaultValue: "Share on WhatsApp" })}
               sx={shareBtnSx}
               data-testid="shop-share-whatsapp"
             >
               {WHATSAPP_ICON}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Copy link">
+          <Tooltip title={t("shop.copyLink", { defaultValue: "Copy link" })}>
             <IconButton
               size="small"
               onClick={handleCopy}
-              aria-label="Copy shop link"
+              aria-label={t("shop.copyShopLink", { defaultValue: "Copy shop link" })}
               sx={shareBtnSx}
               data-testid="shop-share-copy"
             >
@@ -331,7 +333,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
         open={copied}
         autoHideDuration={2200}
         onClose={() => setCopied(false)}
-        message="Link copied"
+        message={t("shop.linkCopied", { defaultValue: "Link copied" })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
     </Box>

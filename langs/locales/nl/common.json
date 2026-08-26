@@ -706,7 +706,14 @@
       "qrDialogTitle": "Je QR-code",
       "copyLink": "Link kopiëren",
       "linkCopied": "Gekopieerd!",
-      "downloadPng": "PNG downloaden"
+      "downloadPng": "PNG downloaden",
+      "storeTitle": "Online winkel",
+      "storeDesc": "Zet je winkel UIT om je winkelpagina en alle productlinks overal te verbergen — deze pagina wordt alleen-fooien. Je producten blijven bewaard en komen terug zodra je de winkel weer aanzet.",
+      "showProductsTitle": "Mijn winkel op deze pagina tonen",
+      "showProductsDesc": "Toont de winkelsectie op deze creatorpagina. Zet het UIT voor een strakke alleen-fooienpagina — je winkelpagina en directe productlinks blijven werken.",
+      "storePreviewBoth": "Voorbeeld: fooien + winkel zichtbaar",
+      "storePreviewProductsHidden": "Voorbeeld: winkel verborgen op deze pagina",
+      "storePreviewStoreOff": "Voorbeeld: alleen-fooienpagina — winkel en productlinks verborgen"
     },
     "compare": {
       "title": "Etalages vergelijken",

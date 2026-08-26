@@ -706,7 +706,14 @@
       "qrDialogTitle": "Votre QR code",
       "copyLink": "Copier le lien",
       "linkCopied": "Copié !",
-      "downloadPng": "Télécharger le PNG"
+      "downloadPng": "Télécharger le PNG",
+      "storeTitle": "Boutique en ligne",
+      "storeDesc": "Désactivez votre boutique pour masquer la page boutique et tous les liens produits partout — cette page devient uniquement pourboires. Vos produits sont conservés et réapparaissent dès que vous réactivez la boutique.",
+      "showProductsTitle": "Afficher ma boutique sur cette page",
+      "showProductsDesc": "Affiche la section boutique sur cette page créateur. Désactivez-la pour une page uniquement pourboires — votre page boutique et les liens produits directs continuent de fonctionner.",
+      "storePreviewBoth": "Aperçu : pourboires + boutique affichés",
+      "storePreviewProductsHidden": "Aperçu : boutique masquée sur cette page",
+      "storePreviewStoreOff": "Aperçu : page uniquement pourboires — boutique et liens produits masqués"
     },
     "compare": {
       "title": "Comparer les vitrines",

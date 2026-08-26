@@ -706,7 +706,14 @@
       "qrDialogTitle": "Your QR code",
       "copyLink": "Copy link",
       "linkCopied": "Copied!",
-      "downloadPng": "Download PNG"
+      "downloadPng": "Download PNG",
+      "storeTitle": "Online store",
+      "storeDesc": "Turn your store OFF to hide your shop page and every product link everywhere — this page becomes tip-only. Your products are saved and come back the moment you turn the store on again.",
+      "showProductsTitle": "Show my shop on this page",
+      "showProductsDesc": "Show the shop section on this creator page. Turn it OFF for a clean tip-only page — your shop page and direct product links keep working.",
+      "storePreviewBoth": "Preview: tips + shop shown",
+      "storePreviewProductsHidden": "Preview: shop hidden from this page",
+      "storePreviewStoreOff": "Preview: tip-only page — shop & product links hidden"
     },
     "compare": {
       "title": "Compare storefronts",

@@ -6,6 +6,7 @@
 import React, { useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
@@ -47,6 +48,7 @@ function formatPrice(cents: number, ccy: string): string {
 const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl }) => {
   const router = useRouter();
   const cart = useCart();
+  const { t } = useTranslation("landing");
   const activeVariants = useMemo(() => (variants || []).filter((v) => v.is_active), [variants]);
   const [variantId, setVariantId] = useState<number | "">(activeVariants[0]?.variant_id || "");
   const [quantity, setQuantity] = useState<number>(1);
@@ -103,7 +105,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="product-detail">
         <Typography variant="body2" sx={{ mb: 2 }}>
           <Link href={`/${merchant.handle}/shop`} style={{ color: "inherit" }}>
-            ← Back to {merchant.name}’s shop
+            {t("shop.backToShop", { name: merchant.name, defaultValue: `← Back to ${merchant.name}’s shop` })}
           </Link>
         </Typography>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 3, md: 5 } }}>
@@ -123,27 +125,27 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
               <Typography variant="body1" color="text.secondary">{product.subtitle}</Typography>
             )}
             <Typography variant="h4" sx={{ fontWeight: 800, fontVariantNumeric: "tabular-nums" }} data-testid="product-detail-price">
-              {product.has_variants && !selectedVariant ? "from " : ""}
+              {product.has_variants && !selectedVariant ? `${t("shop.fromPrice", { defaultValue: "from" })} ` : ""}
               {formatPrice(unitPriceCents, product.currency)}
             </Typography>
             {(product.sold_count || 0) > 0 && (
-              <Chip size="small" label={`${product.sold_count} sold`} sx={{ alignSelf: "flex-start" }} />
+              <Chip size="small" label={t("shop.soldCount", { count: product.sold_count, defaultValue: `${product.sold_count} sold` })} sx={{ alignSelf: "flex-start" }} />
             )}
 
             {product.has_variants && activeVariants.length > 0 && (
               <FormControl fullWidth>
-                <InputLabel id="vsel">Choose an option</InputLabel>
+                <InputLabel id="vsel">{t("shop.chooseOption", { defaultValue: "Choose an option" })}</InputLabel>
                 <Select
                   labelId="vsel"
-                  label="Choose an option"
+                  label={t("shop.chooseOption", { defaultValue: "Choose an option" })}
                   value={variantId}
                   onChange={(e) => setVariantId(Number(e.target.value))}
                   inputProps={{ "data-testid": "product-detail-variant-select" }}
                 >
                   {activeVariants.map((v) => (
                     <MenuItem key={v.variant_id} value={v.variant_id} data-testid={`product-detail-variant-opt-${v.variant_id}`}>
-                      {(v.attributes?.title || `Variant ${v.variant_id}`)} · {formatPrice(v.price_cents, product.currency)}
-                      {v.stock_count != null && ` · ${v.stock_count} left`}
+                      {(v.attributes?.title || t("shop.variantFallback", { id: v.variant_id, defaultValue: `Variant ${v.variant_id}` }))} · {formatPrice(v.price_cents, product.currency)}
+                      {v.stock_count != null && ` · ${t("shop.stockLeft", { count: v.stock_count, defaultValue: `${v.stock_count} left` })}`}
                     </MenuItem>
                   ))}
                 </Select>
@@ -157,13 +159,13 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
                 size="small"
                 variant="outlined"
                 icon={<Icon icon="mdi:account-wrench-outline" width={16} />}
-                label="One-off service"
+                label={t("shop.oneOffService", { defaultValue: "One-off service" })}
                 data-testid="product-detail-service-badge"
                 sx={{ alignSelf: "flex-start" }}
               />
             ) : (
               <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography variant="body2">Quantity</Typography>
+                <Typography variant="body2">{t("shop.quantity", { defaultValue: "Quantity" })}</Typography>
                 <IconButton size="small" onClick={() => setQuantity((q) => Math.max(1, q - 1))} data-testid="product-detail-qty-dec">
                   <RemoveRounded fontSize="small" />
                 </IconButton>
@@ -178,7 +180,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
                 </IconButton>
                 {stockLeft != null && (
                   <Typography variant="caption" color="text.secondary">
-                    {stockLeft} left
+                    {t("shop.stockLeft", { count: stockLeft, defaultValue: `${stockLeft} left` })}
                   </Typography>
                 )}
               </Stack>
@@ -193,7 +195,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
                 data-testid="product-detail-add-to-cart"
                 sx={{ textTransform: "none", py: 1.25 }}
               >
-                Add to cart
+                {t("shop.addToCart", { defaultValue: "Add to cart" })}
               </Button>
               <Button
                 variant="contained"
@@ -202,13 +204,13 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
                 data-testid="product-detail-buy-now"
                 sx={{ textTransform: "none", py: 1.25, flex: 1 }}
               >
-                Buy now
+                {t("shop.buyNow", { defaultValue: "Buy now" })}
               </Button>
             </Stack>
 
             {added && (
               <Alert severity="success" data-testid="product-detail-added">
-                Added to cart. <Link href={`/${merchant.handle}/cart`}>View cart →</Link>
+                {t("shop.addedToCart", { defaultValue: "Added to cart." })} <Link href={`/${merchant.handle}/cart`}>{t("shop.viewCartArrow", { defaultValue: "View cart →" })}</Link>
               </Alert>
             )}
             {product.description_md && (

@@ -17,6 +17,7 @@
  */
 import React from "react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -50,11 +51,16 @@ export default function ProductCard({
 }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation("landing");
   const isFeatured = variant === "featured";
   const isCompact = variant === "compact";
 
   const typeStyle =
     TYPE_COLOR[String(product.product_type || "").toLowerCase()] || null;
+  const typeKey = String(product.product_type || "").toLowerCase();
+  const typeLabel = typeStyle
+    ? t(`shop.type${typeKey.charAt(0).toUpperCase()}${typeKey.slice(1)}`, { defaultValue: typeStyle.label })
+    : "";
   const typeChipColor = typeStyle
     ? isDark
       ? typeStyle.dark
@@ -134,7 +140,7 @@ export default function ProductCard({
                     ? "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)"
                     : "linear-gradient(135deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.02) 100%)",
                 }}
-                aria-label="No cover image"
+                aria-label={t("shop.noCoverImage", { defaultValue: "No cover image" })}
               >
                 {"\u25EB"}
               </Box>
@@ -161,7 +167,7 @@ export default function ProductCard({
                 boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
               }}
             >
-              🔥 Trending
+              🔥 {t("shop.trending", { defaultValue: "Trending" })}
             </Box>
           )}
 
@@ -185,7 +191,7 @@ export default function ProductCard({
                 boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
               }}
             >
-              ★ Featured
+              ★ {t("shop.featured", { defaultValue: "Featured" })}
             </Box>
           )}
 
@@ -193,7 +199,7 @@ export default function ProductCard({
           {typeStyle && (
             <Chip
               size="small"
-              label={typeStyle.label}
+              label={typeLabel}
               sx={{
                 position: "absolute",
                 top: 12,
@@ -215,7 +221,7 @@ export default function ProductCard({
           {hasSold && (
             <Chip
               size="small"
-              label={`${product.sold_count} sold`}
+              label={t("shop.soldCount", { count: product.sold_count, defaultValue: `${product.sold_count} sold` })}
               sx={{
                 position: "absolute",
                 bottom: 12,
@@ -251,7 +257,7 @@ export default function ProductCard({
             }}
             aria-hidden
           >
-            View →
+            {t("shop.view", { defaultValue: "View" })} →
           </Box>
         </Box>
 
@@ -307,7 +313,7 @@ export default function ProductCard({
                   fontWeight: 500,
                 }}
               >
-                from
+                {t("shop.fromPrice", { defaultValue: "from" })}
               </Typography>
             )}
             <Typography

@@ -706,7 +706,14 @@
       "qrDialogTitle": "Seu código QR",
       "copyLink": "Copiar link",
       "linkCopied": "Copiado!",
-      "downloadPng": "Baixar PNG"
+      "downloadPng": "Baixar PNG",
+      "storeTitle": "Loja online",
+      "storeDesc": "Desative sua loja para ocultar a página da loja e todos os links de produtos em todos os lugares — esta página passa a ser somente de gorjetas. Seus produtos são salvos e voltam assim que você reativar a loja.",
+      "showProductsTitle": "Mostrar minha loja nesta página",
+      "showProductsDesc": "Mostra a seção da loja nesta página de criador. Desative para uma página limpa somente de gorjetas — sua página da loja e os links diretos de produtos continuam funcionando.",
+      "storePreviewBoth": "Prévia: gorjetas + loja visíveis",
+      "storePreviewProductsHidden": "Prévia: loja oculta nesta página",
+      "storePreviewStoreOff": "Prévia: página somente de gorjetas — loja e links de produtos ocultos"
     },
     "compare": {
       "title": "Comparar vitrines",

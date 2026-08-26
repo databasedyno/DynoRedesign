@@ -706,7 +706,14 @@
       "qrDialogTitle": "Ihr QR-Code",
       "copyLink": "Link kopieren",
       "linkCopied": "Kopiert!",
-      "downloadPng": "PNG herunterladen"
+      "downloadPng": "PNG herunterladen",
+      "storeTitle": "Online-Shop",
+      "storeDesc": "Schalte deinen Shop AUS, um deine Shop-Seite und alle Produktlinks überall auszublenden — diese Seite wird reine Trinkgeld-Seite. Deine Produkte bleiben gespeichert und kommen zurück, sobald du den Shop wieder einschaltest.",
+      "showProductsTitle": "Meinen Shop auf dieser Seite zeigen",
+      "showProductsDesc": "Zeigt den Shop-Bereich auf dieser Creator-Seite. Schalte ihn AUS für eine schlichte, reine Trinkgeld-Seite — deine Shop-Seite und direkte Produktlinks funktionieren weiter.",
+      "storePreviewBoth": "Vorschau: Trinkgeld + Shop sichtbar",
+      "storePreviewProductsHidden": "Vorschau: Shop auf dieser Seite ausgeblendet",
+      "storePreviewStoreOff": "Vorschau: reine Trinkgeld-Seite — Shop und Produktlinks ausgeblendet"
     },
     "compare": {
       "title": "Schaufenster vergleichen",

@@ -706,7 +706,14 @@
       "qrDialogTitle": "Tu código QR",
       "copyLink": "Copiar enlace",
       "linkCopied": "¡Copiado!",
-      "downloadPng": "Descargar PNG"
+      "downloadPng": "Descargar PNG",
+      "storeTitle": "Tienda online",
+      "storeDesc": "Desactiva tu tienda para ocultar la página de tu tienda y todos los enlaces de productos en todas partes: esta página pasa a ser solo de propinas. Tus productos se guardan y vuelven en cuanto reactivas la tienda.",
+      "showProductsTitle": "Mostrar mi tienda en esta página",
+      "showProductsDesc": "Muestra la sección de tienda en esta página de creador. Desactívala para una página limpia solo de propinas: tu página de tienda y los enlaces directos a productos siguen funcionando.",
+      "storePreviewBoth": "Vista previa: propinas + tienda visibles",
+      "storePreviewProductsHidden": "Vista previa: tienda oculta en esta página",
+      "storePreviewStoreOff": "Vista previa: página solo de propinas — tienda y enlaces de productos ocultos"
     },
     "compare": {
       "title": "Comparar tiendas",

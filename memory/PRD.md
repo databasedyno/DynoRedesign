@@ -1,3 +1,52 @@
+# FEATURES (2026-06 fork) — Store-toggle i18n + preview chip + FULL shop buyer-journey i18n (6 langs) — DONE (tsc + DE screenshots)
+
+Preview: https://2a9c209f-72ac-4dba-8d0c-579d0240c83b.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Creator handle @devhub (company 1). Frontend tsc EXIT 0.
+
+Three user-picked follow-ups to the store-visibility feature:
+
+## 1) Store toggle labels localized (6 langs) — DONE
+Added real es/pt/fr/de/nl translations for the two store toggles (were English-only via defaultValue):
+`storefront.form.storeTitle/storeDesc/showProductsTitle/showProductsDesc` in ALL 6 common.json.
+NOTE: logged-in merchants render in their ACCOUNT language (reconcileLanguageOnAuth makes account
+`language` the source of truth, overriding localStorage `lang`) — hostbay's account is English, so the
+settings UI shows English for them; a de/es/… account sees the translated labels. Mechanism proven by the
+public shop DE screenshots (identical useTranslation("common") + t() pipeline).
+
+## 2) Tip-Only Preview chip — DONE (all 3 states screenshot-verified)
+New live status chip inside the store-visibility settings card (data-testid `store-visibility-preview`,
+CreatorPageSettings.tsx) that reflects the effective public-page state and updates instantly with the toggles:
+  - both on  → green  "Preview: tips + shop shown" (mdi:eye-check-outline)
+  - products off (store on) → amber "Preview: shop hidden from this page" (mdi:eye-off-outline)
+  - store off → grey  "Preview: tip-only page — shop & product links hidden" (mdi:storefront-off-outline)
+Keys `storefront.form.storePreviewBoth/storePreviewProductsHidden/storePreviewStoreOff` in all 6 common.json.
+
+## 3) FULL shop + product-detail buyer journey i18n (6 langs) — DONE (DE screenshot-verified)
+The checkout + cart pages were already localized; the SHOP BROWSING flow had ZERO i18n. Added a `shop.*`
+namespace (55 keys) to ALL 6 landing.json and wired useTranslation("landing")+t() into:
+  - Components/Page/Shop/ShopToolbar.tsx (type chips All/Digital/Physical/Service, "All categories",
+    result count singular/plural, "Sort" + 5 sort options via SORT_I18N map)
+  - Components/Page/Shop/ProductCard.tsx (type badge, Trending, Featured, "N sold", "View", "from",
+    "No cover image" aria-label)
+  - Components/Page/Shop/ShopEmpty.tsx (owner/visitor headlines+bodies, 3 CTA cards title/body/cta)
+  - Components/Page/Shop/ShopHero.tsx (product count, sold, "Instant crypto checkout", "Share",
+    share tooltips/aria X/Threads/WhatsApp/Copy, "Link copied" snackbar, shareText)
+  - Components/Page/Shop/ShopClient.tsx ("No products match this filter…")
+  - pages/[handle]/p/[slug].tsx (back-to-shop, from, sold, "Choose an option", variant fallback +
+    "N left", "One-off service", "Quantity", "Add to cart", "Buy now", "Added to cart." + "View cart →")
+MiniCart.tsx already used checkout.store.* keys (unchanged). Merchant-entered product content stays as authored.
+
+i18n keys added via a format-preserving script (json.load/dump, indent=2, ensure_ascii=False, no trailing-
+newline reflow) → 12 files (6 common +7 keys, 6 landing +55 keys), all parse-valid, minimal diff.
+
+VERIFIED: frontend tsc EXIT 0; German /devhub/shop screenshot ("Alle/Digital", "1 Ergebnis",
+"Sortieren/Empfohlen", "Sofortige Krypto-Zahlung", "TEILEN"); German /devhub/p/talk-to-a-developer
+("In den Warenkorb", "Jetzt kaufen", "Einmaliger Service", "← Zurück zum Shop von …"); preview chip all
+3 states in-app. No DB writes persisted (toggles exercised locally, not Saved; hostbay left store_enabled=true,
+creator_page_show_products=true — API-confirmed).
+
+---
+
+
 # FEATURE (2026-06 fork) — Creator page Store-visibility UX (turn shop off / hide products from tip page) — DONE (live round-trip verified)
 
 Preview: https://2a9c209f-72ac-4dba-8d0c-579d0240c83b.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB "roundhouse", SAFE MODE). Creator/company handle under STOREFRONT_PER_COMPANY=true is @devhub (company_id 1).

@@ -13,6 +13,7 @@
  * consumed by ShopClient's memoized `visible` list.
  */
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Chip,
@@ -26,6 +27,14 @@ import {
 } from "@mui/material";
 import type { SortKey, ShopProduct } from "./types";
 import { SORT_LABELS, PRODUCT_TYPE_LABELS } from "./types";
+
+const SORT_I18N: Record<SortKey, string> = {
+  featured: "shop.sortFeatured",
+  bestselling: "shop.sortBestselling",
+  newest: "shop.sortNewest",
+  price_asc: "shop.sortPriceAsc",
+  price_desc: "shop.sortPriceDesc",
+};
 
 interface Props {
   products: ShopProduct[];
@@ -50,6 +59,7 @@ export default function ShopToolbar({
 }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation("landing");
 
   // Derive available types (only show chip if merchant has any of that type)
   const availableTypes: string[] = React.useMemo(() => {
@@ -131,14 +141,14 @@ export default function ShopToolbar({
           sx={{ flexWrap: "wrap", gap: 1 }}
           data-testid="shop-toolbar-types"
         >
-          {availableTypes.map((t) => (
+          {availableTypes.map((typeKey) => (
             <Chip
-              key={t}
-              label={PRODUCT_TYPE_LABELS[t] || t}
+              key={typeKey}
+              label={t(`shop.type${typeKey.charAt(0).toUpperCase()}${typeKey.slice(1)}`, { defaultValue: PRODUCT_TYPE_LABELS[typeKey] || typeKey })}
               size="small"
-              onClick={() => onTypeChange(t)}
-              sx={chipSx(activeType === t)}
-              data-testid={`shop-type-chip-${t}`}
+              onClick={() => onTypeChange(typeKey)}
+              sx={chipSx(activeType === typeKey)}
+              data-testid={`shop-type-chip-${typeKey}`}
             />
           ))}
         </Stack>
@@ -151,7 +161,7 @@ export default function ShopToolbar({
             data-testid="shop-toolbar-categories"
           >
             <Chip
-              label="All categories"
+              label={t("shop.allCategories", { defaultValue: "All categories" })}
               size="small"
               onClick={() => onCategoryChange(null)}
               sx={chipSx(activeCategory === null)}
@@ -187,15 +197,15 @@ export default function ShopToolbar({
           }}
           data-testid="shop-result-count"
         >
-          {visibleCount} {visibleCount === 1 ? "result" : "results"}
+          {t(visibleCount === 1 ? "shop.resultOne" : "shop.resultOther", { count: visibleCount, defaultValue: `${visibleCount} ${visibleCount === 1 ? "result" : "results"}` })}
         </Typography>
 
         <FormControl size="small" sx={{ minWidth: 180 }}>
-          <InputLabel id="shop-sort-label">Sort</InputLabel>
+          <InputLabel id="shop-sort-label">{t("shop.sortLabel", { defaultValue: "Sort" })}</InputLabel>
           <Select
             labelId="shop-sort-label"
             value={sort}
-            label="Sort"
+            label={t("shop.sortLabel", { defaultValue: "Sort" })}
             onChange={(e) => onSortChange(e.target.value as SortKey)}
             data-testid="shop-sort-select"
             sx={{
@@ -208,7 +218,7 @@ export default function ShopToolbar({
           >
             {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
               <MenuItem key={k} value={k} data-testid={`shop-sort-option-${k}`}>
-                {SORT_LABELS[k]}
+                {t(SORT_I18N[k], { defaultValue: SORT_LABELS[k] })}
               </MenuItem>
             ))}
           </Select>

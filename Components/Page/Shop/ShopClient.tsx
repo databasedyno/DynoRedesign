@@ -13,6 +13,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Grid } from "@mui/material";
 import ShopHero from "./ShopHero";
 import ShopToolbar from "./ShopToolbar";
@@ -31,6 +32,7 @@ interface Props {
 const FEATURED_THRESHOLD = 25; // sold_count threshold to consider a product "featured-worthy"
 
 export default function ShopClient({ merchant, products, shopUrl, isOwner }: Props) {
+  const { t } = useTranslation("landing");
   const [type, setType] = useState<string>("all");
   const [category, setCategory] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>("featured");
@@ -112,7 +114,7 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
                 fontSize: "1.05rem",
               }}
             >
-              No products match this filter. Try clearing filters or picking another category.
+              {t("shop.noMatches", { defaultValue: "No products match this filter. Try clearing filters or picking another category." })}
             </Box>
           ) : (
             <Grid container spacing={{ xs: 2.5, md: 3 }} data-testid="shop-grid">

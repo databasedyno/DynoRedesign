@@ -1088,6 +1088,39 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
           />
         </Box>
+
+        {/* Live preview of the effective public-page state */}
+        <Box sx={{ mt: 1.5, pt: 1.5, borderTop: `1px solid ${border}` }}>
+          <Box
+            data-testid="store-visibility-preview"
+            sx={{
+              display: "inline-flex", alignItems: "center", gap: 0.75,
+              px: 1.25, py: 0.6, borderRadius: 999,
+              bgcolor: !storeEnabled
+                ? (theme.palette.mode === "dark" ? "rgba(148,163,184,0.14)" : "rgba(100,116,139,0.10)")
+                : !showProductsOnPage
+                  ? (theme.palette.mode === "dark" ? "rgba(251,191,36,0.16)" : "rgba(217,119,6,0.10)")
+                  : (theme.palette.mode === "dark" ? "rgba(52,211,153,0.16)" : "rgba(5,150,105,0.10)"),
+              color: !storeEnabled
+                ? theme.palette.text.secondary
+                : !showProductsOnPage
+                  ? (theme.palette.mode === "dark" ? "#FBBF24" : "#B45309")
+                  : (theme.palette.mode === "dark" ? "#34D399" : "#059669"),
+            }}
+          >
+            <Icon
+              icon={!storeEnabled ? "mdi:storefront-off-outline" : !showProductsOnPage ? "mdi:eye-off-outline" : "mdi:eye-check-outline"}
+              width={16}
+            />
+            <Typography fontSize={12.5} fontWeight={600}>
+              {!storeEnabled
+                ? t("storefront.form.storePreviewStoreOff", { defaultValue: "Preview: tip-only page — shop & product links hidden" })
+                : !showProductsOnPage
+                  ? t("storefront.form.storePreviewProductsHidden", { defaultValue: "Preview: shop hidden from this page" })
+                  : t("storefront.form.storePreviewBoth", { defaultValue: "Preview: tips + shop shown" })}
+            </Typography>
+          </Box>
+        </Box>
       </Box>
 
       {/* Enable toggle */}
