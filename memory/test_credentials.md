@@ -1,4 +1,19 @@
 # ============================================================================
+# 2026-08-27 (pod f431e319) DATA CHANGE — merchant "Hostbay" primary email migrated (PROD DB write)
+# ----------------------------------------------------------------------------
+# - Changed tbl_user.email for user_id=1 ("Hostbay"): hostbay@moxx.co -> moxxcompany@gmail.com
+#   (guarded transactional UPDATE, 1 row; login_type=EMAIL unchanged; email_verified kept TRUE
+#    because SAFE MODE has outbound email OFF, so resetting it would block re-verification).
+# - Verified: login moxxcompany@gmail.com / Katiekendra123@ -> 200 "Login Successful!";
+#   old email hostbay@moxx.co -> "Invalid email or password" (correctly rejected).
+# - tbl_login_history.email (1417 historical audit rows under the old address) were LEFT AS-IS
+#   (that table is queried by user_id, not email, so the login-activity panel is unaffected).
+# - >>> MERCHANT LOGIN FOR TESTING IS NOW: moxxcompany@gmail.com / Katiekendra123@ (user_id=1) <<<
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-08-27 (pod f431e319) RE-SETUP #5 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - Preview URL: https://f431e319-7216-4779-8f91-6c1ce868af1c.preview.emergentagent.com
