@@ -14,6 +14,8 @@
   "active": "Actief",
   "pending": "In behandeling",
   "totalEarnings": "Totale Verdiensten",
+  "pendingRewards": "Openstaande beloningen",
+  "pendingRewardsHint": "Jouw 50%, bijgeschreven na uitbetaling",
   "referralEarnings": "Verwijzingsverdiensten",
   "credited": "Gecrediteerd",
   "withdrawn": "Opgenomen",

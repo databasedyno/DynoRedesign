@@ -14,6 +14,8 @@
   "active": "Ativo",
   "pending": "Pendente",
   "totalEarnings": "Ganhos Totais",
+  "pendingRewards": "Recompensas pendentes",
+  "pendingRewardsHint": "Sua parte de 50%, creditada após o pagamento",
   "referralEarnings": "Ganhos de Indicação",
   "credited": "Creditado",
   "withdrawn": "Retirado",

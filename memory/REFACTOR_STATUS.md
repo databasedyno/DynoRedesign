@@ -61,12 +61,21 @@ Priority order; each is independently shippable.
       re-imagined Customers page to confirm all UI states, the detail drawer (bottom sheet on mobile),
       search + sort + CSV export, segment chips, and the "Request payment" → `/create-pay-link?email=<x>`
       prefill. Verify at 390 / 768 / 1024 / 1920 in dark + light. (Was awaiting user approval.)
-- [ ] **P1 — Status Page Polish:** Add 90-day uptime history bars to the public status page so
-      customers see per-service reliability at a glance.
-- [ ] **P2 — Checkout Currency Memory:** Let returning buyers see prices in the currency they picked
-      last time without re-selecting it.
-- [ ] **Spark — Referral Earnings Card:** Show merchants their pending 50% referral rewards right on
-      the dashboard.
+- [x] **P1 — Status Page Polish (90-day uptime bars):** ALREADY IMPLEMENTED (verified 2026-08-27
+      pod d004a6e0). Backend `getUptimeChart` (`GET /api/status/uptime`) returns a full 90-day
+      series (missing days filled `no_data`); `Components/UI/APIStatus/Bars.tsx` renders 90 SVG bars
+      + legend + uptime %; `/system-status` shows it. Testing agent PASS (90 rects, legend, no errors).
+- [x] **P2 — Checkout Currency Memory:** ALREADY IMPLEMENTED (verified by code inspection 2026-08-27).
+      `CleanCheckoutV2.tsx` persists the buyer's chosen network + payment currency to localStorage
+      (`checkout_pref_network` / `checkout_pref_currency`) and restores them on return. NOT e2e-tested
+      on prod (selecting a currency would create a real reservation).
+- [x] **Spark — Referral Earnings Card:** DONE (2026-08-27 pod d004a6e0). Enhanced
+      `Components/Page/Dashboard/ReferralCodeCard.tsx` to also read `GET /api/referral/earnings`
+      (unwrap) and render a "Pending rewards" row = `summary.pending_earnings` as `$X.XX` (the
+      merchant's pending 50% referral rewards) with a tooltip hint; i18n keys `pendingRewards` /
+      `pendingRewardsHint` added to all 6 locales. No backend change. Gate: tsc 0 · eslint 0 ·
+      check-i18n PASS · frontend testing agent PASS (referral-card-pending + amount + tooltip,
+      desktop+mobile+light).
 
 ## Watchlist — legacy files that grew past baseline (WARN-only, non-blocking)
 These do NOT block commits, but each is a candidate to refactor down and remove from

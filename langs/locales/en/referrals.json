@@ -14,6 +14,8 @@
   "active": "Active",
   "pending": "Pending",
   "totalEarnings": "Total Earnings",
+  "pendingRewards": "Pending rewards",
+  "pendingRewardsHint": "Your 50% share, credited after payout",
   "referralEarnings": "Referral Earnings",
   "credited": "Credited",
   "withdrawn": "Withdrawn",

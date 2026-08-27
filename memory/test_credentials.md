@@ -1,3 +1,23 @@
+# ============================================================================
+# 2026-08-27 (pod d004a6e0) SETUP from pasted creds — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
+# ----------------------------------------------------------------------------
+# - Preview URL: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com
+# - Env written from a fresh full cred paste to /app/backend/.env + /app/.env, then
+#   `python3 scripts/apply_preview_env.py <preview-url>` (URL sync + SAFE MODE). Overrides:
+#   ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true,
+#   REDIS_PUBLIC_URL -> .../15794/1 (isolated DB index 1), BINANCE_PROXY_URL + SSH_TUNNEL_HOST
+#   blanked (geo-blocked), NEXTAUTH_SECRET freshly generated (paste had placeholder).
+# - >>> CURRENT MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, "Hostbay") <<<
+#     2-step: /auth/login -> email -> Continue -> password -> Sign in.
+# - VERIFIED (read-only): GET :8001/health -> healthy (db connected, redis connected,
+#     background_jobs.eligible=false = SAFE MODE, tatum operational CLOSED); frontend / -> 200;
+#     GET /api/public/tickers live (BTC ~$80.4k); POST /api/user/login -> 200 "Login Successful!".
+# - NOTE for testing agents: WIRED TO PRODUCTION DB. Prefer READ-ONLY checks.
+# - NEW THIS SESSION: Spark Referral Earnings card on dashboard (frontend testing agent PASS).
+# ============================================================================
+
+
+
 # 2026-08-27 (pod f07bb4cb) SETUP from pasted creds — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # - Preview URL: https://payment-gateway-init.preview.emergentagent.com
 # - Env written from user-pasted blob to /app/.env (Next.js) + /app/backend/.env (Node),

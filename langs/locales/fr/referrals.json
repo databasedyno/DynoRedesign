@@ -14,6 +14,8 @@
   "active": "Actif",
   "pending": "En attente",
   "totalEarnings": "Gains Totaux",
+  "pendingRewards": "Récompenses en attente",
+  "pendingRewardsHint": "Votre part de 50 %, créditée après paiement",
   "referralEarnings": "Gains de Parrainage",
   "credited": "Crédité",
   "withdrawn": "Retiré",

@@ -9,6 +9,7 @@ import {
   ContentCopyRounded,
   IosShareRounded,
   ArrowOutward,
+  SavingsRounded,
 } from "@mui/icons-material";
 
 import PanelCard from "@/Components/UI/PanelCard";
@@ -49,6 +50,19 @@ const ReferralCodeCard: React.FC = () => {
     API_ENDPOINTS.referral.myCode,
     { unwrap: true, revalidateOnFocus: false }
   );
+
+  // Pending 50% referral rewards ($) — earned but not yet credited. Same data
+  // the /referrals page uses, deduped by SWR. Token-gated; the dashboard is
+  // always authenticated so this resolves alongside the referral code.
+  const { data: earnings, isLoading: earningsLoading } = useApiSWR<{
+    summary?: {
+      pending_earnings?: number;
+      total_earnings?: number;
+      credited_earnings?: number;
+    };
+  }>(API_ENDPOINTS.referral.earnings, { unwrap: true, revalidateOnFocus: false });
+  const pendingEarnings = Number(earnings?.summary?.pending_earnings ?? 0);
+  const earningsPending = earningsLoading && earnings === undefined;
 
   const code = data?.referral_code || "";
   const link = data?.referral_link || "";
@@ -235,6 +249,59 @@ const ReferralCodeCard: React.FC = () => {
             disabled={!link}
           />
         </Box>
+
+        {/* Pending 50% referral rewards — the headline the Spark surfaces */}
+        <Tooltip title={t("pendingRewardsHint")} arrow placement="top">
+          <Box
+            data-testid="referral-card-pending"
+            sx={{
+              mt: 1.5,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1,
+              borderRadius: "12px",
+              px: 1.75,
+              py: 1.25,
+              border: `1px solid ${ACCENT}33`,
+              background: isDark ? `${ACCENT}14` : `${ACCENT}0d`,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <SavingsRounded sx={{ fontSize: 18, color: ACCENT }} />
+              <Typography
+                sx={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                }}
+              >
+                {t("pendingRewards")}
+              </Typography>
+            </Box>
+            {earningsPending ? (
+              <Skeleton
+                variant="text"
+                width={56}
+                height={24}
+                sx={{ bgcolor: isDark ? "rgba(255,255,255,0.08)" : undefined }}
+              />
+            ) : (
+              <Typography
+                data-testid="referral-card-pending-amount"
+                sx={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "16px",
+                  fontWeight: 800,
+                  color: ACCENT,
+                }}
+              >
+                ${pendingEarnings.toFixed(2)}
+              </Typography>
+            )}
+          </Box>
+        </Tooltip>
 
         {/* Tiny stats caption */}
         <Typography
