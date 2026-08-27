@@ -5,8 +5,6 @@ import { TOAST_INIT } from "../Actions/ToastAction";
 import { ToastSaga } from "./ToastSaga";
 import { API_INIT } from "../Actions/ApiAction";
 import { ApiSaga } from "./ApiSaga";
-import { TRANSACTION_INIT } from "../Actions/TransactionAction";
-import { TransactionSaga } from "./TransactionSaga";
 import { DASHBOARD_INIT, DASHBOARD_CHART_INIT } from "../Actions/DashboardAction";
 import { DashboardSaga, DashboardChartSaga } from "./DashboardSaga";
 import { PAYLINK_INIT } from "../Actions/PaymentLinkAction";
@@ -18,7 +16,7 @@ function* RootSaga() {
   // Company + Wallet reads/mutations migrated to SWR (CompanyDataContext /
   // WalletDataContext) — their sagas have been retired.
   yield takeEvery(API_INIT, ApiSaga);
-  yield takeEvery(TRANSACTION_INIT, TransactionSaga);
+  // Transactions migrated to SWR (hooks/useTransactions) — saga retired.
   yield debounce(400, DASHBOARD_INIT, DashboardSaga);
   // Chart fetches MUST NOT share the debounced DASHBOARD_INIT channel:
   // on dashboard mount DASHBOARD_FETCH_ALL lands in the same 400ms window

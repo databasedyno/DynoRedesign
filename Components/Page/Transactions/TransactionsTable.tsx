@@ -40,9 +40,6 @@ import {
   ExtendedTransaction,
   TransactionsTableProps,
 } from "@/utils/types/transaction";
-import { TransactionAction } from "@/Redux/Actions";
-import { TRANSACTION_DETAIL_FETCH } from "@/Redux/Actions/TransactionAction";
-import { useDispatch } from "react-redux";
 import { Text } from "../CreatePaymentLink/styled";
 import {
   CryptoIconChip,
@@ -63,7 +60,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   rowsPerPage: initialRowsPerPage = 10,
 }) => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const router = useRouter();
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
@@ -221,10 +217,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const handleRowClick = (transaction: ExtendedTransaction) => {
     setSelectedTransaction(transaction);
     setModalOpen(true);
-    // Fetch full transaction detail from API
-    if (transaction.id) {
-      dispatch(TransactionAction(TRANSACTION_DETAIL_FETCH, { id: transaction.id }));
-    }
   };
 
   // Session 54 fix (Bug A): deep-link support. When the dashboard "recent
@@ -246,11 +238,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       setSelectedTransaction(match);
       setModalOpen(true);
       setHandledTxParam(txId);
-      if (match.id) {
-        dispatch(TransactionAction(TRANSACTION_DETAIL_FETCH, { id: match.id }));
-      }
     }
-  }, [router.isReady, router.query.tx, transactions, handledTxParam, dispatch]);
+  }, [router.isReady, router.query.tx, transactions, handledTxParam]);
 
   const handleCloseModal = () => {
     setModalOpen(false);

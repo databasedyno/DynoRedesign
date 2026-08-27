@@ -6,10 +6,11 @@ import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, Button, ClickAwayListener, Divider, Fade, IconButton, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { preload } from "swr";
 import { rootReducer } from "@/utils/types";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { TransactionAction, TRANSACTION_FETCH } from "@/Redux/Actions/TransactionAction";
+import { TRANSACTIONS_KEY, transactionsFetcher } from "@/hooks/useTransactions";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useAccountProfile from "@/hooks/useAccountProfile";
@@ -53,17 +54,12 @@ const NewSidebar = ({
   const isCollapsed = !inDrawer && (collapsed || forceCollapsed);
   const router = useRouter();
   const theme = useTheme();
-  const dispatch = useDispatch();
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
-  const txLoadedCompany = useSelector(
-    (s: rootReducer) => s.transactionReducer?.loaded_company_id,
-  );
-  const txLoading = useSelector((s: rootReducer) => s.transactionReducer?.loading);
   const navPrefetchedRef = useRef<Set<string>>(new Set());
 
   // Nav hover-prefetch: warm the route's JS chunk for every item, and warm the
-  // transactions DATA (Redux) so /transactions paints instantly on click
-  // instead of showing a skeleton for the whole backend round-trip.
+  // transactions DATA (SWR) so /transactions paints instantly on click instead
+  // of showing a skeleton for the whole backend round-trip.
   const prefetchNav = useCallback(
     (item: SidebarItem) => {
       try {
@@ -71,21 +67,21 @@ const NewSidebar = ({
       } catch {
         /* best-effort */
       }
-      if (item.path === "/transactions") {
-        const alreadyHasCompany = txLoadedCompany === (selectedCompanyId ?? null);
-        const key = `tx:${selectedCompanyId ?? ""}`;
-        if (!alreadyHasCompany && !txLoading && !navPrefetchedRef.current.has(key)) {
+      // Warm the transactions SWR cache on hover (same key the page +
+      // CompanySelector use, so SWR dedupes). Only once per company.
+      if (item.path === "/transactions" && selectedCompanyId) {
+        const key = `tx:${selectedCompanyId}`;
+        if (!navPrefetchedRef.current.has(key)) {
           navPrefetchedRef.current.add(key);
-          dispatch(
-            TransactionAction(
-              TRANSACTION_FETCH,
-              selectedCompanyId ? { company_id: selectedCompanyId } : undefined,
-            ),
-          );
+          try {
+            preload([TRANSACTIONS_KEY, selectedCompanyId], transactionsFetcher as any);
+          } catch {
+            /* best-effort */
+          }
         }
       }
     },
-    [router, dispatch, selectedCompanyId, txLoadedCompany, txLoading],
+    [router, selectedCompanyId],
   );
   // Only surface the "Creator page" NEW pill for merchants who haven't
   // published yet. Once they've set a handle & enabled the page, the pill

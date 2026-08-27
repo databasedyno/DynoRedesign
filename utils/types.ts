@@ -11,7 +11,6 @@ export interface rootReducer {
   userReducer: userReducer;
   toastReducer: toastReducer;
   apiReducer: apiReducer;
-  transactionReducer: transactionReducer;
   dashboardReducer: import("@/Redux/Reducers/dashboardReducer").DashboardState;
   paymentLinkReducer: import("@/Redux/Reducers/paymentLinkReducer").PaymentLinkState;
 }
@@ -52,6 +51,9 @@ export interface apiReducer {
   loading: boolean;
 }
 
+// NOTE: transaction data now flows through SWR (hooks/useTransactions), not
+// redux. This interface is retained only as a convenience data shape and is no
+// longer part of `rootReducer`.
 export interface transactionReducer {
   customers_transactions: ICustomerTransactions[];
   self_transactions: ICustomerTransactions[];

@@ -169,6 +169,18 @@ no git history rewrite.
       check-i18n PASS · pre-commit EXIT 0 · testing_agent iteration_91 = 100%). Also fixed pre-existing
       Sparkline.tsx conditional-useMemo build blocker surfaced by the gate. Ship via Save to GitHub.
 - [ ] Phase 2 — One data layer: finish SWR migration in waves, delete redux-saga last (FP1-1)
+      Wave order (each independently shippable, gates on tsc+eslint+build+testing agent):
+        W1 Transaction · W2 Api (keys) · W3 Dashboard · W4 PaymentLink · W5 User (661-line saga,
+        auth/profile — riskiest, last) · W6 Toast + delete redux-saga + store.ts cleanup.
+      - [x] W1 Transaction → SWR (2026-08-27, pod f07bb4cb): new `hooks/useTransactions.ts`
+            (`useTransactions()` keyed on `useSelectedCompanyId()` — mirrors WalletDataContext;
+            company switch flips the SWR key → auto-refetch; `exportTransactions()` imperative
+            CSV; sidebar hover = `preload([TRANSACTIONS_KEY, id])`). Removed the manual
+            `TRANSACTION_FETCH` dispatch from CompanySelector + NewSidebar and the DEAD
+            `TRANSACTION_DETAIL_FETCH` path (details modal renders from the row). Deleted
+            TransactionAction/transactionReducer/TransactionSaga + barrel/RootSaga/rootReducer
+            entries. Gate: tsc 0 · eslint 0 (5 changed files) · /transactions dev-compile 200.
+            PENDING: frontend testing-agent verification (awaiting user go).
 - [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

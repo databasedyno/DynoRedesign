@@ -1,9 +1,9 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { formatWithSeparators } from "@/utils/currencyFormat";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
-import { TransactionAction } from "@/Redux/Actions";
-import { TRANSACTION_FETCH, TRANSACTION_EXPORT } from "@/Redux/Actions/TransactionAction";
-import { ICustomerTransactions, rootReducer } from "@/utils/types";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { useTransactions, exportTransactions } from "@/hooks/useTransactions";
+import { ICustomerTransactions } from "@/utils/types";
 import { DateRange } from "@/utils/types/dashboard";
 import {
   ExtendedTransaction,
@@ -16,7 +16,7 @@ import { Icon, MONO } from "@/styles/uiKit";
 import CustomButton from "@/Components/UI/Buttons";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
@@ -115,20 +115,13 @@ const TransactionPage = () => {
     if (q) setSearchTerm(q);
   }, [router.isReady, router.query.search]);
 
-  const transactionState = useSelector(
-    (state: rootReducer) => state.transactionReducer,
-  );
-
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
-  useEffect(() => {
-    // Skip if a hover-prefetch (from the sidebar) is already loading this
-    // data — avoids a double fetch on hover → click. Otherwise fetch /
-    // revalidate for the current company.
-    if (transactionState.loading) return;
-    const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
-    dispatch(TransactionAction(TRANSACTION_FETCH, payload));
-  }, [dispatch, selectedCompanyId]);
+  // Transactions now flow through SWR (keyed on the selected company) instead of
+  // the retired redux-saga. Switching company changes the key so the list
+  // auto-refetches; the sidebar hover-prefetch warms the SAME key.
+  const { customersTransactions, loading: transactionsLoading } =
+    useTransactions();
 
   // "First payment received" celebration ─────────────────────────────────────
   // Fires ONCE per company_id the first time we detect at least one CONFIRMED
@@ -139,7 +132,7 @@ const TransactionPage = () => {
   const firstPaymentFiredRef = useRef(false);
 
   const confirmedPaymentCount = useMemo(() => {
-    const list = transactionState?.customers_transactions || [];
+    const list = customersTransactions;
     return list.reduce((n: number, t: any) => {
       const status = String(t?.status || "").toLowerCase();
       // Backend uses "successful" (not "success") for confirmed payments — include both.
@@ -147,7 +140,7 @@ const TransactionPage = () => {
         ? n + 1
         : n;
     }, 0);
-  }, [transactionState?.customers_transactions]);
+  }, [customersTransactions]);
 
   useEffect(() => {
     if (!selectedCompanyId) return;
@@ -190,9 +183,9 @@ const TransactionPage = () => {
   const formatDateTime = (isoString: string) => formatDisplayDateTime(isoString);
 
   const processedTransactions: ExtendedTransaction[] = useMemo(() => {
-    if (!transactionState?.customers_transactions) return [];
+    if (!customersTransactions) return [];
 
-    return transactionState.customers_transactions
+    return customersTransactions
       .filter((item: ICustomerTransactions) => {
         if (searchTerm) {
           const lowerSearch = searchTerm.toLowerCase();
@@ -353,7 +346,7 @@ const TransactionPage = () => {
         };
       });
   }, [
-    transactionState.customers_transactions,
+    customersTransactions,
     searchTerm,
     selectedWallet,
     selectedSource,
@@ -416,14 +409,25 @@ const TransactionPage = () => {
   };
 
   const [settledExport, setSettledExport] = useState(false);
-  const handleExport = () => {    dispatch(TransactionAction(TRANSACTION_EXPORT, {
-      wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
-      date_from: dateRange.startDate?.toISOString(),
-      date_to: dateRange.endDate?.toISOString(),
-      search: searchTerm || undefined,
-      company_id: selectedCompanyId || undefined,
-      settled_only: settledExport,
-    }));
+  const handleExport = async () => {
+    try {
+      await exportTransactions({
+        wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
+        date_from: dateRange.startDate?.toISOString(),
+        date_to: dateRange.endDate?.toISOString(),
+        search: searchTerm || undefined,
+        company_id: selectedCompanyId || undefined,
+        settled_only: settledExport,
+      });
+      dispatch({
+        type: TOAST_SHOW,
+        payload: { message: "Transactions exported successfully" },
+      });
+    } catch (e: any) {
+      const message =
+        e?.response?.data?.message ?? e?.message ?? "Failed to export transactions";
+      dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+    }
   };
 
   // Stale-while-revalidate: only show the full skeleton on a genuine first
@@ -432,17 +436,17 @@ const TransactionPage = () => {
   // paint the cached transactions instantly and refetch in the background, so
   // navigating to /transactions no longer flashes a skeleton for the whole
   // 300ms–2s backend round-trip.
-  const hasCachedTx = (transactionState?.customers_transactions?.length ?? 0) > 0;
-  const cacheMatchesCompany =
-    transactionState?.loaded_company_id === (selectedCompanyId ?? null);
-  if (transactionState.loading && (!hasCachedTx || !cacheMatchesCompany)) {
+  // SWR keeps a per-company cache, so `transactionsLoading` (first load only)
+  // already encodes "no cached rows for THIS company yet" — no manual
+  // loaded_company_id bookkeeping needed. Stale-while-revalidate: a repeat visit
+  // to the same company paints cached rows instantly (loading=false) while SWR
+  // refreshes in the background; a company switch flips the key so loading=true
+  // → skeleton until the new company's rows arrive.
+  if (transactionsLoading) {
     return <TransactionsSkeleton />;
   }
 
-  if (
-    transactionState?.customers_transactions?.length === 0 &&
-    !transactionState.loading
-  ) {
+  if (customersTransactions.length === 0 && !transactionsLoading) {
     return <EmptyDataModel pageName="transactions" />;
   }
 
