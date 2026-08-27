@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 """
-Backend test for DynoPay Unified Customer Directory (pod 6c9c118d)
-STRICTLY READ-ONLY: ONE login POST + GET requests only
-LIVE PRODUCTION Railway PostgreSQL database - NO writes except login
+Backend test for DynoPay Round 2 Verification (pod f431e319)
+WALLET REUSE UX FIX + COSMETICS + EMAIL CHANGE
+
+STRICTLY READ-ONLY except ONE idempotent same-value write
+LIVE PRODUCTION Railway PostgreSQL database
 """
 
 import requests
 import json
 import sys
-from urllib.parse import quote
 
 # Configuration
-BASE_URL = "http://localhost:8001"
-EXTERNAL_URL = "https://dynopay-preview-13.preview.emergentagent.com"
+BASE_URL = "https://f431e319-7216-4779-8f91-6c1ce868af1c.preview.emergentagent.com"
 
 # Test credentials
-LOGIN_EMAIL = "hostbay@moxx.co"
-LOGIN_PASSWORD = "Katiekendra123@"
+NEW_EMAIL = "onarrival21@gmail.com"
+OLD_EMAIL = "moxxcompany@gmail.com"
+PASSWORD = "Katiekendra123@"
 
 # Test results
 test_results = []
@@ -39,39 +40,95 @@ def log_test(test_num, name, passed, details=""):
         print(f"  Details: {details}")
 
 
-def login():
-    """Perform login and get access token"""
+def test_1_email_change_new_login():
+    """Test 1: Login with NEW email (onarrival21@gmail.com) should succeed"""
     global access_token
+    
     print("\n" + "="*80)
-    print("LOGGING IN...")
+    print("TEST 1: EMAIL CHANGE - New email login")
     print("="*80)
     
     try:
         response = requests.post(
             f"{BASE_URL}/api/user/login",
             json={
-                "email": LOGIN_EMAIL,
-                "password": LOGIN_PASSWORD
+                "email": NEW_EMAIL,
+                "password": PASSWORD
             },
             timeout=30
         )
         
-        if response.status_code == 200:
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:500]}")
+        
+        if response.status_code != 200:
+            log_test(1, "Email change: new email login", False, 
+                    f"Expected 200, got {response.status_code}: {response.text[:200]}")
+            return False
+        
+        data = response.json()
+        
+        # Check for success message
+        if "message" in data:
+            if "Login Successful" not in data["message"]:
+                log_test(1, "Email change: new email login", False, 
+                        f"Expected 'Login Successful!', got: {data['message']}")
+                return False
+        
+        # Check for access token
+        if "data" in data and "accessToken" in data["data"]:
+            access_token = data["data"]["accessToken"]
+            log_test(1, "Email change: new email login", True, 
+                    f"Login successful with new email. Token length: {len(access_token)}")
+            return True
+        else:
+            log_test(1, "Email change: new email login", False, 
+                    "No accessToken in response")
+            return False
+        
+    except Exception as e:
+        log_test(1, "Email change: new email login", False, f"Exception: {str(e)}")
+        return False
+
+
+def test_2_email_change_old_login():
+    """Test 2: Login with OLD email (moxxcompany@gmail.com) should fail with 401"""
+    
+    print("\n" + "="*80)
+    print("TEST 2: EMAIL CHANGE - Old email login should fail")
+    print("="*80)
+    
+    try:
+        response = requests.post(
+            f"{BASE_URL}/api/user/login",
+            json={
+                "email": OLD_EMAIL,
+                "password": PASSWORD
+            },
+            timeout=30
+        )
+        
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:500]}")
+        
+        if response.status_code == 401:
             data = response.json()
-            if "data" in data and "accessToken" in data["data"]:
-                access_token = data["data"]["accessToken"]
-                print(f"✅ Login successful! Token length: {len(access_token)}")
+            message = data.get("message", "")
+            if "Invalid email or password" in message:
+                log_test(2, "Email change: old email login fails", True, 
+                        f"Correctly returned 401 with message: {message}")
                 return True
             else:
-                print(f"❌ Login failed: No accessToken in response")
-                print(f"Response: {json.dumps(data, indent=2)}")
+                log_test(2, "Email change: old email login fails", False, 
+                        f"Got 401 but unexpected message: {message}")
                 return False
         else:
-            print(f"❌ Login failed with status {response.status_code}")
-            print(f"Response: {response.text}")
+            log_test(2, "Email change: old email login fails", False, 
+                    f"Expected 401, got {response.status_code}")
             return False
+        
     except Exception as e:
-        print(f"❌ Login error: {str(e)}")
+        log_test(2, "Email change: old email login fails", False, f"Exception: {str(e)}")
         return False
 
 
@@ -83,524 +140,302 @@ def get_headers():
     }
 
 
-def test_1_basic_directory():
-    """Test 1: GET /api/userApi/customers/directory - basic list"""
+def test_3_reusable_wallets_company_1():
+    """Test 3: GET /api/wallet/reusable-wallets?exclude_company_id=1 should return EMPTY"""
+    
+    print("\n" + "="*80)
+    print("TEST 3: REUSABLE WALLETS - Company 1 (The Dev Store)")
+    print("="*80)
+    
     try:
         response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory",
+            f"{BASE_URL}/api/wallet/reusable-wallets?exclude_company_id=1",
             headers=get_headers(),
             timeout=30
         )
         
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:1000]}")
+        
         if response.status_code != 200:
-            log_test(1, "Basic directory list", False, 
+            log_test(3, "Reusable wallets: company 1 empty", False, 
                     f"Expected 200, got {response.status_code}: {response.text[:200]}")
-            return
+            return False
         
         data = response.json()
         
         # Check structure
         if "data" not in data:
-            log_test(1, "Basic directory list", False, "Missing 'data' field")
-            return
+            log_test(3, "Reusable wallets: company 1 empty", False, 
+                    "Missing 'data' field in response")
+            return False
         
         result_data = data["data"]
         
-        # Check required fields
-        required_fields = ["customers", "aggregates", "total", "page", "limit", "pages"]
-        missing = [f for f in required_fields if f not in result_data]
-        if missing:
-            log_test(1, "Basic directory list", False, f"Missing fields: {missing}")
-            return
+        # The data should be EMPTY (either empty array or empty object)
+        if isinstance(result_data, list):
+            data_length = len(result_data)
+        elif isinstance(result_data, dict):
+            # Could be empty dict or dict with empty arrays
+            data_length = sum(len(v) if isinstance(v, list) else 1 for v in result_data.values())
+        else:
+            data_length = 1 if result_data else 0
         
-        customers = result_data["customers"]
-        aggregates = result_data["aggregates"]
-        
-        # Check customers array
-        if not isinstance(customers, list):
-            log_test(1, "Basic directory list", False, "customers is not an array")
-            return
-        
-        # Check at least one customer exists
-        if len(customers) == 0:
-            log_test(1, "Basic directory list", False, "No customers returned")
-            return
-        
-        # Check customer fields
-        sample = customers[0]
-        customer_fields = ["key", "kind", "name", "email", "channels", "payments_count", 
-                          "pending_count", "links_count", "ltv_usd", "first_seen", 
-                          "last_payment", "segment"]
-        missing_customer_fields = [f for f in customer_fields if f not in sample]
-        if missing_customer_fields:
-            log_test(1, "Basic directory list", False, 
-                    f"Customer missing fields: {missing_customer_fields}")
-            return
-        
-        # Check aggregates fields
-        agg_fields = ["total_customers", "revenue_usd", "identified_revenue_usd", 
-                     "repeat_rate", "new_this_month", "anonymous_payments", 
-                     "anonymous_revenue_usd"]
-        missing_agg = [f for f in agg_fields if f not in aggregates]
-        if missing_agg:
-            log_test(1, "Basic directory list", False, f"Aggregates missing fields: {missing_agg}")
-            return
-        
-        # Check for at least one anonymous and one person
-        has_anon = any(c["kind"] == "anonymous" and c["key"].startswith("anon:") 
-                      for c in customers)
-        has_person = any(c["kind"] == "person" for c in customers)
-        
-        details = (f"Found {len(customers)} customers, "
-                  f"{result_data['total']} total, "
-                  f"anonymous: {has_anon}, person: {has_person}, "
-                  f"revenue: ${aggregates['revenue_usd']}")
-        
-        if not has_anon:
-            log_test(1, "Basic directory list", False, 
-                    f"No anonymous customer found. {details}")
-            return
-        
-        if not has_person:
-            log_test(1, "Basic directory list", False, 
-                    f"No person customer found. {details}")
-            return
-        
-        log_test(1, "Basic directory list", True, details)
+        if data_length == 0:
+            log_test(3, "Reusable wallets: company 1 empty", True, 
+                    f"✅ CORRECT: Data is EMPTY (company 1 already has all currencies). "
+                    f"Message: {data.get('message', 'N/A')}")
+            return True
+        else:
+            log_test(3, "Reusable wallets: company 1 empty", False, 
+                    f"❌ WRONG: Expected EMPTY data, but got {data_length} items. "
+                    f"Company 1 should already have all currencies. Data: {json.dumps(result_data, indent=2)[:500]}")
+            return False
         
     except Exception as e:
-        log_test(1, "Basic directory list", False, f"Exception: {str(e)}")
+        log_test(3, "Reusable wallets: company 1 empty", False, f"Exception: {str(e)}")
+        return False
 
 
-def test_2_segment_anonymous():
-    """Test 2: GET /api/userApi/customers/directory?segment=anonymous"""
+def test_4_reusable_wallets_company_71():
+    """Test 4: GET /api/wallet/reusable-wallets?exclude_company_id=71 should return EMPTY"""
+    
+    print("\n" + "="*80)
+    print("TEST 4: REUSABLE WALLETS - Company 71 (SMADAV)")
+    print("="*80)
+    
     try:
         response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory?segment=anonymous",
+            f"{BASE_URL}/api/wallet/reusable-wallets?exclude_company_id=71",
             headers=get_headers(),
             timeout=30
         )
+        
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:1000]}")
         
         if response.status_code != 200:
-            log_test(2, "Segment filter: anonymous", False, 
-                    f"Expected 200, got {response.status_code}")
-            return
-        
-        data = response.json()
-        customers = data["data"]["customers"]
-        
-        if len(customers) == 0:
-            log_test(2, "Segment filter: anonymous", False, "No customers returned")
-            return
-        
-        # All should be kind='anonymous'
-        non_anon = [c for c in customers if c["kind"] != "anonymous"]
-        if non_anon:
-            log_test(2, "Segment filter: anonymous", False, 
-                    f"Found {len(non_anon)} non-anonymous customers")
-            return
-        
-        log_test(2, "Segment filter: anonymous", True, 
-                f"All {len(customers)} customers are kind='anonymous'")
-        
-    except Exception as e:
-        log_test(2, "Segment filter: anonymous", False, f"Exception: {str(e)}")
-
-
-def test_3_segment_prospects():
-    """Test 3: GET /api/userApi/customers/directory?segment=prospects"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory?segment=prospects",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            log_test(3, "Segment filter: prospects", False, 
-                    f"Expected 200, got {response.status_code}")
-            return
-        
-        data = response.json()
-        customers = data["data"]["customers"]
-        
-        if len(customers) == 0:
-            # It's OK to have no prospects
-            log_test(3, "Segment filter: prospects", True, "No prospects (acceptable)")
-            return
-        
-        # All should be segment='prospect'
-        non_prospect = [c for c in customers if c["segment"] != "prospect"]
-        if non_prospect:
-            log_test(3, "Segment filter: prospects", False, 
-                    f"Found {len(non_prospect)} non-prospect customers")
-            return
-        
-        log_test(3, "Segment filter: prospects", True, 
-                f"All {len(customers)} customers are segment='prospect'")
-        
-    except Exception as e:
-        log_test(3, "Segment filter: prospects", False, f"Exception: {str(e)}")
-
-
-def test_4_search():
-    """Test 4: GET /api/userApi/customers/directory?search=qa.tester"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory?search=qa.tester",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            log_test(4, "Search filter: qa.tester", False, 
-                    f"Expected 200, got {response.status_code}")
-            return
-        
-        data = response.json()
-        customers = data["data"]["customers"]
-        
-        if len(customers) == 0:
-            # It's OK to have no matches
-            log_test(4, "Search filter: qa.tester", True, "No matches (acceptable)")
-            return
-        
-        # All should be kind='person' and contain 'qa.tester' in email or name
-        for c in customers:
-            if c["kind"] != "person":
-                log_test(4, "Search filter: qa.tester", False, 
-                        f"Found non-person customer: {c['key']}")
-                return
-            
-            email = (c.get("email") or "").lower()
-            name = (c.get("name") or "").lower()
-            if "qa.tester" not in email and "qa.tester" not in name:
-                log_test(4, "Search filter: qa.tester", False, 
-                        f"Customer doesn't match search: {c['key']}")
-                return
-        
-        log_test(4, "Search filter: qa.tester", True, 
-                f"All {len(customers)} customers match search")
-        
-    except Exception as e:
-        log_test(4, "Search filter: qa.tester", False, f"Exception: {str(e)}")
-
-
-def test_5_sort_ltv():
-    """Test 5: GET /api/userApi/customers/directory?sort=ltv"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory?sort=ltv",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            log_test(5, "Sort by LTV", False, f"Expected 200, got {response.status_code}")
-            return
-        
-        data = response.json()
-        customers = data["data"]["customers"]
-        
-        if len(customers) < 2:
-            log_test(5, "Sort by LTV", True, "Less than 2 customers (acceptable)")
-            return
-        
-        # Check descending order (ties allowed)
-        for i in range(len(customers) - 1):
-            if customers[i]["ltv_usd"] < customers[i + 1]["ltv_usd"]:
-                log_test(5, "Sort by LTV", False, 
-                        f"Not sorted: customer {i} ltv={customers[i]['ltv_usd']} < "
-                        f"customer {i+1} ltv={customers[i+1]['ltv_usd']}")
-                return
-        
-        log_test(5, "Sort by LTV", True, 
-                f"{len(customers)} customers sorted by ltv_usd descending")
-        
-    except Exception as e:
-        log_test(5, "Sort by LTV", False, f"Exception: {str(e)}")
-
-
-def test_6_pagination():
-    """Test 6: GET /api/userApi/customers/directory?limit=2&page=1 and page=2"""
-    try:
-        # Page 1
-        response1 = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory?limit=2&page=1",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        if response1.status_code != 200:
-            log_test(6, "Pagination", False, f"Page 1: Expected 200, got {response1.status_code}")
-            return
-        
-        data1 = response1.json()["data"]
-        customers1 = data1["customers"]
-        total = data1["total"]
-        pages = data1["pages"]
-        
-        # Page 2
-        response2 = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory?limit=2&page=2",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        if response2.status_code != 200:
-            log_test(6, "Pagination", False, f"Page 2: Expected 200, got {response2.status_code}")
-            return
-        
-        data2 = response2.json()["data"]
-        customers2 = data2["customers"]
-        
-        # Check pages calculation
-        import math
-        expected_pages = max(math.ceil(total / 2), 1)
-        if pages != expected_pages:
-            log_test(6, "Pagination", False, 
-                    f"Pages mismatch: expected {expected_pages}, got {pages}")
-            return
-        
-        # Check disjoint keys
-        keys1 = set(c["key"] for c in customers1)
-        keys2 = set(c["key"] for c in customers2)
-        overlap = keys1 & keys2
-        
-        if overlap:
-            log_test(6, "Pagination", False, f"Pages overlap: {overlap}")
-            return
-        
-        log_test(6, "Pagination", True, 
-                f"Page 1: {len(customers1)} customers, Page 2: {len(customers2)} customers, "
-                f"total={total}, pages={pages}, disjoint keys")
-        
-    except Exception as e:
-        log_test(6, "Pagination", False, f"Exception: {str(e)}")
-
-
-def test_7_detail_anon():
-    """Test 7: GET /api/userApi/customers/directory/detail?key=anon:api"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory/detail?key=anon:api",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            log_test(7, "Detail: anon:api", False, 
+            log_test(4, "Reusable wallets: company 71 empty", False, 
                     f"Expected 200, got {response.status_code}: {response.text[:200]}")
-            return
+            return False
         
-        data = response.json()["data"]
+        data = response.json()
         
-        # Check required fields
-        required = ["profile", "payments", "payments_total"]
-        missing = [f for f in required if f not in data]
-        if missing:
-            log_test(7, "Detail: anon:api", False, f"Missing fields: {missing}")
-            return
+        # Check structure
+        if "data" not in data:
+            log_test(4, "Reusable wallets: company 71 empty", False, 
+                    "Missing 'data' field in response")
+            return False
         
-        profile = data["profile"]
-        payments = data["payments"]
+        result_data = data["data"]
         
-        # Check profile key
-        if profile.get("key") != "anon:api":
-            log_test(7, "Detail: anon:api", False, 
-                    f"Profile key mismatch: expected 'anon:api', got '{profile.get('key')}'")
-            return
+        # The data should be EMPTY (either empty array or empty object)
+        if isinstance(result_data, list):
+            data_length = len(result_data)
+        elif isinstance(result_data, dict):
+            # Could be empty dict or dict with empty arrays
+            data_length = sum(len(v) if isinstance(v, list) else 1 for v in result_data.values())
+        else:
+            data_length = 1 if result_data else 0
         
-        # Check payments array
-        if not isinstance(payments, list):
-            log_test(7, "Detail: anon:api", False, "payments is not an array")
-            return
-        
-        if len(payments) == 0:
-            log_test(7, "Detail: anon:api", False, "No payments returned (expected non-empty)")
-            return
-        
-        # Check payment fields and status values
-        valid_statuses = {"successful", "completed", "done", "pending", "unpaid"}
-        for p in payments:
-            required_payment_fields = ["usd_value", "status", "channel", "createdAt"]
-            missing_p = [f for f in required_payment_fields if f not in p]
-            if missing_p:
-                log_test(7, "Detail: anon:api", False, 
-                        f"Payment missing fields: {missing_p}")
-                return
-            
-            if p["status"] not in valid_statuses:
-                log_test(7, "Detail: anon:api", False, 
-                        f"Invalid payment status: {p['status']} (expected one of {valid_statuses})")
-                return
-        
-        log_test(7, "Detail: anon:api", True, 
-                f"Profile key='anon:api', {len(payments)} payments, "
-                f"payments_total={data['payments_total']}, all statuses valid")
+        if data_length == 0:
+            log_test(4, "Reusable wallets: company 71 empty", True, 
+                    f"✅ CORRECT: Data is EMPTY (company 71 already has all currencies). "
+                    f"Message: {data.get('message', 'N/A')}")
+            return True
+        else:
+            log_test(4, "Reusable wallets: company 71 empty", False, 
+                    f"❌ WRONG: Expected EMPTY data, but got {data_length} items. "
+                    f"Company 71 should already have all currencies. Data: {json.dumps(result_data, indent=2)[:500]}")
+            return False
         
     except Exception as e:
-        log_test(7, "Detail: anon:api", False, f"Exception: {str(e)}")
+        log_test(4, "Reusable wallets: company 71 empty", False, f"Exception: {str(e)}")
+        return False
 
 
-def test_8_detail_person():
-    """Test 8: GET /api/userApi/customers/directory/detail?key=qa.tester+dyno@example.com"""
+def test_5_wallet_edit_get_wallet():
+    """Test 5: GET /api/wallet/getWallet?company_id=1 to find USDT-TRC20 wallet"""
+    
+    print("\n" + "="*80)
+    print("TEST 5: WALLET EDIT - Get wallet list")
+    print("="*80)
+    
     try:
-        # URL-encode the key
-        key = "qa.tester+dyno@example.com"
-        encoded_key = quote(key)
-        
         response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory/detail?key={encoded_key}",
+            f"{BASE_URL}/api/wallet/getWallet?company_id=1",
             headers=get_headers(),
             timeout=30
         )
+        
+        print(f"Response status: {response.status_code}")
         
         if response.status_code != 200:
-            log_test(8, "Detail: person with + and @", False, 
+            log_test(5, "Wallet edit: get wallet list", False, 
                     f"Expected 200, got {response.status_code}: {response.text[:200]}")
-            return
+            return None
         
-        data = response.json()["data"]
+        data = response.json()
         
-        # Check required fields
-        required = ["profile", "payments", "links", "orders"]
-        missing = [f for f in required if f not in data]
-        if missing:
-            log_test(8, "Detail: person with + and @", False, f"Missing fields: {missing}")
-            return
+        # Find USDT-TRC20 wallet
+        # Response structure: {"data": [{"company_id": 1, "wallets": [...]}]}
+        usdt_trc20_wallet = None
+        if "data" in data and isinstance(data["data"], list):
+            for company_data in data["data"]:
+                if "wallets" in company_data:
+                    for wallet in company_data["wallets"]:
+                        if wallet.get("wallet_type") == "USDT-TRC20":
+                            usdt_trc20_wallet = wallet
+                            break
+                if usdt_trc20_wallet:
+                    break
         
-        profile = data["profile"]
+        if not usdt_trc20_wallet:
+            log_test(5, "Wallet edit: get wallet list", False, 
+                    "No USDT-TRC20 wallet found")
+            return None
         
-        # Check profile kind
-        if profile.get("kind") != "person":
-            log_test(8, "Detail: person with + and @", False, 
-                    f"Profile kind mismatch: expected 'person', got '{profile.get('kind')}'")
-            return
+        wallet_id = usdt_trc20_wallet.get("wallet_id")
+        wallet_name = usdt_trc20_wallet.get("wallet_name", "")
+        wallet_address = usdt_trc20_wallet.get("wallet_address", "")
         
-        # Check links and orders are arrays
-        if not isinstance(data["links"], list):
-            log_test(8, "Detail: person with + and @", False, "links is not an array")
-            return
+        log_test(5, "Wallet edit: get wallet list", True, 
+                f"Found USDT-TRC20 wallet: id={wallet_id}, name='{wallet_name}', address={wallet_address}")
         
-        if not isinstance(data["orders"], list):
-            log_test(8, "Detail: person with + and @", False, "orders is not an array")
-            return
-        
-        # Note: The review request expects both to be non-empty, but we'll be lenient
-        # since this specific email might not exist in the database
-        log_test(8, "Detail: person with + and @", True, 
-                f"Profile kind='person', {len(data['links'])} links, {len(data['orders'])} orders")
+        return {
+            "wallet_id": wallet_id,
+            "wallet_name": wallet_name,
+            "wallet_address": wallet_address
+        }
         
     except Exception as e:
-        log_test(8, "Detail: person with + and @", False, f"Exception: {str(e)}")
+        log_test(5, "Wallet edit: get wallet list", False, f"Exception: {str(e)}")
+        return None
 
 
-def test_9_detail_nonexistent():
-    """Test 9: GET /api/userApi/customers/directory/detail?key=nonexistent@example.com"""
+def test_6_wallet_edit_same_name(wallet_info):
+    """Test 6: PUT /api/wallet/updateWallet/{id} with SAME wallet_name (idempotent)"""
+    
+    print("\n" + "="*80)
+    print("TEST 6: WALLET EDIT - Update with same name (idempotent)")
+    print("="*80)
+    
+    if not wallet_info:
+        log_test(6, "Wallet edit: same name update", False, 
+                "Skipped - no wallet info from previous test")
+        return False
+    
+    wallet_id = wallet_info["wallet_id"]
+    wallet_name = wallet_info["wallet_name"]
+    
     try:
-        response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory/detail?key=nonexistent@example.com",
+        response = requests.put(
+            f"{BASE_URL}/api/wallet/updateWallet/{wallet_id}",
             headers=get_headers(),
+            json={"wallet_name": wallet_name},
             timeout=30
         )
+        
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:500]}")
+        
+        if response.status_code != 200:
+            log_test(6, "Wallet edit: same name update", False, 
+                    f"Expected 200, got {response.status_code}: {response.text[:200]}")
+            return False
+        
+        data = response.json()
+        message = data.get("message", "")
+        
+        if "Wallet updated successfully" in message:
+            log_test(6, "Wallet edit: same name update", True, 
+                    f"✅ CORRECT: Idempotent update returned 200 with message: {message}")
+            return True
+        else:
+            log_test(6, "Wallet edit: same name update", False, 
+                    f"Got 200 but unexpected message: {message}")
+            return False
+        
+    except Exception as e:
+        log_test(6, "Wallet edit: same name update", False, f"Exception: {str(e)}")
+        return False
+
+
+def test_7_wallet_edit_nonexistent():
+    """Test 7: PUT /api/wallet/updateWallet/999999999 should return 404"""
+    
+    print("\n" + "="*80)
+    print("TEST 7: WALLET EDIT - Nonexistent wallet should return 404")
+    print("="*80)
+    
+    try:
+        response = requests.put(
+            f"{BASE_URL}/api/wallet/updateWallet/999999999",
+            headers=get_headers(),
+            json={"wallet_name": "x"},
+            timeout=30
+        )
+        
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:500]}")
         
         if response.status_code == 404:
-            log_test(9, "Detail: nonexistent (404)", True, "Correctly returned 404")
+            data = response.json()
+            message = data.get("message", "")
+            if "Wallet not found" in message or "not found" in message.lower():
+                log_test(7, "Wallet edit: nonexistent 404", True, 
+                        f"Correctly returned 404 with message: {message}")
+                return True
+            else:
+                log_test(7, "Wallet edit: nonexistent 404", False, 
+                        f"Got 404 but unexpected message: {message}")
+                return False
         else:
-            log_test(9, "Detail: nonexistent (404)", False, 
+            log_test(7, "Wallet edit: nonexistent 404", False, 
                     f"Expected 404, got {response.status_code}")
+            return False
         
     except Exception as e:
-        log_test(9, "Detail: nonexistent (404)", False, f"Exception: {str(e)}")
+        log_test(7, "Wallet edit: nonexistent 404", False, f"Exception: {str(e)}")
+        return False
 
 
-def test_10_auth_required():
-    """Test 10: GET /api/userApi/customers/directory WITHOUT Authorization header"""
+def test_8_health():
+    """Test 8: GET /api/status/health should return healthy with SAFE MODE"""
+    
+    print("\n" + "="*80)
+    print("TEST 8: HEALTH CHECK")
+    print("="*80)
+    
     try:
-        response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory",
-            timeout=30
-        )
+        response = requests.get(f"{BASE_URL}/api/status/health", timeout=30)
         
-        if response.status_code in [401, 403]:
-            log_test(10, "Auth required (401/403)", True, 
-                    f"Correctly returned {response.status_code}")
-        else:
-            log_test(10, "Auth required (401/403)", False, 
-                    f"Expected 401 or 403, got {response.status_code}")
-        
-    except Exception as e:
-        log_test(10, "Auth required (401/403)", False, f"Exception: {str(e)}")
-
-
-def test_11_legacy_endpoint():
-    """Test 11: GET /api/userApi/customers (legacy endpoint regression)"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/userApi/customers",
-            headers=get_headers(),
-            timeout=30
-        )
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:500]}")
         
         if response.status_code != 200:
-            log_test(11, "Legacy endpoint regression", False, 
+            log_test(8, "Health check", False, 
                     f"Expected 200, got {response.status_code}")
-            return
+            return False
         
         data = response.json()
         
-        # Check for customers array
-        if "data" not in data or "customers" not in data["data"]:
-            log_test(11, "Legacy endpoint regression", False, 
-                    "Missing data.customers array")
-            return
-        
-        customers = data["data"]["customers"]
-        if not isinstance(customers, list):
-            log_test(11, "Legacy endpoint regression", False, 
-                    "customers is not an array")
-            return
-        
-        log_test(11, "Legacy endpoint regression", True, 
-                f"Legacy endpoint still works, {len(customers)} customers")
-        
-    except Exception as e:
-        log_test(11, "Legacy endpoint regression", False, f"Exception: {str(e)}")
-
-
-def test_12_health():
-    """Test 12: GET /health"""
-    try:
-        response = requests.get(f"{BASE_URL}/health", timeout=30)
-        
-        if response.status_code != 200:
-            log_test(12, "Health check", False, f"Expected 200, got {response.status_code}")
-            return
-        
-        data = response.json()
-        
-        # Check required fields
+        # Check status
         if data.get("status") != "healthy":
-            log_test(12, "Health check", False, f"Status not healthy: {data.get('status')}")
-            return
+            log_test(8, "Health check", False, 
+                    f"Status not healthy: {data.get('status')}")
+            return False
         
-        if data.get("database") != "connected":
-            log_test(12, "Health check", False, f"Database not connected: {data.get('database')}")
-            return
-        
-        # Check SAFE MODE
-        bg_jobs = data.get("background_jobs", {})
-        if bg_jobs.get("eligible") != False:
-            log_test(12, "Health check", False, 
-                    f"SAFE MODE not confirmed: background_jobs.eligible={bg_jobs.get('eligible')}")
-            return
-        
-        log_test(12, "Health check", True, 
-                f"status=healthy, database=connected, background_jobs.eligible=false (SAFE MODE)")
+        # The /api/status/health endpoint returns a simpler response
+        # Just check that status is healthy
+        log_test(8, "Health check", True, 
+                f"status=healthy, timestamp={data.get('timestamp', 'N/A')}, "
+                f"version={data.get('version', 'N/A')}")
+        return True
         
     except Exception as e:
-        log_test(12, "Health check", False, f"Exception: {str(e)}")
+        log_test(8, "Health check", False, f"Exception: {str(e)}")
+        return False
 
 
 def print_summary():
@@ -612,7 +447,7 @@ def print_summary():
     passed = sum(1 for r in test_results if r["passed"])
     total = len(test_results)
     
-    print(f"\nTotal: {passed}/{total} tests passed ({100*passed//total}% pass rate)\n")
+    print(f"\nTotal: {passed}/{total} tests passed ({100*passed//total if total > 0 else 0}% pass rate)\n")
     
     for result in test_results:
         print(f"{result['status']} - Test {result['test']}: {result['name']}")
@@ -622,7 +457,7 @@ def print_summary():
     print("\n" + "="*80)
     
     if passed == total:
-        print("✅ ALL TESTS PASSED - FEATURE IS WORKING CORRECTLY")
+        print("✅ ALL TESTS PASSED - FEATURES ARE WORKING CORRECTLY")
     else:
         print(f"❌ {total - passed} TEST(S) FAILED")
     
@@ -634,33 +469,41 @@ def print_summary():
 def main():
     """Main test runner"""
     print("\n" + "="*80)
-    print("DynoPay Unified Customer Directory Backend Tests")
-    print("Pod: 6c9c118d")
-    print("STRICTLY READ-ONLY: ONE login POST + GET requests only")
+    print("DynoPay Round 2 Backend Verification")
+    print("Pod: f431e319")
+    print("WALLET REUSE UX FIX + COSMETICS + EMAIL CHANGE")
+    print("STRICTLY READ-ONLY except ONE idempotent same-value write")
     print("="*80)
     
-    # Login first
-    if not login():
-        print("\n❌ FATAL: Login failed. Cannot proceed with tests.")
+    # Test 1: Login with NEW email
+    if not test_1_email_change_new_login():
+        print("\n❌ FATAL: Login with new email failed. Cannot proceed with authenticated tests.")
+        # Continue with remaining tests that don't need auth
+        test_2_email_change_old_login()
+        test_8_health()
+        print_summary()
         sys.exit(1)
     
-    # Run all tests
-    print("\n" + "="*80)
-    print("RUNNING TESTS...")
-    print("="*80)
+    # Test 2: Login with OLD email should fail
+    test_2_email_change_old_login()
     
-    test_1_basic_directory()
-    test_2_segment_anonymous()
-    test_3_segment_prospects()
-    test_4_search()
-    test_5_sort_ltv()
-    test_6_pagination()
-    test_7_detail_anon()
-    test_8_detail_person()
-    test_9_detail_nonexistent()
-    test_10_auth_required()
-    test_11_legacy_endpoint()
-    test_12_health()
+    # Test 3: Reusable wallets company 1
+    test_3_reusable_wallets_company_1()
+    
+    # Test 4: Reusable wallets company 71
+    test_4_reusable_wallets_company_71()
+    
+    # Test 5: Get wallet list
+    wallet_info = test_5_wallet_edit_get_wallet()
+    
+    # Test 6: Update wallet with same name (idempotent)
+    test_6_wallet_edit_same_name(wallet_info)
+    
+    # Test 7: Update nonexistent wallet
+    test_7_wallet_edit_nonexistent()
+    
+    # Test 8: Health check
+    test_8_health()
     
     # Print summary
     all_passed = print_summary()

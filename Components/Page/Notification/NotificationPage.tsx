@@ -1,6 +1,7 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { formatWithSeparators } from "@/utils/currencyFormat";
+import { formatDateI18n, formatDateTimeI18n } from "@/utils/formatDate";
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -208,7 +209,7 @@ const NotificationPage = () => {
         amount: txAmount ? `${txAmount} ${txCurrency || ""}` : "",
         usdValue: notif.meta?.usd_value ? `$${formatWithSeparators(Number(notif.meta.usd_value), undefined, 2)}` : "",
         usdValueRaw: Number(notif.meta?.usd_value) || 0,
-        dateTime: new Date(notif.created_at).toLocaleString(),
+        dateTime: formatDateTimeI18n(notif.created_at, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
         status: mappedStatus,
         fees: notif.meta?.fees || "0",
         confirmations: notif.meta?.confirmations || "",
@@ -287,7 +288,7 @@ const NotificationPage = () => {
     if (hrs < 24) return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
     if (days < 7) return `${days}d ago`;
-    return new Date(dateStr).toLocaleDateString();
+    return formatDateI18n(dateStr);
   };
 
   // Color-code notifications by type using the shared semantic palette:

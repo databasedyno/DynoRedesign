@@ -308,7 +308,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
           {sandboxLimitsLine}
         </Typography>
       )}
-      <ApiKeyCardSubTitle>
+      <ApiKeyCardSubTitle component="div">
         {t("currency.baseCurrency")}
         <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, ml: 0.5 }}>
           <FormControl size="small" sx={{ minWidth: 90 }}>

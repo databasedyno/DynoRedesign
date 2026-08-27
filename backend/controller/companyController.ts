@@ -1424,8 +1424,8 @@ const testWebhook = async (req: express.Request, res: express.Response) => {
       // Log successful test delivery
       await sequelize.query(
         `INSERT INTO tbl_webhook_delivery_log 
-         (company_id, webhook_url, event_type, webhook_id, payload, status, response_status, response_time_ms, retry_count, completed_at)
-         VALUES (:company_id, :webhook_url, :event_type, :webhook_id, :payload, 'success', :response_status, :response_time_ms, 0, CURRENT_TIMESTAMP)`,
+         (company_id, webhook_url, event_type, webhook_id, payload, status, response_status, response_time_ms, retry_count, created_at, completed_at)
+         VALUES (:company_id, :webhook_url, :event_type, :webhook_id, :payload, 'success', :response_status, :response_time_ms, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
         {
           replacements: {
             company_id,
@@ -1465,8 +1465,8 @@ const testWebhook = async (req: express.Request, res: express.Response) => {
       // Log failed test delivery
       await sequelize.query(
         `INSERT INTO tbl_webhook_delivery_log 
-         (company_id, webhook_url, event_type, webhook_id, payload, status, response_status, response_time_ms, error_message, retry_count, completed_at)
-         VALUES (:company_id, :webhook_url, :event_type, :webhook_id, :payload, 'failed', :response_status, :response_time_ms, :error_message, 0, CURRENT_TIMESTAMP)`,
+         (company_id, webhook_url, event_type, webhook_id, payload, status, response_status, response_time_ms, error_message, retry_count, created_at, completed_at)
+         VALUES (:company_id, :webhook_url, :event_type, :webhook_id, :payload, 'failed', :response_status, :response_time_ms, :error_message, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
         {
           replacements: {
             company_id,

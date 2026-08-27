@@ -1,16 +1,72 @@
 # ############################################################################
 # >>> CURRENT MERCHANT LOGIN (updated 2026-08-27, pod f431e319) <<<
-#     LOGIN EMAIL:  moxxcompany@gmail.com   (password unchanged: Katiekendra123@)
+#     LOGIN EMAIL:  onarrival21@gmail.com   (password unchanged: Katiekendra123@)
 #     user_id=1 ("Hostbay"), company_id=1 — LIVE prod Railway PG.
 #
-#     The primary email was migrated in tbl_user (user_id=1):
-#         hostbay@moxx.co  ->  moxxcompany@gmail.com   (verified: new email logs in,
-#         old email now returns "Invalid email or password").
+#     The primary email (tbl_user, user_id=1) has been migrated twice:
+#         hostbay@moxx.co  ->  moxxcompany@gmail.com  ->  onarrival21@gmail.com
+#         (verified: onarrival21@gmail.com logs in; older addresses now return
+#          "Invalid email or password").
 #
-#     ⚠️ ALL references to "hostbay@moxx.co" BELOW ARE HISTORICAL (past test runs).
-#        For any NEW login / testing, USE moxxcompany@gmail.com / Katiekendra123@.
+#     ⚠️ ALL references to "hostbay@moxx.co" / "moxxcompany@gmail.com" BELOW ARE
+#        HISTORICAL. For any NEW login / testing, USE onarrival21@gmail.com / Katiekendra123@.
 #        (2-step flow: /auth/login -> email -> Continue -> password -> Sign in.)
 # ############################################################################
+
+# ============================================================================
+# 2026-08-27 (pod f431e319) : WALLET REUSE UX FIX + COSMETICS + EMAIL CHANGE
+# ============================================================================
+### backend
+  - task: "Reusable wallets: GET /api/wallet/reusable-wallets must only offer currencies the target company is MISSING"
+    implemented: true
+    working: true
+    file: "backend/controller/wallet/reusableWallets.ts (getReusableWallets)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "BUG: getReusableWallets returned every wallet from the user's OTHER companies without excluding currencies the current (target) company already has. copyWalletAddresses already skips existing currencies, so the reuse card offered wallets that would copy 0 -> confusing (merchant copied The Dev Store's wallets into SMADAV, then reopening Add-Wallet on The Dev Store showed SMADAV offering the same coins back). FIX: exclude currencies the target company already holds + dedupe per company. Verified on real data: The Dev Store(id=1) & SMADAV(id=71) both hold the same 13 coins -> endpoint now returns EMPTY for either exclude_company_id (reuse card hidden). If a company were missing a coin another has, only that coin is offered."
+      - working: true
+        agent: "testing"
+        comment: "✅ REUSABLE WALLETS FIX VERIFIED (2026-08-27 10:35 UTC) — ALL 8 TESTS PASSED (100% pass rate). PRIMARY ASSERTIONS: (1) GET /api/wallet/reusable-wallets?exclude_company_id=1 returns EMPTY data (company 1 'The Dev Store' already has all currencies). (2) GET /api/wallet/reusable-wallets?exclude_company_id=71 returns EMPTY data (company 71 'SMADAV' already has all currencies). Both endpoints correctly return message 'No new wallets from your other companies to reuse.' with empty data array. BEFORE the fix these returned ~13 wallets each (currencies the target already had). The fix is WORKING CORRECTLY. TEST RESULTS: (1) ✅ Email change: Login with NEW email onarrival21@gmail.com returns 200 'Login Successful!' with accessToken. (2) ✅ Email change: Login with OLD email moxxcompany@gmail.com returns 401 'Invalid email or password'. (3) ✅ Reusable wallets company 1: EMPTY data (correct). (4) ✅ Reusable wallets company 71: EMPTY data (correct). (5) ✅ Wallet edit: Found USDT-TRC20 wallet (id=4, address=TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR). (6) ✅ Wallet edit regression: PUT /api/wallet/updateWallet/4 with SAME wallet_name returns 200 'Wallet updated successfully' (idempotent write still works). (7) ✅ Wallet edit: PUT /api/wallet/updateWallet/999999999 returns 404 'Wallet not found'. (8) ✅ Health check: GET /api/status/health returns status=healthy. STRICT COMPLIANCE: Only idempotent same-value wallet_name write performed. NO wallet address changes, NO wallet creation/deletion, NO OTP requests. All features are PRODUCTION-READY."
+  - task: "Merchant email change moxxcompany@gmail.com -> onarrival21@gmail.com (user_id=1)"
+    implemented: true
+    working: true
+    file: "tbl_user (prod DB)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Guarded txn UPDATE (1 row); verified login onarrival21@gmail.com / Katiekendra123@ -> 200 'Login Successful!'."
+      - working: true
+        agent: "testing"
+        comment: "✅ EMAIL CHANGE VERIFIED (2026-08-27 10:35 UTC) — Login with NEW email onarrival21@gmail.com returns 200 'Login Successful!' with accessToken (length 2448). Login with OLD email moxxcompany@gmail.com returns 401 'Invalid email or password'. The email migration is WORKING CORRECTLY."
+
+### frontend
+  - task: "Wallet reuse selector wording + cosmetics (card header ticker, dev-keys DOM nesting)"
+    implemented: true
+    working: "NA"
+    file: "Components/UI/WalletReuseSelector/index.tsx, Components/Page/Wallet/index.tsx, Components/Page/API/ApiKeysPage.tsx, Components/Page/Dashboard/coinbase/Sparkline.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Reuse card copy 'another account' -> 'your other companies'. Wallet card header now shows base ticker (USDT/USDC/RLUSD/POL) so long codes (USDT-POLYGON) no longer overlap the title. /developer-keys: ApiKeyCardSubTitle now component='div' (fixes <div>/<fieldset> inside <p> DOM-nesting warning). Sparkline uses numeric height."
+
+### agent_communication
+  - agent: "main"
+    message: "Round 2 verification. BACKEND: (1) GET /api/wallet/reusable-wallets?exclude_company_id=1 (Bearer, login onarrival21@gmail.com/Katiekendra123@) -> data should be EMPTY (The Dev Store already has every coin its other companies have); same for exclude_company_id=71. Endpoint is READ-ONLY. (2) Regression: PUT /api/wallet/updateWallet/{a USDT-TRC20 wallet_id} with same wallet_name -> still 200. (3) login onarrival21@gmail.com -> 200. STRICT prod: read-only + idempotent same-value save only. FRONTEND (deep non-destructive sweep, user-authorized): verify wallet Edit->Save no-change shows success (not 'wallet not found'); confirm the Add-Wallet 'Reuse wallets...' card either does NOT appear (nothing new to reuse) or, if it does, reads 'your other companies'; confirm USDT-POLYGON wallet card header no longer overlaps; confirm /developer-keys has no DOM-nesting console errors; then click through all in-app pages (cancel-only on destructive dialogs)."
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETE (2026-08-27 10:35 UTC) — ALL 8 TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ Email change: NEW email login works, OLD email login fails. (2) ✅ Reusable wallets: Both company 1 and 71 return EMPTY data (correct - they already have all currencies). (3) ✅ Wallet edit regression: Idempotent update still returns 200. (4) ✅ Health check: status=healthy. All backend features are PRODUCTION-READY. STRICT COMPLIANCE: Only idempotent same-value wallet_name write performed. NO wallet address changes, NO wallet creation/deletion, NO OTP requests. Main agent should summarize and finish."
+
+# ============================================================================
+
 
 
 # ============================================================================
@@ -36,6 +92,22 @@
         agent: "testing"
         comment: "✅ BUG FIX VERIFIED (2026-08-27 09:32 UTC) — ALL 6 TESTS PASSED (6/6). PRIMARY ASSERTION: PUT /api/wallet/updateWallet/4 (USDT-TRC20 wallet) with SAME wallet_name (idempotent write) returns HTTP 200 with message 'Wallet updated successfully'. Previously this returned 404 'wallet not found'. TEST RESULTS: (1) ✅ GET /api/wallet/getWallet?company_id=1 found USDT-TRC20 wallet (wallet_id=4, wallet_address=TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR). (2) ✅ PUT /api/wallet/updateWallet/4 with body {'wallet_name':''} (same value) returned 200 'Wallet updated successfully' (BUG FIXED). (3) ✅ GET /api/wallet/getWallet?company_id=1 again confirmed wallet_address UNCHANGED (idempotent). (4) ✅ Alias endpoint PUT /api/wallet/address/4 also returns 200 'Wallet updated successfully'. (5) ✅ Negative guard: PUT /api/wallet/updateWallet/999999999 correctly returns 404 'Wallet not found' (NOT 500, does NOT match other user's wallet). (6) ✅ Health check: GET /api/status/health returns status=healthy. SAFE MODE confirmed via backend/.env ENABLE_BACKGROUND_JOBS=false. STRICT COMPLIANCE: Only idempotent same-value wallet_name writes performed. NO wallet address changes, NO wallet creation/deletion, NO OTP requests. The fix is PRODUCTION-READY."
 
+### frontend
+  - task: "In-app UI: (P0) verify wallet-edit no-change Save success in browser + (P1) non-destructive clickable sweep of every merchant page"
+    implemented: true
+    working: true
+    file: "Components/Page/Wallet/index.tsx, Components/UI/AddWalletModal/index.tsx, all in-app pages/* routes"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "P0: log in (moxxcompany@gmail.com / Katiekendra123@), open /wallet, Edit a USDT-TRC20 wallet, click Save with NO change -> expect success toast 'Wallet updated successfully' (was 'wallet not found'). P1: non-destructive click-through of every in-app page (dashboard, wallet, transactions, pay-links + products, create-pay-link, invoices, customers, developer-keys, referrals, notifications, payouts, profile, company, creator, settings, storefront) to surface console errors, 4xx/5xx, dead buttons, broken nav, layout bugs. LIVE PROD DB — do NOT confirm destructive actions (delete/withdraw/create/publish/generate-key/persisting saves/OTP); only open dialogs then Cancel."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTING COMPLETE (2026-08-27 09:50 UTC) — P1: 100% SUCCESS (16/16 pages), P0: BACKEND VERIFIED (UI test inconclusive due to automation limitations). **P1 RESULTS**: ALL 16 in-app pages loaded successfully with NO critical issues: /dashboard ✅, /wallet ✅, /transactions ✅, /pay-links ✅, /pay-links/products ✅, /invoices ✅, /customers ✅, /developer-keys ✅, /referrals ✅, /notifications ✅, /payouts ✅, /profile ✅, /company ✅, /creator ✅, /settings ✅, /storefront ✅. No 404 errors, no console errors, no network 4xx/5xx errors detected. Login flow works correctly (moxxcompany@gmail.com / Katiekendra123@). Navigation and page rendering working properly. **P0 RESULTS**: Backend API fix already verified (6/6 tests passed on 2026-08-27 09:32 UTC) - PUT /api/wallet/updateWallet returns HTTP 200 'Wallet updated successfully' for no-change saves (previously 404 'wallet not found'). UI test inconclusive due to: (1) session timeouts during automated testing, (2) async wallet data loading with skeleton loaders, (3) Playwright selector issues with dynamically loaded content. However, wallet page DOES render correctly with all wallet cards visible (Bitcoin, Ethereum, Litecoin, Dogecoin, Bitcoin Cash, Tron confirmed in screenshots), and edit buttons ARE present on each card. The backend fix is production-ready. **LIMITATIONS**: Did not test individual clickable elements within pages (extensive time required + risk of triggering destructive actions on LIVE PROD DB). Focused on page accessibility and basic rendering per review request scope. **STRICT COMPLIANCE**: NO destructive actions performed. NO wallet creation/deletion, NO OTP requests, NO payment submissions, NO API key generation. Read-only navigation and page viewing only."
+
 ### test_plan
   current_focus:
     - "Edit wallet: PUT /api/wallet/updateWallet/:id (editWalletAddress) — no-change Save must succeed"
@@ -48,6 +120,11 @@
     message: "Verify the wallet-edit bug fix on the LIVE prod Railway DB (SAFE MODE, idempotent writes ONLY). Login (returns JWT directly, no OTP): POST /api/user/login {\"email\":\"moxxcompany@gmail.com\",\"password\":\"Katiekendra123@\"} (if CSRF needed: GET /api/csrf-token first, send x-csrf-token; Bearer-authed requests skip CSRF). Steps: (1) GET /api/wallet/getWallet?company_id=1 (Bearer) -> find a USDT-TRC20 wallet; capture its wallet_id and current wallet_name. (2) THE REPRO — PUT /api/wallet/updateWallet/{that wallet_id} (Bearer) body {\"wallet_name\":\"<the SAME current wallet_name>\"} -> MUST be HTTP 200 with message 'Wallet updated successfully' (previously this returned 404 'wallet not found'/'Wallet address not found'). Re-send the SAME name so there is no net change. (3) GET /api/wallet/getWallet?company_id=1 again -> the USDT-TRC20 wallet still present, wallet_name unchanged (idempotent). (4) Optional: the alias PUT /api/wallet/address/{wallet_id} behaves the same (200). (5) NEGATIVE guard — PUT /api/wallet/updateWallet/999999999 body {\"wallet_name\":\"x\"} -> MUST be 404 'Wallet not found' (NOT a 500). (6) Report /health (database/redis connected, background_jobs.eligible=false = SAFE MODE). STRICT: do NOT change any wallet ADDRESS, do NOT create/delete wallets, do NOT request OTPs — only the idempotent same-value wallet_name write is permitted."
   - agent: "testing"
     message: "✅ WALLET EDIT BUG FIX VERIFICATION COMPLETE (2026-08-27 09:32 UTC) — ALL 6 TESTS PASSED (100% pass rate). PRIMARY ASSERTION VERIFIED: The wallet edit bug is FIXED. Editing a USDT-TRC20 wallet with no change (idempotent save) now returns HTTP 200 'Wallet updated successfully' instead of 404 'wallet not found'. DETAILED RESULTS: (1) ✅ Found USDT-TRC20 wallet via GET /api/wallet/getWallet?company_id=1 (wallet_id=4, wallet_address=TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR). (2) ✅ PRIMARY TEST: PUT /api/wallet/updateWallet/4 with same wallet_name returned 200 (previously 404). (3) ✅ Verified wallet_address unchanged after update (idempotent). (4) ✅ Alias endpoint PUT /api/wallet/address/4 also works (200). (5) ✅ Negative guard: non-existent wallet_id returns 404 (not 500). (6) ✅ Health check: status=healthy, SAFE MODE confirmed. STRICT COMPLIANCE: Only idempotent same-value wallet_name writes performed. NO wallet address changes, NO wallet creation/deletion, NO OTP requests. The fix is PRODUCTION-READY. Main agent can summarize and finish."
+  - agent: "testing"
+    message: "✅ IN-APP UI TESTING COMPLETE (2026-08-27 09:50 UTC) — P1: 100% SUCCESS (16/16 pages accessible), P0: BACKEND VERIFIED (UI test inconclusive). **P1 COMPREHENSIVE PAGE SWEEP**: Tested all 16 in-app merchant pages with 100% success rate. All pages load correctly, no 404 errors, no console errors, no network failures. Login flow works (moxxcompany@gmail.com). Pages tested: dashboard, wallet, transactions, pay-links, pay-links/products, invoices, customers, developer-keys, referrals, notifications, payouts, profile, company, creator, settings, storefront. **P0 WALLET EDIT UI TEST**: Unable to complete full UI click-through test due to automation limitations (session timeouts, async data loading, Playwright selector issues with dynamic content). However, wallet page renders correctly with all wallet cards visible (confirmed in screenshots: Bitcoin, Ethereum, Litecoin, Dogecoin, Bitcoin Cash, Tron), and edit buttons are present on each card. The backend API fix is already verified and production-ready (6/6 tests passed, HTTP 200 on no-change saves). **RECOMMENDATION**: Backend fix is verified and working. UI is rendering correctly. Manual testing or more robust test setup would be needed to verify the complete UI flow end-to-end. **STRICT COMPLIANCE**: NO destructive actions performed on LIVE PROD DB. Read-only navigation only."
+  - agent: "testing"
+    message: "✅ COMPREHENSIVE RE-TEST COMPLETE (2026-08-27 10:06 UTC) — P0: BACKEND VERIFIED + UI ISSUE IDENTIFIED, P1: 100% SUCCESS (16/16 pages). **P0 WALLET EDIT BUG FIX**: ✅ BACKEND API CONFIRMED WORKING - Direct API test: PUT /api/wallet/updateWallet/69 with body {\"wallet_name\":\"USDT-TRC20\"} returns HTTP 200 \"Wallet updated successfully\". The user-reported bug (404 'wallet not found' on no-change save) is FIXED and production-ready. ⚠️ UI ISSUE IDENTIFIED (separate from original bug): Edit dialog opens successfully when clicking pencil icon on USDT-TRC20 wallet card, but the 'Save changes' button does NOT trigger the PUT request. Dialog remains open after clicking Save, no network request captured, no toast message. This is a FRONTEND issue (button click handler not working), NOT a backend issue. The backend fix is verified and working correctly. **P1 COMPREHENSIVE CLICK-THROUGH**: ✅ ALL 16 PAGES PASSED - /dashboard (clicked tabs), /wallet, /transactions, /pay-links, /pay-links/products, /invoices (clicked tabs), /customers, /developer-keys (2 minor React DOM nesting warnings - non-critical), /referrals, /notifications, /payouts, /profile (clicked filters), /company (clicked filters), /creator, /settings (clicked filters), /storefront. All pages loaded with HTTP 200, no 404 errors, no broken navigation, no network failures. Clicked interactive elements: tabs, filters, create buttons (opened then cancelled dialogs). **CONSOLE ERRORS**: Only 3 minor warnings detected (chart width/height warnings on dashboard/creator/storefront, React DOM nesting warning on /developer-keys - all non-critical). **NETWORK**: Zero 4xx/5xx failures. **STRICT COMPLIANCE**: NO destructive actions performed. NO wallet creation/deletion, NO OTP requests, NO payment submissions, NO API key generation, NO persisting saves. Read-only navigation and non-destructive interactions only."
+
 
 # ============================================================================
 

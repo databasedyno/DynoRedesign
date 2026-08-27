@@ -11,6 +11,7 @@
  */
 import React, { useEffect, useState, useCallback } from "react";
 import useSWR from "swr";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 import { useRouter } from "next/router";
 import {
   Box, Typography, Stack, Chip, LinearProgress, Alert, IconButton,
@@ -181,7 +182,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
                         {o.buyer_name || o.buyer_email}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "var(--font-mono)" }}>
-                        {o.public_ref.slice(0, 12)}… · {new Date(o.createdAt).toLocaleString()}
+                        {o.public_ref.slice(0, 12)}… · {formatDateTimeI18n(o.createdAt)}
                       </Typography>
                     </Box>
                     <Typography sx={{ fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>

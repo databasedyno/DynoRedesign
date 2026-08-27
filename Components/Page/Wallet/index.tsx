@@ -244,10 +244,18 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                     draggable={false}
                   />
                   <span>
-                    {wallet.name === "USDT-TRC20" ||
-                    wallet.name === "USDT-ERC20"
-                      ? "USDT"
-                      : wallet.walletTitle}
+                    {(() => {
+                      // Show the BASE asset ticker here; the network chip beside
+                      // it already conveys the chain. Long variant codes like
+                      // "USDT-POLYGON" used to overflow the (absolutely-positioned)
+                      // header badge and overlap the card title.
+                      const n = wallet.name || "";
+                      if (n.startsWith("USDT")) return "USDT";
+                      if (n.startsWith("USDC")) return "USDC";
+                      if (n.startsWith("RLUSD")) return "RLUSD";
+                      if (wallet.walletTitle === "POLYGON") return "POL";
+                      return wallet.walletTitle;
+                    })()}
                   </span>
                   {/* Network chip — prevents wrong-chain send mistakes. */}
                   {(() => {

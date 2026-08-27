@@ -40,6 +40,7 @@ import { useSelector } from "react-redux";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
+import { formatDateI18n } from "@/utils/formatDate";
 
 interface Invoice {
   invoice_id: number;
@@ -336,13 +337,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     window.print();
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const formatDate = (dateStr: string) => formatDateI18n(dateStr);
 
   return (
     <>
@@ -646,7 +641,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           for (const inv of invoices) {
                             const d = new Date(inv.invoice_date || inv.created_at || Date.now());
                             const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-                            const label = d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+                            const label = formatDateI18n(d, { month: "long", year: "numeric" });
                             const existing = groups.find((g) => g.key === key);
                             if (existing) existing.items.push(inv);
                             else groups.push({ key, label, items: [inv] });

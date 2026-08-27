@@ -1,4 +1,22 @@
 # ============================================================================
+# 2026-08-27 (pod f431e319) UPDATE — merchant login email changed again + wallet UX fixes
+# ----------------------------------------------------------------------------
+# - tbl_user.email (user_id=1 "Hostbay") migrated: moxxcompany@gmail.com -> onarrival21@gmail.com
+#   (guarded txn; login_type=EMAIL, email_verified kept TRUE; verified new email logs in).
+# - >>> CURRENT MERCHANT LOGIN: onarrival21@gmail.com / Katiekendra123@ (user_id=1) <<<
+# - Wallet edit "wallet not found" bug: FIXED + verified (backend 6/6, and I reproduced the
+#   real UI flow: USDT-TRC20 Edit -> Save no-change -> PUT /wallet/updateWallet/4 -> 200, dialog closes).
+# - Wallet REUSE UX fix: getReusableWallets now only offers currencies the CURRENT company is
+#   MISSING (was showing wallets it already had -> confusing "0 copied"); wording changed from
+#   "another account" -> "your other companies". For user_id=1 all companies (The Dev Store id=1,
+#   SMADAV id=71) hold the same 13 coins, so the reuse card is now HIDDEN (nothing new to reuse).
+# - Cosmetics: wallet card header shows base ticker (USDT/USDC/RLUSD/POL) so long codes no longer
+#   overlap the title; /developer-keys invalid DOM nesting fixed (ApiKeyCardSubTitle component="div").
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-08-27 (pod f431e319) DATA CHANGE — merchant "Hostbay" primary email migrated (PROD DB write)
 # ----------------------------------------------------------------------------
 # - Changed tbl_user.email for user_id=1 ("Hostbay"): hostbay@moxx.co -> moxxcompany@gmail.com

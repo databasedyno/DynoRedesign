@@ -13,6 +13,7 @@
  */
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { MONO } from "@/styles/uiKit";
+import { formatDateI18n } from "@/utils/formatDate";
 import { avatarGradient } from "@/helpers/avatarGradient";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -282,7 +283,7 @@ const CustomersPage: React.FC = () => {
 
   /* ---------------------------------------------------------- helpers */
   const fmtDate = (d?: string | null) =>
-    d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—";
+    d ? formatDateI18n(d, { year: "numeric", month: "short", day: "numeric" }) : "—";
 
   const anonName = (key: string) => {
     const ch = key.replace(/^anon:/, "");

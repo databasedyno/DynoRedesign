@@ -180,7 +180,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
               lineHeight: 1.2,
             }}
           >
-            Reuse wallets from another account
+            Reuse wallets from your other companies
           </Typography>
           <Typography
             sx={{
@@ -189,8 +189,8 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
               fontFamily: "var(--font-sans)",
             }}
           >
-            Skip re-entering addresses — copy the wallets you already use in
-            another account.
+            Skip re-entering addresses — copy wallet addresses you&apos;ve
+            already set up in your other companies.
           </Typography>
         </Box>
         <Box

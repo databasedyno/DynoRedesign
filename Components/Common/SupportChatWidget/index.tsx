@@ -18,6 +18,7 @@ import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatis
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import axiosBaseApi from "@/axiosConfig";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 
 /**
  * SupportChatWidget — "Emily", Dynopay's floating AI support chat.
@@ -95,13 +96,7 @@ const getOrCreateSessionId = (): string => {
 
 const formatTime = (iso?: string): string => {
   if (!iso) return "";
-  try {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "";
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  } catch (_e) {
-    return "";
-  }
+  return formatDateTimeI18n(iso, { hour: "2-digit", minute: "2-digit" });
 };
 
 const GREETING =

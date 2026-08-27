@@ -11,6 +11,7 @@
  * Uses the crowdfundingController endpoints under `/api/pay/campaign/:id/{tiers,updates}` etc.
  */
 import React, { useCallback, useEffect, useState } from "react";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 import {
   Box,
   Button,
@@ -550,7 +551,7 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
                     }}
                   >
                     {(u.createdAt || u.created_at) &&
-                      new Date(u.createdAt || u.created_at!).toLocaleString()}
+                      formatDateTimeI18n(u.createdAt || u.created_at!)}
                   </Typography>
                   <Typography
                     sx={{
@@ -735,7 +736,7 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
                     </Box>
                     {s.at && (
                       <Typography sx={{ fontSize: 11, color: theme.palette.text.disabled, mb: 0.5 }}>
-                        {new Date(s.at).toLocaleString()}
+                        {formatDateTimeI18n(s.at)}
                       </Typography>
                     )}
                     {s.message && (

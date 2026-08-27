@@ -37,6 +37,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import useApiSWR from "@/hooks/useApiSWR";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import API_ENDPOINTS from "@/api/endpoints";
+import { formatDateI18n } from "@/utils/formatDate";
 import {
   brandFg,
   brandAlpha,
@@ -126,13 +127,7 @@ const amountLabel = (tx: any, fallbackSym: string): string => {
 
 const formatDate = (v?: string) => {
   if (!v) return "";
-  const d = new Date(v);
-  if (isNaN(d.getTime())) return "";
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDateI18n(v, { month: "short", day: "numeric", year: "numeric" });
 };
 
 const statusMeta = (status?: string) => {

@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 import { GetServerSideProps } from "next";
 import {
   Box, Container, Typography, Stack, Chip, Divider, Alert, Button, LinearProgress,
@@ -105,7 +106,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
   // After mount: the user's local formatted time. The swap happens post-hydration.
   const formatExpiry = (ms: number) =>
     mounted
-      ? new Date(ms).toLocaleString()
+      ? formatDateTimeI18n(ms, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
       : `${new Date(ms).toLocaleString("en-US", { timeZone: "UTC", hour12: true })} UTC`;
 
   // Poll while pending — max 20 minutes at 6s

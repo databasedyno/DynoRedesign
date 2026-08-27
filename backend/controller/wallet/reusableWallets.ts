@@ -99,16 +99,39 @@ export const getReusableWallets = async (req: express.Request, res: express.Resp
       nameMap.set(Number(c.dataValues.company_id), c.dataValues.company_name)
     );
 
-    // Group wallets by company, skipping the excluded (target) company.
+    // Currencies the TARGET (current) company ALREADY has. These must NOT be
+    // offered for reuse: the copy action skips any currency the target already
+    // holds, so surfacing them only produces a confusing "0 copied / already
+    // exists" no-op (this is exactly the bug a merchant hit after copying one
+    // company's wallets into another and then re-opening Add-Wallet on the
+    // original). Reuse should ONLY show wallets the current company is missing.
+    const targetCurrencies = new Set<string>();
+    if (excludeCompanyId) {
+      for (const w of wallets) {
+        if (String(w.dataValues.company_id) === String(excludeCompanyId)) {
+          targetCurrencies.add(w.dataValues.wallet_type);
+        }
+      }
+    }
+
+    // Group wallets by company, skipping: the excluded (target) company, any
+    // currency the target already has, and duplicate currencies within a single
+    // company (a company can hold several rows of the same coin).
     const grouped = new Map<number, Array<Record<string, unknown>>>();
+    const seenPerCompany = new Map<number, Set<string>>();
     for (const w of wallets) {
       const cid = w.dataValues.company_id;
       if (cid === null || cid === undefined) continue;
       if (excludeCompanyId && String(cid) === String(excludeCompanyId)) continue;
+      const currency = w.dataValues.wallet_type as string;
+      if (targetCurrencies.has(currency)) continue; // current company already has it
+      if (!seenPerCompany.has(cid)) seenPerCompany.set(cid, new Set());
+      if (seenPerCompany.get(cid)!.has(currency)) continue; // dedupe within company
+      seenPerCompany.get(cid)!.add(currency);
       if (!grouped.has(cid)) grouped.set(cid, []);
       const addr: string = w.dataValues.wallet_address || "";
       grouped.get(cid)!.push({
-        currency: w.dataValues.wallet_type,
+        currency,
         label: w.dataValues.wallet_name,
         wallet_name: w.dataValues.wallet_name,
         wallet_address_preview: addr.length >= 4 ? `****${addr.slice(-4)}` : addr,
@@ -124,7 +147,7 @@ export const getReusableWallets = async (req: express.Request, res: express.Resp
 
     const message =
       result.length === 0
-        ? "No other companies with saved wallets to reuse."
+        ? "No new wallets from your other companies to reuse."
         : `Found ${result.length} compan${result.length === 1 ? "y" : "ies"} with reusable wallets`;
     successResponseHelper(res, 200, message, result);
   } catch (e) {

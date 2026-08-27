@@ -9,6 +9,7 @@ import TextBox from "@/Components/UI/TextBox";
 import { countDecimals, getCurrencySymbol, stringShorten } from "@/helpers";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { IWallet, pageProps } from "@/utils/types";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 import { CopyAllRounded, Search } from "@mui/icons-material";
 import {
   Box,
@@ -145,10 +146,9 @@ const AdminFee = ({ setPageName }: pageProps) => {
         hidden: temp.transaction_id,
         transaction_type: temp.transaction_type,
         status: temp.status,
-        date:
-          new Date(temp.createdAt).toLocaleDateString() +
-          " " +
-          new Date(temp.createdAt).toLocaleTimeString(),
+        date: formatDateTimeI18n(temp.createdAt, {
+          year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit",
+        }),
       };
       tempData1.push(tempObject);
     }

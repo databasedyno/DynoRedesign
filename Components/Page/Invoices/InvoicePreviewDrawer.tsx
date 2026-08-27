@@ -15,6 +15,7 @@ import { getInvoicePdf } from "@/helpers/invoicePdfCache";
 import { StatusPill } from "@/Components/UI/_shared";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { formatDateI18n } from "@/utils/formatDate";
 
 /**
  * InvoicePreviewDrawer — live PDF preview slide-out for the invoices list.
@@ -58,13 +59,7 @@ interface Props {
 
 const formatDate = (isoStr: string) => {
   if (!isoStr) return "";
-  try {
-    return new Date(isoStr).toLocaleDateString(undefined, {
-      year: "numeric", month: "short", day: "numeric",
-    });
-  } catch {
-    return isoStr;
-  }
+  return formatDateI18n(isoStr, { year: "numeric", month: "short", day: "numeric" }) || isoStr;
 };
 
 const formatUSD = (n: number) =>

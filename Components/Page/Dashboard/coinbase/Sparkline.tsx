@@ -131,10 +131,11 @@ const Sparkline: React.FC<SparklineProps> = ({
       sx={{
         width: "100%",
         height,
+        minWidth: 0,
         position: "relative",
       }}
     >
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={height} minWidth={0}>
         <AreaChart data={chartData} margin={{ top: 8, right: 4, bottom: 4, left: 4 }}>
           <defs>
             <linearGradient id="cb-spark-fill" x1="0" y1="0" x2="0" y2="1">

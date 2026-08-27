@@ -19,6 +19,7 @@ import { brandFg } from "@/constants/theme";
  */
 
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 import {
   Box,
   Button,
@@ -97,11 +98,9 @@ const statusMeta = (status: string) => {
 
 const fmtTime = (iso?: string | null) => {
   if (!iso) return "—";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "—";
-  return d.toLocaleString(undefined, {
+  return formatDateTimeI18n(iso, {
     month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
-  });
+  }) || "—";
 };
 
 const prettyJson = (raw?: string | null) => {
@@ -296,8 +295,25 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     }
     setSendingTest(true);
     try {
-      await axiosBaseApi.post(API_ENDPOINTS.company.webhookTest(companyId));
-      toast("Test event sent — check recent deliveries");
+      const res = await axiosBaseApi.post(
+        API_ENDPOINTS.company.webhookTest(companyId)
+      );
+      // Backend returns HTTP 200 for both a delivered and a failed-delivery test;
+      // reflect the ACTUAL delivery outcome so the user isn't told "sent" when the
+      // endpoint rejected it.
+      const data = res?.data?.data ?? res?.data;
+      if (data && data.status === "failed") {
+        const code = data.response_status
+          ? ` (HTTP ${data.response_status})`
+          : "";
+        toast(
+          `Test event could not be delivered${code}. Check your endpoint URL and try again.`,
+          "error"
+        );
+      } else {
+        const code = data?.response_status ? ` (HTTP ${data.response_status})` : "";
+        toast(`Test event delivered${code} — check recent deliveries`);
+      }
       setTimeout(refreshAll, 1200);
       setTimeout(refreshAll, 4000);
     } catch {

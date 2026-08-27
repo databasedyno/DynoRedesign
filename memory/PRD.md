@@ -4058,3 +4058,30 @@ Verified: tsc 0 err, lint = pre-existing issues only; screenshots of /hostbay, /
   highlight); ShopHero dark aurora brightened (indigo 0.5/violet 0.4); CreatorProfile ambient
   backdrop dark alphas raised (0.22/0.14/0.11). Dark screenshots verified all three surfaces.
 - tsc 0 errors, lint clean on touched files. No automated frontend-agent run yet (user OK needed).
+
+# DATE LOCALE i18n FIX — APP-WIDE (2026-08-27, pod f431e319) — DONE (screenshot-verified)
+- BUG: receipt/invoice month headers + assorted dates rendered in Portuguese even when the app
+  language was English, because code used `toLocaleDateString(undefined, ...)` / no-arg
+  `toLocaleString()` (which inherits the BROWSER locale) or hardcoded "en-US".
+- ROOT CAUSE (critical regression found): pages/invoices.tsx already CALLED `formatDateI18n`
+  (month group header, line ~649) but NEVER IMPORTED it → ReferenceError would crash the
+  Receipts table render. Fixed by adding the import + routing the row-date helper through it.
+- Helper (pre-existing): utils/formatDate.ts — `formatDateI18n` / `formatDateTimeI18n` map the
+  SELECTED app language (i18n.language: en/pt/es/fr/de/nl) to a BCP-47 locale (en->en-US,
+  pt->pt-BR, ...), so dates follow the user's chosen language, never the browser default.
+- User chose APP-WIDE scope. Files patched to use the helper:
+    pages/invoices.tsx, pages/admin/fee.tsx, pages/order/[publicRef].tsx,
+    pages/pay-links/products/[productId]/orders.tsx,
+    Components/Page/Payouts/index.tsx, Components/Page/API/WebhookConsoleSection.tsx,
+    Components/Page/Customers/index.tsx, Components/Page/Invoices/InvoicePreviewDrawer.tsx,
+    Components/Page/Notification/NotificationPage.tsx,
+    Components/UI/pay-link/CampaignManager.tsx, Components/Common/SupportChatWidget/index.tsx
+- LEFT AS-IS (intentional, not the bug): money `.toLocaleString("en-US", ...)` amounts;
+  Profile ActiveSessions/LoginActivity dates hardcoded en-GB/en-US (security-audit convention);
+  AnalyticsWidget/TransferExpectedCard/RecentTransactionsWidget which already pass i18n.language.
+- VERIFIED (read-only, no prod writes): logged in onarrival21@gmail.com, /invoices Receipts
+  render with English month headers (AUGUST/JULY/JUNE 2026) + English row dates. Browser ICU
+  check confirms en-US->"August 2026", pt-BR->"agosto de 2026" (fix works both directions).
+  NOTE: language switch in-app does a PUT user/profile (prod write) so the pt UI path was NOT
+  driven through the account to avoid mutating the live merchant's language preference.
+- Deep automated functional sweep: user opted to SKIP it (manual screenshot spot-check only).
