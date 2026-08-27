@@ -1,3 +1,43 @@
+# PHASE 1 — FRONTEND FIX PROGRAM (2026-06 fork, pod 09016278) — DONE (testing_agent iteration_91 = 100%)
+
+Preview: https://09016278-d759-4b49-a603-d86dc13ffdc0.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
+User approved the architecture review (Parts A-C recorded in memory/REFACTOR_STATUS.md) and Part D
+"Frontend fixes only" execution. Phase 1 of 4 complete, behavior-preserving; NOT yet pushed — ship via
+Save to GitHub before starting Phase 2.
+
+IMPLEMENTED:
+- FP1-2 dep prune: removed pg, ioredis, bcryptjs, jsonwebtoken, next-i18next, node i18n,
+  @types/jsonwebtoken from package.json (yarn remove). Only shipped-code consumer was
+  Components/UI/Loading/Index.tsx (next-i18next -> react-i18next import swap).
+- FP2-2 i18n loader: /app/i18n.js 350-line per-language switch x2 replaced with template-literal
+  require/import loops (~175 lines total). Webpack context modules verified equivalent in built bundle;
+  check-i18n.mjs is now the single key mechanism (~26 patch scripts archived to ops/archive/i18n-scripts/).
+- FP2-1 repo hygiene: ~90 loose root test scripts -> /app/ops/ (git mv, history kept); 22 root
+  screenshots + debug_output.txt + page_errors.txt deleted + gitignored (/*.png etc.); 21 analysis/report
+  .md files -> docs/reports/; one-off scripts/ tools -> ops/ or ops/archive/; tsconfig exclude simplified
+  to [node_modules, backend, ops]; added .eslintignore (backend/, ops/, node_modules/, .next/).
+- BUILD BLOCKER FIX (pre-existing, surfaced by the gate): Components/UI/Sparkline.tsx conditional
+  useMemo (gradId after early return) = react-hooks/rules-of-hooks ERROR that failed `next build`
+  (build lints Components/ explicitly). Hoisted above the early return. This would have failed the next
+  cold DO build regardless of Phase 1.
+- Testing-agent action item: added data-testid transaction-row-<id> to both TransactionsTable row variants.
+
+GATE (all green): tsc --noEmit 0 errors · eslint 0 errors (75 pre-existing warnings, Phase 4 ratchets)
+· next build EXIT 0 · check-i18n PASS (5 locales complete) · check-secrets PASS · full .husky/pre-commit
+EXIT 0 · testing_agent iteration_91 = 100% frontend (all 6 locales switch with 0 console errors + PT
+persists across reload; ES dashboard chrome renders; product editor #1, cart badge #2, tx #722 status #3,
+dynopay.com-only copy #4 all pass read-only).
+
+NOTES: contrast-checker strict CLI fails on pre-existing grandfathered files (untouched; hook is
+warn-only, pre-commit exit 0). /hostbay renders 404 by live-data state (creator page unpublished;
+store lives under /devhub) — not a regression. Signed-in dashboard has no language switcher in the
+header/user-menu (account language is source of truth via reconcileLanguageOnAuth) — optional UX idea.
+
+NEXT (Part D): Phase 2 SWR migration waves (delete redux-saga last) -> Phase 3 helpers/themes/axios
+consolidation -> Phase 4 reactStrictMode + ESLint warning ratchet. Deferred: FP2-4 auth unification,
+App Router (never), all backend items.
+
+---
 # FEATURE (2026-08-26 fork) — Landing page merchant-first conversion pass — DONE (testing_agent iteration_90 = 100% frontend)
 
 Preview: https://dynopay-setup-7.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.

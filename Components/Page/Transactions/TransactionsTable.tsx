@@ -371,6 +371,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           {currentTransactions.map((transaction) => (
             <Box
               key={transaction.id}
+              data-testid={`transaction-row-${transaction.id}`}
               onClick={() => handleRowClick(transaction)}
               sx={{
                 p: 2,
@@ -561,6 +562,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               currentTransactions.map((transaction) => (
                 <TransactionsTableRow
                   key={transaction.id}
+                  data-testid={`transaction-row-${transaction.id}`}
                   onClick={() => handleRowClick(transaction)}
                   sx={{
                     paddingY: "10px !important",

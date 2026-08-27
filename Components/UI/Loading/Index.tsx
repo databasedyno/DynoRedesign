@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { brandFg } from '@/constants/theme';
 
 const Loading = () => {

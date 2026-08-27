@@ -1,0 +1,4 @@
+backend/
+ops/
+node_modules/
+.next/

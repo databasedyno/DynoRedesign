@@ -28,6 +28,12 @@ node_modules/
 # Testing
 /coverage
 
+# Test/debug artifacts — never commit these (Phase 1 repo hygiene, 2026-06)
+/*.png
+/debug_output.txt
+/page_errors.txt
+/test_reports/
+
 # Next.js
 /.next/
 /out/

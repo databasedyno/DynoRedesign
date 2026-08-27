@@ -124,3 +124,51 @@ cd /app && git add -A && sh .husky/pre-commit              # full hook (tsc + si
 - [ ] **P2 Deep read-only page sweep**: safe click-through of logged-in pages for console errors.
 - [ ] **P2 tsc-in-preview guard**: consider a pre-Save `tsc --noEmit` gate so a dev-only type
       error can never reach a DO build again (this exact class of failure).
+
+# ============================================================================
+# 2026-06 — APPROVED ARCHITECTURE REVIEW (Parts A–C) + FRONTEND FIX PROGRAM (Part D)
+# ============================================================================
+User approved the full review; execution decision: "Frontend fixes only" (backend Parts A/C deferred).
+
+## PART A — Backend findings (approved, DEFERRED — no work authorized)
+- A: Shared prod DB/Redis across environments (highest risk) → isolate per env
+- B: Redis as source of truth for in-flight payments → Postgres system-of-record
+- C: ~25 cron jobs inside API process → separate worker service (worker.ts exists)
+- D: server.ts god file (1,675 ln); paymentLinkController 2,712; tatumApi 4,136
+- E: three parallel migration mechanisms → one versioned pipeline
+- F: in-memory rate-limit Map + broken CIDR Set.has() → Redis counters + CIDR lib
+- G: repo/test hygiene (shared with frontend K)
+- H: observability = 15-min email digests → Sentry-class capture
+- I: Python preview proxy buffers bodies (no SSE) — documented, acceptable
+
+## PART B — Frontend findings (approved, ACTIVE via Part D)
+- J: three state layers (Redux+saga / SWR / contexts) → finish SWR, delete saga
+- K: repo root polluted (~80 loose test scripts, screenshots, dumps) → ops/, gitignore
+- L: i18n.js 350-line per-language switch ×2 → template-literal import loop; check-i18n.mjs only key mechanism
+- M: duplicate helpers/utils, 6+ theme files, 2 axios clients → consolidate
+- N: server-grade deps in frontend (pg, ioredis, bcryptjs, jsonwebtoken, next-i18next, i18n) → prune
+- O: two auth heads (backend JWT + NextAuth-for-Google) → DEFERRED, own approval
+- P: reactStrictMode:false + ~500 ESLint warnings → strict mode + warning ratchet
+- Q: Pages Router stays — App Router migration explicitly NOT recommended
+
+## PART C — Effort timings (approved estimates)
+Backend: P0-1 staging env 2–3d · P0-2 DB-first payment state 3–5w phased · P1-1 worker split 1–2d ·
+P1-2 migrations 1–2w · P1-3 rate-limit/CIDR 1d · P2-1 server.ts decomp 3–5d · P2-2 hygiene 1–2d ·
+P2-3 Sentry 1d · P3-1 versioning 0.5d. Subtotal ~7–10d + P0-2.
+Frontend: FP1-1 SWR/saga 10–15d waves · FP1-2 dep prune 0.5–1d · FP2-1 root hygiene 1–2d ·
+FP2-2 i18n loader 1d · FP2-3 consolidation 3–5d · FP2-4 auth unification 3–4d (DEFERRED) ·
+FP3-1 strict mode + ratchet 2–3d · FP3-2 App Router 0 (not recommended). Subtotal ~21–31d.
+Full program ~8–10 calendar weeks single-engineer.
+
+## PART D — FRONTEND FIX EXECUTION (ACTIVE) — phase tracker
+Ground rules: live prod DB in SAFE MODE → read-only verification only; each phase gates on
+tsc + eslint + next build + testing agent; ship per-phase via Save to GitHub; money-path untouched;
+no git history rewrite.
+- [x] Phase 1 — Quick wins: dep prune (FP1-2) · i18n loader rewrite (FP2-2) · root hygiene (FP2-1)
+      DONE 2026-06 (pod 09016278): gate all green (tsc 0 · eslint 0 errors · next build EXIT 0 ·
+      check-i18n PASS · pre-commit EXIT 0 · testing_agent iteration_91 = 100%). Also fixed pre-existing
+      Sparkline.tsx conditional-useMemo build blocker surfaced by the gate. Ship via Save to GitHub.
+- [ ] Phase 2 — One data layer: finish SWR migration in waves, delete redux-saga last (FP1-1)
+- [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
+- [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
+- DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items
