@@ -1,5 +1,6 @@
 import { Box, IconButton, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import type { ElementType } from "react";
 
 export const ApiKeyCard = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -7,7 +8,7 @@ export const ApiKeyCard = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-export const ApiKeyCardSubTitle = styled(Typography)(({ theme }) => ({
+export const ApiKeyCardSubTitle = styled(Typography)<{ component?: ElementType }>(({ theme }) => ({
   paddingTop: "7px",
   fontSize: 14,
   color: theme.palette.text.primary,

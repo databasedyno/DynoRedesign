@@ -87,3 +87,40 @@ These do NOT block commits, but each is a candidate to refactor down and remove 
 cd /app/backend && node scripts/check-file-size.mjs        # exits 1 on a NEW >500-line file
 cd /app && git add -A && sh .husky/pre-commit              # full hook (tsc + size + secrets + contrast)
 ```
+
+# ============================================================================
+# 2026-08-27 — NEXT ACTIONS + DIGITALOCEAN DEPLOY FIX (pod f431e319)
+# ============================================================================
+
+## DigitalOcean deployment — ROOT CAUSE FOUND + FIXED (pending GitHub push)
+- DO App Platform app "dynopay" (id f86b27dc-feb0-4a44-a4e9-ebd2053e0468, region ams,
+  ingress https://dynopay-bcibf.ondigitalocean.app). Single Docker service "dynoredesign"
+  built from GitHub databasedyno/DynoRedesign @ branch `Improvement`, /Dockerfile → `yarn build`.
+- Two consecutive deploys FAILED (`BuildJobExitNonZero`):
+    a56bdb19 (commit f110178) and 13f98059 (commit 5db543c).
+- BUILD LOG root cause: `next build` type-check failed (next.config has
+  typescript.ignoreBuildErrors:false):
+    ./Components/Page/API/ApiKeysPage.tsx:311  `<ApiKeyCardSubTitle component="div">`
+    Type error: Property 'component' does not exist on styled(Typography) props.
+  The `component="div"` (added to fix invalid <div>-in-<p> DOM nesting) type-errors because
+  `ApiKeyCardSubTitle = styled(Typography)(...)` didn't declare a `component` prop. Preview
+  (`next dev`) doesn't strict type-check, so it slipped through until DO's `yarn build`.
+- FIX (Components/Page/API/styled.tsx): `import type { ElementType } from "react"` +
+  `styled(Typography)<{ component?: ElementType }>(...)` so TS accepts the polymorphic prop
+  (runtime already honored it). VERIFIED: `tsc --noEmit` = 0 errors project-wide.
+- ESLint note: next.config eslint.ignoreDuringBuilds:false (errors block builds). `next lint`
+  CLI flags Components/UI/Sparkline.tsx (react-hooks/rules-of-hooks) but that file AND
+  .eslintrc.json are BYTE-IDENTICAL to the last GREEN build (312681d, 6/6 steps) → Next's
+  build-time lint does NOT treat it as blocking. So no lint blocker remains.
+- ⚠️ REMAINING ACTION: the fix is in the working tree only. Push it to GitHub via the
+  "Save to GitHub" feature → DO auto-deploys the new commit on `Improvement` → build should
+  go GREEN. Do NOT re-trigger a DO deploy of 5db543c (still has the bug).
+
+## Next Actions (current, prioritized)
+- [ ] **P0 Deploy**: Save to GitHub to push the styled.tsx fix → confirm DO build goes ACTIVE.
+- [ ] **P1 Receipt/Invoice PDF locale**: render downloaded PDF dates+labels in merchant's language.
+- [ ] **P1 Relative-time coverage**: ensure all "X ago" timestamps use shared translated strings.
+- [ ] **P1 Locale QA screens**: PT (and other langs) side-by-side screenshots of key pages.
+- [ ] **P2 Deep read-only page sweep**: safe click-through of logged-in pages for console errors.
+- [ ] **P2 tsc-in-preview guard**: consider a pre-Save `tsc --noEmit` gate so a dev-only type
+      error can never reach a DO build again (this exact class of failure).
