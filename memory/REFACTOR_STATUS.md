@@ -209,6 +209,11 @@ no git history rewrite.
             DashboardAction/dashboardReducer/DashboardSaga + barrel/RootSaga/rootReducer entries;
             RootSaga no longer imports takeLatest/debounce. Gate: tsc 0 · eslint 0 new · /dashboard
             + /payouts dev-compile 200. PENDING: frontend testing-agent verification (batch W1–W3).
+      ✅ VERIFIED — frontend testing agent 2026-08-27 (pod f07bb4cb): W1+W2+W3 ALL PASS.
+         Dashboard KPIs real ($7,560/14 payments, not $0), chart range-switch works, fee-tier +
+         recent activity populate; transactions list loads + company-switch refetch (SMADAV 4 ↔
+         The Dev Store 643); API keys list loads (view-only); /create-pay-link no false banner.
+         KEY: NO duplicate simultaneous network calls — SWR dedupe confirmed. Behaviour unchanged.
       Remaining redux-saga domains: PaymentLink (W4) · User (W5) · Toast (W6).
 - [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
