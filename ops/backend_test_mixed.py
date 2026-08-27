@@ -13,7 +13,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://dynopay-setup-8.preview.emergentagent.com"
+BASE_URL = "https://payment-gateway-init.preview.emergentagent.com"
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
