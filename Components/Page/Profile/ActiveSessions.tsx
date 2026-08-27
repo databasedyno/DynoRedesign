@@ -18,6 +18,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import axiosBaseApi from "@/axiosConfig";
+import { formatDateI18n, formatDateTimeI18n } from "@/utils/formatDate";
 
 interface SessionEntry {
   session_id: number;
@@ -94,16 +95,13 @@ const ActiveSessions = () => {
     if (mins < 60) return t("minutesAgo", { count: mins, defaultValue: `${mins}m ago` });
     if (hours < 24) return t("hoursAgo", { count: hours, defaultValue: `${hours}h ago` });
     if (days < 7) return t("daysAgo", { count: days, defaultValue: `${days}d ago` });
-    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    return formatDateI18n(dateStr, { day: "2-digit", month: "short", year: "numeric" });
   };
 
   const fullTime = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return (
-      d.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }) +
-      " at " +
-      d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
-    );
+    return formatDateTimeI18n(dateStr, {
+      day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true,
+    });
   };
 
   const getDeviceIcon = (device: string | null) => {

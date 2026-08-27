@@ -6,6 +6,7 @@ import { Icon } from "@/styles/uiKit";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useApiSWR } from "@/hooks/useApiSWR";
+import { formatDateI18n, formatDateTimeI18n } from "@/utils/formatDate";
 
 interface LoginEntry {
   id: number;
@@ -50,13 +51,13 @@ const LoginActivity = () => {
     if (diffMins < 60) return t("minutesAgo", { count: diffMins });
     if (diffHours < 24) return t("hoursAgo", { count: diffHours });
     if (diffDays < 7) return t("daysAgo", { count: diffDays });
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    return formatDateI18n(d, { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
   const formatFullDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) +
-      ' at ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    return formatDateTimeI18n(dateStr, {
+      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true,
+    });
   };
 
   const getDeviceIcon = (device: string) => {

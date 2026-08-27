@@ -4085,3 +4085,10 @@ Verified: tsc 0 err, lint = pre-existing issues only; screenshots of /hostbay, /
   NOTE: language switch in-app does a PUT user/profile (prod write) so the pt UI path was NOT
   driven through the account to avoid mutating the live merchant's language preference.
 - Deep automated functional sweep: user opted to SKIP it (manual screenshot spot-check only).
+
+# PROFILE SESSION DATES → i18n (2026-08-27, pod f431e319) — DONE (rendered/verified)
+- Components/Page/Profile/ActiveSessions.tsx + LoginActivity.tsx: replaced hardcoded en-GB/en-US
+  `toLocaleDateString`/`toLocaleTimeString` (relative-time >7d fallback + full date-time tooltip)
+  with formatDateI18n / formatDateTimeI18n so Active-devices + Login-activity dates follow the
+  merchant's selected language. Verified: /settings?section=profile renders sessions cleanly
+  (relative times translated; account=en so shows English). No compile errors.
