@@ -4,22 +4,21 @@ import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl 
 import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
 
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 
-import { ApiAction } from "@/Redux/Actions";
-import { API_DELETE, API_FETCH, API_REGENERATE, API_TOGGLE_STATUS } from "@/Redux/Actions/ApiAction";
+import { useApiKeys } from "@/hooks/useApiKeys";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
 import { formatDate, getTime } from "@/helpers/dateTimeFormatter";
-import { IApi, rootReducer } from "@/utils/types";
+import { IApi } from "@/utils/types";
 
 import CreateApiModel from "@/Components/UI/ApiKeysModel/CreateApiModel";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -133,7 +132,7 @@ const SUPPORTED_CURRENCIES = [
   "BTC",
 ];
 
-const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleStatus }: ApiKeyCardProps & { onRegenerate?: (id: string | number) => void; onToggleStatus?: (id: string | number, status: string) => void }) => {
+const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleStatus, onUpdated }: ApiKeyCardProps & { onRegenerate?: (id: string | number) => void; onToggleStatus?: (id: string | number, status: string) => void; onUpdated?: () => void }) => {
   const { t } = useTranslation("apiScreen");
   const dispatch = useDispatch();
   const [showApiKey, setShowApiKey] = useState(false);
@@ -178,7 +177,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
         payload: { message: t("currency.updated", { defaultValue: `Settlement currency updated to ${upper}` }), severity: "success" },
       });
       // Refresh the list so any downstream data (fees preview, etc.) reflects the change
-      dispatch(ApiAction(API_FETCH));
+      onUpdated?.();
       // Clear the "saved" tick after a moment
       setTimeout(() => setCurrencySaved(false), 2000);
     } catch (err: any) {
@@ -1281,7 +1280,10 @@ const ApiKeysPage = ({
   const { t } = useTranslation("apiScreen");
   const isMobile = useIsMobile("md");
   const theme = useTheme();
-  const apiState = useSelector((state: rootReducer) => state.apiReducer);
+  // API keys now flow through SWR (keyed on the selected company) instead of the
+  // retired redux-saga. `apiState` keeps the same `.apiList` / `.loading` shape
+  // the render code already reads; mutations + refetch come from the hook.
+  const apiState = useApiKeys();
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const { refetchCompanies } = useCompanyStore();
@@ -1304,8 +1306,8 @@ const ApiKeysPage = ({
 
   useEffect(() => {
     refetchCompanies();
-    const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
-    dispatch(ApiAction(API_FETCH, payload));
+    // API keys are fetched by the SWR hook (keyed on selectedCompanyId) — no
+    // manual dispatch needed; switching company refetches automatically.
   }, [selectedCompanyId]);
 
   const handleCopy = (value: string) => {
@@ -1328,19 +1330,19 @@ const ApiKeysPage = ({
   };
 
   const confirmDelete = () => {
-    dispatch(ApiAction(API_DELETE, { id: deleteId }));
+    void apiState.deleteApiKey(deleteId).catch(() => {});
     setConfirmDeleteOpen(false);
     setDeleteId(0);
   };
 
   const handleRegenerate = (apiId: string | number) => {
     if (!apiId) return;
-    dispatch(ApiAction(API_REGENERATE, { id: apiId }));
+    void apiState.regenerateApiKey(apiId).catch(() => {});
   };
 
   const handleToggleStatus = (apiId: string | number, status: string) => {
     if (!apiId) return;
-    dispatch(ApiAction(API_TOGGLE_STATUS, { id: apiId, status }));
+    void apiState.toggleApiStatus(apiId, status).catch(() => {});
   };
 
   const docsUrl =
@@ -1541,6 +1543,7 @@ const ApiKeysPage = ({
                 onDelete={requestDelete}
                 onRegenerate={handleRegenerate}
                 onToggleStatus={handleToggleStatus}
+                onUpdated={apiState.refetch}
               />
             </Grid>
           ))}

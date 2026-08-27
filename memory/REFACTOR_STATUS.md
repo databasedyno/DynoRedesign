@@ -181,6 +181,19 @@ no git history rewrite.
             TransactionAction/transactionReducer/TransactionSaga + barrel/RootSaga/rootReducer
             entries. Gate: tsc 0 · eslint 0 (5 changed files) · /transactions dev-compile 200.
             PENDING: frontend testing-agent verification (awaiting user go).
+      - [x] W2 Api keys → SWR (2026-08-27, pod f07bb4cb): new `hooks/useApiKeys.ts`
+            (`useApiKeys()` keyed on company → list + `refetch` + `deleteApiKey` /
+            `regenerateApiKey` / `toggleApiStatus` mutations that toast + `mutate()`,
+            mirroring CompanyDataContext). Rewired ApiKeysPage (list/loading/mutations +
+            ApiKeyCard currency-save now calls `onUpdated=refetch`), CreatePaymentLink
+            (`hasActiveApiKey`), developer-keys (`canCreateAnother`); removed the API_FETCH
+            dispatch from CompanySelector. Dropped DEAD paths: API_INSERT/addApi (create modal
+            is a stub — keys auto-provision server-side) + API_UPDATE saga (currency save was
+            already a direct axios PUT). Deleted ApiAction/apiReducer/ApiSaga + barrel/RootSaga/
+            rootReducer entries. Gate: tsc 0 · eslint 0 new (1 pre-existing warning in
+            DynopayCryptoElement, untouched) · /developer-keys + /create-pay-link dev-compile 200.
+            PENDING: frontend testing-agent verification (batch with W1).
+      Remaining redux-saga domains: Dashboard (W3) · PaymentLink (W4) · User (W5) · Toast (W6).
 - [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

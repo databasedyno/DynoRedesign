@@ -9,7 +9,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import { useApiKeys } from "@/hooks/useApiKeys";
 import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 
@@ -83,8 +83,9 @@ const Developers = ({
   };
 
   const [openCreate, setOpenCreate] = useState(false);
-  const apiState = useSelector((state: any) => state?.apiReducer);
-  const apiList: any[] = Array.isArray(apiState?.apiList) ? apiState.apiList : [];
+  // API keys now flow through SWR (keyed on the selected company); the child
+  // <ApiKeysPage> subscribes to the same key, so SWR dedupes the request.
+  const apiList = useApiKeys().apiList as any[];
   // Per-environment slots. Auto-provisioning gives every company a test key at
   // signup and a live key on first wallet — but if the user revokes one of them,
   // they should be able to mint that environment's key back manually.

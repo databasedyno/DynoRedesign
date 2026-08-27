@@ -10,8 +10,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { PaymentLinkAction } from "@/Redux/Actions";
-import { ApiAction } from "@/Redux/Actions";
-import { API_FETCH } from "@/Redux/Actions/ApiAction";
+import { useApiKeys } from "@/hooks/useApiKeys";
 import { PAYLINK_CREATE, PAYLINK_UPDATE, PAYLINK_FEE_PREVIEW } from "@/Redux/Actions/PaymentLinkAction";
 import PaymentLinkSuccessModal from "./PaymentLinkSuccessModal";
 import { TabContentContainer } from "./styled";
@@ -88,16 +87,12 @@ const CreatePaymentLinkPage = ({
   // Mobile / tablet (< lg): live preview shown on demand via a bottom-sheet drawer.
   const [previewOpen, setPreviewOpen] = useState(false);
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
-  const apiState = useSelector((state: any) => state?.apiReducer);
-  const hasActiveApiKey = useMemo(() => {
-    const apiList = apiState?.apiList || [];
-    return apiList.some((api: any) => api.status === 'active');
-  }, [apiState?.apiList]);
-
-  // Fetch API keys on mount
-  useEffect(() => {
-    dispatch(ApiAction(API_FETCH));
-  }, [dispatch, selectedCompanyId]);
+  // API keys now flow through SWR (keyed on the selected company).
+  const { apiList, loading: apiKeysLoading } = useApiKeys();
+  const hasActiveApiKey = useMemo(
+    () => apiList.some((api: any) => api.status === "active"),
+    [apiList],
+  );
   const tPaymentLink = useCallback(
     (key: string, options?: any): string => {
       // Session 75 bug fix: this wrapper previously accepted only `key` and
@@ -1140,7 +1135,7 @@ const CreatePaymentLinkPage = ({
     () => walletList.some((w: any) => Boolean(w?.wallet_address && String(w.wallet_address).trim().length > 0)),
     [walletList],
   );
-  const showActivationBanner = (!hasCompanyForBanner || !hasConfiguredWallet || !hasActiveApiKey) && !apiState?.loading;
+  const showActivationBanner = (!hasCompanyForBanner || !hasConfiguredWallet || !hasActiveApiKey) && !apiKeysLoading;
 
   // UX-2026-07-08: Pre-select the 3 most-popular cryptos (BTC / ETH / USDT-ERC20)
   // intersected with what the merchant actually has wallets configured for.

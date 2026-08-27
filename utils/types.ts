@@ -10,7 +10,6 @@ export interface ReducerAction {
 export interface rootReducer {
   userReducer: userReducer;
   toastReducer: toastReducer;
-  apiReducer: apiReducer;
   dashboardReducer: import("@/Redux/Reducers/dashboardReducer").DashboardState;
   paymentLinkReducer: import("@/Redux/Reducers/paymentLinkReducer").PaymentLinkState;
 }
