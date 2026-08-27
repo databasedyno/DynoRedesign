@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Base URL for the preview environment
-BASE_URL = "https://repo-link-setup.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-13.preview.emergentagent.com"
 
 # Test results storage
 test_results = []

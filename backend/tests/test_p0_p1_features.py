@@ -23,7 +23,7 @@ import uuid
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 # Fallback to internal URL if env not set
 if not BASE_URL:
-    BASE_URL = "https://repo-link-setup.preview.emergentagent.com"
+    BASE_URL = "https://dynopay-preview-13.preview.emergentagent.com"
 
 # Test credentials
 TEST_EMAIL = "richard@dyno.pt"

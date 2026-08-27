@@ -22,7 +22,7 @@ from datetime import datetime
 import sys
 
 # Configuration
-BASE_URL = "https://repo-link-setup.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-13.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
