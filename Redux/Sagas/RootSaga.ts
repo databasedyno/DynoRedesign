@@ -3,17 +3,15 @@ import { USER_INIT } from "../Actions/UserAction";
 import { UserSaga } from "./UserSaga";
 import { TOAST_INIT } from "../Actions/ToastAction";
 import { ToastSaga } from "./ToastSaga";
-import { PAYLINK_INIT } from "../Actions/PaymentLinkAction";
-import { PaymentLinkSaga } from "./PaymentLinkSaga";
 
 function* RootSaga() {
   yield takeEvery(USER_INIT, UserSaga);
   yield takeEvery(TOAST_INIT, ToastSaga);
-  // Company + Wallet + Transactions + API keys + Dashboard reads/mutations
-  // migrated to SWR (CompanyDataContext / WalletDataContext /
-  // hooks/useTransactions / hooks/useApiKeys / hooks/useDashboardData) — their
-  // sagas have been retired.
-  yield takeEvery(PAYLINK_INIT, PaymentLinkSaga);
+  // Company + Wallet + Transactions + API keys + Dashboard + PaymentLinks
+  // reads/mutations migrated to SWR (CompanyDataContext / WalletDataContext /
+  // hooks/useTransactions / hooks/useApiKeys / hooks/useDashboardData /
+  // hooks/usePaymentLinks) — their sagas have been retired. Only User + Toast
+  // remain on redux-saga (User → Wave 5, Toast → Wave 6).
 }
 
 export default RootSaga;

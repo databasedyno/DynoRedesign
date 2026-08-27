@@ -16,9 +16,8 @@ import {
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import React, { useCallback, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { PaymentLinkAction, PAYLINK_DELETE } from "@/Redux/Actions/PaymentLinkAction";
+import { usePaymentLinks } from "@/hooks/usePaymentLinks";
 import {
   FooterText,
   TableBodyCell,
@@ -154,7 +153,7 @@ const PaymentLinksTable = ({
   loading = false,
 }: PaymentLinksTableProps & { loading?: boolean }) => {
   const router = useRouter();
-  const dispatch = useDispatch();
+  const { deletePaymentLink } = usePaymentLinks();
   const [page, setPage] = useState(0);
   const [rows, setRows] = useState(rowsPerPage);
   const { t } = useTranslation("paymentLinks");
@@ -1118,7 +1117,7 @@ const PaymentLinksTable = ({
             size={isMobile ? "small" : "medium"}
             onClick={() => {
               if (deleteId) {
-                dispatch(PaymentLinkAction(PAYLINK_DELETE, { id: deleteId }));
+                void deletePaymentLink(deleteId);
               }
               setDeleteModel(false);
               setDeletId("");

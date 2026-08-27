@@ -2,11 +2,8 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import { PaymentLinkAction } from "@/Redux/Actions";
-import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
-import { rootReducer } from "@/utils/types";
+import { usePaymentLinks } from "@/hooks/usePaymentLinks";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import {
@@ -36,7 +33,6 @@ const AUTO_OPEN_SESSION_KEY = "onboarding_autoopen_seen";
  * - Surfaces "Create your first payment link" as the activation step.
  */
 const OnboardingFlow: React.FC = () => {
-  const dispatch = useDispatch();
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
 
@@ -45,14 +41,13 @@ const OnboardingFlow: React.FC = () => {
 
   const autoOpened = useRef(false);
   const dismissed = useRef(false);
-  const payLinkRequested = useRef(false);
   const shownTracked = useRef(false);
 
   const companyState = useCompanyStore();
   const walletState = useWalletStore();
-  const payLinkState = useSelector(
-    (state: rootReducer) => state.paymentLinkReducer,
-  );
+  // Payment links now flow through SWR (keyed on the selected company); auto-
+  // fetches on mount here (dashboard), so no manual PAYLINK_FETCH dispatch.
+  const payLinkState = usePaymentLinks();
   // Dashboard stats now flow through SWR (keyed on the selected company); this
   // hook auto-fetches on mount, so no manual DASHBOARD_FETCH_ALL trigger.
   const { stats: dashboardStats } = useDashboardData();
@@ -105,17 +100,9 @@ const OnboardingFlow: React.FC = () => {
     }
   }, []);
 
-  // Once a company exists, fetch payment links once to know if step 3 is done
-  useEffect(() => {
-    if (hasAccount && companyId && !payLinkRequested.current) {
-      payLinkRequested.current = true;
-      dispatch(PaymentLinkAction(PAYLINK_FETCH, { company_id: companyId }));
-    }
-  }, [hasAccount, companyId, dispatch]);
-
-  // Once a payment link exists, the "first payment" milestone reflects reality
-  // automatically — `useDashboardData()` above already loads (and revalidates)
-  // dashboard stats via SWR, so no manual fetch trigger is needed here.
+  // Payment links load automatically via usePaymentLinks() above (SWR, keyed on
+  // the selected company), so we always know if the "first link" step is done —
+  // no manual fetch trigger needed.
 
   // Auto-open the company step ONCE per session for brand-new users (closable, non-blocking)
   useEffect(() => {

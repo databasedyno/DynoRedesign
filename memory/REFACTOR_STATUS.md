@@ -214,7 +214,24 @@ no git history rewrite.
          recent activity populate; transactions list loads + company-switch refetch (SMADAV 4 ↔
          The Dev Store 643); API keys list loads (view-only); /create-pay-link no false banner.
          KEY: NO duplicate simultaneous network calls — SWR dedupe confirmed. Behaviour unchanged.
-      Remaining redux-saga domains: PaymentLink (W4) · User (W5) · Toast (W6).
+      - [x] W4 PaymentLinks → SWR (2026-08-27, pod f07bb4cb): new `hooks/usePaymentLinks.ts` —
+            SWR list keyed on company + createLoading/feePreview/createError*/fetched STATE that
+            mirrors the old reducer field names (so CreatePaymentLink's effect-driven flow —
+            new-link detection, createLoading transition, createErrorNonce inline errors — is
+            UNCHANGED) + imperative methods createPaymentLink/updatePaymentLink/deletePaymentLink/
+            fetchFeePreview that mirror the saga+reducer EXACTLY (optimistic `mutate(...,{revalidate:
+            false})`: create prepends the response, update maps, delete filters). Kept the
+            `mapBackendErrorToField` helper (moved PaymentLinkErrorField type into the hook).
+            Rewired: CreatePaymentLink (selector→hook, 3 dispatches→methods), PaymentLinksTable
+            (delete), Payment-link/index (list+loading), QuickCreateLinkPanel (refresh→refetch),
+            OnboardingFlow (hasLink + fetched via hook, dropped manual fetch effect), CompanySelector
+            (removed the LAST dispatch — now fully redux-free). Deleted PaymentLinkAction/
+            paymentLinkReducer/PaymentLinkSaga + barrel/RootSaga/rootReducer entries.
+            ⚠️ WRITE paths (create/edit/delete) are code-verified only — cannot be exercised on the
+            live prod DB (would pollute a real merchant). READ/list/company-switch/fee-preview are
+            testable. Gate: tsc 0 · eslint 0 · /pay-links + /create-pay-link + /dashboard compile 200.
+            PENDING: read-only frontend testing-agent verification.
+      redux-saga now powers ONLY: User (W5) + Toast (W6). RootReducer = { userReducer, toastReducer }.
 - [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

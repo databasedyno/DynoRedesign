@@ -31,7 +31,7 @@ import { useTranslation } from "react-i18next";
 
 import axiosBaseApi from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { PaymentLinkAction, PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
+import { usePaymentLinks } from "@/hooks/usePaymentLinks";
 import CustomButton from "@/Components/UI/Buttons";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
 import { MONO } from "@/styles/uiKit";
@@ -63,6 +63,7 @@ const QuickCreateLinkPanel = ({
   const router = useRouter();
   const { t } = useTranslation("paymentLinks");
   const { selectedCompanyId } = useCompanyStore();
+  const { refetch: refetchPaymentLinks } = usePaymentLinks();
 
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState<string>("USD");
@@ -135,8 +136,8 @@ const QuickCreateLinkPanel = ({
       const data = res?.data?.data;
       if (data?.payment_link) {
         setCreated({ url: data.payment_link, amount, currency, description: description.trim() });
-        // Refresh the pay-links list behind the panel (no-op elsewhere).
-        dispatch(PaymentLinkAction(PAYLINK_FETCH, { company_id: selectedCompanyId }));
+        // Refresh the pay-links list behind the panel (SWR revalidate).
+        void refetchPaymentLinks();
       } else {
         setApiError(res?.data?.message || t("quickCreate.errorGeneric", { defaultValue: "Could not create the link — please try again." }));
       }

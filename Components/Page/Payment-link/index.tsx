@@ -1,14 +1,10 @@
-import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { formatWithSeparators } from "@/utils/currencyFormat";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import useIsMobile from "@/hooks/useIsMobile";
 import { PaymentLinkData, PaymentLinksProps } from "@/utils/types/paymentLink";
 import { Box, CircularProgress } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { PaymentLinkAction } from "@/Redux/Actions";
-import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
-import { rootReducer } from "@/utils/types";
+import { usePaymentLinks } from "@/hooks/usePaymentLinks";
 import PaymentLinksTable from "./PaymentLinksTable";
 import PaymentLinksTopBar, { PaymentLinkStatusFilter } from "./PaymentLinksTopBar";
 
@@ -17,7 +13,6 @@ const PaymentLinksPage = ({
   setPageDescription,
   setPageAction,
 }: PaymentLinksProps) => {
-  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<PaymentLinkStatusFilter>("all");
   const [dateStart, setDateStart] = useState("");
@@ -26,24 +21,17 @@ const PaymentLinksPage = ({
   // and date picker visibly reset along with the filter state.
   const [filterResetKey, setFilterResetKey] = useState(0);
 
-  const selectedCompanyId = useCompanyStore().selectedCompanyId;
-
   useEffect(() => {
     setPageName?.("");
     setPageDescription?.("");
     setPageAction?.(null);
   }, []);
 
-  useEffect(() => {
-    const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
-    dispatch(PaymentLinkAction(PAYLINK_FETCH, payload));
-  }, [dispatch, selectedCompanyId]);
-
   const isMobile = useIsMobile("md");
 
-  const paymentLinkState = useSelector(
-    (state: rootReducer) => state.paymentLinkReducer
-  );
+  // Payment links now flow through SWR (keyed on the selected company) — the
+  // list auto-refetches on company switch, no manual PAYLINK_FETCH dispatch.
+  const paymentLinkState = usePaymentLinks();
 
   // Map API data to PaymentLinkData format
   const paymentLinks: PaymentLinkData[] = useMemo(() => {

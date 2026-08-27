@@ -9,9 +9,8 @@ import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { PaymentLinkAction } from "@/Redux/Actions";
 import { useApiKeys } from "@/hooks/useApiKeys";
-import { PAYLINK_CREATE, PAYLINK_UPDATE, PAYLINK_FEE_PREVIEW } from "@/Redux/Actions/PaymentLinkAction";
+import { usePaymentLinks } from "@/hooks/usePaymentLinks";
 import PaymentLinkSuccessModal from "./PaymentLinkSuccessModal";
 import { TabContentContainer } from "./styled";
 
@@ -82,7 +81,12 @@ const CreatePaymentLinkPage = ({
   const theme = useTheme();
   const dispatch = useDispatch();
   const { t } = useTranslation("createPaymentLinkScreen");
-  const paymentLinkState = useSelector((state: any) => state.paymentLinkReducer);
+  // Payment links now flow through SWR (keyed on the selected company). The hook
+  // returns the SAME field names the effects below already read
+  // (paymentLinks / createLoading / feePreview / createError*), plus imperative
+  // mutation methods that mirror the old saga transitions.
+  const paymentLinkState = usePaymentLinks();
+  const { createPaymentLink, updatePaymentLink, fetchFeePreview } = paymentLinkState;
   const feePreview = paymentLinkState?.feePreview;
   // Mobile / tablet (< lg): live preview shown on demand via a bottom-sheet drawer.
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -734,17 +738,15 @@ const CreatePaymentLinkPage = ({
     const amount = parseFloat(paymentSettings.value);
     if (amount > 0 && paymentSettings.currency) {
       const timer = setTimeout(() => {
-        dispatch(
-          PaymentLinkAction(PAYLINK_FEE_PREVIEW, {
-            amount,
-            currency: paymentSettings.currency,
-            feePayer: paymentSettings.blockchainFees,
-          })
-        );
+        fetchFeePreview({
+          amount,
+          currency: paymentSettings.currency,
+          feePayer: paymentSettings.blockchainFees,
+        });
       }, 500); // debounce
       return () => clearTimeout(timer);
     }
-  }, [paymentSettings.value, paymentSettings.currency, paymentSettings.blockchainFees, dispatch]);
+  }, [paymentSettings.value, paymentSettings.currency, paymentSettings.blockchainFees, fetchFeePreview]);
 
   const handleCreatePaymentLink = () => {
     // Prevent multiple rapid clicks — use createLoading (not generic loading which can be stuck from fee preview)
@@ -875,23 +877,23 @@ const CreatePaymentLinkPage = ({
       apiPayload.customer_email = customerEmail.trim();
     }
 
-    // Dispatch to Redux saga which calls the API
+    // Call the SWR-backed mutation (was a redux-saga dispatch). The success
+    // modal still opens via the effect that watches paymentLinks length, and
+    // inline errors still surface via createErrorNonce.
     if (hasPaymentLinkData) {
-      dispatch(
-        PaymentLinkAction(PAYLINK_UPDATE, {
-          id: (paymentLinkData as PaymentLink).link_id,
-          ...apiPayload,
-          // Session 14d: return to the payment-links list after a successful save
-          onSuccess: () => router.push("/pay-links"),
-        })
-      );
+      void updatePaymentLink({
+        id: (paymentLinkData as PaymentLink).link_id,
+        ...apiPayload,
+        // Session 14d: return to the payment-links list after a successful save
+        onSuccess: () => router.push("/pay-links"),
+      });
     } else {
       // Clear stale data and start creation
       setPaymentLink("");
       setDirectPayAddress(null);
       setDirectPayQrCode(null);
       setIsCreating(true);
-      dispatch(PaymentLinkAction(PAYLINK_CREATE, apiPayload));
+      void createPaymentLink(apiPayload);
     }
 
     // Modal will open automatically when backend responds (via useEffect above)

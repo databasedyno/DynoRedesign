@@ -21,14 +21,11 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { useSelector, useDispatch } from "react-redux";
 import CustomButton from "../Buttons";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
-import { PaymentLinkAction } from "@/Redux/Actions";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { WALLET_KEY, walletPrefetchFetcher } from "@/contexts/WalletDataContext";
 import { preload } from "swr";
-import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import StepIndicator from "@/Components/UI/OnboardingFlow/StepIndicator";
@@ -39,7 +36,6 @@ export default function CompanySelector() {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const router = useRouter();
-  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const { openCompanySettings } = useCompanySettingsDialog();
   const companyState = useCompanyStore();
@@ -123,7 +119,7 @@ export default function CompanySelector() {
         companyState.selectCompany(newestCompany.company_id);
       }
     }
-  }, [addCompanyPhase, companies, active, dispatch]);
+  }, [addCompanyPhase, companies, active, companyState]);
 
   const selected = companies.find((c) => c.company_id === active);
 
@@ -155,12 +151,10 @@ export default function CompanySelector() {
     // (selectCompany already persists last_company to the backend + localStorage;
     // no duplicate PUT here.)
     // Re-fetch all company-scoped data for the new company. Dashboard,
-    // transactions, wallets AND api keys all flow through SWR (keyed on the
-    // company) so they auto-refetch on switch — only the still-Redux
-    // PaymentLink domain needs a manual kick.
-    const companyPayload = { company_id: companyId };
+    // transactions, api keys, payment links AND wallets ALL flow through SWR
+    // (keyed on the company) so they auto-refetch on switch — nothing to
+    // dispatch here anymore.
     refetchWallets();
-    dispatch(PaymentLinkAction(PAYLINK_FETCH, companyPayload));
   };
 
   function truncateByWords(text: string, maxLength: number) {
