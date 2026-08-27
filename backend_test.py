@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 # Base URL from frontend .env
-BASE_URL = "https://1cfcba07-00d1-4922-baf6-d45c3fac5c8b.preview.emergentagent.com"
+BASE_URL = "https://dynopay-setup-7.preview.emergentagent.com"
 
 # Test credentials
 LOGIN_EMAIL = "onarrival21@gmail.com"

@@ -17,7 +17,7 @@ import os
 import re
 import subprocess
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://crypto-checkout-44.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://dynopay-setup-7.preview.emergentagent.com').rstrip('/')
 
 
 class TestBackendHealth:

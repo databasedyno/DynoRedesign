@@ -11,7 +11,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Base URL for the preview environment
-BASE_URL = "https://crypto-checkout-44.preview.emergentagent.com"
+BASE_URL = "https://dynopay-setup-7.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials from test_credentials.md
