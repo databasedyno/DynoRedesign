@@ -131,6 +131,15 @@ const statusStyle = (status: string, theme: any, t: (k: string) => string) => {
       label: t("statusUnpaid"),
     };
   }
+  // Fresh pending with no on-chain payment yet — calm grey, distinct label.
+  if (s === "awaiting_payment" || s === "awaiting") {
+    return {
+      color: theme.palette.text.secondary,
+      bg: theme.palette.mode === "dark" ? "rgba(156,163,175,0.16)" : "rgba(107,114,128,0.10)",
+      icon: <HourglassEmptyRounded sx={{ fontSize: 14 }} />,
+      label: t("statusAwaiting"),
+    };
+  }
   return {
     color: theme.palette.error.main,
     bg: theme.palette.mode === "dark" ? "rgba(239,68,68,0.18)" : "rgba(239,68,68,0.12)",
@@ -569,7 +578,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                 contextText = email;
               } else if (when) {
                 const isPaid = ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status);
-                const isPendingState = ["pending", "waiting", "unconfirmed", "processing"].includes(status);
+                const isPendingState = ["pending", "waiting", "unconfirmed", "processing", "awaiting_payment", "awaiting"].includes(status);
                 contextText = isPaid
                   ? t("receivedWhen", { when })
                   : isPendingState

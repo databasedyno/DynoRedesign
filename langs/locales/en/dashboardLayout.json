@@ -355,5 +355,6 @@
   "heroInsightBusierSmaller": "Busier than yesterday — {{count}} more payments, smaller average",
   "heroInsightBusier": "Busier than yesterday — {{count}} more payments",
   "heroInsightQuieter": "Quieter than yesterday — {{count}} fewer payments",
-  "heroInsightSteady": "Steady — same number of payments as yesterday"
+  "heroInsightSteady": "Steady — same number of payments as yesterday",
+  "statusAwaiting": "Awaiting payment"
 }

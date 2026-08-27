@@ -79,7 +79,43 @@ interface CartContextValue {
   ) => void;
   removeItem: (handle: string, productId: number, variantId: number | null) => void;
   clearCart: (handle: string) => void;
+  /**
+   * Replace this handle's items with the server-validated set. Used by the
+   * cart surfaces to prune stale entries (deleted/unpublished products,
+   * out-of-stock, invalid price) that the backend `/api/cart` drops from
+   * `normalized`, and to clamp quantities (e.g. one-off services → 1). This
+   * keeps the badge/count in sync with what actually renders + checks out.
+   * No-op when the incoming set is identical to avoid render loops.
+   */
+  reconcile: (
+    handle: string,
+    validated: Array<{ product_id: number | string; variant_id?: number | string | null; quantity: number | string }>
+  ) => void;
   totalCount: (handle: string) => number;
+}
+
+/** Order-independent signature of a cart line set, for cheap equality checks. */
+function cartSig(items: Array<{ product_id: unknown; variant_id?: unknown; quantity: unknown }>): string {
+  return JSON.stringify(
+    items
+      .map((i) => [nId(i.product_id), nId((i as any).variant_id ?? null), Math.floor(Number(i.quantity) || 0)])
+      .sort((a, b) => (a[0]! - b[0]!) || ((a[1] ?? -1) - (b[1] ?? -1)))
+  );
+}
+
+/** Build the reconciled item list from a server-validated set, preserving
+ *  `added_at` from the matching existing line where possible. */
+function buildReconciled(cur: CartItem[], validated: Array<{ product_id: number | string; variant_id?: number | string | null; quantity: number | string }>): CartItem[] {
+  return validated
+    .map((v) => {
+      const pid = nId(v.product_id);
+      const vid = nId(v.variant_id ?? null);
+      const qty = Math.max(0, Math.floor(Number(v.quantity) || 0));
+      if (pid == null || qty <= 0) return null;
+      const existing = cur.find((i) => sameLine(i, pid, vid));
+      return { product_id: pid, variant_id: vid, quantity: qty, added_at: existing?.added_at ?? Date.now() } as CartItem;
+    })
+    .filter((x): x is CartItem => x != null);
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -157,6 +193,21 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setStore((prev) => ({ ...prev, [handle]: { items: [], last_synced_at: Date.now() } }));
   }, []);
 
+  const reconcile = useCallback(
+    (
+      handle: string,
+      validated: Array<{ product_id: number | string; variant_id?: number | string | null; quantity: number | string }>
+    ) => {
+      setStore((prev) => {
+        const cur = prev[handle]?.items || [];
+        const next = buildReconciled(cur, validated);
+        if (cartSig(cur) === cartSig(next)) return prev; // identical → avoid render loop
+        return { ...prev, [handle]: { items: next, last_synced_at: Date.now() } };
+      });
+    },
+    []
+  );
+
   const totalCount = useCallback(
     (handle: string) =>
       (store[handle]?.items || []).reduce((s, i) => s + Number(i.quantity || 0), 0),
@@ -164,8 +215,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 
   const value = useMemo(
-    () => ({ getItems, addItem, updateQuantity, removeItem, clearCart, totalCount }),
-    [getItems, addItem, updateQuantity, removeItem, clearCart, totalCount]
+    () => ({ getItems, addItem, updateQuantity, removeItem, clearCart, reconcile, totalCount }),
+    [getItems, addItem, updateQuantity, removeItem, clearCart, reconcile, totalCount]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
@@ -213,6 +264,13 @@ export function useCart(): CartContextValue {
     clearCart: (handle) => {
       const s = readStore();
       writeStore({ ...s, [handle]: { items: [], last_synced_at: Date.now() } });
+    },
+    reconcile: (handle, validated) => {
+      const s = readStore();
+      const cur = s[handle]?.items || [];
+      const next = buildReconciled(cur, validated);
+      if (cartSig(cur) === cartSig(next)) return; // identical → skip write
+      writeStore({ ...s, [handle]: { items: next, last_synced_at: Date.now() } });
     },
     totalCount: (handle) =>
       (readStore()[handle]?.items || []).reduce(

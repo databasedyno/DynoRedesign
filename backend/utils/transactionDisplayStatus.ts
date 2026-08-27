@@ -28,16 +28,50 @@ export const FRESH_PENDING_SQL = `(ut.status = 'pending' AND ut."createdAt" > NO
 /**
  * Derive the display status for a transaction row.
  * Non-pending statuses pass through untouched.
+ *
+ * `paymentDetected` (optional) tells us whether ANY on-chain payment has been
+ * seen for this row (an incoming tx hash, ≥1 confirmation, or a settled USD
+ * value). It disambiguates the two very different "pending" cases a merchant
+ * used to see identically:
+ *   - detected  → a real payment is confirming            → stays 'pending'
+ *   - NOT detected, still fresh → nothing has arrived yet  → 'awaiting_payment'
+ *   - NOT detected, window passed → buyer never paid       → 'unpaid'
+ * When the caller omits the flag we keep the legacy behaviour (fresh→pending,
+ * stale→unpaid) so surfaces that don't fetch the signal are unaffected.
  */
 export function deriveTxDisplayStatus(
   status: unknown,
-  createdAt: unknown
+  createdAt: unknown,
+  paymentDetected?: boolean
 ): string {
   const s = String(status ?? "");
   if (s.toLowerCase().trim() !== "pending") return s;
-  if (!createdAt) return s;
-  const created = new Date(createdAt as string | Date).getTime();
-  if (!Number.isFinite(created)) return s;
-  const ageMs = Date.now() - created;
-  return ageMs > UNPAID_AFTER_MINUTES * 60 * 1000 ? "unpaid" : s;
+  // A detected payment is genuinely mid-confirmation — never downgrade it.
+  if (paymentDetected === true) return s;
+  const created = createdAt ? new Date(createdAt as string | Date).getTime() : NaN;
+  const stale =
+    Number.isFinite(created) && Date.now() - created > UNPAID_AFTER_MINUTES * 60 * 1000;
+  if (stale) return "unpaid";
+  // Fresh + explicitly-known no payment → "awaiting payment". Without the
+  // signal (undefined) we can't tell, so preserve the legacy 'pending' label.
+  return paymentDetected === false ? "awaiting_payment" : s;
+}
+
+/**
+ * Has any on-chain payment been observed for this transaction row? Used to
+ * pick between 'pending' (confirming) and 'awaiting_payment' (nothing yet).
+ * A non-empty incoming tx hash, ≥1 confirmation, or a positive settled USD
+ * value all count as detected. `crypto_amount` is intentionally ignored — it
+ * is the EXPECTED (quoted) amount set at address generation, not a receipt.
+ */
+export function isPaymentDetected(row: {
+  incoming_tx_hash?: unknown;
+  confirmations?: unknown;
+  usd_value?: unknown;
+}): boolean {
+  const hash = row?.incoming_tx_hash;
+  if (hash != null && String(hash).trim() !== "") return true;
+  if (Number(row?.confirmations) > 0) return true;
+  if (Number(row?.usd_value) > 0) return true;
+  return false;
 }

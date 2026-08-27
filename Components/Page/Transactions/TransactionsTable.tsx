@@ -162,6 +162,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           return t("statusTipUnpaid", {
             defaultValue: "The buyer opened the checkout but has not paid yet.",
           });
+        case "awaiting_payment":
+          return t("statusTipAwaiting", {
+            defaultValue: "No payment received yet — this address is waiting for the buyer to send funds.",
+          });
         default:
           return "";
       }
@@ -183,6 +187,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       case "failed":
         return "failed";
       case "unpaid":
+        return "unpaid";
+      case "awaiting_payment":
+        // Nothing on-chain yet — same calm hollow slate as 'unpaid', but a
+        // distinct label so the merchant knows the window is still open.
         return "unpaid";
       default:
         return "neutral";

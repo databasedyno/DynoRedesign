@@ -33,7 +33,7 @@ import { parseSortAndPagination } from "../../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../../utils/currencyUtils";
 import { resolveTransactionSource } from "../../utils/transactionSource";
-import { deriveTxDisplayStatus } from "../../utils/transactionDisplayStatus";
+import { deriveTxDisplayStatus, isPaymentDetected } from "../../utils/transactionDisplayStatus";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import crypto from "crypto";
 import flw from "../../apis/flutterwaveApi";
@@ -125,11 +125,18 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
     // Calculate total fees
     const totalFees = Number(txData.transaction_fee || 0) + Number(txData.fixed_fee || 0) + Number(txData.blockchain_buffer_fee || 0);
 
+    // Has any on-chain payment actually been observed? Drives the 'pending'
+    // vs 'awaiting_payment' distinction + lets the UI hide the confirmations
+    // counter for addresses that were generated but never funded.
+    const paymentDetected = isPaymentDetected(txData as any);
+
     // Format response according to Figma UI requirements
     const response = {
       // Header
-      // Stale 'pending' attempts (payment window passed) are shown as 'unpaid'
-      status: deriveTxDisplayStatus(txData.status, txData.createdAt),
+      // 'pending' → 'awaiting_payment' (nothing on-chain yet) / 'unpaid'
+      // (window passed) / stays 'pending' while a real payment confirms.
+      status: deriveTxDisplayStatus(txData.status, txData.createdAt, paymentDetected),
+      payment_detected: paymentDetected,
       transaction_id: txData.id || `TX${String(txData.transaction_id).padStart(3, '0')}`,
       date_time: txData.createdAt,
       

@@ -33,7 +33,7 @@ import { parseSortAndPagination } from "../../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../../utils/currencyUtils";
 import { resolveTransactionSource } from "../../utils/transactionSource";
-import { deriveTxDisplayStatus } from "../../utils/transactionDisplayStatus";
+import { deriveTxDisplayStatus, isPaymentDetected } from "../../utils/transactionDisplayStatus";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import crypto from "crypto";
 import flw from "../../apis/flutterwaveApi";
@@ -250,8 +250,9 @@ export const getAllTransactions = async (
         amount: x.base_amount,
         usd_value: usd_value,
         date_time: x.createdAt,
-        // Stale 'pending' attempts (payment window passed) are shown as 'unpaid'
-        status: deriveTxDisplayStatus(x.status, x.createdAt),
+        // Stale 'pending' attempts (payment window passed) are shown as 'unpaid';
+        // fresh pending with no on-chain payment yet reads as 'awaiting_payment'.
+        status: deriveTxDisplayStatus(x.status, x.createdAt, isPaymentDetected(x as any)),
         // Auto-stablecoin conversion indicator
         auto_converted: !!auto_convert_id,
         auto_convert: auto_convert_id

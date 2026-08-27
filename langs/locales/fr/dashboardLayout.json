@@ -355,5 +355,6 @@
   "heroInsightBusierSmaller": "Plus actif qu'hier — {{count}} paiements de plus, panier moyen plus petit",
   "heroInsightBusier": "Plus actif qu'hier — {{count}} paiements de plus",
   "heroInsightQuieter": "Plus calme qu'hier — {{count}} paiements de moins",
-  "heroInsightSteady": "Stable — autant de paiements qu'hier"
+  "heroInsightSteady": "Stable — autant de paiements qu'hier",
+  "statusAwaiting": "En attente"
 }

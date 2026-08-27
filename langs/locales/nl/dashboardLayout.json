@@ -355,5 +355,6 @@
   "heroInsightBusierSmaller": "Drukker dan gisteren — {{count}} betalingen meer, kleiner gemiddelde",
   "heroInsightBusier": "Drukker dan gisteren — {{count}} betalingen meer",
   "heroInsightQuieter": "Rustiger dan gisteren — {{count}} betalingen minder",
-  "heroInsightSteady": "Stabiel — evenveel betalingen als gisteren"
+  "heroInsightSteady": "Stabiel — evenveel betalingen als gisteren",
+  "statusAwaiting": "Wacht op betaling"
 }

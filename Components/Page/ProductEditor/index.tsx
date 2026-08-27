@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box, Typography, TextField, MenuItem, Select, FormControl,
   InputLabel, Switch, Stack, IconButton, Divider, LinearProgress,
-  Chip, Alert, useTheme,
+  Chip, Alert, Snackbar, useTheme,
 } from "@mui/material";
 import AddRounded from "@mui/icons-material/AddRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
@@ -18,6 +18,8 @@ import CloudUploadRounded from "@mui/icons-material/CloudUploadRounded";
 import { useRouter } from "next/router";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
+import ImageCropperDialog from "@/Components/UI/ImageCropperDialog";
+import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
 import axiosBaseApi from "@/axiosConfig";
 import { PRICING_CURRENCIES } from "@/utils/pricingCurrencies";
 import { API_ENDPOINTS } from "@/api/endpoints";
@@ -108,6 +110,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [variantImgUploadIdx, setVariantImgUploadIdx] = useState<number | null>(null);
   const variantImgInputRef = useRef<HTMLInputElement>(null);
   const [variantImgTargetIdx, setVariantImgTargetIdx] = useState<number | null>(null);
+
+  // Crop & zoom step — mirrors the profile-photo / company-logo flow so
+  // product imagery is framed consistently before it uploads. `cropTarget`
+  // remembers which upload the cropped file belongs to.
+  type CropTarget = { kind: "cover" } | { kind: "gallery" } | { kind: "variant"; idx: number };
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
 
   // Local form state
   const [title, setTitle] = useState("");
@@ -329,10 +339,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     }
   };
 
-  const onCoverImgChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (coverImgInputRef.current) coverImgInputRef.current.value = "";
-    if (!file) return;
+  const doCoverUpload = async (file: File) => {
     setCoverUploading(true);
     const url = await uploadImageFile(file);
     setCoverUploading(false);
@@ -342,14 +349,22 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     }
   };
 
-  const onGalleryImgChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onCoverImgChosen = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (galleryImgInputRef.current) galleryImgInputRef.current.value = "";
+    if (coverImgInputRef.current) coverImgInputRef.current.value = "";
     if (!file) return;
-    if (gallery.length >= MAX_GALLERY_ITEMS) {
-      setToast({ text: `Gallery is full (max ${MAX_GALLERY_ITEMS} images).`, kind: "err" });
+    // Crop & zoom step first (sharp, well-framed covers). SVG/GIF/HEIC
+    // bypass the cropper and upload untouched, like the avatar/logo flow.
+    if (isCroppableImage(file.type)) {
+      setCropTarget({ kind: "cover" });
+      setCropFile(file);
+      setCropSrc(URL.createObjectURL(file));
       return;
     }
+    void doCoverUpload(file);
+  };
+
+  const doGalleryUpload = async (file: File) => {
     setGalleryUploading(true);
     const url = await uploadImageFile(file);
     setGalleryUploading(false);
@@ -361,6 +376,23 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       setGalleryAltDraft("");
       setToast({ text: "Gallery image added.", kind: "ok" });
     }
+  };
+
+  const onGalleryImgChosen = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (galleryImgInputRef.current) galleryImgInputRef.current.value = "";
+    if (!file) return;
+    if (gallery.length >= MAX_GALLERY_ITEMS) {
+      setToast({ text: `Gallery is full (max ${MAX_GALLERY_ITEMS} images).`, kind: "err" });
+      return;
+    }
+    if (isCroppableImage(file.type)) {
+      setCropTarget({ kind: "gallery" });
+      setCropFile(file);
+      setCropSrc(URL.createObjectURL(file));
+      return;
+    }
+    void doGalleryUpload(file);
   };
 
   const addGalleryFromUrl = () => {
@@ -403,12 +435,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     setTimeout(() => variantImgInputRef.current?.click(), 0);
   };
 
-  const onVariantImgChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    const idx = variantImgTargetIdx;
-    if (variantImgInputRef.current) variantImgInputRef.current.value = "";
-    setVariantImgTargetIdx(null);
-    if (!file || idx == null) return;
+  const doVariantUpload = async (file: File, idx: number) => {
     setVariantImgUploadIdx(idx);
     const url = await uploadImageFile(file);
     setVariantImgUploadIdx(null);
@@ -433,6 +460,42 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     }
     setToast({ text: "Variant image uploaded.", kind: "ok" });
   };
+
+  const onVariantImgChosen = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const idx = variantImgTargetIdx;
+    if (variantImgInputRef.current) variantImgInputRef.current.value = "";
+    setVariantImgTargetIdx(null);
+    if (!file || idx == null) return;
+    if (isCroppableImage(file.type)) {
+      setCropTarget({ kind: "variant", idx });
+      setCropFile(file);
+      setCropSrc(URL.createObjectURL(file));
+      return;
+    }
+    void doVariantUpload(file, idx);
+  };
+
+  // ── Crop dialog plumbing (cover / gallery / variant) ──────────────────
+  const closeCropper = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    setCropFile(null);
+    setCropTarget(null);
+  };
+
+  const handleCropApply = (file: File) => {
+    const target = cropTarget;
+    closeCropper();
+    if (!target) return;
+    if (target.kind === "cover") void doCoverUpload(file);
+    else if (target.kind === "gallery") void doGalleryUpload(file);
+    else void doVariantUpload(file, target.idx);
+  };
+
+  // Aspect per surface: covers/gallery frame as 4:3 landscape; variant
+  // thumbnails are square (they render small next to the option name).
+  const cropAspect = cropTarget?.kind === "variant" ? 1 : 4 / 3;
 
   const removeVariantImage = async (idx: number) => {
     const row = variants[idx];
@@ -564,13 +627,23 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   return (
     <Stack spacing={2} data-testid="product-editor">
       {toast && (
-        <Alert
-          severity={toast.kind === "ok" ? "success" : "error"}
-          onClose={() => setToast(null)}
-          data-testid="product-editor-toast"
+        <Snackbar
+          open
+          autoHideDuration={4000}
+          onClose={(_e, reason) => { if (reason !== "clickaway") setToast(null); }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          sx={{ zIndex: (th) => th.zIndex.modal + 2 }}
         >
-          {toast.text}
-        </Alert>
+          <Alert
+            severity={toast.kind === "ok" ? "success" : "error"}
+            variant="filled"
+            onClose={() => setToast(null)}
+            data-testid="product-editor-toast"
+            sx={{ width: "100%", boxShadow: 6 }}
+          >
+            {toast.text}
+          </Alert>
+        </Snackbar>
       )}
 
       <PanelCard title={mode === "new" ? "New product" : `Edit product`}>
@@ -1190,6 +1263,19 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           />
         )}
       </Stack>
+
+      {cropSrc && (
+        <ImageCropperDialog
+          open
+          imageSrc={cropSrc}
+          sourceFile={cropFile}
+          cropShape="rect"
+          aspect={cropAspect}
+          title="Adjust image"
+          onCancel={closeCropper}
+          onApply={(file) => handleCropApply(file)}
+        />
+      )}
     </Stack>
   );
 };

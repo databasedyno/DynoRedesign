@@ -59,5 +59,7 @@
   "statusTipConfirming": "Betaling gezien op de blockchain — wachten op voldoende bevestigingen.",
   "statusTipSettled": "Bevestigd en bijgeschreven op je saldo.",
   "statusTipFailed": "Deze betaling is niet voltooid — er is geen geld verplaatst.",
-  "statusTipUnpaid": "De koper heeft de checkout geopend maar nog niet betaald."
+  "statusTipUnpaid": "De koper heeft de checkout geopend maar nog niet betaald.",
+  "awaiting_payment": "wacht op betaling",
+  "statusTipAwaiting": "Nog geen betaling ontvangen — dit adres wacht tot de koper geld verstuurt."
 }

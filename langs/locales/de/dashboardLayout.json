@@ -355,5 +355,6 @@
   "heroInsightBusierSmaller": "Mehr los als gestern — {{count}} Zahlungen mehr, kleinerer Durchschnitt",
   "heroInsightBusier": "Mehr los als gestern — {{count}} Zahlungen mehr",
   "heroInsightQuieter": "Ruhiger als gestern — {{count}} Zahlungen weniger",
-  "heroInsightSteady": "Stabil — genauso viele Zahlungen wie gestern"
+  "heroInsightSteady": "Stabil — genauso viele Zahlungen wie gestern",
+  "statusAwaiting": "Warten auf Zahlung"
 }

@@ -48,14 +48,27 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
   const [currency, setCurrency] = useState("USD");
   const [subtotal, setSubtotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  // The server-validated item count for the CURRENT localStorage snapshot.
+  // Null until the first successful /api/cart validation resolves.
+  const [validatedCount, setValidatedCount] = useState<number | null>(null);
+  const [validatedKey, setValidatedKey] = useState<string>("");
 
   const items = handle ? cart.getItems(handle) : [];
-  const count = handle ? cart.totalCount(handle) : 0;
+  const rawCount = handle ? cart.totalCount(handle) : 0;
   const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
   const itemsKey = JSON.stringify(items);
 
+  // Badge/FAB count: prefer the server-validated count (which excludes stale
+  // items the backend drops — deleted/unpublished/out-of-stock — and clamps
+  // one-off services to 1). Fall back to the raw localStorage count until the
+  // first validation for this exact snapshot lands, or if it failed.
+  const count = validatedKey === itemsKey && validatedCount != null ? validatedCount : rawCount;
+
   const refresh = useCallback(() => {
-    if (!handle || items.length === 0) { setLines([]); setSubtotal(0); return; }
+    if (!handle || items.length === 0) {
+      setLines([]); setSubtotal(0); setValidatedCount(0); setValidatedKey(itemsKey);
+      return;
+    }
     setLoading(true);
     fetch(`${base}/api/cart`, {
       method: "POST",
@@ -65,20 +78,30 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
         items: items.map((i) => ({ product_id: i.product_id, variant_id: i.variant_id, quantity: i.quantity })),
       }),
     })
-      .then((r) => r.json())
-      .then((j) => {
-        const d = j?.data || {};
-        setLines(d.normalized || []);
+      .then(async (r) => ({ ok: r.ok, j: await r.json().catch(() => null) }))
+      .then(({ ok, j }) => {
+        const d = j?.data;
+        // Only trust — and reconcile against — a genuine success payload.
+        // A transient 4xx/5xx must NEVER be treated as "cart is empty" and
+        // wipe the buyer's cart.
+        if (!ok || !d || !Array.isArray(d.normalized)) return;
+        const normalized = d.normalized as Line[];
+        setLines(normalized);
         setCurrency(d.currency || "USD");
         setSubtotal(Number(d.subtotal_cents) || 0);
+        setValidatedCount(normalized.reduce((s, l) => s + Number(l.quantity || 0), 0));
+        setValidatedKey(itemsKey);
+        // Prune stale entries / clamp quantities in localStorage so the badge,
+        // drawer and checkout all agree on one source of truth.
+        cart.reconcile(handle, normalized as any);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handle, itemsKey, base]);
 
-  // Keep the drawer contents fresh whenever it's open and the cart changes.
-  useEffect(() => { if (open) refresh(); }, [open, itemsKey, refresh]);
+  // Validate whenever the cart changes (mount + every add/remove) so the badge
+  // is always accurate, and re-validate when the drawer opens for fresh prices.
+  useEffect(() => { refresh(); }, [refresh, open]);
 
   // External open trigger (product page "Buy now" / "View cart").
   useEffect(() => {

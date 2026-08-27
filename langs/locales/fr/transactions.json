@@ -59,5 +59,7 @@
   "statusTipConfirming": "Paiement vu sur la blockchain — en attente de confirmations suffisantes.",
   "statusTipSettled": "Confirmé et crédité sur votre solde.",
   "statusTipFailed": "Ce paiement n'a pas abouti — aucun fonds déplacé.",
-  "statusTipUnpaid": "L'acheteur a ouvert le paiement mais n'a pas encore payé."
+  "statusTipUnpaid": "L'acheteur a ouvert le paiement mais n'a pas encore payé.",
+  "awaiting_payment": "en attente de paiement",
+  "statusTipAwaiting": "Aucun paiement reçu pour le moment — cette adresse attend que l'acheteur envoie les fonds."
 }

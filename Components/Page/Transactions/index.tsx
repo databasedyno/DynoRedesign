@@ -278,6 +278,10 @@ const TransactionPage = () => {
             // window has passed (read-time, no DB mutation).
             if (s === "unpaid")
               return "unpaid" as const;
+            // Fresh pending with NO on-chain payment yet — the deposit address
+            // was generated but the buyer hasn't sent anything.
+            if (s === "awaiting_payment" || s === "awaiting")
+              return "awaiting_payment" as const;
             if (s === "failed" || s === "expired" || s === "refunded" || s === "settlement_failed")
               return "failed" as const;
             return "pending" as const;
@@ -318,6 +322,9 @@ const TransactionPage = () => {
           },
           confirmations: (() => {
             const s = (item.status || "").toLowerCase().trim();
+            // Never-funded attempts (nothing on-chain) shouldn't show a "0/6"
+            // counter that implies a payment is confirming. Empty hides the row.
+            if (s === "awaiting_payment" || s === "awaiting" || s === "unpaid") return "";
             const complete = ["success", "successful", "completed", "payout_complete", "converted", "recovered", "done", "settled", "confirmed"].includes(s);
             const conf = Number((item as any).confirmations) || 0;
             const req = Number((item as any).required_confirmations) || 0;

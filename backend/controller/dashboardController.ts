@@ -16,7 +16,7 @@ import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance"
 import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, convertToUSD, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
-import { deriveTxDisplayStatus, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";
+import { deriveTxDisplayStatus, isPaymentDetected, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";
 import { getVolumeTiers } from "../utils/volumeTierUtils";
 
 /**
@@ -827,6 +827,9 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         ut.crypto_currency,
         ut.status,
         ut.transaction_type,
+        ut.incoming_tx_hash,
+        ut.confirmations,
+        ut.usd_value,
         ut.transaction_reference,
         ut."createdAt",
         uw.wallet_type,
@@ -890,8 +893,9 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
       } = row;
       return {
         ...clean,
-        // Stale 'pending' attempts (payment window passed) are shown as 'unpaid'
-        status: deriveTxDisplayStatus(clean.status, clean.createdAt),
+        // Stale 'pending' → 'unpaid'; fresh pending with nothing on-chain yet
+        // → 'awaiting_payment'; a confirming payment stays 'pending'.
+        status: deriveTxDisplayStatus(clean.status, clean.createdAt, isPaymentDetected(clean as any)),
         source,
       };
     });

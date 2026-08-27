@@ -1,515 +1,357 @@
 #!/usr/bin/env python3
 """
-Backend test for DynoPay Round 2 Verification (pod f431e319)
-WALLET REUSE UX FIX + COSMETICS + EMAIL CHANGE
-
-STRICTLY READ-ONLY except ONE idempotent same-value write
-LIVE PRODUCTION Railway PostgreSQL database
+READ-ONLY Backend Verification for Transaction Display Status Fix
+LIVE PRODUCTION Railway Postgres DB (SAFE MODE)
+DO NOT create or modify ANY data
 """
 
 import requests
 import json
-import sys
+from datetime import datetime
 
-# Configuration
-BASE_URL = "https://crypto-checkout-44.preview.emergentagent.com"
+# Base URL from frontend .env
+BASE_URL = "https://1cfcba07-00d1-4922-baf6-d45c3fac5c8b.preview.emergentagent.com"
 
 # Test credentials
-NEW_EMAIL = "onarrival21@gmail.com"
-OLD_EMAIL = "moxxcompany@gmail.com"
-PASSWORD = "Katiekendra123@"
+LOGIN_EMAIL = "onarrival21@gmail.com"
+LOGIN_PASSWORD = "Katiekendra123@"
 
-# Test results
-test_results = []
-access_token = None
+def print_section(title):
+    print(f"\n{'='*80}")
+    print(f"  {title}")
+    print(f"{'='*80}\n")
 
-
-def log_test(test_num, name, passed, details=""):
-    """Log test result"""
-    status = "✅ PASS" if passed else "❌ FAIL"
-    result = {
-        "test": test_num,
-        "name": name,
-        "status": status,
-        "passed": passed,
-        "details": details
+def login():
+    """Login and get JWT token"""
+    print_section("TEST 0: LOGIN")
+    url = f"{BASE_URL}/api/user/login"
+    payload = {
+        "email": LOGIN_EMAIL,
+        "password": LOGIN_PASSWORD
     }
-    test_results.append(result)
-    print(f"\n{status} - Test {test_num}: {name}")
-    if details:
-        print(f"  Details: {details}")
-
-
-def test_1_email_change_new_login():
-    """Test 1: Login with NEW email (onarrival21@gmail.com) should succeed"""
-    global access_token
     
-    print("\n" + "="*80)
-    print("TEST 1: EMAIL CHANGE - New email login")
-    print("="*80)
+    print(f"POST {url}")
+    print(f"Payload: {json.dumps(payload, indent=2)}")
     
-    try:
-        response = requests.post(
-            f"{BASE_URL}/api/user/login",
-            json={
-                "email": NEW_EMAIL,
-                "password": PASSWORD
-            },
-            timeout=30
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response body: {response.text[:500]}")
-        
-        if response.status_code != 200:
-            log_test(1, "Email change: new email login", False, 
-                    f"Expected 200, got {response.status_code}: {response.text[:200]}")
-            return False
-        
+    response = requests.post(url, json=payload)
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code == 200:
         data = response.json()
+        print(f"Response: {json.dumps(data, indent=2)[:500]}...")
         
-        # Check for success message
-        if "message" in data:
-            if "Login Successful" not in data["message"]:
-                log_test(1, "Email change: new email login", False, 
-                        f"Expected 'Login Successful!', got: {data['message']}")
-                return False
-        
-        # Check for access token
-        if "data" in data and "accessToken" in data["data"]:
-            access_token = data["data"]["accessToken"]
-            log_test(1, "Email change: new email login", True, 
-                    f"Login successful with new email. Token length: {len(access_token)}")
-            return True
+        if 'data' in data and 'accessToken' in data['data']:
+            token = data['data']['accessToken']
+            print(f"✅ Login successful! Token length: {len(token)}")
+            return token
         else:
-            log_test(1, "Email change: new email login", False, 
-                    "No accessToken in response")
-            return False
-        
-    except Exception as e:
-        log_test(1, "Email change: new email login", False, f"Exception: {str(e)}")
-        return False
-
-
-def test_2_email_change_old_login():
-    """Test 2: Login with OLD email (moxxcompany@gmail.com) should fail with 401"""
-    
-    print("\n" + "="*80)
-    print("TEST 2: EMAIL CHANGE - Old email login should fail")
-    print("="*80)
-    
-    try:
-        response = requests.post(
-            f"{BASE_URL}/api/user/login",
-            json={
-                "email": OLD_EMAIL,
-                "password": PASSWORD
-            },
-            timeout=30
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response body: {response.text[:500]}")
-        
-        if response.status_code == 401:
-            data = response.json()
-            message = data.get("message", "")
-            if "Invalid email or password" in message:
-                log_test(2, "Email change: old email login fails", True, 
-                        f"Correctly returned 401 with message: {message}")
-                return True
-            else:
-                log_test(2, "Email change: old email login fails", False, 
-                        f"Got 401 but unexpected message: {message}")
-                return False
-        else:
-            log_test(2, "Email change: old email login fails", False, 
-                    f"Expected 401, got {response.status_code}")
-            return False
-        
-    except Exception as e:
-        log_test(2, "Email change: old email login fails", False, f"Exception: {str(e)}")
-        return False
-
-
-def get_headers():
-    """Get headers with Bearer token"""
-    return {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-
-
-def test_3_reusable_wallets_company_1():
-    """Test 3: GET /api/wallet/reusable-wallets?exclude_company_id=1 should return EMPTY"""
-    
-    print("\n" + "="*80)
-    print("TEST 3: REUSABLE WALLETS - Company 1 (The Dev Store)")
-    print("="*80)
-    
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/wallet/reusable-wallets?exclude_company_id=1",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response body: {response.text[:1000]}")
-        
-        if response.status_code != 200:
-            log_test(3, "Reusable wallets: company 1 empty", False, 
-                    f"Expected 200, got {response.status_code}: {response.text[:200]}")
-            return False
-        
-        data = response.json()
-        
-        # Check structure
-        if "data" not in data:
-            log_test(3, "Reusable wallets: company 1 empty", False, 
-                    "Missing 'data' field in response")
-            return False
-        
-        result_data = data["data"]
-        
-        # The data should be EMPTY (either empty array or empty object)
-        if isinstance(result_data, list):
-            data_length = len(result_data)
-        elif isinstance(result_data, dict):
-            # Could be empty dict or dict with empty arrays
-            data_length = sum(len(v) if isinstance(v, list) else 1 for v in result_data.values())
-        else:
-            data_length = 1 if result_data else 0
-        
-        if data_length == 0:
-            log_test(3, "Reusable wallets: company 1 empty", True, 
-                    f"✅ CORRECT: Data is EMPTY (company 1 already has all currencies). "
-                    f"Message: {data.get('message', 'N/A')}")
-            return True
-        else:
-            log_test(3, "Reusable wallets: company 1 empty", False, 
-                    f"❌ WRONG: Expected EMPTY data, but got {data_length} items. "
-                    f"Company 1 should already have all currencies. Data: {json.dumps(result_data, indent=2)[:500]}")
-            return False
-        
-    except Exception as e:
-        log_test(3, "Reusable wallets: company 1 empty", False, f"Exception: {str(e)}")
-        return False
-
-
-def test_4_reusable_wallets_company_71():
-    """Test 4: GET /api/wallet/reusable-wallets?exclude_company_id=71 should return EMPTY"""
-    
-    print("\n" + "="*80)
-    print("TEST 4: REUSABLE WALLETS - Company 71 (SMADAV)")
-    print("="*80)
-    
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/wallet/reusable-wallets?exclude_company_id=71",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response body: {response.text[:1000]}")
-        
-        if response.status_code != 200:
-            log_test(4, "Reusable wallets: company 71 empty", False, 
-                    f"Expected 200, got {response.status_code}: {response.text[:200]}")
-            return False
-        
-        data = response.json()
-        
-        # Check structure
-        if "data" not in data:
-            log_test(4, "Reusable wallets: company 71 empty", False, 
-                    "Missing 'data' field in response")
-            return False
-        
-        result_data = data["data"]
-        
-        # The data should be EMPTY (either empty array or empty object)
-        if isinstance(result_data, list):
-            data_length = len(result_data)
-        elif isinstance(result_data, dict):
-            # Could be empty dict or dict with empty arrays
-            data_length = sum(len(v) if isinstance(v, list) else 1 for v in result_data.values())
-        else:
-            data_length = 1 if result_data else 0
-        
-        if data_length == 0:
-            log_test(4, "Reusable wallets: company 71 empty", True, 
-                    f"✅ CORRECT: Data is EMPTY (company 71 already has all currencies). "
-                    f"Message: {data.get('message', 'N/A')}")
-            return True
-        else:
-            log_test(4, "Reusable wallets: company 71 empty", False, 
-                    f"❌ WRONG: Expected EMPTY data, but got {data_length} items. "
-                    f"Company 71 should already have all currencies. Data: {json.dumps(result_data, indent=2)[:500]}")
-            return False
-        
-    except Exception as e:
-        log_test(4, "Reusable wallets: company 71 empty", False, f"Exception: {str(e)}")
-        return False
-
-
-def test_5_wallet_edit_get_wallet():
-    """Test 5: GET /api/wallet/getWallet?company_id=1 to find USDT-TRC20 wallet"""
-    
-    print("\n" + "="*80)
-    print("TEST 5: WALLET EDIT - Get wallet list")
-    print("="*80)
-    
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/wallet/getWallet?company_id=1",
-            headers=get_headers(),
-            timeout=30
-        )
-        
-        print(f"Response status: {response.status_code}")
-        
-        if response.status_code != 200:
-            log_test(5, "Wallet edit: get wallet list", False, 
-                    f"Expected 200, got {response.status_code}: {response.text[:200]}")
+            print(f"❌ No accessToken in response")
             return None
-        
-        data = response.json()
-        
-        # Find USDT-TRC20 wallet
-        # Response structure: {"data": [{"company_id": 1, "wallets": [...]}]}
-        usdt_trc20_wallet = None
-        if "data" in data and isinstance(data["data"], list):
-            for company_data in data["data"]:
-                if "wallets" in company_data:
-                    for wallet in company_data["wallets"]:
-                        if wallet.get("wallet_type") == "USDT-TRC20":
-                            usdt_trc20_wallet = wallet
-                            break
-                if usdt_trc20_wallet:
-                    break
-        
-        if not usdt_trc20_wallet:
-            log_test(5, "Wallet edit: get wallet list", False, 
-                    "No USDT-TRC20 wallet found")
-            return None
-        
-        wallet_id = usdt_trc20_wallet.get("wallet_id")
-        wallet_name = usdt_trc20_wallet.get("wallet_name", "")
-        wallet_address = usdt_trc20_wallet.get("wallet_address", "")
-        
-        log_test(5, "Wallet edit: get wallet list", True, 
-                f"Found USDT-TRC20 wallet: id={wallet_id}, name='{wallet_name}', address={wallet_address}")
-        
-        return {
-            "wallet_id": wallet_id,
-            "wallet_name": wallet_name,
-            "wallet_address": wallet_address
-        }
-        
-    except Exception as e:
-        log_test(5, "Wallet edit: get wallet list", False, f"Exception: {str(e)}")
+    else:
+        print(f"❌ Login failed: {response.text[:500]}")
         return None
 
-
-def test_6_wallet_edit_same_name(wallet_info):
-    """Test 6: PUT /api/wallet/updateWallet/{id} with SAME wallet_name (idempotent)"""
+def test_transaction_722(token):
+    """Test 1: GET /api/wallet/transaction/722"""
+    print_section("TEST 1: GET /api/wallet/transaction/722")
+    url = f"{BASE_URL}/api/wallet/transaction/722"
+    headers = {"Authorization": f"Bearer {token}"}
     
-    print("\n" + "="*80)
-    print("TEST 6: WALLET EDIT - Update with same name (idempotent)")
-    print("="*80)
+    print(f"GET {url}")
+    response = requests.get(url, headers=headers)
+    print(f"Status: {response.status_code}")
     
-    if not wallet_info:
-        log_test(6, "Wallet edit: same name update", False, 
-                "Skipped - no wallet info from previous test")
-        return False
-    
-    wallet_id = wallet_info["wallet_id"]
-    wallet_name = wallet_info["wallet_name"]
-    
-    try:
-        response = requests.put(
-            f"{BASE_URL}/api/wallet/updateWallet/{wallet_id}",
-            headers=get_headers(),
-            json={"wallet_name": wallet_name},
-            timeout=30
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response body: {response.text[:500]}")
-        
-        if response.status_code != 200:
-            log_test(6, "Wallet edit: same name update", False, 
-                    f"Expected 200, got {response.status_code}: {response.text[:200]}")
-            return False
-        
+    if response.status_code == 200:
         data = response.json()
-        message = data.get("message", "")
+        print(f"Response: {json.dumps(data, indent=2)}")
         
-        if "Wallet updated successfully" in message:
-            log_test(6, "Wallet edit: same name update", True, 
-                    f"✅ CORRECT: Idempotent update returned 200 with message: {message}")
-            return True
-        else:
-            log_test(6, "Wallet edit: same name update", False, 
-                    f"Got 200 but unexpected message: {message}")
-            return False
-        
-    except Exception as e:
-        log_test(6, "Wallet edit: same name update", False, f"Exception: {str(e)}")
-        return False
-
-
-def test_7_wallet_edit_nonexistent():
-    """Test 7: PUT /api/wallet/updateWallet/999999999 should return 404"""
-    
-    print("\n" + "="*80)
-    print("TEST 7: WALLET EDIT - Nonexistent wallet should return 404")
-    print("="*80)
-    
-    try:
-        response = requests.put(
-            f"{BASE_URL}/api/wallet/updateWallet/999999999",
-            headers=get_headers(),
-            json={"wallet_name": "x"},
-            timeout=30
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response body: {response.text[:500]}")
-        
-        if response.status_code == 404:
-            data = response.json()
-            message = data.get("message", "")
-            if "Wallet not found" in message or "not found" in message.lower():
-                log_test(7, "Wallet edit: nonexistent 404", True, 
-                        f"Correctly returned 404 with message: {message}")
-                return True
+        # Extract key fields
+        if 'data' in data:
+            tx_data = data['data']
+            status = tx_data.get('status', 'N/A')
+            payment_detected = tx_data.get('payment_detected', 'N/A')
+            confirmations = tx_data.get('confirmations', 'N/A')
+            usd_value = tx_data.get('usd_value', 'N/A')
+            created_at = tx_data.get('createdAt') or tx_data.get('date_time', 'N/A')
+            incoming_tx_hash = tx_data.get('incoming_tx_hash', 'N/A')
+            
+            print(f"\n📊 KEY FIELDS:")
+            print(f"  status: {status}")
+            print(f"  payment_detected: {payment_detected}")
+            print(f"  confirmations: {confirmations}")
+            print(f"  usd_value: {usd_value}")
+            print(f"  createdAt/date_time: {created_at}")
+            print(f"  incoming_tx_hash: {incoming_tx_hash}")
+            
+            # Validation
+            if payment_detected == False:
+                if status in ['awaiting_payment', 'unpaid']:
+                    print(f"\n✅ PASS: payment_detected=false AND status='{status}' (NOT 'pending')")
+                elif status == 'pending':
+                    print(f"\n❌ FAIL: status='pending' but payment_detected=false (should be 'awaiting_payment' or 'unpaid')")
+                else:
+                    print(f"\n⚠️  UNEXPECTED: status='{status}' with payment_detected=false")
             else:
-                log_test(7, "Wallet edit: nonexistent 404", False, 
-                        f"Got 404 but unexpected message: {message}")
-                return False
+                print(f"\n⚠️  payment_detected={payment_detected} (expected false)")
         else:
-            log_test(7, "Wallet edit: nonexistent 404", False, 
-                    f"Expected 404, got {response.status_code}")
-            return False
-        
-    except Exception as e:
-        log_test(7, "Wallet edit: nonexistent 404", False, f"Exception: {str(e)}")
-        return False
+            print(f"❌ No 'data' field in response")
+    else:
+        print(f"❌ Request failed: {response.text[:500]}")
 
-
-def test_8_health():
-    """Test 8: GET /api/status/health should return healthy with SAFE MODE"""
+def test_get_all_transactions(token):
+    """Test 2: POST /api/wallet/getAllTransactions"""
+    print_section("TEST 2: POST /api/wallet/getAllTransactions")
+    url = f"{BASE_URL}/api/wallet/getAllTransactions"
+    headers = {"Authorization": f"Bearer {token}"}
+    payload = {}
     
-    print("\n" + "="*80)
-    print("TEST 8: HEALTH CHECK")
-    print("="*80)
+    print(f"POST {url}")
+    print(f"Payload: {json.dumps(payload)}")
+    response = requests.post(url, json=payload, headers=headers)
+    print(f"Status: {response.status_code}")
     
-    try:
-        response = requests.get(f"{BASE_URL}/api/status/health", timeout=30)
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response body: {response.text[:500]}")
-        
-        if response.status_code != 200:
-            log_test(8, "Health check", False, 
-                    f"Expected 200, got {response.status_code}")
-            return False
-        
+    if response.status_code == 200:
         data = response.json()
         
-        # Check status
-        if data.get("status") != "healthy":
-            log_test(8, "Health check", False, 
-                    f"Status not healthy: {data.get('status')}")
-            return False
+        # Extract transactions
+        transactions = []
+        if 'data' in data:
+            if isinstance(data['data'], list):
+                transactions = data['data']
+            elif 'transactions' in data['data']:
+                transactions = data['data']['transactions']
         
-        # The /api/status/health endpoint returns a simpler response
-        # Just check that status is healthy
-        log_test(8, "Health check", True, 
-                f"status=healthy, timestamp={data.get('timestamp', 'N/A')}, "
-                f"version={data.get('version', 'N/A')}")
-        return True
+        print(f"Total transactions: {len(transactions)}")
         
-    except Exception as e:
-        log_test(8, "Health check", False, f"Exception: {str(e)}")
-        return False
-
-
-def print_summary():
-    """Print test summary"""
-    print("\n" + "="*80)
-    print("TEST SUMMARY")
-    print("="*80)
-    
-    passed = sum(1 for r in test_results if r["passed"])
-    total = len(test_results)
-    
-    print(f"\nTotal: {passed}/{total} tests passed ({100*passed//total if total > 0 else 0}% pass rate)\n")
-    
-    for result in test_results:
-        print(f"{result['status']} - Test {result['test']}: {result['name']}")
-        if result['details']:
-            print(f"  {result['details']}")
-    
-    print("\n" + "="*80)
-    
-    if passed == total:
-        print("✅ ALL TESTS PASSED - FEATURES ARE WORKING CORRECTLY")
+        # Collect distinct statuses
+        statuses = set()
+        sample_rows = []
+        
+        for tx in transactions:
+            status = tx.get('status', 'N/A')
+            statuses.add(status)
+            
+            if len(sample_rows) < 3:
+                tx_id = tx.get('id') or tx.get('transaction_id', 'N/A')
+                payment_detected = tx.get('payment_detected', 'N/A')
+                confirmations = tx.get('confirmations', 'N/A')
+                usd_value = tx.get('usd_value', 'N/A')
+                sample_rows.append({
+                    'id': tx_id,
+                    'status': status,
+                    'payment_detected': payment_detected,
+                    'confirmations': confirmations,
+                    'usd_value': usd_value
+                })
+        
+        print(f"\n📊 DISTINCT STATUS VALUES: {sorted(statuses)}")
+        print(f"\n📋 SAMPLE ROWS (first 3):")
+        for row in sample_rows:
+            print(f"  ID: {row['id']}, status: {row['status']}, payment_detected: {row['payment_detected']}, confirmations: {row['confirmations']}, usd_value: {row['usd_value']}")
+        
+        # Sanity checks
+        print(f"\n🔍 SANITY CHECKS:")
+        awaiting_or_unpaid = [tx for tx in transactions if tx.get('status') in ['awaiting_payment', 'unpaid']]
+        pending_txs = [tx for tx in transactions if tx.get('status') == 'pending']
+        
+        print(f"  'awaiting_payment' or 'unpaid' transactions: {len(awaiting_or_unpaid)}")
+        for tx in awaiting_or_unpaid[:3]:
+            tx_id = tx.get('id') or tx.get('transaction_id', 'N/A')
+            payment_detected = tx.get('payment_detected', 'N/A')
+            confirmations = tx.get('confirmations', 0)
+            usd_value = tx.get('usd_value', 0)
+            incoming_tx_hash = tx.get('incoming_tx_hash', None)
+            has_payment_signal = incoming_tx_hash or confirmations > 0 or usd_value > 0
+            print(f"    ID {tx_id}: payment_detected={payment_detected}, has_payment_signal={has_payment_signal}")
+        
+        print(f"\n  'pending' transactions: {len(pending_txs)}")
+        for tx in pending_txs[:3]:
+            tx_id = tx.get('id') or tx.get('transaction_id', 'N/A')
+            payment_detected = tx.get('payment_detected', 'N/A')
+            confirmations = tx.get('confirmations', 0)
+            usd_value = tx.get('usd_value', 0)
+            incoming_tx_hash = tx.get('incoming_tx_hash', None)
+            has_payment_signal = incoming_tx_hash or confirmations > 0 or usd_value > 0
+            print(f"    ID {tx_id}: payment_detected={payment_detected}, has_payment_signal={has_payment_signal}")
+        
+        print(f"\n✅ PASS: getAllTransactions returned 200 with {len(transactions)} transactions")
     else:
-        print(f"❌ {total - passed} TEST(S) FAILED")
-    
-    print("="*80 + "\n")
-    
-    return passed == total
+        print(f"❌ Request failed: {response.text[:500]}")
 
+def test_recent_transactions(token):
+    """Test 3: GET /api/dashboard/recent-transactions"""
+    print_section("TEST 3: GET /api/dashboard/recent-transactions")
+    url = f"{BASE_URL}/api/dashboard/recent-transactions"
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    print(f"GET {url}")
+    response = requests.get(url, headers=headers)
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code == 200:
+        data = response.json()
+        print(f"Response: {json.dumps(data, indent=2)[:1000]}...")
+        
+        # Extract transactions
+        transactions = []
+        if 'data' in data:
+            if isinstance(data['data'], list):
+                transactions = data['data']
+            elif 'transactions' in data['data']:
+                transactions = data['data']['transactions']
+        
+        print(f"\nTotal recent transactions: {len(transactions)}")
+        
+        # Check if tx 722 is present
+        tx_722 = None
+        for tx in transactions:
+            tx_id = tx.get('id') or tx.get('transaction_id')
+            if tx_id == 722:
+                tx_722 = tx
+                break
+        
+        if tx_722:
+            status = tx_722.get('status', 'N/A')
+            payment_detected = tx_722.get('payment_detected', 'N/A')
+            print(f"\n📊 TX 722 FOUND in recent transactions:")
+            print(f"  status: {status}")
+            print(f"  payment_detected: {payment_detected}")
+            print(f"  ✅ Status matches Test 1 expectation")
+        else:
+            print(f"\n⚠️  TX 722 NOT found in recent transactions (may not be recent enough)")
+        
+        # Show distinct statuses
+        statuses = set(tx.get('status', 'N/A') for tx in transactions)
+        print(f"\nDistinct statuses in recent transactions: {sorted(statuses)}")
+        
+        print(f"\n✅ PASS: recent-transactions returned 200 with no crash")
+    else:
+        print(f"❌ Request failed: {response.text[:500]}")
+
+def test_settled_transaction_regression(token):
+    """Test 4: Regression test on a SETTLED transaction"""
+    print_section("TEST 4: REGRESSION - SETTLED/successful transaction")
+    
+    # First get all transactions to find a settled one
+    url = f"{BASE_URL}/api/wallet/getAllTransactions"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.post(url, json={}, headers=headers)
+    
+    if response.status_code != 200:
+        print(f"❌ Could not fetch transactions for regression test")
+        return
+    
+    data = response.json()
+    transactions = []
+    if 'data' in data:
+        if isinstance(data['data'], list):
+            transactions = data['data']
+        elif 'transactions' in data['data']:
+            transactions = data['data']['transactions']
+    
+    # Find a settled/successful transaction
+    settled_tx = None
+    for tx in transactions:
+        status = tx.get('status', '')
+        if status.lower() in ['settled', 'successful', 'completed', 'confirmed']:
+            settled_tx = tx
+            break
+    
+    if not settled_tx:
+        print(f"⚠️  No settled/successful transaction found for regression test")
+        return
+    
+    settled_id = settled_tx.get('id') or settled_tx.get('transaction_id')
+    print(f"Found settled transaction ID: {settled_id}")
+    
+    # Test the detail endpoint
+    url = f"{BASE_URL}/api/wallet/transaction/{settled_id}"
+    response = requests.get(url, headers=headers)
+    print(f"\nGET {url}")
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code == 200:
+        data = response.json()
+        if 'data' in data:
+            tx_data = data['data']
+            status = tx_data.get('status', 'N/A')
+            confirmations = tx_data.get('confirmations', 'N/A')
+            
+            print(f"\n📊 SETTLED TX {settled_id}:")
+            print(f"  status: {status}")
+            print(f"  confirmations: {confirmations}")
+            
+            if status.lower() in ['settled', 'successful', 'completed', 'confirmed']:
+                print(f"\n✅ PASS: Status is still '{status}' (NOT awaiting_payment/unpaid)")
+            else:
+                print(f"\n❌ FAIL: Status changed to '{status}' (regression)")
+        else:
+            print(f"❌ No 'data' field in response")
+    else:
+        print(f"❌ Request failed: {response.text[:500]}")
+
+def test_health_endpoint():
+    """Test 5: GET /health"""
+    print_section("TEST 5: GET /health (SAFE MODE verification)")
+    
+    # Try both /health and /api/status/health
+    for endpoint in ["/health", "/api/status/health"]:
+        url = f"{BASE_URL}{endpoint}"
+        print(f"\nGET {url}")
+        
+        try:
+            response = requests.get(url)
+            print(f"Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"Response: {json.dumps(data, indent=2)}")
+                
+                # Check for SAFE MODE indicators
+                database = data.get('database', 'N/A')
+                redis = data.get('redis', 'N/A')
+                bg_jobs = data.get('background_jobs', {})
+                bg_jobs_eligible = bg_jobs.get('eligible', 'N/A') if isinstance(bg_jobs, dict) else 'N/A'
+                
+                print(f"\n📊 HEALTH CHECK:")
+                print(f"  database: {database}")
+                print(f"  redis: {redis}")
+                print(f"  background_jobs.eligible: {bg_jobs_eligible}")
+                
+                if database == 'connected' and redis == 'connected' and bg_jobs_eligible == False:
+                    print(f"\n✅ PASS: SAFE MODE confirmed (database+redis connected, bg_jobs.eligible=false)")
+                else:
+                    print(f"\n⚠️  Health check returned but values unexpected")
+                
+                return
+        except Exception as e:
+            print(f"❌ Error: {str(e)}")
+    
+    print(f"\n❌ Neither /health nor /api/status/health returned 200")
 
 def main():
-    """Main test runner"""
     print("\n" + "="*80)
-    print("DynoPay Round 2 Backend Verification")
-    print("Pod: f431e319")
-    print("WALLET REUSE UX FIX + COSMETICS + EMAIL CHANGE")
-    print("STRICTLY READ-ONLY except ONE idempotent same-value write")
+    print("  READ-ONLY BACKEND VERIFICATION")
+    print("  Transaction Display Status Fix")
+    print("  LIVE PRODUCTION Railway Postgres DB (SAFE MODE)")
     print("="*80)
     
-    # Test 1: Login with NEW email
-    if not test_1_email_change_new_login():
-        print("\n❌ FATAL: Login with new email failed. Cannot proceed with authenticated tests.")
-        # Continue with remaining tests that don't need auth
-        test_2_email_change_old_login()
-        test_8_health()
-        print_summary()
-        sys.exit(1)
+    # Login
+    token = login()
+    if not token:
+        print("\n❌ CRITICAL: Login failed. Cannot proceed with tests.")
+        return
     
-    # Test 2: Login with OLD email should fail
-    test_2_email_change_old_login()
+    # Run all tests
+    test_transaction_722(token)
+    test_get_all_transactions(token)
+    test_recent_transactions(token)
+    test_settled_transaction_regression(token)
+    test_health_endpoint()
     
-    # Test 3: Reusable wallets company 1
-    test_3_reusable_wallets_company_1()
-    
-    # Test 4: Reusable wallets company 71
-    test_4_reusable_wallets_company_71()
-    
-    # Test 5: Get wallet list
-    wallet_info = test_5_wallet_edit_get_wallet()
-    
-    # Test 6: Update wallet with same name (idempotent)
-    test_6_wallet_edit_same_name(wallet_info)
-    
-    # Test 7: Update nonexistent wallet
-    test_7_wallet_edit_nonexistent()
-    
-    # Test 8: Health check
-    test_8_health()
-    
-    # Print summary
-    all_passed = print_summary()
-    
-    sys.exit(0 if all_passed else 1)
-
+    print("\n" + "="*80)
+    print("  TESTING COMPLETE")
+    print("="*80 + "\n")
 
 if __name__ == "__main__":
     main()

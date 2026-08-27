@@ -4,6 +4,10 @@
 # - tbl_user.email (user_id=1 "Hostbay") migrated: moxxcompany@gmail.com -> onarrival21@gmail.com
 #   (guarded txn; login_type=EMAIL, email_verified kept TRUE; verified new email logs in).
 # - >>> CURRENT MERCHANT LOGIN: onarrival21@gmail.com / Katiekendra123@ (user_id=1) <<<
+# - PUBLIC STOREFRONT HANDLE for company_id=1 "The Dev Store" is **devhub**:
+#     store  /devhub/shop   ·  product /devhub/p/<slug>  ·  cart /devhub/cart
+#     (the user's CREATOR handle is "hostbay" but the store lives under "devhub").
+#     Store currently has 1 product: "Talk to a Developer" ($100, digital).
 # - Wallet edit "wallet not found" bug: FIXED + verified (backend 6/6, and I reproduced the
 #   real UI flow: USDT-TRC20 Edit -> Save no-change -> PUT /wallet/updateWallet/4 -> 200, dialog closes).
 # - Wallet REUSE UX fix: getReusableWallets now only offers currencies the CURRENT company is

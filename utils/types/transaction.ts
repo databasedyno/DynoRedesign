@@ -29,7 +29,7 @@ export interface ExtendedTransaction {
    *  merchant's display currency (EUR/GBP/…) via useDisplayFx. */
   usdValueRaw: number;
   dateTime: string;
-  status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid";
+  status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid" | "awaiting_payment";
   fees?: number | string;
   feesBreakdown?: {
     platform: number;

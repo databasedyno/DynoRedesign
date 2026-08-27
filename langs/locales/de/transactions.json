@@ -59,5 +59,7 @@
   "statusTipConfirming": "Zahlung auf der Blockchain gesehen — warten auf genügend Bestätigungen.",
   "statusTipSettled": "Bestätigt und Ihrem Guthaben gutgeschrieben.",
   "statusTipFailed": "Diese Zahlung wurde nicht abgeschlossen — keine Gelder bewegt.",
-  "statusTipUnpaid": "Der Käufer hat den Checkout geöffnet, aber noch nicht bezahlt."
+  "statusTipUnpaid": "Der Käufer hat den Checkout geöffnet, aber noch nicht bezahlt.",
+  "awaiting_payment": "warten auf zahlung",
+  "statusTipAwaiting": "Noch keine Zahlung eingegangen – diese Adresse wartet darauf, dass der Käufer die Gelder sendet."
 }
