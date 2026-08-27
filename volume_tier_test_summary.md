@@ -1,7 +1,7 @@
 # Volume-Based Fee Tier System - Backend Testing Summary
 **Test Date:** 2026-07-07  
 **Test Agent:** Testing Agent (auto_backend_testing_agent)  
-**Base URL:** https://dynopay-preview-13.preview.emergentagent.com/api  
+**Base URL:** https://crypto-checkout-44.preview.emergentagent.com/api  
 **Test Account:** hostbay@moxx.co (user_id: 1, lifetime volume: $18,888.74 USD)
 
 ---

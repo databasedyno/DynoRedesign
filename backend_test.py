@@ -12,7 +12,7 @@ import json
 import sys
 
 # Configuration
-BASE_URL = "https://f431e319-7216-4779-8f91-6c1ce868af1c.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-44.preview.emergentagent.com"
 
 # Test credentials
 NEW_EMAIL = "onarrival21@gmail.com"
