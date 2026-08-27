@@ -1,3 +1,18 @@
+# ############################################################################
+# >>> CURRENT MERCHANT LOGIN (updated 2026-08-27, pod f431e319) <<<
+#     LOGIN EMAIL:  moxxcompany@gmail.com   (password unchanged: Katiekendra123@)
+#     user_id=1 ("Hostbay"), company_id=1 — LIVE prod Railway PG.
+#
+#     The primary email was migrated in tbl_user (user_id=1):
+#         hostbay@moxx.co  ->  moxxcompany@gmail.com   (verified: new email logs in,
+#         old email now returns "Invalid email or password").
+#
+#     ⚠️ ALL references to "hostbay@moxx.co" BELOW ARE HISTORICAL (past test runs).
+#        For any NEW login / testing, USE moxxcompany@gmail.com / Katiekendra123@.
+#        (2-step flow: /auth/login -> email -> Continue -> password -> Sign in.)
+# ############################################################################
+
+
 # ============================================================================
 # CURRENT SESSION — 2026-08-26 (pod 43248c91) : PUBLIC SURFACES USABILITY PASS
 #   (approved plan: checkout · store/cart · auth · creator · order · landing)
