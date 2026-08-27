@@ -19,7 +19,7 @@ from datetime import datetime
 import time
 
 # Target URL from review request
-BASE_URL = "https://merchant-deploy-1.preview.emergentagent.com/api"
+BASE_URL = "https://dynopay-setup-8.preview.emergentagent.com/api"
 
 def print_separator():
     print("\n" + "="*80 + "\n")
@@ -218,7 +218,7 @@ def test_health_control():
     try:
         # Try both /health and /api/health
         urls = [
-            "https://merchant-deploy-1.preview.emergentagent.com/health",
+            "https://dynopay-setup-8.preview.emergentagent.com/health",
             f"{BASE_URL}/health",
             f"{BASE_URL}/"
         ]
