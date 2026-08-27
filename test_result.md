@@ -14,6 +14,46 @@
 
 
 # ============================================================================
+# CURRENT SESSION — 2026-08-27 (pod f431e319) : BUG FIX — edit wallet "wallet not found"
+# ============================================================================
+## User bug: logged in, clicked Edit on a USDT-TRC20 wallet, made NO change,
+## clicked Save -> backend returned "wallet not found". Expected: save succeeds.
+## LIVE PROD DB — SAFE MODE. Idempotent write only (re-save the SAME wallet_name).
+
+### backend
+  - task: "Edit wallet: PUT /api/wallet/updateWallet/:id (editWalletAddress) — no-change Save must succeed"
+    implemented: true
+    working: true
+    file: "backend/controller/wallet/walletDeleteFlow.ts (editWalletAddress)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ROOT CAUSE: the frontend wallet list `id` is a tbl_user_wallet.wallet_id (same key delete/update-OTP use), but editWalletAddress looked the id up in the UNRELATED tbl_user_addresses table by user_address_id. For USDT-TRC20 (wallet_id 4/69/84/105) no such row exists -> 404 'Wallet address not found'; for a colliding id it even matched a DOGE row (wrong currency). FIX: editWalletAddress now loads the wallet from tbl_user_wallet by { wallet_id, user_id }, updates it there (name-only needs no OTP; address change still needs OTP+validation), and best-effort syncs the legacy tbl_user_addresses only if a matching row exists. A no-change Save (name-only, same value) now returns 200. Backend restarted healthy (db+redis connected, SAFE MODE)."
+      - working: true
+        agent: "testing"
+        comment: "✅ BUG FIX VERIFIED (2026-08-27 09:32 UTC) — ALL 6 TESTS PASSED (6/6). PRIMARY ASSERTION: PUT /api/wallet/updateWallet/4 (USDT-TRC20 wallet) with SAME wallet_name (idempotent write) returns HTTP 200 with message 'Wallet updated successfully'. Previously this returned 404 'wallet not found'. TEST RESULTS: (1) ✅ GET /api/wallet/getWallet?company_id=1 found USDT-TRC20 wallet (wallet_id=4, wallet_address=TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR). (2) ✅ PUT /api/wallet/updateWallet/4 with body {'wallet_name':''} (same value) returned 200 'Wallet updated successfully' (BUG FIXED). (3) ✅ GET /api/wallet/getWallet?company_id=1 again confirmed wallet_address UNCHANGED (idempotent). (4) ✅ Alias endpoint PUT /api/wallet/address/4 also returns 200 'Wallet updated successfully'. (5) ✅ Negative guard: PUT /api/wallet/updateWallet/999999999 correctly returns 404 'Wallet not found' (NOT 500, does NOT match other user's wallet). (6) ✅ Health check: GET /api/status/health returns status=healthy. SAFE MODE confirmed via backend/.env ENABLE_BACKGROUND_JOBS=false. STRICT COMPLIANCE: Only idempotent same-value wallet_name writes performed. NO wallet address changes, NO wallet creation/deletion, NO OTP requests. The fix is PRODUCTION-READY."
+
+### test_plan
+  current_focus:
+    - "Edit wallet: PUT /api/wallet/updateWallet/:id (editWalletAddress) — no-change Save must succeed"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Verify the wallet-edit bug fix on the LIVE prod Railway DB (SAFE MODE, idempotent writes ONLY). Login (returns JWT directly, no OTP): POST /api/user/login {\"email\":\"moxxcompany@gmail.com\",\"password\":\"Katiekendra123@\"} (if CSRF needed: GET /api/csrf-token first, send x-csrf-token; Bearer-authed requests skip CSRF). Steps: (1) GET /api/wallet/getWallet?company_id=1 (Bearer) -> find a USDT-TRC20 wallet; capture its wallet_id and current wallet_name. (2) THE REPRO — PUT /api/wallet/updateWallet/{that wallet_id} (Bearer) body {\"wallet_name\":\"<the SAME current wallet_name>\"} -> MUST be HTTP 200 with message 'Wallet updated successfully' (previously this returned 404 'wallet not found'/'Wallet address not found'). Re-send the SAME name so there is no net change. (3) GET /api/wallet/getWallet?company_id=1 again -> the USDT-TRC20 wallet still present, wallet_name unchanged (idempotent). (4) Optional: the alias PUT /api/wallet/address/{wallet_id} behaves the same (200). (5) NEGATIVE guard — PUT /api/wallet/updateWallet/999999999 body {\"wallet_name\":\"x\"} -> MUST be 404 'Wallet not found' (NOT a 500). (6) Report /health (database/redis connected, background_jobs.eligible=false = SAFE MODE). STRICT: do NOT change any wallet ADDRESS, do NOT create/delete wallets, do NOT request OTPs — only the idempotent same-value wallet_name write is permitted."
+  - agent: "testing"
+    message: "✅ WALLET EDIT BUG FIX VERIFICATION COMPLETE (2026-08-27 09:32 UTC) — ALL 6 TESTS PASSED (100% pass rate). PRIMARY ASSERTION VERIFIED: The wallet edit bug is FIXED. Editing a USDT-TRC20 wallet with no change (idempotent save) now returns HTTP 200 'Wallet updated successfully' instead of 404 'wallet not found'. DETAILED RESULTS: (1) ✅ Found USDT-TRC20 wallet via GET /api/wallet/getWallet?company_id=1 (wallet_id=4, wallet_address=TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR). (2) ✅ PRIMARY TEST: PUT /api/wallet/updateWallet/4 with same wallet_name returned 200 (previously 404). (3) ✅ Verified wallet_address unchanged after update (idempotent). (4) ✅ Alias endpoint PUT /api/wallet/address/4 also works (200). (5) ✅ Negative guard: non-existent wallet_id returns 404 (not 500). (6) ✅ Health check: status=healthy, SAFE MODE confirmed. STRICT COMPLIANCE: Only idempotent same-value wallet_name writes performed. NO wallet address changes, NO wallet creation/deletion, NO OTP requests. The fix is PRODUCTION-READY. Main agent can summarize and finish."
+
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-26 (pod 43248c91) : PUBLIC SURFACES USABILITY PASS
 #   (approved plan: checkout · store/cart · auth · creator · order · landing)
 # ============================================================================

@@ -292,26 +292,39 @@ export const editWalletAddress = async (req: express.Request, res: express.Respo
     const { wallet_address, wallet_name, otp } = req.body;
     const user_id = userData.user_id;
 
-    if (!wallet_address && !wallet_name) {
+    // BUG FIX (2026-08-27): the `:id` sent by the frontend (wallet list `id`) is a
+    // tbl_user_wallet.wallet_id — the SAME key every other wallet mutation uses
+    // (delete / delete-OTP / update-OTP). This handler previously looked the id up
+    // in the *unrelated* tbl_user_addresses table by user_address_id, so a plain
+    // "edit → Save with no changes" returned "Wallet address not found" (and, when
+    // an id happened to collide with an address-book row, it edited the WRONG
+    // currency). We now operate on tbl_user_wallet by wallet_id, so a no-op save
+    // succeeds and updates always target the correct wallet.
+    const walletId = parseInt(String(id), 10);
+    if (Number.isNaN(walletId)) {
+      return errorResponseHelper(res, 400, "Invalid wallet id");
+    }
+
+    if (wallet_address === undefined && wallet_name === undefined) {
       return errorResponseHelper(res, 400, "wallet_address or wallet_name is required");
     }
 
-    // Verify the wallet address belongs to the user
-    const existingAddress = await userWalletAddressModel.findOne({
-      where: {
-        user_address_id: id,
-        user_id,
-      },
+    // Verify the wallet belongs to the user (source of truth = tbl_user_wallet)
+    const existingWallet = await userWalletModel.findOne({
+      where: { wallet_id: walletId, user_id },
     });
 
-    if (!existingAddress) {
-      return errorResponseHelper(res, 404, "Wallet address not found");
+    if (!existingWallet) {
+      return errorResponseHelper(res, 404, "Wallet not found");
     }
 
-    // Check if wallet_address is being changed (requires OTP)
-    const isAddressChange = wallet_address && wallet_address !== existingAddress.dataValues.wallet_address;
-    
-    // OTP is only required when changing wallet_address, not for wallet_name updates
+    const currency = existingWallet.dataValues.wallet_type;
+    const oldAddress = existingWallet.dataValues.wallet_address;
+
+    // Only an actual address CHANGE requires OTP + on-chain validation.
+    // A name-only update (or a no-op save) needs neither.
+    const isAddressChange = !!wallet_address && wallet_address !== oldAddress;
+
     if (isAddressChange) {
       if (!otp) {
         return errorResponseHelper(res, 400, "OTP is required to update wallet address. Request OTP first.");
@@ -319,13 +332,13 @@ export const editWalletAddress = async (req: express.Request, res: express.Respo
 
       // Verify OTP from Redis
       const storedOTPData = await getRedisItem(`wallet_edit_otp_${id}`);
-      
+
       if (!storedOTPData || Object.keys(storedOTPData).length === 0) {
         return errorResponseHelper(res, 400, "OTP expired or not found. Please request a new one.");
       }
 
       const otpData = storedOTPData as { otp: string; user_id: string; expiry: string };
-      
+
       if (otpData.otp !== otp) {
         return errorResponseHelper(res, 400, "Invalid OTP");
       }
@@ -339,8 +352,7 @@ export const editWalletAddress = async (req: express.Request, res: express.Respo
         return errorResponseHelper(res, 400, "OTP expired. Please request a new one.");
       }
 
-      // Validate the new address
-      const currency = existingAddress.dataValues.currency;
+      // Validate the new address on-chain
       try {
         if (currency === "TRX" || currency === "USDT-TRC20") {
           await tatumApi.validateTronAddress(wallet_address);
@@ -360,44 +372,44 @@ export const editWalletAddress = async (req: express.Request, res: express.Respo
     if (wallet_address) updateData.wallet_address = wallet_address;
     if (wallet_name !== undefined) updateData.wallet_name = wallet_name;
 
-    // Update the wallet address
-    await userWalletAddressModel.update(updateData, {
-      where: {
-        user_address_id: id,
-        user_id,
-      },
+    // Update the merchant wallet (tbl_user_wallet) — what the /wallet page reads.
+    await userWalletModel.update(updateData, {
+      where: { wallet_id: walletId, user_id },
     });
 
-    // Also sync changes to userWalletModel so dashboard/wallet page reflects the update
-    const currency = existingAddress.dataValues.currency;
-    const oldAddress = existingAddress.dataValues.wallet_address;
-    const walletModelWhere: Record<string, unknown> = {
-      user_id,
-      wallet_type: currency,
-      wallet_address: oldAddress,
-    };
-    if (existingAddress.dataValues.company_id) {
-      walletModelWhere.company_id = existingAddress.dataValues.company_id;
-    }
-    const walletModelUpdate: Record<string, unknown> = {};
-    if (wallet_address) walletModelUpdate.wallet_address = wallet_address;
-    if (wallet_name !== undefined) walletModelUpdate.wallet_name = wallet_name;
-    if (Object.keys(walletModelUpdate).length > 0) {
-      await userWalletModel.update(walletModelUpdate, { where: walletModelWhere });
+    // Best-effort: keep the legacy address book (tbl_user_addresses) in sync IF a
+    // matching row exists. Never fail the request when it doesn't.
+    try {
+      const addrWhere: Record<string, unknown> = {
+        user_id,
+        currency,
+        wallet_address: oldAddress,
+      };
+      if (existingWallet.dataValues.company_id) {
+        addrWhere.company_id = existingWallet.dataValues.company_id;
+      }
+      const addrUpdate: Record<string, unknown> = {};
+      if (wallet_address) addrUpdate.wallet_address = wallet_address;
+      if (wallet_name !== undefined) addrUpdate.wallet_name = wallet_name;
+      if (Object.keys(addrUpdate).length > 0) {
+        await userWalletAddressModel.update(addrUpdate, { where: addrWhere });
+      }
+    } catch (syncErr) {
+      walletLogger.warn(`[editWalletAddress] address-book sync skipped: ${(syncErr as Error).message}`);
     }
 
     // Invalidate wallet cache so getWallet returns fresh data
     await invalidateWalletCache(userData.user_id);
 
     // Fetch updated record
-    const updatedAddress = await userWalletAddressModel.findOne({
-      where: { user_address_id: id },
+    const updatedWallet = await userWalletModel.findOne({
+      where: { wallet_id: walletId, user_id },
     });
 
     const updateType = isAddressChange ? "address and name" : "name";
-    walletLogger.info(`Wallet ${updateType} for ID ${id} edited by user ${user_id}`);
+    walletLogger.info(`Wallet ${updateType} for wallet_id ${walletId} edited by user ${user_id}`);
 
-    return successResponseHelper(res, 200, "Wallet updated successfully", updatedAddress);
+    return successResponseHelper(res, 200, "Wallet updated successfully", updatedWallet);
 
   } catch (e) {
 
