@@ -2,9 +2,8 @@ import React from "react";
 import { Box, LinearProgress, Typography, useTheme } from "@mui/material";
 import { alpha, darken } from "@mui/material/styles";
 import { Icon } from "@iconify/react";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { useTranslation } from "react-i18next";
-import { rootReducer } from "@/utils/types";
 import type { CreatorFormState } from "./CreatorPageSettings";
 import { prettyCreatorDomain } from "@/helpers/creatorUrl";
 import { BRAND_ACCENT } from "@/constants/theme";
@@ -47,7 +46,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
   const { t } = useTranslation("common");
   const isDark = theme.palette.mode === "dark";
   const border = theme.palette.divider;
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const profile = useProfile().profile as any;
 
   // Prefer the in-form draft name (if the user is editing it live) over the
   // last-saved profile.name. Falls back to handle → "Your name" as before.

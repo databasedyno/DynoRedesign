@@ -232,6 +232,19 @@ no git history rewrite.
             testable. Gate: tsc 0 · eslint 0 · /pay-links + /create-pay-link + /dashboard compile 200.
             PENDING: read-only frontend testing-agent verification.
       redux-saga now powers ONLY: User (W5) + Toast (W6). RootReducer = { userReducer, toastReducer }.
+      - [x] W5 User → SWR/useUser (2026-08-27, dynopay-setup-8): DONE + testing_agent iteration_91 = 100%
+            (RENDER-ONLY, no auth submitted on the live prod DB). Deleted Redux/Actions/UserAction.ts,
+            Redux/Reducers/userReducer.ts, Redux/Sagas/UserSaga.ts. Migrated all 6 consumers to
+            hooks/useUser.ts (module store + useSyncExternalStore) + hooks/useProfile.ts (SWR, token-gated):
+            pages/auth/login.tsx (big login state machine), pages/reset-password.tsx,
+            Components/UI/EmailVerificationBanner, Components/UI/AddWalletModal, pages/admin/profile.tsx
+            (dead-import removal), DashboardRightSection (was already on useProfile). Added useUser.applyEmailCheck.
+            Cleaned Redux/Reducers/index.ts + RootSaga.ts + Actions/index.ts + utils/types.ts (rootReducer =
+            { toastReducer }). KEPT Redux/Sagas/helpers/mapBackendErrorToField.ts (used by CompanyDataContext +
+            usePaymentLinks). Gate: tsc 0 · Next compile clean · testing_agent 8/8. redux-saga now powers ONLY Toast.
+            ALSO verified this session: the /api/track/visitor sendBeacon fix (no net::ERR_ABORTED on home→login nav).
+      - [ ] W6 Toast → migrate off redux-saga, then delete redux-saga + store.ts (Phase 2 completion).
+            After W6, rootReducer/store.ts can be removed entirely.
 - [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

@@ -16,7 +16,7 @@ import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_LOGIN } from "@/Redux/Actions/UserAction";
+import useUser from "@/hooks/useUser";
 import axiosBaseApi from "@/axiosConfig";
 import confetti from "canvas-confetti";
 import Image from "next/image";
@@ -60,8 +60,7 @@ const Register = () => {
   const isMobile = useIsMobile("sm");
   const router = useRouter();
   const dispatch = useDispatch();
-
-  // State
+  const { applyLoginData } = useUser();
   const [step, setStep] = useState<Step>("purpose");
   const [method, setMethod] = useState<RegisterMethod>("email");
   const [email, setEmail] = useState("");
@@ -266,10 +265,7 @@ const Register = () => {
             const { data, message } = res?.data || {};
             if (data?.userData && data?.accessToken) {
               dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
-              dispatch({
-                type: USER_LOGIN,
-                payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
-              });
+              applyLoginData({ ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken });
             } else {
               throw new Error("Invalid response");
             }
@@ -436,10 +432,7 @@ const Register = () => {
       if (data?.accessToken) {
         const isLogin = accountExists || data?.account_exists === true;
         // Store token and redirect
-        dispatch({
-          type: USER_LOGIN,
-          payload: data,
-        });
+        applyLoginData(data);
         dispatch({
           type: TOAST_SHOW,
           payload: {

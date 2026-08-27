@@ -26,12 +26,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import axios from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { getSuggestedShortcuts } from "@/helpers/shortcutUsage";
 import { Icon } from "@/styles/uiKit";
-import { UserAction, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
+import useProfile, { revalidateProfile } from "@/hooks/useProfile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
 import CustomButton from "@/Components/UI/Buttons";
@@ -255,7 +255,7 @@ const QuickActionsDock: React.FC = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation(["dashboardLayout", "common"]);
 
-  const profile = useSelector((s: any) => s?.userReducer?.profile);
+  const profile = useProfile().profile;
   const saved = profile?.dashboard_quick_actions;
 
   // ── Action badges ────────────────────────────────────────────────────────
@@ -392,7 +392,7 @@ const QuickActionsDock: React.FC = () => {
   const persistOrder = async (next: string[]) => {
     try {
       await axios.put("user/dashboard-quick-actions", { actions: next });
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
     } catch (e: any) {
       setOrder(pinned); // revert
       dispatch({
@@ -535,7 +535,7 @@ const QuickActionsDock: React.FC = () => {
     setSaving(true);
     try {
       await axios.put("user/dashboard-quick-actions", { actions: draft });
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       dispatch({
         type: TOAST_SHOW,
         payload: { message: t("qaSaved", { defaultValue: "Quick actions updated" }) },

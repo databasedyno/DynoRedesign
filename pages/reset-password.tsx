@@ -7,12 +7,10 @@ import CustomButton from "@/Components/UI/Buttons";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import { AuthContainer, CardWrapper } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
-import { UserAction } from "@/Redux/Actions";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { setAuthNotice } from "@/helpers/authNotice";
-import { USER_RESET_PASSWORD } from "@/Redux/Actions/UserAction";
 import { theme } from "@/styles/theme";
-import { rootReducer } from "@/utils/types";
+import useUser from "@/hooks/useUser";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {Box, useTheme} from "@mui/material";
@@ -20,7 +18,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 const ResetPasswordPage = () => {
   const router = useRouter();
@@ -30,7 +28,7 @@ const ResetPasswordPage = () => {
 
   const isMobile = useIsMobile();
   const muiTheme = useTheme();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
+  const userState = useUser();
   const { t } = useTranslation("auth");
 
   const [newPassword, setNewPassword] = useState("");
@@ -102,16 +100,14 @@ const ResetPasswordPage = () => {
         email &&
         newPassword === newPasswordConfirm
       ) {
-        dispatch(
-          UserAction(USER_RESET_PASSWORD, {
-            token: token,
-            email: email,
-            newPassword: newPassword,
-            onSuccess: () => {
-              router.replace("/auth/login");
-            },
-          }),
-        );
+        userState.resetPassword({
+          token: token,
+          email: email,
+          newPassword: newPassword,
+          onSuccess: () => {
+            router.replace("/auth/login");
+          },
+        });
       }
     } catch (e: any) {
       const message =

@@ -3,7 +3,7 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import SteppedProgressPanel from "@/Components/UI/SteppedProgressPanel";
 import useIsMobile from "@/hooks/useIsMobile";
-import { rootReducer } from "@/utils/types";
+import useUser from "@/hooks/useUser";
 import { fetchGeoDefaults, currencyForCountry } from "@/utils/geoDefaults";
 import {
   CloudUploadRounded,
@@ -26,7 +26,6 @@ import StepIndicator from "./StepIndicator";
 import { TransitionProps } from "@mui/material/transitions";
 import { MuiTelInput } from "mui-tel-input";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 const Transition = React.forwardRef(function Transition(
@@ -60,11 +59,10 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   subtitle,
 }) => {
   const theme = useTheme();
-  const dispatch = useDispatch();
+  const userState = useUser();
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("companyDialog");
   const companyState = useCompanyStore();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [companyName, setCompanyName] = useState("");

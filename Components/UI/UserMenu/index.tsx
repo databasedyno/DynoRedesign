@@ -12,8 +12,7 @@ import useWindow from "@/hooks/useWindow";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
-import { useSelector } from "react-redux";
-import { rootReducer } from "@/utils/types";
+import useProfile from "@/hooks/useProfile";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
@@ -60,7 +59,7 @@ export default function UserMenu() {
       : t("accountSetupWarningBusiness", { defaultValue: "Finish your business profile" });
 
   // Show "View my creator page" only once the user has claimed a handle AND published.
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const profile = useProfile().profile as any;
   const creatorHandle = profile?.handle && profile?.creator_page_enabled ? String(profile.handle) : "";
   const creatorPublicUrl = buildCreatorUrl(creatorHandle);
 

@@ -1,11 +1,10 @@
 import axiosBaseApi from "@/axiosConfig";
 import Loading from "@/Components/UI/Loading";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_LOGIN } from "@/Redux/Actions/UserAction";
-import { rootReducer } from "@/utils/types";
+import useUser from "@/hooks/useUser";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 /**
  * GitHub OAuth callback — /auth/github/callback
@@ -18,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 const GithubCallback = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
+  const userState = useUser();
   const exchangingRef = useRef(false);
 
   useEffect(() => {
@@ -72,13 +71,10 @@ const GithubCallback = () => {
 
         if (data?.userData && data?.accessToken) {
           dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
-          dispatch({
-            type: USER_LOGIN,
-            payload: {
-              ...data.userData,
-              accessToken: data.accessToken,
-              refreshToken: data.refreshToken,
-            },
+          userState.applyLoginData({
+            ...data.userData,
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
           });
         } else {
           throw new Error("Invalid response");

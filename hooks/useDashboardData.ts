@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import useSWR, { mutate as globalMutate } from "swr";
-import { useDispatch, useSelector } from "react-redux";
 
 import axiosBaseApi from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { UserAction } from "@/Redux/Actions";
-import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
+import useProfile from "@/hooks/useProfile";
 
 /**
  * useDashboardData — SWR-backed replacement for the old Redux `dashboardReducer`
@@ -264,21 +262,15 @@ export function revalidateDashboardData(): void {
   );
 }
 
-// Profile fetch dedupe — ~9 instances mount together; without this each would
-// dispatch USER_PROFILE_FETCH before redux updates. (Removed in Wave 5 when the
-// User domain moves to SWR.)
-let _profileInFlight = false;
-const PROFILE_DEDUPE_MS = 4000;
-
 export const useDashboardData = () => {
-  const dispatch = useDispatch();
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const companyList = useCompanyStore().companyList;
   const companiesFetched = useCompanyStore().fetched ?? false;
 
-  const profileFetched = useSelector((state: any) =>
-    Boolean(state.userReducer?.profile),
-  );
+  // User profile is fetched via SWR (useProfile) — calling it here ensures the
+  // profile loads for the ~9 dashboard components that read it (was the old
+  // USER_PROFILE_FETCH dispatch with a manual in-flight dedupe).
+  useProfile();
 
   // Only fetch once companies have resolved AND a company is selected (or the
   // user genuinely has none). Prevents the aggregate → company-specific flash.
@@ -318,17 +310,6 @@ export const useDashboardData = () => {
       : null,
     chartFetcher,
   );
-
-  // User profile (still redux — see note above).
-  useEffect(() => {
-    if (profileFetched || _profileInFlight) return;
-    _profileInFlight = true;
-    dispatch(UserAction(USER_PROFILE_FETCH));
-    const t = setTimeout(() => {
-      _profileInFlight = false;
-    }, PROFILE_DEDUPE_MS);
-    return () => clearTimeout(t);
-  }, [dispatch, profileFetched]);
 
   const fetchChartData = useCallback(
     (period: string, startDate?: string, endDate?: string) => {

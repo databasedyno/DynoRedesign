@@ -9,7 +9,8 @@ import CustomButton from "@/Components/UI/Buttons";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import PanelCard from "@/Components/UI/PanelCard";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_LOGIN, USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
+import useUser from "@/hooks/useUser";
+import { revalidateProfile } from "@/hooks/useProfile";
 import axiosBaseApi from "@/axiosConfig";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TokenData } from "@/utils/types";
@@ -23,6 +24,7 @@ interface AddContactInfoProps {
 const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { applyLoginData } = useUser();
   const isMobile = useIsMobile("md");
   const namespaces = ["profile", "common", "auth"];
   const { t } = useTranslation(namespaces);
@@ -108,12 +110,9 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       });
       const { data, message } = res.data || {};
       if (data?.userData && data?.accessToken) {
-        dispatch({
-          type: USER_LOGIN,
-          payload: { ...data.userData, accessToken: data.accessToken },
-        });
+        applyLoginData({ ...data.userData, accessToken: data.accessToken });
       }
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       setEmailOtpDialogOpen(false);
       setEmailInput("");
       dispatch({
@@ -173,12 +172,9 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       });
       const { data, message } = res.data || {};
       if (data?.userData && data?.accessToken) {
-        dispatch({
-          type: USER_LOGIN,
-          payload: { ...data.userData, accessToken: data.accessToken },
-        });
+        applyLoginData({ ...data.userData, accessToken: data.accessToken });
       }
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       setPhoneOtpDialogOpen(false);
       setPhoneInput("");
       dispatch({

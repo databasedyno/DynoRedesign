@@ -3,10 +3,9 @@ import { useWalletStore } from "@/contexts/WalletDataContext";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box } from "@mui/material";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import fireConfetti from "@/helpers/fireConfetti";
@@ -120,9 +119,7 @@ const Dashboard2026: React.FC = () => {
 
   const { accountType, hasAccount, profileComplete } = useAccountProfile();
   const walletState = useWalletStore();
-  const userProfile = useSelector(
-    (s: rootReducer) => (s as any).userReducer?.profile,
-  );
+  const userProfile = useProfile().profile;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
 
   const hasPayment = useMemo(() => {

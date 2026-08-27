@@ -9,8 +9,8 @@ import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
 import PanelCard from "@/Components/UI/PanelCard";
 import { getInitials } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
-import { UserAction } from "@/Redux/Actions";
-import { USER_LOGIN, USER_PROFILE_FETCH, USER_UPDATE } from "@/Redux/Actions/UserAction";
+import useUser from "@/hooks/useUser";
+import { revalidateProfile } from "@/hooks/useProfile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { TokenData } from "@/utils/types";
 import { Icon } from "@/styles/uiKit";
@@ -34,6 +34,7 @@ const LANGUAGE_OPTIONS = [
 
 const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   const dispatch = useDispatch();
+  const { applyLoginData, applyUserUpdate } = useUser();
   const theme = useTheme();
   const { t, i18n } = useTranslation(["profile", "auth"]);
 
@@ -110,7 +111,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       const respData = res?.data?.data;
       // Keep global auth/user state in sync (refreshes the stored token).
       if (respData?.accessToken) {
-        dispatch({ type: USER_UPDATE, payload: respData });
+        applyUserUpdate(respData);
       }
       setInitialPhoto(opts.remove ? "" : (opts.previewUrl ?? ""));
       setMedia(undefined);
@@ -217,9 +218,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       const res = await axiosBaseApi.post("user/verifyAddEmail", { email: emailInput.trim(), otp });
       const { data, message } = res.data || {};
       if (data?.userData && data?.accessToken) {
-        dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken } });
+        applyLoginData({ ...data.userData, accessToken: data.accessToken });
       }
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       setEmailOtpOpen(false);
       setEditingEmail(false);
       setEmailInput("");
@@ -266,9 +267,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       const res = await axiosBaseApi.post("user/verifyAddPhone", { phone: cleaned, otp });
       const { data, message } = res.data || {};
       if (data?.userData && data?.accessToken) {
-        dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken } });
+        applyLoginData({ ...data.userData, accessToken: data.accessToken });
       }
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       setPhoneOtpOpen(false);
       setEditingPhone(false);
       setPhoneInput("");

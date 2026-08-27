@@ -2,12 +2,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import useSWR from "swr";
 import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useTranslation, Trans } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
-import { rootReducer } from "@/utils/types";
+import useProfile, { revalidateProfile } from "@/hooks/useProfile";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import CreatorThemePicker, { CreatorTheme, CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
@@ -78,7 +77,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const theme = useTheme();
   const { t } = useTranslation("common");
   const dispatch = useDispatch();
-  const reduxProfile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const reduxProfile = useProfile().profile as any;
   const selectedCompanyId = useSelectedCompanyId();
   // Storefront-per-company: read the ACTIVE company's storefront settings from
   // the backend (resolves to the company when the flag is ON, else the account).
@@ -142,7 +141,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
   // Ensure the account profile is loaded even when landing directly on this page
   useEffect(() => {
-    if (!reduxProfile?.user_id) dispatch(UserAction(USER_PROFILE_FETCH));
+    if (!reduxProfile?.user_id) revalidateProfile();
   }, [dispatch, reduxProfile?.user_id]);
 
   // Re-seed the form when the selected company changes (storefront-per-company).
@@ -382,7 +381,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             : "Creator page saved",
         },
       });
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       mutateStorefront();
     } catch (e: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not save", severity: "error" } });
@@ -439,7 +438,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             });
             dispatch({ type: TOAST_SHOW, payload: { message: "Cover image saved" } });
             mutateStorefront();
-            dispatch(UserAction(USER_PROFILE_FETCH));
+            revalidateProfile();
           } catch (persistErr: any) {
             dispatch({
               type: TOAST_SHOW,
@@ -472,7 +471,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       await axiosBaseApi.put(API_ENDPOINTS.creator.profile, { cover_image: null });
       dispatch({ type: TOAST_SHOW, payload: { message: "Cover image removed" } });
       mutateStorefront();
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
     } catch (err: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: err?.response?.data?.message || "Could not remove cover", severity: "error" } });
     }

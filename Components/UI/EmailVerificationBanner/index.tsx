@@ -2,13 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {Box, Typography, Button, CircularProgress, useTheme} from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { useDispatch, useSelector } from "react-redux";
-import { UserAction } from "@/Redux/Actions/UserAction";
-import {
-  USER_VERIFY_EMAIL,
-  USER_RESEND_VERIFICATION,
-} from "@/Redux/Actions/UserAction";
-import { rootReducer } from "@/utils/types";
+import useUser, { USER_VERIFY_EMAIL } from "@/hooks/useUser";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
@@ -17,9 +11,8 @@ import { brandFg } from "@/constants/theme";
 const EmailVerificationBanner: React.FC = () => {
   const { t } = useTranslation("common");
   const theme = useTheme();
-  const dispatch = useDispatch();
   const isMobile = useIsMobile("sm");
-  const userState = useSelector((state: rootReducer) => state.userReducer);
+  const userState = useUser();
 
   const [showOtp, setShowOtp] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -45,25 +38,25 @@ const EmailVerificationBanner: React.FC = () => {
 
   const handleSendVerification = useCallback(() => {
     setSending(true);
-    dispatch(UserAction(USER_RESEND_VERIFICATION, {}));
+    userState.resendVerification();
     setCountdown(30);
     setShowOtp(true);
     setTimeout(() => setSending(false), 2000);
-  }, [dispatch]);
+  }, [userState]);
 
   const handleVerifyOtp = useCallback(
     (otp: string) => {
       setOtpError("");
-      dispatch(UserAction(USER_VERIFY_EMAIL, { otp: otp.trim() }));
+      userState.verifyEmail({ otp: otp.trim() });
     },
-    [dispatch],
+    [userState],
   );
 
   const handleResend = useCallback(() => {
     setOtpError("");
-    dispatch(UserAction(USER_RESEND_VERIFICATION, {}));
+    userState.resendVerification();
     setCountdown(30);
-  }, [dispatch]);
+  }, [userState]);
 
   // Listen for verification success
   useEffect(() => {

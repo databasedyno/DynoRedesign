@@ -8,7 +8,8 @@ import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { usePaymentLinks } from "@/hooks/usePaymentLinks";
 import PaymentLinkSuccessModal from "./PaymentLinkSuccessModal";
@@ -1111,7 +1112,7 @@ const CreatePaymentLinkPage = ({
   const walletList = useWalletStore().walletList ?? [];
   const companyListForBanner = useCompanyStore().companyList ?? [];
   // Creator profile — used to show where a donation link will surface publicly.
-  const creatorProfile = useSelector((state: any) => state?.userReducer?.profile) as any;
+  const creatorProfile = useProfile().profile as any;
   const creatorHandle: string = creatorProfile?.handle || "";
   const creatorPublicUrl = prettyCreatorUrl(creatorHandle);
   const walletNotSetUp = useMemo(() => {

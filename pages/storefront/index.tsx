@@ -4,12 +4,11 @@ import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
-import { useDispatch, useSelector } from "react-redux";
 import { useTranslation, Trans } from "react-i18next";
-import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
+import useProfile, { revalidateProfile } from "@/hooks/useProfile";
 import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
-import { pageProps, rootReducer } from "@/utils/types";
+import { pageProps } from "@/utils/types";
 import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
@@ -109,9 +108,8 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
-  const dispatch = useDispatch();
+  const profile = useProfile().profile as any;
   const { t } = useTranslation("common");
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
   // Storefront-per-company: the header "View my page" + switcher hint reflect the
   // ACTIVE company (resolves per-company when the flag is on, else the account).
   const { profile: storefront } = useStorefrontProfile();
@@ -128,8 +126,8 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
   // pulls the profile into Redux, so landing directly on them would leave the
   // handle unknown (Share would claim there is no link).
   useEffect(() => {
-    if (!profile?.user_id) dispatch(UserAction(USER_PROFILE_FETCH));
-  }, [dispatch, profile?.user_id]);
+    if (!profile?.user_id) revalidateProfile();
+  }, [profile?.user_id]);
 
   // Tab lives in local state (URL is the source of truth on load / back-forward)
   // so switching is instant and never depends on a shallow-route re-render.

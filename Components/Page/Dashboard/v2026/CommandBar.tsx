@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { Box, Button, Menu, MenuItem, Popover, TextField, useTheme } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { rootReducer } from "@/utils/types";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { PillButton } from "../coinbase/styled";
@@ -83,9 +82,7 @@ const CommandBar: React.FC<Props> = ({
     }
   };
 
-  const name = useSelector(
-    (s: rootReducer) => (s as any).userReducer?.profile?.name,
-  ) as string | undefined;
+  const name = useProfile().profile?.name as string | undefined;
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();

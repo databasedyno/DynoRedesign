@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Box, useTheme } from "@mui/material";
 import Link from "next/link";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "../coinbase/styled";
@@ -37,9 +37,7 @@ const ActionsRow: React.FC = () => {
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation(["dashboardLayout", "common"]);
 
-  const saved = useSelector(
-    (s: any) => s?.userReducer?.profile?.dashboard_quick_actions,
-  );
+  const saved = useProfile().profile?.dashboard_quick_actions;
 
   const slugs = useMemo(() => {
     const arr = Array.isArray(saved)

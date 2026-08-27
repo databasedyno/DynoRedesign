@@ -12,8 +12,7 @@ import {
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { rootReducer } from "@/utils/types";
+import useProfile from "@/hooks/useProfile";
 import { CB_TOKENS } from "./styled";
 import { BRAND_ACCENT } from "@/constants/theme";
 
@@ -49,7 +48,7 @@ const AttentionCardsRow: React.FC = () => {
 
   const companyState = useCompanyStore();
   const walletState = useWalletStore();
-  const userState = useSelector((s: any) => s.userReducer);
+  const userState: any = { profile: useProfile().profile };
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
   const hasHandle = Boolean(userState?.profile?.handle);

@@ -1,13 +1,12 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useMemo } from "react";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { useTranslation } from "react-i18next";
 import { useWalletData } from "@/hooks/useWalletData";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { CB_TOKENS, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
 import { MONO } from "@/styles/uiKit";
-import { rootReducer } from "@/utils/types";
 
 /** Minimal symbol map — matches the currencies the wallet totals actually
  *  ship in today. Falls back to the ISO code when unmapped, which is the
@@ -45,7 +44,7 @@ export default function WalletTotalHero() {
   const { t } = useTranslation(["walletScreen", "common"]);
   const { walletData, allCryptocurrencies } = useWalletData();
   const { account, isIndividual } = useAccountProfile();
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer?.profile);
+  const profile = useProfile().profile;
   const currencyCode = profile?.display_currency || profile?.base_currency || "USD";
   const currencySymbol = useMemo(
     () => CURRENCY_SYMBOLS[String(currencyCode).toUpperCase()] || "$",

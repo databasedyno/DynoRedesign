@@ -8,7 +8,6 @@ export interface ReducerAction {
 }
 
 export interface rootReducer {
-  userReducer: userReducer;
   toastReducer: toastReducer;
 }
 

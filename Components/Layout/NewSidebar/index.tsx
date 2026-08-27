@@ -6,9 +6,8 @@ import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, Button, ClickAwayListener, Divider, Fade, IconButton, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { preload } from "swr";
-import { rootReducer } from "@/utils/types";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { TRANSACTIONS_KEY, transactionsFetcher } from "@/hooks/useTransactions";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -86,7 +85,7 @@ const NewSidebar = ({
   // Only surface the "Creator page" NEW pill for merchants who haven't
   // published yet. Once they've set a handle & enabled the page, the pill
   // disappears — feature is now theirs, no need for the marketing badge.
-  const userState = useSelector((s: rootReducer) => (s as any).userReducer);
+  const userState: any = { profile: useProfile().profile };
   const hasClaimedCreator = Boolean(
     userState?.profile?.handle && userState?.profile?.creator_page_enabled,
   );

@@ -1,6 +1,5 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { rootReducer } from "@/utils/types";
+import useProfile from "@/hooks/useProfile";
 import GrowPanel, { GrowPanelProps } from "../GrowPanel";
 import CreatorPageCard from "../CreatorPageCard";
 
@@ -17,7 +16,7 @@ import CreatorPageCard from "../CreatorPageCard";
  *      full creator-page analytics still live on /creator.
  */
 const GrowSlot: React.FC<GrowPanelProps> = (props) => {
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer?.profile);
+  const profile = useProfile().profile;
   const hasHandle = Boolean(profile?.handle);
   const published = Boolean(profile?.creator_page_enabled);
 

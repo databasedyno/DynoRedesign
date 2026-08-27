@@ -3,7 +3,7 @@ import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 
 import ReferralAndKnowledge from "@/Components/Layout/ReferralAndKnowledge";
 import CustomButton from "@/Components/UI/Buttons";
@@ -16,7 +16,6 @@ import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
-import { rootReducer } from "@/utils/types";
 // Using muiTheme from useTheme() for dark mode support
 
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
@@ -47,7 +46,7 @@ const DashboardRightSection = () => {
   // defaulted to 0, so EVERY user (including those who had exhausted their
   // trial) saw the fee-free CTA — wrong for merchants like hostbay@moxx.co
   // who processed $17k+ and have $0 fee-free credit remaining.
-  const userState = useSelector((s: rootReducer) => (s as any).userReducer);
+  const userState: any = { profile: useProfile().profile };
   const feeFreeRemainingRaw =
     userState?.profile?.fee_free_remaining_usd ??
     userState?.profile?.feeFreeRemainingUsd;

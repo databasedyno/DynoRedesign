@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
+import { revalidateProfile } from "@/hooks/useProfile";
 import useDebounce from "@/hooks/useDebounce";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
@@ -149,7 +149,7 @@ const HandleClaimNudge: React.FC = () => {
           message: `Reserved! ${siteUrl.replace(/^https?:\/\//, "")}/${handle} is now ${currentName}'s.`,
         },
       });
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       await mutateStorefront();
       dismiss();
     } catch (e: any) {

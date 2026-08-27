@@ -31,7 +31,7 @@ import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
 import axiosBaseApi from "@/axiosConfig";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import {
   AlertBanner,
   AlertText,
@@ -87,7 +87,7 @@ const MobileNavigationBar = () => {
   // Show a small "NEW" dot on the Account/More trigger when the user hasn't
   // claimed a creator page yet. Once they've enabled it + set a handle the
   // dot disappears, matching the desktop sidebar's `isNew` behavior.
-  const userState = useSelector((state: any) => state.userReducer);
+  const userState: any = { profile: useProfile().profile };
   const hasClaimedCreator = Boolean(
     userState?.profile?.handle && userState?.profile?.creator_page_enabled,
   );

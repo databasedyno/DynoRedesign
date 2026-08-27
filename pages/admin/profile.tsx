@@ -32,8 +32,6 @@ import Panel from "@/Components/UI/Panel";
 
 import TextBox from "@/Components/UI/TextBox";
 import { MuiTelInput } from "mui-tel-input";
-import { UserAction } from "@/Redux/Actions";
-import { USER_UPDATE, USER_UPDATE_PASSWORD } from "@/Redux/Actions/UserAction";
 import FormManager from "@/Components/Page/Common/FormManager";
 import { decodeJwt } from "@/utils/decodeJwt";
 import adminBaseApi from "@/axiosAdmin";

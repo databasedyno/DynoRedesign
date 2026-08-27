@@ -12,16 +12,14 @@ import PopupModal from "@/Components/UI/PopupModal";
 import WalletReuseSelector from "@/Components/UI/WalletReuseSelector";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { UserAction } from "@/Redux/Actions";
-import { USER_LOGIN, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
+import useUser from "@/hooks/useUser";
 import { verifyOtp } from "@/utils/walletOtp";
-import { rootReducer } from "@/utils/types";
 import { Address, AddWalletModalProps } from "@/utils/types/wallet";
 import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import PanelCard from "../PanelCard";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import {
@@ -46,7 +44,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
 }) => {
   const dispatch = useDispatch();
   const muiTheme = useTheme();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
+  const userState = useUser();
   const companyState = useCompanyStore();
   const companyId = propCompanyId || companyState.selectedCompanyId || companyState.companyList?.[0]?.company_id;
   const isMobile = useIsMobile("sm");
@@ -174,9 +172,9 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       });
       const { data } = res.data || {};
       if (data?.userData && data?.accessToken) {
-        dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken } });
+        userState.applyLoginData({ ...data.userData, accessToken: data.accessToken });
       }
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      userState.fetchProfile();
       setGateOtpOpen(false);
       setNeedsEmail(false);
       setGateEmail("");

@@ -10,7 +10,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { buildCreatorUrl, prettyCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
+import { revalidateProfile } from "@/hooks/useProfile";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import copyToClipboard from "@/helpers/copyToClipboard";
@@ -163,7 +163,7 @@ const CreatorPageCard: React.FC = () => {
         type: TOAST_SHOW,
         payload: { message: `Reserved! ${siteUrl}/${reserved} is yours 🎉` },
       });
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       void mutateStorefront?.();
     } catch (e: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not reserve handle", severity: "error" } });

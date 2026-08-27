@@ -50,14 +50,33 @@ const HomePage: FC = () => {
     sessionStorage.setItem(key, "1");
 
     const apiBase = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
-    fetch(`${apiBase}/api/track/visitor`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: window.location.pathname,
-        referrer: document.referrer || null,
-      }),
-    }).catch(() => {});
+    const url = `${apiBase}/api/track/visitor`;
+    const payload = JSON.stringify({
+      page: window.location.pathname,
+      referrer: document.referrer || null,
+    });
+
+    // Fire-and-forget visitor beacon. Prefer navigator.sendBeacon so the request
+    // is queued at the browser level and completes even if the user navigates
+    // away immediately (SPA route change or full unload). A plain fetch gets
+    // ABORTED on navigation, surfacing as a noisy net::ERR_ABORTED failed request.
+    // Falls back to fetch({ keepalive: true }) when sendBeacon is unavailable.
+    try {
+      const beacon =
+        typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function"
+          ? navigator.sendBeacon(url, new Blob([payload], { type: "application/json" }))
+          : false;
+      if (!beacon) {
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {});
+      }
+    } catch {
+      // Tracking must never break the page.
+    }
   }, []);
 
   return (

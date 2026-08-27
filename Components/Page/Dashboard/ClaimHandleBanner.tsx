@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { useTranslation } from "react-i18next";
-import { rootReducer } from "@/utils/types";
 import { prettyCreatorDomain } from "@/helpers/creatorUrl";
 import { BRAND_ACCENT } from "@/constants/theme";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
@@ -27,7 +26,7 @@ const ClaimHandleBanner: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const profile = useProfile().profile as any;
   // Storefront-per-company: base the "needs a handle" decision on the SELECTED
   // company (not the account), so the banner matches the per-company page.
   const { profile: storefront } = useStorefrontProfile();

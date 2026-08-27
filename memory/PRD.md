@@ -1,3 +1,50 @@
+# REFACTOR W5 — User auth/profile: Redux-Saga → SWR/useUser (2026-08-27 fork) — DONE (testing_agent iteration_91 = 100% frontend, RENDER-ONLY) + tracking fix verified
+
+Preview: https://dynopay-setup-8.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, Next compile clean.
+Merchant login (READ-ONLY only): onarrival21@gmail.com / Katiekendra123@ (user_id=1).
+
+COMPLETED the riskiest Phase-2 wave (W5 "User", the ~661-line saga). Redux-saga now powers ONLY Toast (W6).
+
+1) ANALYTICS TRACKING FIX — VERIFIED. Components/Page/Home/index.tsx visitor beacon uses navigator.sendBeacon
+   (Blob application/json) with a fetch({keepalive:true}) fallback, sessionStorage-gated + try/catch. testing_agent
+   confirmed a home → /auth/login navigation produces NO /api/track/visitor net::ERR_ABORTED (only Cloudflare
+   /cdn-cgi/* aborts, which are infra noise) and no pageerror.
+
+2) W5 USER REFACTOR — DONE. Old Redux user layer DELETED: Redux/Actions/UserAction.ts, Redux/Reducers/userReducer.ts,
+   Redux/Sagas/UserSaga.ts (rm'd). Rewired ALL 6 consumers to hooks/useUser.ts (module store + useSyncExternalStore
+   for ephemeral auth flow) + hooks/useProfile.ts (SWR, token-gated):
+   - pages/auth/login.tsx — `const userState = useUser();` (was redux useSelector). Every dispatch(UserAction(...))
+     → userState.login / confirmCode / sendOtp / verifyLoginOTP / resendLoginOTP / sendResetLink / applyLoginData
+     (Google) / applyEmailCheck (NEW) / resetLoginOtp / clearApiError. Redux `dispatch` kept ONLY for TOAST_SHOW.
+   - pages/reset-password.tsx → userState.resetPassword.
+   - Components/UI/EmailVerificationBanner/index.tsx → userState.verifyEmail / resendVerification.
+   - Components/UI/AddWalletModal/index.tsx → userState.applyLoginData / fetchProfile.
+   - pages/admin/profile.tsx → removed DEAD Redux user imports (it already used adminBaseApi directly).
+   - Components/Page/Dashboard/DashboardRightSection.tsx — was ALREADY on useProfile (only a stale comment matched).
+   - hooks/useUser.ts — added `applyEmailCheck` (mirrors reducer USER_EMAIL_CHECK: seeds email+mobile so code-mode
+     SMS chip can appear).
+   Infra cleanup: Redux/Reducers/index.ts (combine → { toastReducer } only), Redux/Sagas/RootSaga.ts (Toast only),
+   Redux/Actions/index.ts (export ToastAction only), utils/types.ts rootReducer interface → { toastReducer }.
+   KEPT: Redux/Sagas/helpers/mapBackendErrorToField.ts (still used by CompanyDataContext + hooks/usePaymentLinks).
+
+VERIFIED: frontend tsc EXIT 0 project-wide; Next dev compile clean; testing_agent iteration_91 = 100% (8/8 render-only):
+login renders, email→password step (read-only email-existence check), code-mode inline OTP + "OTP sent" toast
+(useUser→TOAST_SHOW pipeline works), forgot-password dialog open/close, phone mode ↔ email mode with state
+preserved, /reset-password redirect, and ZERO "Cannot read properties of undefined"/hook/React errors. NO password
+or OTP was ever submitted (no last_login write to the live prod DB). AUTH ENDPOINTS/LOGIC UNCHANGED — pure state-layer
+migration (useUser mirrors the old saga byte-for-byte).
+
+NON-BLOCKING notes from the test agent (NOT fixed — not defects): ForgotPassword dialog + phone input + OTP boxes lack
+data-testids; useUser.resetPassword posts to "/user/reset-password" (leading slash) — intentional byte-for-byte parity
+with the old saga, works with current axios baseURL.
+
+NEXT (Phase 2 remainder): W6 — migrate Toast off redux-saga, then delete redux-saga + store.ts. Then Phase 3
+(helpers/themes/axios consolidation) → Phase 4 (reactStrictMode + ESLint ratchet). P0 deploy: Save-to-GitHub to push
+the earlier styled.tsx DO build fix.
+
+---
+
+
 # PHASE 1 — FRONTEND FIX PROGRAM (2026-06 fork, pod 09016278) — DONE (testing_agent iteration_91 = 100%)
 
 Preview: https://dynopay-setup-8.preview.emergentagent.com (LIVE prod DB, SAFE MODE).

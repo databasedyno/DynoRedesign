@@ -17,7 +17,7 @@ import {
 import { useRouter } from "next/router";
 import Head from "next/head";
 import dynamic from "next/dynamic";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
@@ -27,9 +27,8 @@ import useIsMobile from "@/hooks/useIsMobile";
 import useEdgeFade from "@/hooks/useEdgeFade";
 import useTokenData from "@/hooks/useTokenData";
 import useAccountProfile from "@/hooks/useAccountProfile";
-import { UserAction } from "@/Redux/Actions";
-import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
-import { ICompany, pageProps, rootReducer } from "@/utils/types";
+import useProfile, { revalidateProfile } from "@/hooks/useProfile";
+import { ICompany, pageProps } from "@/utils/types";
 
 /* ------------------------------------------------------------------ */
 /* Code-splitting                                                      */
@@ -101,14 +100,12 @@ const LEGACY_TAB_MAP: Record<string, SectionKey> = {
 /* Profile & Security — mirrors pages/profile.tsx wiring               */
 /* ------------------------------------------------------------------ */
 const ProfileSection = () => {
-  const dispatch = useDispatch();
   const tokenData = useTokenData();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
-  const profile = userState.profile;
+  const profile = useProfile().profile;
 
   useEffect(() => {
-    dispatch(UserAction(USER_PROFILE_FETCH));
-  }, [dispatch]);
+    revalidateProfile();
+  }, []);
 
   const mergedTokenData = tokenData
     ? {

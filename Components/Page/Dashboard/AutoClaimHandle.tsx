@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { Box, Button, Dialog, DialogContent, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 // canvas-confetti is lazy-loaded inside fireConfetti (keeps it out of the bundle)
 import axiosBaseApi from "@/axiosConfig";
-import { rootReducer } from "@/utils/types";
-import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
+import useProfile, { revalidateProfile } from "@/hooks/useProfile";
 import { prettyCreatorUrl } from "@/helpers/creatorUrl";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
@@ -38,8 +36,7 @@ const fireConfetti = () => {
 const AutoClaimHandle: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
-  const dispatch = useDispatch();
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const profile = useProfile().profile as any;
   const attemptedRef = useRef(false);
   // The handle just auto-claimed this session — drives the celebration dialog.
   const [claimedHandle, setClaimedHandle] = useState<string | null>(null);
@@ -85,13 +82,13 @@ const AutoClaimHandle: React.FC = () => {
         // Delightful moment: confetti + celebration dialog nudging to publish.
         setClaimedHandle(handle);
         fireConfetti();
-        dispatch(UserAction(USER_PROFILE_FETCH));
+        revalidateProfile();
       } catch {
         // Silent (user choice): keep the reserved handle so CreatorPageCard can
         // pre-fill it and the user can pick another name if it was just taken.
       }
     })();
-  }, [profile?.user_id, profile?.handle, dispatch]);
+  }, [profile?.user_id, profile?.handle]);
 
   const isDark = theme.palette.mode === "dark";
   const prettyUrl = prettyCreatorUrl(claimedHandle);

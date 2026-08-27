@@ -28,19 +28,10 @@ import {
 import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { takeAuthNotice } from "@/helpers/authNotice";
-import {
-  USER_API_ERROR,
+import useUser, {
   USER_CONFIRM_CODE,
-  USER_EMAIL_CHECK,
-  USER_LOGIN,
-  USER_SEND_OTP,
-  USER_SEND_RESET_LINK,
   USER_VERIFY_LOGIN_OTP,
-  USER_RESEND_LOGIN_OTP,
-  USER_LOGIN_OTP_RESET,
-  UserAction,
-} from "@/Redux/Actions/UserAction";
-import { rootReducer } from "@/utils/types";
+} from "@/hooks/useUser";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
@@ -56,7 +47,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { prefetchDashboardData } from "@/utils/prefetchDashboard";
@@ -71,7 +62,7 @@ export default function Login() {
   const isMobile = useIsMobile("sm");
   const dispatch = useDispatch();
   const router = useRouter();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
+  const userState = useUser();
 
   // If the user was sent back here because their session timed out (or a
   // password-reset link was invalid), tell them why instead of silently
@@ -202,7 +193,7 @@ export default function Login() {
       setEmailOtpDialogOpen(false);
       // Reset login OTP state on successful login
       if (userState.loginOtpRequired) {
-        dispatch({ type: USER_LOGIN_OTP_RESET });
+        userState.resetLoginOtp();
       }
       setTimeout(() => {
         // Only navigate once the token is actually persisted — guards against
@@ -311,7 +302,7 @@ export default function Login() {
     if (userState.loading) {
       const timeout = setTimeout(() => {
         if (!userState.name) {
-          dispatch({ type: USER_API_ERROR });
+          userState.clearApiError();
         }
       }, 10000);
       return () => clearTimeout(timeout);
@@ -406,12 +397,10 @@ export default function Login() {
       return;
     }
     try {
-      dispatch(
-        UserAction(USER_SEND_OTP, {
-          email: null,
-          mobile: phoneToUse,
-        })
-      );
+      userState.sendOtp({
+        email: null,
+        mobile: phoneToUse,
+      });
       setPhoneLoginOtpSent(true);
       setPhoneLoginOtpCountdown(30);
       setPhoneLoginOtpDialogOpen(true);
@@ -435,12 +424,10 @@ export default function Login() {
       setPhoneLoginOtpTouched(true);
       return;
     }
-    dispatch(
-      UserAction(USER_CONFIRM_CODE, {
-        mobile: verifiedPhone,
-        otp: otp.trim(),
-      })
-    );
+    userState.confirmCode({
+      mobile: verifiedPhone,
+      otp: otp.trim(),
+    });
   };
 
   // Reset phone login
@@ -470,28 +457,24 @@ export default function Login() {
 
   // Handle login OTP verify
   const handleLoginOtpVerify = (otp: string) => {
-    dispatch(
-      UserAction(USER_VERIFY_LOGIN_OTP, {
-        login_otp_session: userState.loginOtpSession,
-        otp,
-        remember: rememberMe,
-      })
-    );
+    userState.verifyLoginOTP({
+      login_otp_session: userState.loginOtpSession,
+      otp,
+      remember: rememberMe,
+    });
   };
 
   // Handle login OTP resend
   const handleLoginOtpResend = () => {
-    dispatch(
-      UserAction(USER_RESEND_LOGIN_OTP, {
-        login_otp_session: userState.loginOtpSession,
-      })
-    );
+    userState.resendLoginOTP({
+      login_otp_session: userState.loginOtpSession,
+    });
     setLoginOtpCountdown(60);
   };
 
   // Handle login OTP dialog close
   const handleLoginOtpClose = () => {
-    dispatch({ type: USER_LOGIN_OTP_RESET });
+    userState.resetLoginOtp();
   };
 
   // Validate email (only called on button click)
@@ -540,7 +523,7 @@ export default function Login() {
       if (data && typeof data.validEmail === "boolean") {
         if (data.validEmail) {
           setVerifiedEmail(emailInput);
-          dispatch({ type: USER_EMAIL_CHECK, payload: data });
+          userState.applyEmailCheck(data);
           setShowLoginMethods(true);
           setEmailError("");
         } else {
@@ -583,12 +566,10 @@ export default function Login() {
     }
 
     try {
-      dispatch(
-        UserAction(USER_SEND_OTP, {
-          email: verifiedEmail,
-          mobile: null,
-        }),
-      );
+      userState.sendOtp({
+        email: verifiedEmail,
+        mobile: null,
+      });
       setEmailOtpSent(true);
       setEmailOtpCountdown(30);
       setEmailOtpDialogOpen(true);
@@ -623,12 +604,10 @@ export default function Login() {
       return;
     }
 
-    dispatch(
-      UserAction(USER_CONFIRM_CODE, {
-        email: verifiedEmail,
-        otp: otp.trim(),
-      }),
-    );
+    userState.confirmCode({
+      email: verifiedEmail,
+      otp: otp.trim(),
+    });
   };
 
   // Validate mobile number
@@ -660,12 +639,10 @@ export default function Login() {
 
     if (userState.mobile) {
       try {
-        dispatch(
-          UserAction(USER_SEND_OTP, {
-            email: verifiedEmail,
-            mobile: userState.mobile,
-          }),
-        );
+        userState.sendOtp({
+          email: verifiedEmail,
+          mobile: userState.mobile,
+        });
         setIsOtpSent(true);
         setSmsOtpCountdown(30);
         setSmsOtpDialogOpen(true);
@@ -694,12 +671,10 @@ export default function Login() {
     }
 
     try {
-      dispatch(
-        UserAction(USER_SEND_OTP, {
-          email: verifiedEmail,
-          mobile: mobile,
-        }),
-      );
+      userState.sendOtp({
+        email: verifiedEmail,
+        mobile: mobile,
+      });
       setIsOtpSent(true);
       setSmsOtpCountdown(30);
       setSmsOtpDialogOpen(true);
@@ -741,13 +716,11 @@ export default function Login() {
       return;
     }
 
-    dispatch(
-      UserAction(USER_CONFIRM_CODE, {
-        email: verifiedEmail,
-        otp: otp.trim(),
-        mobile: mobileToUse,
-      }),
-    );
+    userState.confirmCode({
+      email: verifiedEmail,
+      otp: otp.trim(),
+      mobile: mobileToUse,
+    });
   };
 
   // Validate password
@@ -775,7 +748,7 @@ export default function Login() {
         return;
       }
 
-      dispatch(UserAction(USER_LOGIN, { email: verifiedEmail, password, remember: rememberMe }));
+      userState.login({ email: verifiedEmail, password, remember: rememberMe });
     } else if (loginMethod === "email") {
       if (!emailOtpSent) {
         dispatch({
@@ -802,12 +775,10 @@ export default function Login() {
       setEmailOtpError("");
       setEmailOtpTouched(false);
 
-      dispatch(
-        UserAction(USER_CONFIRM_CODE, {
-          email: verifiedEmail,
-          otp: emailOtp.trim(),
-        }),
-      );
+      userState.confirmCode({
+        email: verifiedEmail,
+        otp: emailOtp.trim(),
+      });
     } else if (loginMethod === "sms") {
       if (!isOtpSent) {
         dispatch({
@@ -840,13 +811,11 @@ export default function Login() {
         return;
       }
 
-      dispatch(
-        UserAction(USER_CONFIRM_CODE, {
-          email: verifiedEmail,
-          otp: otp.trim(),
-          mobile: mobileToUse,
-        }),
-      );
+      userState.confirmCode({
+        email: verifiedEmail,
+        otp: otp.trim(),
+        mobile: mobileToUse,
+      });
     }
   };
 
@@ -905,7 +874,7 @@ export default function Login() {
             const { data, message } = res?.data || {};
             if (data?.userData && data?.accessToken) {
               dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
-              dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken } });
+              userState.applyLoginData({ ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken });
             } else {
               throw new Error("Invalid response");
             }
@@ -994,11 +963,9 @@ export default function Login() {
       } = await axiosBaseApi.get(API_ENDPOINTS.user.checkEmail + email);
 
       if (data.validEmail) {
-        dispatch(
-          UserAction(USER_SEND_RESET_LINK, {
-            email: email,
-          }),
-        );
+        userState.sendResetLink({
+          email: email,
+        });
         setForgotPasswordEmailError("");
       } else {
         setForgotPasswordEmailError("emailNotFound");

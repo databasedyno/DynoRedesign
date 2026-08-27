@@ -6,17 +6,15 @@ import CustomButton from "@/Components/UI/Buttons";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import PanelCard from "@/Components/UI/PanelCard";
 import useIsMobile from "@/hooks/useIsMobile";
-import { UserAction } from "@/Redux/Actions";
-import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
+import useProfile, { revalidateProfile } from "@/hooks/useProfile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { rootReducer } from "@/utils/types";
 import { Icon } from "@/styles/uiKit";
 import { Box, IconButton, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import FormManager from "../Common/FormManager";
 import { InfoIconBox, InfoText, InfoWrapper } from "./styled";
@@ -31,7 +29,7 @@ const UpdatePassword = () => {
   const { t } = useTranslation("profile");
   const isMobile = useIsMobile("md");
 
-  const profile = useSelector((state: rootReducer) => state.userReducer.profile);
+  const profile = useProfile().profile;
   const hasPassword = profile?.has_password ?? false;
   const hasEmail = !!profile?.email;
   const hasPhone = !!profile?.mobile;
@@ -129,7 +127,7 @@ const UpdatePassword = () => {
         newPassword,
       });
       dispatch({ type: TOAST_SHOW, payload: { message: res.data?.message || t("passwordSetSuccess") } });
-      dispatch(UserAction(USER_PROFILE_FETCH));
+      revalidateProfile();
       setOtpStep("idle");
       setVerifiedOtp("");
       setSelectedChannel("");

@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useMemo } from "react";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { INDIGO, VIOLET, VOLT, OBSIDIAN, AURORA_GRADIENT } from "@/Components/Page/Home/v3/theme.v3";
 
 /**
@@ -102,10 +102,8 @@ const ROUTE_MAP: Array<{ test: (path: string) => boolean; vertical: Vertical }> 
  */
 export function useVerticalAccent(override?: Vertical): VerticalAccent {
   const router = useRouter();
-  const profileVertical = useSelector((s: any) => {
-    const raw = s?.userReducer?.profile?.purpose_vertical;
-    return isVertical(raw) ? raw : null;
-  });
+  const rawVertical = useProfile().profile?.purpose_vertical;
+  const profileVertical = isVertical(rawVertical) ? rawVertical : null;
   return useMemo(() => {
     if (override) return ACCENTS[override];
     if (profileVertical) return ACCENTS[profileVertical];

@@ -9,10 +9,9 @@ import {
   TextField,
   useTheme,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import useProfile from "@/hooks/useProfile";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { rootReducer } from "@/utils/types";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { Icon, MONO } from "@/styles/uiKit";
@@ -133,9 +132,7 @@ const BalanceStrip: React.FC<Props> = ({
     }
   };
 
-  const name = useSelector(
-    (s: rootReducer) => (s as any).userReducer?.profile?.name,
-  ) as string | undefined;
+  const name = useProfile().profile?.name as string | undefined;
   const greeting = useMemo(() => {
     const h = new Date().getHours();
     if (h < 12) return t("greetMorning", { defaultValue: "Good morning" });
