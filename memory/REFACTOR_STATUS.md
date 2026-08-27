@@ -193,7 +193,23 @@ no git history rewrite.
             rootReducer entries. Gate: tsc 0 · eslint 0 new (1 pre-existing warning in
             DynopayCryptoElement, untouched) · /developer-keys + /create-pay-link dev-compile 200.
             PENDING: frontend testing-agent verification (batch with W1).
-      Remaining redux-saga domains: Dashboard (W3) · PaymentLink (W4) · User (W5) · Toast (W6).
+      - [x] W3 Dashboard → SWR (2026-08-27, pod f07bb4cb): rewrote `hooks/useDashboardData.ts`
+            internally on SWR (same return shape, so its ~9 consumer components + Payouts need
+            ZERO changes). 4 read resources keyed on company (stats / fee-tiers / recent-tx /
+            chart); SWR's built-in dedupe replaces the old module-level _lastDashboardAll guard.
+            Chart params (period/custom range) live in a tiny module store + useSyncExternalStore
+            so every mounted instance shares ONE chart key (preserves old global-chartData
+            semantics); `fetchChartData` sets params. Added `revalidateDashboardData()` (global
+            SWR mutate by "dashboard:" key prefix) for the refresh triggers. Rewired: CompanySelector
+            (dropped DASHBOARD_FETCH_ALL + DASHBOARD_CHART_FETCH — SWR refetches on company-key
+            change), Display/UserDisplayCurrencySelector (→ revalidateDashboardData after currency
+            change), OnboardingFlow (reads `stats` via the hook; dropped the redundant manual
+            fetch effect; kept `dashboardFetched=false` to preserve the always-false legacy
+            behaviour). Profile fetch (USER_PROFILE_FETCH) stays on redux until Wave 5. Deleted
+            DashboardAction/dashboardReducer/DashboardSaga + barrel/RootSaga/rootReducer entries;
+            RootSaga no longer imports takeLatest/debounce. Gate: tsc 0 · eslint 0 new · /dashboard
+            + /payouts dev-compile 200. PENDING: frontend testing-agent verification (batch W1–W3).
+      Remaining redux-saga domains: PaymentLink (W4) · User (W5) · Toast (W6).
 - [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

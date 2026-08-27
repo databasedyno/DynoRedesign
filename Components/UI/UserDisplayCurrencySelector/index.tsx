@@ -11,10 +11,8 @@ import {
 } from "@mui/material";
 import { PersonOutlineRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
-import { DashboardAction } from "@/Redux/Actions";
-import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
+import { revalidateDashboardData } from "@/hooks/useDashboardData";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import useApiSWR from "@/hooks/useApiSWR";
 
@@ -36,7 +34,6 @@ type SupportedCurrency = { code: string; symbol: string; display_format: string 
 const UserDisplayCurrencySelector: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const dispatch = useDispatch();
   const { refetchWallets } = useWalletStore();
   const { t } = useTranslation("common");
 
@@ -90,8 +87,8 @@ const UserDisplayCurrencySelector: React.FC = () => {
         }),
       });
       // Trigger dashboard + wallet re-render so amounts flip immediately
-      try { dispatch(DashboardAction(DASHBOARD_FETCH_ALL)); } catch {}
-      try { refetchWallets(); } catch {}
+      try { revalidateDashboardData(); } catch { /* best-effort */ }
+      try { refetchWallets(); } catch { /* best-effort */ }
     } catch (e: any) {
       setToast({
         open: true,

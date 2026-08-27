@@ -1,9 +1,9 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { useWalletStore } from "@/contexts/WalletDataContext";
-import { PaymentLinkAction, DashboardAction } from "@/Redux/Actions";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { PaymentLinkAction } from "@/Redux/Actions";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
-import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
 import { rootReducer } from "@/utils/types";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,7 +46,6 @@ const OnboardingFlow: React.FC = () => {
   const autoOpened = useRef(false);
   const dismissed = useRef(false);
   const payLinkRequested = useRef(false);
-  const dashboardRequested = useRef(false);
   const shownTracked = useRef(false);
 
   const companyState = useCompanyStore();
@@ -54,9 +53,9 @@ const OnboardingFlow: React.FC = () => {
   const payLinkState = useSelector(
     (state: rootReducer) => state.paymentLinkReducer,
   );
-  const dashboardState = useSelector(
-    (state: rootReducer) => state.dashboardReducer,
-  );
+  // Dashboard stats now flow through SWR (keyed on the selected company); this
+  // hook auto-fetches on mount, so no manual DASHBOARD_FETCH_ALL trigger.
+  const { stats: dashboardStats } = useDashboardData();
 
   const companyList = companyState.companyList ?? [];
   const walletList = walletState.walletList ?? [];
@@ -73,8 +72,10 @@ const OnboardingFlow: React.FC = () => {
   );
   const hasLink = (payLinkState.paymentLinks?.length ?? 0) > 0;
   // "First payment received" milestone — derived from real dashboard stats.
-  const dashboardFetched = Boolean(dashboardState.fetched);
-  const hasPayment = (dashboardState.stats?.totalTransactions ?? 0) > 0;
+  // NOTE: mirrors the old redux `dashboardReducer.fetched`, which was never set
+  // to true, so this stays false — behaviour preserved during the SWR migration.
+  const dashboardFetched = false;
+  const hasPayment = (dashboardStats?.totalTransactions ?? 0) > 0;
 
   const companyId =
     companyState.selectedCompanyId || companyList?.[0]?.company_id;
@@ -112,26 +113,9 @@ const OnboardingFlow: React.FC = () => {
     }
   }, [hasAccount, companyId, dispatch]);
 
-  // Once a payment link exists, fetch dashboard stats once so the "first
-  // payment" milestone reflects reality (skip if the dashboard already loaded them).
-  //
-  // IMPORTANT: dispatch DASHBOARD_FETCH_ALL (not DASHBOARD_FETCH) — the saga
-  // watches DASHBOARD_INIT with a 400ms debounce. If this fired AFTER
-  // `useDashboardData` already dispatched DASHBOARD_FETCH_ALL, the two
-  // dispatches would collapse and the LAST one (DASHBOARD_FETCH — stats only)
-  // would win, silently dropping the parallel fetches for fee-tiers and
-  // recent-transactions. That left the Recent Transactions widget empty.
-  useEffect(() => {
-    if (hasLink && !dashboardFetched && !dashboardRequested.current) {
-      dashboardRequested.current = true;
-      dispatch(
-        DashboardAction(
-          DASHBOARD_FETCH_ALL,
-          companyId ? { company_id: companyId } : undefined,
-        ),
-      );
-    }
-  }, [hasLink, dashboardFetched, companyId, dispatch]);
+  // Once a payment link exists, the "first payment" milestone reflects reality
+  // automatically — `useDashboardData()` above already loads (and revalidates)
+  // dashboard stats via SWR, so no manual fetch trigger is needed here.
 
   // Auto-open the company step ONCE per session for brand-new users (closable, non-blocking)
   useEffect(() => {

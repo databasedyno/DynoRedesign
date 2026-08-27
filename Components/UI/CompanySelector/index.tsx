@@ -24,14 +24,10 @@ import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import CustomButton from "../Buttons";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
-import { DashboardAction, PaymentLinkAction } from "@/Redux/Actions";
+import { PaymentLinkAction } from "@/Redux/Actions";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { WALLET_KEY, walletPrefetchFetcher } from "@/contexts/WalletDataContext";
 import { preload } from "swr";
-import {
-  DASHBOARD_FETCH_ALL,
-  DASHBOARD_CHART_FETCH,
-} from "@/Redux/Actions/DashboardAction";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
@@ -158,12 +154,11 @@ export default function CompanySelector() {
     setTimeout(() => setSwitchToast(null), 2500);
     // (selectCompany already persists last_company to the backend + localStorage;
     // no duplicate PUT here.)
-    // Re-fetch all company-scoped data for the new company. Transactions,
-    // wallets AND api keys flow through SWR (keyed on the company) so they
-    // auto-refetch on switch — only the still-Redux domains need a manual kick.
+    // Re-fetch all company-scoped data for the new company. Dashboard,
+    // transactions, wallets AND api keys all flow through SWR (keyed on the
+    // company) so they auto-refetch on switch — only the still-Redux
+    // PaymentLink domain needs a manual kick.
     const companyPayload = { company_id: companyId };
-    dispatch(DashboardAction(DASHBOARD_FETCH_ALL, companyPayload));
-    dispatch(DashboardAction(DASHBOARD_CHART_FETCH, { ...companyPayload, period: "7d" }));
     refetchWallets();
     dispatch(PaymentLinkAction(PAYLINK_FETCH, companyPayload));
   };
