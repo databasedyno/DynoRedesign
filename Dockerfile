@@ -128,7 +128,7 @@ ENV NEXT_PUBLIC_GITHUB_CLIENT_ID=${NEXT_PUBLIC_GITHUB_CLIENT_ID}
 ARG NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=
 ENV NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=${NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS}
 
-# Branded creator domain (e.g. https://dynopay.me). MUST be declared so that
+# Branded creator domain (e.g. https://dynopay.com). MUST be declared so that
 # client-side bundles inline the value at build time — otherwise UserMenu /
 # CreatorPageCard / share dialogs fall back to NEXT_PUBLIC_BASE_URL.
 ARG NEXT_PUBLIC_CREATOR_BASE_URL=

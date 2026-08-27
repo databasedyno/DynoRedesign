@@ -365,6 +365,6 @@ export const flagLogin = async (req: express.Request, res: express.Response) => 
   }
 };
 
-// ── Creator vanity page (dynopay.me/{handle}) ──
+// ── Creator vanity page (dynopay.com/{handle}) ──
 // Handles reserved so a user can't shadow an app route.
 

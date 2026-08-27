@@ -52,7 +52,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // NEXT_PUBLIC_BASE_URL is empty), then the public app URL. This is used ONLY
   // to reach the backend during SSR — the shareable creator URL is separate.
   const base = (process.env.INTERNAL_API_URL || process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
-  // Creator pages are served ONLY on the branded creator domain (dynopay.me);
+  // Creator pages are served ONLY on the branded creator domain (dynopay.com);
   // a valid handle opened on another host is forwarded there (production only,
   // so the single-host Emergent preview always renders for verification).
   const creatorBase = getCreatorBaseUrl()
@@ -125,7 +125,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         creator: data.creator,
         links: Array.isArray(data.links) ? data.links : [],
         // Public creator pages are shared under the branded creator domain
-        // (NEXT_PUBLIC_CREATOR_BASE_URL, e.g. dynopay.me); the API fetch above
+        // (NEXT_PUBLIC_CREATOR_BASE_URL, e.g. dynopay.com); the API fetch above
         // still uses the app/internal base URL.
         siteUrl: getCreatorBaseUrl() || (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, ''),
         supportWidget: data.support_widget || null,

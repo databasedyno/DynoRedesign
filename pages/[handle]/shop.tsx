@@ -156,7 +156,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const base = (process.env.INTERNAL_API_URL || process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
   // Public URL shown to the client — NEVER the internal loopback base.
   const siteUrl = getCreatorBaseUrl() || (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
-  // Shop lives only on the creator domain (dynopay.me) in production.
+  // Shop lives only on the creator domain (dynopay.com) in production.
   let creatorHost = "";
   try { creatorHost = siteUrl ? new URL(siteUrl).host.toLowerCase() : ""; } catch { creatorHost = ""; }
   const reqHost = String(ctx.req.headers["x-forwarded-host"] || ctx.req.headers.host || "").split(",")[0].trim().toLowerCase();

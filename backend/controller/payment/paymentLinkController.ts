@@ -2252,7 +2252,7 @@ export const startTip = async (
     const presetsCsv = presetsArr.length ? presetsArr.join(",") : null;
 
     // Creator page URL (used as "back to campaign" target on the success screen).
-    // Prefer the branded creator domain (CREATOR_BASE_URL, e.g. dynopay.me).
+    // Prefer the branded creator domain (CREATOR_BASE_URL, e.g. dynopay.com).
     const creatorPageUrl = (envRaw("CREATOR_BASE_URL") || envRaw("FRONTEND_URL") || envRaw("SERVER_URL") || "").trim().replace(/\/$/, "") + "/" + u.handle;
 
     // ── Find or lazily create the hidden singleton tip-jar parent ──
@@ -2486,7 +2486,7 @@ export const setCustomerEmail = async (
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CREATOR VANITY PAGE — public profile at dynopay.me/{handle}
+// CREATOR VANITY PAGE — public profile at dynopay.com/{handle}
 // Returns the creator's public info + their active donation campaigns and
 // reusable payment links. No auth (crawler-friendly for the SSR page).
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2667,11 +2667,9 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
               const u = new URL(rawReferer);
               const host = u.hostname.toLowerCase();
               const selfHosts = new Set([
-                "dynopay.me",
                 "dynopay.com",
                 "checkout.dynopay.com",
                 "www.dynopay.com",
-                "www.dynopay.me",
               ]);
               if (host && !selfHosts.has(host)) {
                 // Strip common tracking noise; keep bare eTLD+something (best-effort)

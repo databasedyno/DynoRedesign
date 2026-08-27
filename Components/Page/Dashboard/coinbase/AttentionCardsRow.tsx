@@ -122,7 +122,7 @@ const AttentionCardsRow: React.FC = () => {
               defaultValue: "Claim your @handle",
             }),
             body: t("attnClaimHandleBody", {
-              defaultValue: "Give supporters a memorable link like dynopay.me/@you.",
+              defaultValue: "Give supporters a memorable link like dynopay.com/@you.",
             }),
             cta: t("attnClaimHandleCta", { defaultValue: "Claim now" }),
             icon: <StorefrontRounded sx={{ fontSize: 22 }} />,

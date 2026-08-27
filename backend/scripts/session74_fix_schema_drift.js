@@ -26,7 +26,7 @@ const USER_STATEMENTS = [
   `ALTER TABLE tbl_user ADD COLUMN IF NOT EXISTS merchant_country_code VARCHAR(2)`,
   `ALTER TABLE tbl_user ADD COLUMN IF NOT EXISTS merchant_vat_id VARCHAR(32)`,
 
-  // Creator vanity page (dynopay.me/{handle})
+  // Creator vanity page (dynopay.com/{handle})
   `ALTER TABLE tbl_user ADD COLUMN IF NOT EXISTS handle VARCHAR(50)`,
   `ALTER TABLE tbl_user ADD COLUMN IF NOT EXISTS bio VARCHAR(500)`,
   `ALTER TABLE tbl_user ADD COLUMN IF NOT EXISTS creator_page_enabled BOOLEAN DEFAULT false`,

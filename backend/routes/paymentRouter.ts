@@ -20,7 +20,7 @@ paymentRouter.post("/getData", paymentRateLimiter, paymentController.getData);
 // Read-only checkout metadata for SSR link previews (OG tags)
 paymentRouter.get("/meta", paymentRateLimiter, paymentController.getPaymentMeta);
 
-// Public creator vanity page profile (dynopay.me/{handle} → SSR fetch)
+// Public creator vanity page profile (dynopay.com/{handle} → SSR fetch)
 paymentRouter.get("/creator/:handle", paymentRateLimiter, paymentController.getCreatorProfile);
 
 // Public creator page analytics (30-day tip chart + top supporters).

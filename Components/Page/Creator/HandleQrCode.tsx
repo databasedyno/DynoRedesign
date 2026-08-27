@@ -10,7 +10,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
 /**
  * Handle QR Code (Session 60).
  *
- * Renders a QR that encodes dynopay.me/{handle}. Creators can download it as
+ * Renders a QR that encodes dynopay.com/{handle}. Creators can download it as
  * PNG (share in videos, print flyers/stickers). Two sizes:
  *   - `compact` (200 px, sidebar/card usage)
  *   - `full`    (320 px, settings page)
@@ -132,7 +132,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
           />
         )}
         <QRCodeCanvas
-          value={url || `https://dynopay.me/${handle}`}
+          value={url || `https://dynopay.com/${handle}`}
           size={qrSize}
           fgColor={fg}
           bgColor={bg}

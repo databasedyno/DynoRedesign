@@ -80,7 +80,7 @@ const Register = () => {
   // Bumped each time we send a new OTP — tells OtpInputPanel to clear its boxes
   // and re-focus the first input.
   const [otpResetKey, setOtpResetKey] = useState(0);
-  // Handle the visitor claimed on the landing hero ("dynopay.me/@<handle>"),
+  // Handle the visitor claimed on the landing hero ("dynopay.com/@<handle>"),
   // carried here via ?handle= (with a localStorage fallback) so we can show it
   // is being reserved while they finish signing up.
   const [claimedHandle, setClaimedHandle] = useState("");
@@ -677,7 +677,7 @@ const Register = () => {
                           defaultValue: "You're reserving",
                         })}{" "}
                         <b style={{ fontWeight: 700 }}>
-                          dynopay.me/@{claimedHandle}
+                          dynopay.com/@{claimedHandle}
                         </b>{" "}
                         —{" "}
                         {t("reservedHandleSuffix", {

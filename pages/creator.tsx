@@ -4,7 +4,7 @@ import type { GetServerSideProps } from "next";
  * /creator is now the "Page" tab of Storefront.
  *
  * The creator page, the product catalog and the share tools all configure ONE
- * public URL (dynopay.me/{handle}), so they were merged into /storefront —
+ * public URL (dynopay.com/{handle}), so they were merged into /storefront —
  * having them as separate destinations meant a merchant could publish a page
  * that never mentioned the products they were selling.
  *

@@ -589,7 +589,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
               {t("storefront.pageThemeDesc", {
                 defaultValue:
-                  "Colors and cover style for your dynopay.me page — make it feel on-brand.",
+                  "Colors and cover style for your dynopay.com page — make it feel on-brand.",
               })}
             </Typography>
             {/* Storefront-per-company scope hint: makes it obvious the palette

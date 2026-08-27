@@ -131,7 +131,7 @@ app.set('trust proxy', 1);
 
 // ─── CORS Configuration (Domain Guardrail) ───────────────────────────────────
 // A fixed allow-list silently breaks payments the moment a new alias domain is
-// added (e.g. dynopay.me). So we ALWAYS validate via a callback that allows:
+// added (e.g. dynopay.com). So we ALWAYS validate via a callback that allows:
 //   1. Any origin explicitly listed in CORS_ALLOWED_ORIGINS
 //   2. The apex OR any subdomain of a "trusted base domain". Trusted base
 //      domains are auto-derived from the app's own configured URLs (SERVER_URL /
@@ -144,7 +144,7 @@ const explicitOrigins = (config.str("CORS_ALLOWED_ORIGINS") || '')
   .split(',').map(o => o.trim()).filter(Boolean);
 const explicitOriginSet = new Set(explicitOrigins);
 
-// Extract the registrable apex (last two labels, e.g. "dynopay.me") from a URL/host.
+// Extract the registrable apex (last two labels, e.g. "dynopay.com") from a URL/host.
 const apexOf = (value?: string | null): string | null => {
   if (!value) return null;
   try {

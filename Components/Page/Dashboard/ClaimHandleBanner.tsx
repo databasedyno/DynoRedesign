@@ -17,7 +17,7 @@ const INK = "#0A0A0B";
 
 /**
  * Dashboard top banner — only shown when the merchant has NOT claimed a
- * dynopay.me handle yet. Dismissible (persists in localStorage). Directs
+ * dynopay.com handle yet. Dismissible (persists in localStorage). Directs
  * the user to /creator for the full claim + publish flow.
  *
  * Companion to CreatorPageCard's inline State-1 claim input — the banner is
@@ -46,7 +46,7 @@ const ClaimHandleBanner: React.FC = () => {
   // feels continuous across the journey.
   const [pendingHandle, setPendingHandle] = useState("");
 
-  const domain = prettyCreatorDomain() || "dynopay.me";
+  const domain = prettyCreatorDomain() || "dynopay.com";
   const handle = (storefront?.handle as string) || "";
 
   useEffect(() => {

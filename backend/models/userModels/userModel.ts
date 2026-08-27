@@ -196,7 +196,7 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Merchant's own VAT / GST / tax registration number, shown on receipts",
     },
-    // ── Creator vanity page (dynopay.me/{handle}) ──
+    // ── Creator vanity page (dynopay.com/{handle}) ──
     handle: {
       type: DataTypes.STRING(50),
       allowNull: true,
