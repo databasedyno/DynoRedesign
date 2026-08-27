@@ -1,7 +1,7 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useCallback } from "react";
 import { Box, Typography, IconButton, Skeleton, useTheme, Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import {
@@ -16,7 +16,6 @@ import CustomButton from "@/Components/UI/Buttons";
 import { MONO } from "@/styles/uiKit";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { API_ENDPOINTS } from "@/api/endpoints";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { brandFg } from "@/constants/theme";
 
 /**
@@ -44,7 +43,6 @@ const ReferralCodeCard: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
-  const dispatch = useDispatch();
   const { t } = useTranslation(["referrals", "dashboardLayout"]);
 
   const { data, isLoading } = useApiSWR<ReferralCode>(
@@ -58,9 +56,9 @@ const ReferralCodeCard: React.FC = () => {
 
   const notify = useCallback(
     (message: string, severity: "success" | "error" = "success") => {
-      dispatch({ type: TOAST_SHOW, payload: { message, severity } });
+      showToast({ message, severity });
     },
-    [dispatch]
+    []
   );
 
   const handleCopyCode = useCallback(async () => {

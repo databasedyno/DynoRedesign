@@ -21,7 +21,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import {

@@ -243,8 +243,16 @@ no git history rewrite.
             { toastReducer }). KEPT Redux/Sagas/helpers/mapBackendErrorToField.ts (used by CompanyDataContext +
             usePaymentLinks). Gate: tsc 0 · Next compile clean · testing_agent 8/8. redux-saga now powers ONLY Toast.
             ALSO verified this session: the /api/track/visitor sendBeacon fix (no net::ERR_ABORTED on home→login nav).
-      - [ ] W6 Toast → migrate off redux-saga, then delete redux-saga + store.ts (Phase 2 completion).
-            After W6, rootReducer/store.ts can be removed entirely.
+      - [x] W6 Toast → module store + DELETE redux (2026-08-27, dynopay-setup-8): DONE + testing_agent
+            iteration_92 = 100% (17 routes, RENDER-ONLY, zero console/redux errors). NEW helpers/toastStore.ts
+            (useSyncExternalStore) replaces toastReducer/ToastSaga; 43 files migrated dispatch(TOAST_SHOW)→
+            showToast + all useDispatch/useSelector removed; Toast renderer reads the store (keeps optional props
+            for legacy local-toast screens); Containers render <Toast/>; _app.tsx Provider removed. DELETED
+            /app/store.ts + entire /app/Redux/ folder; relocated mapBackendErrorToField → helpers/. Uninstalled
+            @reduxjs/toolkit + react-redux + redux-saga. tsc 0 · Next compile clean. **redux-saga fully retired —
+            the app now runs on ONE state layer (SWR + module stores + context).**
+- [x] Phase 2 — One data layer: COMPLETE (W1 Transaction · W2 Api · W3 Dashboard · W4 PaymentLink · W5 User ·
+      W6 Toast). redux + redux-saga + store.ts all removed.
 - [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

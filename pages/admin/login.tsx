@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,8 +17,7 @@ import { styled } from "@mui/material/styles";
 import FormManager from "@/Components/Page/Common/FormManager";
 import * as yup from "yup";
 
-import { useDispatch } from "react-redux";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+
 import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
 
@@ -64,7 +64,6 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 const AdminLogin = () => {
-  const dispatch = useDispatch();
   const router = useRouter();
   const initialValue = {
     email: "",
@@ -78,23 +77,17 @@ const AdminLogin = () => {
         data: { data, message },
       } = await adminBaseApi.post("/admin/login", values);
       console.log(data);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
-        },
-      });
+        });
       localStorage.setItem("admin_token", data.accessToken);
       router.replace("/admin");
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

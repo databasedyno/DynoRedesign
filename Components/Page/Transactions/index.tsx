@@ -1,7 +1,7 @@
+import { showToast } from "@/helpers/toastStore";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { formatWithSeparators } from "@/utils/currencyFormat";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useTransactions, exportTransactions } from "@/hooks/useTransactions";
 import { ICustomerTransactions } from "@/utils/types";
 import { DateRange } from "@/utils/types/dashboard";
@@ -16,7 +16,7 @@ import { Icon, MONO } from "@/styles/uiKit";
 import CustomButton from "@/Components/UI/Buttons";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
@@ -52,7 +52,6 @@ Object.entries(walletMapping).forEach(([key, value]) => {
 });
 
 const TransactionPage = () => {
-  const dispatch = useDispatch();
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
 
@@ -419,14 +418,11 @@ const TransactionPage = () => {
         company_id: selectedCompanyId || undefined,
         settled_only: settledExport,
       });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "Transactions exported successfully" },
-      });
+      showToast({ message: "Transactions exported successfully" });
     } catch (e: any) {
       const message =
         e?.response?.data?.message ?? e?.message ?? "Failed to export transactions";
-      dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+      showToast({ message, severity: "error" });
     }
   };
 

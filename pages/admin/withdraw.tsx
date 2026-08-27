@@ -1,14 +1,14 @@
+import { showToast } from "@/helpers/toastStore";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import adminBaseApi from "@/axiosAdmin";
 import FormManager from "@/Components/Page/Common/FormManager";
 import Dropdown from "@/Components/UI/Dropdown";
 import TextBox from "@/Components/UI/TextBox";
 import { countDecimals, getCurrencySymbol } from "@/helpers";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { IWallet, menuItem, pageProps } from "@/utils/types";
 import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+
 import * as yup from "yup";
 
 const walletInitial = {
@@ -30,7 +30,6 @@ const wallets = [
 ];
 
 const AdminWithdraw = ({ setPageName }: pageProps) => {
-  const dispatch = useDispatch();
   const [cryptoData, setCryptoData] = useState<IWallet[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [transaction, setTransaction] = useState<any>();
@@ -58,13 +57,10 @@ const AdminWithdraw = ({ setPageName }: pageProps) => {
       setLoading2(false);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -78,13 +74,10 @@ const AdminWithdraw = ({ setPageName }: pageProps) => {
       setLoading(false);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

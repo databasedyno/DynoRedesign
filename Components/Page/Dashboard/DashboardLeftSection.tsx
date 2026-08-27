@@ -47,7 +47,6 @@ import HeroMetrics from "./HeroMetrics";
 import RecentTransactionsWidget from "./RecentTransactionsWidget";
 import EmptyStatePanel from "./EmptyStatePanel";
 import { rootReducer } from "@/utils/types";
-import { useSelector } from "react-redux";
 
 const formatDate = (date: Date): string => {
   const months = [

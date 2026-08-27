@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import React, {
   createContext,
   useCallback,
@@ -7,15 +8,13 @@ import React, {
   useState,
 } from "react";
 import useSWR from "swr";
-import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 
 import axios from "@/axiosConfig";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import {
   mapBackendErrorToField,
   companyKeywordMap,
-} from "@/Redux/Sagas/helpers/mapBackendErrorToField";
+} from "@/helpers/mapBackendErrorToField";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 /**
@@ -82,7 +81,6 @@ export interface CompanyStore {
 const CompanyContext = createContext<CompanyStore | null>(null);
 
 export function CompanyDataProvider({ children }: { children: React.ReactNode }) {
-  const dispatch = useDispatch();
   const router = useRouter();
 
   // Only fetch once a merchant token exists. The token can appear AFTER this
@@ -185,21 +183,21 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
         } = await axios.post("company/addCompany", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        dispatch({ type: TOAST_SHOW, payload: { message } });
+        showToast({ message });
         await mutate();
         return d;
       } catch (e: any) {
         const message =
           e?.response?.data?.message ?? e?.message ?? "An error occurred";
         const mapped = mapBackendErrorToField(message, companyKeywordMap);
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         setCreateError(mapped.friendly);
         setCreateErrorField(mapped.field);
         setCreateErrorNonce((n) => n + 1);
         throw e;
       }
     },
-    [dispatch, mutate]
+    [mutate]
   );
 
   const updateCompany = useCallback(
@@ -210,17 +208,17 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
         } = await axios.put("company/updateCompany/" + id, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        dispatch({ type: TOAST_SHOW, payload: { message } });
+        showToast({ message });
         await mutate();
         return d;
       } catch (e: any) {
         const message =
           e?.response?.data?.message ?? e?.message ?? "An error occurred";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         throw e;
       }
     },
-    [dispatch, mutate]
+    [mutate]
   );
 
   const deleteCompany = useCallback(
@@ -237,22 +235,19 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
                 revokedApiIds.length > 1 ? "s" : ""
               } revoked)`
             : message;
-        dispatch({
-          type: TOAST_SHOW,
-          payload: { message: successMessage, severity: "success" },
-        });
+        showToast({ message: successMessage, severity: "success" });
         await mutate();
         return d;
       } catch (e: any) {
         const message =
           e?.response?.data?.message ?? e?.message ?? "An error occurred";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         // Recover from any stale optimistic removal
         await mutate();
         throw e;
       }
     },
-    [dispatch, mutate]
+    [mutate]
   );
 
   const validateTax = useCallback(
@@ -275,21 +270,18 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
         if (rd?.success === false) {
           throw new Error(rd.message || "Tax validation failed");
         }
-        dispatch({
-          type: TOAST_SHOW,
-          payload: { message: rd?.message || "Tax ID validated successfully" },
-        });
+        showToast({ message: rd?.message || "Tax ID validated successfully" });
         const result = rd?.data || { valid: true, taxId, country };
         setTaxValidation(result);
         return result;
       } catch (e: any) {
         const message =
           e?.response?.data?.message ?? e?.message ?? "Tax validation failed";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         throw e;
       }
     },
-    [dispatch]
+    []
   );
 
   const value = useMemo<CompanyStore>(

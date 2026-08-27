@@ -1,10 +1,10 @@
+import { showToast } from "@/helpers/toastStore";
 import axiosBaseApi from "@/axiosConfig";
 import Loading from "@/Components/UI/Loading";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useUser from "@/hooks/useUser";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+
 
 /**
  * GitHub OAuth callback — /auth/github/callback
@@ -16,7 +16,6 @@ import { useDispatch } from "react-redux";
  */
 const GithubCallback = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const userState = useUser();
   const exchangingRef = useRef(false);
 
@@ -27,13 +26,10 @@ const GithubCallback = () => {
 
     // User denied access or GitHub returned an error
     if (error) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: error_description || "GitHub sign-in was cancelled",
           severity: "error",
-        },
-      });
+        });
       router.replace("/auth/login");
       return;
     }
@@ -52,10 +48,7 @@ const GithubCallback = () => {
       /* sessionStorage unavailable */
     }
     if (expectedState && state && expectedState !== state) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "GitHub sign-in failed (state mismatch). Please try again.", severity: "error" },
-      });
+      showToast({ message: "GitHub sign-in failed (state mismatch). Please try again.", severity: "error" });
       router.replace("/auth/login");
       return;
     }
@@ -70,7 +63,7 @@ const GithubCallback = () => {
         } = await axiosBaseApi.post("user/github-signin", { code, redirectUri });
 
         if (data?.userData && data?.accessToken) {
-          dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
+          showToast({ message: message || "Login successful" });
           userState.applyLoginData({
             ...data.userData,
             accessToken: data.accessToken,
@@ -82,7 +75,7 @@ const GithubCallback = () => {
       } catch (e: any) {
         const message =
           e.response?.data?.message ?? e.message ?? "GitHub sign-in failed";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         exchangingRef.current = false;
         router.replace("/auth/login");
       }

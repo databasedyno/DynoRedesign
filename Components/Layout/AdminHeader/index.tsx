@@ -18,7 +18,6 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import User from "@/assets/Images/user_image.png";
 
-import { useSelector, useDispatch } from "react-redux";
 import useWindow from "@/hooks/useWindow";
 import useTokenData from "@/hooks/useTokenData";
 import { useRouter } from "next/router";
@@ -39,7 +38,6 @@ const AdminHeader = ({ pageName, pageDescription, component }: AdminHeaderProps)
    *
    */
 
-  const dispatch = useDispatch();
   const theme = useTheme();
   const router = useRouter();
   const customWindow = useWindow();

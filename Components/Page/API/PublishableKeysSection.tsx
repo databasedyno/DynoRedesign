@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { brandFg } from "@/constants/theme";
 /**
  * Publishable Keys Section — Phase 2C dashboard UI for Buy Button
@@ -27,7 +28,6 @@ import {
 } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
@@ -35,7 +35,6 @@ import DeleteModel from "@/Components/UI/DeleteModel";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import PanelCard from "@/Components/UI/PanelCard";
 import PopupModal from "@/Components/UI/PopupModal";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
 import usePublishableKeys from "@/hooks/usePublishableKeys";
 import { rootReducer } from "@/utils/types";
@@ -518,7 +517,6 @@ const KeyFormModal = ({
 }: KeyFormModalProps) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
-  const dispatch = useDispatch();
 
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
@@ -596,10 +594,7 @@ const KeyFormModal = ({
         err?.message ||
         "Failed to save publishable key";
       setServerError(msg);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: msg, severity: "error" },
-      });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setSaving(false);
     }
@@ -906,7 +901,6 @@ const JustCreatedBanner = ({
 const PublishableKeysSection = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
-  const dispatch = useDispatch();
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const companyList = useCompanyStore().companyList;
@@ -957,15 +951,9 @@ const PublishableKeysSection = () => {
     if (!value) return;
     try {
       copyToClipboard(value);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: `${label} copied`, severity: "info" },
-      });
+      showToast({ message: `${label} copied`, severity: "info" });
     } catch {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "Unable to copy", severity: "error" },
-      });
+      showToast({ message: "Unable to copy", severity: "error" });
     }
   };
 
@@ -982,10 +970,7 @@ const PublishableKeysSection = () => {
   };
 
   const onSaved = (msg: string, createdKey?: PublishableKey) => {
-    dispatch({
-      type: TOAST_SHOW,
-      payload: { message: msg, severity: "success" },
-    });
+    showToast({ message: msg, severity: "success" });
     if (createdKey) setJustCreated(createdKey);
     loadKeys();
   };
@@ -997,24 +982,18 @@ const PublishableKeysSection = () => {
       await axiosBaseApi.patch(`publishable-keys/${pk.pub_key_id}`, {
         status: next,
       });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: `Publishable key ${next === "active" ? "enabled" : "disabled"}`,
           severity: "success",
-        },
-      });
+        });
       loadKeys();
     } catch (err: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             err?.response?.data?.message ||
             "Failed to update publishable key status",
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -1022,23 +1001,17 @@ const PublishableKeysSection = () => {
     if (!revokeId) return;
     try {
       await axiosBaseApi.delete(`publishable-keys/${revokeId}`);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: "Publishable key revoked",
           severity: "success",
-        },
-      });
+        });
       loadKeys();
     } catch (err: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             err?.response?.data?.message || "Failed to revoke publishable key",
           severity: "error",
-        },
-      });
+        });
     } finally {
       setRevokeId(null);
     }

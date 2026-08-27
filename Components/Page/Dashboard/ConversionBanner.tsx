@@ -10,7 +10,6 @@ import {
   MenuItem,
   FormControl,
 } from "@mui/material";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 

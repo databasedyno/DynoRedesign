@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { brandFg } from "@/constants/theme";
 /**
  * WebhookConsoleSection — developer webhook console on the API / developer page.
@@ -39,13 +40,11 @@ import {
 } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import useApiSWR from "@/hooks/useApiSWR";
 
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
 import { StatusDot } from "@/Components/UI/StatusDot";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
@@ -124,7 +123,6 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   const showEvents = view === "all" || view === "events";
   const theme = useTheme();
   const isMobile = useIsMobile();
-  const dispatch = useDispatch();
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const companyList = useCompanyStore().companyList;
@@ -154,8 +152,8 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
 
   const toast = useCallback(
     (message: string, severity: "success" | "error" | "info" = "success") =>
-      dispatch({ type: TOAST_SHOW, payload: { message, severity } }),
-    [dispatch],
+      showToast({ message, severity }),
+    [],
   );
 
   const loadSettings = useCallback(async () => {

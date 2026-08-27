@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
@@ -13,9 +14,8 @@ import {
   ContentCopyRounded,
   CloseRounded,
 } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+
 import axiosBaseApi from "@/axiosConfig";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useReusableWallets, ReusableCompany } from "@/hooks/useReusableWallets";
@@ -38,7 +38,6 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
   targetCompanyId,
   onCopied,
 }) => {
-  const dispatch = useDispatch();
   const { refetchWallets } = useWalletStore();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -116,13 +115,10 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
         currencies: selectedCurrencies,
       });
       const copiedCount = data?.data?.copied?.length ?? 0;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: data?.message || `${copiedCount} wallet(s) copied`,
           severity: "success",
-        },
-      });
+        });
       refetchWallets();
       setDismissed(true);
       onCopied?.(copiedCount);
@@ -130,7 +126,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
       const msg =
         (e as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         "Could not copy wallets. Please try again.";
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setCopying(false);
     }

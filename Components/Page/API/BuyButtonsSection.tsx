@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 /**
  * Buy Buttons Section — Phase 2D dashboard UI
  *
@@ -28,7 +29,6 @@ import {
 } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
@@ -36,7 +36,6 @@ import DeleteModel from "@/Components/UI/DeleteModel";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import PanelCard from "@/Components/UI/PanelCard";
 import PopupModal from "@/Components/UI/PopupModal";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
 import useBuyButtons from "@/hooks/useBuyButtons";
 import usePublishableKeys from "@/hooks/usePublishableKeys";
@@ -529,7 +528,6 @@ const FormModal = ({
 }: FormModalProps) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
-  const dispatch = useDispatch();
 
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
@@ -638,7 +636,7 @@ const FormModal = ({
         err?.message ||
         "Failed to save buy button";
       setServerError(msg);
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setSaving(false);
     }
@@ -892,7 +890,6 @@ const FormModal = ({
 const BuyButtonsSection = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
-  const dispatch = useDispatch();
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const companyList = useCompanyStore().companyList;
@@ -969,15 +966,9 @@ const BuyButtonsSection = () => {
     if (!value) return;
     try {
       copyToClipboard(value);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: `${label} copied`, severity: "info" },
-      });
+      showToast({ message: `${label} copied`, severity: "info" });
     } catch {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "Unable to copy", severity: "error" },
-      });
+      showToast({ message: "Unable to copy", severity: "error" });
     }
   };
 
@@ -994,10 +985,7 @@ const BuyButtonsSection = () => {
   };
 
   const onSaved = (msg: string) => {
-    dispatch({
-      type: TOAST_SHOW,
-      payload: { message: msg, severity: "success" },
-    });
+    showToast({ message: msg, severity: "success" });
     load();
   };
 
@@ -1005,21 +993,15 @@ const BuyButtonsSection = () => {
     if (!archiveId) return;
     try {
       await axiosBaseApi.delete(`buy-buttons/${archiveId}`);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "Buy button archived", severity: "success" },
-      });
+      showToast({ message: "Buy button archived", severity: "success" });
       load();
     } catch (err: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             err?.response?.data?.message ||
             "Failed to archive buy button",
           severity: "error",
-        },
-      });
+        });
     } finally {
       setArchiveId(null);
     }
@@ -1030,21 +1012,15 @@ const BuyButtonsSection = () => {
       await axiosBaseApi.patch(`buy-buttons/${btn.button_id}`, {
         status: "active",
       });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "Buy button reactivated", severity: "success" },
-      });
+      showToast({ message: "Buy button reactivated", severity: "success" });
       load();
     } catch (err: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             err?.response?.data?.message ||
             "Failed to reactivate buy button",
           severity: "error",
-        },
-      });
+        });
     }
   };
 

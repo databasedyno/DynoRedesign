@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { ArrowBack } from "@mui/icons-material";
 import {
@@ -18,8 +19,6 @@ import CopyIcon from "@/assets/Icons/CopyIcon";
 import ClockIcon from "@/assets/Icons/ClockIcon";
 import axiosBaseApi from "@/axiosConfig";
 import { currencyData, walletState } from "@/utils/types/paymentTypes";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { useDispatch } from "react-redux";
 import { paymentTypes } from "@/utils/enums";
 import { createEncryption } from "@/helpers";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -243,7 +242,6 @@ const CryptoTransfer = ({
   // Phone-sized viewport → show the "Open in wallet" deep-link and grow
   // touch targets to ≥44px (§ public-surfaces usability pass).
   const isMobileCheckout = useMediaQuery("(max-width: 767.95px)");
-  const dispatch = useDispatch();
   // Brand accent (lime) — used for selection + primary affordances to match
   // the landing page and donation checkout. Green (#10B981/#12B76A) is kept
   // ONLY for payment-detected/confirmed states (universal "success" signal).
@@ -560,13 +558,10 @@ const CryptoTransfer = ({
     copyToClipboard(cryptoDetails?.address);
     setCopied(true);
     setShowCopyToast(true);
-    dispatch({
-      type: TOAST_SHOW,
-      payload: {
+    showToast({
         message: t('crypto.addressCopied'),
         severity: "success",
-      },
-    });
+      });
     setTimeout(() => {
       setCopied(false);
       setShowCopyToast(false);
@@ -578,13 +573,10 @@ const CryptoTransfer = ({
     if (!cryptoDetails?.memo) return;
     copyToClipboard(cryptoDetails.memo);
     setShowCopyToast(true);
-    dispatch({
-      type: TOAST_SHOW,
-      payload: {
+    showToast({
         message: t('crypto.memoCopied', { defaultValue: 'Memo/Tag copied to clipboard' }),
         severity: "success",
-      },
-    });
+      });
     setTimeout(() => {
       setShowCopyToast(false);
     }, 2000);
@@ -601,13 +593,10 @@ const CryptoTransfer = ({
       ? remainingPaymentInfo.remainingAmount
       : (selectedCurrency?.total_amount || selectedCurrency?.amount || 0);
     copyToClipboard(String(amount));
-    dispatch({
-      type: TOAST_SHOW,
-      payload: {
+    showToast({
         message: t('crypto.amountCopied'),
         severity: "success",
-      },
-    });
+      });
   };
 
   // ── "Open in wallet" deep-link (mobile only) ─────────────────────────────
@@ -790,7 +779,7 @@ const CryptoTransfer = ({
 
       // Guard: If rate data is unavailable after retries, abort cleanly
       if (!findRate || (!findRate.total_amount && !findRate.amount)) {
-        dispatch({ type: TOAST_SHOW, payload: { message: "Unable to fetch conversion rate. Please try again.", severity: "error" } });
+        showToast({ message: "Unable to fetch conversion rate. Please try again.", severity: "error" });
         return;
       }
 
@@ -852,7 +841,7 @@ const CryptoTransfer = ({
       }
     } catch (e: any) {
       const message = e?.response?.data?.message ?? e.message;
-      dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+      showToast({ message, severity: "error" });
     } finally {
       inFlightTargetsRef.current.delete(displayCurrency);
       // Only the latest request owns the loading UI
@@ -1047,13 +1036,10 @@ const CryptoTransfer = ({
             // Show user feedback that payment was detected (only once)
             if (!hasPendingToastShown) {
               hasPendingToastShown = true;
-              dispatch({
-                type: TOAST_SHOW,
-                payload: {
+              showToast({
                   message: t('crypto.paymentDetectedToast'),
                   severity: "info",
-                },
-              });
+                });
             }
             // Don't clear interval - keep polling until confirmed/failed
             break;
@@ -1169,13 +1155,10 @@ const CryptoTransfer = ({
             setIsReceived(false);
             setIsPolling(false); // Stop polling indicator
             clearInterval(pollInterval);
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: t('crypto.paymentExpired'),
                 severity: "error",
-              },
-            });
+              });
             break;
 
           case "failed":
@@ -1184,13 +1167,10 @@ const CryptoTransfer = ({
             setIsReceived(false);
             setIsPolling(false);
             clearInterval(pollInterval);
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: data.message || t('crypto.paymentFailed', { defaultValue: 'Payment processing failed. Please try again.' }),
                 severity: "error",
-              },
-            });
+              });
             break;
 
           default:
@@ -1208,13 +1188,10 @@ const CryptoTransfer = ({
             setPaymentStatus("expired");
             setIsPolling(false);
             clearInterval(pollInterval);
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: t('crypto.paymentLinkExpired', { defaultValue: 'This payment link has expired.' }),
                 severity: "error",
-              },
-            });
+              });
             return;
           }
           // Check for other validation errors
@@ -1222,13 +1199,10 @@ const CryptoTransfer = ({
             setPaymentStatus("failed");
             setIsPolling(false);
             clearInterval(pollInterval);
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: message || t('crypto.paymentError', { defaultValue: 'Payment error occurred.' }),
                 severity: "error",
-              },
-            });
+              });
             return;
           }
         }
@@ -1249,7 +1223,7 @@ const CryptoTransfer = ({
       setIsPolling(false); // Clean up polling indicator
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCrypto, cryptoDetails?.address, dispatch, selectedNetwork, walletState?.currency, pollingTrigger]);
+  }, [selectedCrypto, cryptoDetails?.address, selectedNetwork, walletState?.currency, pollingTrigger]);
 
   // const handleVerify = async () => {
   //   try {
@@ -1262,13 +1236,7 @@ const CryptoTransfer = ({
   //     console.log('data', data)
   //   } catch (e: any) {
   //     const message = e?.response?.data?.message ?? e?.message
-  //     dispatch({
-  //       type: TOAST_SHOW,
-  //       payload: {
-  //         message: message,
-  //         severity: 'error'
-  //       }
-  //     })
+  //     showToast({})
   //   }
   // }
 

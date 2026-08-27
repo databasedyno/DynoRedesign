@@ -1,6 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
 interface NotificationPreferences {

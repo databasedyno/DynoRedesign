@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { brandFg } from "@/constants/theme";
 import EditIcon from "@/assets/Icons/editicon.png";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
@@ -26,7 +27,6 @@ import {
   CardWrapper,
 } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { takeAuthNotice } from "@/helpers/authNotice";
 import useUser, {
   USER_CONFIRM_CODE,
@@ -47,7 +47,6 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { prefetchDashboardData } from "@/utils/prefetchDashboard";
@@ -60,7 +59,6 @@ export default function Login() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const isMobile = useIsMobile("sm");
-  const dispatch = useDispatch();
   const router = useRouter();
   const userState = useUser();
 
@@ -72,26 +70,20 @@ export default function Login() {
     const notice = takeAuthNotice();
     if (!notice) return;
     if (notice === "session_expired") {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: t("sessionTimedOut", {
             defaultValue: "Your session has timed out. Please sign in again.",
           }),
           severity: "warning",
-        },
-      });
+        });
     } else if (notice === "reset_invalid") {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: t("resetLinkInvalid", {
             defaultValue:
               "This password reset link is invalid or has expired. Please request a new one.",
           }),
           severity: "error",
-        },
-      });
+        });
     }
   }, []);
 
@@ -307,7 +299,7 @@ export default function Login() {
       }, 10000);
       return () => clearTimeout(timeout);
     }
-  }, [userState.loading, userState.name, dispatch]);
+  }, [userState.loading, userState.name]);
 
   // Email OTP countdown timer
   useEffect(() => {
@@ -380,10 +372,7 @@ export default function Login() {
       }
     } catch (e: any) {
       setPhoneError("errorCheckingPhone");
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: t("errorCheckingPhone"), severity: "error" },
-      });
+      showToast({ message: t("errorCheckingPhone"), severity: "error" });
     } finally {
       setPhoneCheckLoading(false);
     }
@@ -407,10 +396,7 @@ export default function Login() {
       setPhoneLoginOtpError("");
       setPhoneLoginOtpTouched(false);
     } catch (e: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: e.message || "Failed to send OTP", severity: "error" },
-      });
+      showToast({ message: e.message || "Failed to send OTP", severity: "error" });
     }
   };
 
@@ -507,13 +493,10 @@ export default function Login() {
 
       if (!response || !response.data) {
         setEmailError("errorCheckingEmail");
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: t("errorCheckingEmail"),
             severity: "error",
-          },
-        });
+          });
         setEmailCheckLoading(false);
         return;
       }
@@ -531,23 +514,17 @@ export default function Login() {
         }
       } else {
         setEmailError("errorCheckingEmail");
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: t("errorCheckingEmail"),
             severity: "error",
-          },
-        });
+          });
       }
     } catch (e: any) {
       setEmailError("errorCheckingEmail");
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: t("errorCheckingEmail"),
           severity: "error",
-        },
-      });
+        });
     } finally {
       setEmailCheckLoading(false);
     }
@@ -578,13 +555,10 @@ export default function Login() {
     } catch (e: any) {
       const message =
         e.response?.data?.message ?? e.message ?? "Failed to send OTP";
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -654,13 +628,10 @@ export default function Login() {
       } catch (e: any) {
         const message =
           e.response?.data?.message ?? e.message ?? "Failed to send OTP";
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: message,
             severity: "error",
-          },
-        });
+          });
         return;
       }
     }
@@ -684,13 +655,10 @@ export default function Login() {
     } catch (e: any) {
       const message =
         e.response?.data?.message ?? e.message ?? "Failed to send OTP";
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -751,13 +719,10 @@ export default function Login() {
       userState.login({ email: verifiedEmail, password, remember: rememberMe });
     } else if (loginMethod === "email") {
       if (!emailOtpSent) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: t("pleaseGetVerificationCodeFirst"),
             severity: "error",
-          },
-        });
+          });
         return;
       }
 
@@ -781,13 +746,10 @@ export default function Login() {
       });
     } else if (loginMethod === "sms") {
       if (!isOtpSent) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: "Please get the verification code first",
             severity: "error",
-          },
-        });
+          });
         return;
       }
 
@@ -873,14 +835,14 @@ export default function Login() {
             });
             const { data, message } = res?.data || {};
             if (data?.userData && data?.accessToken) {
-              dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
+              showToast({ message: message || "Login successful" });
               userState.applyLoginData({ ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken });
             } else {
               throw new Error("Invalid response");
             }
           } catch (e: any) {
             const msg = e.response?.data?.message ?? e.message ?? "Google login failed";
-            dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+            showToast({ message: msg, severity: "error" });
           }
         }
       },
@@ -891,7 +853,7 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) {
-      dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is not configured", severity: "error" } });
+      showToast({ message: "Google sign-in is not configured", severity: "error" });
       return;
     }
 
@@ -914,10 +876,7 @@ export default function Login() {
         runGoogleTokenFlow();
       } else if (waited >= 2500) {
         clearInterval(poll);
-        dispatch({
-          type: TOAST_SHOW,
-          payload: { message: "Google sign-in is still loading — please try again in a moment.", severity: "error" },
-        });
+        showToast({ message: "Google sign-in is still loading — please try again in a moment.", severity: "error" });
       }
     }, 150);
   };
@@ -976,13 +935,10 @@ export default function Login() {
         e.response?.data?.message ?? e.message ?? "An error occurred";
       setForgotPasswordEmailError(message);
       setIsPasswordRecoveryMode(false);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

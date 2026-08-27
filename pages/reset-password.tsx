@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -7,7 +8,6 @@ import CustomButton from "@/Components/UI/Buttons";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import { AuthContainer, CardWrapper } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { setAuthNotice } from "@/helpers/authNotice";
 import { theme } from "@/styles/theme";
 import useUser from "@/hooks/useUser";
@@ -18,13 +18,12 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+
 
 const ResetPasswordPage = () => {
   const router = useRouter();
   const { token, email } = router.query;
   const [allowed, setAllowed] = useState(false);
-  const dispatch = useDispatch();
 
   const isMobile = useIsMobile();
   const muiTheme = useTheme();
@@ -112,13 +111,10 @@ const ResetPasswordPage = () => {
     } catch (e: any) {
       const message =
         e.response?.data?.message ?? e.message ?? "An error occurred";
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

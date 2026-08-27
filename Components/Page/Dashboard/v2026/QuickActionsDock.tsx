@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
@@ -26,13 +27,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+
 import axios from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { getSuggestedShortcuts } from "@/helpers/shortcutUsage";
 import { Icon } from "@/styles/uiKit";
 import useProfile, { revalidateProfile } from "@/hooks/useProfile";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
 import CustomButton from "@/Components/UI/Buttons";
 
@@ -252,7 +252,6 @@ const SortableTile: React.FC<{
 const QuickActionsDock: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const dispatch = useDispatch();
   const { t } = useTranslation(["dashboardLayout", "common"]);
 
   const profile = useProfile().profile;
@@ -395,15 +394,12 @@ const QuickActionsDock: React.FC = () => {
       revalidateProfile();
     } catch (e: any) {
       setOrder(pinned); // revert
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             e?.response?.data?.message ||
             t("qaReorderFailed", { defaultValue: "Couldn't save the new order" }),
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -500,14 +496,11 @@ const QuickActionsDock: React.FC = () => {
     dismissSuggestion();
     setOrder(suggested);
     void persistOrder(suggested);
-    dispatch({
-      type: TOAST_SHOW,
-      payload: {
+    showToast({
         message: t("qaSuggestApplied", {
           defaultValue: "Pinned the shortcuts you use most",
         }),
-      },
-    });
+      });
   };
 
   // ── Customize dialog state ──────────────────────────────────────────────
@@ -536,21 +529,15 @@ const QuickActionsDock: React.FC = () => {
     try {
       await axios.put("user/dashboard-quick-actions", { actions: draft });
       revalidateProfile();
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: t("qaSaved", { defaultValue: "Quick actions updated" }) },
-      });
+      showToast({ message: t("qaSaved", { defaultValue: "Quick actions updated" }) });
       setOpen(false);
     } catch (e: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             e?.response?.data?.message ||
             t("qaSaveFailed", { defaultValue: "Couldn't update quick actions" }),
           severity: "error",
-        },
-      });
+        });
     } finally {
       setSaving(false);
     }

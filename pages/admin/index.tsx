@@ -1,14 +1,13 @@
+import { showToast } from "@/helpers/toastStore";
 import adminBaseApi from "@/axiosAdmin";
 import PopupModal from "@/Components/UI/PopupModal";
 import TextBox from "@/Components/UI/TextBox";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { pageProps } from "@/utils/types";
 import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+
 
 const AdminHome = ({ setPageName }: pageProps) => {
-  const dispatch = useDispatch();
 
   const [transactionFee, setTransactionFee] = useState(0);
   const [blockchainFee, setblockchainFee] = useState(0);
@@ -30,13 +29,10 @@ const AdminHome = ({ setPageName }: pageProps) => {
       setblockchainFee(data?.blockchain_fee);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -54,13 +50,10 @@ const AdminHome = ({ setPageName }: pageProps) => {
       setBlockchainFeeInput(0);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
   return (

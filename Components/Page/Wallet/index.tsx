@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
@@ -12,7 +13,6 @@ import PanelCard from "@/Components/UI/PanelCard";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { WalletDataType } from "@/utils/types/wallet";
 import { getNetworkLabel, isTokenOnOtherChain } from "@/utils/networkLabels";
@@ -24,7 +24,6 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
 import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
 import WalletTotalHero from "./WalletTotalHero";
 import WalletReuseNudge from "./WalletReuseNudge";
@@ -40,7 +39,6 @@ import {
 
 const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const isMobile = useIsMobile("md");
-  const dispatch = useDispatch();
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   const { t } = useTranslation("walletScreen");
@@ -68,13 +66,10 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
 
   const copyAddressToClipboard = (address: string) => {
     copyToClipboard(address);
-    dispatch({
-      type: TOAST_SHOW,
-      payload: {
+    showToast({
         message: tWallet("addressCopied"),
         severity: "success",
-      },
-    });
+      });
   };
 
   const handleEdit = (wallet: WalletDataType) => {
@@ -91,10 +86,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   };
 
   const handleWalletDeleted = () => {
-    dispatch({
-      type: TOAST_SHOW,
-      payload: { message: "Wallet deleted successfully", severity: "success" },
-    });
+    showToast({ message: "Wallet deleted successfully", severity: "success" });
     // Re-fetch wallets
     refetchWallets();
   };

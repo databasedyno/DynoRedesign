@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import adminBaseApi from "@/axiosAdmin";
 import FormManager from "@/Components/Page/Common/FormManager";
@@ -7,7 +8,6 @@ import Panel from "@/Components/UI/Panel";
 import PopupModal from "@/Components/UI/PopupModal";
 import TextBox from "@/Components/UI/TextBox";
 import { countDecimals, getCurrencySymbol, stringShorten } from "@/helpers";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { IWallet, pageProps } from "@/utils/types";
 import { formatDateTimeI18n } from "@/utils/formatDate";
 import { CopyAllRounded, Search } from "@mui/icons-material";
@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+
 import * as yup from "yup";
 import copyToClipboard from "@/helpers/copyToClipboard";
 
@@ -38,7 +38,6 @@ const columns = [
 ];
 
 const AdminFee = ({ setPageName }: pageProps) => {
-  const dispatch = useDispatch();
 
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
@@ -91,13 +90,10 @@ const AdminFee = ({ setPageName }: pageProps) => {
       setLoading(false);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
   const setFeeData = (transactionData: any[]) => {
@@ -129,13 +125,10 @@ const AdminFee = ({ setPageName }: pageProps) => {
                   copyToClipboard(
                     "https://blockchair.com/search?q=" + temp.transaction_id
                   );
-                  dispatch({
-                    type: TOAST_SHOW,
-                    payload: {
+                  showToast({
                       message: "Copied!",
                       severity: "info",
-                    },
-                  });
+                    });
                 }}
               >
                 <CopyAllRounded fontSize="small" color="secondary" />
@@ -167,21 +160,15 @@ const AdminFee = ({ setPageName }: pageProps) => {
       setInitialValues({ ...values });
       setFeeLimits({ ...values });
       setOpen(false);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
-        },
-      });
+        });
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

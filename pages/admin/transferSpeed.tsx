@@ -1,8 +1,8 @@
+import { showToast } from "@/helpers/toastStore";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import adminBaseApi from "@/axiosAdmin";
 import CustomAlert from "@/Components/UI/CustomAlert";
 import Panel from "@/Components/UI/Panel";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { pageProps } from "@/utils/types";
 import {
   Box,
@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+
 
 interface transferSpeed {
   transfer_speed_id: number;
@@ -23,7 +23,6 @@ interface transferSpeed {
 }
 
 const TransferSpeed = ({ setPageName }: pageProps) => {
-  const dispatch = useDispatch();
   const [feesData, setFeesData] = useState<transferSpeed[]>([]);
   const [defaultData, setDefaultData] = useState<transferSpeed[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,13 +45,10 @@ const TransferSpeed = ({ setPageName }: pageProps) => {
       setLoading(false);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -61,25 +57,19 @@ const TransferSpeed = ({ setPageName }: pageProps) => {
       const {
         data: { data, message },
       } = await adminBaseApi.put("/admin/updateTransferFees", { feesData });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
-        },
-      });
+        });
 
       setOpen(false);
       setChanged(false);
       setDefaultData(structuredClone([...feesData]));
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

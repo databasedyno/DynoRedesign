@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { EditRounded } from "@mui/icons-material";
 import {
   Box,
@@ -17,14 +18,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 
-import { useDispatch } from "react-redux";
 import * as yup from "yup";
-// import {
-//   USER_UPDATE,
-//   USER_UPDATE_NOTIFICATION,
-//   USER_UPDATE_PASSWORD,
-//   UserAction,
-// } from "@/Redux/Actions/UserAction";
 
 import { firstCapital } from "@/helpers";
 import { TokenData } from "@/utils/types";
@@ -35,7 +29,6 @@ import { MuiTelInput } from "mui-tel-input";
 import FormManager from "@/Components/Page/Common/FormManager";
 import { decodeJwt } from "@/utils/decodeJwt";
 import adminBaseApi from "@/axiosAdmin";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 
 const initialValue = {
   email: "",
@@ -48,7 +41,6 @@ const initialPasswords = {
 };
 
 const AdminProfilePage = () => {
-  const dispatch = useDispatch();
 
   const fileRef = useRef<any>();
   const [otpSent, setOTPSent] = useState(false);
@@ -118,12 +110,9 @@ const AdminProfilePage = () => {
         data: { data, message },
       } = await adminBaseApi.put("admin/updateEmail", { ...finalPayload });
 
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
-        },
-      });
+        });
 
       if (!otp) {
         setOTPSent(true);
@@ -135,13 +124,10 @@ const AdminProfilePage = () => {
       }
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -151,23 +137,17 @@ const AdminProfilePage = () => {
         data: { data, message },
       } = await adminBaseApi.put("admin/changePassword", { ...values });
 
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
-        },
-      });
+        });
 
       setInitialPass({ ...initialPasswords });
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

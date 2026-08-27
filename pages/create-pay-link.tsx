@@ -14,7 +14,6 @@ import {
 import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
@@ -24,7 +23,6 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const { t } = useTranslation(namespaces);
   const isMobile = useIsMobile("md");
   const theme = useTheme();
-  const dispatch = useDispatch();
 
   const companyState = useCompanyStore();
   const walletState = useWalletStore();
@@ -51,7 +49,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
     companyState.refetchCompanies();
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     walletState.refetchWallets();
-  }, [dispatch, selectedCompanyId]);
+  }, [selectedCompanyId]);
 
   const tCreatePaymentLink = useCallback(
     (key: string, defaultValue?: string) =>

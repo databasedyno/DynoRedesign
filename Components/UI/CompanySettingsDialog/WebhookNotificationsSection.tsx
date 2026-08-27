@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import RefreshIcon from "@/assets/Icons/refresh-icon.svg";
@@ -6,7 +7,6 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import SettingsAccordion from "@/Components/UI/SettingsAccordion";
 import useIsMobile from "@/hooks/useIsMobile";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -24,7 +24,6 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import copyToClipboard from "@/helpers/copyToClipboard";
 
@@ -62,7 +61,6 @@ export default function WebhookNotificationsSection({
   const { t: tSettings } = useTranslation("companySettings");
   const theme = useTheme();
   const isMobile = useIsMobile("sm") ?? isMobileProp;
-  const dispatch = useDispatch();
   const [showSecret, setShowSecret] = useState(false);
   const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false);
 
@@ -82,16 +80,16 @@ export default function WebhookNotificationsSection({
   const handleCopyUrl = useCallback(() => {
     if (notificationUrl) {
       copyToClipboard(notificationUrl);
-      dispatch({ type: TOAST_SHOW, payload: { message: "Webhook URL copied!", severity: "success" } });
+      showToast({ message: "Webhook URL copied!", severity: "success" });
     }
-  }, [notificationUrl, dispatch]);
+  }, [notificationUrl]);
 
   const handleCopySecret = useCallback(() => {
     if (secretKey) {
       copyToClipboard(secretKey);
-      dispatch({ type: TOAST_SHOW, payload: { message: "Secret key copied!", severity: "success" } });
+      showToast({ message: "Secret key copied!", severity: "success" });
     }
-  }, [secretKey, dispatch]);
+  }, [secretKey]);
 
   const sizeSx = isMobile ? iconButtonSizeMobile : iconButtonSize;
   const primaryBorder = theme.palette.primary.main;

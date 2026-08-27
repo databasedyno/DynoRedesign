@@ -17,7 +17,6 @@ import {
 import { useRouter } from "next/router";
 import Head from "next/head";
 import dynamic from "next/dynamic";
-import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
@@ -132,7 +131,6 @@ const CompanyConfigSection = ({
   allowAdd?: boolean;
   showDisplayCurrency?: boolean;
 }) => {
-  const dispatch = useDispatch();
   const theme = useTheme();
   const { t } = useTranslation("common");
   const companyState = useCompanyStore();

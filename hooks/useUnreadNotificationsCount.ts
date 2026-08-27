@@ -18,7 +18,6 @@
  */
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
 const POLL_INTERVAL_MS = 60_000;

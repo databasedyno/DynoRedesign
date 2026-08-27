@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Autocomplete,
@@ -14,12 +15,11 @@ import {
   ReceiptLongRounded,
 } from "@mui/icons-material";
 import { useCountryStateCity } from "@/hooks/useCountryStateCity";
-import { useDispatch } from "react-redux";
+
 import { useTranslation } from "react-i18next";
 
 import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { brandFg } from "@/constants/theme";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 
@@ -84,7 +84,6 @@ interface TaxSettings {
 
 const TaxSettingsSection: React.FC = () => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const { t } = useTranslation("common");
   const isDark = theme.palette.mode === "dark";
 
@@ -132,15 +131,12 @@ const TaxSettingsSection: React.FC = () => {
           merchant_vat_id: d.merchant_vat_id || null,
         });
       } catch (e) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: t("taxSettings.loadError", {
               defaultValue: "Couldn't load tax settings.",
             }),
             severity: "error",
-          },
-        });
+          });
       } finally {
         if (mounted) setLoading(false);
       }
@@ -184,23 +180,17 @@ const TaxSettingsSection: React.FC = () => {
         merchant_country_code: d.merchant_country_code || null,
         merchant_vat_id: d.merchant_vat_id || null,
       });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: t("taxSettings.saved", { defaultValue: "Tax settings saved." }),
           severity: "success",
-        },
-      });
+        });
     } catch (e: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             e?.response?.data?.message ||
             t("taxSettings.saveError", { defaultValue: "Couldn't save tax settings." }),
           severity: "error",
-        },
-      });
+        });
     } finally {
       setSaving(false);
     }

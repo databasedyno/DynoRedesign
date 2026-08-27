@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -22,8 +23,7 @@ import {
   transferDetails,
 } from "@/utils/types/paymentTypes";
 import axiosBaseApi from "@/axiosConfig";
-import { useDispatch } from "react-redux";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+
 import { paymentTypes } from "@/utils/enums";
 import { createEncryption, generateRedirectUrl } from "@/helpers";
 import Loading from "@/Components/UI/Loading/Index";
@@ -61,7 +61,6 @@ const BankTransferCompo = ({
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
 
   const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch();
 
   const currencyList = ["EUR", "GBP", "NGN"];
 
@@ -71,13 +70,10 @@ const BankTransferCompo = ({
     if (account) {
       copyToClipboard(account);
     } else {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: t("checkout.noAccountToCopy"),
           severity: "warning",
-        },
-      });
+        });
     }
   };
 
@@ -112,13 +108,10 @@ const BankTransferCompo = ({
       setLoading(false);
     } catch (e: any) {
       const message = e?.response?.data?.message ?? e?.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -150,13 +143,10 @@ const BankTransferCompo = ({
         error?.response?.data?.message ??
         error.message ??
         "Something went wrong";
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message,
           severity: "error",
-        },
-      });
+        });
       console.error("initiateBankTransfer error:", error);
     }
   };
@@ -212,24 +202,18 @@ const BankTransferCompo = ({
       } else {
         setIsSuccess(false);
         // In case API call is 200 but payment failed
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: t("checkout.paymentNotVerified"),
             severity: "error",
-          },
-        });
+          });
       }
     } catch (e: any) {
       setIsSuccess(false);
       const message = e.response?.data?.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

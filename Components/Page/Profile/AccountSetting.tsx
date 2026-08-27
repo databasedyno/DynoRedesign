@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import CameraIcon from "@/assets/Icons/camera-icon.svg";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -11,7 +12,6 @@ import { getInitials } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import useUser from "@/hooks/useUser";
 import { revalidateProfile } from "@/hooks/useProfile";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { TokenData } from "@/utils/types";
 import { Icon } from "@/styles/uiKit";
 import { Box, Grid, IconButton, MenuItem, Select, Tooltip, Typography } from "@mui/material";
@@ -19,7 +19,7 @@ import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
@@ -33,7 +33,6 @@ const LANGUAGE_OPTIONS = [
 ];
 
 const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
-  const dispatch = useDispatch();
   const { applyLoginData, applyUserUpdate } = useUser();
   const theme = useTheme();
   const { t, i18n } = useTranslation(["profile", "auth"]);
@@ -115,13 +114,10 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       }
       setInitialPhoto(opts.remove ? "" : (opts.previewUrl ?? ""));
       setMedia(undefined);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: res?.data?.message || t("photoUpdated", { ns: "profile", defaultValue: "Photo updated" }) },
-      });
+      showToast({ message: res?.data?.message || t("photoUpdated", { ns: "profile", defaultValue: "Photo updated" }) });
     } catch (e: any) {
       const msg = e?.response?.data?.message || t("photoUpdateFailed", { ns: "profile", defaultValue: "Failed to update photo" });
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
       // Revert the preview to the last saved photo.
       setUserPhoto(initialPhoto);
       setMedia(undefined);
@@ -197,11 +193,11 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       await axiosBaseApi.post("user/addEmail", { email });
       setEmailOtpOpen(true);
       setEmailOtpCountdown(30);
-      dispatch({ type: TOAST_SHOW, payload: { message: t("codeSentEmail", { ns: "profile" }) } });
+      showToast({ message: t("codeSentEmail", { ns: "profile" }) });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setEmailError(msg);
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setEmailLoading(false);
     }
@@ -224,7 +220,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       setEmailOtpOpen(false);
       setEditingEmail(false);
       setEmailInput("");
-      dispatch({ type: TOAST_SHOW, payload: { message: message || t("emailUpdated", { ns: "profile" }) } });
+      showToast({ message: message || t("emailUpdated", { ns: "profile" }) });
     } catch (e: any) {
       setEmailOtpError(e.response?.data?.message || t("verificationFailed", { ns: "profile" }));
     } finally {
@@ -245,11 +241,11 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       await axiosBaseApi.post(API_ENDPOINTS.user.addPhone, { phone: cleaned });
       setPhoneOtpOpen(true);
       setPhoneOtpCountdown(30);
-      dispatch({ type: TOAST_SHOW, payload: { message: t("codeSentPhone", { ns: "profile" }) } });
+      showToast({ message: t("codeSentPhone", { ns: "profile" }) });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setPhoneError(msg);
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setPhoneLoading(false);
     }
@@ -273,7 +269,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       setPhoneOtpOpen(false);
       setEditingPhone(false);
       setPhoneInput("");
-      dispatch({ type: TOAST_SHOW, payload: { message: message || t("phoneUpdated", { ns: "profile" }) } });
+      showToast({ message: message || t("phoneUpdated", { ns: "profile" }) });
     } catch (e: any) {
       setPhoneOtpError(e.response?.data?.message || t("verificationFailed", { ns: "profile" }));
     } finally {
@@ -293,7 +289,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     await setAppLanguage(lng);
     // Use the live i18n instance (not the render-captured `t`, which is bound to
     // the previous language) so the toast shows in the just-selected language.
-    dispatch({ type: TOAST_SHOW, payload: { message: i18n.t("communicationLanguageSaved", { ns: "profile" }) } });
+    showToast({ message: i18n.t("communicationLanguageSaved", { ns: "profile" }) });
   };
 
   const inputSx = { gap: isMobile ? "6px" : "8px" };

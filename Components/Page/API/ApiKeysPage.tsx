@@ -1,10 +1,10 @@
+import { showToast } from "@/helpers/toastStore";
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
 
@@ -12,7 +12,6 @@ import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 
 import { useApiKeys } from "@/hooks/useApiKeys";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
@@ -134,7 +133,6 @@ const SUPPORTED_CURRENCIES = [
 
 const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleStatus, onUpdated }: ApiKeyCardProps & { onRegenerate?: (id: string | number) => void; onToggleStatus?: (id: string | number, status: string) => void; onUpdated?: () => void }) => {
   const { t } = useTranslation("apiScreen");
-  const dispatch = useDispatch();
   const [showApiKey, setShowApiKey] = useState(false);
   const [showAdminToken, setShowAdminToken] = useState(false);
   const isMobile = useIsMobile("md");
@@ -172,20 +170,14 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
         base_currency: upper,
       });
       setCurrencySaved(true);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: t("currency.updated", { defaultValue: `Settlement currency updated to ${upper}` }), severity: "success" },
-      });
+      showToast({ message: t("currency.updated", { defaultValue: `Settlement currency updated to ${upper}` }), severity: "success" });
       // Refresh the list so any downstream data (fees preview, etc.) reflects the change
       onUpdated?.();
       // Clear the "saved" tick after a moment
       setTimeout(() => setCurrencySaved(false), 2000);
     } catch (err: any) {
       setBaseCurrency(previous);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: err?.response?.data?.message || t("currency.updateFailed", { defaultValue: "Failed to update currency" }), severity: "error" },
-      });
+      showToast({ message: err?.response?.data?.message || t("currency.updateFailed", { defaultValue: "Failed to update currency" }), severity: "error" });
     } finally {
       setSavingCurrency(false);
     }
@@ -684,7 +676,6 @@ const ElementsWidgetCard = ({
   docsUrl: string;
 }) => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   // Snippet base URL: rendered inside merchant-facing copy snippets, so it
@@ -813,10 +804,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
         );
       });
       inst.on("succeeded", () => {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: { message: "Preview payment succeeded (confirm via webhook)", severity: "success" },
-        });
+        showToast({ message: "Preview payment succeeded (confirm via webhook)", severity: "success" });
       });
       inst.mount(previewRef.current);
       elementInstanceRef.current = inst;
@@ -1276,7 +1264,6 @@ const ApiKeysPage = ({
   const showKeys = view === "all" || view === "keys";
   const showDocs = view === "all" || view === "docs";
   const showWebhookConsole = view === "all" || view === "webhooks" || view === "events";
-  const dispatch = useDispatch();
   const { t } = useTranslation("apiScreen");
   const isMobile = useIsMobile("md");
   const theme = useTheme();
@@ -1313,10 +1300,7 @@ const ApiKeysPage = ({
   const handleCopy = (value: string) => {
     if (!value) return;
     copyToClipboard(value);
-    dispatch({
-      type: TOAST_SHOW,
-      payload: { message: t("toast.copied"), severity: "info" },
-    });
+    showToast({ message: t("toast.copied"), severity: "info" });
   };
 
   const handleCreateClose = () => {

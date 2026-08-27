@@ -1,14 +1,14 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useState, useEffect, useCallback } from "react";
 import { Box, Typography, Alert } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import CustomButton from "@/Components/UI/Buttons";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import PanelCard from "@/Components/UI/PanelCard";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useUser from "@/hooks/useUser";
 import { revalidateProfile } from "@/hooks/useProfile";
 import axiosBaseApi from "@/axiosConfig";
@@ -23,7 +23,6 @@ interface AddContactInfoProps {
 
 const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const { applyLoginData } = useUser();
   const isMobile = useIsMobile("md");
   const namespaces = ["profile", "common", "auth"];
@@ -79,17 +78,11 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       await axiosBaseApi.post(API_ENDPOINTS.user.addEmail, { email: emailInput });
       setEmailOtpDialogOpen(true);
       setEmailOtpCountdown(30);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: t("codeSentEmail", { ns: "profile" }) },
-      });
+      showToast({ message: t("codeSentEmail", { ns: "profile" }) });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setEmailError(msg);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: msg, severity: "error" },
-      });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setEmailLoading(false);
     }
@@ -115,10 +108,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       revalidateProfile();
       setEmailOtpDialogOpen(false);
       setEmailInput("");
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: message || tProfile("emailAdded") },
-      });
+      showToast({ message: message || tProfile("emailAdded") });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("verificationFailed", { ns: "profile" });
       setEmailOtpError(msg);
@@ -140,17 +130,11 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       await axiosBaseApi.post(API_ENDPOINTS.user.addPhone, { phone: cleaned });
       setPhoneOtpDialogOpen(true);
       setPhoneOtpCountdown(30);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: t("codeSentPhone", { ns: "profile" }) },
-      });
+      showToast({ message: t("codeSentPhone", { ns: "profile" }) });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setPhoneError(msg);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: msg, severity: "error" },
-      });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setPhoneLoading(false);
     }
@@ -177,10 +161,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       revalidateProfile();
       setPhoneOtpDialogOpen(false);
       setPhoneInput("");
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: message || tProfile("phoneAdded") },
-      });
+      showToast({ message: message || tProfile("phoneAdded") });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("verificationFailed", { ns: "profile" });
       setPhoneOtpError(msg);

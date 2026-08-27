@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
@@ -20,7 +21,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useDispatch } from "react-redux";
+
 import axiosBaseApi from "@/axiosConfig";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
@@ -32,7 +33,6 @@ import ShieldRounded from "@mui/icons-material/ShieldRounded";
 import MailRounded from "@mui/icons-material/MailRounded";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import Sparkline from "@/Components/UI/Sparkline";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import useApiSWR from "@/hooks/useApiSWR";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
@@ -315,7 +315,6 @@ const PayoutsPage: React.FC = () => {
 
   const toggleDisabled = toggling || (!hasStablecoinWallet && !enabled);
 
-  const dispatch = useDispatch();
   const { t } = useTranslation("common");
 
   // Pending funds — awaiting on-chain confirmation. Dedicated endpoint returns
@@ -353,16 +352,13 @@ const PayoutsPage: React.FC = () => {
     }
     const settled = [...prevPendingIdsRef.current].filter((id) => !ids.has(id));
     if (settled.length > 0) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             settled.length === 1
               ? t("payoutsToast.settledOne")
               : t("payoutsToast.settledMany", { count: settled.length }),
           severity: "success",
-        },
-      });
+        });
       dashboard.refreshDashboard?.();
     }
     prevPendingIdsRef.current = ids;
@@ -404,24 +400,18 @@ const PayoutsPage: React.FC = () => {
         payout_digest_weekly: next,
       });
       await mutateNotifPrefs();
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: next
             ? "Weekly payout digest turned on"
             : "Weekly payout digest turned off",
           severity: "success",
-        },
-      });
+        });
     } catch {
       await mutateNotifPrefs();
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: "Couldn't update the digest setting",
           severity: "error",
-        },
-      });
+        });
     } finally {
       setDigestSaving(false);
     }
@@ -431,18 +421,12 @@ const PayoutsPage: React.FC = () => {
     setDigestPreviewing(true);
     try {
       await axiosBaseApi.post("/notifications/payout-digest/preview", {});
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: "Preview digest sent to your email",
           severity: "success",
-        },
-      });
+        });
     } catch {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "Couldn't send the preview", severity: "error" },
-      });
+      showToast({ message: "Couldn't send the preview", severity: "error" });
     } finally {
       setDigestPreviewing(false);
     }
@@ -467,25 +451,19 @@ const PayoutsPage: React.FC = () => {
     let dateTo: string;
     if (exportRange === "custom") {
       if (!customFrom || !customTo) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: "Pick both a start and end date",
             severity: "error",
-          },
-        });
+          });
         return;
       }
       const f = new Date(`${customFrom}T00:00:00`);
       const t = new Date(`${customTo}T23:59:59.999`);
       if (f > t) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: "Start date must be before the end date",
             severity: "error",
-          },
-        });
+          });
         return;
       }
       dateFrom = f.toISOString();
@@ -524,18 +502,12 @@ const PayoutsPage: React.FC = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: "Payout history exported", severity: "success" },
-      });
+      showToast({ message: "Payout history exported", severity: "success" });
     } catch {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: "Export failed. Please try again.",
           severity: "error",
-        },
-      });
+        });
     } finally {
       setExporting(false);
     }

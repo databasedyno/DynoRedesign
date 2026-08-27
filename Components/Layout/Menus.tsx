@@ -33,7 +33,6 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import useTokenData from "@/hooks/useTokenData";
 
 const navItems = [
@@ -104,7 +103,6 @@ const adminMenus = [
 
 const Menus = ({ type = "user" }: { type: string }) => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const tokenData = useTokenData();
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const [popOverItem, setPopOverItem] = useState("");

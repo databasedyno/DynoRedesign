@@ -66,13 +66,11 @@ import type { SxProps, Theme } from "@mui/material";
 import { ThemeProvider as MuiThemeProvider, CssBaseline } from "@mui/material";
 import { CacheProvider, type EmotionCache } from "@emotion/react";
 import { SessionProvider } from "next-auth/react";
-import { Provider } from "react-redux";
 
 import LanguageBootstrap from "@/helpers/LanguageBootstrap";
 import LanguageOnboardingBar from "@/Components/UI/LanguageOnboardingBar";
 import LanguageSuggestBanner from "@/Components/UI/LanguageSuggestBanner";
 import { enforceSessionPersistence } from "@/helpers/authPersistence";
-import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
 import { ThemeProvider as AppThemeProvider, useThemeMode } from "@/contexts/ThemeContext";
 import { CartProvider } from "@/contexts/CartContext";
@@ -597,7 +595,6 @@ export default function App({
   return (
     <CacheProvider value={emotionCache}>
       <ErrorBoundary>
-        <Provider store={store}>
           <LanguageBootstrap />
           <SessionProvider
             // Provide a DEFINED initial session (null when none). In NextAuth v4
@@ -641,7 +638,6 @@ export default function App({
               </CartProvider>
             </AppThemeProvider>
           </SessionProvider>
-        </Provider>
       </ErrorBoundary>
     </CacheProvider>
   );

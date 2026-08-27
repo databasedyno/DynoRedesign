@@ -1,9 +1,8 @@
+import { showToast } from "@/helpers/toastStore";
 import { useCallback } from "react";
 import useSWR from "swr";
-import { useDispatch } from "react-redux";
 
 import axios from "@/axiosConfig";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 import { IApi } from "@/utils/types";
 
@@ -50,7 +49,6 @@ export interface UseApiKeysResult {
 }
 
 export function useApiKeys(): UseApiKeysResult {
-  const dispatch = useDispatch();
   const selectedCompanyId = useSelectedCompanyId();
 
   const swrKey: [string, number] | null = selectedCompanyId
@@ -72,16 +70,16 @@ export function useApiKeys(): UseApiKeysResult {
         const {
           data: { message },
         } = await axios.delete("userApi/deleteApi/" + id);
-        dispatch({ type: TOAST_SHOW, payload: { message } });
+        showToast({ message });
         await mutate();
       } catch (e: any) {
         const message =
           e?.response?.data?.message ?? e?.message ?? "Failed to delete API key";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         throw e;
       }
     },
-    [dispatch, mutate],
+    [mutate],
   );
 
   const regenerateApiKey = useCallback(
@@ -92,10 +90,7 @@ export function useApiKeys(): UseApiKeysResult {
         if (rd?.success === false) {
           throw new Error(rd.message || "Failed to regenerate API key");
         }
-        dispatch({
-          type: TOAST_SHOW,
-          payload: { message: rd?.message || "API key regenerated successfully" },
-        });
+        showToast({ message: rd?.message || "API key regenerated successfully" });
         await mutate();
         return rd?.data || rd;
       } catch (e: any) {
@@ -103,11 +98,11 @@ export function useApiKeys(): UseApiKeysResult {
           e?.response?.data?.message ??
           e?.message ??
           "Failed to regenerate API key";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         throw e;
       }
     },
-    [dispatch, mutate],
+    [mutate],
   );
 
   const toggleApiStatus = useCallback(
@@ -118,23 +113,20 @@ export function useApiKeys(): UseApiKeysResult {
         if (rd?.success === false) {
           throw new Error(rd.message || "Failed to toggle API status");
         }
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: rd?.message || "API status updated successfully",
-          },
-        });
+          });
         await mutate();
       } catch (e: any) {
         const message =
           e?.response?.data?.message ??
           e?.message ??
           "Failed to toggle API status";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        showToast({ message, severity: "error" });
         throw e;
       }
     },
-    [dispatch, mutate],
+    [mutate],
   );
 
   return {

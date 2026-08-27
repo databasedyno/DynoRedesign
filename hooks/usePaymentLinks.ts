@@ -1,14 +1,13 @@
 import { useCallback, useState } from "react";
 import useSWR from "swr";
-import { useDispatch } from "react-redux";
 
 import axiosBaseApi from "@/axiosConfig";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { showToast as fireToast } from "@/helpers/toastStore";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 import {
   mapBackendErrorToField,
   paymentLinkKeywordMap,
-} from "@/Redux/Sagas/helpers/mapBackendErrorToField";
+} from "@/helpers/mapBackendErrorToField";
 
 /**
  * usePaymentLinks — SWR-backed replacement for the old Redux `paymentLinkReducer`
@@ -64,7 +63,6 @@ export const paymentLinksFetcher = async (
 };
 
 export function usePaymentLinks() {
-  const dispatch = useDispatch();
   const selectedCompanyId = useSelectedCompanyId();
 
   const swrKey: [string, number] | null = selectedCompanyId
@@ -102,9 +100,9 @@ export function usePaymentLinks() {
 
   const showToast = useCallback(
     (message: string, severity: "success" | "error" = "success") => {
-      dispatch({ type: TOAST_SHOW, payload: { message, severity } });
+      fireToast({ message, severity });
     },
-    [dispatch],
+    [],
   );
 
   const createPaymentLink = useCallback(

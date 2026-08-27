@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
@@ -31,13 +32,11 @@ import {
 } from '@mui/material'
 import React, { useEffect, useState, useCallback } from 'react'
 import 'react-credit-cards-2/dist/es/styles-compiled.css'
-import { useDispatch } from 'react-redux'
 import { walletState } from '../../utils/types/paymentTypes'
 
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { GetServerSideProps } from 'next'
-import { TOAST_SHOW } from '@/Redux/Actions/ToastAction'
 import { decodeJwt } from '@/utils/decodeJwt'
 import ProgressBar from '@/Components/UI/ProgressBar'
 
@@ -184,8 +183,7 @@ const Payment = () => {
   const isDark = theme.palette.mode === 'dark'
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const router = useRouter()
-  const dispatch = useDispatch()
-  const { t, i18n } = useTranslation('common')
+const { t, i18n } = useTranslation('common')
   
   const [paymentType, setPaymentType] = useState(paymentTypes.CARD)
   const [payLoading, setPayloading] = useState(false)
@@ -376,13 +374,10 @@ const Payment = () => {
       if (diff <= 0) {
         setCountdown('Expired')
         // Dispatch a toast to notify user
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: t('checkout.paymentLinkExpired', { defaultValue: 'This payment link has expired. Please contact the merchant for a new link.' }),
             severity: 'warning'
-          }
-        })
+          })
         return
       }
 
@@ -640,13 +635,10 @@ const Payment = () => {
       setLoading(false)
       setInitialLoading(false)
       const message = e?.response?.data?.message ?? e.message
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: 'error'
-        }
-      })
+        })
     }
   }
 
@@ -673,26 +665,20 @@ const Payment = () => {
         setSelectedCurrency(selectedCurrency)
       } else {
         console.error('No rate data returned for', selectedCurrency)
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: `Unable to get rate for ${selectedCurrency}`,
             severity: 'warning'
-          }
-        })
+          })
       }
       setLoading(false)
     } catch (e: any) {
       setLoading(false)
       console.error('Rate fetch error:', e)
       const message = e?.response?.data?.message ?? e?.message ?? 'Failed to fetch currency rate'
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: 'error'
-        }
-      })
+        })
     }
   }
 
@@ -760,7 +746,7 @@ const Payment = () => {
       const message =
         e?.response?.data?.message ||
         t('donation.startError', { defaultValue: 'Unable to start your donation. Please try again.' })
-      dispatch({ type: TOAST_SHOW, payload: { message, severity: 'error' } })
+      showToast({ message, severity: 'error' })
       setDonateSubmitting(false)
     }
   }

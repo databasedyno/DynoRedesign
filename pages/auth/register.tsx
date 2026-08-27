@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -15,7 +16,6 @@ import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useUser from "@/hooks/useUser";
 import axiosBaseApi from "@/axiosConfig";
 import confetti from "canvas-confetti";
@@ -23,7 +23,6 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 import {
   Box,
   Typography,
@@ -59,7 +58,6 @@ const Register = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const router = useRouter();
-  const dispatch = useDispatch();
   const { applyLoginData } = useUser();
   const [step, setStep] = useState<Step>("purpose");
   const [method, setMethod] = useState<RegisterMethod>("email");
@@ -248,7 +246,7 @@ const Register = () => {
   const handleGoogleLogin = useCallback(async () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) {
-      dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is not configured", severity: "error" } });
+      showToast({ message: "Google sign-in is not configured", severity: "error" });
       return;
     }
 
@@ -264,14 +262,14 @@ const Register = () => {
             });
             const { data, message } = res?.data || {};
             if (data?.userData && data?.accessToken) {
-              dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
+              showToast({ message: message || "Login successful" });
               applyLoginData({ ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken });
             } else {
               throw new Error("Invalid response");
             }
           } catch (e: any) {
             const msg = e.response?.data?.message ?? e.message ?? "Google sign-up failed";
-            dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+            showToast({ message: msg, severity: "error" });
           }
         },
       });
@@ -295,10 +293,10 @@ const Register = () => {
         runGoogleTokenFlow();
       } else if (waited >= 2500) {
         clearInterval(interval);
-        dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is still loading — please try again in a moment.", severity: "error" } });
+        showToast({ message: "Google sign-in is still loading — please try again in a moment.", severity: "error" });
       }
     }, 250);
-  }, [dispatch]);
+  }, []);
 
   // ─── GitHub Sign Up — OAuth authorization-code redirect flow ───
   const handleGithubLogin = useCallback(() => {
@@ -433,13 +431,10 @@ const Register = () => {
         const isLogin = accountExists || data?.account_exists === true;
         // Store token and redirect
         applyLoginData(data);
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: isLogin ? "Welcome back! Logged in successfully." : "Account created successfully!",
             severity: "success",
-          },
-        });
+          });
         setStep("success");
         // Auto redirect after brief success display.
         //
@@ -461,7 +456,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  }, [method, email, phone, accountExists, dispatch, router, i18n.language, getSeoAttribution, vertical]);
+  }, [method, email, phone, accountExists, router, i18n.language, getSeoAttribution, vertical]);
 
   // ─── Resend OTP ───
   const handleResendOtp = useCallback(async () => {

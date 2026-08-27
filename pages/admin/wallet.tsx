@@ -1,17 +1,16 @@
+import { showToast } from "@/helpers/toastStore";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import adminBaseApi from "@/axiosAdmin";
 import FormManager from "@/Components/Page/Common/FormManager";
 import PopupModal from "@/Components/UI/PopupModal";
 import { countDecimals, getCurrencySymbol } from "@/helpers";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { IWallet, pageProps } from "@/utils/types";
 import { Box, Button, Divider, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+
 
 const AdminWallet = ({ setPageName }: pageProps) => {
-  const dispatch = useDispatch();
   const router = useRouter();
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
@@ -49,13 +48,10 @@ const AdminWallet = ({ setPageName }: pageProps) => {
       setLoading(false);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 
@@ -70,13 +66,10 @@ const AdminWallet = ({ setPageName }: pageProps) => {
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
       setLoading2(false);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: message,
           severity: "error",
-        },
-      });
+        });
     }
   };
 

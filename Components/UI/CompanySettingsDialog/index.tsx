@@ -2,7 +2,6 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Box, TextField, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
 
 import FormManager from "@/Components/Page/Common/FormManager";
@@ -85,7 +84,6 @@ export default function CompanySettingsDialog({
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("companyDialog");
   const { t: tSettings } = useTranslation("companySettings");
-  const dispatch = useDispatch();
   const companyState = useCompanyStore();
 
   const [formKey, setFormKey] = useState(0);

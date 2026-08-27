@@ -1,15 +1,15 @@
+import { showToast } from "@/helpers/toastStore";
 import { brandFg } from "@/constants/theme";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, InputBase, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
+
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { buildCreatorUrl, prettyCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { revalidateProfile } from "@/hooks/useProfile";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
@@ -43,7 +43,6 @@ interface CreatorStats {
 const CreatorPageCard: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
-  const dispatch = useDispatch();
   const { t } = useTranslation("dashboardLayout");
   const { profile: storefront, mutate: mutateStorefront } = useStorefrontProfile();
 
@@ -159,14 +158,11 @@ const CreatorPageCard: React.FC = () => {
       } catch {
         /* ignore */
       }
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: `Reserved! ${siteUrl}/${reserved} is yours 🎉` },
-      });
+      showToast({ message: `Reserved! ${siteUrl}/${reserved} is yours 🎉` });
       revalidateProfile();
       void mutateStorefront?.();
     } catch (e: any) {
-      dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not reserve handle", severity: "error" } });
+      showToast({ message: e?.response?.data?.message || "Could not reserve handle", severity: "error" });
     } finally {
       setClaiming(false);
     }

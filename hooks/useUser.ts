@@ -1,11 +1,10 @@
+import { showToast } from "@/helpers/toastStore";
 import { useMemo, useSyncExternalStore } from "react";
-import { useDispatch } from "react-redux";
 import { mutate } from "swr";
 
 import axios from "@/axiosConfig";
 import { unAuthorizedHelper } from "@/helpers";
 import { applyPersistence } from "@/helpers/authPersistence";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useProfile, { PROFILE_KEY, revalidateProfile } from "@/hooks/useProfile";
 
 /**
@@ -112,11 +111,10 @@ export interface UseUserResult extends AuthState {
 export function useUser(): UseUserResult {
   const state = useSyncExternalStore(subscribeAuth, getAuthSnapshot, getAuthSnapshot);
   const { profile, profileLoading } = useProfile();
-  const dispatch = useDispatch();
 
   const methods = useMemo(() => {
     const toast = (message: string, severity?: string) =>
-      dispatch({ type: TOAST_SHOW, payload: severity ? { message, severity } : { message } });
+      showToast(severity ? { message, severity } : { message });
 
     // Mirror of userReducer USER_LOGIN: persist token + remember-me + last company.
     const applyLoginData = (payload: any) => {
@@ -364,7 +362,7 @@ export function useUser(): UseUserResult {
       clearApiError,
       fetchProfile: revalidateProfile,
     };
-  }, [dispatch]);
+  }, []);
 
   // Identity changes ONLY when the auth store or profile changes — mirrors the
   // old redux slice reference semantics that the login page's effects rely on.

@@ -1,35 +1,36 @@
+import { useToast, hideToast } from "@/helpers/toastStore";
 import React, { useEffect } from "react";
 import {Box, Typography, IconButton, useTheme} from "@mui/material";
-import { useDispatch } from "react-redux";
-import { TOAST_HIDE, ToastAction } from "../../../Redux/Actions/ToastAction";
+import { IToastProps } from "@/utils/types";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CloseIcon from "@mui/icons-material/Close";
-import { IToastProps } from "@/utils/types";
 import useIsMobile from "@/hooks/useIsMobile";
 import BgImage from "@/assets/Images/toast-bg.png";
 import Image from "next/image";
 import SuccessIcon from "@/assets/Icons/success-icon.svg";
-const Toast = (props: IToastProps) => {
-  const dispatch = useDispatch();
+const Toast = (props: Partial<IToastProps> = {}) => {
   const theme = useTheme();
-  const { open, severity, message, loading } = props;
+  const store = useToast();
+  // Backward-compatible: some screens still drive a LOCAL toast by passing
+  // props; when no `open` prop is given we read the global toast store.
+  const controlled = props.open !== undefined;
+  const open = controlled ? !!props.open : store.open;
+  const message = controlled ? props.message ?? "" : store.message;
+  const severity = controlled ? props.severity ?? "success" : store.severity;
+  const loading = controlled ? !!props.loading : store.loading;
   const isMobile = useIsMobile("sm");
 
-  const handleClose = () => {
-    dispatch({ type: TOAST_HIDE });
-  };
-
-  // Auto-hide toast after 4 seconds (unless it's loading)
-  // Reset timer when message or severity changes (new toast)
+  // Auto-hide only the GLOBAL (store-driven) toast; controlled/prop-driven
+  // toasts are managed by their parent (same as before).
   useEffect(() => {
-    if (open && !loading) {
+    if (open && !loading && !controlled) {
       const timer = setTimeout(() => {
-        dispatch({ type: TOAST_HIDE });
+        hideToast();
       }, 4000);
       return () => clearTimeout(timer);
     }
-  }, [open, loading, message, severity, dispatch]);
+  }, [open, loading, message, severity, controlled]);
 
   if (!open) return null;
 

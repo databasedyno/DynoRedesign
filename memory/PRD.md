@@ -1,3 +1,48 @@
+# REFACTOR W6 — Toast off redux-saga + DELETE redux entirely (2026-08-27 fork) — DONE (testing_agent iteration_92 = 100% frontend, 17 routes, RENDER-ONLY)
+
+Preview: https://dynopay-setup-8.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, Next compile clean.
+
+FINAL Phase-2 wave. The app now runs on ONE state layer end-to-end (SWR + module stores + React context) —
+redux, redux-saga and the store are GONE.
+
+WHAT CHANGED:
+- NEW helpers/toastStore.ts — module store (useSyncExternalStore) replacing the redux toastReducer + ToastSaga.
+  `showToast(payload)` (drop-in for dispatch({type:TOAST_SHOW,payload})), `hideToast()`, `useToast()`. Same
+  semantics: severity defaults to 'success', explicit 'error' preserved, hide:true clears.
+- 43 files migrated `dispatch({type:TOAST_SHOW,payload})` → `showToast(payload)` (via a balanced-brace codemod),
+  and ALL leftover `useDispatch`/`useSelector` calls + dead `const dispatch = useDispatch()` decls + dep-array
+  refs removed.
+- Components/UI/Toast/index.tsx — renderer now reads useToast(); still accepts OPTIONAL props (Partial<IToastProps>)
+  so the few screens that drive a LOCAL toast (referrals + 6 modals: PaymentLinkSuccessModal, NotificationPage,
+  PaymentLinksTable, TransactionDetailsModal, SuccessAPIModel, CompanySettingsDialog) keep working unchanged.
+- Containers/{Client,Login,Admin,Payment} render self-contained <Toast/> (useSelector removed).
+- hooks/useUser.ts toast helper → showToast (no redux). hooks/usePaymentLinks.ts local showToast wrapper → global
+  (aliased import to avoid shadow).
+- pages/_app.tsx — Redux <Provider store={store}> REMOVED.
+- DELETED: /app/store.ts + the entire /app/Redux/ folder (Actions/Reducers/Sagas). Relocated the still-used
+  helper Redux/Sagas/helpers/mapBackendErrorToField.ts → helpers/mapBackendErrorToField.ts (2 importers updated:
+  CompanyDataContext, usePaymentLinks).
+- Uninstalled dead deps: @reduxjs/toolkit, react-redux, redux-saga (yarn remove).
+
+VERIFIED: frontend tsc EXIT 0 project-wide; Next compile clean (module count dropped ~3325→3288); testing_agent
+iteration_92 = 100% — 17 routes (/, /auth/login, /fees, /pay, /referrals, /dashboard, /reset-password, /register,
+/documentation, /help-support, /system-status, /pay/demo, /admin/login, /transactions, /wallet, /settings,
+/pay-links) with ZERO console/page errors and NO 'react-redux context'/'Provider'/undefined/hook errors. Global
+toast verified end-to-end (login → use-a-code-link → read-only send-OTP → 'OTP sent successfully!' bottom-right,
+auto-hide ~4s). Protected routes redirect cleanly to /auth/login. NO password/OTP submitted (no last_login write).
+
+KNOWN (cosmetic, pre-existing, NOT a W6 regression — toast bottom:24px is unchanged from the old redux toast):
+the global toast can visually overlap the bottom language-onboarding bar (esp. mobile close X). Optional offset.
+Also /admin/login controls lack data-testids (optional).
+
+STATE-LAYER REFACTOR (Part D / Phase 2) IS NOW COMPLETE: Transaction/Api/Dashboard/PaymentLink/User(W5)/Toast(W6)
+all on SWR/hooks/module-stores; redux-saga fully retired. NEXT: Phase 3 (consolidate duplicate helpers/utils,
+theme files, axios clients) → Phase 4 (reactStrictMode + ESLint warning ratchet). P0: Save-to-GitHub to push the
+styled.tsx DigitalOcean build fix.
+
+---
+
+
 # REFACTOR W5 — User auth/profile: Redux-Saga → SWR/useUser (2026-08-27 fork) — DONE (testing_agent iteration_91 = 100% frontend, RENDER-ONLY) + tracking fix verified
 
 Preview: https://dynopay-setup-8.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, Next compile clean.

@@ -1,9 +1,9 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useMemo, useState } from "react";
 import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
-import { useDispatch } from "react-redux";
+
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { useReusableWallets } from "@/hooks/useReusableWallets";
@@ -31,7 +31,6 @@ interface Props {
 const WalletReuseNudge: React.FC<Props> = ({ onAddWallet }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const dispatch = useDispatch();
   const { selectedCompanyId, companyList } = useCompanyStore();
   const { refetchWallets } = useWalletStore();
   const { companies, loading } = useReusableWallets(selectedCompanyId ?? undefined);
@@ -67,28 +66,22 @@ const WalletReuseNudge: React.FC<Props> = ({ onAddWallet }) => {
         },
       );
       const count = data?.data?.copied?.length ?? 0;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             count > 0
               ? `${count} wallet${count === 1 ? "" : "s"} copied to ${targetName}`
               : data?.message || "Nothing new to copy",
           severity: "success",
-        },
-      });
+        });
       setDone(true);
       refetchWallets();
     } catch (e) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             (e as { response?: { data?: { message?: string } } })?.response?.data
               ?.message || "Could not copy the wallets. Please try again.",
           severity: "error",
-        },
-      });
+        });
     } finally {
       setCopying(false);
     }

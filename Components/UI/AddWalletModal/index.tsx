@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
@@ -11,7 +12,6 @@ import OtpDialog from "@/Components/UI/OtpDialog";
 import PopupModal from "@/Components/UI/PopupModal";
 import WalletReuseSelector from "@/Components/UI/WalletReuseSelector";
 import useIsMobile from "@/hooks/useIsMobile";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useUser from "@/hooks/useUser";
 import { verifyOtp } from "@/utils/walletOtp";
 import { Address, AddWalletModalProps } from "@/utils/types/wallet";
@@ -19,7 +19,7 @@ import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+
 import PanelCard from "../PanelCard";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import {
@@ -42,7 +42,6 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   editWalletName: editWalletNameProp = "",
   editWalletAddress: editWalletAddressProp = "",
 }) => {
-  const dispatch = useDispatch();
   const muiTheme = useTheme();
   const userState = useUser();
   const companyState = useCompanyStore();
@@ -148,11 +147,11 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       await axiosBaseApi.post("user/addEmail", { email });
       setGateOtpOpen(true);
       setGateOtpCountdown(30);
-      dispatch({ type: TOAST_SHOW, payload: { message: "Verification code sent to your email" } });
+      showToast({ message: "Verification code sent to your email" });
     } catch (e: any) {
       const msg = e?.response?.data?.message || "Failed to send verification code";
       setGateEmailError(msg);
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
     } finally {
       setGateEmailLoading(false);
     }
@@ -178,7 +177,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       setGateOtpOpen(false);
       setNeedsEmail(false);
       setGateEmail("");
-      dispatch({ type: TOAST_SHOW, payload: { message: "Email verified! You can now add your wallet." } });
+      showToast({ message: "Email verified! You can now add your wallet." });
     } catch (e: any) {
       setGateOtpError(e?.response?.data?.message || "Verification failed");
     } finally {
@@ -254,13 +253,10 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             values,
           );
           if (response.status !== 200 || response.error) {
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: response?.data?.message ?? "Failed to validate wallet address",
                 severity: "error",
-              },
-            });
+              });
             setPopupLoading(false);
             setIsSubmitting(false);
             return;
@@ -276,22 +272,16 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             { wallet_name: walletName.trim() },
           );
           if (response.status === 200 && !response.error) {
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: "Wallet updated successfully",
                 severity: "success",
-              },
-            });
+              });
             handleClose();
           } else {
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: response?.data?.message ?? "Failed to update wallet",
                 severity: "error",
-              },
-            });
+              });
           }
           setPopupLoading(false);
           setIsSubmitting(false);
@@ -317,13 +307,10 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       );
 
       if (response.status !== 200 || response.error) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: response?.data?.message ?? "Failed to add wallet address",
             severity: "error",
-          },
-        });
+          });
         setPopupLoading(false);
         setIsSubmitting(false);
         return;
@@ -345,16 +332,13 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         setIsSubmitting(false);
         return;
       }
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message:
             error?.response?.data?.message ??
             error.message ??
             "Something went wrong",
           severity: "error",
-        },
-      });
+        });
       setPopupLoading(false);
       setIsSubmitting(false);
     }
@@ -396,38 +380,29 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         setPopupLoading(false);
         setIsSubmitting(false);
         setWalletsAdded((prev) => prev + 1);
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: response?.message,
             severity: "success",
-          },
-        });
+          });
         // Show success choice: Add Another or Done (only if onWalletAdded is provided, i.e. onboarding context)
         if (onWalletAdded) {
           setShowSuccessChoice(true);
         }
       } else {
         setOtpError(response?.message || "Invalid OTP. Please try again.");
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: response?.message || "OTP verification failed",
             severity: "error",
-          },
-        });
+          });
       }
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.message || "OTP verification failed";
       setOtpError(errorMessage);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: errorMessage,
           severity: "error",
-        },
-      });
+        });
       console.error("OTP verification failed:", error);
     } finally {
       setOtpLoading(false);
@@ -445,30 +420,21 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       );
 
       if (response.status === 200 && !response.error) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: "OTP has been resent to your email",
             severity: "success",
-          },
-        });
+          });
       } else {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
+        showToast({
             message: response?.data?.message ?? "Failed to resend OTP",
             severity: "error",
-          },
-        });
+          });
       }
     } catch (error: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: error?.response?.data?.message ?? "Failed to resend OTP",
           severity: "error",
-        },
-      });
+        });
     }
   };
 

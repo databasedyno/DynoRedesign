@@ -10,11 +10,10 @@ import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
-import { LayoutProps, rootReducer } from "@/utils/types";
+import { LayoutProps } from "@/utils/types";
 import { recordShortcutVisit } from "@/helpers/shortcutUsage";
 import { Box, SxProps, Theme, useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
 import {
   MainPageHeader,
@@ -89,7 +88,6 @@ const ClientLayout = ({
       router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
-  const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   const isDashboard =
     router.pathname === "/dashboard" ||
     router.pathname === "/pay-links" ||
@@ -298,12 +296,7 @@ const ClientLayout = ({
           </Box>
         </Box>
       </CompanySettingsDialogProvider>
-    <Toast
-      open={ToastState.open}
-      message={ToastState.message}
-      severity={ToastState.severity || "success"}
-      loading={ToastState.loading}
-    />
+    <Toast />
     {/* Fee-free welcome (celebratory modal — shown once per user) */}
     <FeeFreeWelcomeModal />
     </>

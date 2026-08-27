@@ -1,10 +1,9 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Box, Button, CircularProgress, IconButton, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { revalidateProfile } from "@/hooks/useProfile";
 import useDebounce from "@/hooks/useDebounce";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
@@ -30,7 +29,6 @@ const DISMISS_KEY_PREFIX = "dp_new_company_handle_nudge_dismissed:";
  */
 const HandleClaimNudge: React.FC = () => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const { profile, mutate: mutateStorefront } = useStorefrontProfile();
   const { companyList, selectedCompanyId } = useCompanyStore();
   const siteUrl = getCreatorBaseUrl();
@@ -143,27 +141,21 @@ const HandleClaimNudge: React.FC = () => {
       await axiosBaseApi.put(API_ENDPOINTS.creator.profile, {
         handle: handle.trim().toLowerCase(),
       });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: `Reserved! ${siteUrl.replace(/^https?:\/\//, "")}/${handle} is now ${currentName}'s.`,
-        },
-      });
+        });
       revalidateProfile();
       await mutateStorefront();
       dismiss();
     } catch (e: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: e?.response?.data?.message || "Could not reserve the handle. Please try again.",
           severity: "error",
-        },
-      });
+        });
     } finally {
       setSaving(false);
     }
-  }, [canClaim, dispatch, handle, mutateStorefront, siteUrl, currentName, dismiss]);
+  }, [canClaim, handle, mutateStorefront, siteUrl, currentName, dismiss]);
 
   if (!visible) return null;
 

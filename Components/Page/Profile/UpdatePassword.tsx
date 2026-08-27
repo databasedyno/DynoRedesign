@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { brandFg } from "@/constants/theme";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -7,14 +8,13 @@ import OtpDialog from "@/Components/UI/OtpDialog";
 import PanelCard from "@/Components/UI/PanelCard";
 import useIsMobile from "@/hooks/useIsMobile";
 import useProfile, { revalidateProfile } from "@/hooks/useProfile";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { Icon } from "@/styles/uiKit";
 import { Box, IconButton, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+
 import * as yup from "yup";
 import FormManager from "../Common/FormManager";
 import { InfoIconBox, InfoText, InfoWrapper } from "./styled";
@@ -24,7 +24,6 @@ const passwordRegex =
   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-=__+{}\[\]:;<>,.?/~]).{8,20}$/;
 
 const UpdatePassword = () => {
-  const dispatch = useDispatch();
   const theme = useTheme();
   const { t } = useTranslation("profile");
   const isMobile = useIsMobile("md");
@@ -83,10 +82,10 @@ const UpdatePassword = () => {
       setOtpDialogOpen(true);
       setOtpCountdown(30);
       setOtpStep("otp_sent");
-      dispatch({ type: TOAST_SHOW, payload: { message: t("codeSentToChannel", { channel: data?.sent_via || "email" }) } });
+      showToast({ message: t("codeSentToChannel", { channel: data?.sent_via || "email" }) });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("failedSendCode");
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
       setOtpStep("idle");
     }
   };
@@ -97,10 +96,10 @@ const UpdatePassword = () => {
       const res = await axiosBaseApi.post("user/profile/request-password-otp", selectedChannel ? { channel: selectedChannel } : {});
       const { data } = res.data || {};
       setOtpCountdown(30);
-      dispatch({ type: TOAST_SHOW, payload: { message: t("newCodeSentToChannel", { channel: data?.sent_via || "email" }) } });
+      showToast({ message: t("newCodeSentToChannel", { channel: data?.sent_via || "email" }) });
     } catch (e: any) {
       const msg = e.response?.data?.message || t("failedResendCode");
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
     }
   };
 
@@ -114,7 +113,7 @@ const UpdatePassword = () => {
     setVerifiedOtp(otp);
     setOtpDialogOpen(false);
     setOtpStep("verified");
-    dispatch({ type: TOAST_SHOW, payload: { message: t("identityVerifiedEnterPassword") } });
+    showToast({ message: t("identityVerifiedEnterPassword") });
   };
 
   // Submit new password with OTP
@@ -126,7 +125,7 @@ const UpdatePassword = () => {
         otp: verifiedOtp,
         newPassword,
       });
-      dispatch({ type: TOAST_SHOW, payload: { message: res.data?.message || t("passwordSetSuccess") } });
+      showToast({ message: res.data?.message || t("passwordSetSuccess") });
       revalidateProfile();
       setOtpStep("idle");
       setVerifiedOtp("");
@@ -134,7 +133,7 @@ const UpdatePassword = () => {
       setFormKey((prev) => prev + 1);
     } catch (e: any) {
       const msg = e.response?.data?.message || t("failedSetPassword");
-      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+      showToast({ message: msg, severity: "error" });
       if (msg.toLowerCase().includes("otp") || msg.toLowerCase().includes("expired")) {
         setOtpStep("idle");
         setVerifiedOtp("");

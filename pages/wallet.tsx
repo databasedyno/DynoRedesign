@@ -15,7 +15,6 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 
 /**
  * Header action + page warning are rendered by their OWN components rather

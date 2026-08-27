@@ -26,7 +26,6 @@ import { useTranslation } from "react-i18next";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import axiosBaseApi from "@/axiosConfig";
 import SkeletonList from "@/Components/UI/SkeletonList";
-import { useSelector } from "react-redux";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import {
   fetchUnreadCount,

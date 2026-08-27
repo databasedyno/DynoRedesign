@@ -12,7 +12,6 @@ import Head from "next/head";
 import router from "next/router";
 import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 
 /**
  * Dashboard — 2026 merchant command center (default & only layout).

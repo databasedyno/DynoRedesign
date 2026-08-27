@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -8,7 +9,6 @@ import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 import useProfile from "@/hooks/useProfile";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { usePaymentLinks } from "@/hooks/usePaymentLinks";
@@ -80,7 +80,6 @@ const CreatePaymentLinkPage = ({
 }: CreatePaymentLinkPageProps) => {
   const isMobile = useIsMobile("md");
   const theme = useTheme();
-  const dispatch = useDispatch();
   const { t } = useTranslation("createPaymentLinkScreen");
   // Payment links now flow through SWR (keyed on the selected company). The hook
   // returns the SAME field names the effects below already read
@@ -503,13 +502,10 @@ const CreatePaymentLinkPage = ({
 
   const handleUploadCampaignImage = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
-      dispatch({
-        type: "TOAST_SHOW",
-        payload: {
+      showToast({
           message: t("donationImageTooLarge", { defaultValue: "Image is too large (max 10MB)." }),
           severity: "error",
-        },
-      });
+        });
       return;
     }
     setImageUploading(true);
@@ -526,15 +522,12 @@ const CreatePaymentLinkPage = ({
         throw new Error("No URL returned");
       }
     } catch (e: any) {
-      dispatch({
-        type: "TOAST_SHOW",
-        payload: {
+      showToast({
           message:
             e?.response?.data?.message ||
             t("donationImageUploadFailed", { defaultValue: "Image upload failed. Please try again." }),
           severity: "error",
-        },
-      });
+        });
     } finally {
       setImageUploading(false);
     }
@@ -792,10 +785,7 @@ const CreatePaymentLinkPage = ({
 
     // Enforce at least 1 cryptocurrency selected
     if (!paymentSettings.acceptedCryptoCurrency || paymentSettings.acceptedCryptoCurrency.length === 0) {
-      dispatch({
-        type: "TOAST_SHOW",
-        payload: { message: "Please select at least 1 cryptocurrency", severity: "error" },
-      });
+      showToast({ message: "Please select at least 1 cryptocurrency", severity: "error" });
       if (activeTab === 1) {
         setActiveTab(0);
       }
@@ -914,10 +904,7 @@ const CreatePaymentLinkPage = ({
   const handleCopyLink = () => {
     if (paymentLink) {
       copyToClipboard(paymentLink);
-      dispatch({
-        type: "TOAST_SHOW",
-        payload: { message: "Payment link copied!", severity: "success" },
-      });
+      showToast({ message: "Payment link copied!", severity: "success" });
     }
   };
 

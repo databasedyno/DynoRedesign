@@ -1,11 +1,10 @@
+import { showToast } from "@/helpers/toastStore";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";
 import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useDispatch } from "react-redux";
 import { useTranslation, Trans } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useProfile, { revalidateProfile } from "@/hooks/useProfile";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import CreatorThemePicker, { CreatorTheme, CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
@@ -76,7 +75,6 @@ type PlatformKey = typeof SOCIAL_PLATFORMS[number]["key"];
 const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const theme = useTheme();
   const { t } = useTranslation("common");
-  const dispatch = useDispatch();
   const reduxProfile = useProfile().profile as any;
   const selectedCompanyId = useSelectedCompanyId();
   // Storefront-per-company: read the ACTIVE company's storefront settings from
@@ -142,7 +140,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   // Ensure the account profile is loaded even when landing directly on this page
   useEffect(() => {
     if (!reduxProfile?.user_id) revalidateProfile();
-  }, [dispatch, reduxProfile?.user_id]);
+  }, [reduxProfile?.user_id]);
 
   // Re-seed the form when the selected company changes (storefront-per-company).
   useEffect(() => {
@@ -373,18 +371,15 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         store_enabled: storeEnabled,
         creator_page_show_products: showProductsOnPage,
       });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
+      showToast({
           message: isFirstReserve
             ? `Reserved! ${siteUrl.replace(/^https?:\/\//, "")}/${normalizedHandle} is yours 🎉`
             : "Creator page saved",
-        },
-      });
+        });
       revalidateProfile();
       mutateStorefront();
     } catch (e: any) {
-      dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not save", severity: "error" } });
+      showToast({ message: e?.response?.data?.message || "Could not save", severity: "error" });
     } finally {
       setSaving(false);
     }
@@ -409,11 +404,11 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const uploadCoverFile = async (file?: File | null) => {
     if (!file) return;
     if (!file.type || !file.type.startsWith("image/")) {
-      dispatch({ type: TOAST_SHOW, payload: { message: "Please choose an image file (JPEG, PNG, GIF, WebP or SVG)", severity: "error" } });
+      showToast({ message: "Please choose an image file (JPEG, PNG, GIF, WebP or SVG)", severity: "error" });
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      dispatch({ type: TOAST_SHOW, payload: { message: "Image must be under 10 MB", severity: "error" } });
+      showToast({ message: "Image must be under 10 MB", severity: "error" });
       return;
     }
     setUploadingCover(true);
@@ -436,22 +431,19 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
               cover_image: url,
               theme_cover_style: "image",
             });
-            dispatch({ type: TOAST_SHOW, payload: { message: "Cover image saved" } });
+            showToast({ message: "Cover image saved" });
             mutateStorefront();
             revalidateProfile();
           } catch (persistErr: any) {
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
+            showToast({
                 message: persistErr?.response?.data?.message || "Cover uploaded — press Save to keep it",
                 severity: "error",
-              },
-            });
+              });
           }
         }
       }
     } catch (err: any) {
-      dispatch({ type: TOAST_SHOW, payload: { message: err?.response?.data?.message || "Upload failed", severity: "error" } });
+      showToast({ message: err?.response?.data?.message || "Upload failed", severity: "error" });
     } finally {
       setUploadingCover(false);
       if (coverFileRef.current) coverFileRef.current.value = "";
@@ -469,11 +461,11 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     if (!savedHandle) return;
     try {
       await axiosBaseApi.put(API_ENDPOINTS.creator.profile, { cover_image: null });
-      dispatch({ type: TOAST_SHOW, payload: { message: "Cover image removed" } });
+      showToast({ message: "Cover image removed" });
       mutateStorefront();
       revalidateProfile();
     } catch (err: any) {
-      dispatch({ type: TOAST_SHOW, payload: { message: err?.response?.data?.message || "Could not remove cover", severity: "error" } });
+      showToast({ message: err?.response?.data?.message || "Could not remove cover", severity: "error" });
     }
   };
 

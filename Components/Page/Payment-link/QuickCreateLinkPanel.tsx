@@ -1,3 +1,4 @@
+import { showToast } from "@/helpers/toastStore";
 /**
  * QuickCreateLinkPanel — Move 2 of the usability restructuring.
  *
@@ -25,7 +26,7 @@ import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { QRCodeCanvas } from "qrcode.react";
-import { useDispatch } from "react-redux";
+
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 
@@ -59,7 +60,6 @@ const QuickCreateLinkPanel = ({
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const dispatch = useDispatch();
   const router = useRouter();
   const { t } = useTranslation("paymentLinks");
   const { selectedCompanyId } = useCompanyStore();
@@ -154,15 +154,12 @@ const QuickCreateLinkPanel = ({
   const handleCopy = async () => {
     if (!created) return;
     const ok = await copyToClipboard(created.url);
-    dispatch({
-      type: "TOAST_SHOW",
-      payload: {
+    showToast({
         message: ok
           ? t("quickCreate.copied", { defaultValue: "Payment link copied!" })
           : t("quickCreate.copyFailed", { defaultValue: "Copy failed — select and copy manually." }),
         severity: ok ? "success" : "error",
-      },
-    });
+      });
   };
 
   const handleShare = async () => {
