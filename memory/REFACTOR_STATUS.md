@@ -268,8 +268,14 @@ no git history rewrite.
             `utils/geoLocale.ts` (old IP→locale detection, superseded by backend `/api/geo-detect`
             + `utils/geoDefaults.ts`). Both had 0 references repo-wide. Gate: tsc 0 · key routes 200 ·
             frontend testing agent 6/6 PASS (dashboard sidebar + nav accents intact, no console errors).
-      - [ ] Wave 2 (themes): consolidate the duplicate Home theme token files (swiss.ts vs
-            v3/theme.v3.ts share FONT_*/VOLT but OBSIDIAN differs) + the 6+ theme files → one source.
+      - [x] Wave 2 (theme tokens, 2026-08-27 pod d004a6e0): removed 3 dead legacy DUPLICATE
+            theme-token modules — `Components/Page/Home/swiss.ts` + its dead-only consumer
+            `SwissSectionHead.tsx`, and `styles/homeBento.ts` (all 0 external refs; superseded by
+            `v3/theme.v3.ts` + `styles/homeTheme.ts` + `constants/theme.ts`). Tidied one stale doc
+            comment in homeTheme.ts. Gate: tsc 0 · / /fees /dashboard 200 · frontend testing agent
+            PASS (home dark+light, /fees, dashboard all correctly themed, no console errors). NOTE:
+            token files with DIFFERENT values (HomeHeader local VOLT #22C55E, v3 OBSIDIAN vs old
+            swiss OBSIDIAN) were intentionally NOT merged — only the fully-dead legacy files removed.
       - [ ] Wave 3 (axios clients): consolidate axiosConfig.ts + axiosAdmin.ts (RISKIEST — auth
             interceptors differ; do last, behind full gates).
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)

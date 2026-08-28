@@ -11,8 +11,8 @@ import { BRAND_ACCENT } from "@/constants/theme";
  *
  * NOTE: `background.paper` is kept OPAQUE on purpose so shared MUI surfaces that
  * read it (header menus, language dropdown, tooltips) stay crisp. The frosted
- * "glass" translucency for landing cards is applied explicitly per-section via
- * `styles/homeBento.ts` (backdrop-blur + translucent rgba), not through paper.
+ * "glass" translucency for landing cards is applied explicitly per-section
+ * (backdrop-blur + translucent rgba), not through paper.
  *
  * A non-standard `primary.hover` token is added (cast `as any`) — consumed by
  * CustomButton / HomeButton with safe fallbacks.

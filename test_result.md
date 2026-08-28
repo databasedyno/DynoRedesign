@@ -1,4 +1,50 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-27 (pod d004a6e0) : PHASE 3 WAVE 2 — theme-token
+#   consolidation. Deleted legacy DUPLICATE token files: Components/Page/Home/swiss.ts
+#   + its dead-only consumer SwissSectionHead.tsx, and styles/homeBento.ts (all 0
+#   external refs; superseded by v3/theme.v3.ts + styles/homeTheme.ts + constants/theme.ts).
+#   Also tidied one stale doc comment in styles/homeTheme.ts. NO behaviour change expected.
+#   tsc 0 errors · / /fees /dashboard 200 · no module-not-found. READ-ONLY smoke wanted.
+# ============================================================================
+## ⚠️ LIVE PROD Railway DB — SAFE MODE. STRICTLY READ-ONLY UI verification.
+## Merchant login (2-step): onarrival21@gmail.com / Katiekendra123@. Company switch OK; NO other mutations.
+
+### frontend
+  - task: "Phase 3 Wave 2: theme-token file consolidation (deleted swiss.ts / SwissSectionHead / homeBento) — landing + app still render correctly"
+    implemented: true
+    working: true
+    file: "Components/Page/Home/swiss.ts (deleted), Components/Page/Home/SwissSectionHead.tsx (deleted), styles/homeBento.ts (deleted), styles/homeTheme.ts (comment tidy)"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Pure dead-code deletion of legacy duplicate theme-token modules (0 external refs; tsc clean). Smoke ONLY: the public landing/home page (/) renders fully (hero, sections, footer) with correct aurora/indigo theming in dark AND light; the /fees page renders (it imports v3/theme.v3); the logged-in dashboard renders. NO red console errors, no broken/unstyled sections. This is a regression check for a deletion, not a feature."
+      - working: true
+        agent: "testing"
+        comment: "✅ REGRESSION SMOKE TEST PASSED (2026-08-28 08:48 UTC) — ALL 3 VERIFICATION POINTS PASSED (3/3, 100% success rate). Theme-token cleanup (deletion of swiss.ts, SwissSectionHead.tsx, homeBento.ts) did NOT break any functionality or styling. DETAILED RESULTS: (1) ✅ PUBLIC HOME PAGE (/): Page loads correctly with title 'Sell, tip, fundraise — in crypto · Dynopay'. Hero section renders with 'Accept crypto payments. Get paid your way.' heading. Found 8 section elements. Footer renders correctly. Theme toggle button found (data-testid='theme-toggle-button') and working. LIGHT MODE: Proper styling with indigo/violet accents (visible in 'Get paid' text, buttons, badges), clean white backgrounds, proper fonts, no unstyled sections. DARK MODE: Successfully toggled, proper dark backgrounds (#1a1a1a) with maintained indigo/violet accents, all text readable, checkout demo widget renders correctly in both modes. No console errors on home page. Screenshots: test1_home_top_default.png (light), test1_home_scrolled_default.png (light scrolled), test_dark_mode_home_top.png (dark), test_dark_mode_home_scrolled.png (dark scrolled). (2) ✅ PUBLIC /fees PAGE: Page loads correctly with title 'Fees · Dynopay — From 0.5% flat, no monthly, no chargebacks.' Fee content renders correctly with hero 'One number to remember. 1.5% → 0.5% as you grow' and 'Calculate my fee' button. Found 6 layout elements. Proper theming with indigo/violet accents visible in headings and CTA button. No broken layout, no unstyled sections. No new console errors. Screenshot: test3_fees_page.png. (3) ✅ DASHBOARD (after login): 2-step login flow works correctly (email onarrival21@gmail.com → Continue → password → Sign in). Dashboard loads with title 'Dashboard · Dynopay'. Sidebar/navigation renders correctly with 'Dashboard', 'Payment Links', 'Balances', 'Transactions', 'Receipts & Tax', 'Customers', 'Your page', 'Payout wallets', 'Settings', 'Developers' menu items visible. Dashboard content renders with KPIs: $730.26 volume (42.73% vs previous period, -13 payments), 0 payments today (-2 vs yesterday), 13 active wallets, $0.00 tax collected. Volume chart visible (7 days period, data point $234.72 on 2024-09-25). Fee tier progress card visible (27.7% complete, $27,664.64 / $100,000, Current Tier Growth -1%). 'Grow with Dynopay' onboarding card visible. Screenshot: test5_dashboard.png. CONSOLE: Only 1 minor non-critical error detected across all pages: 'Error: Abort fetching component for route: /dashboard' (Next.js internal navigation/hydration warning, NOT a theme-related or critical runtime error). NETWORK: 8 network errors detected, all Cloudflare CDN infrastructure noise (cdn-cgi/challenge-platform, cdn-cgi/rum) - NOT application errors. Zero application API or resource loading failures. STRICT COMPLIANCE: Read-only testing only. NO payment links created, NO wallets modified, NO API keys actions, NO currency selection, NO checkout, NO OTP. The theme-token cleanup is PRODUCTION-READY."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  session: "2026-08-27 pod d004a6e0 — Phase 3 Wave 2 theme-token dedupe"
+
+### test_plan
+  current_focus:
+    - "Phase 3 Wave 2: theme-token file consolidation — regression smoke (landing/home + /fees + dashboard)"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "READ-ONLY regression smoke after deleting three unused legacy theme-token modules. Confirm the landing/home page + /fees + dashboard still render fully and correctly themed (dark + light) with no console errors and no broken/unstyled sections. No mutations."
+  - agent: "testing"
+    message: "✅ REGRESSION SMOKE TEST COMPLETE (2026-08-28 08:48 UTC) — ALL VERIFICATION POINTS PASSED (3/3, 100% success rate). SUMMARY: The theme-token cleanup (deletion of swiss.ts, SwissSectionHead.tsx, homeBento.ts) is WORKING CORRECTLY. NO functionality or styling broken. All pages render without crashes, proper theming in both light and dark modes, zero critical console errors, zero application network errors. DETAILED RESULTS: (1) ✅ Home page (/): Hero, sections, footer all render with proper indigo/violet theming. Theme toggle works. Light and dark modes both render correctly. (2) ✅ /fees page: Fee calculator content renders with proper theming, no broken layout. (3) ✅ Dashboard: Login successful, sidebar renders, KPIs display real data ($730.26 volume, 13 active wallets), volume chart visible, fee tier card visible. CONSOLE: 1 minor Next.js navigation warning (non-critical). NETWORK: Only Cloudflare CDN noise, no application errors. STRICT COMPLIANCE: Read-only testing only, no mutations performed. The cleanup is PRODUCTION-READY. Main agent should summarize and finish."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-27 (pod d004a6e0) : PHASE 3 WAVE 1 — dead/duplicate
 #   helper-util removal. Deleted helpers/navAccent.ts + utils/geoLocale.ts (both
 #   0 references repo-wide; superseded duplicates). NO behaviour change expected.
