@@ -262,6 +262,15 @@ no git history rewrite.
             the app now runs on ONE state layer (SWR + module stores + context).**
 - [x] Phase 2 — One data layer: COMPLETE (W1 Transaction · W2 Api · W3 Dashboard · W4 PaymentLink · W5 User ·
       W6 Toast). redux + redux-saga + store.ts all removed.
-- [ ] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3)
+- [~] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3) — IN PROGRESS
+      - [x] Wave 1 (helpers/utils dedupe, 2026-08-27 pod d004a6e0): removed 2 dead/superseded
+            modules — `helpers/navAccent.ts` (nav-accent source-of-truth no longer imported) and
+            `utils/geoLocale.ts` (old IP→locale detection, superseded by backend `/api/geo-detect`
+            + `utils/geoDefaults.ts`). Both had 0 references repo-wide. Gate: tsc 0 · key routes 200 ·
+            frontend testing agent 6/6 PASS (dashboard sidebar + nav accents intact, no console errors).
+      - [ ] Wave 2 (themes): consolidate the duplicate Home theme token files (swiss.ts vs
+            v3/theme.v3.ts share FONT_*/VOLT but OBSIDIAN differs) + the 6+ theme files → one source.
+      - [ ] Wave 3 (axios clients): consolidate axiosConfig.ts + axiosAdmin.ts (RISKIEST — auth
+            interceptors differ; do last, behind full gates).
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

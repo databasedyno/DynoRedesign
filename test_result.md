@@ -1,4 +1,50 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-27 (pod d004a6e0) : PHASE 3 WAVE 1 — dead/duplicate
+#   helper-util removal. Deleted helpers/navAccent.ts + utils/geoLocale.ts (both
+#   0 references repo-wide; superseded duplicates). NO behaviour change expected.
+#   tsc 0 errors · key routes 200 · no module-not-found. READ-ONLY smoke wanted.
+# ============================================================================
+## ⚠️ LIVE PROD Railway DB — SAFE MODE. STRICTLY READ-ONLY UI verification.
+## Merchant login (2-step: /auth/login → email → Continue → password → Sign in):
+## onarrival21@gmail.com / Katiekendra123@ (user_id=1). Company switch OK; NO other mutations
+## (no wallet/paylink/currency/apikey writes, no /pay currency select, no checkout, no OTP).
+
+### frontend
+  - task: "Phase 3 Wave 1: removal of dead helpers (navAccent, geoLocale) — app still renders, nav accents intact"
+    implemented: true
+    working: true
+    file: "helpers/navAccent.ts (deleted), utils/geoLocale.ts (deleted)"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Pure dead-code deletion (both modules had 0 imports; tsc clean). Smoke ONLY: after login the dashboard renders with the left sidebar showing coloured per-item nav accents; navigating logged-in routes (/dashboard, /transactions, /developer-keys VIEW-ONLY) and the public /system-status + / (home) works with NO red console errors and no broken layout. This is a regression check for a deletion, not a feature."
+      - working: true
+        agent: "testing"
+        comment: "✅ REGRESSION SMOKE TEST PASSED (2026-08-28 08:35 UTC) — ALL 6 VERIFICATION POINTS PASSED (6/6, 100% success rate). Dead-code cleanup (deletion of helpers/navAccent.ts + utils/geoLocale.ts) did NOT break any functionality. DETAILED RESULTS: (1) ✅ Login flow: 2-step authentication successful (email → Continue → password → Sign in) with onarrival21@gmail.com. Dashboard loaded correctly at /dashboard. (2) ✅ Dashboard with sidebar: Left sidebar renders with 7 navigation items found (Dashboard, Transactions, Payment Links, Customers, API, Referrals, Settings). Navigation structure intact. Screenshot shows full dashboard with sidebar, volume chart ($730.26), KPIs (0 payments today, 13 active wallets), and fee tier progress. (3) ✅ Transactions page: /transactions loaded successfully without crash. Page title 'Transactions · Dynopay'. Transaction table renders with 643 transactions showing (BTC, USDT-TRC20, LTC transactions with amounts, dates, statuses). Export button present. (4) ✅ Developer keys page: /developer-keys loaded successfully (VIEW ONLY, no actions taken). Page title 'Developers · Dynopay'. API keys content detected (USD API Key card visible with Active status, Regenerate/Disable buttons present but not clicked per read-only requirement). (5) ✅ System status page: /system-status (PUBLIC) loaded successfully. Page title 'System Status — API & payment uptime · Dynopay'. Found exactly 90 SVG rect elements (90-day uptime bars). Legend visible with Operational/Degraded/No Data labels. Services showing: API Gateway 100% uptime, Payment Processing 96.21%, Wallet Services 98.98%, Webhook Delivery 99.80%, Dashboard 99.90%. (6) ✅ Public home page: / loaded successfully. Page title 'Sell, tip, fundraise — in crypto · Dynopay'. Hero section renders with 'Accept crypto payments. Get paid your way.' heading and live demo checkout widget. CONSOLE: Only 1 minor non-critical warning (React DOM nesting <div> inside <p> - cosmetic issue, not a critical error). NETWORK: Zero 4xx/5xx errors detected. STRICT COMPLIANCE: Read-only testing only. NO payment links created, NO wallets modified, NO API keys actions, NO currency selection, NO checkout, NO OTP. The dead-code cleanup is PRODUCTION-READY. Screenshots: test2_dashboard_sidebar.png, test3_transactions.png, test4_developer_keys.png, test5_system_status.png, test6_home_page.png."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  session: "2026-08-27 pod d004a6e0 — Phase 3 Wave 1 dead-helper dedupe"
+
+### test_plan
+  current_focus:
+    - "Phase 3 Wave 1: removal of dead helpers (navAccent, geoLocale) — regression smoke"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "READ-ONLY regression smoke after deleting two unused helper modules. Confirm the app still renders (login → dashboard with sidebar nav accents; a couple logged-in routes; public home + /system-status) with no console errors. Do NOT perform any mutations."
+  - agent: "testing"
+    message: "✅ REGRESSION SMOKE TEST COMPLETE (2026-08-28 08:35 UTC) — ALL VERIFICATION POINTS PASSED (6/6, 100% success rate). SUMMARY: The dead-code cleanup (deletion of helpers/navAccent.ts + utils/geoLocale.ts) is WORKING CORRECTLY. NO functionality broken. All pages render without crashes, navigation intact, sidebar with 7 nav items present, 90-day uptime bars render correctly (90 SVG rects), zero critical console errors, zero network errors. STRICT COMPLIANCE: Read-only testing only, no mutations performed. The cleanup is PRODUCTION-READY. Main agent should summarize and finish."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-27 (pod d004a6e0) : Spark = Referral Earnings on the
 #   dashboard. Verify P1 (90-day uptime bars) still renders. P2 (checkout currency
 #   memory) is PRE-EXISTING code — do NOT e2e on prod (would create a reservation).
