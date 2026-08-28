@@ -9,7 +9,6 @@ import { verticalToOnboarding } from "@/helpers/verticalOnboarding";
 import CustomButton from "@/Components/UI/Buttons";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
-import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import { AuthPageBackground, SplitLayoutWrapper, FormPanel } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";

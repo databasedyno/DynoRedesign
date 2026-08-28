@@ -17,7 +17,6 @@ import ThemeToggle from "@/Components/UI/ThemeToggle";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import CustomRadio from "@/Components/UI/RadioGroup";
-import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import {
   AuthContainer,
   AuthPageBackground,
