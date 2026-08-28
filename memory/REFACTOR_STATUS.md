@@ -1,3 +1,67 @@
+# SESSION UPDATE 2026-06 (fork) — Payouts FULL i18n DONE + backend refactor backlog (B–F) formalized
+
+## ✅ /payouts full localization — COMPLETE (frontend, tsc EXIT 0)
+Finished the in-progress Payouts translation. `Components/Page/Payouts/index.tsx` now wraps EVERY
+remaining hardcoded English string in `t()` against the 78 `payouts.*` keys already present in ALL 6
+locales (en/es/pt/fr/de/nl `common.json`):
+  - summary "Auto-convert" label → `payouts.summaryAutoConvert`
+  - settlement subheading (loading / on `settlementDescOn{target}` / off `settlementDescOff`)
+  - auto-convert protection copy (first / month one|many{count} / in-progress one|many{count} / empty)
+  - "This month" `thisMonth`, "Last 6 months" `last6Months`
+  - digest button "Send preview"/"Sending…" (`sendPreview`/`sending`)
+  - tax "{amount} to date" `taxToDate`
+  - pending row "started {time}" `startedAgo` + "~{min}m left to confirm" `minsLeftToConfirm`
+  - CSV button "Export CSV"/"Exporting…" (`exportCsv`/`exporting`)
+BUGFIX (introduced by the prior in-progress pass): `handleExportPayouts` had a local `const t = new Date(...)`
+shadowing the i18n `t()` — renamed to `to` (tsc was EXIT 2, now EXIT 0). Money-path untouched; pure i18n.
+
+## Backend refactor backlog (DEFERRED — needs explicit approval, high-risk on a LIVE payments app)
+These were approved-for-review but NOT authorized to build (see PART A below). Formalized here as the
+actionable backend track. Recommend each as its own scoped effort with `integration_expert` where auth/DB
+is involved; live prod DB in SAFE MODE means read-only verification only.
+- **B — Postgres as system-of-record for in-flight payments.** Redis is currently SoR for checkout
+  sessions (`customer-<ref>`); crash/eviction risks losing in-flight state. Move authoritative payment
+  state to Postgres with Redis as a cache/lock only. Est. 3–5w, phased. HIGHEST risk — touches money path.
+- **C — Split ~25 cron jobs out of the API process into a worker service.** `worker.ts` entrypoint already
+  exists; `registerLeaderCronJobs` runs sweeps/settlement/reconciliation/digests inside the API. Move to a
+  dedicated worker deployment so API restarts don't drop jobs and jobs don't compete with request latency.
+  Est. 1–2d. Lowest-risk backend win.
+- **D — Decompose god files.** `server.ts` (~1752), `controller/payment/paymentLinkController.ts` (~2723),
+  `apis/tatumApi.ts` (~4136). Use the strangler pattern (extract exported service modules, keep route
+  handlers thin) — same approach already used for `customerDirectoryController` → `customerDirectoryService`.
+  Est. 3–5d.
+- **E — Unify three migration mechanisms into one versioned pipeline.** Currently `bootMigrations.ts`
+  (idempotent boot), Sequelize sync, and ad-hoc `migrations/*` coexist. Consolidate to one versioned,
+  recorded (`schema_migrations`) pipeline. Est. 1–2w.
+- **F — Redis-based rate-limiting + a real CIDR library.** In-memory rate-limit Map (per-process, lost on
+  restart, not shared across instances) + a broken `Set.has()` CIDR check. Move counters to Redis and use a
+  vetted CIDR lib. Est. 1d.
+Also tracked (highest-priority infra, PART A item A): shared prod DB/Redis across environments → isolate
+per env (staging). And item H: observability is 15-min email digests → Sentry-class capture.
+
+---
+
+
+
+# SESSION UPDATE 2026-08-28 (fork) — Remaining frontend backlog CLEARED
+
+- ✅ P0 Customers full-flow (testing agent iteration_92, 100% PASS): search, sort, CSV export (customers-YYYY-MM-DD.csv), all 6 segment chips, detail drawer (right on desktop / bottom-sheet on mobile), Request-payment → /create-pay-link?email=&name= prefill, close, and viewport reflow at 1920/1440/1024/768/390 light+dark.
+- ✅ P2 Read-only console-error sweep (iteration_92): 0 console errors / 0 broken images / 0 non-benign 4xx-5xx across /dashboard,/transactions,/payouts,/customers,/invoices,/pay-links,/system-status,/settings,/api.
+- ✅ P1 PT locale QA + FIXES: testing agent found 5 untranslated strings; all fixed by adding keys across ALL 6 locales:
+    - dashboardLayout.json: balancesPayouts (sidebar "Balances"→"Saldos"), stepHandle, stepHandleDone, claimBannerTitleCompany, claimBannerSubtitle, claimBannerSubtitleCompany, claimBannerSubtitlePending
+    - common.json (nested): payouts.pageName ("Balances & payouts"→"Saldos e pagamentos"), invoices.metaTitle
+    - pages/invoices.tsx: hardcoded <title> now t("invoices.metaTitle")
+    Verified in-app in PT (Saldos, Saldos e pagamentos, translated onboarding step + reserve-handle banner) and account language RESTORED to EN (html lang=en). Live account mutation was only the temporary lang toggle, reverted.
+- ✅ P2 tsc-in-preview guard: added scripts/preflight-tsc-frontend.sh (warn-in-hook / fail-in-force), wired into .husky/pre-commit + `yarn preflight` (package.json). `yarn preflight` = backend tsc OK + frontend tsc OK. Mirrors the existing backend gate; complements the CI frontend-tsc hard gate so a dev-only FE type error is caught at commit time.
+- yarn lint fully green (tsc + eslint ratchet 74 + contrast).
+
+STILL DEFERRED (NOT auto-done — needs explicit approval; high-risk):
+- FP2-4 Auth unification (backend JWT + NextAuth-for-Google → one head) on a LIVE payments app. Recommend a separate, scoped effort with integration_expert.
+OPTIONAL (out of scope of QA action items): /payouts inner body copy (Total settled / Settlement & auto-convert / wallet rows) is still English in non-EN locales — larger translation pass, not flagged as a task.
+
+---
+
+
 # SESSION UPDATE 2026-08-28 (fork) — Save-to-GitHub push blocker (oversized assets)
 
 - ROOT CAUSE: NOT source-file length (>500-line .ts files are fine for GitHub). The blocker was ~59MB of oversized binary assets exceeding Emergent Save-to-GitHub's (undocumented) size limit. Bloated Figma-export SVGs held embedded full-res base64 rasters (e.g. a 163×133 use-case svg = 9.5MB).

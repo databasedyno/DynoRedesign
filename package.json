@@ -10,7 +10,7 @@
     "lint:eslint": "node scripts/check-eslint-ratchet.mjs",
     "lint:contrast": "node scripts/check-contrast.mjs",
     "test:devices": "node tests/device-matrix.mjs",
-    "preflight": "sh scripts/preflight-tsc.sh --force",
+    "preflight": "sh scripts/preflight-tsc.sh --force && sh scripts/preflight-tsc-frontend.sh --force",
     "prepare": "husky || true"
   },
   "dependencies": {

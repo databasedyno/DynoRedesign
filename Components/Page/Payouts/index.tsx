@@ -89,25 +89,20 @@ const isInternalEmail = (v?: string) => {
   );
 };
 
-const SOURCE_LABEL: Record<string, string> = {
-  api: "API payment",
-  payment_link: "Payment link",
-  tip: "Tip",
-  product: "Store order",
-  contribution: "Donation",
-  direct: "Direct payment",
-};
+const SOURCE_TYPES = new Set([
+  "api", "payment_link", "tip", "product", "contribution", "direct",
+]);
 
 // A human-friendly payer label: prefer a real name/email, otherwise fall back to
-// the payment source (never the synthetic internal email).
-const payerLabel = (tx: any): string => {
+// the (localized) payment source (never the synthetic internal email).
+const payerLabel = (tx: any, t: (k: string, o?: any) => string): string => {
   const name = (tx?.customer_name || "").toString().trim();
   const email = (tx?.customer_email || tx?.customerEmail || "").toString().trim();
   if (email && !isInternalEmail(email)) return name || email;
   if (name && !isInternalEmail(name)) return name;
   const type = tx?.source?.type;
-  if (type && SOURCE_LABEL[type]) return SOURCE_LABEL[type];
-  return isInternalEmail(email) ? "API payment" : "";
+  if (type && SOURCE_TYPES.has(type)) return t(`payouts.source.${type}`);
+  return isInternalEmail(email) ? t("payouts.source.api") : "";
 };
 
 // Amount + single ticker (e.g. "0.016338 ETH"). base_currency and crypto_currency
@@ -167,12 +162,12 @@ const minutesLeftToConfirm = (v?: string) => {
   return left > 0 ? left : null;
 };
 
-const RANGE_PRESETS: { value: string; label: string }[] = [
-  { value: "7", label: "Last 7 days" },
-  { value: "30", label: "Last 30 days" },
-  { value: "90", label: "Last 90 days" },
-  { value: "365", label: "Last 12 months" },
-  { value: "custom", label: "Custom range\u2026" },
+const RANGE_PRESETS: { value: string; labelKey: string }[] = [
+  { value: "7", labelKey: "payouts.range7" },
+  { value: "30", labelKey: "payouts.range30" },
+  { value: "90", labelKey: "payouts.range90" },
+  { value: "365", labelKey: "payouts.range365" },
+  { value: "custom", labelKey: "payouts.rangeCustom" },
 ];
 
 const PayoutsPage: React.FC = () => {
@@ -397,14 +392,14 @@ const PayoutsPage: React.FC = () => {
       await mutateNotifPrefs();
       showToast({
           message: next
-            ? "Weekly payout digest turned on"
-            : "Weekly payout digest turned off",
+            ? t("payouts.digestOnToast")
+            : t("payouts.digestOffToast"),
           severity: "success",
         });
     } catch {
       await mutateNotifPrefs();
       showToast({
-          message: "Couldn't update the digest setting",
+          message: t("payouts.digestUpdateError"),
           severity: "error",
         });
     } finally {
@@ -417,11 +412,11 @@ const PayoutsPage: React.FC = () => {
     try {
       await axiosBaseApi.post("/notifications/payout-digest/preview", {});
       showToast({
-          message: "Preview digest sent to your email",
+          message: t("payouts.digestPreviewSent"),
           severity: "success",
         });
     } catch {
-      showToast({ message: "Couldn't send the preview", severity: "error" });
+      showToast({ message: t("payouts.digestPreviewError"), severity: "error" });
     } finally {
       setDigestPreviewing(false);
     }
@@ -447,22 +442,22 @@ const PayoutsPage: React.FC = () => {
     if (exportRange === "custom") {
       if (!customFrom || !customTo) {
         showToast({
-            message: "Pick both a start and end date",
+            message: t("payouts.exportPickDates"),
             severity: "error",
           });
         return;
       }
       const f = new Date(`${customFrom}T00:00:00`);
-      const t = new Date(`${customTo}T23:59:59.999`);
-      if (f > t) {
+      const to = new Date(`${customTo}T23:59:59.999`);
+      if (f > to) {
         showToast({
-            message: "Start date must be before the end date",
+            message: t("payouts.exportDateOrder"),
             severity: "error",
           });
         return;
       }
       dateFrom = f.toISOString();
-      dateTo = t.toISOString();
+      dateTo = to.toISOString();
     } else {
       const to = new Date();
       const from = new Date();
@@ -497,10 +492,10 @@ const PayoutsPage: React.FC = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      showToast({ message: "Payout history exported", severity: "success" });
+      showToast({ message: t("payouts.exportSuccess"), severity: "success" });
     } catch {
       showToast({
-          message: "Export failed. Please try again.",
+          message: t("payouts.exportError"),
           severity: "error",
         });
     } finally {
@@ -527,30 +522,30 @@ const PayoutsPage: React.FC = () => {
     accent?: string;
   }[] = [
     {
-      label: "Total settled",
+      label: t("payouts.summaryTotalSettled"),
       value: loading ? null : stats?.totalVolumeFormatted || `${sym}0.00`,
-      hint: "Lifetime volume received",
+      hint: t("payouts.summaryTotalSettledHint"),
     },
     {
-      label: "Pending",
+      label: t("payouts.summaryPending"),
       value: loading ? null : `${stats?.pendingTransactions ?? 0}`,
-      hint: "Payments awaiting confirmation",
+      hint: t("payouts.summaryPendingHint"),
     },
     {
-      label: "Auto\u2011convert",
-      value: settlementLoading ? null : autoEnabled ? "On" : "Off",
+      label: t("payouts.summaryAutoConvert"),
+      value: settlementLoading ? null : autoEnabled ? t("payouts.on") : t("payouts.off"),
       hint: autoEnabled
-        ? `Settling to ${settlementTarget}`
-        : "Convert crypto to a stablecoin",
+        ? t("payouts.summaryAutoConvertHintOn", { target: settlementTarget })
+        : t("payouts.summaryAutoConvertHintOff"),
       accent: autoEnabled ? SUCCESS_GREEN : undefined,
     },
     {
-      label: "Fee tier",
-      value: loading ? null : feeTiers?.currentTier || "Starter",
+      label: t("payouts.summaryFeeTier"),
+      value: loading ? null : feeTiers?.currentTier || t("payouts.feeTierStarter"),
       hint:
         feeTiers?.currentTierPercent != null
-          ? `${feeTiers.currentTierPercent}% per transaction`
-          : "Your current pricing",
+          ? t("payouts.summaryFeeTierHintPct", { pct: feeTiers.currentTierPercent })
+          : t("payouts.summaryFeeTierHintDefault"),
     },
   ];
 
@@ -633,24 +628,24 @@ const PayoutsPage: React.FC = () => {
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 700 }}>
-                Settlement & auto-convert
+                {t("payouts.settlementTitle")}
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
               >
                 {settlementLoading
-                  ? "Loading\u2026"
+                  ? t("payouts.loading")
                   : autoEnabled
-                    ? `Incoming crypto auto\u2011converts to ${settlementTarget}`
-                    : "Auto\u2011convert is off \u2014 payments settle in the coin received"}
+                    ? t("payouts.settlementDescOn", { target: settlementTarget })
+                    : t("payouts.settlementDescOff")}
               </Typography>
             </Box>
           </Stack>
           <Tooltip
             title={
               !hasStablecoinWallet && !enabled
-                ? "Add a stablecoin settlement wallet first"
+                ? t("payouts.addStablecoinFirst")
                 : ""
             }
             arrow
@@ -688,7 +683,7 @@ const PayoutsPage: React.FC = () => {
               variant="body2"
               sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
             >
-              Settle to
+              {t("payouts.settleTo")}
             </Typography>
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <Select
@@ -699,7 +694,7 @@ const PayoutsPage: React.FC = () => {
                 sx={{ borderRadius: 2, fontWeight: 600 }}
               >
                 <MenuItem value="" disabled>
-                  Select settlement coin
+                  {t("payouts.selectSettlementCoin")}
                 </MenuItem>
                 {settlementOptions.map((opt) => {
                   const val =
@@ -707,7 +702,7 @@ const PayoutsPage: React.FC = () => {
                   return (
                     <MenuItem key={val} value={val}>
                       {STABLECOIN_LABELS[opt.wallet_type || ""] ||
-                        `${opt.currency} on ${opt.chain}`}
+                        t("payouts.coinOnChain", { currency: opt.currency, chain: opt.chain })}
                     </MenuItem>
                   );
                 })}
@@ -719,7 +714,7 @@ const PayoutsPage: React.FC = () => {
         <Divider sx={{ my: 2 }} />
 
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-          Settlement wallets
+          {t("payouts.settlementWallets")}
         </Typography>
         {settlementLoading ? (
           <Skeleton height={48} />
@@ -728,8 +723,7 @@ const PayoutsPage: React.FC = () => {
             variant="body2"
             sx={{ color: theme.palette.text.secondary }}
           >
-            No stablecoin settlement wallet configured yet. Add one in Settings
-            to auto-convert payouts.
+            {t("payouts.noStablecoinWallet")}
           </Typography>
         ) : (
           <Stack divider={<Divider flexItem />} spacing={0}>
@@ -769,7 +763,7 @@ const PayoutsPage: React.FC = () => {
                           variant="caption"
                           sx={{ color: theme.palette.text.secondary }}
                         >
-                          on {o.chain}
+                          {t("payouts.onChainInline", { chain: o.chain })}
                         </Typography>
                       </Typography>
                       <Typography
@@ -786,7 +780,7 @@ const PayoutsPage: React.FC = () => {
                   {isActive && (
                     <Chip
                       size="small"
-                      label="Active"
+                      label={t("payouts.active")}
                       sx={{
                         color: SUCCESS_GREEN,
                         bgcolor: `${SUCCESS_GREEN}1A`,
@@ -827,13 +821,13 @@ const PayoutsPage: React.FC = () => {
             <Box sx={{ minWidth: 0 }}>
               <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
                 <Typography sx={{ fontWeight: 700 }}>
-                  Auto-convert protection
+                  {t("payouts.protectionTitle")}
                 </Typography>
                 {savingsAllTimeCount === 1 && (
                   <Chip
                     size="small"
                     icon={<AutoAwesomeRounded sx={{ fontSize: 14 }} />}
-                    label="First conversion!"
+                    label={t("payouts.firstConversion")}
                     data-testid="payouts-first-conversion-badge"
                     sx={{
                       height: 22,
@@ -856,16 +850,20 @@ const PayoutsPage: React.FC = () => {
                 sx={{ color: theme.palette.text.secondary }}
               >
                 {savingsAllTimeCount === 1 && savingsMonthUsd > 0
-                  ? "Your first payment was just auto-converted to a stablecoin \u2014 locked in against volatility"
+                  ? t("payouts.protectionFirstDesc")
                   : savingsMonthUsd > 0
-                    ? `Locked into stablecoins this month across ${savingsMonthCount} ${
-                        savingsMonthCount === 1 ? "payment" : "payments"
-                      } — shielded from crypto volatility`
+                    ? savingsMonthCount === 1
+                      ? t("payouts.protectionMonthOne")
+                      : t("payouts.protectionMonthMany", {
+                          count: savingsMonthCount,
+                        })
                     : savingsInProgress > 0
-                      ? `${savingsInProgress} conversion${
-                          savingsInProgress === 1 ? "" : "s"
-                        } in progress — protecting your revenue`
-                      : "Turn on auto-convert to lock incoming crypto into stablecoins"}
+                      ? savingsInProgress === 1
+                        ? t("payouts.protectionInProgressOne")
+                        : t("payouts.protectionInProgressMany", {
+                            count: savingsInProgress,
+                          })
+                      : t("payouts.protectionEmptyDesc")}
               </Typography>
             </Box>
           </Stack>
@@ -890,7 +888,7 @@ const PayoutsPage: React.FC = () => {
                 fontWeight: 600,
               }}
             >
-              This month
+              {t("payouts.thisMonth")}
             </Typography>
           </Box>
         </Stack>
@@ -907,14 +905,14 @@ const PayoutsPage: React.FC = () => {
                 variant="caption"
                 sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
               >
-                Last 6 months
+                {t("payouts.last6Months")}
               </Typography>
               <Sparkline
                 points={savingsMonthly}
                 width={168}
                 height={36}
                 color={SUCCESS_GREEN}
-                ariaLabel="Stablecoin conversions over the last 6 months"
+                ariaLabel={t("payouts.sparklineAria")}
                 data-testid="payouts-savings-sparkline"
               />
             </Stack>
@@ -950,13 +948,12 @@ const PayoutsPage: React.FC = () => {
             <MailRounded fontSize="small" />
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 700 }}>Weekly payout digest</Typography>
+            <Typography sx={{ fontWeight: 700 }}>{t("payouts.digestTitle")}</Typography>
             <Typography
               variant="body2"
               sx={{ color: theme.palette.text.secondary }}
             >
-              Get a weekly email summarising settled payouts and anything still
-              pending
+              {t("payouts.digestDesc")}
             </Typography>
           </Box>
         </Stack>
@@ -970,7 +967,7 @@ const PayoutsPage: React.FC = () => {
               data-testid="payouts-digest-preview-btn"
               sx={{ textTransform: "none", borderRadius: 2 }}
             >
-              {digestPreviewing ? "Sending\u2026" : "Send preview"}
+              {digestPreviewing ? t("payouts.sending") : t("payouts.sendPreview")}
             </Button>
           )}
           <Switch
@@ -1014,12 +1011,12 @@ const PayoutsPage: React.FC = () => {
               <AccountBalanceWalletRounded fontSize="small" />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700 }}>Payout wallets</Typography>
+              <Typography sx={{ fontWeight: 700 }}>{t("payouts.payoutWalletsTitle")}</Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
               >
-                Where your settled funds land
+                {t("payouts.payoutWalletsDesc")}
               </Typography>
             </Box>
           </Stack>
@@ -1029,7 +1026,7 @@ const PayoutsPage: React.FC = () => {
             onClick={() => router.push("/wallet")}
             sx={{ textTransform: "none" }}
           >
-            Manage
+            {t("payouts.manage")}
           </Button>
         </Box>
         <Box
@@ -1056,15 +1053,16 @@ const PayoutsPage: React.FC = () => {
               <ReceiptLongRounded fontSize="small" />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700 }}>Tax collected</Typography>
+              <Typography sx={{ fontWeight: 700 }}>{t("payouts.taxCollectedTitle")}</Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
               >
                 {loading
                   ? "\u2026"
-                  : stats?.taxCollectedFormatted || `${sym}0.00`}{" "}
-                to date
+                  : t("payouts.taxToDate", {
+                      amount: stats?.taxCollectedFormatted || `${sym}0.00`,
+                    })}
               </Typography>
             </Box>
           </Stack>
@@ -1074,7 +1072,7 @@ const PayoutsPage: React.FC = () => {
             onClick={() => router.push("/invoices")}
             sx={{ textTransform: "none" }}
           >
-            Receipts
+            {t("payouts.receipts")}
           </Button>
         </Box>
       </Box>
@@ -1102,12 +1100,12 @@ const PayoutsPage: React.FC = () => {
               <HourglassTopRounded fontSize="small" />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700 }}>Pending funds</Typography>
+              <Typography sx={{ fontWeight: 700 }}>{t("payouts.pendingFundsTitle")}</Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
               >
-                Payments awaiting on-chain confirmation
+                {t("payouts.pendingFundsDesc")}
               </Typography>
             </Box>
           </Stack>
@@ -1129,8 +1127,8 @@ const PayoutsPage: React.FC = () => {
               sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
             >
               {pendingCount === 1
-                ? "1 payment awaiting"
-                : `${pendingCount} payments awaiting`}
+                ? t("payouts.paymentAwaitingOne")
+                : t("payouts.paymentsAwaitingMany", { count: pendingCount })}
             </Typography>
           </Box>
         </Stack>
@@ -1144,12 +1142,12 @@ const PayoutsPage: React.FC = () => {
               textAlign: "center",
             }}
           >
-            No payments awaiting confirmation right now.
+            {t("payouts.pendingEmpty")}
           </Typography>
         ) : (
           <Stack divider={<Divider flexItem />} spacing={0}>
             {pendingTxns.slice(0, 6).map((tx, i) => {
-              const who = payerLabel(tx);
+              const who = payerLabel(tx, t);
               const started = relativeFromNow(tx?.createdAt || tx?.created_at);
               const left = minutesLeftToConfirm(tx?.createdAt || tx?.created_at);
               return (
@@ -1170,13 +1168,15 @@ const PayoutsPage: React.FC = () => {
                       sx={{ color: theme.palette.text.secondary }}
                     >
                       {who ? `${who} \u00b7 ` : ""}
-                      {started ? `started ${started}` : ""}
-                      {left != null ? ` \u00b7 ~${left}m left to confirm` : ""}
+                      {started ? t("payouts.startedAgo", { time: started }) : ""}
+                      {left != null
+                        ? ` \u00b7 ${t("payouts.minsLeftToConfirm", { min: left })}`
+                        : ""}
                     </Typography>
                   </Box>
                   <Chip
                     size="small"
-                    label="Confirming"
+                    label={t("payouts.confirming")}
                     sx={{
                       color: WARNING_AMBER,
                       bgcolor: `${WARNING_AMBER}1A`,
@@ -1198,7 +1198,7 @@ const PayoutsPage: React.FC = () => {
           justifyContent="space-between"
           sx={{ mb: 1.5 }}
         >
-          <Typography sx={{ fontWeight: 700 }}>Recent settlements</Typography>
+          <Typography sx={{ fontWeight: 700 }}>{t("payouts.recentSettlements")}</Typography>
           <Stack
             direction="row"
             alignItems="center"
@@ -1215,7 +1215,7 @@ const PayoutsPage: React.FC = () => {
               >
                 {RANGE_PRESETS.map((r) => (
                   <MenuItem key={r.value} value={r.value}>
-                    {r.label}
+                    {t(r.labelKey)}
                   </MenuItem>
                 ))}
               </Select>
@@ -1227,7 +1227,7 @@ const PayoutsPage: React.FC = () => {
                   type="date"
                   value={customFrom}
                   onChange={(e) => setCustomFrom(e.target.value)}
-                  label="From"
+                  label={t("payouts.from")}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
                     max: customTo || undefined,
@@ -1240,7 +1240,7 @@ const PayoutsPage: React.FC = () => {
                   type="date"
                   value={customTo}
                   onChange={(e) => setCustomTo(e.target.value)}
-                  label="To"
+                  label={t("payouts.to")}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
                     min: customFrom || undefined,
@@ -1259,7 +1259,7 @@ const PayoutsPage: React.FC = () => {
                   data-testid="payouts-export-settled-only"
                 />
               }
-              label="Settled only"
+              label={t("payouts.settledOnly")}
               sx={{
                 m: 0,
                 "& .MuiFormControlLabel-label": { fontSize: 13 },
@@ -1280,7 +1280,7 @@ const PayoutsPage: React.FC = () => {
               }
               sx={{ textTransform: "none", borderRadius: 2 }}
             >
-              {exporting ? "Exporting\u2026" : "Export CSV"}
+              {exporting ? t("payouts.exporting") : t("payouts.exportCsv")}
             </Button>
             <Button
               size="small"
@@ -1288,7 +1288,7 @@ const PayoutsPage: React.FC = () => {
               onClick={() => router.push("/transactions")}
               sx={{ textTransform: "none" }}
             >
-              View all
+              {t("payouts.viewAll")}
             </Button>
           </Stack>
         </Stack>
@@ -1307,13 +1307,13 @@ const PayoutsPage: React.FC = () => {
               textAlign: "center",
             }}
           >
-            No payments yet. Your settled payments will appear here.
+            {t("payouts.noPaymentsYet")}
           </Typography>
         ) : (
           <Stack divider={<Divider flexItem />} spacing={0}>
             {txns.slice(0, 6).map((tx, i) => {
               const meta = statusMeta(tx?.status);
-              const who = payerLabel(tx);
+              const who = payerLabel(tx, t);
               const date = formatDate(tx?.createdAt || tx?.created_at);
               return (
                 <Stack

@@ -356,5 +356,12 @@
   "heroInsightBusier": "Busier than yesterday — {{count}} more payments",
   "heroInsightQuieter": "Quieter than yesterday — {{count}} fewer payments",
   "heroInsightSteady": "Steady — same number of payments as yesterday",
-  "statusAwaiting": "Awaiting payment"
+  "statusAwaiting": "Awaiting payment",
+  "balancesPayouts": "Balances",
+  "stepHandle": "Claim your handle and open your page",
+  "stepHandleDone": "Open your storefront and share your page",
+  "claimBannerTitleCompany": "Reserve {{company}}'s handle",
+  "claimBannerSubtitle": "Grab your one-tap payment link — {{domain}}/yourname — before someone else does.",
+  "claimBannerSubtitleCompany": "Give {{company}} its own {{domain}}/handle so its public page and checkout URL go live.",
+  "claimBannerSubtitlePending": "{{domain}}/{{handle}} is reserved for you — tap Claim to lock it in."
 }

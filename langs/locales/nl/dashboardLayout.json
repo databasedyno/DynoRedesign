@@ -356,5 +356,12 @@
   "heroInsightBusier": "Drukker dan gisteren — {{count}} betalingen meer",
   "heroInsightQuieter": "Rustiger dan gisteren — {{count}} betalingen minder",
   "heroInsightSteady": "Stabiel — evenveel betalingen als gisteren",
-  "statusAwaiting": "Wacht op betaling"
+  "statusAwaiting": "Wacht op betaling",
+  "balancesPayouts": "Saldi",
+  "stepHandle": "Claim je handle en open je pagina",
+  "stepHandleDone": "Open je winkel en deel je pagina",
+  "claimBannerTitleCompany": "Reserveer de handle van {{company}}",
+  "claimBannerSubtitle": "Bemachtig je betaallink met één tik — {{domain}}/jouwnaam — voordat iemand anders dat doet.",
+  "claimBannerSubtitleCompany": "Geef {{company}} een eigen {{domain}}/handle zodat de openbare pagina en checkout-URL live gaan.",
+  "claimBannerSubtitlePending": "{{domain}}/{{handle}} is voor jou gereserveerd — tik op Claimen om het vast te leggen."
 }

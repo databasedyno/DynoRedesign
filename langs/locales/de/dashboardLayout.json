@@ -356,5 +356,12 @@
   "heroInsightBusier": "Mehr los als gestern — {{count}} Zahlungen mehr",
   "heroInsightQuieter": "Ruhiger als gestern — {{count}} Zahlungen weniger",
   "heroInsightSteady": "Stabil — genauso viele Zahlungen wie gestern",
-  "statusAwaiting": "Warten auf Zahlung"
+  "statusAwaiting": "Warten auf Zahlung",
+  "balancesPayouts": "Guthaben",
+  "stepHandle": "Sichern Sie sich Ihren Handle und öffnen Sie Ihre Seite",
+  "stepHandleDone": "Öffnen Sie Ihren Shop und teilen Sie Ihre Seite",
+  "claimBannerTitleCompany": "Sichern Sie sich den Handle von {{company}}",
+  "claimBannerSubtitle": "Sichern Sie sich Ihren Ein-Klick-Zahlungslink — {{domain}}/ihrname — bevor es jemand anderes tut.",
+  "claimBannerSubtitleCompany": "Geben Sie {{company}} einen eigenen {{domain}}/Handle, damit die öffentliche Seite und die Checkout-URL live gehen.",
+  "claimBannerSubtitlePending": "{{domain}}/{{handle}} ist für Sie reserviert — tippen Sie auf Sichern, um es festzulegen."
 }

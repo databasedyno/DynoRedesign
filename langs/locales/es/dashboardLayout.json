@@ -356,5 +356,12 @@
   "heroInsightBusier": "Más movimiento que ayer — {{count}} pagos más",
   "heroInsightQuieter": "Más tranquilo que ayer — {{count}} pagos menos",
   "heroInsightSteady": "Estable — el mismo número de pagos que ayer",
-  "statusAwaiting": "Esperando pago"
+  "statusAwaiting": "Esperando pago",
+  "balancesPayouts": "Saldos",
+  "stepHandle": "Reclama tu identificador y abre tu página",
+  "stepHandleDone": "Abre tu tienda y comparte tu página",
+  "claimBannerTitleCompany": "Reserva el identificador de {{company}}",
+  "claimBannerSubtitle": "Consigue tu enlace de pago con un toque — {{domain}}/tunombre — antes de que lo haga otra persona.",
+  "claimBannerSubtitleCompany": "Dale a {{company}} su propio {{domain}}/identificador para que su página pública y su URL de pago se activen.",
+  "claimBannerSubtitlePending": "{{domain}}/{{handle}} está reservado para ti — toca Reclamar para asegurarlo."
 }
