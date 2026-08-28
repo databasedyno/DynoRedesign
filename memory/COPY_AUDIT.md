@@ -183,6 +183,34 @@ Current stats: **0.5%** (Lowest fee / as volume grows) · **15+** (Networks) · 
 
 ---
 
+## 4A. Fees page (`/fees`) + calculator — extended audit
+_Live page renders only the `v3.*` keys in `fees.json` (verified in `pages/fees.tsx`). The old top-level keys (`heroTitle` "Instantly Forwarded", `step1` "only one blockchain network fee", `feeFreeBanner*` "far below PayPal or Stripe") are **DEAD / not rendered** — recommend deleting them so those misleading strings can never resurface._
+
+**The core problem: the page is built around "one number", which structurally hides the $1 fixed fee.**
+- **`v3.heroTitleLead` — Current:** "**One number to remember.**" (+ tail "…as you grow.")
+  → _The fee is **two** numbers (% + $1). "One number" is the wrong mental model and omits the fixed fee._ →
+  **Recommended:** "Simple pricing that shrinks as you grow." (tail keeps "…as you grow.")
+- **`v3.tiersTitle` — Current:** "Four tiers. **One number that shrinks.**"
+  → _Same "one number" framing._ → **Recommended:** "Four tiers. Your rate shrinks as you grow."
+- **Calculator (`pages/fees.tsx` L59) — Current:** `fee = volume × tier.pct / 100` — shows **only the percentage**, and the slider is labelled **"Monthly volume / 30-day volume"** (`v3.monthlyVolume`, `v3.vol30d`).
+  → _Two bugs: (1) **omits the mandatory $1 per-payment fee** entirely — understates real cost, badly for many small payments; (2) tiers by **30-day** volume, but the backend tiers by **ALL-TIME** confirmed volume (`volumeTierUtils`), so the calculator can show the wrong tier._ →
+  **Recommended:** add a line "**+ $1 per payment**" to the result and a note ("Your % tier is based on all-time settled volume"). Relabel the slider to reflect that the % preview is illustrative, or switch the basis to all-time to match the backend. → ties to **Open question O-8** (calculator basis).
+- **`v3.perPayment` / `v3.youdPay`** ("per successful payment" / "You'd pay") → the "you'd pay" figure must include the $1 component (or clearly state "% only, plus $1 per payment").
+- **`v3.headTitle` (SEO) — Current:** "Fees · Dynopay — **From 0.5% flat**, no monthly, no chargebacks."
+  → _Floor-only + "flat" (it is neither flat nor the entry rate); omits $1._ →
+  **Recommended:** "Fees · Dynopay — 1.5% + $1 per payment, as low as 0.5% at scale. No monthly. No chargebacks."
+- **`v3.calcCta` — Current:** "**Start earning — free**"
+  → _Stale CTA variant (the 2026-06 log said this was "killed" and unified — it did not stick)._ →
+  **Recommended:** unify to "Start accepting payments" (`v3.hero.primaryCta`) or "Start free".
+- **`v3.cmpInstantForward` — Current:** "**Instant** on-chain forwarding"
+  → _Speed claim; on-chain timing is network-dependent._ → **Recommended:** "Settles on-chain to your wallet as soon as it confirms".
+- **`v3.heroSubtitle` / `v3.sec1*` / comparison "others" table** → ✅ mostly honest ("you only pay when you get paid", non-custodial, no chargebacks, generic "others" — does NOT name PayPal/Stripe on the live page). Keep, minus the speed word above.
+
+**Fees-page adds one open question:**
+- **O-8 — Calculator basis:** the % calculator uses a **30-day/monthly** volume slider, but tiers are decided by **all-time** volume. Confirm which basis to present (recommend: all-time, to match the product) and confirm the $1 line should be added.
+
+---
+
 ## 5. Global fixes (apply consistently, everywhere)
 1. **One fee statement:** "**1.5% + $1 per payment, as low as 0.5% as volume grows**" (hero, how-it-works, feature cards, FAQ, learn card, SEO boilerplate, trust band). Never "from 0.5%" alone; never omit the $1.
 2. **One asset number:** "**9 blockchains · 12 coins & stablecoins**" (replace every "15+ networks/chains").
