@@ -281,7 +281,7 @@ export const sendWeeklyConversionSummaryEmail = async (
         </table>
       `)}
 
-      ${p(`<span style="font-size: 13px; color: #9ca3af;">Report period: ${periodStart} to ${periodEnd}. Auto-conversion protects your revenue from crypto price volatility by instantly converting to stablecoins.</span>`)}`;
+      ${p(`<span style="font-size: 13px; color: #9ca3af;">Report period: ${periodStart} to ${periodEnd}. Auto-conversion protects your revenue from crypto price volatility by automatically converting to stablecoins.</span>`)}`;
 
     const htmlBody = dynoPayEmailTemplate(t('merchant.weeklyConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`);
     const info = await mailTransporter({

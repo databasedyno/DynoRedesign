@@ -1325,7 +1325,7 @@ const DocumentationPage = () => {
                   Overview
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  Dynopay provides a simple API to accept cryptocurrency payments, manage customer wallets, and track transactions. Payments are instantly forwarded to your configured wallet with transparent fees. Every endpoint on this page is a <strong>merchant</strong> endpoint — authenticated with your API key.
+                  Dynopay provides a simple API to accept cryptocurrency payments, manage customer wallets, and track transactions. Payments are forwarded to your configured wallet as soon as they confirm on-chain, with transparent fees. Every endpoint on this page is a <strong>merchant</strong> endpoint — authenticated with your API key.
                 </Typography>
 
                 <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>
@@ -1372,7 +1372,7 @@ const DocumentationPage = () => {
                 <InfoBox>
                   <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Quick Integration</Typography>
                   <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
-                    Most integrations only need two API calls: <strong>Create Customer</strong> → <strong>Create Payment</strong>. The customer pays in crypto, and funds are forwarded instantly to your wallet.
+                    Most integrations only need two API calls: <strong>Create Customer</strong> → <strong>Create Payment</strong>. The customer pays in crypto, and funds forward to your wallet once the payment confirms.
                   </Typography>
                 </InfoBox>
               </Box>
@@ -1388,7 +1388,7 @@ const DocumentationPage = () => {
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}>
                   {[
                     { step: "1", title: "Get your API Key", desc: 'Go to your Dynopay dashboard → API section → "Create New Key". You\'ll receive an API key for authenticating requests.' },
-                    { step: "2", title: "Create a Payment", desc: "Use the Checkout Payment or Direct Crypto Payment endpoint with just your API key. No customer creation needed! The customer pays in crypto, funds forward instantly to your wallet." },
+                    { step: "2", title: "Create a Payment", desc: "Use the Checkout Payment or Direct Crypto Payment endpoint with just your API key. No customer creation needed. The customer pays in crypto and funds forward to your wallet once the payment confirms." },
                   ].map((s) => (
                     <StepCard key={s.step}>
                       <StepNumber>{s.step}</StepNumber>
@@ -1783,7 +1783,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                   Ready to get started?
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 3 }}>
-                  Join merchants worldwide accepting crypto with Dynopay
+                  Non-custodial, from 0.5%, no chargebacks — create your API key and take your first payment.
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
                   <HomeButton variant="primary" label="Get your API Key" navigateTo="/auth/register" />

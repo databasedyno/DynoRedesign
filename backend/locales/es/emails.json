@@ -4,7 +4,7 @@
     "greetingDefault": "Hola,",
     "regards": "Gracias,",
     "team": "El equipo de Dynopay",
-    "securedBy": "Este pago se procesó de forma segura a través de Dynopay, una pasarela de pagos en cripto de confianza.",
+    "securedBy": "Este pago se procesó de forma segura a través de Dynopay, una pasarela de pagos en cripto sin custodia.",
     "questions": "Si tienes alguna pregunta, nuestro equipo de soporte está aquí para ayudarte."
   },
   "labels": {
@@ -198,7 +198,7 @@
       "subject": "Bienvenido a Dynopay: empieza a cobrar",
       "heading": "Bienvenido a Dynopay",
       "intro1": "¡Bienvenido a Dynopay! Nos alegra tenerle con nosotros.",
-      "intro2": "Dynopay hace que aceptar pagos en cripto sea simple, seguro y rápido. Ya sea freelancer, empresario o desarrollador, le tenemos cubierto.",
+      "intro2": "Dynopay hace que aceptar pagos en cripto sea simple y seguro — los fondos se liquidan directamente en una wallet que tú controlas. Ya sea freelancer, empresario o desarrollador, le tenemos cubierto.",
       "nextTitle": "Esto es lo que puede hacer a continuación:",
       "next1": "1. Complete el perfil de su empresa",
       "next2": "2. Añada su billetera de cobro",
@@ -294,10 +294,10 @@
       "heading": "Bienvenido a Dynopay",
       "hello": "Hola,",
       "intro1": "<strong>{{companyName}}</strong> ha sido registrada en Dynopay por {{accountHolderName}}.",
-      "intro2": "Dynopay es una pasarela de pagos en cripto segura que permite a las empresas aceptar pagos en criptomonedas de forma fácil y segura.",
+      "intro2": "Dynopay es una pasarela de pagos en cripto sin custodia — las empresas aceptan pagos en criptomonedas que se liquidan directamente en una wallet que ellas controlan.",
       "meansTitle": "Qué significa esto para usted:",
       "means1": "1. Su empresa ya puede aceptar pagos en cripto",
-      "means2": "2. Transacciones rápidas y seguras",
+      "means2": "2. Los fondos se liquidan directamente en una wallet que tú controlas",
       "means3": "3. Notificaciones de pago en tiempo real",
       "outro": "Si tiene alguna pregunta sobre este registro, contacte con nuestro equipo de soporte o con {{accountHolderName}}.",
       "cta": "Más información"
@@ -578,7 +578,7 @@
     "merchantIntro": "Un cliente acaba de completar un pago a {{company}} y envió MÁS del importe adeudado.",
     "overpaidBy": "Pagado de más",
     "statusOverpaid": "Sobrepago",
-    "merchantBody": "Se te ha acreditado el importe total esperado. El excedente de {{excess}} (≈ {{excessFiat}}) se envió a DynoPay según la política de sobrepagos de tu cuenta, así que no tienes que hacer nada.",
+    "merchantBody": "Se te ha acreditado el importe total esperado. El excedente de {{excess}} (≈ {{excessFiat}}) se envió a Dynopay según la política de sobrepagos de tu cuenta, así que no tienes que hacer nada.",
     "viewTransactions": "Ver transacciones"
   },
   "payoutDigest": {
@@ -586,7 +586,7 @@
     "subjectQuiet": "Resumen semanal de pagos — una semana tranquila antes de otra nueva",
     "headingActive": "Tu resumen semanal de pagos",
     "headingQuiet": "Resumen semanal de pagos — semana tranquila",
-    "intro": "Así fueron los últimos 7 días para tu negocio en DynoPay.",
+    "intro": "Así fueron los últimos 7 días para tu negocio en Dynopay.",
     "settledThisWeek": "Liquidado esta semana",
     "platformFees": "Comisiones de la plataforma",
     "feeTierContext": "Nivel {{name}} — {{percent}}%",

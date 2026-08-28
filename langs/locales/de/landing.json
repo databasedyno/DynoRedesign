@@ -679,5 +679,46 @@
     "buyNow": "Jetzt kaufen",
     "addedToCart": "Zum Warenkorb hinzugefügt.",
     "viewCartArrow": "Warenkorb ansehen →"
+  },
+  "exitIntentEyebrow": "Moment — eine Sekunde",
+  "exitIntentBody": "Nehmen Sie den Sandbox-Key unten und rufen Sie unsere API direkt aus Ihrem Terminal auf. Keine Registrierung. Keine Karte. Echte Antwort — dasselbe JSON-Format wie in der Produktion.",
+  "exitIntentClaimCta": "0 % Plattformgebühr auf Ihre erste Zahlung sichern",
+  "exitIntentClose": "Schließen",
+  "blogReadyCtaBody": "Starten Sie in wenigen Minuten mit der einfachen API-Integration von Dynopay.",
+  "about": {
+    "metaTitle": "Über Dynopay — unsere Mission & das Unternehmen",
+    "metaDescription": "Erfahren Sie mehr über Dynopay: unsere Mission, Krypto-Zahlungen einfach zu machen, wie die Plattform funktioniert, unsere Werte und wie Sie uns erreichen.",
+    "eyebrow": "Über Dynopay",
+    "heroTitle": "Krypto-Zahlungen, einfach gemacht für jedes Unternehmen.",
+    "heroBody": "Dynopay ist ein Krypto-Zahlungsgateway für den Verkauf von Produkten, das Sammeln von Trinkgeldern und Spendenkampagnen — oder die Integration von Zahlungen per API. Unsere Mission: digitale Währungen so mühelos zu akzeptieren wie eine Kartenzahlung, während Sie die volle Kontrolle über Ihr Geld behalten.",
+    "talkToUs": "Sprechen Sie mit uns",
+    "stats": {
+      "baseFee": "Basisgebühr — keine monatlichen Kosten",
+      "chains": "Unterstützte Blockchains",
+      "nonCustodial": "Non-custodial Auszahlungen",
+      "since": "Aktiv seit"
+    },
+    "values": {
+      "nonCustodial": {
+        "title": "Non-custodial by Design",
+        "body": "Zahlungen landen direkt in Ihrer eigenen Wallet — behalten Sie die ursprüngliche Kryptowährung oder konvertieren Sie automatisch in USDT/USDC. Wir verwahren Ihre Gelder nie."
+      },
+      "pricing": {
+        "title": "Transparente Preise",
+        "body": "Eine klare Gebühr, Mengenrabatte mit Ihrem Wachstum und keine versteckten Kosten oder monatlichen Mindestbeträge. Was Sie sehen, ist was Sie zahlen."
+      },
+      "builder": {
+        "title": "Entwicklerfreundlich",
+        "body": "Eine saubere API, gehosteter Checkout, Zahlungslinks und Webhooks — damit Sie Krypto in Minuten statt Wochen akzeptieren können."
+      },
+      "global": {
+        "title": "Global von Anfang an",
+        "body": "Akzeptieren Sie Bitcoin, Ethereum und Stablecoins von Kunden weltweit — mit schnellen Auszahlungen und ohne Chargebacks."
+      }
+    },
+    "buildTitle": "Worauf wir bauen",
+    "buildBody": "Ein kleines, schnelles Team mit einem Fokus: Händler in Krypto bezahlen lassen — ohne Komplexität. Das sind die Prinzipien hinter jedem Feature, das wir ausliefern.",
+    "ctaTitle": "Möchten Sie mit uns die Zukunft des Bezahlens bauen?",
+    "ctaBody": "Wir freuen uns immer über Nachrichten von Händlern, Partnern und Menschen, die Teil des Teams werden möchten. Melden Sie sich jederzeit — wir lesen jede Nachricht."
   }
 }

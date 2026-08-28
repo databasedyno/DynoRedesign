@@ -679,5 +679,46 @@
     "buyNow": "Nu kopen",
     "addedToCart": "Toegevoegd aan winkelwagen.",
     "viewCartArrow": "Winkelwagen bekijken →"
+  },
+  "exitIntentEyebrow": "Wacht — één seconde",
+  "exitIntentBody": "Pak de sandbox-sleutel hieronder en roep onze API aan vanuit uw terminal. Geen registratie. Geen kaart. Echte respons — hetzelfde JSON-formaat als in productie.",
+  "exitIntentClaimCta": "Claim 0% platformkosten op uw eerste betaling",
+  "exitIntentClose": "Sluiten",
+  "blogReadyCtaBody": "Ga binnen enkele minuten aan de slag met de eenvoudige API-integratie van Dynopay.",
+  "about": {
+    "metaTitle": "Over Dynopay — onze missie & het bedrijf",
+    "metaDescription": "Leer Dynopay kennen: onze missie om cryptobetalingen eenvoudig te maken, hoe het platform werkt, de waarden waarop we bouwen en hoe u contact opneemt.",
+    "eyebrow": "Over Dynopay",
+    "heroTitle": "Cryptobetalingen, eenvoudig voor elk bedrijf.",
+    "heroBody": "Dynopay is een crypto-betaalgateway voor het verkopen van producten, het ontvangen van fooien en het voeren van inzamelingsacties — of het integreren van betalingen via de API. Onze missie: digitale valuta accepteren net zo moeiteloos maken als een kaartbetaling, terwijl u de volledige controle over uw geld houdt.",
+    "talkToUs": "Praat met ons",
+    "stats": {
+      "baseFee": "Basistarief — geen maandelijkse kosten",
+      "chains": "Ondersteunde blockchains",
+      "nonCustodial": "Non-custodial uitbetalingen",
+      "since": "Actief sinds"
+    },
+    "values": {
+      "nonCustodial": {
+        "title": "Non-custodial door ontwerp",
+        "body": "Betalingen komen rechtstreeks in uw eigen wallet terecht — houd de originele crypto of converteer automatisch naar USDT/USDC. Wij houden uw geld nooit vast."
+      },
+      "pricing": {
+        "title": "Transparante prijzen",
+        "body": "Eén helder tarief, volumekortingen naarmate u groeit, en geen verborgen kosten of maandelijkse minima. Wat u ziet, is wat u betaalt."
+      },
+      "builder": {
+        "title": "Gemaakt voor ontwikkelaars",
+        "body": "Een overzichtelijke API, gehoste checkout, betaallinks en webhooks — zodat u in minuten crypto accepteert, niet in weken."
+      },
+      "global": {
+        "title": "Wereldwijd als standaard",
+        "body": "Accepteer Bitcoin, Ethereum en stablecoins van klanten overal ter wereld, met snelle uitbetalingen en zonder chargebacks."
+      }
+    },
+    "buildTitle": "Waarop we bouwen",
+    "buildBody": "Een klein, snel team met één focus: handelaren in crypto laten betalen zonder de complexiteit. Dit zijn de principes achter elke functie die we uitbrengen.",
+    "ctaTitle": "Wilt u samen met ons de toekomst van betalingen bouwen?",
+    "ctaBody": "We horen altijd graag van handelaren, partners en mensen die het team willen versterken. Neem gerust contact op — we lezen elk bericht."
   }
 }

@@ -4,7 +4,7 @@
     "greetingDefault": "Olá,",
     "regards": "Obrigado,",
     "team": "A equipa Dynopay",
-    "securedBy": "Este pagamento foi processado de forma segura através da Dynopay, um gateway de pagamentos em cripto de confiança.",
+    "securedBy": "Este pagamento foi processado de forma segura através da Dynopay, um gateway de pagamentos em cripto sem custódia.",
     "questions": "Se tiver alguma dúvida, a nossa equipa de apoio está aqui para ajudar."
   },
   "labels": {
@@ -198,7 +198,7 @@
       "subject": "Bem-vindo à Dynopay - vamos começar a receber",
       "heading": "Bem-vindo à Dynopay",
       "intro1": "Bem-vindo à Dynopay! Estamos felizes por tê-lo connosco.",
-      "intro2": "A Dynopay torna a aceitação de pagamentos em cripto simples, segura e rápida. Seja freelancer, empresário ou programador, temos tudo o que precisa.",
+      "intro2": "A Dynopay torna a aceitação de pagamentos em cripto simples e segura — os fundos são liquidados direto em uma carteira que você controla. Seja freelancer, empresário ou programador, temos tudo o que precisa.",
       "nextTitle": "Veja o que pode fazer a seguir:",
       "next1": "1. Complete o perfil da sua empresa",
       "next2": "2. Adicione a sua carteira de pagamento",
@@ -294,10 +294,10 @@
       "heading": "Bem-vindo à Dynopay",
       "hello": "Olá,",
       "intro1": "<strong>{{companyName}}</strong> foi registada na Dynopay por {{accountHolderName}}.",
-      "intro2": "A Dynopay é um gateway de pagamentos em cripto seguro que permite às empresas aceitar pagamentos em criptomoedas de forma fácil e segura.",
+      "intro2": "A Dynopay é um gateway de pagamentos em cripto sem custódia — as empresas aceitam pagamentos em criptomoedas liquidados direto em uma carteira que elas controlam.",
       "meansTitle": "O que isto significa para si:",
       "means1": "1. A sua empresa pode agora aceitar pagamentos em cripto",
-      "means2": "2. Transações rápidas e seguras",
+      "means2": "2. Os fundos são liquidados direto em uma carteira que você controla",
       "means3": "3. Notificações de pagamento em tempo real",
       "outro": "Se tiver alguma dúvida sobre este registo, contacte a nossa equipa de suporte ou fale com {{accountHolderName}}.",
       "cta": "Saber mais"
@@ -578,7 +578,7 @@
     "merchantIntro": "Um cliente acabou de concluir um pagamento para {{company}} e enviou MAIS do que o valor devido.",
     "overpaidBy": "Valor pago a mais",
     "statusOverpaid": "Pago a mais",
-    "merchantBody": "O valor total esperado foi creditado para você. O excedente de {{excess}} (≈ {{excessFiat}}) foi encaminhado para a DynoPay conforme a política de pagamento a mais da sua conta, portanto não há nada que você precise fazer.",
+    "merchantBody": "O valor total esperado foi creditado para você. O excedente de {{excess}} (≈ {{excessFiat}}) foi encaminhado para a Dynopay conforme a política de pagamento a mais da sua conta, portanto não há nada que você precise fazer.",
     "viewTransactions": "Ver transações"
   },
   "payoutDigest": {
@@ -586,7 +586,7 @@
     "subjectQuiet": "Resumo semanal de repasses — uma semana tranquila antes de uma nova",
     "headingActive": "Seu resumo semanal de repasses",
     "headingQuiet": "Resumo semanal de repasses — semana tranquila",
-    "intro": "Veja como foram os últimos 7 dias para o seu negócio na DynoPay.",
+    "intro": "Veja como foram os últimos 7 dias para o seu negócio na Dynopay.",
     "settledThisWeek": "Liquidado nesta semana",
     "platformFees": "Taxas da plataforma",
     "feeTierContext": "Nível {{name}} — {{percent}}%",

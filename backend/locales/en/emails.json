@@ -4,7 +4,7 @@
     "greetingDefault": "Hey there,",
     "regards": "Thanks,",
     "team": "The Dynopay Team",
-    "securedBy": "This payment was processed securely through Dynopay, a trusted crypto payment gateway.",
+    "securedBy": "This payment was processed securely through Dynopay, a non-custodial crypto payment gateway.",
     "questions": "If you have any questions, our support team is here to help."
   },
   "labels": {
@@ -50,7 +50,7 @@
     "outro": "We'll notify you once the payment is fully confirmed and credited to your wallet. You can track the transaction status in your Dynopay dashboard."
   },
   "paymentConfirming": {
-    "subject": "Payment Confirming ({{current}}/{{required}}) - Dynopay",
+    "subject": "Payment confirming ({{current}}/{{required}}) - Dynopay",
     "heading": "Payment Confirming",
     "intro": "Good news! Your payment for <strong>{{companyName}}</strong> is being confirmed.",
     "confirmationsOf": "{{current}} of {{required}}",
@@ -73,8 +73,8 @@
     "graceNote": "If the remaining amount is received within {{minutes}} minutes, the full payment will be processed. If the grace period expires, the partial amount will be processed with adjusted fees."
   },
   "paymentPartialExpired": {
-    "subjectCompleted": "Partial Payment Processed - Dynopay",
-    "subjectExpired": "Partial Payment Expired - Dynopay",
+    "subjectCompleted": "Partial payment processed - Dynopay",
+    "subjectExpired": "Partial payment expired - Dynopay",
     "headingCompleted": "Partial Payment Processed",
     "headingExpired": "Payment Grace Period Expired",
     "introCompleted": "The partial payment for your company <strong>{{companyName}}</strong> has been processed.",
@@ -103,7 +103,7 @@
     "cta": "View Transaction"
   },
   "customerPaymentConfirmation": {
-    "subject": "Payment Successful - Receipt from {{companyName}}",
+    "subject": "Payment successful - Receipt from {{companyName}}",
     "heading": "Payment Successful",
     "intro": "Your payment to <strong>{{companyName}}</strong> has been successfully processed.",
     "pdfAttached": "<strong>PDF Receipt Attached</strong> - A detailed receipt is attached to this email for your records.",
@@ -198,7 +198,7 @@
       "subject": "Welcome to Dynopay - Let's get you paid",
       "heading": "Welcome to Dynopay",
       "intro1": "Welcome to Dynopay! We're excited to have you on board.",
-      "intro2": "Dynopay makes accepting crypto payments simple, secure, and fast. Whether you're a freelancer, business owner, or developer, we've got you covered.",
+      "intro2": "Dynopay makes accepting crypto payments simple and secure — funds settle straight to a wallet you control. Whether you're a freelancer, business owner, or developer, we've got you covered.",
       "nextTitle": "Here's what you can do next:",
       "next1": "1. Complete your company profile",
       "next2": "2. Add your payout wallet",
@@ -232,12 +232,12 @@
       "cta": "View Account Settings"
     },
     "profileUpdated": {
-      "subject": "Account Profile Updated",
+      "subject": "Account profile updated",
       "heading": "Profile Updated",
       "intro": "Your account profile has been updated successfully.",
       "securityNotice": "<strong>Security Notice:</strong> If you didn't make these changes, please reset your password immediately and contact our support team.",
       "cta": "View Profile",
-      "emailChangedSubject": "Your Dynopay Email Address Has Been Changed",
+      "emailChangedSubject": "Your Dynopay email address has been changed",
       "emailChangedHeading": "Email Address Changed",
       "emailChangedIntro": "Your account email has been changed from <strong>{{oldEmail}}</strong> to <strong>{{email}}</strong>.",
       "emailChangedImportantTitle": "Important",
@@ -294,10 +294,10 @@
       "heading": "Welcome to Dynopay",
       "hello": "Hello,",
       "intro1": "<strong>{{companyName}}</strong> has been registered on Dynopay by {{accountHolderName}}.",
-      "intro2": "Dynopay is a secure crypto payment gateway that enables businesses to accept cryptocurrency payments easily and safely.",
+      "intro2": "Dynopay is a non-custodial crypto payment gateway — businesses accept cryptocurrency payments that settle straight to a wallet they control.",
       "meansTitle": "What this means for you:",
       "means1": "1. Your company can now accept crypto payments",
-      "means2": "2. Fast and secure transactions",
+      "means2": "2. Funds settle straight to a wallet you control",
       "means3": "3. Real-time payment notifications",
       "outro": "If you have any questions about this registration, please contact our support team or reach out to {{accountHolderName}}.",
       "cta": "Learn More"
@@ -565,7 +565,7 @@
     "contact": "Questions? Reply to this email and the organizer of {{campaignName}} will get back to you."
   },
   "walletOtp": {
-    "subject": "OTP for Wallet Address Validation",
+    "subject": "Confirm your wallet address",
     "heading": "Wallet Verification Code",
     "intro": "You are validating a new wallet address for {{currency}}.",
     "walletAddress": "Wallet Address",
@@ -578,7 +578,7 @@
     "merchantIntro": "A customer just completed a payment to {{company}} and sent MORE than the amount due.",
     "overpaidBy": "Overpaid by",
     "statusOverpaid": "Overpaid",
-    "merchantBody": "You've been credited your full expected amount. The extra {{excess}} (≈ {{excessFiat}}) was routed to DynoPay per your account's overpayment policy, so there's nothing you need to do.",
+    "merchantBody": "You've been credited your full expected amount. The extra {{excess}} (≈ {{excessFiat}}) was routed to Dynopay per your account's overpayment policy, so there's nothing you need to do.",
     "viewTransactions": "View transactions"
   },
   "payoutDigest": {
@@ -586,7 +586,7 @@
     "subjectQuiet": "Weekly payout digest — quiet week ahead of a new one",
     "headingActive": "Your weekly payout digest",
     "headingQuiet": "Weekly payout digest — quiet week",
-    "intro": "Here's how the last 7 days looked for your business on DynoPay.",
+    "intro": "Here's how the last 7 days looked for your business on Dynopay.",
     "settledThisWeek": "Settled this week",
     "platformFees": "Platform fees",
     "feeTierContext": "{{name}} tier — {{percent}}%",

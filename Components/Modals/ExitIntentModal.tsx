@@ -115,7 +115,7 @@ const ExitIntentModal: React.FC = () => {
           }}
         />
         <IconButton
-          aria-label="Close"
+          aria-label={t('exitIntentClose')}
           onClick={() => setOpen(false)}
           sx={{
             position: 'absolute',
@@ -138,7 +138,7 @@ const ExitIntentModal: React.FC = () => {
               mb: 1,
             }}
           >
-            Wait — one second
+            {t('exitIntentEyebrow')}
           </Typography>
           <Typography
             id="exit-intent-title"
@@ -163,8 +163,7 @@ const ExitIntentModal: React.FC = () => {
               lineHeight: 1.5,
             }}
           >
-            Grab the sandbox key below and hit our API from your terminal. No
-            signup. No card. Real response — same JSON shape as production.
+            {t('exitIntentBody')}
           </Typography>
 
           <Box
@@ -204,7 +203,7 @@ const ExitIntentModal: React.FC = () => {
                 color: brandFg(isDark),
               }}
             >
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? t('v3.tryit.copiedBtn') : t('v3.tryit.copyBtn')}
             </Button>
           </Box>
 
@@ -229,7 +228,7 @@ const ExitIntentModal: React.FC = () => {
                 },
               }}
             >
-              Claim 0% platform fee on your first payment
+              {t('exitIntentClaimCta')}
             </Button>
             <Button
               variant="outlined"

@@ -253,7 +253,7 @@ export const sendRefereeCodeReminderEmail = async (
 <ul style="margin: 0; padding-left: 20px; color: #4a4a4a;">
   <li>Accept crypto payments from customers worldwide</li>
   <li>Support for Bitcoin, Ethereum, USDT, and more</li>
-  <li>Instant notifications and easy dashboard</li>
+  <li>Notifications the moment a payment confirms, and a clean dashboard</li>
   <li>Lower fees than traditional payment processors</li>
 </ul>
 
@@ -321,7 +321,7 @@ export const sendRefereeInviteEmail = async (
 <ul style="margin: 0; padding-left: 20px; color: #4a4a4a;">
   <li>Accept Bitcoin, Ethereum, USDT, USDC and 15+ more coins</li>
   <li>Non-custodial — funds settle straight to a wallet you control</li>
-  <li>Instant notifications and a clean dashboard</li>
+  <li>Notifications the moment a payment confirms, and a clean dashboard</li>
   <li>Lower fees than traditional payment processors</li>
 </ul>
 

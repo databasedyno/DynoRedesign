@@ -4,7 +4,7 @@
     "greetingDefault": "Bonjour,",
     "regards": "Merci,",
     "team": "L'équipe Dynopay",
-    "securedBy": "Ce paiement a été traité en toute sécurité via Dynopay, une passerelle de paiement crypto de confiance.",
+    "securedBy": "Ce paiement a été traité en toute sécurité via Dynopay, une passerelle de paiement crypto non-custodial.",
     "questions": "Si vous avez des questions, notre équipe d'assistance est là pour vous aider."
   },
   "labels": {
@@ -198,7 +198,7 @@
       "subject": "Bienvenue chez Dynopay - commençons à encaisser",
       "heading": "Bienvenue chez Dynopay",
       "intro1": "Bienvenue chez Dynopay ! Nous sommes ravis de vous compter parmi nous.",
-      "intro2": "Dynopay rend l'acceptation des paiements en crypto simple, sécurisée et rapide. Que vous soyez freelance, chef d'entreprise ou développeur, nous avons ce qu'il vous faut.",
+      "intro2": "Dynopay rend l'acceptation des paiements en crypto simple et sécurisée — les fonds arrivent directement dans un wallet que vous contrôlez. Que vous soyez freelance, chef d'entreprise ou développeur, nous avons ce qu'il vous faut.",
       "nextTitle": "Voici ce que vous pouvez faire ensuite :",
       "next1": "1. Complétez le profil de votre entreprise",
       "next2": "2. Ajoutez votre portefeuille de paiement",
@@ -294,10 +294,10 @@
       "heading": "Bienvenue chez Dynopay",
       "hello": "Bonjour,",
       "intro1": "<strong>{{companyName}}</strong> a été enregistrée sur Dynopay par {{accountHolderName}}.",
-      "intro2": "Dynopay est une passerelle de paiement en crypto sécurisée qui permet aux entreprises d'accepter facilement et en toute sécurité les paiements en cryptomonnaies.",
+      "intro2": "Dynopay est une passerelle de paiement crypto non-custodial — les entreprises acceptent des paiements en cryptomonnaies qui arrivent directement dans un wallet qu'elles contrôlent.",
       "meansTitle": "Ce que cela signifie pour vous :",
       "means1": "1. Votre entreprise peut désormais accepter les paiements en crypto",
-      "means2": "2. Des transactions rapides et sécurisées",
+      "means2": "2. Les fonds arrivent directement dans un wallet que vous contrôlez",
       "means3": "3. Des notifications de paiement en temps réel",
       "outro": "Si vous avez des questions concernant cet enregistrement, contactez notre équipe d'assistance ou {{accountHolderName}}.",
       "cta": "En savoir plus"
@@ -578,7 +578,7 @@
     "merchantIntro": "Un client vient d'effectuer un paiement à {{company}} et a envoyé PLUS que le montant dû.",
     "overpaidBy": "Payé en trop",
     "statusOverpaid": "Trop-perçu",
-    "merchantBody": "Le montant total attendu vous a été crédité. Le surplus de {{excess}} (≈ {{excessFiat}}) a été transféré à DynoPay conformément à la politique de trop-perçu de votre compte ; vous n'avez donc rien à faire.",
+    "merchantBody": "Le montant total attendu vous a été crédité. Le surplus de {{excess}} (≈ {{excessFiat}}) a été transféré à Dynopay conformément à la politique de trop-perçu de votre compte ; vous n'avez donc rien à faire.",
     "viewTransactions": "Voir les transactions"
   },
   "payoutDigest": {
@@ -586,7 +586,7 @@
     "subjectQuiet": "Récapitulatif hebdomadaire des versements — une semaine calme avant une nouvelle",
     "headingActive": "Votre récapitulatif hebdomadaire des versements",
     "headingQuiet": "Récapitulatif hebdomadaire des versements — semaine calme",
-    "intro": "Voici à quoi ont ressemblé les 7 derniers jours pour votre activité sur DynoPay.",
+    "intro": "Voici à quoi ont ressemblé les 7 derniers jours pour votre activité sur Dynopay.",
     "settledThisWeek": "Réglé cette semaine",
     "platformFees": "Frais de la plateforme",
     "feeTierContext": "Palier {{name}} — {{percent}} %",

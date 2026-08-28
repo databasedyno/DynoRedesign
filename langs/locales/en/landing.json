@@ -679,5 +679,46 @@
     "buyNow": "Buy now",
     "addedToCart": "Added to cart.",
     "viewCartArrow": "View cart →"
+  },
+  "exitIntentEyebrow": "Wait — one second",
+  "exitIntentBody": "Grab the sandbox key below and hit our API from your terminal. No signup. No card. Real response — same JSON shape as production.",
+  "exitIntentClaimCta": "Claim 0% platform fee on your first payment",
+  "exitIntentClose": "Close",
+  "blogReadyCtaBody": "Get started in minutes with Dynopay's simple API integration.",
+  "about": {
+    "metaTitle": "About Dynopay — our mission & company",
+    "metaDescription": "Learn about Dynopay: our mission to make crypto payments simple, how the platform works, the values we build on, and how to get in touch.",
+    "eyebrow": "About Dynopay",
+    "heroTitle": "Crypto payments, made simple for every business.",
+    "heroBody": "Dynopay is a crypto payment gateway for selling products, collecting tips and running fundraising campaigns — or integrating payments via API. Our mission is to make accepting digital currency as effortless as a card payment, while you stay fully in control of your money.",
+    "talkToUs": "Talk to us",
+    "stats": {
+      "baseFee": "Base fee — no monthly cost",
+      "chains": "Blockchains supported",
+      "nonCustodial": "Non-custodial payouts",
+      "since": "Building since"
+    },
+    "values": {
+      "nonCustodial": {
+        "title": "Non-custodial by design",
+        "body": "Payments settle straight to your own wallet — keep the original crypto or auto-convert to USDT/USDC. We never hold your funds."
+      },
+      "pricing": {
+        "title": "Transparent pricing",
+        "body": "One clear fee, volume discounts as you grow, and no hidden charges or monthly minimums. What you see is what you pay."
+      },
+      "builder": {
+        "title": "Builder-friendly",
+        "body": "A clean API, hosted checkout, payment links and webhooks — so you can start accepting crypto in minutes, not weeks."
+      },
+      "global": {
+        "title": "Global by default",
+        "body": "Accept Bitcoin, Ethereum and stablecoins from customers anywhere, with fast payouts and no chargebacks."
+      }
+    },
+    "buildTitle": "What we build on",
+    "buildBody": "A small, fast-moving team focused on one thing: getting merchants paid in crypto without the complexity. These are the principles behind every feature we ship.",
+    "ctaTitle": "Want to build the future of payments with us?",
+    "ctaBody": "We're always happy to hear from merchants, partners and people who want to join the team. Reach out any time — we read every message."
   }
 }

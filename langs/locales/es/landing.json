@@ -679,5 +679,46 @@
     "buyNow": "Comprar ahora",
     "addedToCart": "Añadido al carrito.",
     "viewCartArrow": "Ver carrito →"
+  },
+  "exitIntentEyebrow": "Espera — un segundo",
+  "exitIntentBody": "Copia la clave sandbox de abajo y llama a nuestra API desde tu terminal. Sin registro. Sin tarjeta. Respuesta real — el mismo formato JSON que en producción.",
+  "exitIntentClaimCta": "Consigue 0% de comisión de plataforma en tu primer pago",
+  "exitIntentClose": "Cerrar",
+  "blogReadyCtaBody": "Empieza en minutos con la sencilla integración de la API de Dynopay.",
+  "about": {
+    "metaTitle": "Sobre Dynopay — nuestra misión y empresa",
+    "metaDescription": "Conoce Dynopay: nuestra misión de simplificar los pagos en cripto, cómo funciona la plataforma, los valores sobre los que construimos y cómo contactarnos.",
+    "eyebrow": "Sobre Dynopay",
+    "heroTitle": "Pagos en cripto, simples para cualquier negocio.",
+    "heroBody": "Dynopay es una pasarela de pagos cripto para vender productos, recibir propinas y lanzar campañas de recaudación — o integrar pagos vía API. Nuestra misión es que aceptar moneda digital sea tan fácil como un pago con tarjeta, mientras mantienes el control total de tu dinero.",
+    "talkToUs": "Habla con nosotros",
+    "stats": {
+      "baseFee": "Comisión base — sin coste mensual",
+      "chains": "Blockchains compatibles",
+      "nonCustodial": "Pagos sin custodia",
+      "since": "Construyendo desde"
+    },
+    "values": {
+      "nonCustodial": {
+        "title": "Sin custodia por diseño",
+        "body": "Los pagos se liquidan directamente en tu propia wallet — conserva la cripto original o conviértela automáticamente a USDT/USDC. Nunca retenemos tus fondos."
+      },
+      "pricing": {
+        "title": "Precios transparentes",
+        "body": "Una comisión clara, descuentos por volumen a medida que creces y sin cargos ocultos ni mínimos mensuales. Lo que ves es lo que pagas."
+      },
+      "builder": {
+        "title": "Hecho para desarrolladores",
+        "body": "Una API limpia, checkout alojado, enlaces de pago y webhooks — para que empieces a aceptar cripto en minutos, no en semanas."
+      },
+      "global": {
+        "title": "Global por defecto",
+        "body": "Acepta Bitcoin, Ethereum y stablecoins de clientes en cualquier lugar, con pagos rápidos y sin contracargos."
+      }
+    },
+    "buildTitle": "Sobre qué construimos",
+    "buildBody": "Un equipo pequeño y ágil centrado en una sola cosa: que los comercios cobren en cripto sin complicaciones. Estos son los principios detrás de cada función que lanzamos.",
+    "ctaTitle": "¿Quieres construir el futuro de los pagos con nosotros?",
+    "ctaBody": "Siempre nos alegra saber de comercios, socios y personas que quieren unirse al equipo. Escríbenos cuando quieras — leemos todos los mensajes."
   }
 }

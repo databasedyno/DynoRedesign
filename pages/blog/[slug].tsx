@@ -589,7 +589,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               mb: 3,
             }}
           >
-            Get started in minutes with Dynopay&apos;s simple API integration.
+            {t('blogReadyCtaBody')}
           </Typography>
           <Box
             component="a"
@@ -612,7 +612,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               },
             }}
           >
-            Start Accepting Crypto &rarr;
+            {t('v3.hero.primaryCta')} &rarr;
           </Box>
         </Box>
       </Box>

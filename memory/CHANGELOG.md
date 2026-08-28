@@ -1,3 +1,33 @@
+# SESSION 2026-08-28 (pod 6fe4ee0c) — COPY_AUDIT Phase 2 (i18n migration + docs + email voice pass)
+- Pod re-setup from fresh cred paste (no vault pass): /app/.env + /app/backend/.env rebuilt by hand,
+  SAFE MODE enforced (bg jobs OFF, email OFF, redis /1, Binance proxy blanked, fresh NEXTAUTH_SECRET);
+  `pod-bootstrap.sh` → POD READY 28s; login + tickers verified. memory/COPY_AUDIT.md restored from git
+  (9b7d41b94 — it was missing from the working tree).
+- Phase 2 scope approved by user ("2a" = all three ready items; testimonials still blocked on real quotes):
+  A) i18n migration: pages/about.tsx (full page incl. Head meta), ExitIntentModal, blog CTA body →
+     +27 keys × 6 locales in langs/locales/*/landing.json (`scripts/i18n_add_phase2_copy.py`,
+     check-i18n.mjs green). CTA unification: about bottom CTA "Create your free account" and blog
+     "Start Accepting Crypto" → v3.hero.primaryCta ("Start accepting payments"); modal Copy/Copied
+     reuses v3.tryit keys. Verified in-browser EN + DE.
+  B) documentation.tsx dev-tone pass (4 fixes): "instantly forwarded"/"forwarded instantly"/"!"
+     → confirmation-based wording; bottom CTA "Join merchants worldwide…" → factual proof line
+     "Non-custodial, from 0.5%, no chargebacks…". X-DynoPay-* headers + API response samples untouched.
+  C) Email voice pass (`backend/scripts/email_voice_pass_phase2.py`): 43 strings across
+     backend/locales/*/emails.json — last 2 "DynoPay" casing bugs fixed (overpayment.merchantBody,
+     payoutDigest.intro); puffery/speed claims rewritten in all 6 locales (securedBy "trusted"→
+     non-custodial, welcome.intro2 dropped "fast", companyContactWelcome intro2/means2 → wallet-control
+     facts); 7 EN subjects → sentence case (walletOtp now "Confirm your wallet address").
+     Plus conversionEmails.ts "instantly"→"automatically" converting; linkCampaignEmails.ts ×2
+     "Instant notifications" → "Notifications the moment a payment confirms".
+- deep_testing_backend_v2: ALL 5 TESTS PASSED read-only (health/SAFE MODE, locale JSON integrity,
+  .ts template strings, login regression, tickers). User declined automated frontend sweep
+  (main-agent screenshots verified /about EN+DE, blog CTA, documentation).
+- Phase 3 candidates logged in COPY_AUDIT.md (testimonials still blocked; email i18n gaps in
+  accountEmails.ts fee-tier strings + linkCampaign "Why Dynopay?" lists; blog index Head;
+  non-EN subject sweep; pre-existing de/es/fr/nl/pt gap: merchant.locked.suspendedLine EN-only).
+
+
+
 # SESSION 2026-06 — Fix Save-to-GitHub blocker (R2 file-size budget)
 - Root cause: the NEW backend file `backend/controller/customerDirectoryController.ts` was 583 lines,
   exceeding the 500-line budget for new files enforced by the husky `pre-commit` hook

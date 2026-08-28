@@ -11,33 +11,17 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { brandFg, BRAND_ACCENT } from "@/constants/theme";
 
 const STATS = [
-  { value: "1.5%", label: "Base fee — no monthly cost" },
-  { value: "15+", label: "Blockchains supported" },
-  { value: "100%", label: "Non-custodial payouts" },
-  { value: "2024", label: "Building since" },
+  { value: "1.5%", labelKey: "about.stats.baseFee" },
+  { value: "15+", labelKey: "about.stats.chains" },
+  { value: "100%", labelKey: "about.stats.nonCustodial" },
+  { value: "2024", labelKey: "about.stats.since" },
 ];
 
 const VALUES = [
-  {
-    Icon: LockRoundedIcon,
-    title: "Non-custodial by design",
-    body: "Payments settle straight to your own wallet — keep the original crypto or auto-convert to USDT/USDC. We never hold your funds.",
-  },
-  {
-    Icon: ReceiptLongRoundedIcon,
-    title: "Transparent pricing",
-    body: "One clear fee, volume discounts as you grow, and no hidden charges or monthly minimums. What you see is what you pay.",
-  },
-  {
-    Icon: BoltRoundedIcon,
-    title: "Builder-friendly",
-    body: "A clean API, hosted checkout, payment links and webhooks — so you can start accepting crypto in minutes, not weeks.",
-  },
-  {
-    Icon: PublicRoundedIcon,
-    title: "Global by default",
-    body: "Accept Bitcoin, Ethereum and stablecoins from customers anywhere, with fast payouts and no chargebacks.",
-  },
+  { Icon: LockRoundedIcon, key: "nonCustodial" },
+  { Icon: ReceiptLongRoundedIcon, key: "pricing" },
+  { Icon: BoltRoundedIcon, key: "builder" },
+  { Icon: PublicRoundedIcon, key: "global" },
 ];
 
 const AboutPage: React.FC = () => {
@@ -50,11 +34,8 @@ const AboutPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>About Dynopay — our mission & company</title>
-        <meta
-          name="description"
-          content="Learn about Dynopay: our mission to make crypto payments simple, how the platform works, the values we build on, and how to get in touch."
-        />
+        <title>{t("about.metaTitle")}</title>
+        <meta name="description" content={t("about.metaDescription")} />
       </Head>
 
       <Box component="main" sx={{ bgcolor: "background.default", color: "text.primary" }}>
@@ -70,7 +51,7 @@ const AboutPage: React.FC = () => {
                 textTransform: "uppercase",
               }}
             >
-              About Dynopay
+              {t("about.eyebrow")}
             </Typography>
             <Typography
               component="h1"
@@ -81,12 +62,10 @@ const AboutPage: React.FC = () => {
                 letterSpacing: "-0.02em",
               }}
             >
-              Crypto payments, made simple for every business.
+              {t("about.heroTitle")}
             </Typography>
             <Typography sx={{ color: "text.secondary", fontSize: { xs: 16, md: 19 }, lineHeight: 1.6 }}>
-              Dynopay is a crypto payment gateway for selling products, collecting tips and running
-              fundraising campaigns — or integrating payments via API. Our mission is to make accepting
-              digital currency as effortless as a card payment, while you stay fully in control of your money.
+              {t("about.heroBody")}
             </Typography>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ pt: 1 }}>
               <Button
@@ -105,7 +84,7 @@ const AboutPage: React.FC = () => {
                   "&:hover": { bgcolor: "#4338CA" },
                 }}
               >
-                Start free
+                {t("startFree")}
               </Button>
               <Button
                 data-testid="about-contact-btn"
@@ -123,7 +102,7 @@ const AboutPage: React.FC = () => {
                   "&:hover": { borderColor: accent, bgcolor: isDark ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)" },
                 }}
               >
-                Talk to us
+                {t("about.talkToUs")}
               </Button>
             </Stack>
           </Stack>
@@ -140,11 +119,11 @@ const AboutPage: React.FC = () => {
               }}
             >
               {STATS.map((s) => (
-                <Box key={s.label} sx={{ textAlign: { xs: "left", md: "center" } }}>
+                <Box key={s.labelKey} sx={{ textAlign: { xs: "left", md: "center" } }}>
                   <Typography sx={{ fontWeight: 800, fontSize: { xs: 28, md: 34 }, color: accent, lineHeight: 1 }}>
                     {s.value}
                   </Typography>
-                  <Typography sx={{ color: "text.secondary", fontSize: 14, mt: 0.75 }}>{s.label}</Typography>
+                  <Typography sx={{ color: "text.secondary", fontSize: 14, mt: 0.75 }}>{t(s.labelKey)}</Typography>
                 </Box>
               ))}
             </Box>
@@ -155,11 +134,10 @@ const AboutPage: React.FC = () => {
         <Container maxWidth="lg" sx={{ py: { xs: 7, md: 10 } }}>
           <Stack spacing={1.5} sx={{ mb: { xs: 4, md: 6 }, maxWidth: 680 }}>
             <Typography component="h2" sx={{ fontWeight: 800, fontSize: { xs: 26, md: 34 }, letterSpacing: "-0.01em" }}>
-              What we build on
+              {t("about.buildTitle")}
             </Typography>
             <Typography sx={{ color: "text.secondary", fontSize: { xs: 15, md: 17 }, lineHeight: 1.6 }}>
-              A small, fast-moving team focused on one thing: getting merchants paid in crypto without the
-              complexity. These are the principles behind every feature we ship.
+              {t("about.buildBody")}
             </Typography>
           </Stack>
 
@@ -170,9 +148,9 @@ const AboutPage: React.FC = () => {
               gap: { xs: 2, md: 3 },
             }}
           >
-            {VALUES.map(({ Icon, title, body }) => (
+            {VALUES.map(({ Icon, key }) => (
               <Box
-                key={title}
+                key={key}
                 sx={{
                   p: { xs: 2.5, md: 3 },
                   borderRadius: 3,
@@ -197,8 +175,8 @@ const AboutPage: React.FC = () => {
                 >
                   <Icon fontSize="small" />
                 </Box>
-                <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.75 }}>{title}</Typography>
-                <Typography sx={{ color: "text.secondary", fontSize: 15, lineHeight: 1.6 }}>{body}</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.75 }}>{t(`about.values.${key}.title`)}</Typography>
+                <Typography sx={{ color: "text.secondary", fontSize: 15, lineHeight: 1.6 }}>{t(`about.values.${key}.body`)}</Typography>
               </Box>
             ))}
           </Box>
@@ -219,11 +197,10 @@ const AboutPage: React.FC = () => {
             }}
           >
             <Typography component="h2" sx={{ fontWeight: 800, fontSize: { xs: 24, md: 32 }, mb: 1.25 }}>
-              Want to build the future of payments with us?
+              {t("about.ctaTitle")}
             </Typography>
             <Typography sx={{ color: "text.secondary", fontSize: { xs: 15, md: 17 }, mb: 3, maxWidth: 560, mx: "auto" }}>
-              We&apos;re always happy to hear from merchants, partners and people who want to join the team.
-              Reach out any time — we read every message.
+              {t("about.ctaBody")}
             </Typography>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} justifyContent="center">
               <Button
@@ -241,7 +218,7 @@ const AboutPage: React.FC = () => {
                   "&:hover": { bgcolor: "#4338CA" },
                 }}
               >
-                Create your free account
+                {t("v3.hero.primaryCta")}
               </Button>
               <Button
                 data-testid="about-cta-email"

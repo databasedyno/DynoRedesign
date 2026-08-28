@@ -4,7 +4,7 @@
     "greetingDefault": "Hallo,",
     "regards": "Bedankt,",
     "team": "Het Dynopay-team",
-    "securedBy": "Deze betaling is veilig verwerkt via Dynopay, een vertrouwde crypto-betaalgateway.",
+    "securedBy": "Deze betaling is veilig verwerkt via Dynopay, een non-custodial crypto-betaalgateway.",
     "questions": "Als u vragen heeft, staat ons supportteam voor u klaar."
   },
   "labels": {
@@ -198,7 +198,7 @@
       "subject": "Welkom bij Dynopay - laten we u laten betalen",
       "heading": "Welkom bij Dynopay",
       "intro1": "Welkom bij Dynopay! We zijn blij dat u erbij bent.",
-      "intro2": "Dynopay maakt het accepteren van cryptobetalingen eenvoudig, veilig en snel. Of u nu freelancer, ondernemer of ontwikkelaar bent, wij hebben alles voor u.",
+      "intro2": "Dynopay maakt het accepteren van cryptobetalingen eenvoudig en veilig — tegoeden komen rechtstreeks terecht in een wallet die u beheert. Of u nu freelancer, ondernemer of ontwikkelaar bent, wij hebben alles voor u.",
       "nextTitle": "Dit kunt u nu doen:",
       "next1": "1. Vul uw bedrijfsprofiel in",
       "next2": "2. Voeg uw uitbetalingswallet toe",
@@ -294,10 +294,10 @@
       "heading": "Welkom bij Dynopay",
       "hello": "Hallo,",
       "intro1": "<strong>{{companyName}}</strong> is door {{accountHolderName}} geregistreerd bij Dynopay.",
-      "intro2": "Dynopay is een veilige crypto-betaalgateway waarmee bedrijven eenvoudig en veilig cryptobetalingen kunnen accepteren.",
+      "intro2": "Dynopay is een non-custodial crypto-betaalgateway — bedrijven accepteren cryptobetalingen die rechtstreeks terechtkomen in een wallet die zij beheren.",
       "meansTitle": "Wat dit voor u betekent:",
       "means1": "1. Uw bedrijf kan nu cryptobetalingen accepteren",
-      "means2": "2. Snelle en veilige transacties",
+      "means2": "2. Tegoeden komen rechtstreeks terecht in een wallet die u beheert",
       "means3": "3. Realtime betalingsmeldingen",
       "outro": "Als u vragen heeft over deze registratie, neem dan contact op met ons supportteam of met {{accountHolderName}}.",
       "cta": "Meer informatie"
@@ -578,7 +578,7 @@
     "merchantIntro": "Een klant heeft zojuist een betaling aan {{company}} voltooid en MEER dan het verschuldigde bedrag verzonden.",
     "overpaidBy": "Te veel betaald",
     "statusOverpaid": "Te veel betaald",
-    "merchantBody": "Het volledige verwachte bedrag is aan je bijgeschreven. Het overschot van {{excess}} (≈ {{excessFiat}}) is volgens het beleid voor te veel betalen van je account doorgestuurd naar DynoPay, dus je hoeft niets te doen.",
+    "merchantBody": "Het volledige verwachte bedrag is aan je bijgeschreven. Het overschot van {{excess}} (≈ {{excessFiat}}) is volgens het beleid voor te veel betalen van je account doorgestuurd naar Dynopay, dus je hoeft niets te doen.",
     "viewTransactions": "Transacties bekijken"
   },
   "payoutDigest": {
@@ -586,7 +586,7 @@
     "subjectQuiet": "Wekelijks uitbetalingsoverzicht — een rustige week voor een nieuwe",
     "headingActive": "Je wekelijkse uitbetalingsoverzicht",
     "headingQuiet": "Wekelijks uitbetalingsoverzicht — rustige week",
-    "intro": "Zo zagen de afgelopen 7 dagen eruit voor je bedrijf op DynoPay.",
+    "intro": "Zo zagen de afgelopen 7 dagen eruit voor je bedrijf op Dynopay.",
     "settledThisWeek": "Deze week afgewikkeld",
     "platformFees": "Platformkosten",
     "feeTierContext": "{{name}}-niveau — {{percent}}%",

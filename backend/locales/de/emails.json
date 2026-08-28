@@ -4,7 +4,7 @@
     "greetingDefault": "Hallo,",
     "regards": "Danke,",
     "team": "Das Dynopay-Team",
-    "securedBy": "Diese Zahlung wurde sicher über Dynopay abgewickelt, einen vertrauenswürdigen Krypto-Zahlungsdienstleister.",
+    "securedBy": "Diese Zahlung wurde sicher über Dynopay abgewickelt, einen non-custodial Krypto-Zahlungsdienstleister.",
     "questions": "Bei Fragen ist unser Support-Team gerne für Sie da."
   },
   "labels": {
@@ -198,7 +198,7 @@
       "subject": "Willkommen bei Dynopay - los geht's mit dem Bezahltwerden",
       "heading": "Willkommen bei Dynopay",
       "intro1": "Willkommen bei Dynopay! Wir freuen uns, Sie an Bord zu haben.",
-      "intro2": "Dynopay macht das Akzeptieren von Krypto-Zahlungen einfach, sicher und schnell. Ob Freelancer, Unternehmer oder Entwickler – wir haben alles für Sie.",
+      "intro2": "Dynopay macht das Akzeptieren von Krypto-Zahlungen einfach und sicher — Gelder landen direkt in einer Wallet, die Sie kontrollieren. Ob Freelancer, Unternehmer oder Entwickler – wir haben alles für Sie.",
       "nextTitle": "Das können Sie als Nächstes tun:",
       "next1": "1. Vervollständigen Sie Ihr Unternehmensprofil",
       "next2": "2. Fügen Sie Ihre Auszahlungs-Wallet hinzu",
@@ -294,10 +294,10 @@
       "heading": "Willkommen bei Dynopay",
       "hello": "Hallo,",
       "intro1": "<strong>{{companyName}}</strong> wurde von {{accountHolderName}} bei Dynopay registriert.",
-      "intro2": "Dynopay ist ein sicheres Krypto-Zahlungsgateway, mit dem Unternehmen Kryptowährungszahlungen einfach und sicher akzeptieren können.",
+      "intro2": "Dynopay ist ein non-custodial Krypto-Zahlungsgateway — Unternehmen akzeptieren Kryptowährungszahlungen, die direkt in einer selbst kontrollierten Wallet landen.",
       "meansTitle": "Was das für Sie bedeutet:",
       "means1": "1. Ihr Unternehmen kann jetzt Krypto-Zahlungen akzeptieren",
-      "means2": "2. Schnelle und sichere Transaktionen",
+      "means2": "2. Gelder landen direkt in einer Wallet, die Sie kontrollieren",
       "means3": "3. Echtzeit-Zahlungsbenachrichtigungen",
       "outro": "Bei Fragen zu dieser Registrierung kontaktieren Sie unser Support-Team oder wenden Sie sich an {{accountHolderName}}.",
       "cta": "Mehr erfahren"
@@ -578,7 +578,7 @@
     "merchantIntro": "Ein Kunde hat gerade eine Zahlung an {{company}} abgeschlossen und MEHR als den fälligen Betrag gesendet.",
     "overpaidBy": "Zu viel gezahlt",
     "statusOverpaid": "Überzahlt",
-    "merchantBody": "Der volle erwartete Betrag wurde Ihnen gutgeschrieben. Der Überschuss von {{excess}} (≈ {{excessFiat}}) wurde gemäß der Überzahlungsrichtlinie Ihres Kontos an DynoPay weitergeleitet – Sie müssen also nichts tun.",
+    "merchantBody": "Der volle erwartete Betrag wurde Ihnen gutgeschrieben. Der Überschuss von {{excess}} (≈ {{excessFiat}}) wurde gemäß der Überzahlungsrichtlinie Ihres Kontos an Dynopay weitergeleitet – Sie müssen also nichts tun.",
     "viewTransactions": "Transaktionen ansehen"
   },
   "payoutDigest": {
@@ -586,7 +586,7 @@
     "subjectQuiet": "Wöchentliche Auszahlungsübersicht — eine ruhige Woche vor einer neuen",
     "headingActive": "Ihre wöchentliche Auszahlungsübersicht",
     "headingQuiet": "Wöchentliche Auszahlungsübersicht — ruhige Woche",
-    "intro": "So sahen die letzten 7 Tage für Ihr Unternehmen auf DynoPay aus.",
+    "intro": "So sahen die letzten 7 Tage für Ihr Unternehmen auf Dynopay aus.",
     "settledThisWeek": "Diese Woche abgewickelt",
     "platformFees": "Plattformgebühren",
     "feeTierContext": "{{name}}-Stufe — {{percent}} %",

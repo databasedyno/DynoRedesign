@@ -12,7 +12,7 @@ import time
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://dynopay-setup-7.preview.emergentagent.com"
+EXTERNAL_BASE = "https://phase2-impl-2.preview.emergentagent.com"
 
 # Performance threshold
 FAST_THRESHOLD_MS = 300  # Well under 300ms
