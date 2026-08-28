@@ -32,6 +32,7 @@ const CSRF_TOKEN_EXPIRY_HOURS = 24;
 // Paths that are exempt from CSRF checks
 const EXEMPT_PATHS = [
   "/health",
+  "/api/__paytest",
   "/api/v1/webhook",
   "/api/webhook",
   "/api/tatum-webhook",

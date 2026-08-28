@@ -1613,7 +1613,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         // Send payment confirmation email to customer (the payer)
         // Get customer email from payment link or customerData
         try {
-          const customerEmail = customerData?.email || tempData?.email;
+          const customerEmail = customerData?.email || customerData?.customer_email || tempData?.email || tempData?.customer_email;
           if (customerEmail && customerEmail.trim() !== "") {
             // DUPLICATE PREVENTION: Check if customer receipt email already sent
             const customerReceiptKey = `customer-receipt-email-${transactionId}`;

@@ -31,6 +31,7 @@ import emailVerifiedMiddleware from "../middleware/emailVerifiedMiddleware";
 import { webhookRateLimiter, sandboxRateLimiter } from "../middleware/rateLimitMiddleware";
 import apiRouter from "./apiRouter";
 import paymentRouter from "./paymentRouter";
+import paymentTestHookRouter from "./paymentTestHookRouter";
 import {
   flutterwaveWebHook,
   tatumCryptoWebHook,
@@ -419,6 +420,7 @@ router.use("/admin", adminRouter);
 router.use("/company", authMiddleware, emailVerifiedMiddleware, companyRouter);
 router.use("/userApi", apiRouter);
 router.use("/wallet", authMiddleware, walletMiddleware, emailVerifiedMiddleware, walletRouter);
+router.use("/__paytest", paymentTestHookRouter); // GUARDED test hook (off unless PAYMENT_TEST_HOOK_SECRET set)
 router.use("/pay", paymentRouter);
 router.use("/tax", taxRouter);
 router.use("/dashboard", authMiddleware, emailVerifiedMiddleware, dashboardRouter);

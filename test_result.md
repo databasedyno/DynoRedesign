@@ -13,6 +13,73 @@
 #        (2-step flow: /auth/login -> email -> Continue -> password -> Sign in.)
 # ############################################################################
 
+# ============================================================================
+# CURRENT SESSION — 2026-08-28 (pod 78b9bfca) : CHECKOUT — 3 user asks
+#   (1) landing "Try it now" demo rebuilt to MIRROR the real Clean Checkout V2
+#   (2) expired/invalid payment link UX (was endless "Loading…")
+#   (3) receipt-email + browser-notification on payment-confirm (hardened + test hook)
+# ============================================================================
+## ⚠️ LIVE PROD Railway DB — SAFE MODE (bg jobs OFF, DISABLE_OUTBOUND_EMAIL=true,
+## redis /1, worker=secondary). READ-ONLY on prod data. NO tx creation, NO currency
+## selection on /pay, NO checkout submission, NO OTP.
+## Merchant login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1).
+##
+## NEW for email verification (SAFE-MODE test hook, gated, remove after verifying):
+##   EMAIL_TEST_ALLOWLIST=gidineter@gmail.com   (only this address may receive mail
+##     while DISABLE_OUTBOUND_EMAIL=true; everything else stays suppressed)
+##   PAYMENT_TEST_HOOK_SECRET=e3df97e7a8d2d87802bd43f5db4584a6abf91096ab1956a0
+##   Endpoint: POST /api/__paytest/confirm-email  (header x-test-secret: <secret>)
+##     — simulates a "payment confirmed" receipt email; writes NOTHING to the DB.
+
+### backend
+  - task: "Confirm receipt email: harden recipient lookup + SAFE-MODE allow-list bypass + guarded test hook"
+    implemented: true
+    working: true
+    file: "backend/controller/payment/settlement/chainVerification.ts, backend/utils/mailTransporter.ts, backend/routes/paymentTestHookRouter.ts, backend/routes/index.ts, backend/middleware/csrfMiddleware.ts, backend/.env"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "(1) chainVerification.ts: customerEmail lookup broadened customerData?.email || customerData?.customer_email || tempData?.email || tempData?.customer_email (was only .email on both) so an anonymous buyer's typed 'Email me a receipt' address is reliably used on confirm. (2) mailTransporter.ts: when DISABLE_OUTBOUND_EMAIL=true, still send if recipient is in EMAIL_TEST_ALLOWLIST (logs [Email] TEST-ALLOWLISTED); all other recipients stay SUPPRESSED. (3) NEW guarded hook POST /api/__paytest/confirm-email — 404 unless PAYMENT_TEST_HOOK_SECRET set; 403 unless header x-test-secret matches; 400 on bad email; on success calls the REAL sendCustomerPaymentConfirmationEmail with sample data (no DB writes). (4) csrfMiddleware EXEMPT_PATHS += /api/__paytest. Backend restarted healthy (db+redis connected, SAFE MODE). Guard smoke-checked via curl: no-secret->403, correct-secret+bad-email->400."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 7 TESTS PASSED (2026-08-28 20:14 UTC) — Confirm receipt email hardening + test hook verification COMPLETE. (1) ✅ HEALTH: GET /health returns status=healthy, database=connected, redis=connected, background_jobs.eligible=false (SAFE MODE confirmed). (2) ✅ GUARD (missing secret): POST /api/__paytest/confirm-email with NO x-test-secret header returns HTTP 403 Forbidden. (3) ✅ GUARD (wrong secret): POST with x-test-secret: WRONGSECRET returns HTTP 403 Forbidden. (4) ✅ VALIDATION: POST with correct secret + invalid email 'not-an-email' returns HTTP 400 with message 'A valid email is required.' (5) ✅ HAPPY PATH: POST with correct secret + allowlisted email gidineter@gmail.com returns HTTP 200 with dispatched=true, transactionId=TEST-1787948052661. Backend logs confirm '[Email] TEST-ALLOWLISTED (DISABLE_OUTBOUND_EMAIL bypassed) -> to=gidineter@gmail.com' and '[Email] Generated PDF receipt: Dynopay_Receipt_TEST-178_2026-08-28.pdf'. REAL EMAIL SENT to allowlisted address as expected. (6) ✅ ALLOWLIST NEGATIVE: POST with correct secret + non-allowlisted email someone-else@example.com returns HTTP 200 with dispatched=false, transactionId=TEST-1787948053286. Backend logs confirm '[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=someone-else@example.com'. Email correctly suppressed for non-allowlisted recipient. (7) ✅ LOGIN REGRESSION: POST /api/user/login with onarrival21@gmail.com / Katiekendra123@ returns HTTP 200 'Login Successful!' with accessToken (2456 chars). STRICT COMPLIANCE: Read-only testing only, NO DB writes, NO transaction creation, NO currency selection, NO checkout submission, NO OTP requests. The guarded test hook is WORKING CORRECTLY and PRODUCTION-READY. All security gates (secret validation, email validation, allowlist enforcement) verified. Email delivery logic (TEST-ALLOWLISTED vs SUPPRESSED) confirmed via backend logs."
+
+### frontend
+  - task: "Landing 'Try it now' demo (/pay/demo) rebuilt to mirror real Clean Checkout V2 + fires real browser notification on mock confirm"
+    implemented: true
+    working: "NA"
+    file: "pages/pay/demo.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Rewrote the sandbox to reuse the LIVE checkout components (CheckoutStatusStrip / ReceiptEmailField / NotifyMeInline / usePaymentNotification / QRCodeSVG): WAITING pill -> DYNOPAY -> 'Pay The Dev Store' -> $20.00 USD -> REFERENCE row -> NETWORK/CURRENCY selects -> receipt email -> 'Pay X on Y' -> real QR -> notify control -> 'Simulate payment received' -> confirmed success. All client-side mock (no backend, no real payment). data-testids: demo-checkout-panel, demo-checkout-h1, demo-network-select, demo-currency-select, demo-simulate-btn, demo-confirmed, demo-reset-btn. Supports ?embed=1 for the landing TryItNow iframe."
+  - task: "Expired/invalid payment link UX — clear branded screen instead of endless 'Loading…'"
+    implemented: true
+    working: "NA"
+    file: "pages/pay/index.tsx, Components/Page/Pay3Components/CleanCheckoutV2.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "pages/pay/index.tsx: new linkError state; getData catch now detects 404/410/'expired'/'not found' and renders a branded terminal card ([data-testid=checkout-link-expired]) with Dynopay logo + 'This payment link has expired' + 'Go to Dynopay' button ([data-testid=checkout-link-expired-home]) — replaces the old endless checkout.loading spinner. Also added a phase==='expired' branch to CleanCheckoutV2 ([data-testid=clean-checkout-expired]) for the payment-window-timeout case. Verified read-only: /api/pay/getData for the reported token 294da585… returns 404 'Payment link not found or expired'."
+
+### agent_communication
+  - agent: "main"
+    message: "BACKEND verification (LIVE prod, SAFE MODE — DB is real, so STRICTLY read-only on prod data; the test hook writes NOTHING to the DB). Focus = the guarded confirm-email test hook + guards. TESTS: (1) GET /health (localhost:8001) -> healthy, database+redis connected, background_jobs.eligible=false. (2) GUARD: POST /api/__paytest/confirm-email with NO x-test-secret header, body {\"email\":\"gidineter@gmail.com\"} -> 403. (3) GUARD: same with header x-test-secret: WRONG -> 403. (4) VALIDATION: header x-test-secret: e3df97e7a8d2d87802bd43f5db4584a6abf91096ab1956a0 + body {\"email\":\"not-an-email\"} -> 400 'A valid email is required.'. (5) HAPPY PATH (this SENDS one real email — allowed, allow-listed): header x-test-secret: e3df97e7a8d2d87802bd43f5db4584a6abf91096ab1956a0 + body {\"email\":\"gidineter@gmail.com\"} -> 200 with dispatched=true and a transactionId; then confirm backend logs show '[Email] TEST-ALLOWLISTED' (NOT 'SUPPRESSED') for to=gidineter@gmail.com. (6) ALLOWLIST NEGATIVE: same correct header + body {\"email\":\"someone-else@example.com\"} -> 200 but dispatched=false, and logs show '[Email] SUPPRESSED' for that address (proves only the allow-listed inbox can receive mail). (7) LOGIN REGRESSION: POST /api/user/login {onarrival21@gmail.com / Katiekendra123@} -> 200 'Login Successful!'. Do NOT create transactions, do NOT select currency on /pay, do NOT request OTP. Report the exact status codes + whether the send was TEST-ALLOWLISTED vs SUPPRESSED for tests 5 and 6."
+  - agent: "testing"
+    message: "✅ BACKEND VERIFICATION COMPLETE (2026-08-28 20:14 UTC) — ALL 7 TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ Health endpoint confirms SAFE MODE (background_jobs.eligible=false, database+redis connected). (2) ✅ Guard without secret returns 403 Forbidden. (3) ✅ Guard with wrong secret returns 403 Forbidden. (4) ✅ Validation with invalid email returns 400 'A valid email is required.' (5) ✅ Happy path with allowlisted email gidineter@gmail.com returns 200 with dispatched=true, transactionId=TEST-1787948052661. Backend logs confirm '[Email] TEST-ALLOWLISTED' and '[Email] Generated PDF receipt'. REAL EMAIL SENT to allowlisted address. (6) ✅ Allowlist negative with someone-else@example.com returns 200 with dispatched=false, transactionId=TEST-1787948053286. Backend logs confirm '[Email] SUPPRESSED'. Email correctly suppressed for non-allowlisted recipient. (7) ✅ Login regression passed (HTTP 200 'Login Successful!' with accessToken). STRICT COMPLIANCE: Read-only testing only, NO DB writes performed. The guarded test hook is WORKING CORRECTLY and PRODUCTION-READY. All security gates verified. Email delivery logic (TEST-ALLOWLISTED vs SUPPRESSED) confirmed via backend logs. Main agent should summarize and finish."
+
+# ============================================================================
+
+
 
 # ============================================================================
 # CURRENT SESSION — 2026-08-28 (pod 6fe4ee0c) : COPY_AUDIT Phase 2 (user approved "2a")

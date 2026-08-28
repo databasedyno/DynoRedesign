@@ -1,745 +1,407 @@
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { BRAND_ACCENT } from "@/constants/theme";
 import {
   Box,
   Button,
-  Divider,
-  IconButton,
-  Paper,
-  Tooltip,
+  MenuItem,
+  Select,
+  Snackbar,
   Typography,
   useTheme,
-  Snackbar,
-  CircularProgress,
-  Chip,
 } from '@mui/material'
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Icon } from '@iconify/react'
-import BitCoinGreenIcon from '@/assets/Icons/BitCoinGreenIcon'
+import { QRCodeSVG } from 'qrcode.react'
 import Logo from '@/assets/Icons/Logo'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
-import CopyIcon from '@/assets/Icons/CopyIcon'
-import { useTranslation } from 'react-i18next'
-import ProgressBar from '@/Components/UI/ProgressBar'
+import CheckoutStatusStrip from '@/Components/UI/CheckoutStatusStrip'
+import { ReceiptEmailField, NotifyMeInline } from '@/Components/Page/Pay3Components/checkoutExtras'
+import usePaymentNotification from '@/hooks/usePaymentNotification'
 
 /**
- * PaymentDemo — the sandbox-mode checkout used in TWO places:
+ * PaymentDemo — the sandbox checkout used in TWO places:
  *   1. Standalone at /pay/demo (full site chrome)
  *   2. Embedded on the landing page's TryItNow section via /pay/demo?embed=1
  *
- * 2026-07-05: made the whole thing actually INTERACTIVE. The primary
- * "Cryptocurrency" button previously had no onClick — the button was purely
- * cosmetic and clicking it did nothing, which contradicted the "INTERACTIVE"
- * badge on the parent iframe. Now clicking walks the user through the full
- * 3-step flow: Order → Payment → Done, with mock coin selection, a fake
- * wallet address + QR, and an auto-confirmation timer.
+ * 2026-08 REBUILD: this now MIRRORS the real production checkout (CleanCheckoutV2
+ * on /pay?d=…) so the landing page shows what customers actually see — the same
+ * WAITING status strip, DYNOPAY brand row, "Pay {merchant}" headline, amount,
+ * REFERENCE row, NETWORK/CURRENCY selects, "Email me a receipt" field, "Pay X on
+ * Y" instruction, a REAL QR code, and the opt-in browser-alert control. It reuses
+ * the exact same components (CheckoutStatusStrip / ReceiptEmailField /
+ * NotifyMeInline / usePaymentNotification / QRCodeSVG) as the live checkout.
  *
- * Nothing here talks to any real backend — everything is client-side mock
- * state. The whole flow resets when the user clicks "Try again" on Done, or
- * when they reload the iframe.
+ * Everything is client-side mock state — nothing talks to a real backend and no
+ * real payment is created. "Simulate payment received" walks Waiting → Confirming
+ * → Confirmed and fires the SAME real browser notification the live checkout uses,
+ * so the demo doubles as a working demonstration of the confirm alert.
  */
 
-// ─── Static mock data (unchanged) ──────────────────────────────────────────
-const MOCK_DATA = {
-  description: 'Monthly Pro Subscription',
-  orderReference: 'INV-2026-A1B2C3',
-  customerName: 'John Doe',
-  merchantInfo: { name: 'Acme Store', company_logo: null as string | null },
-  feeInfo: { processing_fee: 2.5, fee_payer: 'merchant' as const },
-  taxInfo: { rate: 23, amount: 23.0, country: 'Portugal', type: 'VAT' },
-  expiryInfo: { expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() },
-  walletState: { amount: 100.0, currency: 'EUR' },
-  totalAmount: 125.5,
+// Design tokens — kept identical to CleanCheckoutV2 so the demo matches 1:1.
+const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
+const LIME = BRAND_ACCENT
+
+type Cur = { symbol: string; amount: number; address: string; scheme: string }
+type Net = { label: string; icon: string; iconColor: string; currencies: Record<string, Cur> }
+
+// Mock merchant + order (mirrors the "Pay The Dev Store · $20 USD" example).
+const MERCHANT = 'The Dev Store'
+const ORDER_REFERENCE = 'INV-2026-273'
+const ORDER_DESCRIPTION = 'final'
+const FIAT_AMOUNT = 20
+const FIAT_CURRENCY = 'USD'
+const FIAT_SYMBOL = '$'
+
+// Mock networks/currencies with format-correct (but demo-only) addresses.
+const NETWORKS: Record<string, Net> = {
+  Litecoin: {
+    label: 'Litecoin', icon: 'cryptocurrency:ltc', iconColor: '#345D9D',
+    currencies: {
+      LTC: { symbol: 'LTC', amount: 0.40707496, address: 'LM179QVx32QMtEzkhJZnvMdQgJfkAbf3fm', scheme: 'litecoin' },
+    },
+  },
+  Bitcoin: {
+    label: 'Bitcoin', icon: 'cryptocurrency:btc', iconColor: '#F7931A',
+    currencies: {
+      BTC: { symbol: 'BTC', amount: 0.00025612, address: '1JH5TnZzjYTf1yYwBDLjWoHgkAcCHc1Do7', scheme: 'bitcoin' },
+    },
+  },
+  Ethereum: {
+    label: 'Ethereum', icon: 'cryptocurrency:eth', iconColor: '#627EEA',
+    currencies: {
+      ETH: { symbol: 'ETH', amount: 0.00642, address: '0x9a7221b5e32D5f99e8DA95585835442E29AfB38F', scheme: 'ethereum' },
+      USDT: { symbol: 'USDT', amount: 20, address: '0x9a7221b5e32D5f99e8DA95585835442E29AfB38F', scheme: 'ethereum' },
+      USDC: { symbol: 'USDC', amount: 20, address: '0x9a7221b5e32D5f99e8DA95585835442E29AfB38F', scheme: 'ethereum' },
+    },
+  },
+  Tron: {
+    label: 'Tron', icon: 'cryptocurrency:trx', iconColor: '#EF0027',
+    currencies: {
+      USDT: { symbol: 'USDT', amount: 20, address: 'TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR', scheme: 'tron' },
+    },
+  },
 }
 
-// Mock coins the "customer" can pick to pay with. Rates are hardcoded — this
-// is a demo, not a live price feed.
-type Coin = {
-  id: string
-  label: string
-  short: string
-  iconIcon: string           // iconify icon name
-  address: string            // fake but format-correct wallet address
-  amountCrypto: number       // total in this coin (mocked from €125.50)
-  color: string
-}
-
-const COINS: Coin[] = [
-  { id: 'USDT_TRC20', label: 'USDT (Tron)',       short: 'USDT',  iconIcon: 'cryptocurrency:usdt', color: '#26A17B', amountCrypto: 125.50, address: 'TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR' },
-  { id: 'USDC_ERC20', label: 'USDC (Ethereum)',   short: 'USDC',  iconIcon: 'cryptocurrency:usdc', color: '#2775CA', amountCrypto: 125.50, address: '0x9a7221b5e32D5f99e8DA95585835442E29AfB38F' },
-  { id: 'BTC',        label: 'Bitcoin',           short: 'BTC',   iconIcon: 'cryptocurrency:btc',  color: '#F7931A', amountCrypto: 0.00189, address: '1JH5TnZzjYTf1yYwBDLjWoHgkAcCHc1Do7' },
-  { id: 'ETH',        label: 'Ethereum',          short: 'ETH',   iconIcon: 'cryptocurrency:eth',  color: '#627EEA', amountCrypto: 0.0512,  address: '0x9a7221b5e32D5f99e8DA95585835442E29AfB38F' },
-  { id: 'SOL',        label: 'Solana',            short: 'SOL',   iconIcon: 'cryptocurrency:sol',  color: '#14F195', amountCrypto: 0.7841,  address: 'Gjjphdxe26tayH3PBQcqXYt3R2gt7phEdCAFfxZB63U8' },
-]
-
-// After this many seconds on the Payment step the demo auto-advances to Done.
-// If the user impatiently clicks "Simulate payment received" we advance right away.
-const AUTO_CONFIRM_SECONDS = 8
-
-type Step = 0 | 1 | 2  // 0 = Order, 1 = Payment, 2 = Done
+type Phase = 'awaiting' | 'confirming' | 'confirmed'
 
 const PaymentDemo = () => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
-  const { t } = useTranslation('common')
   const router = useRouter()
-  const [copySnackbar, setCopySnackbar] = useState<string | null>(null)
-  const [countdown, setCountdown] = useState('')
+  const notif = usePaymentNotification()
 
-  const [step, setStep] = useState<Step>(0)
-  const [selectedCoinId, setSelectedCoinId] = useState<string>(COINS[0].id)
-  const [confirmSeconds, setConfirmSeconds] = useState<number>(AUTO_CONFIRM_SECONDS)
-  const confirmTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Theme tokens — mirror CleanCheckoutV2.
+  const border = isDark ? 'rgba(255,255,255,0.10)' : '#E4E4E7'
+  const surface = isDark ? 'rgba(255,255,255,0.03)' : '#F6F6F7'
+  const muted = isDark ? '#A1A1AA' : '#71717A'
 
-  const selectedCoin = useMemo(
-    () => COINS.find((c) => c.id === selectedCoinId) || COINS[0],
-    [selectedCoinId]
-  )
+  const [phase, setPhase] = useState<Phase>('awaiting')
+  const [selectedNetwork, setSelectedNetwork] = useState<string>('Litecoin')
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('LTC')
+  const [receiptEmail, setReceiptEmail] = useState('')
+  const [emailSaved, setEmailSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [snack, setSnack] = useState<string | null>(null)
+  const notifiedRef = useRef(false)
+  const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const isEmbed = useMemo(() => {
     const q = router?.query?.embed
     return q === '1' || q === 'true'
   }, [router?.query?.embed])
 
-  // ─── Invoice-expiry countdown (Step 0 only, cosmetic) ───────────────────
+  const net = NETWORKS[selectedNetwork]
+  const coin = net.currencies[selectedCurrency] || Object.values(net.currencies)[0]
+  const currenciesInNetwork = Object.keys(net.currencies)
+
+  const paymentUri = useMemo(
+    () => `${coin.scheme}:${coin.address}?amount=${coin.amount}`,
+    [coin]
+  )
+
+  const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+  const emailInvalid = receiptEmail.trim().length > 0 && !emailValid(receiptEmail)
+
+  // Fire the REAL browser notification once we hit "confirmed" — same call the
+  // live checkout makes, so this demo genuinely proves the confirm alert works.
   useEffect(() => {
-    const updateCountdown = () => {
-      const now = new Date().getTime()
-      const expiry = new Date(MOCK_DATA.expiryInfo.expires_at).getTime()
-      const diff = expiry - now
-      if (diff <= 0) { setCountdown('Expired'); return }
-      const d = Math.floor(diff / (1000 * 60 * 60 * 24))
-      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-      const s = Math.floor((diff % (1000 * 60)) / 1000)
-      const parts: string[] = []
-      if (d > 0) parts.push(`${d}${t('checkout.days')}`)
-      if (h > 0 || d > 0) parts.push(`${h}${t('checkout.hours')}`)
-      if (m > 0 || h > 0 || d > 0) parts.push(`${m}${t('checkout.minutes')}`)
-      parts.push(`${s}${t('checkout.seconds')}`)
-      setCountdown(parts.join(' : '))
-    }
-    updateCountdown()
-    const interval = setInterval(updateCountdown, 1000)
-    return () => clearInterval(interval)
-  }, [t])
+    if (phase !== 'confirmed' || notifiedRef.current) return
+    notifiedRef.current = true
+    notif.notify('Payment confirmed \u2713', `Your payment to ${MERCHANT} is confirmed.`)
+  }, [phase, notif])
 
-  // ─── Copy helper (used by invoice # and wallet address) ─────────────────
-  const copyToClipboard = useCallback(async (value: string, label: string) => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(value)
-      } else {
-        const ta = document.createElement('textarea')
-        ta.value = value
-        ta.style.position = 'fixed'
-        ta.style.left = '-9999px'
-        document.body.appendChild(ta)
-        ta.select()
-        document.execCommand('copy')
-        document.body.removeChild(ta)
-      }
-    } catch { /* silently — snackbar still shows */ }
-    setCopySnackbar(label)
+  useEffect(() => () => { if (confirmTimer.current) clearTimeout(confirmTimer.current) }, [])
+
+  const onNetworkChange = useCallback((value: string) => {
+    setSelectedNetwork(value)
+    setSelectedCurrency(Object.keys(NETWORKS[value].currencies)[0])
+    setPhase('awaiting')
+    notifiedRef.current = false
   }, [])
 
-  // ─── Step transitions ───────────────────────────────────────────────────
-  const goToPayment = useCallback(() => {
-    setStep(1)
-    setConfirmSeconds(AUTO_CONFIRM_SECONDS)
-  }, [])
+  const copyAddress = useCallback(async () => {
+    try { await navigator.clipboard?.writeText(coin.address) } catch { /* ignore */ }
+    setCopied(true)
+    setSnack('Address copied')
+    setTimeout(() => setCopied(false), 2000)
+  }, [coin.address])
 
-  const goToDone = useCallback(() => {
-    if (confirmTimerRef.current) {
-      clearInterval(confirmTimerRef.current)
-      confirmTimerRef.current = null
-    }
-    setStep(2)
+  const simulatePayment = useCallback(() => {
+    setPhase('confirming')
+    if (confirmTimer.current) clearTimeout(confirmTimer.current)
+    confirmTimer.current = setTimeout(() => setPhase('confirmed'), 2600)
   }, [])
 
   const resetDemo = useCallback(() => {
-    if (confirmTimerRef.current) {
-      clearInterval(confirmTimerRef.current)
-      confirmTimerRef.current = null
-    }
-    setStep(0)
-    setConfirmSeconds(AUTO_CONFIRM_SECONDS)
-    setSelectedCoinId(COINS[0].id)
+    if (confirmTimer.current) clearTimeout(confirmTimer.current)
+    notifiedRef.current = false
+    setPhase('awaiting')
+    setReceiptEmail('')
+    setEmailSaved(false)
   }, [])
 
-  // Run the auto-confirm countdown whenever we enter step 1
-  useEffect(() => {
-    if (step !== 1) return
-    if (confirmTimerRef.current) clearInterval(confirmTimerRef.current)
-    confirmTimerRef.current = setInterval(() => {
-      setConfirmSeconds((prev) => {
-        if (prev <= 1) {
-          if (confirmTimerRef.current) {
-            clearInterval(confirmTimerRef.current)
-            confirmTimerRef.current = null
-          }
-          setStep(2)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => {
-      if (confirmTimerRef.current) {
-        clearInterval(confirmTimerRef.current)
-        confirmTimerRef.current = null
-      }
-    }
-  }, [step])
+  const stripState = phase === 'confirming' ? 'confirming' : 'pending'
 
-  // Truncate long addresses for display (keep first 8 + last 6, "…" in middle).
-  const truncAddr = useCallback((s: string) => {
-    if (!s || s.length <= 16) return s
-    return `${s.slice(0, 8)}…${s.slice(-6)}`
-  }, [])
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════════════════
   return (
     <Pay3Layout embed={isEmbed}>
-      <Box>
-        <ProgressBar activeStep={step} />
-
+      <Box
+        sx={{
+          minHeight: '70vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          px: { xs: 2, sm: 3 },
+          py: { xs: 3, sm: 6 },
+        }}
+      >
         <Box
-          display='flex'
-          alignItems='flex-start'
-          justifyContent='center'
-          px={{ xs: 1.5, sm: 2 }}
-          py={{ xs: 1, sm: 1.5 }}
+          data-testid="demo-checkout-panel"
+          sx={{
+            width: '100%',
+            maxWidth: 440,
+            p: { xs: 2.5, sm: 4 },
+            borderRadius: '14px',
+            border: `1px solid ${border}`,
+            backgroundColor: isDark ? '#0F0F10' : '#FFFFFF',
+            boxShadow: isDark
+              ? '0 8px 32px rgba(0,0,0,0.4)'
+              : '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03)',
+          }}
         >
-          <Paper
-            elevation={0}
-            data-testid="checkout-card"
-            sx={{
-              borderRadius: '16px',
-              overflow: 'hidden',
-              width: '100%',
-              maxWidth: 440,
-              textAlign: 'center',
-              border: `1px solid ${theme.palette.border.main}`,
-              boxShadow: isDark
-                ? '0 12px 40px rgba(0,0,0,0.35)'
-                : '0 8px 32px rgba(10,10,10,0.06), 0 2px 8px rgba(0,0,0,0.04)',
-              backgroundColor: theme.palette.background.paper,
-            }}
-          >
-            <Box
-              sx={{
-                height: '3px',
-                background: `linear-gradient(90deg, ${BRAND_ACCENT} 0%, #6366F1 55%, rgba(124,92,255,0.35) 100%)`,
-              }}
-            />
+          {/* ═══ CONFIRMED (success) ═══════════════════════════════════ */}
+          {phase === 'confirmed' ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 2 }} data-testid="demo-confirmed">
+              <Box
+                sx={{
+                  width: 64, height: 64, borderRadius: '50%', mb: 2,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: LIME,
+                }}
+              >
+                <Icon icon="mdi:check-bold" width={32} color="#fff" />
+              </Box>
+              <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: theme.palette.text.primary }}>
+                Payment successful
+              </Typography>
+              <Typography sx={{ fontSize: 14, color: muted, mt: 0.75 }}>
+                Paid to {MERCHANT} — {FIAT_SYMBOL}{FIAT_AMOUNT.toFixed(2)} {FIAT_CURRENCY}
+              </Typography>
+              <Typography sx={{ fontFamily: MONO, fontSize: 12, color: muted, mt: 1 }}>
+                {coin.amount} {coin.symbol} · REFERENCE · {ORDER_REFERENCE}
+              </Typography>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={resetDemo}
+                data-testid="demo-reset-btn"
+                startIcon={<Icon icon="mdi:restart" width={16} />}
+                sx={{
+                  mt: 3, textTransform: 'none', borderRadius: '999px', fontWeight: 600,
+                  minHeight: 44, color: muted, borderColor: border,
+                  '&:hover': { borderColor: LIME, color: LIME },
+                }}
+              >
+                Run the demo again
+              </Button>
+            </Box>
+          ) : (
+            <>
+              {/* Status strip — the exact WAITING / CONFIRMING pill from the live checkout */}
+              <CheckoutStatusStrip state={stripState} data-testid="demo-status-strip" />
 
-            <Box px={{ xs: 2, sm: 2.5 }} py={{ xs: 2, sm: 2.5 }}>
-              {/* Logo (all steps) */}
-              <Box display='flex' justifyContent='center' mb={1}>
-                {MOCK_DATA.merchantInfo.company_logo ? (
-                  <Box
-                    component="img"
-                    src={MOCK_DATA.merchantInfo.company_logo}
-                    alt={MOCK_DATA.merchantInfo.name}
-                    sx={{ maxHeight: 36, maxWidth: 120, objectFit: 'contain' }}
-                  />
-                ) : (
-                  <Logo width={32} height={38} />
-                )}
+              {/* Brand row */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                <Logo width={22} height={26} />
+                <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.02em', color: muted }}>
+                  DYNOPAY
+                </Typography>
               </Box>
 
-              {/* ═══ STEP 0 — ORDER REVIEW ═══════════════════════════════ */}
-              {step === 0 && (
-                <>
-                  <Typography
-                    fontWeight={700}
-                    fontSize={{ xs: 17, sm: 19 }}
-                    lineHeight={1.2}
-                    color={theme.palette.text.primary}
-                    letterSpacing='-0.3px'
-                    data-testid="checkout-title"
-                  >
-                    {t('checkout.title')}
-                  </Typography>
+              {/* H1 — merchant name */}
+              <Typography
+                component="h1"
+                data-testid="demo-checkout-h1"
+                sx={{ fontSize: { xs: 26, sm: 32 }, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.15, color: theme.palette.text.primary }}
+              >
+                Pay {MERCHANT}
+              </Typography>
 
-                  <Typography
-                    color={theme.palette.text.secondary}
-                    fontWeight={400}
-                    fontSize={12.5}
-                    lineHeight={1.5}
-                    mb={2}
-                    mt={0.5}
-                  >
-                    Hi {MOCK_DATA.customerName}, complete your payment to{' '}
-                    <Box component="span" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
-                      {MOCK_DATA.merchantInfo.name}
-                    </Box>
-                  </Typography>
+              {/* Amount */}
+              <Typography sx={{ fontFamily: MONO, fontSize: 18, fontWeight: 500, color: muted, mt: 0.75, mb: 3.5 }} data-testid="demo-amount">
+                {FIAT_SYMBOL}{FIAT_AMOUNT.toFixed(2)} {FIAT_CURRENCY}
+              </Typography>
 
-                  {/* Order details block (unchanged) */}
-                  <Box
-                    sx={{
-                      border: `1px solid ${theme.palette.border.main}`,
-                      borderRadius: '12px',
-                      p: 1.5,
-                      mb: 1.5,
-                      textAlign: 'left',
-                      backgroundColor: theme.palette.action.hover,
-                    }}
-                  >
-                    <Typography
-                      fontWeight={700}
-                      fontSize={9.5}
-                      color={theme.palette.text.secondary}
-                      letterSpacing={1}
-                      textTransform='uppercase'
-                      mb={0.5}
-                    >
-                      {t('checkout.orderDetails')}
-                    </Typography>
-                    <Typography fontWeight={600} fontSize={13} color={theme.palette.text.primary} mb={0.75}>
-                      {MOCK_DATA.description}
-                    </Typography>
-                    <Box display='flex' alignItems='center' gap={0.5} mb={0.75}>
-                      <Icon icon="mdi:account-outline" width={14} color={theme.palette.text.secondary} />
-                      <Typography fontWeight={500} fontSize={12} color={theme.palette.text.primary}>
-                        {MOCK_DATA.customerName}
-                      </Typography>
-                    </Box>
-                    <Box display='flex' alignItems='center' justifyContent='space-between'>
-                      <Box>
-                        <Typography fontWeight={700} fontSize={9} color={theme.palette.text.secondary} letterSpacing={0.8} textTransform='uppercase'>
-                          {t('checkout.invoice')}
-                        </Typography>
-                        <Typography fontWeight={500} fontSize={12} color={theme.palette.text.primary} sx={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                          {MOCK_DATA.orderReference}
-                        </Typography>
-                      </Box>
-                      <Tooltip title={t('checkout.copyInvoice')} arrow>
-                        <IconButton
-                          size='small'
-                          onClick={() => copyToClipboard(MOCK_DATA.orderReference, 'Invoice copied')}
-                          sx={{
-                            bgcolor: theme.palette.border.main,
-                            p: 0.5,
-                            borderRadius: '8px',
-                            '&:hover': { bgcolor: theme.palette.action.selected },
-                          }}
-                        >
-                          <CopyIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Box>
+              {/* Reference row */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1.5, borderRadius: '10px', border: `1px solid ${border}`, backgroundColor: surface, mb: 2.5 }}>
+                <Typography fontSize={13} color={theme.palette.text.primary}>{ORDER_DESCRIPTION}</Typography>
+                <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted }}>
+                  REFERENCE · {ORDER_REFERENCE}
+                </Typography>
+              </Box>
 
-                  {/* Fee breakdown (unchanged) */}
-                  <Box
-                    border={`1px solid ${theme.palette.border.main}`}
-                    borderRadius='12px'
-                    px={1.5}
-                    py={1.5}
-                  >
-                    <Box display='flex' justifyContent='space-between' alignItems='center' mb={0.75}>
-                      <Typography fontSize={12.5} color={theme.palette.text.secondary} fontWeight={500}>
-                        {t('checkout.subtotal')}
-                      </Typography>
-                      <Typography fontSize={12.5} fontWeight={600} color={theme.palette.text.primary}>
-                        €{MOCK_DATA.walletState.amount.toFixed(2)}
-                      </Typography>
-                    </Box>
-                    <Box display='flex' justifyContent='space-between' alignItems='center' mb={0.75}>
-                      <Typography fontSize={12.5} color={theme.palette.text.secondary} fontWeight={500}>
-                        {t('checkout.vatRate', { rate: MOCK_DATA.taxInfo.rate, country: MOCK_DATA.taxInfo.country })}
-                      </Typography>
-                      <Typography fontSize={12.5} fontWeight={600} color={theme.palette.text.primary}>
-                        €{MOCK_DATA.taxInfo.amount.toFixed(2)}
-                      </Typography>
-                    </Box>
-                    <Box display='flex' justifyContent='space-between' alignItems='center' mb={0.25}>
-                      <Box display='flex' alignItems='center' gap={0.5}>
-                        <Typography fontSize={12.5} color={theme.palette.text.secondary} fontWeight={500}>
-                          {t('checkout.processingFee')}
-                        </Typography>
-                        <Icon icon="mdi:check-circle" color="#12B76A" width={14} />
-                      </Box>
-                      <Typography fontSize={12.5} fontWeight={600} color={theme.palette.text.primary}>
-                        €{MOCK_DATA.feeInfo.processing_fee.toFixed(2)}
-                      </Typography>
-                    </Box>
-                    <Typography fontSize={10.5} color="#12B76A" fontWeight={500} textAlign='left' mb={0.5}>
-                      {t('checkout.processingFeesIncluded')}
-                    </Typography>
-                    <Divider sx={{ my: 1, borderColor: theme.palette.border.main }} />
-                    <Box
-                      display='flex'
-                      justifyContent='space-between'
-                      alignItems='center'
-                      mb={1.5}
-                      sx={{
-                        backgroundColor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(10,10,10,0.04)',
-                        borderRadius: '8px',
-                        mx: -0.75,
-                        px: 0.75,
-                        py: 0.75,
-                      }}
-                    >
-                      <Typography fontWeight={700} fontSize={{ xs: 13, sm: 14 }} color={theme.palette.text.primary}>
-                        {t('checkout.total')}
-                      </Typography>
-                      <Box display='flex' alignItems='center' gap={0.5}>
-                        <Typography fontWeight={800} fontSize={{ xs: 16, sm: 18 }} color={theme.palette.text.primary}>
-                          €{MOCK_DATA.totalAmount.toFixed(2)}
-                        </Typography>
-                        <Typography fontWeight={500} fontSize={11} color={theme.palette.text.secondary}>EUR</Typography>
-                      </Box>
-                    </Box>
-                    <Divider sx={{ mb: 1.5, borderColor: theme.palette.border.main }} />
-
-                    <Button
-                      fullWidth
-                      variant='contained'
-                      onClick={goToPayment}
-                      startIcon={<BitCoinGreenIcon width={7} />}
-                      data-testid="crypto-payment-btn"
-                      sx={{
-                        backgroundColor: BRAND_ACCENT,
-                        color: '#FFFFFF',
-                        textTransform: 'none',
-                        borderRadius: '12px',
-                        fontWeight: 800,
-                        py: 1.25,
-                        fontSize: '14px',
-                        minHeight: 46,
-                        letterSpacing: '0.1px',
-                        boxShadow: '0 4px 14px rgba(79,70,229,0.28)',
-                        transition: 'filter 0.2s ease, box-shadow 0.2s ease',
-                        '&:hover': {
-                          backgroundColor: BRAND_ACCENT,
-                          filter: 'brightness(1.05)',
-                          boxShadow: '0 6px 20px rgba(79,70,229,0.4)',
-                        },
-                      }}
-                    >
-                      {t('checkout.cryptocurrency')}
-                    </Button>
-                  </Box>
-
-                  <Box display='flex' alignItems='center' justifyContent='space-between' mt={1.5} px={0.25}>
-                    <Box display='flex' alignItems='center' gap={0.5}>
-                      <Icon icon="mdi:clock-outline" width={13} color={theme.palette.text.secondary} />
-                      <Typography fontSize={10.5} color={theme.palette.text.secondary} fontWeight={500}>
-                        {t('checkout.expiresIn')}{' '}
-                        <Box component="span" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
-                          {countdown}
-                        </Box>
-                      </Typography>
-                    </Box>
-                    <Box display='flex' alignItems='center' gap={0.5}>
-                      <Icon icon="mdi:shield-check" width={13} color={brandFg(isDark)} />
-                      <Typography fontSize={10.5} color={brandFg(isDark)} fontWeight={700}>
-                        {t('checkout.securePayment')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </>
-              )}
-
-              {/* ═══ STEP 1 — PAYMENT (coin picker + address + auto-confirm) ═══ */}
-              {step === 1 && (
-                <>
-                  <Typography fontWeight={700} fontSize={{ xs: 16, sm: 18 }} color={theme.palette.text.primary} letterSpacing='-0.3px'>
-                    {t('demoChooseHowToPay')}
-                  </Typography>
-                  <Typography color={theme.palette.text.secondary} fontSize={12.5} lineHeight={1.5} mb={2} mt={0.5}>
-                    Total <Box component="span" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>€{MOCK_DATA.totalAmount.toFixed(2)} EUR</Box>{' '}— pick a network and send from your wallet.
-                  </Typography>
-
-                  {/* Coin chip picker */}
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center', mb: 2 }}>
-                    {COINS.map((c) => {
-                      const active = c.id === selectedCoinId
-                      return (
-                        <Chip
-                          key={c.id}
-                          onClick={() => setSelectedCoinId(c.id)}
-                          icon={<Icon icon={c.iconIcon} width={16} />}
-                          label={c.short}
-                          data-testid={`demo-coin-${c.id}`}
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: 12,
-                            borderRadius: '8px',
-                            px: 0.5,
-                            border: `1px solid ${active ? c.color : theme.palette.border.main}`,
-                            bgcolor: active ? `${c.color}18` : 'transparent',
-                            color: active ? c.color : theme.palette.text.primary,
-                            '&:hover': { bgcolor: active ? `${c.color}22` : theme.palette.action.hover, borderColor: c.color },
-                          }}
-                        />
-                      )
-                    })}
-                  </Box>
-
-                  {/* Amount in selected coin */}
-                  <Box
-                    sx={{
-                      border: `1px solid ${theme.palette.border.main}`,
-                      borderRadius: '12px',
-                      p: 1.5,
-                      mb: 1.5,
-                      textAlign: 'center',
-                      backgroundColor: theme.palette.action.hover,
-                    }}
-                  >
-                    <Typography fontSize={10.5} color={theme.palette.text.secondary} fontWeight={700} letterSpacing={1} textTransform='uppercase' mb={0.5}>
-                      {t('demoSendExactly')}
-                    </Typography>
-                    <Typography fontWeight={800} fontSize={{ xs: 20, sm: 24 }} color={theme.palette.text.primary} letterSpacing='-0.5px'>
-                      {selectedCoin.amountCrypto}{' '}
-                      <Box component="span" sx={{ color: selectedCoin.color }}>{selectedCoin.short}</Box>
-                    </Typography>
-                    <Typography fontSize={11} color={theme.palette.text.secondary} mt={0.5}>
-                      ≈ €{MOCK_DATA.totalAmount.toFixed(2)} EUR · Rate locked for 15:00
-                    </Typography>
-                  </Box>
-
-                  {/* Wallet address + fake QR + copy */}
-                  <Box
-                    sx={{
-                      border: `1px solid ${theme.palette.border.main}`,
-                      borderRadius: '12px',
-                      p: 1.5,
-                      mb: 1.5,
-                      display: 'flex',
-                      gap: 1.5,
-                      alignItems: 'center',
-                      textAlign: 'left',
-                    }}
-                  >
-                    {/* Mock QR — a stylised SVG that looks QR-shaped without being a real one */}
-                    <Box
-                      component="svg"
-                      viewBox="0 0 40 40"
-                      sx={{
-                        width: 72,
-                        height: 72,
-                        flexShrink: 0,
-                        borderRadius: '8px',
-                        bgcolor: isDark ? '#0f0f22' : '#fff',
-                        border: `1px solid ${theme.palette.border.main}`,
-                        p: 0.5,
-                      }}
-                    >
-                      {/* Corner markers */}
-                      <rect x="2" y="2" width="10" height="10" fill="none" stroke={isDark ? '#fff' : '#000'} strokeWidth="1.5" />
-                      <rect x="5" y="5" width="4" height="4" fill={isDark ? '#fff' : '#000'} />
-                      <rect x="28" y="2" width="10" height="10" fill="none" stroke={isDark ? '#fff' : '#000'} strokeWidth="1.5" />
-                      <rect x="31" y="5" width="4" height="4" fill={isDark ? '#fff' : '#000'} />
-                      <rect x="2" y="28" width="10" height="10" fill="none" stroke={isDark ? '#fff' : '#000'} strokeWidth="1.5" />
-                      <rect x="5" y="31" width="4" height="4" fill={isDark ? '#fff' : '#000'} />
-                      {/* Random-ish middle pixels for QR feel */}
-                      {[
-                        [14, 4],[16, 4],[20, 6],[24, 4],[14, 6],[18, 8],[22, 10],
-                        [4, 14],[6, 16],[8, 20],[10, 24],[6, 18],[8, 22],
-                        [14, 14],[16, 16],[18, 14],[20, 18],[22, 16],[24, 20],
-                        [14, 22],[16, 24],[18, 26],[20, 22],[22, 24],
-                        [30, 14],[32, 16],[34, 20],[30, 24],[32, 22],
-                        [14, 30],[16, 32],[20, 34],[24, 30],[26, 34],
-                      ].map(([x, y], i) => (
-                        <rect key={i} x={x} y={y} width="2" height="2" fill={isDark ? '#fff' : '#000'} />
-                      ))}
-                    </Box>
-
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography fontSize={10.5} color={theme.palette.text.secondary} fontWeight={700} letterSpacing={1} textTransform='uppercase' mb={0.5}>
-                        {t('walletAddressLabel')}
-                      </Typography>
-                      <Tooltip title={selectedCoin.address} arrow>
-                        <Typography
-                          fontFamily="'JetBrains Mono', monospace"
-                          fontSize={13}
-                          fontWeight={600}
-                          color={theme.palette.text.primary}
-                          sx={{ wordBreak: 'break-all', lineHeight: 1.35 }}
-                          data-testid="demo-wallet-address"
-                        >
-                          {truncAddr(selectedCoin.address)}
-                        </Typography>
-                      </Tooltip>
-                      <Button
-                        onClick={() => copyToClipboard(selectedCoin.address, 'Address copied')}
-                        size='small'
-                        startIcon={<Icon icon="mdi:content-copy" width={13} />}
-                        sx={{
-                          mt: 0.5,
-                          textTransform: 'none',
-                          fontSize: 11.5,
-                          color: brandFg(isDark),
-                          fontWeight: 600,
-                          px: 0.5,
-                          py: 0.25,
-                        }}
-                      >
-                        {t('copyAddress')}
-                      </Button>
-                    </Box>
-                  </Box>
-
-                  {/* Awaiting on-chain confirmation */}
-                  <Box
-                    sx={{
-                      border: `1px solid ${isDark ? 'rgba(0, 4, 255, 0.35)' : 'rgba(0, 4, 255, 0.20)'}`,
-                      borderRadius: '12px',
-                      p: 1.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1.5,
-                      bgcolor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(10,10,10,0.04)',
-                      mb: 1.5,
-                    }}
-                    data-testid="demo-awaiting-confirmation"
-                  >
-                    <CircularProgress size={20} sx={{ color: brandFg(isDark) }} />
-                    <Box sx={{ textAlign: 'left', flex: 1, minWidth: 0 }}>
-                      <Typography fontSize={12.5} fontWeight={700} color={theme.palette.text.primary} letterSpacing='-0.1px'>
-                        Waiting for confirmation on {selectedCoin.label}
-                      </Typography>
-                      <Typography fontSize={11} color={theme.palette.text.secondary}>
-                        Simulating on-chain block time · auto-confirms in {confirmSeconds}s
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                      fullWidth
-                      variant='outlined'
-                      onClick={() => setStep(0)}
-                      sx={{
-                        textTransform: 'none',
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        py: 1,
-                        fontSize: '13px',
-                        borderColor: theme.palette.border.main,
-                        color: theme.palette.text.primary,
-                      }}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      fullWidth
-                      variant='contained'
-                      onClick={goToDone}
-                      data-testid="demo-simulate-received-btn"
-                      sx={{
-                        textTransform: 'none',
-                        borderRadius: '12px',
-                        fontWeight: 700,
-                        py: 1,
-                        fontSize: '13px',
-                        background: 'linear-gradient(135deg, #12B76A 0%, #0E9F5C 100%)',
-                        color: '#fff',
-                        boxShadow: '0 4px 14px rgba(18, 183, 106, 0.3)',
-                        '&:hover': {
-                          background: 'linear-gradient(135deg, #0E9F5C 0%, #0C8A50 100%)',
-                          boxShadow: '0 6px 20px rgba(18, 183, 106, 0.4)',
-                        },
-                      }}
-                    >
-                      {t('demoSimulatePayment')}
-                    </Button>
-                  </Box>
-                </>
-              )}
-
-              {/* ═══ STEP 2 — DONE (success) ═══════════════════════════════ */}
-              {step === 2 && (
-                <>
-                  <Box
-                    sx={{
-                      width: 64,
-                      height: 64,
-                      borderRadius: '50%',
-                      mx: 'auto',
-                      my: 1.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: 'linear-gradient(135deg, #12B76A 0%, #0E9F5C 100%)',
-                      boxShadow: '0 8px 24px rgba(18, 183, 106, 0.35)',
-                    }}
-                    data-testid="demo-success-icon"
-                  >
-                    <Icon icon="mdi:check-bold" width={32} color="#fff" />
-                  </Box>
-
-                  <Typography fontWeight={700} fontSize={{ xs: 18, sm: 20 }} color={theme.palette.text.primary} letterSpacing='-0.3px'>
-                    {t('paymentReceived')}
-                  </Typography>
-                  <Typography color={theme.palette.text.secondary} fontSize={12.5} lineHeight={1.5} mt={0.5} mb={2}>
-                    {selectedCoin.amountCrypto} {selectedCoin.short} · <Box component="span" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>€{MOCK_DATA.totalAmount.toFixed(2)} EUR</Box> settled to the merchant wallet.
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      border: `1px solid ${theme.palette.border.main}`,
-                      borderRadius: '12px',
-                      p: 1.5,
-                      mb: 1.5,
-                      textAlign: 'left',
-                      backgroundColor: theme.palette.action.hover,
-                    }}
-                  >
-                    <Box display='flex' justifyContent='space-between' mb={0.75}>
-                      <Typography fontSize={12} color={theme.palette.text.secondary}>Merchant</Typography>
-                      <Typography fontSize={12} fontWeight={600} color={theme.palette.text.primary}>{MOCK_DATA.merchantInfo.name}</Typography>
-                    </Box>
-                    <Box display='flex' justifyContent='space-between' mb={0.75}>
-                      <Typography fontSize={12} color={theme.palette.text.secondary}>Invoice</Typography>
-                      <Typography fontSize={12} fontWeight={600} color={theme.palette.text.primary} fontFamily="'JetBrains Mono', monospace">{MOCK_DATA.orderReference}</Typography>
-                    </Box>
-                    <Box display='flex' justifyContent='space-between'>
-                      <Typography fontSize={12} color={theme.palette.text.secondary}>Network</Typography>
-                      <Typography fontSize={12} fontWeight={600} color={selectedCoin.color}>{selectedCoin.label}</Typography>
-                    </Box>
-                  </Box>
-
-                  <Button
+              {/* Network + Currency selects */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.25, mb: 2.5 }}>
+                <Box>
+                  <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>NETWORK</Typography>
+                  <Select
                     fullWidth
-                    variant='outlined'
-                    onClick={resetDemo}
-                    startIcon={<Icon icon="mdi:restart" width={16} />}
-                    data-testid="demo-reset-btn"
+                    size="small"
+                    data-testid="demo-network-select"
+                    value={selectedNetwork}
+                    onChange={(e) => onNetworkChange(String(e.target.value))}
                     sx={{
-                      textTransform: 'none',
-                      borderRadius: '12px',
-                      fontWeight: 600,
-                      py: 1,
-                      fontSize: '13px',
-                      borderColor: theme.palette.border.main,
-                      color: theme.palette.text.primary,
+                      borderRadius: '8px', minHeight: 46,
+                      '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
+                      '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
                     }}
                   >
-                    {t('tryDemoAgain')}
-                  </Button>
-                </>
-              )}
-            </Box>
-          </Paper>
-        </Box>
+                    {Object.keys(NETWORKS).map((n) => (
+                      <MenuItem key={n} value={n}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Icon icon={NETWORKS[n].icon} width={18} color={NETWORKS[n].iconColor} />
+                          <span>{NETWORKS[n].label}</span>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>CURRENCY</Typography>
+                  <Select
+                    fullWidth
+                    size="small"
+                    data-testid="demo-currency-select"
+                    value={selectedCurrency}
+                    onChange={(e) => { setSelectedCurrency(String(e.target.value)); setPhase('awaiting') }}
+                    sx={{
+                      borderRadius: '8px', minHeight: 46,
+                      '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
+                      '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
+                    }}
+                  >
+                    {currenciesInNetwork.map((code) => (
+                      <MenuItem key={code} value={code}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Icon icon={net.icon} width={18} color={net.iconColor} />
+                          <span>{code}</span>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Box>
+              </Box>
 
-        <Snackbar
-          open={!!copySnackbar}
-          autoHideDuration={2000}
-          onClose={() => setCopySnackbar(null)}
-          message={copySnackbar || ''}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        />
+              {/* Optional receipt email */}
+              <ReceiptEmailField
+                value={receiptEmail}
+                onChange={(v) => { setReceiptEmail(v); setEmailSaved(false) }}
+                onSave={() => { if (receiptEmail && emailValid(receiptEmail)) setEmailSaved(true) }}
+                saved={emailSaved}
+                invalid={emailInvalid}
+                label="Email me a receipt (optional)"
+                helper="We'll email your receipt the moment this payment confirms."
+                savedLabel="Receipt will be sent to this email."
+                invalidLabel="Enter a valid email address."
+                muted={muted}
+                border={border}
+              />
+
+              {/* Instruction sentence */}
+              <Typography data-testid="demo-instruction" sx={{ fontSize: 14, color: theme.palette.text.primary, textAlign: 'center', mb: 2 }}>
+                Pay <strong>{coin.amount} {coin.symbol}</strong> on {net.label}
+              </Typography>
+
+              {/* Opt-in browser alert */}
+              <NotifyMeInline
+                supported={notif.supported}
+                permission={notif.permission}
+                onEnable={() => { void notif.requestPermission() }}
+                ctaLabel="Notify me when it confirms"
+                enabledLabel="You'll get a browser alert when it confirms."
+                muted={muted}
+                border={border}
+                accent={LIME}
+              />
+
+              {/* QR code — a real QR encoding the (mock) payment URI */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 2 }}>
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={copyAddress}
+                  aria-label="Tap to copy payment address"
+                  data-testid="demo-qr-panel"
+                  sx={{
+                    p: 2, borderRadius: '16px', border: `1px solid ${border}`, backgroundColor: '#FFFFFF',
+                    boxShadow: '0 4px 22px rgba(0,0,0,0.08)', width: '100%', maxWidth: 264, mx: 'auto', cursor: 'pointer',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  }}
+                >
+                  <QRCodeSVG
+                    value={paymentUri}
+                    size={220}
+                    level="M"
+                    bgColor="#FFFFFF"
+                    fgColor="#000000"
+                    style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }}
+                  />
+                </Box>
+                <Typography sx={{ mt: 1, fontSize: 12, fontWeight: 600, color: copied ? LIME : muted, display: 'flex', alignItems: 'center', gap: 0.4 }}>
+                  <Icon icon={copied ? 'mdi:check-circle' : 'mdi:content-copy'} width={13} />
+                  {copied ? 'Address copied' : 'Tap the QR to copy the address'}
+                </Typography>
+              </Box>
+
+              {/* Sandbox action — advances the mock flow to confirmed */}
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={simulatePayment}
+                disabled={phase === 'confirming'}
+                data-testid="demo-simulate-btn"
+                sx={{
+                  mt: 1, textTransform: 'none', borderRadius: '999px', fontWeight: 700, minHeight: 46,
+                  backgroundColor: LIME, color: '#fff', boxShadow: '0 4px 14px rgba(79,70,229,0.28)',
+                  '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
+                }}
+              >
+                {phase === 'confirming' ? 'Confirming…' : 'Simulate payment received'}
+              </Button>
+              <Typography sx={{ mt: 1, fontSize: 11, color: muted, textAlign: 'center' }}>
+                Sandbox demo · no real payment is created
+              </Typography>
+            </>
+          )}
+        </Box>
       </Box>
+
+      <Snackbar
+        open={!!snack}
+        autoHideDuration={2000}
+        onClose={() => setSnack(null)}
+        message={snack || ''}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Pay3Layout>
   )
 }

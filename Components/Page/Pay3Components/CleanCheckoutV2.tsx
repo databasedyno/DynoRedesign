@@ -887,6 +887,45 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     )
   }
 
+  // ─── EXPIRED (payment window elapsed) ─────────────────────────────
+  // The reservation timer hit zero (or the backend reported 'expired') before
+  // funds arrived. Show a clear terminal state instead of a stale QR/address.
+  if (phase === 'expired') {
+    return (
+      <PanelShell isDark={isDark} border={border} muted={muted}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }} data-testid="clean-checkout-expired">
+          <Box
+            sx={{
+              width: 56, height: 56, borderRadius: '50%', mb: 2,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: warnBg, color: warnFg,
+            }}
+          >
+            <Icon icon="mdi:timer-off-outline" width={28} />
+          </Box>
+          <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', color: theme.palette.text.primary, mb: 1 }}>
+            {t('checkout.expiredTitle', { defaultValue: 'This payment window expired' })}
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: muted, lineHeight: 1.5, mb: 3 }}>
+            {t('checkout.expiredBody', { defaultValue: 'The time to complete this payment ran out. If you already sent funds, contact the merchant. Otherwise, ask them for a fresh payment link.' })}
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => { if (typeof window !== 'undefined') window.location.reload() }}
+            data-testid="clean-checkout-expired-retry"
+            sx={{
+              textTransform: 'none', borderRadius: '999px', fontWeight: 600, minHeight: 44, px: 3,
+              borderColor: border, color: theme.palette.text.primary,
+              '&:hover': { borderColor: LIME, color: LIME },
+            }}
+          >
+            {t('checkout.expiredRetry', { defaultValue: 'Start over' })}
+          </Button>
+        </Box>
+      </PanelShell>
+    )
+  }
+
   // ─── CONFIRMED ────────────────────────────────────────────────────
   if (phase === 'confirmed' && confirmedAmount && meta_) {
     return (

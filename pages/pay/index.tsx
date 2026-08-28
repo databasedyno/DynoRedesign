@@ -261,6 +261,10 @@ const Payment = () => {
   // checkout form (or a sessionStorage-restored stepper) from flashing with
   // a zero/dust amount before an already-paid link flips to the success card.
   const [initialLoading, setInitialLoading] = useState(true)
+  // Set when pay/getData fails to load the link (expired / not-found / revoked).
+  // Drives a dedicated, branded "this link is no longer valid" screen instead of
+  // an endless "Loading…" spinner or a buried error toast.
+  const [linkError, setLinkError] = useState<{ expired: boolean; message: string } | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
   const [isBank, setIsBank] = useState()
   const [feePayer, setFeePayer] = useState<string>('')
@@ -639,13 +643,27 @@ const Payment = () => {
     } catch (e: any) {
       setLoading(false)
       setInitialLoading(false)
-      const message = e?.response?.data?.message ?? e.message
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message: message,
-          severity: 'error'
-        }
+      const status = e?.response?.status
+      const rawMessage = e?.response?.data?.message ?? e?.message ?? ''
+      // Expired / not-found / revoked links: show a dedicated screen rather than
+      // leaving the customer on an endless spinner or a fleeting toast.
+      const looksExpired =
+        status === 404 ||
+        status === 410 ||
+        /expired|not found|no longer|revoked|invalid link/i.test(String(rawMessage))
+      if (looksExpired) {
+        setLinkError({
+          expired: true,
+          message:
+            t('checkout.paymentLinkExpired', {
+              defaultValue: 'This payment link has expired — please ask the merchant for a fresh one.',
+            }),
+        })
+        return
+      }
+      setLinkError({
+        expired: false,
+        message: rawMessage || t('checkout.loadFailed', { defaultValue: 'We could not load this payment link. Please try again.' }),
       })
     }
   }
@@ -963,6 +981,81 @@ const Payment = () => {
           <Typography fontSize={13.5} color={theme.palette.text.secondary}>
             {t('checkout.loading')}
           </Typography>
+        </Box>
+      </Pay3Layout>
+    );
+  }
+
+  // ─── Link error (expired / not found / revoked) ──────────────────
+  // A clear, branded terminal screen — replaces the old behaviour where an
+  // expired link left the customer on an endless "Loading…" spinner.
+  if (linkError) {
+    return (
+      <Pay3Layout embed={isEmbed}>
+        <Box
+          display='flex'
+          alignItems='flex-start'
+          justifyContent='center'
+          minHeight='60vh'
+          px={{ xs: 2, sm: 3 }}
+          py={{ xs: 3, sm: 6 }}
+        >
+          <Box
+            data-testid="checkout-link-expired"
+            sx={{
+              width: '100%',
+              maxWidth: 440,
+              p: { xs: 3, sm: 4 },
+              borderRadius: '14px',
+              textAlign: 'center',
+              border: `1px solid ${theme.palette.border.main}`,
+              backgroundColor: theme.palette.background.paper,
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0,0,0,0.4)'
+                : '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03)',
+            }}
+          >
+            <Box display='flex' justifyContent='center' mb={2}>
+              <Logo width={26} height={30} />
+            </Box>
+            <Box
+              sx={{
+                width: 56, height: 56, borderRadius: '50%', mx: 'auto', mb: 2,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                backgroundColor: isDark ? 'rgba(245,158,11,0.12)' : '#FEF3C7',
+                color: '#B45309',
+              }}
+            >
+              <Icon icon={linkError.expired ? 'mdi:link-variant-off' : 'mdi:alert-circle-outline'} width={28} />
+            </Box>
+            <Typography
+              component='h1'
+              fontWeight={700}
+              fontSize={{ xs: 20, sm: 22 }}
+              letterSpacing='-0.02em'
+              color={theme.palette.text.primary}
+              mb={1}
+            >
+              {linkError.expired
+                ? t('checkout.linkExpiredTitle', { defaultValue: 'This payment link has expired' })
+                : t('checkout.linkErrorTitle', { defaultValue: "This payment link can't be opened" })}
+            </Typography>
+            <Typography fontSize={14} color={theme.palette.text.secondary} lineHeight={1.5} mb={3}>
+              {linkError.message}
+            </Typography>
+            <Button
+              variant='outlined'
+              onClick={() => { if (typeof window !== 'undefined') window.location.assign('https://dynopay.com') }}
+              data-testid="checkout-link-expired-home"
+              sx={{
+                textTransform: 'none', borderRadius: '999px', fontWeight: 600, minHeight: 44, px: 3,
+                borderColor: theme.palette.border.main, color: theme.palette.text.primary,
+                '&:hover': { borderColor: brandFg(isDark), color: brandFg(isDark) },
+              }}
+            >
+              {t('checkout.goToDynopay', { defaultValue: 'Go to Dynopay' })}
+            </Button>
+          </Box>
         </Box>
       </Pay3Layout>
     );

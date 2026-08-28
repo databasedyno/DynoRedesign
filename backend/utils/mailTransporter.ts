@@ -45,9 +45,23 @@ const mailTransporter = async ({ to, subject, body, name, attachments }: mailOpt
   // When DISABLE_OUTBOUND_EMAIL=true (the Emergent preview is wired to the LIVE
   // production DB), skip the Brevo API entirely so no real merchant / customer /
   // admin email is ever sent from this environment. Production never sets this flag.
+  //
+  // EXCEPTION — EMAIL_TEST_ALLOWLIST: a comma-separated list of addresses that
+  // are STILL allowed to receive mail while suppression is on. Used to verify the
+  // real "payment confirmed" receipt end-to-end against a single throwaway inbox
+  // without opening the floodgates to real merchants/customers. Leave empty in
+  // normal preview operation.
   if (envRaw("DISABLE_OUTBOUND_EMAIL") === "true") {
-    log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=${to} | subject=${subject}`);
-    return { suppressed: true } as unknown;
+    const allowlist = String(envRaw("EMAIL_TEST_ALLOWLIST") || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    const recipient = String(to || "").trim().toLowerCase();
+    if (!allowlist.includes(recipient)) {
+      log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=${to} | subject=${subject}`);
+      return { suppressed: true } as unknown;
+    }
+    log(`[Email] TEST-ALLOWLISTED (DISABLE_OUTBOUND_EMAIL bypassed) -> to=${to} | subject=${subject}`);
   }
 
   // --- Input validation (prevent Brevo 400s from bad data) ---

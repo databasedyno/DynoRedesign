@@ -1,357 +1,381 @@
 #!/usr/bin/env python3
 """
-READ-ONLY Backend Verification for Transaction Display Status Fix
-LIVE PRODUCTION Railway Postgres DB (SAFE MODE)
-DO NOT create or modify ANY data
+Backend API Testing for DynoPay - Confirm Receipt Email Hardening + Test Hook
+Environment: LIVE PROD Railway DB in SAFE MODE
+Base URL: http://localhost:8001
 """
 
 import requests
 import json
-from datetime import datetime
+import sys
+from typing import Dict, Any, Tuple
 
-# Base URL from frontend .env
-BASE_URL = "https://payment-config-hub-3.preview.emergentagent.com"
-
-# Test credentials
+# Configuration
+BASE_URL = "http://localhost:8001"
+TEST_SECRET = "e3df97e7a8d2d87802bd43f5db4584a6abf91096ab1956a0"
+ALLOWLISTED_EMAIL = "gidineter@gmail.com"
+NON_ALLOWLISTED_EMAIL = "someone-else@example.com"
 LOGIN_EMAIL = "onarrival21@gmail.com"
 LOGIN_PASSWORD = "Katiekendra123@"
 
-def print_section(title):
-    print(f"\n{'='*80}")
-    print(f"  {title}")
-    print(f"{'='*80}\n")
+# Test results storage
+test_results = []
 
-def login():
-    """Login and get JWT token"""
-    print_section("TEST 0: LOGIN")
-    url = f"{BASE_URL}/api/user/login"
-    payload = {
-        "email": LOGIN_EMAIL,
-        "password": LOGIN_PASSWORD
+def log_test(test_num: int, test_name: str, passed: bool, details: str):
+    """Log test result"""
+    status = "✅ PASS" if passed else "❌ FAIL"
+    result = {
+        "test_num": test_num,
+        "test_name": test_name,
+        "passed": passed,
+        "details": details
     }
-    
-    print(f"POST {url}")
-    print(f"Payload: {json.dumps(payload, indent=2)}")
-    
-    response = requests.post(url, json=payload)
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code == 200:
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)[:500]}...")
-        
-        if 'data' in data and 'accessToken' in data['data']:
-            token = data['data']['accessToken']
-            print(f"✅ Login successful! Token length: {len(token)}")
-            return token
-        else:
-            print(f"❌ No accessToken in response")
-            return None
-    else:
-        print(f"❌ Login failed: {response.text[:500]}")
-        return None
+    test_results.append(result)
+    print(f"\n{'='*80}")
+    print(f"TEST {test_num}: {test_name}")
+    print(f"Status: {status}")
+    print(f"Details: {details}")
+    print(f"{'='*80}")
 
-def test_transaction_722(token):
-    """Test 1: GET /api/wallet/transaction/722"""
-    print_section("TEST 1: GET /api/wallet/transaction/722")
-    url = f"{BASE_URL}/api/wallet/transaction/722"
-    headers = {"Authorization": f"Bearer {token}"}
-    
-    print(f"GET {url}")
-    response = requests.get(url, headers=headers)
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code == 200:
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
-        
-        # Extract key fields
-        if 'data' in data:
-            tx_data = data['data']
-            status = tx_data.get('status', 'N/A')
-            payment_detected = tx_data.get('payment_detected', 'N/A')
-            confirmations = tx_data.get('confirmations', 'N/A')
-            usd_value = tx_data.get('usd_value', 'N/A')
-            created_at = tx_data.get('createdAt') or tx_data.get('date_time', 'N/A')
-            incoming_tx_hash = tx_data.get('incoming_tx_hash', 'N/A')
-            
-            print(f"\n📊 KEY FIELDS:")
-            print(f"  status: {status}")
-            print(f"  payment_detected: {payment_detected}")
-            print(f"  confirmations: {confirmations}")
-            print(f"  usd_value: {usd_value}")
-            print(f"  createdAt/date_time: {created_at}")
-            print(f"  incoming_tx_hash: {incoming_tx_hash}")
-            
-            # Validation
-            if payment_detected == False:
-                if status in ['awaiting_payment', 'unpaid']:
-                    print(f"\n✅ PASS: payment_detected=false AND status='{status}' (NOT 'pending')")
-                elif status == 'pending':
-                    print(f"\n❌ FAIL: status='pending' but payment_detected=false (should be 'awaiting_payment' or 'unpaid')")
-                else:
-                    print(f"\n⚠️  UNEXPECTED: status='{status}' with payment_detected=false")
-            else:
-                print(f"\n⚠️  payment_detected={payment_detected} (expected false)")
-        else:
-            print(f"❌ No 'data' field in response")
-    else:
-        print(f"❌ Request failed: {response.text[:500]}")
-
-def test_get_all_transactions(token):
-    """Test 2: POST /api/wallet/getAllTransactions"""
-    print_section("TEST 2: POST /api/wallet/getAllTransactions")
-    url = f"{BASE_URL}/api/wallet/getAllTransactions"
-    headers = {"Authorization": f"Bearer {token}"}
-    payload = {}
-    
-    print(f"POST {url}")
-    print(f"Payload: {json.dumps(payload)}")
-    response = requests.post(url, json=payload, headers=headers)
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code == 200:
+def test_1_health_check() -> bool:
+    """Test 1: GET /health - expect healthy status with SAFE MODE"""
+    try:
+        response = requests.get(f"{BASE_URL}/health", timeout=10)
         data = response.json()
         
-        # Extract transactions
-        transactions = []
-        if 'data' in data:
-            if isinstance(data['data'], list):
-                transactions = data['data']
-            elif 'transactions' in data['data']:
-                transactions = data['data']['transactions']
+        # Check status code
+        if response.status_code != 200:
+            log_test(1, "Health Check", False, 
+                    f"Expected HTTP 200, got {response.status_code}. Response: {json.dumps(data, indent=2)}")
+            return False
         
-        print(f"Total transactions: {len(transactions)}")
+        # Check required fields
+        checks = []
+        checks.append(("status", data.get("status") == "healthy"))
+        checks.append(("database", data.get("database") == "connected"))
+        checks.append(("redis", data.get("redis") == "connected"))
+        checks.append(("background_jobs.eligible", data.get("background_jobs", {}).get("eligible") == False))
         
-        # Collect distinct statuses
-        statuses = set()
-        sample_rows = []
+        all_passed = all(check[1] for check in checks)
         
-        for tx in transactions:
-            status = tx.get('status', 'N/A')
-            statuses.add(status)
-            
-            if len(sample_rows) < 3:
-                tx_id = tx.get('id') or tx.get('transaction_id', 'N/A')
-                payment_detected = tx.get('payment_detected', 'N/A')
-                confirmations = tx.get('confirmations', 'N/A')
-                usd_value = tx.get('usd_value', 'N/A')
-                sample_rows.append({
-                    'id': tx_id,
-                    'status': status,
-                    'payment_detected': payment_detected,
-                    'confirmations': confirmations,
-                    'usd_value': usd_value
-                })
+        details = f"HTTP {response.status_code}\n"
+        details += f"Response: {json.dumps(data, indent=2)}\n"
+        details += "Checks:\n"
+        for check_name, check_result in checks:
+            details += f"  - {check_name}: {'✓' if check_result else '✗'}\n"
         
-        print(f"\n📊 DISTINCT STATUS VALUES: {sorted(statuses)}")
-        print(f"\n📋 SAMPLE ROWS (first 3):")
-        for row in sample_rows:
-            print(f"  ID: {row['id']}, status: {row['status']}, payment_detected: {row['payment_detected']}, confirmations: {row['confirmations']}, usd_value: {row['usd_value']}")
+        log_test(1, "Health Check", all_passed, details)
+        return all_passed
         
-        # Sanity checks
-        print(f"\n🔍 SANITY CHECKS:")
-        awaiting_or_unpaid = [tx for tx in transactions if tx.get('status') in ['awaiting_payment', 'unpaid']]
-        pending_txs = [tx for tx in transactions if tx.get('status') == 'pending']
-        
-        print(f"  'awaiting_payment' or 'unpaid' transactions: {len(awaiting_or_unpaid)}")
-        for tx in awaiting_or_unpaid[:3]:
-            tx_id = tx.get('id') or tx.get('transaction_id', 'N/A')
-            payment_detected = tx.get('payment_detected', 'N/A')
-            confirmations = tx.get('confirmations', 0)
-            usd_value = tx.get('usd_value', 0)
-            incoming_tx_hash = tx.get('incoming_tx_hash', None)
-            has_payment_signal = incoming_tx_hash or confirmations > 0 or usd_value > 0
-            print(f"    ID {tx_id}: payment_detected={payment_detected}, has_payment_signal={has_payment_signal}")
-        
-        print(f"\n  'pending' transactions: {len(pending_txs)}")
-        for tx in pending_txs[:3]:
-            tx_id = tx.get('id') or tx.get('transaction_id', 'N/A')
-            payment_detected = tx.get('payment_detected', 'N/A')
-            confirmations = tx.get('confirmations', 0)
-            usd_value = tx.get('usd_value', 0)
-            incoming_tx_hash = tx.get('incoming_tx_hash', None)
-            has_payment_signal = incoming_tx_hash or confirmations > 0 or usd_value > 0
-            print(f"    ID {tx_id}: payment_detected={payment_detected}, has_payment_signal={has_payment_signal}")
-        
-        print(f"\n✅ PASS: getAllTransactions returned 200 with {len(transactions)} transactions")
-    else:
-        print(f"❌ Request failed: {response.text[:500]}")
+    except Exception as e:
+        log_test(1, "Health Check", False, f"Exception: {str(e)}")
+        return False
 
-def test_recent_transactions(token):
-    """Test 3: GET /api/dashboard/recent-transactions"""
-    print_section("TEST 3: GET /api/dashboard/recent-transactions")
-    url = f"{BASE_URL}/api/dashboard/recent-transactions"
-    headers = {"Authorization": f"Bearer {token}"}
-    
-    print(f"GET {url}")
-    response = requests.get(url, headers=headers)
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code == 200:
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)[:1000]}...")
+def test_2_guard_missing_secret() -> bool:
+    """Test 2: POST /api/__paytest/confirm-email with NO x-test-secret header - expect 403"""
+    try:
+        headers = {"Content-Type": "application/json"}
+        body = {"email": ALLOWLISTED_EMAIL}
         
-        # Extract transactions
-        transactions = []
-        if 'data' in data:
-            if isinstance(data['data'], list):
-                transactions = data['data']
-            elif 'transactions' in data['data']:
-                transactions = data['data']['transactions']
+        response = requests.post(
+            f"{BASE_URL}/api/__paytest/confirm-email",
+            headers=headers,
+            json=body,
+            timeout=10
+        )
         
-        print(f"\nTotal recent transactions: {len(transactions)}")
+        passed = response.status_code == 403
         
-        # Check if tx 722 is present
-        tx_722 = None
-        for tx in transactions:
-            tx_id = tx.get('id') or tx.get('transaction_id')
-            if tx_id == 722:
-                tx_722 = tx
-                break
+        details = f"HTTP {response.status_code}\n"
+        details += f"Request: POST /api/__paytest/confirm-email\n"
+        details += f"Headers: {json.dumps(headers, indent=2)}\n"
+        details += f"Body: {json.dumps(body, indent=2)}\n"
+        details += f"Response: {response.text}\n"
+        details += f"Expected: HTTP 403 (Forbidden)\n"
+        details += f"Result: {'✓ Correct' if passed else '✗ Wrong status code'}"
         
-        if tx_722:
-            status = tx_722.get('status', 'N/A')
-            payment_detected = tx_722.get('payment_detected', 'N/A')
-            print(f"\n📊 TX 722 FOUND in recent transactions:")
-            print(f"  status: {status}")
-            print(f"  payment_detected: {payment_detected}")
-            print(f"  ✅ Status matches Test 1 expectation")
-        else:
-            print(f"\n⚠️  TX 722 NOT found in recent transactions (may not be recent enough)")
+        log_test(2, "Guard - Missing Secret", passed, details)
+        return passed
         
-        # Show distinct statuses
-        statuses = set(tx.get('status', 'N/A') for tx in transactions)
-        print(f"\nDistinct statuses in recent transactions: {sorted(statuses)}")
-        
-        print(f"\n✅ PASS: recent-transactions returned 200 with no crash")
-    else:
-        print(f"❌ Request failed: {response.text[:500]}")
+    except Exception as e:
+        log_test(2, "Guard - Missing Secret", False, f"Exception: {str(e)}")
+        return False
 
-def test_settled_transaction_regression(token):
-    """Test 4: Regression test on a SETTLED transaction"""
-    print_section("TEST 4: REGRESSION - SETTLED/successful transaction")
-    
-    # First get all transactions to find a settled one
-    url = f"{BASE_URL}/api/wallet/getAllTransactions"
-    headers = {"Authorization": f"Bearer {token}"}
-    response = requests.post(url, json={}, headers=headers)
-    
-    if response.status_code != 200:
-        print(f"❌ Could not fetch transactions for regression test")
-        return
-    
-    data = response.json()
-    transactions = []
-    if 'data' in data:
-        if isinstance(data['data'], list):
-            transactions = data['data']
-        elif 'transactions' in data['data']:
-            transactions = data['data']['transactions']
-    
-    # Find a settled/successful transaction
-    settled_tx = None
-    for tx in transactions:
-        status = tx.get('status', '')
-        if status.lower() in ['settled', 'successful', 'completed', 'confirmed']:
-            settled_tx = tx
-            break
-    
-    if not settled_tx:
-        print(f"⚠️  No settled/successful transaction found for regression test")
-        return
-    
-    settled_id = settled_tx.get('id') or settled_tx.get('transaction_id')
-    print(f"Found settled transaction ID: {settled_id}")
-    
-    # Test the detail endpoint
-    url = f"{BASE_URL}/api/wallet/transaction/{settled_id}"
-    response = requests.get(url, headers=headers)
-    print(f"\nGET {url}")
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code == 200:
-        data = response.json()
-        if 'data' in data:
-            tx_data = data['data']
-            status = tx_data.get('status', 'N/A')
-            confirmations = tx_data.get('confirmations', 'N/A')
-            
-            print(f"\n📊 SETTLED TX {settled_id}:")
-            print(f"  status: {status}")
-            print(f"  confirmations: {confirmations}")
-            
-            if status.lower() in ['settled', 'successful', 'completed', 'confirmed']:
-                print(f"\n✅ PASS: Status is still '{status}' (NOT awaiting_payment/unpaid)")
-            else:
-                print(f"\n❌ FAIL: Status changed to '{status}' (regression)")
-        else:
-            print(f"❌ No 'data' field in response")
-    else:
-        print(f"❌ Request failed: {response.text[:500]}")
+def test_3_guard_wrong_secret() -> bool:
+    """Test 3: POST /api/__paytest/confirm-email with WRONG x-test-secret - expect 403"""
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "x-test-secret": "WRONGSECRET"
+        }
+        body = {"email": ALLOWLISTED_EMAIL}
+        
+        response = requests.post(
+            f"{BASE_URL}/api/__paytest/confirm-email",
+            headers=headers,
+            json=body,
+            timeout=10
+        )
+        
+        passed = response.status_code == 403
+        
+        details = f"HTTP {response.status_code}\n"
+        details += f"Request: POST /api/__paytest/confirm-email\n"
+        details += f"Headers: x-test-secret=WRONGSECRET\n"
+        details += f"Body: {json.dumps(body, indent=2)}\n"
+        details += f"Response: {response.text}\n"
+        details += f"Expected: HTTP 403 (Forbidden)\n"
+        details += f"Result: {'✓ Correct' if passed else '✗ Wrong status code'}"
+        
+        log_test(3, "Guard - Wrong Secret", passed, details)
+        return passed
+        
+    except Exception as e:
+        log_test(3, "Guard - Wrong Secret", False, f"Exception: {str(e)}")
+        return False
 
-def test_health_endpoint():
-    """Test 5: GET /health"""
-    print_section("TEST 5: GET /health (SAFE MODE verification)")
-    
-    # Try both /health and /api/status/health
-    for endpoint in ["/health", "/api/status/health"]:
-        url = f"{BASE_URL}{endpoint}"
-        print(f"\nGET {url}")
+def test_4_validation_invalid_email() -> bool:
+    """Test 4: POST with correct secret but invalid email - expect 400"""
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "x-test-secret": TEST_SECRET
+        }
+        body = {"email": "not-an-email"}
+        
+        response = requests.post(
+            f"{BASE_URL}/api/__paytest/confirm-email",
+            headers=headers,
+            json=body,
+            timeout=10
+        )
+        
+        passed = response.status_code == 400
         
         try:
-            response = requests.get(url)
-            print(f"Status: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                print(f"Response: {json.dumps(data, indent=2)}")
-                
-                # Check for SAFE MODE indicators
-                database = data.get('database', 'N/A')
-                redis = data.get('redis', 'N/A')
-                bg_jobs = data.get('background_jobs', {})
-                bg_jobs_eligible = bg_jobs.get('eligible', 'N/A') if isinstance(bg_jobs, dict) else 'N/A'
-                
-                print(f"\n📊 HEALTH CHECK:")
-                print(f"  database: {database}")
-                print(f"  redis: {redis}")
-                print(f"  background_jobs.eligible: {bg_jobs_eligible}")
-                
-                if database == 'connected' and redis == 'connected' and bg_jobs_eligible == False:
-                    print(f"\n✅ PASS: SAFE MODE confirmed (database+redis connected, bg_jobs.eligible=false)")
-                else:
-                    print(f"\n⚠️  Health check returned but values unexpected")
-                
-                return
-        except Exception as e:
-            print(f"❌ Error: {str(e)}")
-    
-    print(f"\n❌ Neither /health nor /api/status/health returned 200")
+            response_data = response.json()
+            message = response_data.get("message", "")
+            has_valid_message = "valid" in message.lower() and "email" in message.lower()
+        except:
+            has_valid_message = False
+        
+        details = f"HTTP {response.status_code}\n"
+        details += f"Request: POST /api/__paytest/confirm-email\n"
+        details += f"Headers: x-test-secret=<correct>\n"
+        details += f"Body: {json.dumps(body, indent=2)}\n"
+        details += f"Response: {response.text}\n"
+        details += f"Expected: HTTP 400 with message about valid email required\n"
+        details += f"Result: {'✓ Correct status' if passed else '✗ Wrong status code'}\n"
+        details += f"Message check: {'✓ Contains valid email message' if has_valid_message else '✗ Missing expected message'}"
+        
+        log_test(4, "Validation - Invalid Email", passed and has_valid_message, details)
+        return passed and has_valid_message
+        
+    except Exception as e:
+        log_test(4, "Validation - Invalid Email", False, f"Exception: {str(e)}")
+        return False
+
+def test_5_happy_path_allowlisted() -> bool:
+    """Test 5: POST with correct secret + allowlisted email - expect 200, dispatched=true, check logs"""
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "x-test-secret": TEST_SECRET
+        }
+        body = {"email": ALLOWLISTED_EMAIL}
+        
+        response = requests.post(
+            f"{BASE_URL}/api/__paytest/confirm-email",
+            headers=headers,
+            json=body,
+            timeout=15
+        )
+        
+        # Check status code
+        status_ok = response.status_code == 200
+        
+        # Check response body
+        try:
+            response_data = response.json()
+            dispatched = response_data.get("data", {}).get("dispatched", False)
+            transaction_id = response_data.get("data", {}).get("transactionId", "")
+            has_test_prefix = transaction_id.startswith("TEST-")
+        except:
+            dispatched = False
+            transaction_id = ""
+            has_test_prefix = False
+        
+        passed = status_ok and dispatched and has_test_prefix
+        
+        details = f"HTTP {response.status_code}\n"
+        details += f"Request: POST /api/__paytest/confirm-email\n"
+        details += f"Headers: x-test-secret=<correct>\n"
+        details += f"Body: {json.dumps(body, indent=2)}\n"
+        details += f"Response: {json.dumps(response_data if 'response_data' in locals() else {}, indent=2)}\n"
+        details += f"\nChecks:\n"
+        details += f"  - HTTP 200: {'✓' if status_ok else '✗'}\n"
+        details += f"  - dispatched=true: {'✓' if dispatched else '✗'}\n"
+        details += f"  - transactionId starts with TEST-: {'✓' if has_test_prefix else '✗'}\n"
+        details += f"  - transactionId: {transaction_id}\n"
+        details += f"\n⚠️ IMPORTANT: This test SENDS A REAL EMAIL to {ALLOWLISTED_EMAIL}"
+        
+        log_test(5, "Happy Path - Allowlisted Email (REAL EMAIL SENT)", passed, details)
+        return passed
+        
+    except Exception as e:
+        log_test(5, "Happy Path - Allowlisted Email", False, f"Exception: {str(e)}")
+        return False
+
+def test_6_allowlist_negative() -> bool:
+    """Test 6: POST with correct secret + non-allowlisted email - expect 200 but dispatched=false"""
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "x-test-secret": TEST_SECRET
+        }
+        body = {"email": NON_ALLOWLISTED_EMAIL}
+        
+        response = requests.post(
+            f"{BASE_URL}/api/__paytest/confirm-email",
+            headers=headers,
+            json=body,
+            timeout=15
+        )
+        
+        # Check status code
+        status_ok = response.status_code == 200
+        
+        # Check response body
+        try:
+            response_data = response.json()
+            dispatched = response_data.get("data", {}).get("dispatched", True)  # Default True to fail if missing
+            transaction_id = response_data.get("data", {}).get("transactionId", "")
+        except:
+            dispatched = True  # Default True to fail
+            transaction_id = ""
+        
+        passed = status_ok and not dispatched
+        
+        details = f"HTTP {response.status_code}\n"
+        details += f"Request: POST /api/__paytest/confirm-email\n"
+        details += f"Headers: x-test-secret=<correct>\n"
+        details += f"Body: {json.dumps(body, indent=2)}\n"
+        details += f"Response: {json.dumps(response_data if 'response_data' in locals() else {}, indent=2)}\n"
+        details += f"\nChecks:\n"
+        details += f"  - HTTP 200: {'✓' if status_ok else '✗'}\n"
+        details += f"  - dispatched=false: {'✓' if not dispatched else '✗'}\n"
+        details += f"  - transactionId: {transaction_id}\n"
+        details += f"\n✓ Email was SUPPRESSED (not sent) as expected"
+        
+        log_test(6, "Allowlist Negative - Suppressed Email", passed, details)
+        return passed
+        
+    except Exception as e:
+        log_test(6, "Allowlist Negative - Suppressed Email", False, f"Exception: {str(e)}")
+        return False
+
+def test_7_login_regression() -> bool:
+    """Test 7: POST /api/user/login - expect 200 with accessToken"""
+    try:
+        headers = {"Content-Type": "application/json"}
+        body = {
+            "email": LOGIN_EMAIL,
+            "password": LOGIN_PASSWORD
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/api/user/login",
+            headers=headers,
+            json=body,
+            timeout=10
+        )
+        
+        # Check status code
+        status_ok = response.status_code == 200
+        
+        # Check response body
+        try:
+            response_data = response.json()
+            message = response_data.get("message", "")
+            access_token = response_data.get("data", {}).get("accessToken", "")
+            has_token = len(access_token) > 0
+            login_successful = "login successful" in message.lower()
+        except:
+            has_token = False
+            login_successful = False
+            access_token = ""
+        
+        passed = status_ok and has_token and login_successful
+        
+        details = f"HTTP {response.status_code}\n"
+        details += f"Request: POST /api/user/login\n"
+        details += f"Body: {json.dumps({'email': LOGIN_EMAIL, 'password': '***'}, indent=2)}\n"
+        details += f"Response message: {message if 'message' in locals() else 'N/A'}\n"
+        details += f"\nChecks:\n"
+        details += f"  - HTTP 200: {'✓' if status_ok else '✗'}\n"
+        details += f"  - Message contains 'Login Successful!': {'✓' if login_successful else '✗'}\n"
+        details += f"  - accessToken present: {'✓' if has_token else '✗'}\n"
+        details += f"  - accessToken length: {len(access_token)} chars"
+        
+        log_test(7, "Login Regression", passed, details)
+        return passed
+        
+    except Exception as e:
+        log_test(7, "Login Regression", False, f"Exception: {str(e)}")
+        return False
+
+def check_backend_logs_for_test_5_and_6():
+    """Check backend logs for TEST-ALLOWLISTED and SUPPRESSED messages"""
+    print(f"\n{'='*80}")
+    print("BACKEND LOG INSPECTION (Tests 5 & 6)")
+    print(f"{'='*80}")
+    print("\nChecking backend logs for email delivery status...")
+    print("Looking for:")
+    print(f"  - [Email] TEST-ALLOWLISTED for {ALLOWLISTED_EMAIL}")
+    print(f"  - [Email] SUPPRESSED for {NON_ALLOWLISTED_EMAIL}")
+    print(f"  - [Email] Generated PDF receipt")
+    print("\nLog output will be shown below:")
+    print(f"{'='*80}\n")
 
 def main():
+    """Run all tests in sequence"""
     print("\n" + "="*80)
-    print("  READ-ONLY BACKEND VERIFICATION")
-    print("  Transaction Display Status Fix")
-    print("  LIVE PRODUCTION Railway Postgres DB (SAFE MODE)")
+    print("DYNOPAY BACKEND TESTING - CONFIRM RECEIPT EMAIL HARDENING + TEST HOOK")
+    print("Environment: LIVE PROD Railway DB in SAFE MODE")
+    print("Base URL: http://localhost:8001")
+    print("="*80 + "\n")
+    
+    # Run tests in order
+    results = []
+    results.append(test_1_health_check())
+    results.append(test_2_guard_missing_secret())
+    results.append(test_3_guard_wrong_secret())
+    results.append(test_4_validation_invalid_email())
+    results.append(test_5_happy_path_allowlisted())
+    results.append(test_6_allowlist_negative())
+    results.append(test_7_login_regression())
+    
+    # Summary
+    print("\n" + "="*80)
+    print("TEST SUMMARY")
     print("="*80)
     
-    # Login
-    token = login()
-    if not token:
-        print("\n❌ CRITICAL: Login failed. Cannot proceed with tests.")
-        return
+    passed_count = sum(1 for r in results if r)
+    total_count = len(results)
     
-    # Run all tests
-    test_transaction_722(token)
-    test_get_all_transactions(token)
-    test_recent_transactions(token)
-    test_settled_transaction_regression(token)
-    test_health_endpoint()
+    for result in test_results:
+        status = "✅ PASS" if result["passed"] else "❌ FAIL"
+        print(f"{status} - Test {result['test_num']}: {result['test_name']}")
     
-    print("\n" + "="*80)
-    print("  TESTING COMPLETE")
-    print("="*80 + "\n")
+    print(f"\n{'='*80}")
+    print(f"TOTAL: {passed_count}/{total_count} tests passed ({passed_count/total_count*100:.1f}%)")
+    print(f"{'='*80}\n")
+    
+    # Note about log inspection
+    check_backend_logs_for_test_5_and_6()
+    
+    # Exit code
+    sys.exit(0 if passed_count == total_count else 1)
 
 if __name__ == "__main__":
     main()
