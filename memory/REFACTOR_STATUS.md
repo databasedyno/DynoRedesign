@@ -1,4 +1,4 @@
-# SESSION UPDATE 2026-06 (fork) — Payouts FULL i18n DONE + backend refactor backlog (B–F) formalized
+# SESSION UPDATE 2026-06 (fork) — Payouts FULL i18n DONE + SINGLE-INSTANCE backend plan (B–F re-scoped)
 
 ## ✅ /payouts full localization — COMPLETE (frontend, tsc EXIT 0)
 Finished the in-progress Payouts translation. `Components/Page/Payouts/index.tsx` now wraps EVERY
@@ -15,29 +15,60 @@ locales (en/es/pt/fr/de/nl `common.json`):
 BUGFIX (introduced by the prior in-progress pass): `handleExportPayouts` had a local `const t = new Date(...)`
 shadowing the i18n `t()` — renamed to `to` (tsc was EXIT 2, now EXIT 0). Money-path untouched; pure i18n.
 
-## Backend refactor backlog (DEFERRED — needs explicit approval, high-risk on a LIVE payments app)
-These were approved-for-review but NOT authorized to build (see PART A below). Formalized here as the
-actionable backend track. Recommend each as its own scoped effort with `integration_expert` where auth/DB
-is involved; live prod DB in SAFE MODE means read-only verification only.
-- **B — Postgres as system-of-record for in-flight payments.** Redis is currently SoR for checkout
-  sessions (`customer-<ref>`); crash/eviction risks losing in-flight state. Move authoritative payment
-  state to Postgres with Redis as a cache/lock only. Est. 3–5w, phased. HIGHEST risk — touches money path.
-- **C — Split ~25 cron jobs out of the API process into a worker service.** `worker.ts` entrypoint already
-  exists; `registerLeaderCronJobs` runs sweeps/settlement/reconciliation/digests inside the API. Move to a
-  dedicated worker deployment so API restarts don't drop jobs and jobs don't compete with request latency.
-  Est. 1–2d. Lowest-risk backend win.
-- **D — Decompose god files.** `server.ts` (~1752), `controller/payment/paymentLinkController.ts` (~2723),
-  `apis/tatumApi.ts` (~4136). Use the strangler pattern (extract exported service modules, keep route
-  handlers thin) — same approach already used for `customerDirectoryController` → `customerDirectoryService`.
-  Est. 3–5d.
-- **E — Unify three migration mechanisms into one versioned pipeline.** Currently `bootMigrations.ts`
-  (idempotent boot), Sequelize sync, and ad-hoc `migrations/*` coexist. Consolidate to one versioned,
-  recorded (`schema_migrations`) pipeline. Est. 1–2w.
-- **F — Redis-based rate-limiting + a real CIDR library.** In-memory rate-limit Map (per-process, lost on
-  restart, not shared across instances) + a broken `Set.has()` CIDR check. Move counters to Redis and use a
-  vetted CIDR lib. Est. 1d.
-Also tracked (highest-priority infra, PART A item A): shared prod DB/Redis across environments → isolate
-per env (staging). And item H: observability is 15-min email digests → Sentry-class capture.
+## ⭐ BACKEND PLAN — SINGLE-INSTANCE FOCUS (user decision 2026-06: run ONE backend instance for now)
+Re-scoped the PART A/B–F backlog for a single-instance deployment. Verified against the actual code
+(rateLimitMiddleware.ts, utils/leaderElection.ts, routes/index.ts, server.ts) — several original findings
+turn out to be MULTI-INSTANCE-ONLY concerns and can be dropped. Ground rules unchanged: live prod DB in
+SAFE MODE → read-only verification only; money-path untouched; ship per-item via Save to GitHub; use
+`integration_expert` for anything touching auth/DB.
+
+### ✅ IMPLEMENT NOW (single-instance-appropriate, code-level, low risk)
+- **D — Decompose god files (strangler pattern).** HIGHEST value + directly prevents the 500-line
+  Save-to-GitHub gate from re-blocking (it just did on `pdfService.ts` → split into `pdfInvoiceHelpers.ts`
+  this session). Behavior-neutral pure code moves; same pattern as `customerDirectoryController` →
+  `customerDirectoryService`. Prioritise the biggest / most-edited: `apis/tatumApi.ts` (~4136),
+  `controller/payment/paymentLinkController.ts` (~2723), `routes/diagnosticsRouter.ts` (~1862),
+  `server.ts` (~1753), `services/merchantPool/merchantPoolSweep.ts` (~1547),
+  `controller/dashboardController.ts` (~1441). Do a few at a time; each drops the file below/under its
+  baseline and is independently shippable. Est. 3–5d total, but incrementally valuable from day 1.
+- **F (CIDR ONLY) — real CIDR matching for the Tatum webhook IP check.** `routes/index.ts`
+  `TATUM_KNOWN_IPS.has(clientIp)` is EXACT-match against a hardcoded Set (comment even says "no loose
+  prefix matching"), so a legit Tatum IP inside a published CIDR range that isn't literally listed reads as
+  "unknown". LOW severity today (unknown IPs are allowed-but-flagged, not blocked) but worth fixing with a
+  vetted CIDR lib (e.g. `ip-cidr`/`ipaddr.js`) + Tatum's published ranges. Small, self-contained. Est. ~0.5d.
+- **E — Unify migration mechanisms (phased).** Instance-independent; improves deploy safety. Today
+  `bootMigrations.ts` (idempotent boot, `schema_migrations`), Sequelize sync, and ad-hoc `migrations/*`
+  coexist. Consolidate onto ONE versioned, recorded pipeline. Medium effort — do it phased/read-only-safe.
+  Est. 1–2w.
+
+### 🟡 MOOT / DROPPED under single-instance (were multi-instance-only concerns)
+- **C — cron→worker split: NOT NEEDED now.** `utils/leaderElection.ts` (Redis lease) exists ONLY because
+  DigitalOcean ran N=2 identical instances that each registered cron. On ONE instance the election is a
+  trivially-satisfied no-op (it promotes on the immediate first tick). In-process leader cron works fine;
+  keep it as-is (harmless safety net). Revisit ONLY if/when scaling to N>1 or if cron latency starts
+  competing with request latency.
+- **F — Redis rate-limit counters: ALREADY DONE for the real limiters.** `middleware/rateLimitMiddleware.ts`
+  ALL limiters (api/ip/strict/login/moderate/otp/webhook/payment/sandbox) already use Redis
+  (`getRedisItem`/`setRedisItem`, sliding window). The only in-memory counter left is `unsignedWebhookCounts`
+  (a Map in `routes/index.ts` for legacy-unsigned-webhook throttling) — correct and sufficient on a single
+  instance. No migration needed now. (The old PART A "in-memory rate-limit Map" note is stale — corrected here.)
+
+### 🔴 KEEP DEFERRED (high-risk / NOT solved by single-instance — needs explicit approval)
+- **B — Postgres system-of-record for in-flight payments.** Durability gap is INDEPENDENT of instance
+  count: Redis is SoR for checkout sessions (`customer-<ref>`), so a Redis eviction/crash still loses
+  in-flight state even on one instance. This is the one item single-instance does NOT address. Highest
+  risk/effort, touches the money path. Est. 3–5w phased. Defer until explicitly approved.
+- **A — per-env DB/Redis isolation (infra/ops).** Preview/staging currently share the LIVE prod DB/Redis
+  (mitigated by SAFE MODE + Redis DB index /1). A real staging DB is the highest-value infra step but is
+  an ops task, not app code. Est. 2–3d.
+- **H — Observability → Sentry-class capture** (today = 15-min email digests). Nice-to-have, instance-
+  independent. Est. ~1d.
+
+### Suggested order for the single-instance track
+1. D (a few god files at a time — immediate maintainability + keeps the commit gate green)
+2. F-CIDR (quick correctness win)
+3. E (phased migration unification)
+…then reconsider B (approval) and A/H (infra) separately.
 
 ---
 
