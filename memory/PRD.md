@@ -1,3 +1,38 @@
+# SESSION 2026-06 (fork) — /payouts full i18n + Save-to-GitHub blocker ROOT-CAUSED & fixed + backend backlog documented
+
+Preview: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
+Merchant login (READ-ONLY): onarrival21@gmail.com / Katiekendra123@ (user_id=1). New commit: e33022823 (branch New-DesignFixes).
+
+## ✅ /payouts full localization — DONE (frontend; tsc EXIT 0; EN screenshot-verified)
+Wired the last ~11 hardcoded English strings in Components/Page/Payouts/index.tsx to the 78 payouts.* keys
+already present in all 6 locales (summary "Auto-convert" label, settlement subheading, auto-convert
+protection copy, "This month"/"Last 6 months", digest "Send preview"/"Sending…", tax "{amount} to date",
+pending-row "started {time}"/"~{min}m left to confirm", CSV "Export CSV"/"Exporting…"). Verified /payouts
+renders cleanly in EN with NO raw `payouts.*` keys leaking and no crash. Keys resolve via the app-wide t()
+pipeline (PT/ES/FR/DE/NL identical mechanism, already QA'd in prior sessions).
+- BUGFIX: prior in-progress pass left a local `const t = new Date(...)` in handleExportPayouts shadowing the
+  i18n `t()` (backend-agnostic frontend tsc was EXIT 2) — renamed to `to`; tsc now EXIT 0.
+
+## ✅ "Save to GitHub won't commit" — ROOT CAUSE FOUND & FIXED (this was very likely THE blocker)
+The user repeatedly reported the save failing and suspected a "500-line limit" — correct. The husky
+pre-commit gate (backend/scripts/check-file-size.mjs, R2 budget) FAILS any commit when a NON-grandfathered
+backend .ts exceeds 500 lines. This session's earlier invoice-PDF localization had pushed
+backend/services/pdfService.ts to 518 lines (not in file-size-baseline.json → treated as NEW → HARD FAIL).
+A manual `git commit` reproduced the exact failure. FIX (strangler pattern, pure code move, zero behavior
+change): extracted the InvoiceData interface + getCurrencySymbol wrapper + localizeDescription /
+localizePaymentTerms into new backend/services/pdfInvoiceHelpers.ts (71 lines); pdfService.ts now 456 lines.
+Full pre-commit hook now EXIT 0 (tsc + file-size OK + secrets OK + contrast OK) and the commit succeeded →
+Save-to-GitHub should no longer be blocked by this gate.
+
+## ✅ Backend refactor backlog (B–F) formalized in memory/REFACTOR_STATUS.md
+Documented the deferred backend track (B Postgres SoR for in-flight payments, C cron→worker split,
+D god-file decomposition, E migration unification, F Redis rate-limiting + CIDR lib) with rationale, risk
+and effort. Still DEFERRED — needs explicit approval; high-risk on a live payments app.
+
+---
+
+
+
 # REFACTOR W6 — Toast off redux-saga + DELETE redux entirely (2026-08-27 fork) — DONE (testing_agent iteration_92 = 100% frontend, 17 routes, RENDER-ONLY)
 
 Preview: https://payment-gateway-init.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, Next compile clean.
