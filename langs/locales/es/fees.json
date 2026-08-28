@@ -127,6 +127,8 @@
     "sec2Body": "Cumplimiento adaptado a cada país integrado. Los usuarios en jurisdicciones reguladas pasan la verificación en el momento justo — sin recopilar de más.",
     "sec3Title": "Cifrado, listo para GDPR.",
     "sec3Body": "Secretos cifrados en Google KMS, PII minimizada, registro de auditoría conservado. Exporta o elimina cuando lo pidas.",
-    "plusFixed": "+ 1 $ por pago"
+    "plusFixed": "+ 1 $ por pago",
+    "paymentsLabel": "Pagos por mes",
+    "effectiveRate": "tasa efectiva"
   }
 }

@@ -127,6 +127,8 @@
     "sec2Body": "Conformité adaptée à chaque pays intégrée. Les utilisateurs dans les juridictions réglementées sont vérifiés au bon moment — sans surcollecte.",
     "sec3Title": "Chiffré, prêt pour le RGPD.",
     "sec3Body": "Secrets chiffrés dans Google KMS, PII minimisées, piste d'audit conservée. Export ou suppression sur demande.",
-    "plusFixed": "+ 1 $ par paiement"
+    "plusFixed": "+ 1 $ par paiement",
+    "paymentsLabel": "Paiements par mois",
+    "effectiveRate": "taux effectif"
   }
 }

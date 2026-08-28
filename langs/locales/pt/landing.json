@@ -113,7 +113,7 @@
       "claimBtn": "Reservar",
       "chooseHandle": "Escolha o seu nome de criador",
       "rewardBadge": "É novo por aqui? Isentamos a nossa <b>taxa de plataforma</b> no seu primeiro pagamento.",
-      "bullets": "Primeiro pagamento sem taxa · Sem cartão · 9 blockchains, 12 moedas e stablecoins",
+      "bullets": "Primeiro pagamento sem taxa · Sem cartão · 9 blockchains, 15 moedas e tokens",
       "trustLine": "Sem custódia · Criptografado · GDPR / AML",
       "livePill": "AO VIVO",
       "sendTipLabel": "Enviar uma gorjeta",
@@ -172,7 +172,7 @@
       "settledLabel": "Liquidado",
       "settledSub": "Desde o lançamento",
       "chainsLabel": "Blockchains",
-      "chainsSub": "12 moedas e stablecoins",
+      "chainsSub": "15 moedas e tokens",
       "feeLabel": "Taxa inicial",
       "feeSub": "até 0,5% em escala",
       "settleLabel": "Liquidação mediana",
@@ -267,7 +267,7 @@
       "eyebrow": "[ Respostas ]",
       "headline": "Perguntas frequentes.",
       "q1": "Preciso de ter cripto para aceitar cripto?",
-      "a1": "Não. Os compradores pagam em qualquer uma das nossas 12 moedas e stablecoins em 9 redes, e você decide o que fica — mantenha a moeda original ou converta automaticamente para USDC ou USDT, liquidado na sua carteira assim que o pagamento confirmar on-chain. Você nunca mexe com uma corretora.",
+      "a1": "Não. Os compradores pagam em qualquer uma das nossas 15 moedas e tokens em 9 redes, e você decide o que fica — mantenha a moeda original ou converta automaticamente para USDC ou USDT, liquidado na sua carteira assim que o pagamento confirmar on-chain. Você nunca mexe com uma corretora.",
       "q2": "Onde chegam os fundos?",
       "a2": "Diretamente num endereço de carteira que controla — não guardado por nós. A Dynopay é sem custódia. Cada liquidação é uma transferência on-chain real para o seu endereço.",
       "q3": "Quanto custa?",
@@ -739,7 +739,7 @@
     "heroTitle": "Tudo o que você precisa para escrever sobre a Dynopay.",
     "heroBody": "Logos, fatos da empresa e uma descrição pronta para uso — livres para republicação em artigos, análises e diretórios. Precisa de algo mais? Nossa equipe está a um e-mail de distância.",
     "boilerplateTitle": "Descrição padrão",
-    "boilerplateBody": "A Dynopay é um gateway de pagamento de criptomoedas não custodial fundado em 2024. Os comerciantes a usam para vender produtos, receber gorjetas e realizar campanhas de arrecadação — ou para integrar pagamentos via API — aceitando Bitcoin, Ethereum, stablecoins e 12 ativos em 9 blockchains. Os pagamentos são liquidados diretamente numa carteira controlada pelo comerciante, com conversão automática opcional para USDT/USDC. As taxas são de 1,5% + $1 por pagamento, até 0,5% em escala, sem estornos.",
+    "boilerplateBody": "A Dynopay é um gateway de pagamento de criptomoedas não custodial fundado em 2024. Os comerciantes a usam para vender produtos, receber gorjetas e realizar campanhas de arrecadação — ou para integrar pagamentos via API — aceitando Bitcoin, Ethereum, stablecoins e 15 moedas e tokens em 9 blockchains. Os pagamentos são liquidados diretamente numa carteira controlada pelo comerciante, com conversão automática opcional para USDT/USDC. As taxas são de 1,5% + $1 por pagamento, até 0,5% em escala, sem estornos.",
     "factsTitle": "Fatos rápidos",
     "facts": {
       "founded": {
@@ -756,7 +756,7 @@
       },
       "networks": {
         "label": "Redes",
-        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) e 12 moedas e stablecoins"
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) e 15 moedas e tokens"
       },
       "settlement": {
         "label": "Liquidação",

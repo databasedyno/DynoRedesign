@@ -289,7 +289,6 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const muted    = isDark ? '#A1A1AA' : '#71717A'
   const warnBg   = isDark ? 'rgba(245,158,11,0.10)' : '#FEF3C7'
   const warnFg   = '#B45309'
-  const errBg    = isDark ? 'rgba(239,68,68,0.10)' : '#FEE2E2'
   const errFg    = '#B91C1C'
 
   // ─── State ────────────────────────────────────────────────────────
@@ -1036,43 +1035,6 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
                 : t('checkout.share.dynopay', { defaultValue: 'Share DynoPay' })}
           </Button>
         </Box>
-      </PanelShell>
-    )
-  }
-
-  // ─── EXPIRED ──────────────────────────────────────────────────────
-  if (phase === 'expired') {
-    return (
-      <PanelShell isDark={isDark} border={border} muted={muted}>
-        <Box sx={{ p: 2.5, borderRadius: '10px', border: `1px solid ${border}`, backgroundColor: errBg, mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Icon icon="mdi:timer-off-outline" width={22} color={errFg} />
-            <Typography fontWeight={700} fontSize={15}>{t('checkout.expired.title')}</Typography>
-          </Box>
-          <Typography fontSize={13} color={muted} mt={0.5}>
-            {t('checkout.expired.body')}
-          </Typography>
-        </Box>
-        <Button
-          fullWidth
-          variant="contained"
-          disableElevation
-          data-testid="clean-checkout-retry"
-          onClick={() => {
-            setCryptoInfo(null)
-            setSelectedCurrency('')
-            setTimeLeft(0)
-            setPhase('currency_select')
-            // Trigger cascade: setSelectedCurrency will refire the effect.
-          }}
-          sx={{
-            backgroundColor: LIME, color: ON_BRAND, textTransform: 'none',
-            borderRadius: '10px', fontWeight: 700, py: 1.2,
-            '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
-          }}
-        >
-          {t('checkout.expired.startNew')}
-        </Button>
       </PanelShell>
     )
   }

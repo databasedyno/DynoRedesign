@@ -1,3 +1,43 @@
+# FEATURE (2026-06 fork) — Honesty copy extended to /about + Auth screens; coin count → "15 coins & tokens" sitewide — DONE (screenshot-verified EN+ES; tsc EXIT 0)
+
+Preview: https://78b9bfca-fb2a-4d42-b361-79b5a0525cf8.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
+
+USER DECISIONS (ask_human): (1) standardize on **"15 coins & tokens"** everywhere (also update landing + fees);
+(2) fix the AuthBrandPanel fabricated claims too; (3) approved honest set — /about stats "1.5% · 9 blockchains ·
+100% · 2024" and TrustStrip "9 blockchains · 1.5% → 0.5% fee · 24/7 settlement".
+
+IMPLEMENTED:
+- /about (pages/about.tsx): STATS "15+" (Blockchains supported) → **"9"**. Others unchanged (1.5% base fee,
+  100% non-custodial, 2024).
+- Auth TrustStrip (Components/UI/AuthLayout/TrustStrip.tsx, rendered on login/register + dashboard EmptyStatePanel):
+  "15+ networks · 0.5% lowest fee · 24/7 settlement" → **"9 blockchains · 1.5% → 0.5% fee · 24/7 settlement"**.
+  Updated defaultValues in tsx + trust* keys in all 6 auth.json locales (values + labels localized).
+- AuthBrandPanel (Components/UI/AuthLayout/AuthBrandPanel.tsx): fabricated tiles "1,000+ businesses / 15+ coins /
+  <1min settlements" → honest "**9** Blockchains (caption '15 coins & tokens supported') / **1.5% → 0.5%** Fee /
+  **24/7** Settlement". NOTE: this component is imported but **NOT rendered anywhere** (dead code left over from the
+  Coinbase-clean single-card auth redesign) — fixed anyway so it is honest if ever re-enabled. brandStat* keys +
+  brandBusinessesCaption updated in all 6 auth.json.
+- COIN COUNT sitewide: "12 coins & stablecoins" / "12 assets" → **"15 coins & tokens"** across all 6 landing.json
+  (v3.hero.bullets, v3.numbers.chainsSub, faq.a1, seo.boilerplateBody, seo.facts.networks). Localized per language
+  (es/pt "monedas/moedas … tokens", fr "cryptos et tokens", de "Coins & Tokens", nl "munten & tokens"). fees.json had
+  no coin-count claim → no change.
+- BUILD BLOCKER FIXED (pre-existing, unrelated to copy): Components/Page/Pay3Components/CleanCheckoutV2.tsx had a
+  DEAD DUPLICATE `if (phase === 'expired')` block at ~L1044 (unreachable — the real expired block at L893 returns
+  first), which TypeScript flagged as a no-overlap comparison → `tsc` EXIT 2. Removed the dead block + its now-unused
+  `errBg` const. Frontend `tsc` now EXIT 0.
+
+VERIFIED (screenshots, LIVE preview, no DB writes): /about stats band ("1.5% · 9 Blockchains supported · 100% ·
+2024"); /auth/register + /auth/login TrustStrip EN ("9 blockchains · 1.5% → 0.5% fee · 24/7 settlement") and ES
+("9 blockchains · 1,5% → 0,5% comisión · 24/7 liquidación"); all 12 locale JSON files parse-valid; residual "12 …
+coins" and "15+" scans return NONE; frontend `tsc` EXIT 0.
+
+FILES: pages/about.tsx, Components/UI/AuthLayout/{TrustStrip,AuthBrandPanel}.tsx,
+Components/Page/Pay3Components/CleanCheckoutV2.tsx, langs/locales/{en,es,pt,fr,de,nl}/{auth,landing}.json.
+
+---
+
+
+
 # FEATURE (2026-08-26 fork) — Landing page merchant-first conversion pass — DONE (testing_agent iteration_90 = 100% frontend)
 
 Preview: https://payment-config-hub-3.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.

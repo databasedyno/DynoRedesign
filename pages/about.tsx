@@ -12,7 +12,7 @@ import { brandFg, BRAND_ACCENT } from "@/constants/theme";
 
 const STATS = [
   { value: "1.5%", labelKey: "about.stats.baseFee" },
-  { value: "15+", labelKey: "about.stats.chains" },
+  { value: "9", labelKey: "about.stats.chains" },
   { value: "100%", labelKey: "about.stats.nonCustodial" },
   { value: "2024", labelKey: "about.stats.since" },
 ];

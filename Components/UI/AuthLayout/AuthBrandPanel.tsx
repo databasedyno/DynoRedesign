@@ -147,7 +147,7 @@ const AuthBrandPanel = () => {
           </Box>
           <Box>
             <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "40px", lineHeight: 1, color: theme.palette.text.primary }}>
-              1,000+
+              9
             </Typography>
             <Typography sx={{ fontFamily: FONT_BODY, fontSize: "13px", color: sub, mt: 1 }}>
               {t("brandBusinessesCaption")}
@@ -157,8 +157,8 @@ const AuthBrandPanel = () => {
 
         {/* Coins tile */}
         <Tile delay={0.12}>
-          <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "28px", lineHeight: 1, color: accent }}>
-            15+
+          <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "22px", lineHeight: 1, color: accent }}>
+            1.5% → 0.5%
           </Typography>
           <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub, mt: 1 }}>
             {t("brandStatCoinsLabel")}
@@ -182,7 +182,7 @@ const AuthBrandPanel = () => {
               }}
             />
             <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "30px", lineHeight: 1, color: theme.palette.text.primary }}>
-              &lt;1min
+              24/7
             </Typography>
           </Box>
           <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub, mt: 1 }}>

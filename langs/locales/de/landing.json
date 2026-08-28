@@ -113,7 +113,7 @@
       "claimBtn": "Sichern",
       "chooseHandle": "Wähle deinen Creator-Handle",
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
-      "bullets": "Erste Zahlung gebührenfrei · Keine Karte nötig · 9 Blockchains, 12 Coins & Stablecoins",
+      "bullets": "Erste Zahlung gebührenfrei · Keine Karte nötig · 9 Blockchains, 15 Coins & Tokens",
       "trustLine": "Nicht verwahrend · Verschlüsselt · DSGVO / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Tip senden",
@@ -172,7 +172,7 @@
       "settledLabel": "Abgewickelt",
       "settledSub": "Seit dem Start",
       "chainsLabel": "Blockchains",
-      "chainsSub": "12 Coins & Stablecoins",
+      "chainsSub": "15 Coins & Tokens",
       "feeLabel": "Starter-Gebühr",
       "feeSub": "bis zu 0,5 % bei Skalierung",
       "settleLabel": "Median-Abwicklung",
@@ -267,7 +267,7 @@
       "eyebrow": "[ Antworten ]",
       "headline": "Häufige Fragen.",
       "q1": "Muss ich Krypto besitzen, um es zu akzeptieren?",
-      "a1": "Nein. Käufer zahlen in einer unserer 12 unterstützten Coins & Stablecoins über 9 Chains, und du entscheidest, was du behältst – die ursprüngliche Coin halten oder automatisch in USDC oder USDT umwandeln, ausgezahlt an deine Wallet, sobald die Zahlung on-chain bestätigt ist. Du kommst nie mit einer Krypto-Börse in Berührung.",
+      "a1": "Nein. Käufer zahlen in einer unserer 15 unterstützten Coins & Tokens über 9 Chains, und du entscheidest, was du behältst – die ursprüngliche Coin halten oder automatisch in USDC oder USDT umwandeln, ausgezahlt an deine Wallet, sobald die Zahlung on-chain bestätigt ist. Du kommst nie mit einer Krypto-Börse in Berührung.",
       "q2": "Wo landen die Mittel?",
       "a2": "Direkt an einer Wallet-Adresse, die du kontrollierst — nicht von uns verwahrt. Dynopay ist non-custodial. Jede Abwicklung ist ein echter on-chain-Transfer an deine Adresse.",
       "q3": "Was kostet es?",
@@ -739,7 +739,7 @@
     "heroTitle": "Alles, was Sie brauchen, um über Dynopay zu schreiben.",
     "heroBody": "Logos, Unternehmensfakten und eine fertige Boilerplate — frei verwendbar in Artikeln, Tests und Verzeichnissen. Wenn Sie mehr brauchen, ist unser Team nur eine E-Mail entfernt.",
     "boilerplateTitle": "Boilerplate",
-    "boilerplateBody": "Dynopay ist ein nicht verwahrendes Krypto-Zahlungs-Gateway, gegründet 2024. Händler nutzen es, um Produkte zu verkaufen, Trinkgelder zu sammeln und Spendenkampagnen durchzuführen – oder um Zahlungen per API zu integrieren – und akzeptieren Bitcoin, Ethereum, Stablecoins und 12 Assets über 9 Blockchains. Zahlungen gehen direkt an eine Wallet, die der Händler kontrolliert, mit optionaler automatischer Umwandlung in USDT/USDC. Die Gebühren betragen 1,5 % + 1 $ pro Zahlung, bis zu 0,5 % bei Skalierung, ohne Rückbuchungen.",
+    "boilerplateBody": "Dynopay ist ein nicht verwahrendes Krypto-Zahlungs-Gateway, gegründet 2024. Händler nutzen es, um Produkte zu verkaufen, Trinkgelder zu sammeln und Spendenkampagnen durchzuführen – oder um Zahlungen per API zu integrieren – und akzeptieren Bitcoin, Ethereum, Stablecoins und 15 Coins & Tokens über 9 Blockchains. Zahlungen gehen direkt an eine Wallet, die der Händler kontrolliert, mit optionaler automatischer Umwandlung in USDT/USDC. Die Gebühren betragen 1,5 % + 1 $ pro Zahlung, bis zu 0,5 % bei Skalierung, ohne Rückbuchungen.",
     "factsTitle": "Fakten im Überblick",
     "facts": {
       "founded": {
@@ -756,7 +756,7 @@
       },
       "networks": {
         "label": "Netzwerke",
-        "value": "9 Blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) und 12 Coins & Stablecoins"
+        "value": "9 Blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) und 15 Coins & Tokens"
       },
       "settlement": {
         "label": "Abwicklung",

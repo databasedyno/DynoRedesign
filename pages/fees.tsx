@@ -55,8 +55,12 @@ const FeesPage = () => {
   const s = useAurora();
   const router = useRouter();
   const [volume, setVolume] = useState(5000);
+  const [payments, setPayments] = useState(50);
   const tier = getTier(volume);
-  const fee = (volume * tier.pct) / 100;
+  const pctFee = (volume * tier.pct) / 100;      // percentage component
+  const fixedTotal = payments * 1;               // $1 fixed per payment
+  const allIn = pctFee + fixedTotal;             // true all-in cost
+  const effectiveRate = volume > 0 ? (allIn / volume) * 100 : 0;
 
   const scrollToCalc = useCallback(() => {
     const el = document.getElementById("fee-calculator");
@@ -293,6 +297,40 @@ const FeesPage = () => {
                   <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.ink3 }}>$1M</Typography>
                 </Box>
 
+                {/* Number of payments — drives the $1 fixed-fee component */}
+                <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: s.ink3, mt: 4, mb: 1 }}>
+                  {t("v3.paymentsLabel")}
+                </Typography>
+                <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 28, md: 34 }, letterSpacing: "-0.02em", color: s.ink, lineHeight: 1 }}>
+                  {payments.toLocaleString("en-US")}
+                </Typography>
+                <Slider
+                  value={payments}
+                  min={1}
+                  max={5000}
+                  step={1}
+                  onChange={(_, v) => setPayments(v as number)}
+                  aria-label={t("v3.paymentsLabel")}
+                  sx={{
+                    mt: 2,
+                    color: tier.accent,
+                    height: 6,
+                    "& .MuiSlider-thumb": {
+                      width: 22,
+                      height: 22,
+                      background: "#fff",
+                      border: `3px solid ${tier.accent}`,
+                      boxShadow: `0 4px 14px ${tier.accent}55`,
+                    },
+                    "& .MuiSlider-track": { border: "none" },
+                    "& .MuiSlider-rail": { background: s.line, opacity: 1 },
+                  }}
+                />
+                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.ink3 }}>1</Typography>
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.ink3 }}>5,000</Typography>
+                </Box>
+
                 {/* Result */}
                 <Box sx={{ mt: 4, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" }, gap: 0, border: `1px solid ${s.line}`, borderRadius: "16px", overflow: "hidden" }}>
                   <Box sx={{ p: 2.5, borderRight: { xs: "none", sm: `1px solid ${s.line}` }, borderBottom: { xs: `1px solid ${s.line}`, sm: "none" } }}>
@@ -316,10 +354,13 @@ const FeesPage = () => {
                       {t("v3.youdPay")}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 22, color: s.ink }}>
-                      ${fee.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                      ${allIn.toLocaleString("en-US", { maximumFractionDigits: 2 })}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, mt: 0.5 }}>
-                      {t("v3.plusFixed")}
+                      {tier.pct}% (${pctFee.toLocaleString("en-US", { maximumFractionDigits: 2 })}) + $1 × {payments.toLocaleString("en-US")}
+                    </Typography>
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: tier.accent, mt: 0.25 }}>
+                      ≈ {effectiveRate.toFixed(2)}% {t("v3.effectiveRate")}
                     </Typography>
                   </Box>
                 </Box>

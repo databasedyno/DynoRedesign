@@ -113,7 +113,7 @@
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
-      "bullets": "Eerste betaling gratis · Geen kaart nodig · 9 blockchains, 12 munten & stablecoins",
+      "bullets": "Eerste betaling gratis · Geen kaart nodig · 9 blockchains, 15 munten & tokens",
       "trustLine": "Non-custodial · Versleuteld · AVG / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Stuur een tip",
@@ -172,7 +172,7 @@
       "settledLabel": "Vereffend",
       "settledSub": "Sinds de lancering",
       "chainsLabel": "Blockchains",
-      "chainsSub": "12 munten & stablecoins",
+      "chainsSub": "15 munten & tokens",
       "feeLabel": "Starttarief",
       "feeSub": "tot 0,5% bij schaal",
       "settleLabel": "Mediane vereffening",
@@ -267,7 +267,7 @@
       "eyebrow": "[ Antwoorden ]",
       "headline": "Veelgestelde vragen.",
       "q1": "Moet ik crypto bezitten om het te accepteren?",
-      "a1": "Nee. Kopers betalen in een van onze 12 ondersteunde munten & stablecoins op 9 chains, en jij bepaalt wat je houdt — houd de originele munt of converteer automatisch naar USDC of USDT, uitbetaald naar je wallet zodra de betaling on-chain is bevestigd. Je komt nooit bij een exchange.",
+      "a1": "Nee. Kopers betalen in een van onze 15 ondersteunde munten & tokens op 9 chains, en jij bepaalt wat je houdt — houd de originele munt of converteer automatisch naar USDC of USDT, uitbetaald naar je wallet zodra de betaling on-chain is bevestigd. Je komt nooit bij een exchange.",
       "q2": "Waar landen de fondsen?",
       "a2": "Direct op een wallet-adres dat jij beheert — niet door ons gehouden. Dynopay is non-custodial. Elke vereffening is een echte on-chain transfer naar jouw adres.",
       "q3": "Wat kost het?",
@@ -739,7 +739,7 @@
     "heroTitle": "Alles wat u nodig heeft om over Dynopay te schrijven.",
     "heroBody": "Logo's, bedrijfsfeiten en een kant-en-klare standaardtekst — vrij te herpubliceren in artikelen, reviews en gidsen. Meer nodig? Ons team is één e-mail verwijderd.",
     "boilerplateTitle": "Standaardtekst",
-    "boilerplateBody": "Dynopay is een non-custodial betaalgateway voor cryptovaluta, opgericht in 2024. Verkopers gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via API te integreren — met Bitcoin, Ethereum, stablecoins en 12 assets op 9 blockchains. Betalingen worden direct afgewikkeld naar een wallet die de verkoper beheert, met optionele automatische conversie naar USDT/USDC. De kosten zijn 1,5% + $1 per betaling, tot 0,5% bij schaal, zonder terugboekingen.",
+    "boilerplateBody": "Dynopay is een non-custodial betaalgateway voor cryptovaluta, opgericht in 2024. Verkopers gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via API te integreren — met Bitcoin, Ethereum, stablecoins en 15 munten & tokens op 9 blockchains. Betalingen worden direct afgewikkeld naar een wallet die de verkoper beheert, met optionele automatische conversie naar USDT/USDC. De kosten zijn 1,5% + $1 per betaling, tot 0,5% bij schaal, zonder terugboekingen.",
     "factsTitle": "Feiten in het kort",
     "facts": {
       "founded": {
@@ -756,7 +756,7 @@
       },
       "networks": {
         "label": "Netwerken",
-        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) en 12 munten & stablecoins"
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) en 15 munten & tokens"
       },
       "settlement": {
         "label": "Uitbetaling",

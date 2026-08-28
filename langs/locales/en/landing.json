@@ -113,7 +113,7 @@
       "claimBtn": "Claim",
       "chooseHandle": "Choose your creator handle",
       "rewardBadge": "New here? We waive our <b>platform fee</b> on your first payment.",
-      "bullets": "First payment fee-free · No card required · 9 blockchains, 12 coins & stablecoins",
+      "bullets": "First payment fee-free · No card required · 9 blockchains, 15 coins & tokens",
       "trustLine": "Non-custodial · Encrypted · GDPR / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Send a tip",
@@ -172,7 +172,7 @@
       "settledLabel": "Settled",
       "settledSub": "Since launch",
       "chainsLabel": "Blockchains",
-      "chainsSub": "12 coins & stablecoins",
+      "chainsSub": "15 coins & tokens",
       "feeLabel": "Starter fee",
       "feeSub": "as low as 0.5% at scale",
       "settleLabel": "Median settle",
@@ -267,7 +267,7 @@
       "eyebrow": "[ Answers ]",
       "headline": "Frequent questions.",
       "q1": "Do I need to hold crypto to accept it?",
-      "a1": "Nope. Buyers pay in any of our 12 supported coins & stablecoins across 9 chains, and you decide what you keep — hold the original coin, or auto-convert to USDC or USDT, settled to your wallet as soon as the payment confirms on-chain. You never touch a crypto exchange.",
+      "a1": "Nope. Buyers pay in any of our 15 supported coins & tokens across 9 chains, and you decide what you keep — hold the original coin, or auto-convert to USDC or USDT, settled to your wallet as soon as the payment confirms on-chain. You never touch a crypto exchange.",
       "q2": "Where do funds land?",
       "a2": "Directly in a wallet address you control — not held by us. Dynopay is non-custodial. Every settlement is a real on-chain transfer to your address.",
       "q3": "What does it cost?",
@@ -739,7 +739,7 @@
     "heroTitle": "Everything you need to write about Dynopay.",
     "heroBody": "Logos, company facts and a ready-to-use boilerplate — free to republish in articles, reviews and directories. If you need anything else, our team is one email away.",
     "boilerplateTitle": "Boilerplate",
-    "boilerplateBody": "Dynopay is a non-custodial cryptocurrency payment gateway founded in 2024. Merchants use it to sell products, collect tips and run fundraising campaigns — or to integrate payments via API — accepting Bitcoin, Ethereum, stablecoins and 12 assets across 9 blockchains. Payments settle directly to a wallet the merchant controls, with optional auto-conversion to USDT/USDC. Fees are 1.5% + $1 per payment, as low as 0.5% at scale, with no chargebacks.",
+    "boilerplateBody": "Dynopay is a non-custodial cryptocurrency payment gateway founded in 2024. Merchants use it to sell products, collect tips and run fundraising campaigns — or to integrate payments via API — accepting Bitcoin, Ethereum, stablecoins and 15 coins & tokens across 9 blockchains. Payments settle directly to a wallet the merchant controls, with optional auto-conversion to USDT/USDC. Fees are 1.5% + $1 per payment, as low as 0.5% at scale, with no chargebacks.",
     "factsTitle": "Fast facts",
     "facts": {
       "founded": {
@@ -756,7 +756,7 @@
       },
       "networks": {
         "label": "Networks",
-        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) and 12 coins & stablecoins"
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) and 15 coins & tokens"
       },
       "settlement": {
         "label": "Settlement",

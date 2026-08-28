@@ -127,6 +127,8 @@
     "sec2Body": "Country-aware compliance built in. Users in regulated jurisdictions get gated at the right moment — no over-collection.",
     "sec3Title": "Encrypted, GDPR ready.",
     "sec3Body": "Encrypted secrets in Google KMS, PII minimised, audit trail retained. Export or delete on request.",
-    "plusFixed": "+ $1 per payment"
+    "plusFixed": "+ $1 per payment",
+    "paymentsLabel": "Payments per month",
+    "effectiveRate": "effective rate"
   }
 }

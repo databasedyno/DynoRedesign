@@ -127,6 +127,8 @@
     "sec2Body": "Conformidade adaptada a cada país já integrada. Usuários em jurisdições reguladas são verificados no momento certo — sem coleta excessiva.",
     "sec3Title": "Criptografado, pronto para GDPR.",
     "sec3Body": "Segredos criptografados no Google KMS, PII minimizada, trilha de auditoria mantida. Exporte ou exclua quando solicitar.",
-    "plusFixed": "+ $1 por pagamento"
+    "plusFixed": "+ $1 por pagamento",
+    "paymentsLabel": "Pagamentos por mês",
+    "effectiveRate": "taxa efetiva"
   }
 }

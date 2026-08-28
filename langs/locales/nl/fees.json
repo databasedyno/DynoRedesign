@@ -127,6 +127,8 @@
     "sec2Body": "Landspecifieke compliance ingebouwd. Gebruikers in gereguleerde rechtsgebieden worden op het juiste moment geverifieerd — zonder te veel te verzamelen.",
     "sec3Title": "Versleuteld, AVG-klaar.",
     "sec3Body": "Versleutelde secrets in Google KMS, PII geminimaliseerd, audittrail bewaard. Exporteren of verwijderen op verzoek.",
-    "plusFixed": "+ $1 per betaling"
+    "plusFixed": "+ $1 per betaling",
+    "paymentsLabel": "Betalingen per maand",
+    "effectiveRate": "effectief tarief"
   }
 }

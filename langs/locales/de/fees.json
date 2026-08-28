@@ -127,6 +127,8 @@
     "sec2Body": "Länderspezifische Compliance ist eingebaut. Nutzer in regulierten Ländern werden im richtigen Moment geprüft — ohne übermäßige Datenerfassung.",
     "sec3Title": "Verschlüsselt, DSGVO-bereit.",
     "sec3Body": "Verschlüsselte Secrets in Google KMS, PII minimiert, Audit-Trail aufbewahrt. Export oder Löschung auf Anfrage.",
-    "plusFixed": "+ 1 $ pro Zahlung"
+    "plusFixed": "+ 1 $ pro Zahlung",
+    "paymentsLabel": "Zahlungen pro Monat",
+    "effectiveRate": "effektiver Satz"
   }
 }

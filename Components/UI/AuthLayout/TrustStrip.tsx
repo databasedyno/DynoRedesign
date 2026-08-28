@@ -34,15 +34,15 @@ const TrustStrip: React.FC = () => {
 
   const stats: Array<{ value: string; label: string; testid: string }> = [
     {
-      value: t("trustMerchantsValue", { defaultValue: "15+" }),
-      label: t("trustMerchantsLabel", { defaultValue: "networks" }),
+      value: t("trustMerchantsValue", { defaultValue: "9" }),
+      label: t("trustMerchantsLabel", { defaultValue: "blockchains" }),
       testid: "trust-stat-merchants",
     },
     {
       // Honest, defensible signals only (2026-08 honesty pass — no unverified
       // volume/merchant-count claims). Kept in sync with constants/trustStats.ts.
-      value: t("trustProcessedValue", { defaultValue: "0.5%" }),
-      label: t("trustProcessedLabel", { defaultValue: "lowest fee" }),
+      value: t("trustProcessedValue", { defaultValue: "1.5% → 0.5%" }),
+      label: t("trustProcessedLabel", { defaultValue: "fee" }),
       testid: "trust-stat-processed",
     },
     {
