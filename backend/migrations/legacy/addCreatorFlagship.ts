@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 /**
  * Additive, idempotent migration for the Creator Vanity Page — "Flagship" phase.

@@ -222,7 +222,7 @@ export const getCompanyBaseCurrency = async (companyId: number | string | null |
  *   3. 'USD'
  * NEVER affects stored data or payment pricing — display conversions only.
  */
-// Some environments predate migrations/addDisplayCurrency.ts (which adds
+// Some environments predate migrations/legacy/addDisplayCurrency.ts (which adds
 // tbl_company.display_currency). If the column is absent we detect it ONCE and
 // then skip the query, so we never spam warns / waste a round-trip on hot
 // dashboard paths. The per-user tbl_user.display_currency path is unaffected.
@@ -248,7 +248,7 @@ export const getCompanyDisplayCurrency = async (
       if (missingColumn) {
         companyDisplayCurrencyColumnMissing = true;
         log(
-          `[getCompanyDisplayCurrency] tbl_company.display_currency not present — using base-currency fallback (run migrations/addDisplayCurrency.ts). Further attempts suppressed.`,
+          `[getCompanyDisplayCurrency] tbl_company.display_currency not present — using base-currency fallback (run migrations/legacy/addDisplayCurrency.ts). Further attempts suppressed.`,
           'warn'
         );
       } else {

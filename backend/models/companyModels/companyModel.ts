@@ -150,14 +150,14 @@ const companyModel = sequelize.define(
     // Session 39: dashboard DISPLAY currency preference (presentation-only —
     // never affects pricing or stored data). NULL = fall through to the legacy
     // API-key base_currency, then USD. See utils/currencyUtils.ts and
-    // migrations/addDisplayCurrency.ts.
+    // migrations/legacy/addDisplayCurrency.ts.
     display_currency: {
       type: DataTypes.STRING(3),
       allowNull: true,
       defaultValue: null,
       comment: "Dashboard display currency (USD/EUR/GBP/NGN/CAD/AUD). Display-only preference.",
     },
-    // Per-Company Tax (2026-08-23, migrations/addCompanyTaxSettings.ts).
+    // Per-Company Tax (2026-08-23, migrations/legacy/addCompanyTaxSettings.ts).
     // tax_configured=false → company inherits the account values on tbl_user;
     // true → these company values are authoritative. See services/companyTaxService.ts.
     default_apply_tax: {

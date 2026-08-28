@@ -40,6 +40,7 @@ import crypto from "crypto";
 import adminRouter from "./adminRouter";
 import { logWebhookValidationFailure } from "../utils/securityLogger";
 import { verifyTatumSignature } from "../utils/webhookSignature";
+import { createIpMatcher } from "../utils/ipMatch";
 
 /**
  * Tatum webhook HMAC signature verification middleware.
@@ -50,8 +51,12 @@ import { verifyTatumSignature } from "../utils/webhookSignature";
  * and rate-limit unsigned requests to mitigate spoofing risk.
  */
 
-// Known Tatum IP ranges (from their documentation, observed traffic, and production logs)
-const TATUM_KNOWN_IPS = new Set([
+// Known Tatum IPs + CIDR ranges (from their documentation, observed traffic, and production logs).
+// NOTE: the trailing GCP entries used to be bare IPs in an exact-match Set — but their comments
+// mark them as *ranges*, so `Set.has()` never matched real traffic inside them. They are now proper
+// CIDRs matched via createIpMatcher(). This only affects the UNSIGNED legacy-webhook flag/log path
+// (unknown IPs are still allowed-but-flagged, never blocked), so it purely improves log accuracy.
+const TATUM_KNOWN_IP_RANGES = [
   '167.82.142.41', '167.82.142.42', '167.82.142.43', '167.82.142.44',
   '18.213.36.109', '18.213.36.110', // Tatum US-East
   '3.209.96.0', '3.209.96.1', // Tatum AWS
@@ -59,10 +64,11 @@ const TATUM_KNOWN_IPS = new Set([
   '34.82.77.148',    // GCP us-west1 — confirmed Tatum webhook source
   '35.185.216.99',   // GCP us-central1 — confirmed Tatum webhook source
   '34.83.123.121',   // GCP us-west1 — confirmed Tatum webhook source (Railway log 2026-02-24)
-  '34.82.0.0',       // GCP us-west1 range (Tatum infrastructure)
-  '35.185.0.0',      // GCP us-central1 range (Tatum infrastructure)
-  '34.107.0.0',      // GCP additional webhook IPs
-]);
+  '34.82.0.0/16',    // GCP us-west1 range (Tatum infrastructure) — was bare '34.82.0.0'
+  '35.185.0.0/16',   // GCP us-central1 range (Tatum infrastructure) — was bare '35.185.0.0'
+  '34.107.0.0/16',   // GCP additional webhook IPs — was bare '34.107.0.0'
+];
+const isKnownTatumIp = createIpMatcher(TATUM_KNOWN_IP_RANGES);
 
 // Track unsigned webhook counts per IP (sliding window)
 const unsignedWebhookCounts = new Map<string, { count: number; resetAt: number }>();
@@ -91,8 +97,8 @@ const verifyTatumWebhookSource = (req: express.Request, res: express.Response, n
   if (!signature) {
     // Legacy subscription without HMAC — apply IP check and rate limiting
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown';
-    // Check exact match only against known Tatum IPs (no loose prefix matching)
-    const isTatumIp = TATUM_KNOWN_IPS.has(clientIp);
+    // Match against known Tatum exact IPs AND CIDR ranges (createIpMatcher)
+    const isTatumIp = isKnownTatumIp(clientIp);
 
     // Rate-limit unsigned webhooks per IP
     const now = Date.now();

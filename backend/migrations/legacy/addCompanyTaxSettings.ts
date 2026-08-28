@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 /**
  * Per-Company Tax (2026-08-23) — adds nullable tax-settings columns to

@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 /**
  * Additive, idempotent migration for the product "one-off service" flag.

@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 async function addApplyTaxColumn() {
   try {

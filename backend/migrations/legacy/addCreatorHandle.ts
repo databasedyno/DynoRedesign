@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 // Additive, idempotent migration for the Creator Vanity Page feature.
 // Adds a public handle (dynopay.com/{handle}), a short bio, and an enable flag.

@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 /**
  * Additive, idempotent migration — 2026-08-05 design audit Phase 3 wiring.

@@ -10,7 +10,7 @@
  * public page and catalog.
  *
  * IMPORTANT: this flag must ONLY be flipped to true AFTER the migration
- * (backend/migrations/010_storefront_per_company.sql) has been applied, because
+ * (backend/migrations/legacy/010_storefront_per_company.sql) has been applied, because
  * the ON path reads/writes columns that migration adds to tbl_company /
  * tbl_product / tbl_product_order.
  */

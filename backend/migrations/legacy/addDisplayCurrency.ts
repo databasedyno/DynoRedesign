@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 /**
  * Adds the nullable `display_currency` VARCHAR(3) column to tbl_company.

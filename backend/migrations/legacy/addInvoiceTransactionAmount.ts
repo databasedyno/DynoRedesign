@@ -1,4 +1,4 @@
-import sequelize from "../utils/dbInstance";
+import sequelize from "../../utils/dbInstance";
 
 /**
  * Session 36 invoice semantic cleanup (2026-07-12).

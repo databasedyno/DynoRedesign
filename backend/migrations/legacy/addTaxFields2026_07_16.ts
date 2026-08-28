@@ -11,7 +11,7 @@
  * Dynopay is a PAYMENT PROCESSOR — we compute + collect, merchant remits.
  * All columns use IF NOT EXISTS so this is idempotent + zero-downtime.
  */
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 async function addTaxFields() {
   try {

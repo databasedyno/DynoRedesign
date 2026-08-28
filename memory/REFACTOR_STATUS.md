@@ -1,3 +1,53 @@
+# SESSION UPDATE 2026-06 (fork) — SINGLE-INSTANCE backend track: F-CIDR ✅ · D wave 1 ✅ · E phase 1 ✅
+
+Preview: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
+Merchant login (READ-ONLY): onarrival21@gmail.com / Katiekendra123@ (user_id=1). All: backend tsc EXIT 0,
+file-size gate OK, backend boots healthy (migrations "0 applied, 6 present" → NO prod schema change).
+
+## ✅ F (CIDR) — real CIDR matching for the Tatum webhook IP check — DONE + unit-tested
+- NEW `utils/ipMatch.ts` `createIpMatcher(entries)` — supports exact IPs AND CIDR ranges (ipaddr.js,
+  pinned as a direct dep `ipaddr.js@^2.5.0`; was already resolved transitively via express/proxy-addr).
+  Normalizes IPv4-mapped IPv6 (`::ffff:1.2.3.4`), never throws on bad input.
+- `routes/index.ts`: `TATUM_KNOWN_IPS` (exact-match Set, `.has()`) → `TATUM_KNOWN_IP_RANGES` + `isKnownTatumIp`.
+  The 3 GCP entries whose comments said "range" but were bare IPs (`34.82.0.0`/`35.185.0.0`/`34.107.0.0`)
+  are now proper `/16` CIDRs — previously `.has()` never matched real traffic inside them. Behaviour-safe:
+  this only affects the UNSIGNED legacy-webhook flag/log path (unknown IPs are allowed-but-flagged, never
+  blocked; HMAC-signed webhooks skip it entirely) — so it purely improves security-log accuracy.
+- Verified: standalone matcher test 8/8 (exact still matches; `34.82.77.148` inside `34.82.0.0/16` now
+  matches; outside ranges don't; v4-mapped-v6 normalized). backend tsc EXIT 0.
+
+## ✅ D wave 1 — dashboardController god-file decomposition (strangler) — DONE + live-verified
+- `controller/dashboardController.ts` 1444 → 1069 lines. Extracted the 3 self-contained READ handlers
+  (`getRecentTransactions`, `getConversions`, `getConversionDetail` — they use NO local dashboard helpers)
+  verbatim into NEW `controller/dashboard/dashboardReadController.ts` (376 lines). Removed DEAD
+  `convertVolumesToFiat` (0 call sites). Default export re-imports the 3 handlers → API shape unchanged.
+- Verified: backend tsc EXIT 0 · file-size gate OK · live (prod, read-only) HTTP 200 on
+  GET /api/dashboard/recent-transactions ({transactions,count}), /conversions
+  ({conversions,count,status_summary,pipeline_stages}), /pending-summary ({count,total_usd,transactions}).
+  /conversions/:id not exercised (0 conversions on this account) but same module + tsc-verified.
+- REMAINING D waves (dashboardController still 1069; other god files untouched): getChartData(+fillMissingDates),
+  getFeeTiers(+fee-tier helpers), getActionCounts(+TTL), getPendingSummary can move next; then the big
+  money-path files (tatumApi ~4136, paymentLinkController ~2723) — higher risk, do carefully with tests.
+
+## ✅ E phase 1 — migration mechanism unification — DONE
+- FINDING: the "three mechanisms" are really ONE active versioned pipeline + a pile of already-applied
+  legacy one-offs. Active pipeline = `migrations/bootMigrations.ts` (`buildBootMigrations()` → versioned
+  0001–0006) run by `utils/migrationRunner.ts` (recorded in `schema_migrations`); dev uses `{alter:true}`
+  auto-sync. The `add*.ts` files are standalone CLI scripts (self-run + `process.exit`, NOT imported at
+  boot) and the `.sql` files are manual (no code loads them) — both already applied to prod.
+- ACTION: archived all 13 `add*.ts` + 5 `.sql` into `migrations/legacy/` (git mv, history kept); fixed the
+  one relative import (`../utils/dbInstance` → `../../utils/dbInstance`) in each moved script; updated the 5
+  code-comment path references (companyModel.ts ×2, currencyUtils.ts ×2, storefrontScope.ts ×1). Added
+  `migrations/README.md` declaring the single canonical pipeline + how to add a versioned migration +
+  `legacy/` is FROZEN. `migrations/` now contains only `bootMigrations.ts` + `legacy/` + `README.md`.
+- Verified: backend tsc EXIT 0 · boot migrations "0 applied, 6 present" (pipeline intact, no prod change).
+- REMAINING E: (optional) later phase could physically retire the legacy CLI scripts entirely once a fresh
+  DB provisioning path is confirmed; for now they stay in legacy/ for provenance.
+
+---
+
+
+
 # SESSION UPDATE 2026-06 (fork) — Payouts FULL i18n DONE + SINGLE-INSTANCE backend plan (B–F re-scoped)
 
 ## ✅ /payouts full localization — COMPLETE (frontend, tsc EXIT 0)

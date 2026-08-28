@@ -1,4 +1,4 @@
-import sequelize from '../utils/dbInstance';
+import sequelize from '../../utils/dbInstance';
 
 /**
  * Adds the nullable `dashboard_quick_actions` JSONB column to tbl_user so
