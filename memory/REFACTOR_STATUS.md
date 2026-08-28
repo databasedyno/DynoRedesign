@@ -286,5 +286,19 @@ no git history rewrite.
             eslint 0 · routes 200 · frontend testing agent 6/6 PASS (merchant login + real dashboard
             data + /transactions + company-switch refetch, ZERO 401/refresh loops, ZERO console
             errors; /admin/login renders). Money-path auth confirmed unchanged.
-- [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
+- [x] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1) — DONE 2026-08-27 (pod d004a6e0)
+      - reactStrictMode false -> TRUE in next.config.mjs (dev-only double-invoke; no prod-runtime
+        effect; SWR-safe). Frontend restarted; testing agent PASS (login+dashboard+/transactions+
+        /system-status+home, ZERO infinite-loop/Max-update-depth, ZERO console errors).
+      - NEW ESLint warning RATCHET: scripts/check-eslint-ratchet.mjs + scripts/eslint-warning-baseline.json
+        (baseline 0 errors / 74 warnings, all react-hooks/exhaustive-deps). Runs the same
+        `eslint . --ext .ts,.tsx` as before; FAILS on any error or if warnings exceed baseline; count
+        can only go DOWN (--update-baseline to re-lock; --hook = warn-only). Wired into `yarn lint`,
+        new `lint:eslint`, and a HARD-GATE CI job `frontend-eslint-ratchet` in preflight.yml.
+      - ⚠️ Running full strict `yarn lint` SURFACED 7 PRE-EXISTING contrast-guardrail findings in 5
+        UNTOUCHED files (Payment-link/PaymentLinksTable.tsx:532,895; Payment-link/QuickCreateLinkPanel.tsx:352;
+        Payouts/index.tsx:951; Refund/refundStatus.tsx:112; UI/UserMenu/index.tsx:303,310) — raw
+        primary.main / #4F46E5 as FOREGROUND on dark. NOT from Phase 4. Awaiting user decision:
+        fix via brandFg(isDark) (accessibility fix) vs re-baseline (grandfather). yarn lint is RED
+        only because of these; CI (tsc + eslint ratchet) and DO `next build` are unaffected.
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

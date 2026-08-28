@@ -1,4 +1,53 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-27 (pod d004a6e0) : PHASE 4 "Guards on" (FP3-1).
+#   (1) next.config.mjs reactStrictMode:false -> TRUE (dev-only double-invoke;
+#       no prod-runtime effect; data is SWR so safe). Frontend restarted.
+#   (2) NEW ESLint warning RATCHET: scripts/check-eslint-ratchet.mjs +
+#       scripts/eslint-warning-baseline.json (baseline: 0 errors / 74 warnings,
+#       all react-hooks/exhaustive-deps). Wired into `yarn lint`, new `lint:eslint`,
+#       and a HARD-GATE CI job `frontend-eslint-ratchet` in .github/workflows/preflight.yml.
+#   Gate: ratchet PASS (0 err / 74 warn, holding) · / /auth/login /dashboard /system-status 200.
+# ============================================================================
+## ⚠️ LIVE PROD Railway DB — SAFE MODE. STRICTLY READ-ONLY (navigation only; no clicks
+## that mutate). Merchant login (2-step): onarrival21@gmail.com / Katiekendra123@ (user_id=1).
+## Company switch OK; NO paylink/wallet/currency/apikey writes, no /pay currency, no checkout, no OTP.
+
+### frontend
+  - task: "Phase 4: reactStrictMode ON — app still works under dev double-invoke (no crashes, no double-render breakage)"
+    implemented: true
+    working: true
+    file: "next.config.mjs"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "reactStrictMode flipped false->true. React now double-invokes effects/renders in DEV to surface unsafe patterns. Verify (READ-ONLY nav only): login → dashboard renders correctly with data (no duplicated/broken UI, no crash), navigate /transactions and /system-status and home /, and confirm NO runtime/red console errors, NO obviously duplicated toasts, NO broken layout. Double-fired READ requests are expected/harmless; only report if something visibly breaks or errors."
+      - working: true
+        agent: "testing"
+        comment: "✅ REACT STRICT MODE VERIFICATION PASSED (2026-08-28 09:18 UTC) — ALL 5 STEPS PASSED (5/5, 100% success rate). The app works correctly under React Strict Mode's dev double-invoke behavior. NO strict mode side-effects detected. DETAILED RESULTS: (1) ✅ LOGIN: 2-step authentication successful (email onarrival21@gmail.com → Continue → password → Sign in). Redirected to /dashboard correctly. (2) ✅ DASHBOARD: Page loaded with title 'Dashboard · Dynopay'. Referral card found (data-testid='dashboard-referral-card'). Page has content (1308 characters). Toast elements: 1 (minimal, acceptable). NO duplicated components, NO duplicated toasts/notifications, NO flickering, NO runtime crashes, NO blank screens. (3) ✅ TRANSACTIONS: Page loaded with title 'Transactions · Dynopay'. Screenshot shows 4 transactions visible (BTC, USDT-TRC20 transactions with amounts, dates, statuses). Transaction list renders correctly. (4) ✅ SYSTEM STATUS: Page loaded with title 'System Status — API & payment uptime · Dynopay'. Found exactly 90 SVG rect elements (90-day uptime bars). System status content visible with service statuses (API Gateway 100.00% uptime, Payment Processing 96.22%, Wallet Services 98.98%, Webhook Delivery 99.80%, Dashboard 99.90%). (5) ✅ HOME PAGE: Page loaded with title 'Sell, tip, fundraise — in crypto · Dynopay'. Home page has substantial content (4997 characters). Hero section renders correctly with 'Accept crypto payments. Get paid your way.' heading. CONSOLE ANALYSIS: Total console logs: 11. Total console errors: 0 (zero critical errors). React Strict Mode warnings (infinite loops, Maximum update depth exceeded): 0 (ZERO). Only cosmetic warnings: 2 (preload warnings for logo SVG - non-critical). Network errors: 2 (CDN noise - cdn-cgi/rum ERR_ABORTED, Cloudflare infrastructure noise, NOT application errors). CRITICAL FINDING: ✅ NO REACT STRICT MODE ISSUES DETECTED. No 'Maximum update depth exceeded' errors, no infinite loop warnings, no runtime crashes, no blank screens, no duplicated components, no duplicated toasts/notifications, no broken layouts. The SWR data fetching (Phase 2 migration) is safe under strict mode's double-invoke. STRICT COMPLIANCE: Read-only testing only. NO payment links created, NO wallets modified, NO API keys actions, NO currency selection, NO checkout, NO OTP. The React Strict Mode change is PRODUCTION-READY."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  session: "2026-08-27 pod d004a6e0 — Phase 4 Guards on (strict mode + eslint ratchet)"
+
+### test_plan
+  current_focus:
+    - "Phase 4: reactStrictMode ON — app still works under dev double-invoke"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "READ-ONLY smoke after enabling React Strict Mode (dev double-invoke). Confirm login + dashboard + a couple pages render correctly with no crashes / no console errors / no broken layout. The ESLint ratchet is a build-time guard (no UI to test). Navigation only — no mutations."
+  - agent: "testing"
+    message: "✅ REACT STRICT MODE VERIFICATION COMPLETE (2026-08-28 09:18 UTC) — ALL TESTS PASSED (5/5, 100% success rate). SUMMARY: The app works correctly under React Strict Mode's dev double-invoke behavior. NO strict mode side-effects detected. CRITICAL FINDINGS: (1) ✅ Login successful (2-step flow works). (2) ✅ Dashboard renders correctly with referral card, no duplicated components, no duplicated toasts, no flickering, no crashes. (3) ✅ Transactions page loads with 4 transactions visible. (4) ✅ System status page loads with 90-day uptime bars (90 SVG rects). (5) ✅ Home page renders correctly with hero section. CONSOLE: Zero critical errors, zero React Strict Mode warnings (no 'Maximum update depth exceeded', no infinite loops), only 2 cosmetic preload warnings. NETWORK: 2 CDN noise errors (Cloudflare cdn-cgi/rum), no application errors. The SWR data fetching (Phase 2 migration) is safe under strict mode's double-invoke. STRICT COMPLIANCE: Read-only testing only, no mutations performed. The React Strict Mode change is PRODUCTION-READY. Main agent should summarize and finish."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-27 (pod d004a6e0) : PHASE 3 WAVE 3 — consolidate the
 #   TWO axios clients onto a shared base. NEW utils/apiClient.ts (API_ORIGIN /
 #   API_BASE_URL / createApiClient factory). axiosConfig.ts (merchant) + axiosAdmin.ts

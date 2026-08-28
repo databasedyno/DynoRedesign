@@ -106,3 +106,33 @@ jobs:
 
       - name: Run tsc --noEmit (strict — zero errors allowed)
         run: ./node_modules/.bin/tsc --noEmit
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Frontend ESLint warning RATCHET — HARD GATE (Phase 4 "Guards on", FP3-1).
+  # Fails if ESLint ERRORS > 0, OR if warnings exceed the locked baseline in
+  # scripts/eslint-warning-baseline.json. Stops the pre-existing
+  # `react-hooks/exhaustive-deps` warnings from silently multiplying — the
+  # count can only go DOWN (re-baseline after fixing). Mirrors frontend-tsc.
+  # ─────────────────────────────────────────────────────────────────────
+  frontend-eslint-ratchet:
+    name: frontend eslint ratchet
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+
+      - name: Install frontend deps
+        run: |
+          yarn install --ignore-engines --production=false --frozen-lockfile \
+            || yarn install --ignore-engines --production=false
+
+      - name: Run ESLint warning ratchet (0 errors; warnings <= baseline)
+        run: node scripts/check-eslint-ratchet.mjs

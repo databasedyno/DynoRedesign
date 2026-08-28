@@ -1,0 +1,8 @@
+{
+  "maxErrors": 0,
+  "maxWarnings": 74,
+  "byRule": {
+    "react-hooks/exhaustive-deps": 74
+  },
+  "note": "ESLint warning RATCHET — this count may only go DOWN. Fixing warnings? re-baseline with `node scripts/check-eslint-ratchet.mjs --update-baseline`. Do NOT raise these numbers to land new warnings."
+}

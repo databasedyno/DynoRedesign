@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  // React Strict Mode ON (Phase 4 "Guards on", FP3-1, 2026-08-27). Dev-only:
+  // React double-invokes effects/renders in development to surface unsafe
+  // patterns (missing effect cleanup, non-idempotent on-mount side-effects).
+  // NO effect on the production runtime/build. Data fetching is SWR (Phase 2),
+  // which dedupes, so double-invoke is safe. Verified: preview + testing agent
+  // green with strict mode enabled.
+  reactStrictMode: true,
   output: "standalone",
   // TypeScript strict-mode is now enforced by `next build` (2026-08-02
   // Session 97i). Previously ignored because the frontend had 286
