@@ -26,6 +26,7 @@ import { raw as envRaw } from "../utils/config";
 import sequelize from "../utils/dbInstance";
 import { userModel } from "../models";
 import { log } from "../utils/loggers";
+import { deleteRedisItem } from "../utils/redisInstance";
 
 // Legacy display sentinel (kept only so status payloads that still surface a
 // "total" figure don't break). The new model has NO dollar cap.
@@ -189,6 +190,10 @@ export const recordTransactionVolume = async (
     );
 
     await t.commit();
+    // Bust the cached /user/profile blob so the dashboard reflects the
+    // graduated first_payment_free=false state immediately (not after the 60s
+    // TTL). Fire-and-forget — a cache error must never affect settlement.
+    deleteRedisItem(`profile:${userId}`).catch(() => {});
     log(`[FeeFree] User ${userId} recorded $${amountUsd} volume (first-payment-free consumed if this was their first)`, "info");
     return getFeeFreeStatus(userId);
   } catch (error: any) {
@@ -250,6 +255,10 @@ export const reverseTransactionVolume = async (
     }
 
     await t.commit();
+    // Bust the cached /user/profile blob so a restored first_payment_free=true
+    // (settlement reversed to $0) shows on the dashboard without waiting for the
+    // 60s TTL. Fire-and-forget — must never affect the reversal outcome.
+    deleteRedisItem(`profile:${userId}`).catch(() => {});
     log(`[FeeFree] ↩️ User ${userId} REVERSED $${amountUsd} settled volume (settlement failed)`, "info");
     return getFeeFreeStatus(userId);
   } catch (error: any) {

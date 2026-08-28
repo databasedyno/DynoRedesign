@@ -42,7 +42,7 @@ interface OfferConfig {
 export interface GrowPanelProps {
   /** True when the merchant still has unspent fee-free trial credit. */
   hasFeeFreeCredit?: boolean;
-  /** True when the merchant has already used their $500 fee-free trial. */
+  /** True when the merchant has already used their first fee-free payment. */
   hasCompletedFeeFreeTrial?: boolean;
   /** True when the merchant is on a paid tier and could upgrade further. */
   isPremiumEligible?: boolean;

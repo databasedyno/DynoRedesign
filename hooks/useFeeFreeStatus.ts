@@ -15,6 +15,8 @@ export const FEE_FREE_KEY = "company/fee-free-status";
 
 export interface FeeFreeStatus {
   is_fee_free: boolean;
+  /** Explicit first-payment-free flag (true = the one free payment is unused). */
+  first_payment_free?: boolean;
   fee_free_remaining_usd: number;
   fee_free_total_usd: number;
   fee_free_used_usd: number;

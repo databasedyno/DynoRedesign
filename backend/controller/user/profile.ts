@@ -30,7 +30,7 @@ import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
-import { resolveFeeFreeRemaining } from "../../services/feeFreeService";
+import { resolveFeeFreeRemaining, isFirstPaymentFreeAvailable } from "../../services/feeFreeService";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 
 export const updateUser = async (req: express.Request, res: express.Response) => {
@@ -161,13 +161,22 @@ export const getProfile = async (req: express.Request, res: express.Response) =>
 
     const profileData = {
       ...user.dataValues,
-      // Clamp to the trial the user is still entitled to for their lifetime
-      // volume — the dashboard GrowPanel drives its fee-free CTA off this
-      // field, and a drifted counter must not offer the promo to a merchant
-      // who already processed way past the first $500.
+      // Legacy sentinel (500 while the freebie is available, else 0) kept only
+      // for back-compat with older surfaces. New code should read
+      // `first_payment_free` below — the true first-payment-free signal.
       fee_free_remaining_usd: resolveFeeFreeRemaining(
         parseFloat((user.dataValues as any).cumulative_volume_usd || "0"),
         parseFloat((user.dataValues as any).fee_free_remaining_usd || "0")
+      ),
+      // Explicit first-payment-free entitlement — the dashboard GrowPanel /
+      // banners gate on this. Derived from the SAME rule the fee engine uses
+      // (calculateFeeFreeDiscount → isFirstPaymentFreeAvailable): available only
+      // for a brand-new merchant (no settled volume AND still on the 'trial'
+      // tier), so a drifted legacy counter can't offer the promo to a merchant
+      // who has already processed real volume.
+      first_payment_free: isFirstPaymentFreeAvailable(
+        parseFloat((user.dataValues as any).cumulative_volume_usd || "0"),
+        (user.dataValues as any).fee_tier
       ),
       has_password: !!(userPwCheck?.dataValues?.password),
       stats: {

@@ -40,32 +40,33 @@ const DashboardRightSection = () => {
 
   const { feeTiers } = useDashboardData();
 
-  // Fee-free credit flag: user still has trial credit → prioritize that promo.
-  // Read from userReducer.profile.fee_free_remaining_usd (set by /user/profile).
-  // Previously read a non-existent `free_trial_volume_used` field which
-  // defaulted to 0, so EVERY user (including those who had exhausted their
-  // trial) saw the fee-free CTA — wrong for merchants like hostbay@moxx.co
-  // who processed $17k+ and have $0 fee-free credit remaining.
+  // First-payment-free gate: prefer the explicit `first_payment_free` boolean
+  // (the true entitlement model the fee engine uses — available only for a
+  // brand-new merchant with no settled volume on the 'trial' tier). Fall back
+  // to the legacy numeric sentinel only if an older/cached profile predates the
+  // flag. Previously this read only `fee_free_remaining_usd` (a 500/0 sentinel).
   const userState: any = { profile: useProfile().profile };
-  const feeFreeRemainingRaw =
+  const firstPaymentFreeRaw = userState?.profile?.first_payment_free;
+  const feeFreeRemaining = Number(
     userState?.profile?.fee_free_remaining_usd ??
-    userState?.profile?.feeFreeRemainingUsd;
-  const feeFreeRemaining = Number(feeFreeRemainingRaw ?? NaN);
+      userState?.profile?.feeFreeRemainingUsd ??
+      NaN,
+  );
   const hasFeeFreeCredit = useMemo(() => {
-    // Only show fee-free CTA when the field is known AND still positive.
-    // If unknown (undefined/NaN), don't assume — fall through to premium/referral.
+    if (typeof firstPaymentFreeRaw === "boolean") return firstPaymentFreeRaw;
+    // Fallback for pre-flag cached profiles: show only when known AND positive.
     return Number.isFinite(feeFreeRemaining) && feeFreeRemaining > 0;
-  }, [feeFreeRemaining]);
-  // True when the merchant HAS used their trial (i.e. the field exists but is 0).
-  // Lets GrowPanel show a "trial complete → keep growing" state instead of the
-  // fee-free CTA — more encouraging than blindly falling to a generic offer.
+  }, [firstPaymentFreeRaw, feeFreeRemaining]);
+  // True when the merchant HAS used their one free payment (has transacted).
+  // Lets GrowPanel show a "first payment complete → keep growing" state instead
+  // of a fee-free CTA the merchant can no longer benefit from.
   const hasCompletedFeeFreeTrial = useMemo(() => {
-    return (
-      Number.isFinite(feeFreeRemaining) &&
-      feeFreeRemaining <= 0 &&
-      Number(userState?.profile?.cumulative_volume_usd ?? 0) > 0
-    );
-  }, [feeFreeRemaining, userState?.profile?.cumulative_volume_usd]);
+    const used =
+      typeof firstPaymentFreeRaw === "boolean"
+        ? !firstPaymentFreeRaw
+        : Number.isFinite(feeFreeRemaining) && feeFreeRemaining <= 0;
+    return used && Number(userState?.profile?.cumulative_volume_usd ?? 0) > 0;
+  }, [firstPaymentFreeRaw, feeFreeRemaining, userState?.profile?.cumulative_volume_usd]);
 
   const monthlyLimit = feeTiers.monthlyLimit || DEFAULT_MONTHLY_LIMIT;
   const currentTier = feeTiers.currentTier || CURRENT_TIER;

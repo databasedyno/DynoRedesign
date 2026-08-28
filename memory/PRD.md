@@ -1,3 +1,34 @@
+# BUGFIX 2026-06 (fork) — GrowPanel fee-free counter migrated off legacy $500 sentinel → first_payment_free (testing_agent iteration_94 = 100% BE+FE)
+
+Follow-up to the onboarding-email fix. User: migrate the dashboard "Grow" panel's `fee_free_remaining_usd`
+counter (legacy $500 sentinel) to the true first-payment-free model. FINDING: the actual fee ENGINE was
+already first-payment-free (calculateFeeFreeDiscount waives the full platform fee on the first payment); the
+$500 lived only as a 500/0 sentinel used as a boolean gate + vestigial code/comments. No user-facing $500 was
+actually rendered (ffWelcomeBody/growFeeFree copy already reworded). So this was a behaviour-preserving switch
+to the explicit signal + cleanup. NO fee-calculation/money-path logic changed.
+
+Changes:
+- Backend `controller/user/profile.ts`: `/user/profile` now also returns `first_payment_free`
+  (= isFirstPaymentFreeAvailable(cumulative_volume_usd, fee_tier)); legacy `fee_free_remaining_usd` sentinel
+  kept for back-compat. (`getFeeFreeStatus` / `/company/fee-free-status` already returned first_payment_free.)
+- Frontend GrowPanel gates now prefer `profile.first_payment_free` (fallback to numeric only for pre-flag
+  cached profiles): `Components/Page/Dashboard/DashboardRightSection.tsx`, `.../v2026/index.tsx`.
+- `Components/Modals/FeeFreeWelcomeModal.tsx`: removed vestigial `remaining`/`$500` state + the dead
+  `{amount:'$500'}` param; gate is now purely `is_fee_free`; body renders `t('ffWelcomeBody')` (no amount).
+- `hooks/useFeeFreeStatus.ts`: added optional `first_payment_free?: boolean`. GrowPanel.tsx comment tidied.
+- Backend `services/feeFreeService.ts`: recordTransactionVolume + reverseTransactionVolume now fire-and-forget
+  bust `profile:<userId>` Redis cache on graduation/restore so the dashboard reflects the change immediately
+  (PROFILE_CACHE_TTL is 60s; delete cannot affect settlement — reviewer flag from iteration_94 addressed).
+
+VERIFIED: testing_agent iteration_94 = 100% backend + 100% frontend; Jest feeFreeEntitlement 16/16;
+established merchant (onarrival21) returns first_payment_free=false on both endpoints, no '$500' on dashboard;
+Playwright-stubbed new-merchant → FeeFreeWelcomeModal shows correct first-payment-free copy (no $500) and
+GrowPanel shows the fee_free offer. backend+frontend tsc EXIT 0.
+
+---
+
+
+
 # BUGFIX 2026-06 (fork) — Onboarding emails still said "$500 fee-free balance" — FIXED (testing_agent iteration_93 = 100%)
 
 User report: admin new-signup email showed "$500 fee-free balance (trial)" (deprecated model); user welcome

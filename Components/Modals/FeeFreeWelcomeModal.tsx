@@ -9,14 +9,14 @@ import CustomButton from "@/Components/UI/Buttons";
 
 /**
  * FeeFreeWelcomeModal — one-time celebratory popup shown on the dashboard the
- * moment a merchant is onboarded, making sure they KNOW their first $500 in
- * volume is fee-free.
+ * moment a merchant is onboarded, making sure they KNOW their very first
+ * payment is completely platform-fee-free (any size, no cap).
  *
  * Show conditions (all must hold):
- *  - GET /api/company/fee-free-status → is_fee_free && fee_free_remaining_usd > 0
+ *  - GET /api/company/fee-free-status → is_fee_free (first payment still unused)
  *  - Not dismissed before on this browser (localStorage, keyed per user)
  *
- * Existing users whose allowance is used up (e.g. hostbay) never see it.
+ * Merchants who have already taken their first payment never see it.
  */
 
 const CONFETTI_COLORS = ["#3FD98A", "#050505", "#A3E635", "#22C55E", "#FDE047"];
@@ -80,7 +80,6 @@ const FeeFreeWelcomeModal: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [remaining, setRemaining] = useState(500);
   const [storageKey, setStorageKey] = useState<string | null>(null);
 
   // Shared, deduped fee-free status (collapses this + FeeFreeBanner +
@@ -115,7 +114,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
       return;
     }
 
-    if (ffData.is_fee_free && Number(ffData.fee_free_remaining_usd) > 0) {
+    if (ffData.is_fee_free) {
       // Mark as shown IMMEDIATELY — "once" semantics survive reloads
       // even if the user never clicks a button.
       try {
@@ -124,7 +123,6 @@ const FeeFreeWelcomeModal: React.FC = () => {
         /* ignore */
       }
       setStorageKey(key);
-      setRemaining(Number(ffData.fee_free_remaining_usd));
       setOpen(true);
     }
   }, [ffData]);
@@ -179,12 +177,10 @@ const FeeFreeWelcomeModal: React.FC = () => {
     return () => obs.disconnect();
   }, []);
 
-  // Belt-and-suspenders: even if `open` somehow got set true, refuse to render
-  // when there's nothing left in the trial. Guards against any future code path
-  // that flips `open` without re-checking the balance. Also hidden while any
-  // other blocking Dialog is open (F5 — no stacked modals).
+  // Belt-and-suspenders: hidden while any other blocking Dialog is open
+  // (F5 — no stacked modals). `open` is only ever set when the account's first
+  // payment is still free, so there's no dollar-amount gate any more.
   if (!open || otherDialogOpen) return null;
-  if (remaining <= 0) return null;
 
   const dark = theme.palette.mode === "dark";
 
@@ -291,7 +287,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
             mb: 3,
           }}
         >
-          {t("ffWelcomeBody", { amount: `$${Math.round(remaining)}` })}
+          {t("ffWelcomeBody")}
         </Typography>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>

@@ -145,13 +145,19 @@ const Dashboard2026: React.FC = () => {
     Number(stats.totalVolume ?? 0) === 0;
 
   // Grow-panel offer signals (mirrors DashboardRightSection priority logic).
+  // Prefer the explicit first_payment_free flag; fall back to the legacy sentinel.
+  const firstPaymentFreeRaw = (userProfile as any)?.first_payment_free;
   const feeFreeRemaining = Number(
     userProfile?.fee_free_remaining_usd ?? userProfile?.feeFreeRemainingUsd ?? NaN,
   );
-  const hasFeeFreeCredit = Number.isFinite(feeFreeRemaining) && feeFreeRemaining > 0;
+  const hasFeeFreeCredit =
+    typeof firstPaymentFreeRaw === "boolean"
+      ? firstPaymentFreeRaw
+      : Number.isFinite(feeFreeRemaining) && feeFreeRemaining > 0;
   const hasCompletedFeeFreeTrial =
-    Number.isFinite(feeFreeRemaining) &&
-    feeFreeRemaining <= 0 &&
+    (typeof firstPaymentFreeRaw === "boolean"
+      ? !firstPaymentFreeRaw
+      : Number.isFinite(feeFreeRemaining) && feeFreeRemaining <= 0) &&
     Number(userProfile?.cumulative_volume_usd ?? 0) > 0;
   const usedAmount = Number(feeTiers?.usedAmount ?? 0);
   const monthlyLimit = Number(feeTiers?.monthlyLimit ?? 10000);
