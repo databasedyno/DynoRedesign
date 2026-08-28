@@ -604,5 +604,31 @@
     "createPayLink": "Create a payment link →",
     "openDashboardBody": "Open your dashboard to explore transactions, adjust wallets, or share a new payment link.",
     "openDashboard": "Open dashboard"
+  },
+  "invoice": {
+    "title": "INVOICE",
+    "invoiceNumber": "Invoice #: {{number}}",
+    "date": "Date: {{date}}",
+    "from": "From:",
+    "billTo": "Bill To:",
+    "taxId": "Tax ID: {{id}}",
+    "colDescription": "Description",
+    "colQty": "Qty",
+    "colPrice": "Price",
+    "colAmount": "Amount",
+    "underlyingTx": "Underlying transaction (context, not billed): {{amount}}",
+    "transactionFee": "Transaction Fee ({{percent}}%)",
+    "feeBreakdown": "= Fixed {{fixed}} + {{percent}}% of {{gross}} ({{feeAmount}})",
+    "blockchainBuffer": "Blockchain Buffer ({{percent}}%)",
+    "subtotal": "Subtotal:",
+    "vat": "VAT ({{rate}}%):",
+    "totalAmount": "Total Amount:",
+    "cryptoEquivalent": "Crypto Equivalent:",
+    "paymentTerms": "Payment Terms:",
+    "paymentDueUponReceipt": "Payment due upon receipt",
+    "serviceDescription": "Payment processing service - Transaction {{reference}}",
+    "transactionReference": "Transaction Reference: {{id}}",
+    "thankYou": "Thank you for your business!",
+    "poweredBy": "Powered by Dynopay - dynopay.com"
   }
 }

@@ -604,5 +604,31 @@
     "createPayLink": "Créer un lien de paiement →",
     "openDashboardBody": "Ouvrez votre tableau de bord pour explorer les transactions, ajuster les portefeuilles ou partager un nouveau lien de paiement.",
     "openDashboard": "Ouvrir le tableau de bord"
+  },
+  "invoice": {
+    "title": "FACTURE",
+    "invoiceNumber": "Facture n° : {{number}}",
+    "date": "Date : {{date}}",
+    "from": "De :",
+    "billTo": "Facturer à :",
+    "taxId": "N° fiscal : {{id}}",
+    "colDescription": "Description",
+    "colQty": "Qté",
+    "colPrice": "Prix",
+    "colAmount": "Montant",
+    "underlyingTx": "Transaction sous-jacente (contexte, non facturée) : {{amount}}",
+    "transactionFee": "Frais de transaction ({{percent}} %)",
+    "feeBreakdown": "= Fixe {{fixed}} + {{percent}} % de {{gross}} ({{feeAmount}})",
+    "blockchainBuffer": "Marge blockchain ({{percent}} %)",
+    "subtotal": "Sous-total :",
+    "vat": "TVA ({{rate}} %) :",
+    "totalAmount": "Montant total :",
+    "cryptoEquivalent": "Équivalent en crypto :",
+    "paymentTerms": "Conditions de paiement :",
+    "paymentDueUponReceipt": "Paiement dû à réception",
+    "serviceDescription": "Service de traitement des paiements - Transaction {{reference}}",
+    "transactionReference": "Référence de la transaction : {{id}}",
+    "thankYou": "Merci de votre confiance !",
+    "poweredBy": "Powered by Dynopay - dynopay.com"
   }
 }

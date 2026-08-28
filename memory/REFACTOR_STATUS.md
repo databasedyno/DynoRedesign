@@ -1,3 +1,33 @@
+# SESSION UPDATE 2026-08-28 (fork) — Save-to-GitHub push blocker (oversized assets)
+
+- ROOT CAUSE: NOT source-file length (>500-line .ts files are fine for GitHub). The blocker was ~59MB of oversized binary assets exceeding Emergent Save-to-GitHub's (undocumented) size limit. Bloated Figma-export SVGs held embedded full-res base64 rasters (e.g. a 163×133 use-case svg = 9.5MB).
+- FIX:
+  - Deleted UNUSED (0 code imports, verified by grep) large assets: assets/Images/UseCase/use-case-1..4 (.svg+.png), assets/Images/wallet.png, assets/Images/home/home-hero.png (~53MB).
+  - Untracked (git rm --cached, kept on disk) + .gitignore: /test_result.md (2.7MB) and /tests/screenshots/ (~2.85MB QA screenshots).
+  - Tracked repo size: 99.8MB → 40.3MB. Largest tracked file now 1.66MB (was 9.5MB).
+- VERIFIED: testing agent iteration_91 = 100% frontend pass. Home/about/documentation/dashboard/customers render; 0 broken images, 0 module errors, 0 404s for deleted files. Crypto icons (Dogecoin/RLUSD .svg) + Dashboard.png kept and intact.
+- FOLLOW-UP IF STILL BLOCKED: next-largest tracked files are the bloated USED crypto icons assets/cryptocurrency/Dogecoin-icon.svg (1.66MB) and RLUSD-icon.svg (763KB) — can be optimized (re-encode the embedded raster small) without visual change at 24×24. backend/public/images/media_*.png (~1MB each) are runtime uploads, left as-is.
+
+---
+
+
+# SESSION UPDATE 2026-08-28 (fork) — Customers Page responsive polish
+
+- ✅ Verified `/customers` (`Components/Page/Customers/index.tsx`) across desktop (1440), tablet (768) and mobile (390) in BOTH light + dark: 4-up→2×2 stats, condensed table (channels/last-payment columns drop at breakpoints), <768 card list, sidebar auto-collapse, and the mobile bottom-sheet detail drawer all render sharp and legible.
+- ✅ Refined: segment filter chip row now uses the shared `EdgeFades`/`useEdgeFades` scroll affordance (§4.2) so hidden filters (e.g. "Anonymous") are discoverable on phones/tablets — previously hard-cut with no hint. Verified fade renders light+dark; `yarn lint` green (tsc + eslint ratchet 74 + contrast).
+
+---
+
+
+# SESSION UPDATE 2026-08-28 (fork)
+
+- ✅ Invoice PDF Locale (P0): invoices now render in merchant language. Added `invoice.*` (24 keys) to `backend/locales/*/emails.json`; `pdfService.ts` uses `t()` + locale dates + `lang`; `invoiceController.downloadInvoicePDF` resolves merchant lang via `resolveLangByEmail`. Verified via ts-node render + pypdf extraction across en/pt/es/fr/de/nl. Provider legal entity details kept English by design.
+- ✅ Public routes contrast + dark mode (P0): VERIFIED working. Contrast guardrail 0 findings; visual light+dark sweep of pay/store/product/checkout/creator(tip) all legible & theme-toggling. `yarn lint` fully green (tsc + eslint ratchet 74 + contrast).
+- No frontend code changes were required for Phase B (already implemented in prior sessions). No auth/credential changes.
+
+---
+
+
 # REFACTOR STATUS
 
 _Last updated: 2026-08-26_

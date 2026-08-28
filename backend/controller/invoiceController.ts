@@ -16,6 +16,7 @@ import { buildPaymentReceivedDisplay } from "../utils/paymentAmountDisplay";
 import { apiLogger } from "../utils/loggers";
 import { generateInvoicePDF } from "../services/pdfService";
 import { sendInvoiceGeneratedEmail } from "../services/emailService";
+import { resolveLangByEmail } from "../utils/emailI18n";
 import { getFeeTiers, getTransactionFeePercent, FeeTier } from "../utils/feeConfigUtils";
 import {
   getCompanyBaseCurrency,
@@ -867,6 +868,16 @@ const downloadInvoicePDF = async (
     } catch (fxErr) {
       apiLogger.warn(
         `[Invoice PDF] Could not resolve display currency for user ${userData?.user_id}: ${fxErr}`
+      );
+    }
+
+    // Localize invoice labels + dates to the merchant's stored language
+    // (falls back to "en"). Read-only lookup of the user's `language`.
+    try {
+      pdfData.lang = await resolveLangByEmail(userData?.email);
+    } catch (langErr) {
+      apiLogger.warn(
+        `[Invoice PDF] Could not resolve merchant language for user ${userData?.user_id}: ${langErr}`
       );
     }
 

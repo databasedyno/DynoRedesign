@@ -16,6 +16,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { formatRelativeTime } from "@/utils/formatDate";
 
 export interface DonorSupporter {
   name: string | null;
@@ -42,15 +43,7 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 function timeAgo(iso: string): string {
   const d = new Date(iso).getTime();
   if (!Number.isFinite(d)) return "";
-  const s = Math.max(1, Math.floor((Date.now() - d) / 1000));
-  if (s < 45) return "just now";
-  if (s < 60) return `${s}s ago`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const dd = Math.floor(h / 24);
-  return dd < 30 ? `${dd}d ago` : `${Math.floor(dd / 30)}mo ago`;
+  return formatRelativeTime(d, "narrow");
 }
 
 function hueFromName(name: string | null): number {

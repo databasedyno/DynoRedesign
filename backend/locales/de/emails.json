@@ -604,5 +604,31 @@
     "createPayLink": "Zahlungslink erstellen →",
     "openDashboardBody": "Öffnen Sie Ihr Dashboard, um Transaktionen zu erkunden, Wallets anzupassen oder einen neuen Zahlungslink zu teilen.",
     "openDashboard": "Dashboard öffnen"
+  },
+  "invoice": {
+    "title": "RECHNUNG",
+    "invoiceNumber": "Rechnungsnr.: {{number}}",
+    "date": "Datum: {{date}}",
+    "from": "Von:",
+    "billTo": "Rechnung an:",
+    "taxId": "Steuer-ID: {{id}}",
+    "colDescription": "Beschreibung",
+    "colQty": "Menge",
+    "colPrice": "Preis",
+    "colAmount": "Betrag",
+    "underlyingTx": "Zugrunde liegende Transaktion (Kontext, nicht berechnet): {{amount}}",
+    "transactionFee": "Transaktionsgebühr ({{percent}} %)",
+    "feeBreakdown": "= Fest {{fixed}} + {{percent}} % von {{gross}} ({{feeAmount}})",
+    "blockchainBuffer": "Blockchain-Puffer ({{percent}} %)",
+    "subtotal": "Zwischensumme:",
+    "vat": "MwSt. ({{rate}} %):",
+    "totalAmount": "Gesamtbetrag:",
+    "cryptoEquivalent": "Krypto-Äquivalent:",
+    "paymentTerms": "Zahlungsbedingungen:",
+    "paymentDueUponReceipt": "Zahlung sofort fällig",
+    "serviceDescription": "Zahlungsabwicklungsdienst - Transaktion {{reference}}",
+    "transactionReference": "Transaktionsreferenz: {{id}}",
+    "thankYou": "Vielen Dank für Ihr Vertrauen!",
+    "poweredBy": "Powered by Dynopay - dynopay.com"
   }
 }

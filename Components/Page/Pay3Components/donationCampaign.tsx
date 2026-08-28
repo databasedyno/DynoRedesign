@@ -21,6 +21,7 @@ import {
 } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { useTranslation } from 'react-i18next'
+import { formatRelativeTime } from '@/utils/formatDate'
 import Logo from '@/assets/Icons/Logo'
 import {
   formatWithSeparators,
@@ -171,14 +172,7 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 const timeAgo = (iso: string): string => {
   const d = new Date(iso).getTime()
   if (!Number.isFinite(d)) return ''
-  const s = Math.max(1, Math.floor((Date.now() - d) / 1000))
-  if (s < 60) return `${s}s ago`
-  const m = Math.floor(s / 60)
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  const dd = Math.floor(h / 24)
-  return dd < 30 ? `${dd}d ago` : `${Math.floor(dd / 30)}mo ago`
+  return formatRelativeTime(d, "narrow")
 }
 
 const DonationCampaign = ({ donation, merchant, submitting, onDonate }: DonationCampaignProps) => {

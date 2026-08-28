@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { formatRelativeTime } from "@/utils/formatDate";
 
 interface RateFreshnessProps {
   /** Epoch ms when the rate was last fetched/locked. Null → renders nothing. */
@@ -10,30 +12,26 @@ interface RateFreshnessProps {
   mt?: number;
 }
 
-function formatAgo(secs: number): string {
-  if (secs < 3) return "Rate updated just now";
-  if (secs < 60) return `Rate updated ${secs}s ago`;
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  return `Rate updated ${m}m ${s}s ago`;
-}
-
 /**
  * Subtle "Rate updated Xs ago" freshness hint with a live green pulse dot.
  * Ticks every second so the customer can trust the displayed rate is live.
  */
 const RateFreshness: React.FC<RateFreshnessProps> = ({ updatedAt, color, mt = 0.5 }) => {
-  const [now, setNow] = useState(() => Date.now());
+  const { t } = useTranslation("common");
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     if (!updatedAt) return;
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    const id = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(id);
   }, [updatedAt]);
 
   if (!updatedAt) return null;
 
-  const secs = Math.max(0, Math.floor((now - updatedAt) / 1000));
+  const label = t("rateUpdatedAgo", {
+    time: formatRelativeTime(updatedAt, "narrow"),
+    defaultValue: "Rate updated {{time}}",
+  });
 
   return (
     <Box
@@ -60,7 +58,7 @@ const RateFreshness: React.FC<RateFreshnessProps> = ({ updatedAt, color, mt = 0.
       <Typography
         sx={{ fontSize: 11.5, color: color || "text.secondary", lineHeight: 1 }}
       >
-        {formatAgo(secs)}
+        {label}
       </Typography>
     </Box>
   );

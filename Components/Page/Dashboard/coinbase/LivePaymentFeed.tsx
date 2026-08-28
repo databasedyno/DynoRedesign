@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { useLivePayments, LivePaymentItem } from "@/hooks/useLivePayments";
 import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
+import { formatRelativeTime } from "@/utils/formatDate";
 import { CB_TOKENS, SurfaceCard, Eyebrow } from "./styled";
 import { BRAND_ACCENT } from "@/constants/theme";
 
@@ -111,16 +112,7 @@ function timeAgo(iso?: string): string {
   if (!iso) return "";
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return "";
-  const now = Date.now();
-  const diff = Math.max(0, Math.round((now - then) / 1000));
-  if (diff < 5) return "just now";
-  if (diff < 60) return `${diff}s ago`;
-  const mins = Math.round(diff / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  return `${days}d ago`;
+  return formatRelativeTime(then, "narrow");
 }
 
 function txShortId(tx: LivePaymentItem): string {

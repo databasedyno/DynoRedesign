@@ -37,7 +37,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import useApiSWR from "@/hooks/useApiSWR";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import API_ENDPOINTS from "@/api/endpoints";
-import { formatDateI18n } from "@/utils/formatDate";
+import { formatDateI18n, formatRelativeTime } from "@/utils/formatDate";
 import {
   brandFg,
   brandAlpha,
@@ -153,14 +153,9 @@ const statusMeta = (status?: string) => {
 // row auto-expires (shown as 'unpaid') after this many minutes.
 const relativeFromNow = (v?: string) => {
   if (!v) return "";
-  const t = new Date(v).getTime();
-  if (!Number.isFinite(t)) return "";
-  const m = Math.floor((Date.now() - t) / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
+  const ts = new Date(v).getTime();
+  if (!Number.isFinite(ts)) return "";
+  return formatRelativeTime(ts, "narrow");
 };
 
 const PAYMENT_WINDOW_MIN = 60;

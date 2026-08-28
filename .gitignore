@@ -33,6 +33,12 @@ node_modules/
 /debug_output.txt
 /page_errors.txt
 /test_reports/
+# QA artifacts — large, regenerable; keep local but out of Git (2026-08 push-size fix)
+/test_result.md
+/tests/screenshots/
+# Leaked credentials / session tokens — never commit (2026-08 push-protection fix)
+/scripts/ux_tokens.json
+/memory/test_credentials.md
 
 # Next.js
 /.next/

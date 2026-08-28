@@ -198,6 +198,9 @@ const CustomersPage: React.FC = () => {
   const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "#E9ECF2";
   // §4.2 rulebook: pinned first (Customer) column + edge-fade scroll hints ≥768px.
   const { ref: custScrollRef, showLeft: custScrolledX, showRight: custMoreRight } = useEdgeFades<HTMLDivElement>();
+  // Same shared scroll affordance for the segment filter chip row so hidden
+  // filters (e.g. Anonymous) are discoverable on phones/tablets.
+  const { ref: segScrollRef, showLeft: segShowLeft, showRight: segShowRight } = useEdgeFades<HTMLDivElement>();
   const custFrozenShadow = custScrolledX
     ? isDark
       ? "8px 0 12px -8px rgba(0,0,0,0.6)"
@@ -634,12 +637,15 @@ const CustomersPage: React.FC = () => {
         </Tooltip>
       </Box>
 
-      {/* Segment chips — horizontally scrollable on small screens */}
+      {/* Segment chips — horizontally scrollable on small screens, with an
+          edge-fade affordance so hidden filters (e.g. Anonymous) are
+          discoverable on phones/tablets (§4.2 shared ScrollHint pattern). */}
+      <Box sx={{ position: "relative", mb: 2 }}>
       <Box
+        ref={segScrollRef}
         sx={{
           display: "flex",
           gap: 0.75,
-          mb: 2,
           overflowX: "auto",
           pb: 0.5,
           "&::-webkit-scrollbar": { display: "none" },
@@ -695,6 +701,8 @@ const CustomersPage: React.FC = () => {
             {t("customers.countLabel", { count: total })}
           </Typography>
         )}
+      </Box>
+      <EdgeFades showLeft={segShowLeft} showRight={segShowRight} color={theme.palette.background.default} />
       </Box>
 
       {/* ---------------------------------------------------------- list */}

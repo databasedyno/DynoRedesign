@@ -1,3 +1,18 @@
+# 2026-08-28 (fork session)
+
+## Invoice PDF Localization (P0) — DONE
+- `backend/locales/{en,pt,es,fr,de,nl}/emails.json`: added `invoice.*` (24 keys).
+- `backend/services/pdfService.ts`: `lang` param on `InvoiceData`; all hardcoded strings → `t("invoice.*", L)`; locale-aware dates; helpers `localizeDescription()` + `localizePaymentTerms()` for default stored English values.
+- `backend/controller/invoiceController.ts`: `downloadInvoicePDF` resolves merchant language (`resolveLangByEmail`) and passes it in.
+- Legal entity provider block kept English (labels + dates translated only).
+- Verified: 6-language render + pypdf text extraction ALL PASS; backend tsc clean.
+
+## Public dark-mode + contrast (P0) — VERIFIED
+- Contrast guardrail 0 findings; light+dark visual sweep of pay/store/product/checkout/creator(tip) legible; `yarn lint` green. No code changes needed (prior sessions had already implemented dark support).
+
+---
+
+
 # SESSION 2026-06 — Fix Save-to-GitHub blocker (R2 file-size budget)
 - Root cause: the NEW backend file `backend/controller/customerDirectoryController.ts` was 583 lines,
   exceeding the 500-line budget for new files enforced by the husky `pre-commit` hook

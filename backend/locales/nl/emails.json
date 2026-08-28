@@ -604,5 +604,31 @@
     "createPayLink": "Een betaallink maken →",
     "openDashboardBody": "Open je dashboard om transacties te bekijken, wallets aan te passen of een nieuwe betaallink te delen.",
     "openDashboard": "Dashboard openen"
+  },
+  "invoice": {
+    "title": "FACTUUR",
+    "invoiceNumber": "Factuurnr.: {{number}}",
+    "date": "Datum: {{date}}",
+    "from": "Van:",
+    "billTo": "Factureren aan:",
+    "taxId": "Fiscaal ID: {{id}}",
+    "colDescription": "Omschrijving",
+    "colQty": "Aantal",
+    "colPrice": "Prijs",
+    "colAmount": "Bedrag",
+    "underlyingTx": "Onderliggende transactie (context, niet gefactureerd): {{amount}}",
+    "transactionFee": "Transactiekosten ({{percent}}%)",
+    "feeBreakdown": "= Vast {{fixed}} + {{percent}}% van {{gross}} ({{feeAmount}})",
+    "blockchainBuffer": "Blockchain-buffer ({{percent}}%)",
+    "subtotal": "Subtotaal:",
+    "vat": "btw ({{rate}}%):",
+    "totalAmount": "Totaalbedrag:",
+    "cryptoEquivalent": "Crypto-equivalent:",
+    "paymentTerms": "Betalingsvoorwaarden:",
+    "paymentDueUponReceipt": "Betaling verschuldigd bij ontvangst",
+    "serviceDescription": "Betalingsverwerkingsdienst - Transactie {{reference}}",
+    "transactionReference": "Transactiereferentie: {{id}}",
+    "thankYou": "Bedankt voor uw vertrouwen!",
+    "poweredBy": "Powered by Dynopay - dynopay.com"
   }
 }

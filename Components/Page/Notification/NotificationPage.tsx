@@ -1,7 +1,7 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { formatWithSeparators } from "@/utils/currencyFormat";
-import { formatDateI18n, formatDateTimeI18n } from "@/utils/formatDate";
+import { formatDateI18n, formatDateTimeI18n, formatRelativeTime } from "@/utils/formatDate";
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -280,14 +280,9 @@ const NotificationPage = () => {
   };
 
   const formatTimeAgo = (dateStr: string) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    if (days < 7) return `${days}d ago`;
-    return formatDateI18n(dateStr);
+    const diffDays = (Date.now() - new Date(dateStr).getTime()) / 86400000;
+    if (diffDays >= 7) return formatDateI18n(dateStr);
+    return formatRelativeTime(dateStr, "narrow");
   };
 
   // Color-code notifications by type using the shared semantic palette:

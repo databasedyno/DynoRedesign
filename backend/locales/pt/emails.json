@@ -604,5 +604,31 @@
     "createPayLink": "Criar um link de pagamento →",
     "openDashboardBody": "Abra o seu painel para explorar transações, ajustar carteiras ou compartilhar um novo link de pagamento.",
     "openDashboard": "Abrir painel"
+  },
+  "invoice": {
+    "title": "FATURA",
+    "invoiceNumber": "Fatura n.º: {{number}}",
+    "date": "Data: {{date}}",
+    "from": "De:",
+    "billTo": "Faturar a:",
+    "taxId": "NIF: {{id}}",
+    "colDescription": "Descrição",
+    "colQty": "Qtd.",
+    "colPrice": "Preço",
+    "colAmount": "Montante",
+    "underlyingTx": "Transação subjacente (contexto, não faturada): {{amount}}",
+    "transactionFee": "Taxa de transação ({{percent}}%)",
+    "feeBreakdown": "= Fixa {{fixed}} + {{percent}}% de {{gross}} ({{feeAmount}})",
+    "blockchainBuffer": "Margem de blockchain ({{percent}}%)",
+    "subtotal": "Subtotal:",
+    "vat": "IVA ({{rate}}%):",
+    "totalAmount": "Montante total:",
+    "cryptoEquivalent": "Equivalente em cripto:",
+    "paymentTerms": "Condições de pagamento:",
+    "paymentDueUponReceipt": "Pagamento devido no ato da receção",
+    "serviceDescription": "Serviço de processamento de pagamentos - Transação {{reference}}",
+    "transactionReference": "Referência da transação: {{id}}",
+    "thankYou": "Obrigado pela sua preferência!",
+    "poweredBy": "Powered by Dynopay - dynopay.com"
   }
 }
