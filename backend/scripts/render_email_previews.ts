@@ -41,7 +41,7 @@ const welcomeHtml = baseEmailTemplate(
   "Welcome to DynoPay",
   `${p("Hey Alex,")}
    ${p("Your account is ready. Accept crypto payments and get paid straight to your wallet — or auto-converted to stablecoins.")}
-   ${successBox(`<p style="margin:0;font-size:14px;color:#374151;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;"><strong>Your first $500 in volume is fee-free.</strong> Fees start at 1.5% and drop to 0.5% as your volume grows.</p>`)}
+   ${successBox(`<p style="margin:0;font-size:14px;color:#374151;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;"><strong>Your very first payment is platform-fee-free — any size, no cap.</strong> After that, fees start at 1.5% and drop to 0.5% as your volume grows.</p>`)}
    ${alertBox(`<p style="margin:0;font-size:14px;color:#78350f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">Next step: add your payout wallet to start accepting payments.</p>`)}`,
   { showButton: true, buttonText: "Go to dashboard", buttonLink: "https://dynopay.com/dashboard", preheader: "Your DynoPay account is ready" }
 );

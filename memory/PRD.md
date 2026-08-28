@@ -1,3 +1,29 @@
+# BUGFIX 2026-06 (fork) — Onboarding emails still said "$500 fee-free balance" — FIXED (testing_agent iteration_93 = 100%)
+
+User report: admin new-signup email showed "$500 fee-free balance (trial)" (deprecated model); user welcome
+email said nothing about the real perk. Product moved to "first payment is on us" = merchant's FIRST payment
+is platform-fee-free (any size, no cap).
+
+FIXED (backend email content only; no money-path/auth change):
+- `services/email/adminNotificationEmails.ts` (sendNewUserAdminNotification): the
+  `dataRow('Fee-Free Balance','$500.00 (trial)')` row → `dataRow('Welcome Offer','First payment
+  platform-fee-free')`.
+- `services/email/accountEmails.ts` (sendWelcomeEmail): added a highlighted successBox rendering new i18n
+  key `merchant.welcome.feeFreeBenefit`; added that key to ALL 6 `locales/*/emails.json`.
+- `scripts/render_email_previews.ts`: stale hardcoded QA sample "first $500 in volume is fee-free" updated.
+- NEW `scripts/verify_onboarding_emails.ts`: mocks mailTransporter, renders the REAL admin + welcome (6
+  locales) emails and asserts no '$500'/'Fee-Free Balance'/'(trial)' + perk present. Reuse for regression.
+
+VERIFIED: testing_agent iteration_93 = 100% backend (13/13 assertions; independently grepped rendered HTML).
+NOT in scope (flagged follow-up): the `fee_free_remaining_usd` / dashboard GrowPanel entitlement logic in
+`controller/user/profile.ts` still uses the legacy $500 value (`resolveFeeFreeRemaining`) — that's the
+entitlement-model migration, separate from email copy, and risky to change (fee path). Comment there is
+accurate to current code, so left as-is.
+
+---
+
+
+
 # SESSION 2026-06 (fork) — SINGLE-INSTANCE backend track: F-CIDR + D wave 1 + E phase 1 — DONE & verified
 
 Commit c42390163 (branch New-DesignFixes). Preview: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com

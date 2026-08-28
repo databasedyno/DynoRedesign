@@ -28,6 +28,7 @@ export const sendWelcomeEmail = async (
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.welcome.intro1', L))}
     ${p(t('merchant.welcome.intro2', L))}
+    ${successBox(`<p style="margin: 0; font-size: 14px; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>${t('merchant.welcome.feeFreeBenefit', L)}</strong></p>`)}
     ${infoBox(`
       <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>${t('merchant.welcome.nextTitle', L)}</strong></p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">

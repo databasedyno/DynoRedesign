@@ -50,7 +50,7 @@ export const sendNewUserAdminNotification = async (userData: {
         ${dataRow('User ID', String(userId))}
         ${dataRow('Company', companyName)}
         ${dataRow('Registered At', registrationTime)}
-        ${dataRow('Fee-Free Balance', '$500.00 (trial)', true)}
+        ${dataRow('Welcome Offer', 'First payment platform-fee-free', true)}
       </table>
     `, EMAIL_TOKENS.brand)}
     ${p(`The account is now <strong>active</strong>. The merchant can begin setting up their payment integration immediately.`)}
