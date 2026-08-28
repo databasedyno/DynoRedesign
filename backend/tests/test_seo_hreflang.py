@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://phase2-impl-2.preview.emergentagent.com"
+BASE = "https://payment-config-hub-3.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]

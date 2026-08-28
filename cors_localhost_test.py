@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://phase2-impl-2.preview.emergentagent.com",
+        "origin": "https://payment-config-hub-3.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
