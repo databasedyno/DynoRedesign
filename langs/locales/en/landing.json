@@ -51,7 +51,7 @@
         "desc": "Live uptime and incident history"
       },
       "about": {
-        "title": "About DynoPay",
+        "title": "About Dynopay",
         "desc": "Our mission, company and careers"
       },
       "support": {
@@ -82,8 +82,8 @@
     "close": "to close"
   },
   "learnMore": "Learn more",
-  "footerDescription1": "Accept crypto payments in minutes. The modern",
-  "footerDescription2": "payment gateway for forward-thinking businesses.",
+  "footerDescription1": "Crypto payments that settle straight to a wallet you control.",
+  "footerDescription2": "Non-custodial. From 0.5%. No chargebacks.",
   "footerTerms": "Terms & Conditions",
   "footerPrivacy": "Privacy Policy",
   "footerApiStatus": "API Status",
@@ -95,10 +95,10 @@
   "exitIntentTitle": "Try Dynopay in your terminal, right now.",
   "viewApiDocs": "View API docs",
   "readTheGuide": "Read the guide",
-  "createFreeAccount": "Create your free account",
+  "createFreeAccount": "Start accepting payments",
   "blogPostNotFound": "Post not found",
   "blogReadyCta": "Ready to accept crypto payments?",
-  "blogSubtitle": "Guides, strategies, and developer resources to help you accept crypto and grow your business",
+  "blogSubtitle": "Guides, playbooks and developer resources for getting paid in crypto.",
   "v3": {
     "hero": {
       "eyebrow": "Dynopay · Now in public beta",
@@ -136,7 +136,7 @@
       },
       "step2": {
         "title": "We settle it your way.",
-        "body": "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live Binance rates, on-chain in seconds, no manual conversion."
+        "body": "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live market rates, settled on-chain automatically — no manual conversion."
       },
       "step3": {
         "title": "It lands in your wallet.",
@@ -197,7 +197,7 @@
       "convert": {
         "tag": "Auto-convert",
         "title": "Take volatile. Keep stable.",
-        "desc": "Accept BTC or ETH, settle to USDT or USDC in about four seconds. Get paid without the price swing.",
+        "desc": "Accept BTC or ETH, settle in USDT or USDC the moment the payment confirms. Get paid without the price swing.",
         "cta": "How settlement works"
       },
       "api": {
@@ -241,6 +241,7 @@
         "tag": "03 · Creators",
         "title": "Get tipped by your fans.",
         "desc": "Your own dynopay.com/@handle page with inline tips — no chargebacks, instant payouts.",
+        "stat": "Direct",
         "statLabel": "payout to wallet"
       },
       "developers": {
@@ -379,7 +380,7 @@
       "promptContribution": "Help {{name}} reach more people",
       "copied": "Link copied!",
       "fundraiser": "Share this fundraiser",
-      "dynopay": "Share DynoPay"
+      "dynopay": "Share Dynopay"
     },
     "status": {
       "confirming": "Payment detected — confirming…",

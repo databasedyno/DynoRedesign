@@ -146,7 +146,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
           >
             <Icon name="rocket" size={isMobile ? 22 : 26} />
           </Box>
-          <Eyebrow>{t("heroEmptyEyebrow", { defaultValue: "Welcome to DynoPay" })}</Eyebrow>
+          <Eyebrow>{t("heroEmptyEyebrow", { defaultValue: "Welcome to Dynopay" })}</Eyebrow>
           <Box
             sx={{
               fontFamily: "var(--font-sans)",

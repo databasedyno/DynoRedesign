@@ -4,7 +4,7 @@
  * Reusable across Product Orders and Payment Links. Given a refund source it:
  *   1) previews the original payment (asset, chain, cap, customer refund address, gas)
  *   2) lets the merchant enter a partial/full amount (single refund, capped) + reason
- *   3) creates the refund invoice and shows the DynoPay deposit address + status
+ *   3) creates the refund invoice and shows the Dynopay deposit address + status
  *
  * The backend is gated by ENABLE_CRYPTO_REFUNDS and, in the preview, runs in
  * DRY-RUN (placeholder deposit address, no funds move) — surfaced via `is_dry_run`.
@@ -309,7 +309,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
           <Alert severity="info" sx={{ fontSize: 13 }}>
             Preview / sandbox mode — this is a demonstration. No deposit address was
             allocated and no funds will move. On production this shows a real
-            DynoPay address to send the refund to.
+            Dynopay address to send the refund to.
           </Alert>
         )}
 
@@ -321,7 +321,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
             {Number(r.merchant_deposit_total)} {r.deposit_asset}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            to this DynoPay {r.chain} address:
+            to this Dynopay {r.chain} address:
           </Typography>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.5 }}>
             <Typography
@@ -379,8 +379,8 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
         ) : preview ? (
           <Stack spacing={2} sx={{ pt: 1 }}>
             <Alert severity="info" sx={{ fontSize: 13 }}>
-              DynoPay-mediated, same-chain refund. You send the crypto (plus the
-              network fee) to a DynoPay address on <b>{preview.chain}</b>; DynoPay
+              Dynopay-mediated, same-chain refund. You send the crypto (plus the
+              network fee) to a Dynopay address on <b>{preview.chain}</b>; Dynopay
               forwards it to the customer’s saved refund address. One refund per
               payment, up to the amount paid.
             </Alert>
@@ -402,7 +402,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
                 label={
                   preview.gas_coverage === "in_asset"
                     ? "Network fee (added to your deposit)"
-                    : "Network fee (DynoPay fronts, you cover)"
+                    : "Network fee (Dynopay fronts, you cover)"
                 }
                 value={`~${preview.gas_buffer_native} ${preview.gas_buffer_symbol}`}
               />

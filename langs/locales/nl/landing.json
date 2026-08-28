@@ -51,7 +51,7 @@
         "desc": "Realtime beschikbaarheid en incidentgeschiedenis"
       },
       "about": {
-        "title": "Over DynoPay",
+        "title": "Over Dynopay",
         "desc": "Onze missie, ons bedrijf en vacatures"
       },
       "support": {
@@ -82,8 +82,8 @@
     "close": "om te sluiten"
   },
   "learnMore": "Meer informatie",
-  "footerDescription1": "Accepteer cryptobetalingen in minuten. De moderne",
-  "footerDescription2": "betaalgateway voor vooruitstrevende bedrijven.",
+  "footerDescription1": "Cryptobetalingen die rechtstreeks worden vereffend naar een wallet die u beheert.",
+  "footerDescription2": "Non-custodial. Vanaf 0,5%. Geen chargebacks.",
   "footerTerms": "Algemene voorwaarden",
   "footerPrivacy": "Privacybeleid",
   "footerApiStatus": "API-status",
@@ -95,10 +95,10 @@
   "exitIntentTitle": "Probeer Dynopay nu direct in uw terminal.",
   "viewApiDocs": "API-documentatie bekijken",
   "readTheGuide": "Lees de gids",
-  "createFreeAccount": "Maak uw gratis account aan",
+  "createFreeAccount": "Begin met betalingen ontvangen",
   "blogPostNotFound": "Bericht niet gevonden",
   "blogReadyCta": "Klaar om cryptobetalingen te accepteren?",
-  "blogSubtitle": "Gidsen, strategieën en developer-resources om crypto te accepteren en uw bedrijf te laten groeien",
+  "blogSubtitle": "Gidsen, playbooks en developer-resources om betaald te worden in crypto.",
   "v3": {
     "hero": {
       "eyebrow": "Dynopay · Nu in publieke bèta",
@@ -136,7 +136,7 @@
       },
       "step2": {
         "title": "Wij vereffenen op jouw manier.",
-        "body": "Houd de originele coin of converteer automatisch naar USDT / USDC op elke chain. Live Binance-tarieven, on-chain in seconden, geen handmatige conversie."
+        "body": "Houd de originele coin of converteer automatisch naar USDT / USDC op elke chain. Live markttarieven, automatisch on-chain vereffend — geen handmatige conversie."
       },
       "step3": {
         "title": "Het landt in je wallet.",
@@ -197,7 +197,7 @@
       "convert": {
         "tag": "Auto-convert",
         "title": "Neem volatile. Houd stabiel.",
-        "desc": "Accepteer BTC of ETH, vereffen in USDT of USDC in ongeveer vier seconden. Betaald worden zonder de prijsschommeling.",
+        "desc": "Accepteer BTC of ETH en vereffen in USDT of USDC zodra de betaling is bevestigd. Betaald worden zonder prijsschommeling.",
         "cta": "Hoe vereffening werkt"
       },
       "api": {
@@ -241,6 +241,7 @@
         "tag": "03 · Creators",
         "title": "Krijg tips van je fans.",
         "desc": "Je eigen dynopay.com/@handle-pagina met ingebouwde fooien — geen terugboekingen, directe uitbetalingen.",
+        "stat": "Direct",
         "statLabel": "uitbetaling naar wallet"
       },
       "developers": {
@@ -379,7 +380,7 @@
       "promptContribution": "Help {{name}} meer mensen te bereiken",
       "copied": "Link gekopieerd!",
       "fundraiser": "Deel deze inzameling",
-      "dynopay": "Deel DynoPay"
+      "dynopay": "Deel Dynopay"
     },
     "status": {
       "confirming": "Betaling gedetecteerd — bevestigen…",

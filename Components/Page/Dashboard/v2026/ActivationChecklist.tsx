@@ -300,6 +300,25 @@ const ActivationChecklist: React.FC<Props> = ({
               >
                 {s.label}
               </Box>
+              {s.id === "handle" && hasHandle && storefront?.handle && (
+                <Box
+                  data-testid="dash2026-handle-chip"
+                  sx={{
+                    flexShrink: 0,
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 999,
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    whiteSpace: "nowrap",
+                    color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
+                    border: `1px solid ${isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light}`,
+                  }}
+                >
+                  @{storefront?.handle}
+                </Box>
+              )}
               {actionable && (
                 <Box
                   sx={{

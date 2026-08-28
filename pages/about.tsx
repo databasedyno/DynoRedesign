@@ -241,7 +241,7 @@ const AboutPage: React.FC = () => {
                   "&:hover": { bgcolor: "#4338CA" },
                 }}
               >
-                Create your free account
+                Start accepting payments
               </Button>
               <Button
                 data-testid="about-cta-email"

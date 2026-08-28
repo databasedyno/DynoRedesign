@@ -428,8 +428,27 @@ const PayoutsPage: React.FC = () => {
       maximumFractionDigits: 2,
     })}`;
 
-  // Payout history CSV export (date-ranged).
-  const [exportRange, setExportRange] = useState("30");
+  // Payout history CSV export (date-ranged). The last-used range is remembered
+  // across visits via localStorage (client-only; falls back to "30").
+  const [exportRange, setExportRangeState] = useState("30");
+  // Hydrate the remembered range once on mount (keeps SSR output = "30" so there
+  // is no hydration mismatch; the client swaps in the saved value after mount).
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("dp.payouts.exportRange");
+      if (saved) setExportRangeState(saved);
+    } catch {
+      /* localStorage unavailable (SSR / privacy mode) — ignore */
+    }
+  }, []);
+  const setExportRange = useCallback((val: string) => {
+    setExportRangeState(val);
+    try {
+      window.localStorage.setItem("dp.payouts.exportRange", val);
+    } catch {
+      /* ignore */
+    }
+  }, []);
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
   const [settledOnly, setSettledOnly] = useState(false);

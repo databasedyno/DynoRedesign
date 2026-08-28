@@ -298,9 +298,17 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
           })}
         </Box>
 
-        {active === "page" && <PageTab />}
-        {active === "products" && <ProductsTab />}
-        {active === "share" && <ShareTab />}
+        {/* Stable tab-panel wrappers (always in the DOM) so automated tests have
+            reliable testids regardless of each panel's inner state. */}
+        <Box role="tabpanel" data-testid="storefront-tabpanel-page" hidden={active !== "page"}>
+          {active === "page" && <PageTab />}
+        </Box>
+        <Box role="tabpanel" data-testid="storefront-tabpanel-products" hidden={active !== "products"}>
+          {active === "products" && <ProductsTab />}
+        </Box>
+        <Box role="tabpanel" data-testid="storefront-tabpanel-share" hidden={active !== "share"}>
+          {active === "share" && <ShareTab />}
+        </Box>
 
         {/* Analytics Split — per-company views/tips/sales (multi-company only) */}
         <StorefrontComparePanel />

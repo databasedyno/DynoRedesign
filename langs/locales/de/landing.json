@@ -51,7 +51,7 @@
         "desc": "Verfügbarkeit und Störungsverlauf in Echtzeit"
       },
       "about": {
-        "title": "Über DynoPay",
+        "title": "Über Dynopay",
         "desc": "Unsere Mission, unser Unternehmen und Karriere"
       },
       "support": {
@@ -82,8 +82,8 @@
     "close": "zum Schließen"
   },
   "learnMore": "Mehr erfahren",
-  "footerDescription1": "Akzeptieren Sie Krypto-Zahlungen in Minuten. Das moderne",
-  "footerDescription2": "Zahlungs-Gateway für zukunftsorientierte Unternehmen.",
+  "footerDescription1": "Krypto-Zahlungen, die direkt in einer Wallet unter Ihrer Kontrolle landen.",
+  "footerDescription2": "Non-custodial. Ab 0,5 %. Keine Chargebacks.",
   "footerTerms": "AGB",
   "footerPrivacy": "Datenschutzerklärung",
   "footerApiStatus": "API-Status",
@@ -95,10 +95,10 @@
   "exitIntentTitle": "Testen Sie Dynopay in Ihrem Terminal — jetzt sofort.",
   "viewApiDocs": "API-Dokumentation ansehen",
   "readTheGuide": "Leitfaden lesen",
-  "createFreeAccount": "Kostenloses Konto erstellen",
+  "createFreeAccount": "Zahlungen annehmen",
   "blogPostNotFound": "Beitrag nicht gefunden",
   "blogReadyCta": "Bereit, Krypto-Zahlungen zu akzeptieren?",
-  "blogSubtitle": "Leitfäden, Strategien und Entwickler-Ressourcen, die Ihnen helfen, Krypto zu akzeptieren und Ihr Geschäft auszubauen",
+  "blogSubtitle": "Leitfäden, Playbooks und Entwickler-Ressourcen, um in Krypto bezahlt zu werden.",
   "v3": {
     "hero": {
       "eyebrow": "Dynopay · Jetzt in der öffentlichen Beta",
@@ -136,7 +136,7 @@
       },
       "step2": {
         "title": "Wir wickeln nach deinen Regeln ab.",
-        "body": "Behalte die Original-Coin oder konvertiere automatisch in USDT / USDC auf jeder Chain. Live-Binance-Kurse, on-chain in Sekunden, keine manuelle Umwandlung."
+        "body": "Behalte die Original-Coin oder konvertiere automatisch in USDT / USDC auf jeder Chain. Live-Marktkurse, automatisch on-chain abgewickelt — keine manuelle Umwandlung."
       },
       "step3": {
         "title": "Es landet in deinem Wallet.",
@@ -197,7 +197,7 @@
       "convert": {
         "tag": "Auto-Konvert",
         "title": "Nimm volatil. Halte stabil.",
-        "desc": "Akzeptiere BTC oder ETH, wickle in USDT oder USDC in etwa vier Sekunden ab. Werde bezahlt ohne Kursschwankungen.",
+        "desc": "Akzeptiere BTC oder ETH und wickle in USDT oder USDC ab, sobald die Zahlung bestätigt ist. Werde bezahlt ohne Kursschwankungen.",
         "cta": "So funktioniert die Abwicklung"
       },
       "api": {
@@ -241,6 +241,7 @@
         "tag": "03 · Creator",
         "title": "Erhalte Tips von deinen Fans.",
         "desc": "Deine eigene dynopay.com/@handle-Seite mit integrierten Trinkgeldern – keine Rückbuchungen, sofortige Auszahlungen.",
+        "stat": "Direkt",
         "statLabel": "Auszahlung ans Wallet"
       },
       "developers": {
@@ -379,7 +380,7 @@
       "promptContribution": "Hilf {{name}}, mehr Menschen zu erreichen",
       "copied": "Link kopiert!",
       "fundraiser": "Diese Spendenaktion teilen",
-      "dynopay": "DynoPay teilen"
+      "dynopay": "Dynopay teilen"
     },
     "status": {
       "confirming": "Zahlung erkannt – wird bestätigt…",

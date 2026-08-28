@@ -51,7 +51,7 @@
 
 # SESSION UPDATE 2026-06 (fork) — SINGLE-INSTANCE backend track: F-CIDR ✅ · D wave 1 ✅ · E phase 1 ✅
 
-Preview: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
+Preview: https://crypto-checkout-init-2.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
 Merchant login (READ-ONLY): onarrival21@gmail.com / Katiekendra123@ (user_id=1). All: backend tsc EXIT 0,
 file-size gate OK, backend boots healthy (migrations "0 applied, 6 present" → NO prod schema change).
 

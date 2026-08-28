@@ -304,7 +304,7 @@ and progress on the **5 leftover refactor recommendations** from the prior agent
 
 - **Environment used:** Emergent preview pod, backend on `ts-node --transpile-only` (port 3300 behind a
   Python proxy on 8001), Next.js frontend (port 3000). Preview URL:
-  `https://payment-gateway-init.preview.emergentagent.com`
+  `https://crypto-checkout-init-2.preview.emergentagent.com`
 - **Database during this session:** pointed at a **STAGING** Railway Postgres (an empty schema clone of
   prod — 70 tables, no data) for safe testing. Prod values are preserved (commented) in
   `backend/.env` for a one-line switch-back. **SAFE MODE** throughout (`ENABLE_BACKGROUND_JOBS=false`,
@@ -364,11 +364,18 @@ leave). `deploy_on_push` then rebuilds automatically and the build will now succ
 | 3 | Single webhook-signature verifier (~8 places) | ✅ Done & verified | — |
 | 2 | Consolidate Tatum usage behind one wrapper | ✅ Done & verified | — |
 | 1 | Boot-time `model.sync()` → migrations | 🟡 Core done | Move the 17 already-safe `server.ts` boot syncs to versioned migrations (low urgency) |
-| 4 | Centralize ~740 `process.env` reads into typed config | 🟡 Foundation + wave 1 | ~700 remaining reads migrate incrementally |
-| 5 | Standardize frontend fetching (67 manual-axios screens → SWR) | 🟡 Foundation only | Convert the 67 screens (needs frontend-test approval + a staging login) |
+| 4 | Centralize ~740 `process.env` reads into typed config | 🟢 Effectively done | Only 85 raw reads left, 77 of them inside the deliberately-excluded `apis/tatumApi.ts` monolith (verified 2026-08-28) |
+| 5 | Standardize frontend fetching (~81 manual-axios screens → SWR) | 🟡 In progress | 24 screens on `useApiSWR`; ~57 axios-in-`useEffect` screens remain (verified 2026-08-28) |
 
-**2 of 5 fully complete; the other 3 have their high-value / high-risk core done** with clearly-bounded
-incremental work remaining.
+**2 of 5 fully complete; Item 4 now effectively done (see the 2026-08-28 audit note); Items 1 & 5 have
+their high-value / high-risk core done** with clearly-bounded incremental work remaining.
+
+> **AUDIT 2026-08-28 (fork: dynopay-setup, preview pod) — re-verified this file against the codebase:**
+> - **Item 4:** down to **85** raw `process.env` reads across **5** files (**77** in `apis/tatumApi.ts`
+>   alone — the intentionally-excluded monolith). The "~700 remaining" figure was stale.
+> - **Item 5:** **24** files now use `useApiSWR` (~57 axios screens remain) — not "imported nowhere yet".
+> - **S3** (first-payment-free) has **shipped**, which makes **S2** and **S4.1** obsolete.
+> - **Pending Auto-Refresh Toast** is **built** in `Components/Page/Payouts/index.tsx`.
 
 ---
 
@@ -437,8 +444,11 @@ verifiable, so reads are migrated in **boot-verifiable waves**.
 - **Wave 1 migrated (boot-verifiable):** `utils/dbInstance.ts` (all DB reads → `config.db.*`) and
   `utils/redisInstance.ts` (`config.redisUrl`). App reconnected to DB + Redis cleanly.
 - **Verified:** `backend/tests/test_config.ts` → **18/18**; tsc clean; boot healthy.
-- **Remaining:** ~700 raw `process.env` reads migrate incrementally (concentrated in
-  `merchantPoolConfig.ts`, `server.ts`, controllers). New/touched code should read from `config`.
+- **Remaining (VERIFIED 2026-08-28 — effectively done):** only **85** raw `process.env` reads left across
+  **5** files, and **77** of those are inside `apis/tatumApi.ts` (the 4135-line monolith deliberately left
+  on its own `getTatumKey()` + Secret-Manager fallback). The rest: `worker.ts` (3), `utils/envValidator.ts`
+  (2), `utils/config.ts` (2 — the typed surface itself), `utils/loadtestGuard.ts` (1). The "~700" figure is
+  stale. New/touched code should still read from `config`.
 
 ---
 
@@ -452,9 +462,10 @@ convention, but every hook/component re-defines its own `fetcher`.
     (`swrFetcher` → `res.data`; `swrDataFetcher` → `res.data.data`); supports string + tuple keys.
   - `hooks/useApiSWR.ts` — reusable typed hook (`data/error/isLoading/isValidating/mutate`, `enabled`
     to defer, `unwrap` for the `{data:{}}` envelope).
-- **Remaining (the bulk):** convert the ~67 manual `axios`-in-`useEffect` screens to `useApiSWR`, in
-  verified waves. **Blocked on:** (a) approval to run the frontend testing agent, and (b) a seeded
-  verified test login in the empty staging DB (or point back to prod for read-only verification).
+- **Remaining (VERIFIED 2026-08-28 — partially done):** `useApiSWR` is now imported in **24** files (the
+  doc's original "imported nowhere yet" is stale); roughly **57** `axios`-in-`useEffect` screens remain to
+  convert, in verified waves. **Blocked on:** (a) approval to run the frontend testing agent, and (b) a
+  seeded verified test login (or point at prod for read-only verification — `hostbay@moxx.co` in SAFE MODE).
 
 ---
 
@@ -649,7 +660,9 @@ Frontend:
 
 ### Remaining §7 next-items (not yet built)
 - **Remember Last Range** — persist the merchant's last-used payout export range/dates.
-- **Pending Auto-Refresh Toast** — notify on /payouts the moment a pending payment confirms → settled.
+- ~~**Pending Auto-Refresh Toast**~~ — **DONE (verified 2026-08-28):** implemented in
+  `Components/Page/Payouts/index.tsx` (tracks pending IDs, toasts `payoutsToast.settledOne/settledMany`,
+  refreshes settlements when a payment goes confirmed → settled).
 
 ### Backlog (carried)
 - Item #4 typed config (~610 raw `process.env` reads), Item #5 remaining read-only SWR screens,
@@ -811,7 +824,7 @@ then validate with a small live amount before general availability.
 
 # ============================================================================
 # CURRENT SESSION PLAN — 2026-06 (fork: dynopay-setup-4)
-# Preview: https://payment-gateway-init.preview.emergentagent.com
+# Preview: https://crypto-checkout-init-2.preview.emergentagent.com
 # Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
 # Status legend:  [ ] todo   [~] in progress   [x] done
 # ============================================================================
@@ -874,6 +887,8 @@ then validate with a small live amount before general availability.
 #   BUILD OPTIONS offered: (a) advice only; (b) simplest guard = payout wallet +
 #   verified email share the cap; (c) full (b)+phone+progressive+Veriff KYC.
 #   → AWAITING user pick before implementing anything on the LIVE fee logic.
+#   UPDATE (verified 2026-08-28): SUPERSEDED — the $500 fee-free model was REPLACED by S3
+#   (first-payment-free), so the "new account every $500" abuse vector no longer exists. S2 is moot.
 
 # ============================================================================
 # S3. FEE MODEL CHANGE — "$500 fee-free trial" → "FIRST PAYMENT fee-free"
@@ -881,7 +896,10 @@ then validate with a small live amount before general availability.
 # Status legend:  [ ] todo   [~] in progress   [x] done
 # ============================================================================
 
-## S3.0 [ ] Decision confirmed with user — REPLACE the $500 trial with first-payment-free
+## S3.0 [x] DONE (verified 2026-08-28) — REPLACED the $500 trial with first-payment-free
+# IMPLEMENTED: backend/services/feeFreeService.ts is now the "First-Payment-Free Service"
+#   ("replaces the old 'first $500 of lifetime volume'"): isFirstPaymentFreeAvailable(),
+#   a first_payment_free flag, and trial → standard graduation after the first settled payment.
 # USER DECISION (verbatim intent): "making the first payment fee free is fine.
 # platform fee will not be deducted except blockchain cost for the first payment
 # on the account level, not company."
@@ -920,7 +938,7 @@ then validate with a small live amount before general availability.
 # (extend backend/__tests__/feeFreeEntitlement.test.ts), verify before it can
 # affect real settlement. Do NOT abuse the FREE_TRIAL_VOLUME_USD env.
 
-## S3.1 [ ] OPEN DECISIONS asked of user (answers pending; defaults if "go")
+## S3.1 [x] DONE (verified 2026-08-28) — implemented (defaults applied; see feeFreeService.ts)
 #   Q1 What is "the first payment"?
 #       (a) first SUCCESSFULLY SETTLED payment [DEFAULT/recommended — abandoned
 #           invoice won't burn the freebie; matches where recordTransactionVolume
@@ -943,7 +961,8 @@ then validate with a small live amount before general availability.
 # S4. NEXT-ACTION BACKLOG (user-selected 2026-06) — not yet started
 # ============================================================================
 
-## S4.1 [ ] Fee-Free Guard (ALTERNATIVE to S3 — anti-abuse cap, if $500 model KEPT)
+## S4.1 [x] CLOSED — OBSOLETE (verified 2026-08-28): NOT built; superseded by S3 (first-payment-free
+##          shipped). S3 and S4.1 were mutually exclusive — S3 won, so the $500-model guard is moot.
 #   Build the simple anti-abuse cap so duplicate accounts sharing a payout wallet
 #   OR verified email split ONE $500 allowance (instead of each getting a fresh $500).
 #   NOTE: this is the "keep the $500 model but stop abuse" path. It is MUTUALLY

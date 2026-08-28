@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://payment-gateway-init.preview.emergentagent.com"
+BASE = "https://crypto-checkout-init-2.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]

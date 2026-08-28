@@ -51,7 +51,7 @@
         "desc": "Disponibilité et historique des incidents en temps réel"
       },
       "about": {
-        "title": "À propos de DynoPay",
+        "title": "À propos de Dynopay",
         "desc": "Notre mission, notre entreprise et nos offres d'emploi"
       },
       "support": {
@@ -82,8 +82,8 @@
     "close": "pour fermer"
   },
   "learnMore": "En savoir plus",
-  "footerDescription1": "Acceptez les paiements crypto en quelques minutes. La passerelle",
-  "footerDescription2": "de paiement moderne pour les entreprises tournées vers l'avenir.",
+  "footerDescription1": "Des paiements crypto réglés directement dans un portefeuille que vous contrôlez.",
+  "footerDescription2": "Non-custodial. Dès 0,5 %. Sans rétrofacturation.",
   "footerTerms": "Conditions générales",
   "footerPrivacy": "Politique de confidentialité",
   "footerApiStatus": "État de l'API",
@@ -95,10 +95,10 @@
   "exitIntentTitle": "Essayez Dynopay dans votre terminal, dès maintenant.",
   "viewApiDocs": "Voir la doc API",
   "readTheGuide": "Lire le guide",
-  "createFreeAccount": "Créez votre compte gratuit",
+  "createFreeAccount": "Commencer à encaisser",
   "blogPostNotFound": "Article introuvable",
   "blogReadyCta": "Prêt à accepter les paiements en crypto ?",
-  "blogSubtitle": "Guides, stratégies et ressources développeurs pour vous aider à accepter la crypto et développer votre activité",
+  "blogSubtitle": "Guides, stratégies et ressources développeurs pour être payé en crypto.",
   "v3": {
     "hero": {
       "eyebrow": "Dynopay · Désormais en bêta publique",
@@ -136,7 +136,7 @@
       },
       "step2": {
         "title": "On règle à votre façon.",
-        "body": "Gardez la crypto d'origine ou convertissez automatiquement en USDT / USDC sur n'importe quelle chaîne. Taux Binance en direct, on-chain en secondes, sans conversion manuelle."
+        "body": "Gardez la crypto d'origine ou convertissez automatiquement en USDT / USDC sur n'importe quelle chaîne. Taux du marché en direct, réglé on-chain automatiquement — sans conversion manuelle."
       },
       "step3": {
         "title": "Ça arrive dans votre wallet.",
@@ -197,7 +197,7 @@
       "convert": {
         "tag": "Auto-conversion",
         "title": "Acceptez le volatile. Gardez le stable.",
-        "desc": "Acceptez du BTC ou ETH, réglez en USDT ou USDC en environ quatre secondes. Payé sans les fluctuations.",
+        "desc": "Acceptez du BTC ou de l'ETH, réglé en USDT ou USDC dès que le paiement est confirmé. Payé sans les fluctuations.",
         "cta": "Comment fonctionne le règlement"
       },
       "api": {
@@ -241,6 +241,7 @@
         "tag": "03 · Créateurs",
         "title": "Recevez des pourboires de vos fans.",
         "desc": "Votre propre page dynopay.com/@handle avec pourboires intégrés — sans rétrofacturation, versements instantanés.",
+        "stat": "Direct",
         "statLabel": "versement au wallet"
       },
       "developers": {
@@ -379,7 +380,7 @@
       "promptContribution": "Aidez {{name}} à toucher plus de monde",
       "copied": "Lien copié !",
       "fundraiser": "Partager cette collecte",
-      "dynopay": "Partager DynoPay"
+      "dynopay": "Partager Dynopay"
     },
     "status": {
       "confirming": "Paiement détecté — confirmation…",
