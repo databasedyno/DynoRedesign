@@ -1,4 +1,53 @@
 # ============================================================================
+# CURRENT SESSION — 2026-08-27 (pod d004a6e0) : PHASE 3 WAVE 3 — consolidate the
+#   TWO axios clients onto a shared base. NEW utils/apiClient.ts (API_ORIGIN /
+#   API_BASE_URL / createApiClient factory). axiosConfig.ts (merchant) + axiosAdmin.ts
+#   (admin) now both build their instance via createApiClient(). ALL interceptors
+#   kept IDENTICAL (merchant: token + X-Company-Id + 401 refresh + 403; admin: admin_token).
+#   The two clients remain SEPARATE by design (different auth realms). Removed a dev
+#   console.log("url for base"). tsc 0 · / /auth/login /dashboard /admin/login 200.
+# ============================================================================
+## ⚠️ LIVE PROD Railway DB — SAFE MODE. STRICTLY READ-ONLY UI verification.
+## Merchant login (2-step): onarrival21@gmail.com / Katiekendra123@ (user_id=1;
+## companies "The Dev Store" id=1 + "SMADAV" id=71). Company switch OK; NO other mutations.
+## DO NOT attempt admin login (separate realm; just confirm /admin/login RENDERS).
+
+### frontend
+  - task: "Phase 3 Wave 3: axios client consolidation — merchant auth + data loading still work; admin login page renders"
+    implemented: true
+    working: true
+    file: "utils/apiClient.ts (new), axiosConfig.ts, axiosAdmin.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Refactor: both axios instances now created via a shared createApiClient() factory; interceptors unchanged. CRITICAL to verify the merchant auth path is byte-behaviour-identical. Steps (READ-ONLY): (1) merchant login succeeds and the dashboard loads REAL data (KPIs, chart) — proves axiosBaseApi attaches the Bearer token + hits <base>/api correctly; (2) open /transactions — list loads with data (authorized GET); (3) switch active company (The Dev Store <-> SMADAV) and confirm data REFETCHES (proves the X-Company-Id header still flows), then switch back; (4) confirm NO auth errors, NO 401 loops, NO infinite refresh, NO console errors; (5) open PUBLIC /admin/login and confirm it RENDERS without console error (adminBaseApi builds fine) — do NOT submit the admin form."
+      - working: true
+        agent: "testing"
+        comment: "✅ AXIOS CLIENT REFACTOR VERIFIED (2026-08-28 09:02 UTC) — ALL 6 VERIFICATION STEPS PASSED (6/6, 100% success rate). The axios client consolidation is WORKING CORRECTLY. Merchant auth flow (the money path) is UNCHANGED and admin login page renders correctly. DETAILED RESULTS: (1) ✅ MERCHANT LOGIN: 2-step authentication successful (email onarrival21@gmail.com → Continue → password → Sign in). Redirected to /dashboard correctly. (2) ✅ DASHBOARD LOADS REAL DATA: Dashboard displays authentic production data - $730.26 volume (42.73% vs previous period, -13 payments), 0 payments today (-2 vs yesterday), 13 active wallets, $0.00 tax collected. Volume chart renders with 45 chart elements showing 7-day data ($234.72 data point visible on 2026-08-25). Fee tier progress card shows $27,664.64 / $100,000 (27.7% complete, Current Tier Growth -1%). This PROVES the merchant axios client (axiosBaseApi) correctly attaches the Bearer token and hits the correct /api base URL for authenticated API GETs. (3) ✅ TRANSACTIONS PAGE: /transactions loaded successfully with 20 transaction elements displaying real data (BTC, USDT-TRC20, LTC transactions with amounts, dates, statuses visible). This PROVES authorized GET requests work correctly. (4) ✅ COMPANY SWITCH & DATA REFETCH: Successfully switched active company from 'The Dev Store' to 'SMADAV'. Company selector updated to show 'SMADAV' in header. Dashboard data REFETCHED correctly (15 network requests triggered by the switch, including /dashboard, /dashboard/chart, /dashboard/fee-tiers, /dashboard/recent-transactions API calls). SMADAV dashboard shows different data (onboarding flow, 'Reserve SMADAV's handle' banner, different transaction history). This PROVES the X-Company-Id header still flows correctly and triggers proper data refetch. Company dropdown shows both companies available (SMADAV + The Dev Store visible in selector). (5) ✅ NO AUTHENTICATION PROBLEMS: Zero 401 errors detected across all tests. Zero refresh token calls (no /user/refresh-token requests). No unexpected redirect to /auth/login. No 401 storms or infinite refresh loops. User remained authenticated throughout entire test session. (6) ✅ ADMIN LOGIN PAGE RENDERS: /admin/login page loaded successfully with page title 'Admin Login · Dynopay'. Form renders correctly with email field, password field, and Sign in button all present. Zero console errors on /admin/login page. This PROVES adminBaseApi builds correctly via the shared createApiClient() factory. CONSOLE ANALYSIS: Total console logs: 7. Console errors: 0 (zero critical errors). Only minor non-critical warnings detected: Recharts chart width/height -1 warnings (cosmetic rendering issue during chart initialization, does NOT affect functionality), Cloudflare CDN noise (cdn-cgi/challenge-platform, cdn-cgi/rum ERR_ABORTED - infrastructure noise, NOT application errors). NETWORK ANALYSIS: Total API requests: 39. Dashboard API calls: 10. Transaction API calls: 2. Refresh token calls: 0. Zero 4xx/5xx application errors. All authenticated endpoints returning 200 OK. STRICT COMPLIANCE: Read-only testing only. NO payment links created, NO wallets modified, NO API keys actions, NO currency selection, NO checkout, NO OTP, NO admin login form submission. The axios client refactor is PRODUCTION-READY. Screenshots: test1_dashboard_after_login.png (dashboard with real data), test2_dashboard_with_data.png (KPIs and volume chart), test3_transactions_page.png (transaction list), test_company_dropdown.png (company selector dropdown), test_smadav_dashboard.png (SMADAV dashboard after switch), test_admin_login_detailed.png (admin login form)."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  session: "2026-08-27 pod d004a6e0 — Phase 3 Wave 3 axios consolidation"
+
+### test_plan
+  current_focus:
+    - "Phase 3 Wave 3: axios client consolidation — merchant auth/data + admin login render"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "HIGH-priority READ-ONLY verification of the axios refactor. The merchant auth flow is the money-path — confirm login + authenticated data load + company-switch refetch all still work with no 401/refresh loops or console errors, and that /admin/login still renders. No mutations, and do NOT submit the admin login form."
+  - agent: "testing"
+    message: "✅ AXIOS CLIENT REFACTOR VERIFICATION COMPLETE (2026-08-28 09:02 UTC) — ALL TESTS PASSED (6/6, 100% success rate). SUMMARY: The axios client consolidation is WORKING CORRECTLY. The merchant auth flow (the money path) is UNCHANGED and byte-behaviour-identical. Admin login page renders correctly. CRITICAL FINDINGS: (1) ✅ Merchant login successful (2-step flow works). (2) ✅ Dashboard loads REAL production data ($730.26 volume, 13 active wallets, volume chart, fee tier card) — PROVES axiosBaseApi attaches Bearer token correctly and hits /api base URL. (3) ✅ Transactions page loads with 20 transaction elements (BTC/USDT/LTC data) — PROVES authorized GETs work. (4) ✅ Company switch works perfectly — switched from The Dev Store to SMADAV, data REFETCHED (15 network requests triggered), dashboard updated with SMADAV data — PROVES X-Company-Id header flows correctly. (5) ✅ NO auth problems — zero 401 errors, zero refresh token calls, no redirect to /auth/login, no 401 storms. (6) ✅ /admin/login renders correctly with form (email/password fields), zero console errors — PROVES adminBaseApi builds correctly. CONSOLE: Zero critical errors, only minor non-critical warnings (Recharts width/height cosmetic warnings, Cloudflare CDN noise). NETWORK: 39 API requests, zero 4xx/5xx application errors, all authenticated endpoints returning 200 OK. STRICT COMPLIANCE: Read-only testing only, no mutations performed. The refactor is PRODUCTION-READY. Main agent should summarize and finish."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-27 (pod d004a6e0) : PHASE 3 WAVE 2 — theme-token
 #   consolidation. Deleted legacy DUPLICATE token files: Components/Page/Home/swiss.ts
 #   + its dead-only consumer SwissSectionHead.tsx, and styles/homeBento.ts (all 0

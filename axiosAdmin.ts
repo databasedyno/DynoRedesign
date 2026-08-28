@@ -1,14 +1,9 @@
-import axios from "axios";
-const apiBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
-// Ensure trailing slash before appending "api/"
-const normalizedBase = apiBaseUrl.endsWith("/") ? apiBaseUrl : (apiBaseUrl ? apiBaseUrl + "/" : "");
+import { createApiClient } from "@/utils/apiClient";
 
-const adminBaseApi = axios.create({
-  baseURL: normalizedBase + "api/",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// Admin client — SEPARATE from the merchant axiosBaseApi (axiosConfig.ts).
+// Different auth realm: reads localStorage 'admin_token', and has NO refresh /
+// 403-redirect / X-Company-Id logic. Base URL comes from the shared source.
+const adminBaseApi = createApiClient();
 
 adminBaseApi.interceptors.request.use(
   (config: any) => {

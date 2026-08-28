@@ -262,7 +262,7 @@ no git history rewrite.
             the app now runs on ONE state layer (SWR + module stores + context).**
 - [x] Phase 2 — One data layer: COMPLETE (W1 Transaction · W2 Api · W3 Dashboard · W4 PaymentLink · W5 User ·
       W6 Toast). redux + redux-saga + store.ts all removed.
-- [~] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3) — IN PROGRESS
+- [x] Phase 3 — One of everything: helpers/utils + themes + axios clients (FP2-3) — COMPLETE (2026-08-27 pod d004a6e0)
       - [x] Wave 1 (helpers/utils dedupe, 2026-08-27 pod d004a6e0): removed 2 dead/superseded
             modules — `helpers/navAccent.ts` (nav-accent source-of-truth no longer imported) and
             `utils/geoLocale.ts` (old IP→locale detection, superseded by backend `/api/geo-detect`
@@ -276,7 +276,15 @@ no git history rewrite.
             PASS (home dark+light, /fees, dashboard all correctly themed, no console errors). NOTE:
             token files with DIFFERENT values (HomeHeader local VOLT #22C55E, v3 OBSIDIAN vs old
             swiss OBSIDIAN) were intentionally NOT merged — only the fully-dead legacy files removed.
-      - [ ] Wave 3 (axios clients): consolidate axiosConfig.ts + axiosAdmin.ts (RISKIEST — auth
-            interceptors differ; do last, behind full gates).
+      - [x] Wave 3 (axios clients, 2026-08-27 pod d004a6e0): consolidated the two axios clients
+            onto a shared `utils/apiClient.ts` (API_ORIGIN / API_BASE_URL / createApiClient factory).
+            axiosConfig.ts (merchant) + axiosAdmin.ts (admin) both build their instance via the
+            factory; ALL interceptors kept IDENTICAL and the two clients remain SEPARATE by design
+            (merchant realm: 'token' + X-Company-Id + 401 refresh + 403; admin realm: 'admin_token',
+            no refresh). Removed a stray dev console.log. Behaviour-neutral (admin empty-env base
+            aligned to canonical "/api/" — never triggers since env is always set). Gate: tsc 0 ·
+            eslint 0 · routes 200 · frontend testing agent 6/6 PASS (merchant login + real dashboard
+            data + /transactions + company-switch refetch, ZERO 401/refresh loops, ZERO console
+            errors; /admin/login renders). Money-path auth confirmed unchanged.
 - [ ] Phase 4 — Guards on: reactStrictMode + ESLint warning ratchet (FP3-1)
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

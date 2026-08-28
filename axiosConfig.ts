@@ -1,16 +1,13 @@
 import unAuthorizedHelper from "@/helpers/unAutorizedHelper";
 import { setAuthNotice } from "@/helpers/authNotice";
 import axios from "axios";
+import { API_ORIGIN, createApiClient } from "@/utils/apiClient";
 
-const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
-console.log("url for base", apiBaseUrl);
+// API origin WITHOUT the trailing `/api/` — used by the raw refresh-token call
+// below. Single source of truth for the base URL lives in utils/apiClient.
+const apiBaseUrl = API_ORIGIN;
 
-const axiosBaseApi = axios.create({
-  baseURL: apiBaseUrl + "/api/",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const axiosBaseApi = createApiClient();
 
 // Auth endpoints that should NOT send Authorization headers
 const AUTH_ENDPOINTS = ["user/login", "user/register", "user/checkEmail", "user/forgot", "user/reset", "user/confirmOTP", "user/generateOTP"];
