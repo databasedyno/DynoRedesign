@@ -12,7 +12,7 @@
     "mega": {
       "paymentLinks": {
         "title": "Liens de paiement",
-        "desc": "Des liens partageables pour être payé en crypto en quelques secondes"
+        "desc": "Des liens partageables pour être payé en crypto — aucun compte requis pour l'acheteur"
       },
       "checkout": {
         "title": "Checkout",
@@ -24,7 +24,7 @@
       },
       "payouts": {
         "title": "Versements crypto",
-        "desc": "Envoyez des stablecoins et des cryptos à n'importe qui, partout"
+        "desc": "Suivez vos soldes et réglez vos fonds sur un wallet que vous contrôlez"
       },
       "docs": {
         "title": "Documentation",
@@ -32,7 +32,7 @@
       },
       "api": {
         "title": "Référence de l'API",
-        "desc": "API REST pour les paiements et les versements"
+        "desc": "API REST pour paiements, liens et webhooks"
       },
       "webhooks": {
         "title": "Webhooks",
@@ -105,20 +105,20 @@
   "blogSubtitle": "Guides, stratégies et ressources développeurs pour vous aider à accepter la crypto et développer votre activité",
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Désormais en bêta publique",
+      "eyebrow": "Dynopay · Paiements crypto pour les vraies entreprises",
       "headline1": "Acceptez les paiements crypto.",
       "headlineHighlight": "Encaissez",
       "headline2": "à votre façon.",
-      "body": "Acceptez Bitcoin, Ethereum et les stablecoins via un checkout hébergé ou un lien de paiement. Gardez la crypto d'origine ou <b>convertissez automatiquement en USDC ou USDT</b> — à vous de choisir — et recevez sur un portefeuille que vous contrôlez. Sans rétrofacturation, dès <b>0,5 %</b>.",
+      "body": "Acceptez Bitcoin, Ethereum et stablecoins via un checkout hébergé ou un lien de paiement. Gardez la crypto d'origine ou <b>convertissez automatiquement en USDC ou USDT</b> — à vous de choisir — et recevez le règlement sur un wallet que vous contrôlez. Aucune rétrofacturation. <b>1,5 % + 1 $ par paiement, jusqu'à 0,5 % à mesure que votre volume augmente.</b>",
       "claimBtn": "Réserver",
       "chooseHandle": "Choisissez votre pseudo de créateur",
       "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
-      "bullets": "Gratuit au départ · Sans carte · Plus de 15 réseaux",
+      "bullets": "Premier paiement sans frais · Sans carte · 9 blockchains, 12 cryptos et stablecoins",
       "trustLine": "Non dépositaire · Chiffré · RGPD / AML",
       "livePill": "EN DIRECT",
       "sendTipLabel": "Envoyer un pourboire",
       "sendTipBtn": "Envoyer",
-      "metaSettle": "Reversé dans la crypto de votre choix · dès <b>0,5 %</b>",
+      "metaSettle": "Règlement dans la crypto de votre choix · <b>1,5 % + 1 $, jusqu'à 0,5 % à grande échelle</b>",
       "handleAvailable": "est disponible",
       "handleTaken": "Ce pseudo n'est pas disponible — essayez un autre.",
       "primaryCta": "Commencer à encaisser",
@@ -136,15 +136,15 @@
       "stepLabel": "Étape",
       "step1": {
         "title": "Quelqu'un vous paie.",
-        "body": "Partagez un lien, intégrez un checkout inline ou appelez l'API. Votre acheteur choisit parmi 15+ chaînes — BTC, ETH, USDC, USDT, XRP, TRON — et paie."
+        "body": "Partagez un lien, intégrez un checkout ou appelez l'API. Votre acheteur choisit parmi 9 blockchains — BTC, ETH, USDC, USDT, XRP, Tron et plus — et paie."
       },
       "step2": {
         "title": "On règle à votre façon.",
-        "body": "Gardez la crypto d'origine ou convertissez automatiquement en USDT / USDC sur n'importe quelle chaîne. Taux Binance en direct, on-chain en secondes, sans conversion manuelle."
+        "body": "Gardez la crypto d'origine ou convertissez automatiquement en USDT / USDC sur n'importe quelle chaîne. Taux du marché en direct, conversion automatique dès que le paiement est confirmé on-chain — aucune étape manuelle."
       },
       "step3": {
         "title": "Ça arrive dans votre wallet.",
-        "body": "Le paiement va directement à l'adresse du wallet que vous contrôlez — pas conservé par nous. À partir de 0,5% fixe, sans mensualité, sans rétrofacturation."
+        "body": "Le règlement va directement à l'adresse du wallet que vous contrôlez — jamais détenu par nous. 1,5 % + 1 $ pour commencer, jusqu'à 0,5 % à grande échelle. Aucun frais mensuel, aucune rétrofacturation."
       },
       "mock": {
         "awaitingPayment": "En attente de paiement",
@@ -171,13 +171,12 @@
       "body": "Non dépositaire par conception, conforme par choix — gardez la crypto reçue ou convertissez-la automatiquement dans la stablecoin de votre choix.",
       "settledLabel": "Réglé",
       "settledSub": "Depuis le lancement",
-      "chainsLabel": "Réseaux",
-      "chainsSub": "BTC · ETH · USDT · USDC…",
-      "feeLabel": "Frais les plus bas",
-      "feeSub": "à mesure que vous grandissez",
+      "chainsLabel": "Blockchains",
+      "chainsSub": "12 cryptos et stablecoins",
+      "feeLabel": "Frais de départ",
+      "feeSub": "jusqu'à 0,5 % à grande échelle",
       "settleLabel": "Règlement médian",
       "settleSub": "Confirmation on-chain",
-      "badgeSOC2": "SOC2 en cours",
       "badgeKYC": "KYC / AML",
       "badgeGDPR": "RGPD",
       "badgeNonCustodial": "Non dépositaire",
@@ -195,13 +194,13 @@
       "checkout": {
         "tag": "Checkout",
         "title": "Un checkout qui parle toutes les cryptos.",
-        "desc": "Partagez un lien. Les clients paient sur 15+ chaînes — auto-converties dans la crypto que vous gardez vraiment.",
+        "desc": "Partagez un lien. Vos clients paient sur 9 blockchains — gardez la crypto ou convertissez automatiquement en USDC/USDT, à vous de choisir.",
         "cta": "Voir le checkout"
       },
       "convert": {
         "tag": "Auto-conversion",
         "title": "Acceptez le volatile. Gardez le stable.",
-        "desc": "Acceptez du BTC ou ETH, réglez en USDT ou USDC en environ quatre secondes. Payé sans les fluctuations.",
+        "desc": "Acceptez BTC ou ETH et réglez automatiquement en USDT ou USDC dès la confirmation du paiement — sans exposition aux variations de cours.",
         "cta": "Comment fonctionne le règlement"
       },
       "api": {
@@ -219,7 +218,7 @@
       "copyBtn": "Copier",
       "copiedBtn": "Copié",
       "responseHeader": "✓ 201 Créé",
-      "footBullets": "REST + Webhooks · 15+ chaînes · Premier 201 en ~10 min",
+      "footBullets": "REST + Webhooks · 9 blockchains · Premier 201 en ~10 min",
       "readDocs": "Lire la doc →"
     },
     "audience": {
@@ -244,7 +243,7 @@
       "creators": {
         "tag": "03 · Créateurs",
         "title": "Recevez des pourboires de vos fans.",
-        "desc": "Votre propre page dynopay.com/@handle avec pourboires intégrés — sans rétrofacturation, versements instantanés.",
+        "desc": "Votre page dynopay.com/@handle avec pourboires intégrés — aucune rétrofacturation ; les fonds arrivent sur votre wallet dès la confirmation du paiement.",
         "statLabel": "versement au wallet"
       },
       "developers": {
@@ -262,17 +261,17 @@
       "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
       "getStarted": "Commencer gratuitement",
       "readDocs": "Lire la doc",
-      "trustLine": "Non dépositaire · Plus de 15 réseaux · Chiffré · RGPD / AML"
+      "trustLine": "Non-dépositaire · 9 blockchains · Chiffré · RGPD / AML"
     },
     "faq": {
       "eyebrow": "[ Réponses ]",
       "headline": "Questions fréquentes.",
       "q1": "Faut-il détenir de la crypto pour en accepter ?",
-      "a1": "Non. Les acheteurs paient dans l'une des 15+ cryptos prises en charge, et vous décidez ce que vous gardez : la crypto d'origine, ou une conversion automatique en USDC ou USDT, reversée sur votre portefeuille dès la confirmation on-chain. Vous ne touchez jamais à une plateforme d'échange.",
+      "a1": "Non. Les acheteurs paient dans l'une de nos 12 cryptos et stablecoins prises en charge sur 9 chaînes, et vous décidez de ce que vous gardez — conservez la crypto d'origine ou convertissez automatiquement en USDC ou USDT, réglé sur votre wallet dès la confirmation on-chain. Vous ne touchez jamais à une plateforme d'échange.",
       "q2": "Où atterrissent les fonds ?",
       "a2": "Directement à une adresse de wallet que vous contrôlez — pas gardée par nous. Dynopay est non-custodial. Chaque règlement est un vrai transfert on-chain à votre adresse.",
       "q3": "Combien ça coûte ?",
-      "a3": "Entre 1,5% (Starter) et 0,5% (Enterprise), basé sur le volume à 30 jours. Sans mensualité, sans frais de configuration, sans rétrofacturation. Voir la page Tarifs pour le tableau complet.",
+      "a3": "Chaque paiement correspond à un pourcentage plus 1 $ fixe. Le pourcentage va de 1,5 % (Starter) à 0,5 % (Enterprise), selon votre volume réglé cumulé, et votre premier paiement est sans frais. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation. Voir la page Tarifs pour le tableau complet.",
       "q4": "Quelle est la vitesse de règlement ?",
       "a4": "Cela dépend du réseau. Les rails stablecoins et les chaînes rapides (TRC-20, Polygon, L2) confirment généralement en une à deux minutes ; Bitcoin et Ethereum sur le mainnet peuvent être plus longs en période de congestion. Votre tableau de bord affiche le statut en temps réel — et si vous avez activé la conversion automatique, les fonds arrivent dans la stablecoin de votre choix dès la confirmation ; sinon, vous conservez la crypto envoyée par l'acheteur.",
       "q5": "Vous gérez fiat, remboursements et abonnements ?",
@@ -298,7 +297,7 @@
       "fees": {
         "tag": "Tarifs",
         "title": "Voir les tarifs",
-        "desc": "De 1,5% jusqu'à 0,5% à mesure que vous grandissez. Sans mensualité, sans frais de configuration, sans rétrofacturation — jamais."
+        "desc": "1,5 % + 1 $ par paiement, jusqu'à 0,5 % à mesure que vous grandissez. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation — jamais."
       },
       "exploreBtn": "Explorer"
     },
@@ -740,7 +739,7 @@
     "heroTitle": "Tout ce qu'il vous faut pour écrire sur Dynopay.",
     "heroBody": "Logos, chiffres clés et une description prête à l'emploi — libres de republication dans vos articles, tests et annuaires. Besoin d'autre chose ? Notre équipe est à un e-mail.",
     "boilerplateTitle": "Description type",
-    "boilerplateBody": "Dynopay est une passerelle de paiement en cryptomonnaies non-custodial fondée en 2024. Les marchands l'utilisent pour vendre des produits, recevoir des pourboires et mener des campagnes de collecte — ou pour intégrer les paiements via API — en acceptant Bitcoin, Ethereum, les stablecoins et plus de 15 réseaux. Les paiements arrivent directement dans un wallet contrôlé par le marchand, avec conversion automatique optionnelle en USDT/USDC, des frais à partir de 0,5 % et aucune rétrofacturation.",
+    "boilerplateBody": "Dynopay est une passerelle de paiement en cryptomonnaies non-dépositaire fondée en 2024. Les marchands l'utilisent pour vendre des produits, recevoir des pourboires et mener des campagnes de collecte — ou pour intégrer les paiements via API — en acceptant Bitcoin, Ethereum, stablecoins et 12 actifs sur 9 blockchains. Les paiements sont réglés directement sur un wallet que le marchand contrôle, avec conversion automatique optionnelle en USDT/USDC. Les frais sont de 1,5 % + 1 $ par paiement, jusqu'à 0,5 % à grande échelle, sans rétrofacturation.",
     "factsTitle": "Chiffres clés",
     "facts": {
       "founded": {
@@ -753,11 +752,11 @@
       },
       "pricing": {
         "label": "Tarifs",
-        "value": "À partir de 0,5 % par transaction — sans frais mensuels"
+        "value": "1,5 % + 1 $ par transaction, jusqu'à 0,5 % à grande échelle — aucun frais mensuel"
       },
       "networks": {
         "label": "Réseaux",
-        "value": "Plus de 15 blockchains, dont Bitcoin, Ethereum, Solana, XRP et les principaux stablecoins"
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) et 12 cryptos et stablecoins"
       },
       "settlement": {
         "label": "Règlement",

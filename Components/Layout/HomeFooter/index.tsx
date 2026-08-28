@@ -48,7 +48,7 @@ const SOCIALS: readonly SocialItemType[] = [
   { label: "Facebook", icon: Facebook, link: "https://www.facebook.com/dynopay" },
 ] as const;
 
-const TRUST = ["Non-custodial", "15+ chains", "Encrypted", "GDPR / AML aligned", "No chargebacks"] as const;
+const TRUST = ["Non-custodial", "9 blockchains", "Encrypted", "GDPR / AML aligned", "No chargebacks"] as const;
 
 const HomeFooter: FC = () => {
   const router = useRouter();

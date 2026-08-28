@@ -64,8 +64,8 @@ const NumbersTrustBand: React.FC = () => {
   const { t } = useTranslation("landing");
 
   const STATS: Stat[] = [
-    { value: 0.5, suffix: "%", decimals: 1, label: t("v3.numbers.feeLabel"), sub: t("v3.numbers.feeSub"), color: BRAND_ACCENT },
-    { value: 15, suffix: "+", label: t("v3.numbers.chainsLabel"), sub: t("v3.numbers.chainsSub"), color: BRAND_ACCENT },
+    { value: 1.5, suffix: "%", decimals: 1, label: t("v3.numbers.feeLabel"), sub: t("v3.numbers.feeSub"), color: BRAND_ACCENT },
+    { value: 9, display: "9", suffix: "", label: t("v3.numbers.chainsLabel"), sub: t("v3.numbers.chainsSub"), color: BRAND_ACCENT },
     { value: 0, display: "0", label: t("v3.numbers.chargebacksLabel"), sub: t("v3.numbers.chargebacksSub"), color: BRAND_ACCENT },
     { value: 0, display: "24/7", label: t("v3.numbers.alwaysOnLabel"), sub: t("v3.numbers.alwaysOnSub"), color: BRAND_ACCENT },
   ];

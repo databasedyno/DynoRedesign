@@ -318,6 +318,9 @@ const FeesPage = () => {
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 22, color: s.ink }}>
                       ${fee.toLocaleString("en-US", { maximumFractionDigits: 2 })}
                     </Typography>
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, mt: 0.5 }}>
+                      {t("v3.plusFixed")}
+                    </Typography>
                   </Box>
                 </Box>
 

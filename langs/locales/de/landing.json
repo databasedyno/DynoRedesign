@@ -12,7 +12,7 @@
     "mega": {
       "paymentLinks": {
         "title": "Zahlungslinks",
-        "desc": "Teilbare Links, mit denen du in Sekunden in Krypto bezahlt wirst"
+        "desc": "Teilbare Links, mit denen du in Krypto bezahlt wirst – Käufer brauchen kein Konto"
       },
       "checkout": {
         "title": "Checkout",
@@ -24,7 +24,7 @@
       },
       "payouts": {
         "title": "Krypto-Auszahlungen",
-        "desc": "Sende Stablecoins und Krypto an jeden, überall"
+        "desc": "Guthaben verfolgen und Gelder in eine Wallet auszahlen, die du kontrollierst"
       },
       "docs": {
         "title": "Dokumentation",
@@ -32,7 +32,7 @@
       },
       "api": {
         "title": "API-Referenz",
-        "desc": "REST-API für Zahlungen und Auszahlungen"
+        "desc": "REST-API für Zahlungen, Links und Webhooks"
       },
       "webhooks": {
         "title": "Webhooks",
@@ -105,20 +105,20 @@
   "blogSubtitle": "Leitfäden, Strategien und Entwickler-Ressourcen, die Ihnen helfen, Krypto zu akzeptieren und Ihr Geschäft auszubauen",
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Jetzt in der öffentlichen Beta",
+      "eyebrow": "Dynopay · Krypto-Zahlungen für echte Unternehmen",
       "headline1": "Krypto-Zahlungen annehmen.",
       "headlineHighlight": "Auszahlung",
       "headline2": "nach deiner Wahl.",
-      "body": "Nimm Bitcoin, Ethereum und Stablecoins über ein gehostetes Checkout oder einen Zahlungslink an. Behalte die ursprüngliche Coin oder <b>wandle automatisch in USDC oder USDT um</b> — deine Wahl — und lass dir alles auf ein Wallet auszahlen, das du kontrollierst. Ohne Rückbuchungen, ab <b>0,5 %</b>.",
+      "body": "Akzeptiere Bitcoin, Ethereum und Stablecoins über einen gehosteten Checkout oder Zahlungslink. Behalte die ursprüngliche Coin oder <b>wandle automatisch in USDC oder USDT um</b> – deine Wahl – und lass die Auszahlung in eine Wallet fließen, die du kontrollierst. Keine Rückbuchungen. <b>1,5 % + 1 $ pro Zahlung, sinkt auf bis zu 0,5 %, wenn dein Volumen wächst.</b>",
       "claimBtn": "Sichern",
       "chooseHandle": "Wähle deinen Creator-Handle",
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
-      "bullets": "Kostenlos starten · Ohne Karte · 15+ Netzwerke",
+      "bullets": "Erste Zahlung gebührenfrei · Keine Karte nötig · 9 Blockchains, 12 Coins & Stablecoins",
       "trustLine": "Nicht verwahrend · Verschlüsselt · DSGVO / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Tip senden",
       "sendTipBtn": "Tip senden",
-      "metaSettle": "Auszahlung in der Coin deiner Wahl · ab <b>0,5 %</b>",
+      "metaSettle": "Auszahlung in der Coin deiner Wahl · <b>1,5 % + 1 $, bis zu 0,5 % bei Skalierung</b>",
       "handleAvailable": "ist verfügbar",
       "handleTaken": "Dieser Handle ist nicht verfügbar — versuchen Sie einen anderen.",
       "primaryCta": "Zahlungen annehmen",
@@ -136,15 +136,15 @@
       "stepLabel": "Schritt",
       "step1": {
         "title": "Jemand bezahlt dich.",
-        "body": "Teile einen Link, integriere ein Inline-Checkout oder rufe die API auf. Dein Käufer wählt aus 15+ Chains — BTC, ETH, USDC, USDT, XRP, TRON — und zahlt."
+        "body": "Teile einen Link, bette einen Inline-Checkout ein oder nutze die API. Dein Käufer wählt aus 9 Blockchains – BTC, ETH, USDC, USDT, XRP, Tron und mehr – und zahlt."
       },
       "step2": {
         "title": "Wir wickeln nach deinen Regeln ab.",
-        "body": "Behalte die Original-Coin oder konvertiere automatisch in USDT / USDC auf jeder Chain. Live-Binance-Kurse, on-chain in Sekunden, keine manuelle Umwandlung."
+        "body": "Behalte die ursprüngliche Coin oder wandle automatisch in USDT / USDC auf jeder Chain um. Aktuelle Marktkurse, automatisch umgewandelt, sobald die Zahlung on-chain bestätigt ist – keine manuellen Schritte."
       },
       "step3": {
         "title": "Es landet in deinem Wallet.",
-        "body": "Die Auszahlung geht direkt an die Wallet-Adresse, die du kontrollierst — nicht von uns verwahrt. Ab 0,5% pauschal, keine monatlichen Kosten, keine Chargebacks."
+        "body": "Die Auszahlung geht direkt an die Wallet-Adresse, die du kontrollierst – nicht von uns verwahrt. 1,5 % + 1 $ zum Start, bis zu 0,5 % bei Skalierung. Keine monatliche Gebühr, keine Rückbuchungen."
       },
       "mock": {
         "awaitingPayment": "Warte auf Zahlung",
@@ -171,13 +171,12 @@
       "body": "Nicht verwahrend by Design, konform aus Überzeugung — behalte die Coin, in der du bezahlt wirst, oder wandle sie automatisch in die von dir gewählte Stablecoin um.",
       "settledLabel": "Abgewickelt",
       "settledSub": "Seit dem Start",
-      "chainsLabel": "Netzwerke",
-      "chainsSub": "BTC · ETH · USDT · USDC…",
-      "feeLabel": "Niedrigste Gebühr",
-      "feeSub": "mit wachsendem Volumen",
+      "chainsLabel": "Blockchains",
+      "chainsSub": "12 Coins & Stablecoins",
+      "feeLabel": "Starter-Gebühr",
+      "feeSub": "bis zu 0,5 % bei Skalierung",
       "settleLabel": "Median-Abwicklung",
       "settleSub": "On-chain-Bestätigung",
-      "badgeSOC2": "SOC2 in Vorbereitung",
       "badgeKYC": "KYC / AML",
       "badgeGDPR": "DSGVO",
       "badgeNonCustodial": "Nicht verwahrend",
@@ -195,13 +194,13 @@
       "checkout": {
         "tag": "Checkout",
         "title": "Ein Checkout, das jede Coin spricht.",
-        "desc": "Teile einen Link. Kunden zahlen in 15+ Chains — automatisch konvertiert in die Coin, die du wirklich behältst.",
+        "desc": "Teile einen Link. Kunden zahlen über 9 Blockchains – behalte die Coin oder wandle automatisch in USDC/USDT um, deine Wahl.",
         "cta": "Checkout ansehen"
       },
       "convert": {
         "tag": "Auto-Konvert",
         "title": "Nimm volatil. Halte stabil.",
-        "desc": "Akzeptiere BTC oder ETH, wickle in USDT oder USDC in etwa vier Sekunden ab. Werde bezahlt ohne Kursschwankungen.",
+        "desc": "Akzeptiere BTC oder ETH und lass automatisch in USDT oder USDC auszahlen, sobald die Zahlung bestätigt ist – kein Kursrisiko.",
         "cta": "So funktioniert die Abwicklung"
       },
       "api": {
@@ -219,7 +218,7 @@
       "copyBtn": "Kopieren",
       "copiedBtn": "Kopiert",
       "responseHeader": "✓ 201 Created",
-      "footBullets": "REST + Webhooks · 15+ Chains · Erster 201 in ~10 Min",
+      "footBullets": "REST + Webhooks · 9 Blockchains · Erste 201 in ~10 Min.",
       "readDocs": "Docs lesen →"
     },
     "audience": {
@@ -244,7 +243,7 @@
       "creators": {
         "tag": "03 · Creator",
         "title": "Erhalte Tips von deinen Fans.",
-        "desc": "Deine eigene dynopay.com/@handle-Seite mit integrierten Trinkgeldern – keine Rückbuchungen, sofortige Auszahlungen.",
+        "desc": "Deine eigene dynopay.com/@handle-Seite mit Inline-Trinkgeldern – keine Rückbuchungen; Gelder gehen direkt in deine Wallet, sobald die Zahlung bestätigt ist.",
         "statLabel": "Auszahlung ans Wallet"
       },
       "developers": {
@@ -262,17 +261,17 @@
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
       "getStarted": "Kostenlos starten",
       "readDocs": "Docs lesen",
-      "trustLine": "Nicht verwahrend · 15+ Netzwerke · Verschlüsselt · DSGVO / AML"
+      "trustLine": "Nicht verwahrend · 9 Blockchains · Verschlüsselt · DSGVO / AML"
     },
     "faq": {
       "eyebrow": "[ Antworten ]",
       "headline": "Häufige Fragen.",
       "q1": "Muss ich Krypto besitzen, um es zu akzeptieren?",
-      "a1": "Nein. Käufer zahlen in einer von 15+ unterstützten Coins, und du entscheidest, was du behältst — die ursprüngliche Coin oder eine automatische Umwandlung in USDC oder USDT, ausgezahlt auf dein Wallet, sobald die Zahlung on-chain bestätigt ist. Du kommst nie mit einer Krypto-Börse in Berührung.",
+      "a1": "Nein. Käufer zahlen in einer unserer 12 unterstützten Coins & Stablecoins über 9 Chains, und du entscheidest, was du behältst – die ursprüngliche Coin halten oder automatisch in USDC oder USDT umwandeln, ausgezahlt an deine Wallet, sobald die Zahlung on-chain bestätigt ist. Du kommst nie mit einer Krypto-Börse in Berührung.",
       "q2": "Wo landen die Mittel?",
       "a2": "Direkt an einer Wallet-Adresse, die du kontrollierst — nicht von uns verwahrt. Dynopay ist non-custodial. Jede Abwicklung ist ein echter on-chain-Transfer an deine Adresse.",
       "q3": "Was kostet es?",
-      "a3": "Zwischen 1,5% (Starter) und 0,5% (Enterprise), basierend auf 30-Tage-Volumen. Keine monatliche Gebühr, keine Setup-Gebühr, keine Chargebacks. Siehe die Gebühren-Seite für die vollständige Tier-Tabelle.",
+      "a3": "Jede Zahlung besteht aus einem Prozentsatz plus pauschal 1 $. Der Prozentsatz reicht von 1,5 % (Starter) bis 0,5 % (Enterprise), basierend auf deinem gesamten abgewickelten Volumen, und deine erste Zahlung ist gebührenfrei. Keine monatliche Gebühr, keine Einrichtungsgebühr, keine Rückbuchungen. Die vollständige Tabelle findest du auf der Gebührenseite.",
       "q4": "Wie schnell ist die Abwicklung?",
       "a4": "Das hängt vom Netzwerk ab. Stablecoin-Rails und schnelle Chains (TRC-20, Polygon, L2s) bestätigen meist in ein bis zwei Minuten; Bitcoin und Ethereum im Mainnet können bei hoher Auslastung länger dauern. Dein Dashboard zeigt den Status live an — und wenn du Auto-Convert aktiviert hast, landen die Mittel in der gewählten Stablecoin, sobald die Zahlung bestätigt ist; andernfalls behältst du die vom Käufer gesendete Coin.",
       "q5": "Unterstützt ihr Fiat, Rückerstattungen oder Abos?",
@@ -298,7 +297,7 @@
       "fees": {
         "tag": "Preise",
         "title": "Gebühren ansehen",
-        "desc": "Von 1,5% bis 0,5% während du wächst. Keine monatliche Gebühr, keine Setup-Gebühr, keine Chargebacks — niemals."
+        "desc": "1,5 % + 1 $ pro Zahlung, bis auf 0,5 %, wenn du wächst. Keine monatliche Gebühr, keine Einrichtungsgebühr, keine Rückbuchungen – niemals."
       },
       "exploreBtn": "Entdecken"
     },
@@ -740,7 +739,7 @@
     "heroTitle": "Alles, was Sie brauchen, um über Dynopay zu schreiben.",
     "heroBody": "Logos, Unternehmensfakten und eine fertige Boilerplate — frei verwendbar in Artikeln, Tests und Verzeichnissen. Wenn Sie mehr brauchen, ist unser Team nur eine E-Mail entfernt.",
     "boilerplateTitle": "Boilerplate",
-    "boilerplateBody": "Dynopay ist ein 2024 gegründetes non-custodial Krypto-Zahlungsgateway. Händler verkaufen damit Produkte, sammeln Trinkgelder und führen Spendenkampagnen durch — oder integrieren Zahlungen per API — und akzeptieren Bitcoin, Ethereum, Stablecoins und 15+ weitere Netzwerke. Zahlungen landen direkt in einer vom Händler kontrollierten Wallet, mit optionaler Auto-Konvertierung in USDT/USDC, Gebühren ab 0,5 % und ohne Chargebacks.",
+    "boilerplateBody": "Dynopay ist ein nicht verwahrendes Krypto-Zahlungs-Gateway, gegründet 2024. Händler nutzen es, um Produkte zu verkaufen, Trinkgelder zu sammeln und Spendenkampagnen durchzuführen – oder um Zahlungen per API zu integrieren – und akzeptieren Bitcoin, Ethereum, Stablecoins und 12 Assets über 9 Blockchains. Zahlungen gehen direkt an eine Wallet, die der Händler kontrolliert, mit optionaler automatischer Umwandlung in USDT/USDC. Die Gebühren betragen 1,5 % + 1 $ pro Zahlung, bis zu 0,5 % bei Skalierung, ohne Rückbuchungen.",
     "factsTitle": "Fakten im Überblick",
     "facts": {
       "founded": {
@@ -753,11 +752,11 @@
       },
       "pricing": {
         "label": "Preise",
-        "value": "Ab 0,5 % pro Transaktion — keine monatlichen Gebühren"
+        "value": "1,5 % + 1 $ pro Transaktion, bis zu 0,5 % bei Skalierung – keine monatlichen Gebühren"
       },
       "networks": {
         "label": "Netzwerke",
-        "value": "15+ Blockchains, darunter Bitcoin, Ethereum, Solana, XRP und führende Stablecoins"
+        "value": "9 Blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) und 12 Coins & Stablecoins"
       },
       "settlement": {
         "label": "Abwicklung",

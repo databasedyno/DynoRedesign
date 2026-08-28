@@ -12,7 +12,7 @@
     "mega": {
       "paymentLinks": {
         "title": "Links de pagamento",
-        "desc": "Links compartilháveis que recebem em cripto em segundos"
+        "desc": "Links compartilháveis para receber em cripto — o comprador não precisa de conta"
       },
       "checkout": {
         "title": "Checkout",
@@ -24,7 +24,7 @@
       },
       "payouts": {
         "title": "Envios de cripto",
-        "desc": "Envie stablecoins e cripto para qualquer pessoa, em qualquer lugar"
+        "desc": "Acompanhe saldos e liquide seus fundos numa carteira que você controla"
       },
       "docs": {
         "title": "Documentação",
@@ -32,7 +32,7 @@
       },
       "api": {
         "title": "Referência da API",
-        "desc": "API REST para pagamentos e envios"
+        "desc": "API REST para pagamentos, links e webhooks"
       },
       "webhooks": {
         "title": "Webhooks",
@@ -105,20 +105,20 @@
   "blogSubtitle": "Guias, estratégias e recursos para desenvolvedores para ajudar você a aceitar cripto e expandir seu negócio",
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Agora em beta público",
+      "eyebrow": "Dynopay · Pagamentos em cripto para empresas reais",
       "headline1": "Aceite pagamentos em cripto.",
       "headlineHighlight": "Receba",
       "headline2": "do seu jeito.",
-      "body": "Aceite Bitcoin, Ethereum e stablecoins com um checkout hospedado ou link de pagamento. Fique com a moeda original ou <b>converta automaticamente em USDC ou USDT</b> — você escolhe — e liquide em uma carteira que você controla. Sem estornos, a partir de <b>0,5%</b>.",
+      "body": "Aceite Bitcoin, Ethereum e stablecoins num checkout hospedado ou link de pagamento. Fique com a moeda original ou <b>converta automaticamente para USDC ou USDT</b> — você escolhe — e receba numa carteira que você controla. Sem estornos. <b>1,5% + $1 por pagamento, caindo para até 0,5% conforme seu volume cresce.</b>",
       "claimBtn": "Reservar",
       "chooseHandle": "Escolha o seu nome de criador",
       "rewardBadge": "É novo por aqui? Isentamos a nossa <b>taxa de plataforma</b> no seu primeiro pagamento.",
-      "bullets": "Grátis para começar · Sem cartão · 15+ redes",
+      "bullets": "Primeiro pagamento sem taxa · Sem cartão · 9 blockchains, 12 moedas e stablecoins",
       "trustLine": "Sem custódia · Criptografado · GDPR / AML",
       "livePill": "AO VIVO",
       "sendTipLabel": "Enviar uma gorjeta",
       "sendTipBtn": "Enviar gorjeta",
-      "metaSettle": "Liquida na moeda que você escolher · a partir de <b>0,5%</b>",
+      "metaSettle": "Liquida na moeda que você escolher · <b>1,5% + $1, até 0,5% em escala</b>",
       "handleAvailable": "está disponível",
       "handleTaken": "Esse identificador não está disponível — tente outro.",
       "primaryCta": "Comece a aceitar pagamentos",
@@ -136,15 +136,15 @@
       "stepLabel": "Passo",
       "step1": {
         "title": "Alguém paga-lhe.",
-        "body": "Partilhe um link, insira um checkout inline ou chame a API. O comprador escolhe entre 15+ redes — BTC, ETH, USDC, USDT, XRP, TRON — e paga."
+        "body": "Compartilhe um link, incorpore um checkout ou use a API. Seu comprador escolhe entre 9 blockchains — BTC, ETH, USDC, USDT, XRP, Tron e mais — e paga."
       },
       "step2": {
         "title": "Nós liquidamos à sua maneira.",
-        "body": "Mantenha a moeda original ou converta automaticamente para USDT / USDC em qualquer rede. Taxas ao vivo da Binance, on-chain em segundos, sem conversão manual."
+        "body": "Fique com a moeda original ou converta automaticamente para USDT / USDC em qualquer rede. Cotações de mercado ao vivo, convertidas automaticamente assim que o pagamento é confirmado on-chain — sem etapas manuais."
       },
       "step3": {
         "title": "Chega à sua carteira.",
-        "body": "O pagamento vai direto para o endereço da carteira que controla — não guardada por nós. A partir de 0,5% fixo, sem mensalidade, sem estornos."
+        "body": "O pagamento vai direto para o endereço da carteira que você controla — nunca sob nossa custódia. 1,5% + $1 para começar, até 0,5% em escala. Sem taxa mensal, sem estornos."
       },
       "mock": {
         "awaitingPayment": "A aguardar pagamento",
@@ -171,13 +171,12 @@
       "body": "Sem custódia por design, em conformidade por escolha — fique com a moeda em que recebe ou converta automaticamente na stablecoin que escolher.",
       "settledLabel": "Liquidado",
       "settledSub": "Desde o lançamento",
-      "chainsLabel": "Redes",
-      "chainsSub": "BTC · ETH · USDT · USDC…",
-      "feeLabel": "Menor taxa",
-      "feeSub": "conforme você cresce",
+      "chainsLabel": "Blockchains",
+      "chainsSub": "12 moedas e stablecoins",
+      "feeLabel": "Taxa inicial",
+      "feeSub": "até 0,5% em escala",
       "settleLabel": "Liquidação mediana",
       "settleSub": "Confirmação on-chain",
-      "badgeSOC2": "Rota SOC2",
       "badgeKYC": "KYC / AML",
       "badgeGDPR": "GDPR",
       "badgeNonCustodial": "Sem custódia",
@@ -195,13 +194,13 @@
       "checkout": {
         "tag": "Checkout",
         "title": "Checkout que fala todas as moedas.",
-        "desc": "Partilhe um link. Clientes pagam em 15+ redes — auto-convertido para a moeda que realmente guarda.",
+        "desc": "Compartilhe um link. Os clientes pagam em 9 blockchains — fique com a moeda ou converta automaticamente para USDC/USDT, você escolhe.",
         "cta": "Ver checkout"
       },
       "convert": {
         "tag": "Auto-conversão",
         "title": "Aceite volátil. Guarde estável.",
-        "desc": "Aceite BTC ou ETH, liquide em USDT ou USDC em cerca de quatro segundos. Receba sem oscilações de preço.",
+        "desc": "Aceite BTC ou ETH e liquide em USDT ou USDC automaticamente quando o pagamento confirmar — sem exposição à variação de preço.",
         "cta": "Como funciona a liquidação"
       },
       "api": {
@@ -219,7 +218,7 @@
       "copyBtn": "Copiar",
       "copiedBtn": "Copiado",
       "responseHeader": "✓ 201 Criado",
-      "footBullets": "REST + Webhooks · 15+ redes · Primeiro 201 em ~10 min",
+      "footBullets": "REST + Webhooks · 9 blockchains · Primeiro 201 em ~10 min",
       "readDocs": "Ler a documentação →"
     },
     "audience": {
@@ -244,7 +243,7 @@
       "creators": {
         "tag": "03 · Criadores",
         "title": "Receba gorjetas dos seus fãs.",
-        "desc": "Sua própria página dynopay.com/@usuario com gorjetas integradas — sem estornos, saques instantâneos.",
+        "desc": "Sua própria página dynopay.com/@handle com gorjetas integradas — sem estornos; os fundos chegam à sua carteira assim que o pagamento confirma.",
         "statLabel": "pagamento na carteira"
       },
       "developers": {
@@ -262,17 +261,17 @@
       "rewardBadge": "É novo por aqui? Isentamos a nossa <b>taxa de plataforma</b> no seu primeiro pagamento.",
       "getStarted": "Comece grátis",
       "readDocs": "Ler a documentação",
-      "trustLine": "Sem custódia · 15+ redes · Criptografado · GDPR / AML"
+      "trustLine": "Não custodial · 9 blockchains · Criptografado · GDPR / AML"
     },
     "faq": {
       "eyebrow": "[ Respostas ]",
       "headline": "Perguntas frequentes.",
       "q1": "Preciso de ter cripto para aceitar cripto?",
-      "a1": "Não. Os compradores pagam em qualquer uma das mais de 15 moedas suportadas e você decide o que recebe: fique com a moeda original ou converta automaticamente em USDC ou USDT, liquidado na sua carteira assim que o pagamento é confirmado on-chain. Você nunca mexe em uma exchange.",
+      "a1": "Não. Os compradores pagam em qualquer uma das nossas 12 moedas e stablecoins em 9 redes, e você decide o que fica — mantenha a moeda original ou converta automaticamente para USDC ou USDT, liquidado na sua carteira assim que o pagamento confirmar on-chain. Você nunca mexe com uma corretora.",
       "q2": "Onde chegam os fundos?",
       "a2": "Diretamente num endereço de carteira que controla — não guardado por nós. A Dynopay é sem custódia. Cada liquidação é uma transferência on-chain real para o seu endereço.",
       "q3": "Quanto custa?",
-      "a3": "Entre 1,5% (Starter) e 0,5% (Enterprise), com base no volume de 30 dias. Sem mensalidade, sem taxa de setup, sem estornos. Veja a página de Comissões para a tabela completa.",
+      "a3": "Cada pagamento é uma porcentagem mais $1 fixo. A porcentagem vai de 1,5% (Starter) até 0,5% (Enterprise), com base no seu volume liquidado total, e seu primeiro pagamento é sem taxa. Sem taxa mensal, sem taxa de configuração, sem estornos. Veja a página de Taxas para a tabela completa.",
       "q4": "Qual a velocidade de liquidação?",
       "a4": "Depende da rede. Redes de stablecoin e cadeias rápidas (TRC-20, Polygon, L2) costumam confirmar em um ou dois minutos; Bitcoin e Ethereum na mainnet podem demorar mais quando estão congestionados. Seu painel mostra o status da transação em tempo real e, se você ativou a conversão automática, os fundos chegam na stablecoin escolhida assim que o pagamento é confirmado; caso contrário, você fica com a moeda que o comprador enviou.",
       "q5": "Suportam fiat, reembolsos ou subscrições?",
@@ -298,7 +297,7 @@
       "fees": {
         "tag": "Preços",
         "title": "Ver as comissões",
-        "desc": "De 1,5% até 0,5% à medida que cresce. Sem mensalidade, sem taxa de setup, sem estornos — nunca."
+        "desc": "1,5% + $1 por pagamento, até 0,5% conforme você cresce. Sem taxa mensal, sem taxa de configuração, sem estornos — nunca."
       },
       "exploreBtn": "Explorar"
     },
@@ -740,7 +739,7 @@
     "heroTitle": "Tudo o que você precisa para escrever sobre a Dynopay.",
     "heroBody": "Logos, fatos da empresa e uma descrição pronta para uso — livres para republicação em artigos, análises e diretórios. Precisa de algo mais? Nossa equipe está a um e-mail de distância.",
     "boilerplateTitle": "Descrição padrão",
-    "boilerplateBody": "A Dynopay é um gateway de pagamentos em criptomoedas sem custódia fundado em 2024. Comerciantes o usam para vender produtos, receber gorjetas e criar campanhas de arrecadação — ou para integrar pagamentos via API — aceitando Bitcoin, Ethereum, stablecoins e mais de 15 redes. Os pagamentos são liquidados direto em uma carteira controlada pelo comerciante, com conversão automática opcional para USDT/USDC, taxas a partir de 0,5% e sem estornos.",
+    "boilerplateBody": "A Dynopay é um gateway de pagamento de criptomoedas não custodial fundado em 2024. Os comerciantes a usam para vender produtos, receber gorjetas e realizar campanhas de arrecadação — ou para integrar pagamentos via API — aceitando Bitcoin, Ethereum, stablecoins e 12 ativos em 9 blockchains. Os pagamentos são liquidados diretamente numa carteira controlada pelo comerciante, com conversão automática opcional para USDT/USDC. As taxas são de 1,5% + $1 por pagamento, até 0,5% em escala, sem estornos.",
     "factsTitle": "Fatos rápidos",
     "facts": {
       "founded": {
@@ -753,11 +752,11 @@
       },
       "pricing": {
         "label": "Preços",
-        "value": "A partir de 0,5% por transação — sem mensalidades"
+        "value": "1,5% + $1 por transação, até 0,5% em escala — sem taxas mensais"
       },
       "networks": {
         "label": "Redes",
-        "value": "Mais de 15 blockchains, incluindo Bitcoin, Ethereum, Solana, XRP e as principais stablecoins"
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) e 12 moedas e stablecoins"
       },
       "settlement": {
         "label": "Liquidação",

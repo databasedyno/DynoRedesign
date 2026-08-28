@@ -14,6 +14,41 @@
 # ############################################################################
 
 # ============================================================================
+# CURRENT SESSION — 2026-08-28 (pod 78b9bfca) : MARKETING COPY VERIFICATION
+#   Verify corrected marketing copy on landing page ("/") and fees page ("/fees")
+#   Preview URL: https://78b9bfca-fb2a-4d42-b361-79b5a0525cf8.preview.emergentagent.com
+# ============================================================================
+## READ-ONLY verification of public marketing pages. NO login, NO form submission.
+
+### frontend
+  - task: "Marketing copy verification: Landing page hero, trust band, Products nav menu, and Fees page"
+    implemented: true
+    working: false
+    file: "Landing page (/), Fees page (/fees)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE FOUND (2026-08-28 20:59 UTC) — Marketing copy verification: 14 of 15 items PASSED, 1 CRITICAL FAILURE. FAILED ITEM: ❌ Found forbidden phrase '15+ chains' on landing page (visible text in a paragraph element with class 'MuiTypography-root MuiTypography-body1'). This contradicts the corrected copy which should only mention '9 Blockchains' and '12 coins & stablecoins'. PASSED ITEMS: ✅ (1) Hero eyebrow reads 'Dynopay · Crypto payments for real businesses' (NOT 'Now in public beta'). ✅ (2) Hero body mentions '1.5% + $1' and '0.5%' (honest full price). ✅ (3) No standalone 'from 0.5%' phrase found. ✅ (4) First stat shows '1.5%' with label 'Starter fee' and sub 'as low as 0.5% at scale'. ✅ (5) Second stat shows '9' with label 'Blockchains' and sub '12 coins & stablecoins'. ✅ (6) No 'SOC2' or 'SOC 2' badge found anywhere on the page. ✅ (7) Products nav menu > Payouts description reads 'Track balances and settle your funds to a wallet you control' (NOT 'Send stablecoins and crypto to anyone, anywhere'). ✅ (8) Fees page hero reads 'Pricing that scales with you' with '1.5% → 0.5% as you grow' (NOT 'One number to remember'). ✅ (9) Fee calculator 'You'd pay' result box shows '+ $1 per payment' beneath the dollar amount. ✅ (10) Volume slider label says 'All-time volume' (NOT 'Monthly volume' / '30-day volume'). ✅ (11) Comparison table row reads 'Settles on-chain as it confirms' (NOT 'Instant on-chain forwarding'). ✅ (12) No console errors detected. ✅ (13) No other forbidden phrases found: 'public beta', 'four seconds', 'in seconds', 'instant payouts', 'SOC2'. Screenshots captured: landing_trust_band.png (shows trust/numbers band with correct stats), fees_calculator.png (shows fee calculator with '+ $1 per payment' and 'All-time volume' label), landing_page_top.png (shows hero section with correct eyebrow and pricing). RECOMMENDATION: Remove the '15+ chains' text from the landing page. The correct copy '9 BLOCKCHAINS, 12 COINS & STABLECOINS' is already present in the hero section, but somewhere else on the page there's a stray '15+ chains' reference that needs to be removed."
+
+### test_plan
+  current_focus:
+    - "Marketing copy verification: Landing page hero, trust band, Products nav menu, and Fees page"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "testing"
+    message: "❌ MARKETING COPY VERIFICATION INCOMPLETE (2026-08-28 20:59 UTC) — 14 of 15 items PASSED, 1 CRITICAL FAILURE. The forbidden phrase '15+ chains' was found on the landing page (visible text in a paragraph element). All other requirements are met: correct hero eyebrow, pricing mentions, trust band stats, no SOC2 badge, correct Payouts description, correct fees page hero, fee calculator with '+ $1 per payment', 'All-time volume' label, and correct comparison table text. No console errors. Screenshots provided. RECOMMENDATION: Locate and remove the '15+ chains' text from the landing page. The correct copy '9 BLOCKCHAINS, 12 COINS & STABLECOINS' is already present in the hero section."
+
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-28 (pod 78b9bfca) : CHECKOUT — 3 user asks
 #   (1) landing "Try it now" demo rebuilt to MIRROR the real Clean Checkout V2
 #   (2) expired/invalid payment link UX (was endless "Loading…")

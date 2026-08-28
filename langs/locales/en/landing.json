@@ -12,7 +12,7 @@
     "mega": {
       "paymentLinks": {
         "title": "Payment Links",
-        "desc": "Shareable links that get you paid in crypto in seconds"
+        "desc": "Shareable links that get you paid in crypto — no account needed for buyers"
       },
       "checkout": {
         "title": "Checkout",
@@ -24,7 +24,7 @@
       },
       "payouts": {
         "title": "Crypto Payouts",
-        "desc": "Send stablecoins and crypto to anyone, anywhere"
+        "desc": "Track balances and settle your funds to a wallet you control"
       },
       "docs": {
         "title": "Documentation",
@@ -32,7 +32,7 @@
       },
       "api": {
         "title": "API Reference",
-        "desc": "REST API for payments and payouts"
+        "desc": "REST API for payments, links and webhooks"
       },
       "webhooks": {
         "title": "Webhooks",
@@ -105,20 +105,20 @@
   "blogSubtitle": "Guides, strategies, and developer resources to help you accept crypto and grow your business",
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Now in public beta",
+      "eyebrow": "Dynopay · Crypto payments for real businesses",
       "headline1": "Accept crypto payments.",
       "headlineHighlight": "Get paid",
       "headline2": "your way.",
-      "body": "Take Bitcoin, Ethereum and stablecoins on a hosted checkout or payment link. Keep the original coin or <b>auto-convert to USDC or USDT</b> — your choice — and settle to a wallet you control. No chargebacks, from <b>0.5%</b>.",
+      "body": "Take Bitcoin, Ethereum and stablecoins on a hosted checkout or payment link. Keep the original coin or <b>auto-convert to USDC or USDT</b> — your choice — and settle to a wallet you control. No chargebacks. <b>1.5% + $1 per payment, dropping to as low as 0.5% as your volume grows.</b>",
       "claimBtn": "Claim",
       "chooseHandle": "Choose your creator handle",
       "rewardBadge": "New here? We waive our <b>platform fee</b> on your first payment.",
-      "bullets": "Free to start · No card · 15+ networks",
+      "bullets": "First payment fee-free · No card required · 9 blockchains, 12 coins & stablecoins",
       "trustLine": "Non-custodial · Encrypted · GDPR / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Send a tip",
       "sendTipBtn": "Send tip",
-      "metaSettle": "Settles to the coin you choose · from <b>0.5%</b>",
+      "metaSettle": "Settles to the coin you choose · <b>1.5% + $1, as low as 0.5% at scale</b>",
       "handleAvailable": "is available",
       "handleTaken": "That handle isn't available — try another.",
       "primaryCta": "Start accepting payments",
@@ -136,15 +136,15 @@
       "stepLabel": "Step",
       "step1": {
         "title": "Someone pays you.",
-        "body": "Share a link, drop an inline checkout, or hit the API. Your buyer picks any of 15+ chains — BTC, ETH, USDC, USDT, XRP, TRON — and pays."
+        "body": "Share a link, drop an inline checkout, or hit the API. Your buyer picks from 9 blockchains — BTC, ETH, USDC, USDT, XRP, Tron and more — and pays."
       },
       "step2": {
         "title": "We settle it your way.",
-        "body": "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live Binance rates, on-chain in seconds, no manual conversion."
+        "body": "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live market rates, converted automatically once the payment confirms on-chain — no manual steps."
       },
       "step3": {
         "title": "It lands in your wallet.",
-        "body": "Payout goes straight to the wallet address you control — not held by us. From 0.5% flat, no monthly, no chargebacks."
+        "body": "Payout goes straight to the wallet address you control — not held by us. 1.5% + $1 to start, as low as 0.5% at scale. No monthly fee, no chargebacks."
       },
       "mock": {
         "awaitingPayment": "Awaiting payment",
@@ -171,13 +171,12 @@
       "body": "Non-custodial by design, compliant by choice — keep the coin you're paid in, or auto-convert to the stablecoin you pick.",
       "settledLabel": "Settled",
       "settledSub": "Since launch",
-      "chainsLabel": "Networks",
-      "chainsSub": "BTC · ETH · USDT · USDC…",
-      "feeLabel": "Lowest fee",
-      "feeSub": "as volume grows",
+      "chainsLabel": "Blockchains",
+      "chainsSub": "12 coins & stablecoins",
+      "feeLabel": "Starter fee",
+      "feeSub": "as low as 0.5% at scale",
       "settleLabel": "Median settle",
       "settleSub": "On-chain confirmation",
-      "badgeSOC2": "SOC2 track",
       "badgeKYC": "KYC / AML",
       "badgeGDPR": "GDPR",
       "badgeNonCustodial": "Non-custodial",
@@ -195,13 +194,13 @@
       "checkout": {
         "tag": "Checkout",
         "title": "Checkout that speaks every coin.",
-        "desc": "Share one link. Customers pay in any of 15+ chains — auto-converted to the coin you actually keep.",
+        "desc": "Share one link. Customers pay across 9 blockchains — keep the coin or auto-convert to USDC/USDT, your choice.",
         "cta": "See checkout"
       },
       "convert": {
         "tag": "Auto-convert",
         "title": "Take volatile. Keep stable.",
-        "desc": "Accept BTC or ETH, settle to USDT or USDC in about four seconds. Get paid without the price swing.",
+        "desc": "Accept BTC or ETH and settle to USDT or USDC automatically once the payment confirms — no price-swing exposure.",
         "cta": "How settlement works"
       },
       "api": {
@@ -219,7 +218,7 @@
       "copyBtn": "Copy",
       "copiedBtn": "Copied",
       "responseHeader": "✓ 201 Created",
-      "footBullets": "REST + Webhooks · 15+ chains · First 201 in ~10 min",
+      "footBullets": "REST + Webhooks · 9 blockchains · First 201 in ~10 min",
       "readDocs": "Read the docs →"
     },
     "audience": {
@@ -244,7 +243,7 @@
       "creators": {
         "tag": "03 · Creators",
         "title": "Get tipped by your fans.",
-        "desc": "Your own dynopay.com/@handle page with inline tips — no chargebacks, instant payouts.",
+        "desc": "Your own dynopay.com/@handle page with inline tips — no chargebacks; funds settle straight to your wallet as soon as the payment confirms.",
         "statLabel": "payout to wallet"
       },
       "developers": {
@@ -262,17 +261,17 @@
       "rewardBadge": "New here? We waive our <b>platform fee</b> on your first payment.",
       "getStarted": "Start free",
       "readDocs": "Read the docs",
-      "trustLine": "Non-custodial · 15+ networks · Encrypted · GDPR / AML"
+      "trustLine": "Non-custodial · 9 blockchains · Encrypted · GDPR / AML"
     },
     "faq": {
       "eyebrow": "[ Answers ]",
       "headline": "Frequent questions.",
       "q1": "Do I need to hold crypto to accept it?",
-      "a1": "Nope. Buyers pay in any of 15+ supported coins, and you decide what you keep — hold the original coin, or auto-convert to USDC or USDT, settled to your wallet as soon as the payment confirms on-chain. You never touch a crypto exchange.",
+      "a1": "Nope. Buyers pay in any of our 12 supported coins & stablecoins across 9 chains, and you decide what you keep — hold the original coin, or auto-convert to USDC or USDT, settled to your wallet as soon as the payment confirms on-chain. You never touch a crypto exchange.",
       "q2": "Where do funds land?",
       "a2": "Directly in a wallet address you control — not held by us. Dynopay is non-custodial. Every settlement is a real on-chain transfer to your address.",
       "q3": "What does it cost?",
-      "a3": "Between 1.5% (Starter) and 0.5% (Enterprise), based on 30-day volume. No monthly fee, no setup fee, no chargebacks. See the Fees page for the full tier table.",
+      "a3": "Every payment is a percentage plus a flat $1. The percentage runs from 1.5% (Starter) down to 0.5% (Enterprise), based on your all-time settled volume, and your first payment is fee-free. No monthly fee, no setup fee, no chargebacks. See the Fees page for the full tier table.",
       "q4": "How fast is settlement?",
       "a4": "It depends on the network. Stablecoin rails and fast chains (TRC-20, Polygon, L2s) usually confirm in a minute or two; Bitcoin and Ethereum mainnet can take longer when they're busy. Your dashboard shows live transaction status the whole way — and if you've turned on auto-convert, funds land in your chosen stablecoin the moment the payment confirms; otherwise you keep the coin the buyer sent.",
       "q5": "Do you support fiat, refunds, or subscriptions?",
@@ -298,7 +297,7 @@
       "fees": {
         "tag": "Pricing",
         "title": "See the fees",
-        "desc": "From 1.5% down to 0.5% as you grow. No monthly fee, no setup fee, no chargebacks — ever."
+        "desc": "1.5% + $1 per payment, down to 0.5% as you grow. No monthly fee, no setup fee, no chargebacks — ever."
       },
       "exploreBtn": "Explore"
     },
@@ -740,7 +739,7 @@
     "heroTitle": "Everything you need to write about Dynopay.",
     "heroBody": "Logos, company facts and a ready-to-use boilerplate — free to republish in articles, reviews and directories. If you need anything else, our team is one email away.",
     "boilerplateTitle": "Boilerplate",
-    "boilerplateBody": "Dynopay is a non-custodial cryptocurrency payment gateway founded in 2024. Merchants use it to sell products, collect tips and run fundraising campaigns — or to integrate payments via API — accepting Bitcoin, Ethereum, stablecoins and 15+ other networks. Payments settle directly to a wallet the merchant controls, with optional auto-conversion to USDT/USDC, fees from 0.5% and no chargebacks.",
+    "boilerplateBody": "Dynopay is a non-custodial cryptocurrency payment gateway founded in 2024. Merchants use it to sell products, collect tips and run fundraising campaigns — or to integrate payments via API — accepting Bitcoin, Ethereum, stablecoins and 12 assets across 9 blockchains. Payments settle directly to a wallet the merchant controls, with optional auto-conversion to USDT/USDC. Fees are 1.5% + $1 per payment, as low as 0.5% at scale, with no chargebacks.",
     "factsTitle": "Fast facts",
     "facts": {
       "founded": {
@@ -753,11 +752,11 @@
       },
       "pricing": {
         "label": "Pricing",
-        "value": "From 0.5% per transaction — no monthly fees"
+        "value": "1.5% + $1 per transaction, as low as 0.5% at scale — no monthly fees"
       },
       "networks": {
         "label": "Networks",
-        "value": "15+ blockchains, including Bitcoin, Ethereum, Solana, XRP and major stablecoins"
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) and 12 coins & stablecoins"
       },
       "settlement": {
         "label": "Settlement",

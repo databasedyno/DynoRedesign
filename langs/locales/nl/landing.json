@@ -12,7 +12,7 @@
     "mega": {
       "paymentLinks": {
         "title": "Betaallinks",
-        "desc": "Deelbare links waarmee je in seconden in crypto betaald wordt"
+        "desc": "Deelbare links waarmee je in crypto betaald wordt — kopers hebben geen account nodig"
       },
       "checkout": {
         "title": "Checkout",
@@ -24,7 +24,7 @@
       },
       "payouts": {
         "title": "Crypto-uitbetalingen",
-        "desc": "Stuur stablecoins en crypto naar iedereen, overal"
+        "desc": "Volg saldi en betaal je geld uit naar een wallet die jij beheert"
       },
       "docs": {
         "title": "Documentatie",
@@ -32,7 +32,7 @@
       },
       "api": {
         "title": "API-referentie",
-        "desc": "REST-API voor betalingen en uitbetalingen"
+        "desc": "REST-API voor betalingen, links en webhooks"
       },
       "webhooks": {
         "title": "Webhooks",
@@ -105,20 +105,20 @@
   "blogSubtitle": "Gidsen, strategieën en developer-resources om crypto te accepteren en uw bedrijf te laten groeien",
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Nu in publieke bèta",
+      "eyebrow": "Dynopay · Cryptobetalingen voor echte bedrijven",
       "headline1": "Accepteer cryptobetalingen.",
       "headlineHighlight": "Ontvang",
       "headline2": "op jouw manier.",
-      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout of betaallink. Houd de originele munt of <b>zet automatisch om naar USDC of USDT</b> — jouw keuze — en ontvang op een wallet die jij beheert. Geen terugboekingen, vanaf <b>0,5%</b>.",
+      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout of betaallink. Houd de originele munt of <b>converteer automatisch naar USDC of USDT</b> — jouw keuze — en laat uitbetalen naar een wallet die jij beheert. Geen terugboekingen. <b>1,5% + $1 per betaling, dalend tot 0,5% naarmate je volume groeit.</b>",
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
-      "bullets": "Gratis starten · Geen kaart · 15+ netwerken",
+      "bullets": "Eerste betaling gratis · Geen kaart nodig · 9 blockchains, 12 munten & stablecoins",
       "trustLine": "Non-custodial · Versleuteld · AVG / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Stuur een tip",
       "sendTipBtn": "Stuur tip",
-      "metaSettle": "Uitbetaald in de munt die je kiest · vanaf <b>0,5%</b>",
+      "metaSettle": "Uitbetaling in de munt die jij kiest · <b>1,5% + $1, tot 0,5% bij schaal</b>",
       "handleAvailable": "is beschikbaar",
       "handleTaken": "Die naam is niet beschikbaar — probeer een andere.",
       "primaryCta": "Begin met betalingen ontvangen",
@@ -136,15 +136,15 @@
       "stepLabel": "Stap",
       "step1": {
         "title": "Iemand betaalt je.",
-        "body": "Deel een link, plaats een inline checkout, of hit de API. Je koper kiest uit 15+ chains — BTC, ETH, USDC, USDT, XRP, TRON — en betaalt."
+        "body": "Deel een link, plaats een inline checkout of gebruik de API. Je koper kiest uit 9 blockchains — BTC, ETH, USDC, USDT, XRP, Tron en meer — en betaalt."
       },
       "step2": {
         "title": "Wij vereffenen op jouw manier.",
-        "body": "Houd de originele coin of converteer automatisch naar USDT / USDC op elke chain. Live Binance-tarieven, on-chain in seconden, geen handmatige conversie."
+        "body": "Houd de originele munt of converteer automatisch naar USDT / USDC op elke chain. Actuele marktkoersen, automatisch omgezet zodra de betaling on-chain is bevestigd — geen handmatige stappen."
       },
       "step3": {
         "title": "Het landt in je wallet.",
-        "body": "De uitbetaling gaat direct naar het wallet-adres dat jij beheert — niet door ons gehouden. Vanaf 0,5% vast, geen maandelijkse kosten, geen chargebacks."
+        "body": "De uitbetaling gaat direct naar het walletadres dat jij beheert — nooit door ons aangehouden. 1,5% + $1 om te starten, tot 0,5% bij schaal. Geen maandkosten, geen terugboekingen."
       },
       "mock": {
         "awaitingPayment": "Wacht op betaling",
@@ -171,13 +171,12 @@
       "body": "Non-custodial van opzet, compliant uit keuze — houd de munt waarin je betaald wordt of zet die automatisch om naar de stablecoin die jij kiest.",
       "settledLabel": "Vereffend",
       "settledSub": "Sinds de lancering",
-      "chainsLabel": "Netwerken",
-      "chainsSub": "BTC · ETH · USDT · USDC…",
-      "feeLabel": "Laagste tarief",
-      "feeSub": "naarmate je groeit",
+      "chainsLabel": "Blockchains",
+      "chainsSub": "12 munten & stablecoins",
+      "feeLabel": "Starttarief",
+      "feeSub": "tot 0,5% bij schaal",
       "settleLabel": "Mediane vereffening",
       "settleSub": "On-chain bevestiging",
-      "badgeSOC2": "SOC2 in voorbereiding",
       "badgeKYC": "KYC / AML",
       "badgeGDPR": "AVG",
       "badgeNonCustodial": "Non-custodial",
@@ -195,13 +194,13 @@
       "checkout": {
         "tag": "Checkout",
         "title": "Een checkout die elke coin spreekt.",
-        "desc": "Deel één link. Klanten betalen in 15+ chains — automatisch geconverteerd naar de coin die je écht houdt.",
+        "desc": "Deel één link. Klanten betalen via 9 blockchains — houd de munt of converteer automatisch naar USDC/USDT, jouw keuze.",
         "cta": "Bekijk checkout"
       },
       "convert": {
         "tag": "Auto-convert",
         "title": "Neem volatile. Houd stabiel.",
-        "desc": "Accepteer BTC of ETH, vereffen in USDT of USDC in ongeveer vier seconden. Betaald worden zonder de prijsschommeling.",
+        "desc": "Accepteer BTC of ETH en laat automatisch uitbetalen in USDT of USDC zodra de betaling is bevestigd — geen koersrisico.",
         "cta": "Hoe vereffening werkt"
       },
       "api": {
@@ -219,7 +218,7 @@
       "copyBtn": "Kopieer",
       "copiedBtn": "Gekopieerd",
       "responseHeader": "✓ 201 Created",
-      "footBullets": "REST + Webhooks · 15+ chains · Eerste 201 in ~10 min",
+      "footBullets": "REST + Webhooks · 9 blockchains · Eerste 201 in ~10 min",
       "readDocs": "Lees de docs →"
     },
     "audience": {
@@ -244,7 +243,7 @@
       "creators": {
         "tag": "03 · Creators",
         "title": "Krijg tips van je fans.",
-        "desc": "Je eigen dynopay.com/@handle-pagina met ingebouwde fooien — geen terugboekingen, directe uitbetalingen.",
+        "desc": "Je eigen dynopay.com/@handle-pagina met inline fooien — geen terugboekingen; geld komt direct in je wallet zodra de betaling is bevestigd.",
         "statLabel": "uitbetaling naar wallet"
       },
       "developers": {
@@ -262,17 +261,17 @@
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
       "getStarted": "Gratis starten",
       "readDocs": "Lees de docs",
-      "trustLine": "Non-custodial · 15+ netwerken · Versleuteld · AVG / AML"
+      "trustLine": "Non-custodial · 9 blockchains · Versleuteld · AVG / AML"
     },
     "faq": {
       "eyebrow": "[ Antwoorden ]",
       "headline": "Veelgestelde vragen.",
       "q1": "Moet ik crypto bezitten om het te accepteren?",
-      "a1": "Nee. Kopers betalen in een van de 15+ ondersteunde munten, en jij bepaalt wat je houdt — de originele munt, of automatisch omzetten naar USDC of USDT, uitbetaald naar je wallet zodra de betaling on-chain is bevestigd. Je komt nooit bij een exchange.",
+      "a1": "Nee. Kopers betalen in een van onze 12 ondersteunde munten & stablecoins op 9 chains, en jij bepaalt wat je houdt — houd de originele munt of converteer automatisch naar USDC of USDT, uitbetaald naar je wallet zodra de betaling on-chain is bevestigd. Je komt nooit bij een exchange.",
       "q2": "Waar landen de fondsen?",
       "a2": "Direct op een wallet-adres dat jij beheert — niet door ons gehouden. Dynopay is non-custodial. Elke vereffening is een echte on-chain transfer naar jouw adres.",
       "q3": "Wat kost het?",
-      "a3": "Tussen 1,5% (Starter) en 0,5% (Enterprise), gebaseerd op 30-daags volume. Geen maandelijkse kosten, geen setup-fee, geen chargebacks. Zie de Tarieven-pagina voor de volledige tier-tabel.",
+      "a3": "Elke betaling is een percentage plus een vast bedrag van $1. Het percentage loopt van 1,5% (Starter) tot 0,5% (Enterprise), op basis van je totale afgewikkelde volume, en je eerste betaling is gratis. Geen maandkosten, geen opstartkosten, geen terugboekingen. Zie de Tarievenpagina voor de volledige tabel.",
       "q4": "Hoe snel is de vereffening?",
       "a4": "Dat hangt af van het netwerk. Stablecoin-rails en snelle chains (TRC-20, Polygon, L2's) bevestigen meestal binnen een minuut of twee; Bitcoin en Ethereum op mainnet kunnen langer duren bij drukte. Je dashboard toont de status live — en als je auto-omzetten hebt aangezet, komt het geld in de door jou gekozen stablecoin zodra de betaling is bevestigd; anders houd je de munt die de koper stuurde.",
       "q5": "Ondersteunen jullie fiat, refunds of abonnementen?",
@@ -298,7 +297,7 @@
       "fees": {
         "tag": "Prijzen",
         "title": "Bekijk de fees",
-        "desc": "Van 1,5% tot 0,5% terwijl je groeit. Geen maandelijkse kosten, geen setup-fee, geen chargebacks — nooit."
+        "desc": "1,5% + $1 per betaling, tot 0,5% naarmate je groeit. Geen maandkosten, geen opstartkosten, geen terugboekingen — nooit."
       },
       "exploreBtn": "Ontdek"
     },
@@ -740,7 +739,7 @@
     "heroTitle": "Alles wat u nodig heeft om over Dynopay te schrijven.",
     "heroBody": "Logo's, bedrijfsfeiten en een kant-en-klare standaardtekst — vrij te herpubliceren in artikelen, reviews en gidsen. Meer nodig? Ons team is één e-mail verwijderd.",
     "boilerplateTitle": "Standaardtekst",
-    "boilerplateBody": "Dynopay is een non-custodial cryptobetaalgateway, opgericht in 2024. Handelaren gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via de API te integreren — met ondersteuning voor Bitcoin, Ethereum, stablecoins en 15+ andere netwerken. Betalingen komen rechtstreeks terecht in een wallet die de handelaar beheert, met optionele automatische conversie naar USDT/USDC, kosten vanaf 0,5% en zonder chargebacks.",
+    "boilerplateBody": "Dynopay is een non-custodial betaalgateway voor cryptovaluta, opgericht in 2024. Verkopers gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via API te integreren — met Bitcoin, Ethereum, stablecoins en 12 assets op 9 blockchains. Betalingen worden direct afgewikkeld naar een wallet die de verkoper beheert, met optionele automatische conversie naar USDT/USDC. De kosten zijn 1,5% + $1 per betaling, tot 0,5% bij schaal, zonder terugboekingen.",
     "factsTitle": "Feiten in het kort",
     "facts": {
       "founded": {
@@ -753,11 +752,11 @@
       },
       "pricing": {
         "label": "Prijzen",
-        "value": "Vanaf 0,5% per transactie — geen maandelijkse kosten"
+        "value": "1,5% + $1 per transactie, tot 0,5% bij schaal — geen maandkosten"
       },
       "networks": {
         "label": "Netwerken",
-        "value": "15+ blockchains, waaronder Bitcoin, Ethereum, Solana, XRP en grote stablecoins"
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) en 12 munten & stablecoins"
       },
       "settlement": {
         "label": "Uitbetaling",

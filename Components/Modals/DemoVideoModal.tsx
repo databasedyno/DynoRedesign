@@ -41,7 +41,7 @@ const STEPS: Step[] = [
   {
     n: 2,
     title: 'Customer picks any chain',
-    detail: 'They open the link. Choose USDT-TRC20, USDC-Polygon, BTC — 15+ chains supported. Confirm and pay from their wallet.',
+    detail: 'They open the link. Choose USDT-TRC20, USDC-Polygon, BTC — 9 blockchains supported. Confirm and pay from their wallet.',
     color: '#7C3AED',
     accent: '#A78BFA',
   },
