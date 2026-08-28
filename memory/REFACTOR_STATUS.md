@@ -1,3 +1,54 @@
+# ============================================================================
+# NEXT ACTION ITEMS — consolidated backlog (updated 2026-06 fork)
+# ============================================================================
+# Surfaced across the recent sessions (email fix, fee-free migration, single-
+# instance backend track). Grouped by area; none are started unless marked.
+
+## Product / frontend
+- [ ] **Email Copy Audit** — sweep every remaining transactional email (payment
+      receipts, KYC, payouts/settlement, refund, invoice) for outdated wording,
+      fees, or deprecated "$500 / trial" language. (Onboarding admin + welcome
+      emails already fixed — iteration_93.)
+- [ ] **Welcome Perk Preview** — add the new welcome email + FeeFreeWelcomeModal
+      to the QA preview gallery (backend/scripts/render_email_previews.ts) so all
+      6 languages can be eyeballed at once.
+- [ ] **First-Payment Nudge** — subtle "your first payment is platform-fee-free"
+      reminder on the create-payment-link screen for merchants who haven't taken
+      one yet (gate on the new `first_payment_free` flag).
+
+## Backend refactor — SINGLE-INSTANCE track (see plan section below)
+- [ ] **D wave 2 (dashboardController)** — continue the strangler split:
+      getChartData (+ fillMissingDates), getFeeTiers (+ buildFeeTiers/getFeeTier/
+      getFeeTiersArray), getActionCounts (+ ACTION_COUNTS_CACHE_TTL),
+      getPendingSummary → their own modules, driving the file under the 500-line
+      budget. (Wave 1 done: dashboardReadController.ts, 1444→1069.)
+- [ ] **D — big money-path god files** — decompose `apis/tatumApi.ts` (~4136) and
+      `controller/payment/paymentLinkController.ts` (~2723) carefully, WITH a
+      testing_agent pass around each extraction (higher risk — money path).
+- [ ] **Migration Guardrail (E follow-up)** — tiny pre-commit check that FAILS if
+      a new file lands in `backend/migrations/legacy/`, so all new schema changes
+      go through the versioned `bootMigrations.ts` pipeline.
+- [ ] **E later phase** — physically retire the legacy CLI scripts in
+      `migrations/legacy/` once a fresh-DB provisioning path is confirmed.
+
+## Deferred — high-risk / needs explicit approval (NOT started)
+- [ ] **B — Postgres system-of-record for in-flight payments** — the one
+      durability gap single-instance does NOT fix (Redis eviction/crash still
+      loses in-flight checkout state). Highest risk/effort; money path.
+- [ ] **A — per-env DB/Redis isolation (staging)** — infra/ops, not app code.
+- [ ] **H — Sentry-class observability** — replace 15-min email digests.
+
+## Done recently (for context — do not repeat)
+- [x] Save-to-GitHub 500-line blocker (split pdfService.ts) — commit e33022823
+- [x] /payouts full i18n — commit e33022823
+- [x] F (CIDR) real Tatum IP matching · D wave 1 · E phase 1 — commit c42390163
+- [x] Onboarding emails "$500 → first payment platform-fee-free" — commit d208524fe (iter_93)
+- [x] GrowPanel fee-free counter → first_payment_free model — commit b735be180 (iter_94)
+
+# ============================================================================
+
+
+
 # SESSION UPDATE 2026-06 (fork) — SINGLE-INSTANCE backend track: F-CIDR ✅ · D wave 1 ✅ · E phase 1 ✅
 
 Preview: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
