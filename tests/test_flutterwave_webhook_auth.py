@@ -15,7 +15,7 @@ import requests
 
 BASE_URL = os.environ.get(
     "PREVIEW_BASE_URL",
-    "https://payment-config-hub-3.preview.emergentagent.com",
+    "https://crypto-checkout-45.preview.emergentagent.com",
 ).rstrip("/")
 
 # A realistic-looking payload; must NOT be processed because the signature is invalid.
