@@ -96,5 +96,9 @@
   "authGithubCallback_title": "Anmeldung läuft · Dynopay",
   "authGithubCallback_desc": "Deine GitHub-Anmeldung wird abgeschlossen.",
   "about_title": "Über Dynopay – unsere Mission & unser Unternehmen",
-  "about_desc": "Erfahre mehr über Dynopay: unsere Mission, Krypto-Zahlungen einfach zu machen, wie die Plattform funktioniert, unsere Werte und wie du uns kontaktierst oder dem Team beitrittst."
+  "about_desc": "Erfahre mehr über Dynopay: unsere Mission, Krypto-Zahlungen einfach zu machen, wie die Plattform funktioniert, unsere Werte und wie du uns kontaktierst oder dem Team beitrittst.",
+  "press_title": "Dynopay Pressekit — Logos, Fakten & Boilerplate",
+  "press_desc": "Offizielle Presseressourcen von Dynopay: Logos zum Download, Unternehmensfakten, Boilerplate-Beschreibung und Pressekontakt.",
+  "blog_title": "Blog — Einblicke in den Krypto-Handel · Dynopay",
+  "blog_desc": "Leitfäden und Strategien für Verkauf, Trinkgelder und Spenden in Krypto — Gebühren senken, in Stablecoins abrechnen und mit Kryptozahlungen wachsen."
 }

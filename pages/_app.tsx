@@ -219,6 +219,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/fees",
       "/blog",
       "/about",
+      "/press",
     ]);
 
     if (
@@ -305,6 +306,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       // ─── Public / Landing ───
       "/":                         "home",
       "/about":                    "about",
+      "/press":                    "press",
       "/fees":                     "fees",
       "/documentation":            "documentation",
       "/blog":                     "blog",
@@ -376,7 +378,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "name": "Dynopay",
       "url": SITE_URL,
       "logo": LOGO_IMAGE,
-      "description": "Dynopay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Payments are forwarded instantly to the merchant's own wallet — as the original crypto, or auto-converted to USDT or USDC if enabled.",
+      "description": "Dynopay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Payments are forwarded directly to the merchant's own wallet — as the original crypto, or auto-converted to USDT or USDC if enabled.",
       "foundingDate": "2024",
       "sameAs": [
         "https://x.com/Dynopaycom"
@@ -392,7 +394,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "@type": "WebSite",
       "name": "Dynopay",
       "url": SITE_URL,
-      "description": "Cryptocurrency payment gateway — accept Bitcoin, Ethereum, and 20+ cryptocurrencies with instant stablecoin settlement.",
+      "description": "Cryptocurrency payment gateway — accept Bitcoin, Ethereum, and 20+ cryptocurrencies with automatic stablecoin settlement.",
       "potentialAction": {
         "@type": "SearchAction",
         "target": `${SITE_URL}/documentation?q={search_term_string}`,

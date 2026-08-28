@@ -96,5 +96,9 @@
   "authGithubCallback_title": "Conectando você · Dynopay",
   "authGithubCallback_desc": "Concluindo o seu login com o GitHub.",
   "about_title": "Sobre a Dynopay — a nossa missão e empresa",
-  "about_desc": "Conheça a Dynopay: a nossa missão de tornar os pagamentos em cripto simples, como a plataforma funciona, os valores em que assentamos e como entrar em contacto ou juntar-se à equipa."
+  "about_desc": "Conheça a Dynopay: a nossa missão de tornar os pagamentos em cripto simples, como a plataforma funciona, os valores em que assentamos e como entrar em contacto ou juntar-se à equipa.",
+  "press_title": "Kit de imprensa da Dynopay — logos, fatos e descrição",
+  "press_desc": "Recursos oficiais de imprensa da Dynopay: logos para download, fatos da empresa, descrição padrão e contato para a mídia.",
+  "blog_title": "Blog — Insights de comércio cripto · Dynopay",
+  "blog_desc": "Guias e estratégias para vender, receber gorjetas e arrecadar em cripto — reduza taxas, liquide em stablecoins e cresça com pagamentos em criptomoedas."
 }

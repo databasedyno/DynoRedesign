@@ -1,6 +1,6 @@
 # REFACTOR STATUS
 
-_Last updated: 2026-08-26_
+_Last updated: 2026-08-28_
 
 ## Context
 The husky `pre-commit` hook (`backend/scripts/check-file-size.mjs`, R2 budget from
@@ -116,11 +116,37 @@ cd /app && git add -A && sh .husky/pre-commit              # full hook (tsc + si
   "Save to GitHub" feature → DO auto-deploys the new commit on `Improvement` → build should
   go GREEN. Do NOT re-trigger a DO deploy of 5db543c (still has the bug).
 
+## DONE — COPY_AUDIT Phase 2 + Phase 3 copy work (2026-08-28, pod 6fe4ee0c)
+Full detail in `memory/COPY_AUDIT.md` + `memory/CHANGELOG.md`. Highlights:
+- **i18n migrations:** about.tsx / ExitIntentModal / blog CTA + blog index Head → landing.json
+  keys (6 locales, check-i18n green); email gaps closed (volumeTierUpgrade + referee reminder/
+  invite → 42 keys × 6 in emails.json). Latent bugs fixed: reminder subjects hardcoded "50%" /
+  "3 days" → parameterized.
+- **Voice passes:** documentation.tsx (4 dev-tone fixes), 46 email-string fixes (casing,
+  puffery, sentence-case subjects), _app.tsx JSON-LD speed-claim fixes, last "DynoPay" casing
+  bugs in frontend catalogs (18 strings).
+- **New /press page:** press.* keys × 6, downloadable logos in `public/press/`, Company
+  mega-menu entry. All NEW files are frontend or scripts → R2 backend budget not applicable.
+- **Verified:** backend testing agent 5/5 + 8/8 (read-only on live prod DB, SAFE MODE);
+  `tsc --noEmit` clean; screenshots for /about EN+DE, /press EN+DE, /blog DE.
+
 ## Next Actions (current, prioritized)
+### Carried over (pre-2026-08-28, still open)
 - [ ] **P0 Deploy**: Save to GitHub to push the styled.tsx fix → confirm DO build goes ACTIVE.
+      (2026-08-28 work is also working-tree-only until the next Save to GitHub.)
 - [ ] **P1 Receipt/Invoice PDF locale**: render downloaded PDF dates+labels in merchant's language.
 - [ ] **P1 Relative-time coverage**: ensure all "X ago" timestamps use shared translated strings.
 - [ ] **P1 Locale QA screens**: PT (and other langs) side-by-side screenshots of key pages.
 - [ ] **P2 Deep read-only page sweep**: safe click-through of logged-in pages for console errors.
 - [ ] **P2 tsc-in-preview guard**: consider a pre-Save `tsc --noEmit` gate so a dev-only type
       error can never reach a DO build again (this exact class of failure).
+
+### New (from 2026-08-28 finish handoff — not started)
+- [ ] **P1 Real Testimonials** (BLOCKED on user input): landing-page section with real customer
+      quotes — user must paste actual quotes first, nothing fabricated (COPY_AUDIT rule).
+- [ ] **P1 Non-EN email subject sweep**: polish de/es/fr/nl/pt email subject lines for casing/
+      tone per-language norms (EN already sentence-cased in Phase 2).
+- [ ] **P2 Press OG image**: branded social-preview image for /press (og:image + twitter:card),
+      drop into `public/og/`, reference from press.tsx Head.
+- [ ] **P2 Locale parity fix**: de/es/fr/nl/pt `emails.json` miss EN key
+      `merchant.locked.suspendedLine` (pre-existing; falls back to EN today) — translate ×5.

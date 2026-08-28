@@ -11,6 +11,7 @@ import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
+import NewspaperRoundedIcon from "@mui/icons-material/NewspaperRounded";
 import RocketLaunchRoundedIcon from "@mui/icons-material/RocketLaunchRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
@@ -137,6 +138,12 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
         descKey: "nav.mega.about.desc",
         href: "/about",
         Icon: BusinessRoundedIcon,
+      },
+      {
+        titleKey: "nav.mega.press.title",
+        descKey: "nav.mega.press.desc",
+        href: "/press",
+        Icon: NewspaperRoundedIcon,
       },
       {
         titleKey: "nav.mega.support.title",

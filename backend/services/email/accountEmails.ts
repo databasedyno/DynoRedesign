@@ -68,37 +68,38 @@ export const sendVolumeTierUpgradeEmail = async (
       name, previousTier, previousPercent,
       newTier, newPercent, totalVolumeUsd, language,
     } = opts;
+    const L = await resolveEmailLang(language, email);
     const savingsPct = Math.max(0, previousPercent - newPercent).toFixed(2);
     const volumeStr = `$${totalVolumeUsd.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-    const subject = `You just unlocked the ${newTier} tier — ${newPercent}% fees`;
+    const subject = t('merchant.volumeTierUpgrade.subject', L, { newTier, newPercent });
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Great news — you've crossed <strong>${volumeStr}</strong> in lifetime processed volume, and your platform-fee tier has just been upgraded from <strong>${previousTier}</strong> to <strong>${newTier}</strong>.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.volumeTierUpgrade.intro', L, { volume: volumeStr, previousTier, newTier }))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>Your new rate</strong></p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>${t('merchant.volumeTierUpgrade.rateTitle', L)}</strong></p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td style="padding: 4px 0; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Previous fee</td>
+          <td style="padding: 4px 0; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.volumeTierUpgrade.previousFee', L)}</td>
           <td style="padding: 4px 0; font-size: 14px; color: #6b7280; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><s>${previousPercent}%</s></td>
         </tr>
         <tr>
-          <td style="padding: 4px 0; font-size: 15px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">New fee (${newTier})</td>
+          <td style="padding: 4px 0; font-size: 15px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.volumeTierUpgrade.newFee', L, { newTier })}</td>
           <td style="padding: 4px 0; font-size: 20px; font-weight: 700; color: #0a0a0a; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${newPercent}%</td>
         </tr>
         <tr>
-          <td style="padding: 4px 0; font-size: 13px; color: #05936A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">You save</td>
-          <td style="padding: 4px 0; font-size: 13px; color: #05936A; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${savingsPct}% per transaction</td>
+          <td style="padding: 4px 0; font-size: 13px; color: #05936A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.volumeTierUpgrade.youSave', L)}</td>
+          <td style="padding: 4px 0; font-size: 13px; color: #05936A; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.volumeTierUpgrade.savingsPerTx', L, { savings: savingsPct })}</td>
         </tr>
       </table>
     `)}
-    ${p(`This is applied automatically to every new payment starting now — no action needed. Keep processing, and the next tier down is waiting for you.`)}
-    ${p(`Thanks for building on Dynopay.`)}`;
+    ${p(t('merchant.volumeTierUpgrade.applied', L))}
+    ${p(t('merchant.volumeTierUpgrade.thanks', L))}`;
 
     const html = dynoPayEmailTemplate(
-      `You're now ${newTier} — enjoy ${newPercent}% fees`,
+      t('merchant.volumeTierUpgrade.heading', L, { newTier, newPercent }),
       content,
       true,
-      "View your dashboard",
+      t('merchant.volumeTierUpgrade.cta', L),
       `${FRONTEND_BASE_URL}/dashboard`
     );
     await mailTransporter({ to: email, name, subject, body: html });

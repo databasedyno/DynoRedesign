@@ -538,6 +538,19 @@
     "weeklyConversion": {
       "heading": "Rapport hebdomadaire de conversions",
       "intro": "Voici votre rapport hebdomadaire de conversion automatique pour <strong>{{companyName}}</strong>."
+    },
+    "volumeTierUpgrade": {
+      "subject": "Vous venez de débloquer le palier {{newTier}} — {{newPercent}} % de frais",
+      "intro": "Bonne nouvelle — vous avez dépassé <strong>{{volume}}</strong> de volume traité cumulé, et votre palier de frais de plateforme vient de passer de <strong>{{previousTier}}</strong> à <strong>{{newTier}}</strong>.",
+      "rateTitle": "Votre nouveau taux",
+      "previousFee": "Frais précédents",
+      "newFee": "Nouveaux frais ({{newTier}})",
+      "youSave": "Vous économisez",
+      "savingsPerTx": "{{savings}} % par transaction",
+      "applied": "Le nouveau taux s'applique automatiquement à chaque nouveau paiement dès maintenant — aucune action nécessaire. Continuez, le palier suivant vous attend.",
+      "thanks": "Merci de construire avec Dynopay.",
+      "heading": "Vous êtes maintenant {{newTier}} — profitez de {{newPercent}} % de frais",
+      "cta": "Voir votre tableau de bord"
     }
   },
   "contributor": {
@@ -604,5 +617,42 @@
     "createPayLink": "Créer un lien de paiement →",
     "openDashboardBody": "Ouvrez votre tableau de bord pour explorer les transactions, ajuster les portefeuilles ou partager un nouveau lien de paiement.",
     "openDashboard": "Ouvrir le tableau de bord"
+  },
+  "referral": {
+    "whyTitle": "Pourquoi Dynopay ?",
+    "why1": "Acceptez Bitcoin, Ethereum, USDT, USDC et plus de 15 cryptos",
+    "why2": "Non-custodial — les fonds arrivent directement dans un wallet que vous contrôlez",
+    "why3": "Des notifications dès qu'un paiement est confirmé, et un tableau de bord clair",
+    "why4": "Des frais plus bas que les processeurs de paiement traditionnels",
+    "codeLabel": "Votre code :",
+    "unsubscribe": "Se désinscrire",
+    "reminder": {
+      "subjectWeek1": "N'oubliez pas votre offre exclusive Dynopay",
+      "subjectWeek2": "Votre remise de {{discountPercent}} % vous attend - Dynopay",
+      "subjectWeek3": "Plus que {{daysRemaining}} jours pour votre offre Dynopay",
+      "subjectFinal": "Dernière chance : votre remise Dynopay expire dans {{daysRemaining}} jours",
+      "urgencyWeek1": "Il vous reste <strong>{{daysRemaining}} jours</strong> pour profiter de votre remise exclusive.",
+      "urgencyWeek2": "Votre <strong>remise exclusive de {{discountPercent}} %</strong> est toujours disponible. Plus que <strong>{{daysRemaining}} jours</strong>.",
+      "urgencyWeek3": "<strong>Le temps presse.</strong> Votre remise exclusive de {{discountPercent}} % expire dans seulement <strong>{{daysRemaining}} jours</strong>.",
+      "urgencyFinal": "<strong style=\"color: #dc2626;\">Dernier rappel :</strong> votre remise exclusive de {{discountPercent}} % expire dans seulement <strong>{{daysRemaining}} jours</strong>. C'est votre dernière chance.",
+      "ctaWeek1": "Profiter de la remise",
+      "ctaWeek2": "Commencez à économiser",
+      "ctaWeek3": "N'attendez plus",
+      "ctaFinal": "Profitez-en avant expiration",
+      "intro": "Nous avons remarqué que vous n'avez pas encore profité de votre remise exclusive Dynopay.",
+      "offerTitle": "Votre offre exclusive",
+      "offerLine": "<strong>{{discountPercent}} % DE REMISE</strong> sur tous les frais de transaction pendant <strong>{{days}} jours</strong>",
+      "heading": "Votre remise vous attend",
+      "unsubscribeSuffix": "de ces rappels"
+    },
+    "invite": {
+      "subject": "Vous avez {{discountPercent}} % de remise sur les frais Dynopay",
+      "intro": "Merci d'avoir payé avec Dynopay ! Saviez-vous que vous pouvez aussi accepter des paiements crypto pour votre propre activité ?",
+      "giftTitle": "Un cadeau de bienvenue pour vous",
+      "offerLine": "<strong>{{discountPercent}} % DE REMISE</strong> sur tous les frais Dynopay pendant <strong>{{days}} jours</strong>",
+      "cta": "Accepter la crypto",
+      "heading": "Votre cadeau de bienvenue Dynopay",
+      "unsubscribeSuffix": "de ces e-mails"
+    }
   }
 }

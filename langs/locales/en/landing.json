@@ -51,7 +51,7 @@
         "desc": "Live uptime and incident history"
       },
       "about": {
-        "title": "About DynoPay",
+        "title": "About Dynopay",
         "desc": "Our mission, company and careers"
       },
       "support": {
@@ -70,6 +70,10 @@
         "title": "Start free today",
         "desc": "We waive our platform fee on your first payment — no card required.",
         "cta": "Start free"
+      },
+      "press": {
+        "title": "Press kit",
+        "desc": "Logos, facts and media resources"
       }
     }
   },
@@ -379,7 +383,7 @@
       "promptContribution": "Help {{name}} reach more people",
       "copied": "Link copied!",
       "fundraiser": "Share this fundraiser",
-      "dynopay": "Share DynoPay"
+      "dynopay": "Share Dynopay"
     },
     "status": {
       "confirming": "Payment detected — confirming…",
@@ -720,5 +724,59 @@
     "buildBody": "A small, fast-moving team focused on one thing: getting merchants paid in crypto without the complexity. These are the principles behind every feature we ship.",
     "ctaTitle": "Want to build the future of payments with us?",
     "ctaBody": "We're always happy to hear from merchants, partners and people who want to join the team. Reach out any time — we read every message."
+  },
+  "blogIndex": {
+    "metaTitle": "Blog — Crypto commerce insights · Dynopay",
+    "metaDescription": "Guides and strategies for selling, tipping, and fundraising in crypto — reduce fees, settle to stablecoins, and grow with cryptocurrency payments.",
+    "ogDescription": "Guides, strategies, and insights for merchants accepting cryptocurrency payments.",
+    "eyebrow": "Blog",
+    "heroTitleLead": "Crypto payment",
+    "heroTitleAccent": "insights"
+  },
+  "press": {
+    "metaTitle": "Dynopay press kit — logos, facts & boilerplate",
+    "metaDescription": "Official Dynopay press resources: downloadable logos, company facts, boilerplate description and media contact.",
+    "eyebrow": "Press kit",
+    "heroTitle": "Everything you need to write about Dynopay.",
+    "heroBody": "Logos, company facts and a ready-to-use boilerplate — free to republish in articles, reviews and directories. If you need anything else, our team is one email away.",
+    "boilerplateTitle": "Boilerplate",
+    "boilerplateBody": "Dynopay is a non-custodial cryptocurrency payment gateway founded in 2024. Merchants use it to sell products, collect tips and run fundraising campaigns — or to integrate payments via API — accepting Bitcoin, Ethereum, stablecoins and 15+ other networks. Payments settle directly to a wallet the merchant controls, with optional auto-conversion to USDT/USDC, fees from 0.5% and no chargebacks.",
+    "factsTitle": "Fast facts",
+    "facts": {
+      "founded": {
+        "label": "Founded",
+        "value": "2024"
+      },
+      "product": {
+        "label": "Product",
+        "value": "Non-custodial crypto payment gateway"
+      },
+      "pricing": {
+        "label": "Pricing",
+        "value": "From 0.5% per transaction — no monthly fees"
+      },
+      "networks": {
+        "label": "Networks",
+        "value": "15+ blockchains, including Bitcoin, Ethereum, Solana, XRP and major stablecoins"
+      },
+      "settlement": {
+        "label": "Settlement",
+        "value": "Straight to the merchant's own wallet — keep crypto or auto-convert to USDT/USDC"
+      },
+      "chargebacks": {
+        "label": "Chargebacks",
+        "value": "None — crypto payments are final once confirmed"
+      }
+    },
+    "logosTitle": "Logos & brand assets",
+    "logosBody": "Use the wordmark as provided. Please don't recolor, distort, rotate or add effects.",
+    "logoBlackLabel": "Wordmark — dark on light",
+    "logoWhiteLabel": "Wordmark — light on dark",
+    "iconLabel": "App icon",
+    "downloadSvg": "Download SVG",
+    "downloadPng": "Download PNG",
+    "contactTitle": "Media contact",
+    "contactBody": "For interviews, comments or anything missing from this page, write to us — we read every message.",
+    "storyCta": "Read our story"
   }
 }

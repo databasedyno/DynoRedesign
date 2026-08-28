@@ -32,16 +32,10 @@ const BlogPage = () => {
   return (
     <>
       <Head>
-        <title>Blog — Crypto commerce insights · Dynopay</title>
-        <meta
-          name="description"
-          content="Guides and strategies for selling, tipping, and fundraising in crypto — reduce fees, settle to stablecoins, and grow with cryptocurrency payments."
-        />
-        <meta property="og:title" content="Blog — Crypto commerce insights · Dynopay" />
-        <meta
-          property="og:description"
-          content="Guides, strategies, and insights for merchants accepting cryptocurrency payments."
-        />
+        <title>{t('blogIndex.metaTitle')}</title>
+        <meta name="description" content={t('blogIndex.metaDescription')} />
+        <meta property="og:title" content={t('blogIndex.metaTitle')} />
+        <meta property="og:description" content={t('blogIndex.ogDescription')} />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://dynopay.com/blog" />
       </Head>
@@ -58,9 +52,9 @@ const BlogPage = () => {
       >
         {/* Header — v3 typography sweep */}
         <Box sx={{ textAlign: "center", mb: isMobile ? 5 : 8 }}>
-          <Eyebrow sx={{ mb: 2, display: "inline-block" }}>Blog</Eyebrow>
+          <Eyebrow sx={{ mb: 2, display: "inline-block" }}>{t('blogIndex.eyebrow')}</Eyebrow>
           <HeadlineL sx={{ mb: 2 }}>
-            Crypto Payment <AuroraInk>Insights</AuroraInk>
+            {t('blogIndex.heroTitleLead')} <AuroraInk>{t('blogIndex.heroTitleAccent')}</AuroraInk>
           </HeadlineL>
           <Body sx={{ maxWidth: 600, mx: "auto" }}>
             {t('blogSubtitle')}

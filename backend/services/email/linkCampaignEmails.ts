@@ -206,55 +206,38 @@ export const sendRefereeCodeReminderEmail = async (
     const baseUrl = FRONTEND_BASE_URL;
     const signupUrl = `${baseUrl}/signup?ref=${code}`;
     const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${unsubscribeToken}`;
+    const L = await resolveEmailLang(undefined, recipientEmail);
+    const v = { discountPercent, daysRemaining, days: discountDurationDays };
 
-    let subject: string;
-    let urgencyMessage: string;
-    let ctaText: string;
-
-    switch (reminderType) {
-      case 'week1':
-        subject = "Don't forget your exclusive Dynopay offer!";
-        urgencyMessage = `You still have <strong>${daysRemaining} days</strong> to claim your exclusive discount.`;
-        ctaText = "Claim Your Discount";
-        break;
-      case 'week2':
-        subject = "Your 50% discount is waiting - Dynopay";
-        urgencyMessage = `Your exclusive <strong>${discountPercent}% discount</strong> is still available! Only <strong>${daysRemaining} days</strong> remaining.`;
-        ctaText = "Start Saving Today";
-        break;
-      case 'week3':
-        subject = `Only ${daysRemaining} days left on your Dynopay offer!`;
-        urgencyMessage = `<strong>Time is running out!</strong> Your exclusive ${discountPercent}% discount expires in just <strong>${daysRemaining} days</strong>.`;
-        ctaText = "Don't Miss Out";
-        break;
-      case 'final':
-        subject = "LAST CHANCE: Your Dynopay discount expires in 3 days!";
-        urgencyMessage = `<strong style="color: #dc2626;">FINAL REMINDER:</strong> Your exclusive ${discountPercent}% discount expires in just <strong>${daysRemaining} days</strong>. This is your last chance!`;
-        ctaText = "Claim Now Before It's Gone";
-        break;
-    }
+    const keySuffix: Record<typeof reminderType, string> = {
+      week1: 'Week1', week2: 'Week2', week3: 'Week3', final: 'Final',
+    };
+    const sfx = keySuffix[reminderType];
+    const subject = t(`referral.reminder.subject${sfx}`, L, v);
+    const urgencyMessage = t(`referral.reminder.urgency${sfx}`, L, v);
+    const ctaText = t(`referral.reminder.cta${sfx}`, L, v);
 
     const message = `
-<p>We noticed you haven't claimed your exclusive Dynopay discount yet!</p>
+<p>${t('referral.reminder.intro', L)}</p>
 
 <div style="margin: 24px 0; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); border-left: 4px solid #12B76A; border-radius: 0 8px 8px 0;">
-  <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 18px;">Your Exclusive Offer</h3>
+  <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 18px;">${t('referral.reminder.offerTitle', L)}</h3>
   <p style="margin: 0 0 8px 0; color: #14532d; font-size: 16px;">
-    <strong>${discountPercent}% OFF</strong> all transaction fees for <strong>${discountDurationDays} days</strong>
+    ${t('referral.reminder.offerLine', L, v)}
   </p>
   <p style="margin: 0; font-size: 14px;">
-    Your code: <strong style="background: #dcfce7; padding: 6px 12px; border-radius: 4px; font-family: monospace; font-size: 16px;">${code}</strong>
+    ${t('referral.codeLabel', L)} <strong style="background: #dcfce7; padding: 6px 12px; border-radius: 4px; font-family: monospace; font-size: 16px;">${code}</strong>
   </p>
 </div>
 
 <p style="font-size: 15px;">${urgencyMessage}</p>
 
-<h4 style="margin: 24px 0 12px 0; color: ${EMAIL_TOKENS.brandDeep};">Why Dynopay?</h4>
+<h4 style="margin: 24px 0 12px 0; color: ${EMAIL_TOKENS.brandDeep};">${t('referral.whyTitle', L)}</h4>
 <ul style="margin: 0; padding-left: 20px; color: #4a4a4a;">
-  <li>Accept crypto payments from customers worldwide</li>
-  <li>Support for Bitcoin, Ethereum, USDT, and more</li>
-  <li>Notifications the moment a payment confirms, and a clean dashboard</li>
-  <li>Lower fees than traditional payment processors</li>
+  <li>${t('referral.why1', L)}</li>
+  <li>${t('referral.why2', L)}</li>
+  <li>${t('referral.why3', L)}</li>
+  <li>${t('referral.why4', L)}</li>
 </ul>
 
 <div style="text-align: center; margin: 32px 0;">
@@ -262,12 +245,12 @@ export const sendRefereeCodeReminderEmail = async (
 </div>
 
 <p style="font-size: 13px; color: #6b7280; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-  <a href="${unsubscribeUrl}" style="color: #6b7280;">Unsubscribe</a> from these reminders
+  <a href="${unsubscribeUrl}" style="color: #6b7280;">${t('referral.unsubscribe', L)}</a> ${t('referral.reminder.unsubscribeSuffix', L)}
 </p>
     `.trim();
 
     const recipientName = recipientEmail.split('@')[0] || "there";
-    const htmlBody = dynoPayEmailTemplate("Your Discount is Waiting!", `${p(`Hey ${recipientName},`)}\n${message}`);
+    const htmlBody = dynoPayEmailTemplate(t('referral.reminder.heading', L), `${p(t('common.greeting', L, { name: recipientName }))}\n${message}`);
 
     const info = await mailTransporter({
       to: recipientEmail,
@@ -299,44 +282,46 @@ export const sendRefereeInviteEmail = async (
     const baseUrl = FRONTEND_BASE_URL;
     const signupUrl = `${baseUrl}/signup?ref=${code}`;
     const recipientName = recipientEmail.split('@')[0] || "there";
+    const L = await resolveEmailLang(undefined, recipientEmail);
+    const v = { discountPercent, days: discountDurationDays };
 
     const unsubscribeLine = unsubscribeToken
-      ? `<p style="font-size: 13px; color: #6b7280; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb;"><a href="${baseUrl}/unsubscribe?token=${unsubscribeToken}" style="color: #6b7280;">Unsubscribe</a> from these emails</p>`
+      ? `<p style="font-size: 13px; color: #6b7280; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb;"><a href="${baseUrl}/unsubscribe?token=${unsubscribeToken}" style="color: #6b7280;">${t('referral.unsubscribe', L)}</a> ${t('referral.invite.unsubscribeSuffix', L)}</p>`
       : "";
 
     const message = `
-<p>Thanks for paying with Dynopay! Did you know you can accept crypto payments for your own business too?</p>
+<p>${t('referral.invite.intro', L)}</p>
 
 <div style="margin: 24px 0; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); border-left: 4px solid #12B76A; border-radius: 0 8px 8px 0;">
-  <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 18px;">A welcome gift for you</h3>
+  <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 18px;">${t('referral.invite.giftTitle', L)}</h3>
   <p style="margin: 0 0 8px 0; color: #14532d; font-size: 16px;">
-    <strong>${discountPercent}% OFF</strong> all Dynopay fees for <strong>${discountDurationDays} days</strong>
+    ${t('referral.invite.offerLine', L, v)}
   </p>
   <p style="margin: 0; font-size: 14px;">
-    Your code: <strong style="background: #dcfce7; padding: 6px 12px; border-radius: 4px; font-family: monospace; font-size: 16px;">${code}</strong>
+    ${t('referral.codeLabel', L)} <strong style="background: #dcfce7; padding: 6px 12px; border-radius: 4px; font-family: monospace; font-size: 16px;">${code}</strong>
   </p>
 </div>
 
-<h4 style="margin: 24px 0 12px 0; color: ${EMAIL_TOKENS.brandDeep};">Why Dynopay?</h4>
+<h4 style="margin: 24px 0 12px 0; color: ${EMAIL_TOKENS.brandDeep};">${t('referral.whyTitle', L)}</h4>
 <ul style="margin: 0; padding-left: 20px; color: #4a4a4a;">
-  <li>Accept Bitcoin, Ethereum, USDT, USDC and 15+ more coins</li>
-  <li>Non-custodial — funds settle straight to a wallet you control</li>
-  <li>Notifications the moment a payment confirms, and a clean dashboard</li>
-  <li>Lower fees than traditional payment processors</li>
+  <li>${t('referral.why1', L)}</li>
+  <li>${t('referral.why2', L)}</li>
+  <li>${t('referral.why3', L)}</li>
+  <li>${t('referral.why4', L)}</li>
 </ul>
 
 <div style="text-align: center; margin: 32px 0;">
-  <a href="${signupUrl}" style="display: inline-block; background: linear-gradient(135deg, ${EMAIL_TOKENS.brandHover} 0%, ${EMAIL_TOKENS.brand} 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">Start accepting crypto</a>
+  <a href="${signupUrl}" style="display: inline-block; background: linear-gradient(135deg, ${EMAIL_TOKENS.brandHover} 0%, ${EMAIL_TOKENS.brand} 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">${t('referral.invite.cta', L)}</a>
 </div>
 ${unsubscribeLine}
     `.trim();
 
-    const htmlBody = dynoPayEmailTemplate("Your welcome gift from Dynopay", `${p(`Hey ${recipientName},`)}\n${message}`);
+    const htmlBody = dynoPayEmailTemplate(t('referral.invite.heading', L), `${p(t('common.greeting', L, { name: recipientName }))}\n${message}`);
 
     const info = await mailTransporter({
       to: recipientEmail,
       name: recipientName,
-      subject: `You've got ${discountPercent}% off Dynopay fees`,
+      subject: t('referral.invite.subject', L, v),
       body: htmlBody,
     });
 

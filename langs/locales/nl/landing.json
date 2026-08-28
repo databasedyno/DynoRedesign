@@ -51,7 +51,7 @@
         "desc": "Realtime beschikbaarheid en incidentgeschiedenis"
       },
       "about": {
-        "title": "Over DynoPay",
+        "title": "Over Dynopay",
         "desc": "Onze missie, ons bedrijf en vacatures"
       },
       "support": {
@@ -70,6 +70,10 @@
         "title": "Begin vandaag gratis",
         "desc": "Wij schelden onze platformkosten kwijt bij je eerste betaling — geen kaart nodig.",
         "cta": "Gratis starten"
+      },
+      "press": {
+        "title": "Perskit",
+        "desc": "Logo's, feiten en persmateriaal"
       }
     }
   },
@@ -379,7 +383,7 @@
       "promptContribution": "Help {{name}} meer mensen te bereiken",
       "copied": "Link gekopieerd!",
       "fundraiser": "Deel deze inzameling",
-      "dynopay": "Deel DynoPay"
+      "dynopay": "Deel Dynopay"
     },
     "status": {
       "confirming": "Betaling gedetecteerd — bevestigen…",
@@ -720,5 +724,59 @@
     "buildBody": "Een klein, snel team met één focus: handelaren in crypto laten betalen zonder de complexiteit. Dit zijn de principes achter elke functie die we uitbrengen.",
     "ctaTitle": "Wilt u samen met ons de toekomst van betalingen bouwen?",
     "ctaBody": "We horen altijd graag van handelaren, partners en mensen die het team willen versterken. Neem gerust contact op — we lezen elk bericht."
+  },
+  "blogIndex": {
+    "metaTitle": "Blog — Inzichten in cryptohandel · Dynopay",
+    "metaDescription": "Gidsen en strategieën voor verkopen, fooien en inzamelen in crypto — verlaag kosten, reken af in stablecoins en groei met cryptobetalingen.",
+    "ogDescription": "Gidsen, strategieën en inzichten voor handelaren die cryptobetalingen accepteren.",
+    "eyebrow": "Blog",
+    "heroTitleLead": "Inzicht in",
+    "heroTitleAccent": "cryptobetalingen"
+  },
+  "press": {
+    "metaTitle": "Dynopay perskit — logo's, feiten & standaardtekst",
+    "metaDescription": "Officiële persbronnen van Dynopay: downloadbare logo's, bedrijfsfeiten, standaardbeschrijving en mediacontact.",
+    "eyebrow": "Perskit",
+    "heroTitle": "Alles wat u nodig heeft om over Dynopay te schrijven.",
+    "heroBody": "Logo's, bedrijfsfeiten en een kant-en-klare standaardtekst — vrij te herpubliceren in artikelen, reviews en gidsen. Meer nodig? Ons team is één e-mail verwijderd.",
+    "boilerplateTitle": "Standaardtekst",
+    "boilerplateBody": "Dynopay is een non-custodial cryptobetaalgateway, opgericht in 2024. Handelaren gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via de API te integreren — met ondersteuning voor Bitcoin, Ethereum, stablecoins en 15+ andere netwerken. Betalingen komen rechtstreeks terecht in een wallet die de handelaar beheert, met optionele automatische conversie naar USDT/USDC, kosten vanaf 0,5% en zonder chargebacks.",
+    "factsTitle": "Feiten in het kort",
+    "facts": {
+      "founded": {
+        "label": "Opgericht",
+        "value": "2024"
+      },
+      "product": {
+        "label": "Product",
+        "value": "Non-custodial crypto-betaalgateway"
+      },
+      "pricing": {
+        "label": "Prijzen",
+        "value": "Vanaf 0,5% per transactie — geen maandelijkse kosten"
+      },
+      "networks": {
+        "label": "Netwerken",
+        "value": "15+ blockchains, waaronder Bitcoin, Ethereum, Solana, XRP en grote stablecoins"
+      },
+      "settlement": {
+        "label": "Uitbetaling",
+        "value": "Rechtstreeks naar de eigen wallet van de handelaar — houd crypto of converteer automatisch naar USDT/USDC"
+      },
+      "chargebacks": {
+        "label": "Chargebacks",
+        "value": "Geen — cryptobetalingen zijn definitief zodra ze bevestigd zijn"
+      }
+    },
+    "logosTitle": "Logo's & merkmateriaal",
+    "logosBody": "Gebruik het woordmerk zoals aangeleverd. Niet herkleuren, vervormen, roteren of van effecten voorzien.",
+    "logoBlackLabel": "Woordmerk — donker op licht",
+    "logoWhiteLabel": "Woordmerk — licht op donker",
+    "iconLabel": "App-icoon",
+    "downloadSvg": "SVG downloaden",
+    "downloadPng": "PNG downloaden",
+    "contactTitle": "Mediacontact",
+    "contactBody": "Voor interviews, reacties of iets dat op deze pagina ontbreekt: schrijf ons — we lezen elk bericht.",
+    "storyCta": "Lees ons verhaal"
   }
 }

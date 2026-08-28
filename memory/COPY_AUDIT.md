@@ -84,7 +84,14 @@ nothing fabricated.** Social proof = verifiable facts only.
 
 ## Phase 3 candidates (not started)
 - Real testimonials section (still blocked on actual customer quotes).
-- Email i18n gaps: hardcoded EN strings inside templates (e.g. accountEmails.ts fee-tier
-  "Your new rate"/"New fee", linkCampaign "Why Dynopay?" lists) → move into emails.json.
-- Blog index <Head> title/meta hardcoded EN → pageTitles/landing keys.
 - Non-EN email subject sweep (casing/tone per-language norms).
+- Pre-existing locale-parity gap: de/es/fr/nl/pt emails.json miss EN key merchant.locked.suspendedLine.
+
+## Phase 3 — PARTIALLY EXECUTED 2026-08-28 (pod 6fe4ee0c, same session as Phase 2)
+- DONE Email i18n gaps: volumeTierUpgrade + referee reminder/invite emails fully keyed
+  (backend/scripts/email_i18n_gap_fill.py, 42 keys x 6 locales; "Why Dynopay?" lists unified;
+  subject bugs fixed: hardcoded "50%" and "3 days" now parameterized; sentence-case subjects/CTAs).
+- DONE Blog index Head localized (blogIndex.* x 6 + pageTitles blog_*/press_* x 6).
+- DONE /press press-kit page (press.* x 6, downloadable logos in public/press/, nav.mega.press entry).
+- DONE Brand casing sweep on FRONTEND catalogs: "DynoPay" -> "Dynopay" (18 strings, incl. header nav
+  "About DynoPay") + _app.tsx JSON-LD speed-claim fixes ("instantly"/"instant" -> direct/automatic).

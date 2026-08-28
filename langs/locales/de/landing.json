@@ -51,7 +51,7 @@
         "desc": "Verfügbarkeit und Störungsverlauf in Echtzeit"
       },
       "about": {
-        "title": "Über DynoPay",
+        "title": "Über Dynopay",
         "desc": "Unsere Mission, unser Unternehmen und Karriere"
       },
       "support": {
@@ -70,6 +70,10 @@
         "title": "Jetzt kostenlos starten",
         "desc": "Wir erlassen unsere Plattformgebühr bei deiner ersten Zahlung — ohne Karte.",
         "cta": "Kostenlos starten"
+      },
+      "press": {
+        "title": "Pressekit",
+        "desc": "Logos, Fakten und Presse-Material"
       }
     }
   },
@@ -379,7 +383,7 @@
       "promptContribution": "Hilf {{name}}, mehr Menschen zu erreichen",
       "copied": "Link kopiert!",
       "fundraiser": "Diese Spendenaktion teilen",
-      "dynopay": "DynoPay teilen"
+      "dynopay": "Dynopay teilen"
     },
     "status": {
       "confirming": "Zahlung erkannt – wird bestätigt…",
@@ -720,5 +724,59 @@
     "buildBody": "Ein kleines, schnelles Team mit einem Fokus: Händler in Krypto bezahlen lassen — ohne Komplexität. Das sind die Prinzipien hinter jedem Feature, das wir ausliefern.",
     "ctaTitle": "Möchten Sie mit uns die Zukunft des Bezahlens bauen?",
     "ctaBody": "Wir freuen uns immer über Nachrichten von Händlern, Partnern und Menschen, die Teil des Teams werden möchten. Melden Sie sich jederzeit — wir lesen jede Nachricht."
+  },
+  "blogIndex": {
+    "metaTitle": "Blog — Einblicke in den Krypto-Handel · Dynopay",
+    "metaDescription": "Leitfäden und Strategien für Verkauf, Trinkgelder und Spenden in Krypto — Gebühren senken, in Stablecoins abrechnen und mit Kryptozahlungen wachsen.",
+    "ogDescription": "Leitfäden, Strategien und Einblicke für Händler, die Kryptowährungszahlungen akzeptieren.",
+    "eyebrow": "Blog",
+    "heroTitleLead": "Krypto-Zahlungen",
+    "heroTitleAccent": "verstehen"
+  },
+  "press": {
+    "metaTitle": "Dynopay Pressekit — Logos, Fakten & Boilerplate",
+    "metaDescription": "Offizielle Presseressourcen von Dynopay: Logos zum Download, Unternehmensfakten, Boilerplate-Beschreibung und Pressekontakt.",
+    "eyebrow": "Pressekit",
+    "heroTitle": "Alles, was Sie brauchen, um über Dynopay zu schreiben.",
+    "heroBody": "Logos, Unternehmensfakten und eine fertige Boilerplate — frei verwendbar in Artikeln, Tests und Verzeichnissen. Wenn Sie mehr brauchen, ist unser Team nur eine E-Mail entfernt.",
+    "boilerplateTitle": "Boilerplate",
+    "boilerplateBody": "Dynopay ist ein 2024 gegründetes non-custodial Krypto-Zahlungsgateway. Händler verkaufen damit Produkte, sammeln Trinkgelder und führen Spendenkampagnen durch — oder integrieren Zahlungen per API — und akzeptieren Bitcoin, Ethereum, Stablecoins und 15+ weitere Netzwerke. Zahlungen landen direkt in einer vom Händler kontrollierten Wallet, mit optionaler Auto-Konvertierung in USDT/USDC, Gebühren ab 0,5 % und ohne Chargebacks.",
+    "factsTitle": "Fakten im Überblick",
+    "facts": {
+      "founded": {
+        "label": "Gegründet",
+        "value": "2024"
+      },
+      "product": {
+        "label": "Produkt",
+        "value": "Non-custodial Krypto-Zahlungsgateway"
+      },
+      "pricing": {
+        "label": "Preise",
+        "value": "Ab 0,5 % pro Transaktion — keine monatlichen Gebühren"
+      },
+      "networks": {
+        "label": "Netzwerke",
+        "value": "15+ Blockchains, darunter Bitcoin, Ethereum, Solana, XRP und führende Stablecoins"
+      },
+      "settlement": {
+        "label": "Abwicklung",
+        "value": "Direkt in die eigene Wallet des Händlers — Krypto behalten oder automatisch in USDT/USDC konvertieren"
+      },
+      "chargebacks": {
+        "label": "Chargebacks",
+        "value": "Keine — Krypto-Zahlungen sind nach Bestätigung endgültig"
+      }
+    },
+    "logosTitle": "Logos & Markenmaterial",
+    "logosBody": "Verwenden Sie die Wortmarke wie bereitgestellt. Bitte nicht umfärben, verzerren, drehen oder mit Effekten versehen.",
+    "logoBlackLabel": "Wortmarke — dunkel auf hell",
+    "logoWhiteLabel": "Wortmarke — hell auf dunkel",
+    "iconLabel": "App-Icon",
+    "downloadSvg": "SVG herunterladen",
+    "downloadPng": "PNG herunterladen",
+    "contactTitle": "Pressekontakt",
+    "contactBody": "Für Interviews, Statements oder alles, was auf dieser Seite fehlt, schreiben Sie uns — wir lesen jede Nachricht.",
+    "storyCta": "Unsere Geschichte lesen"
   }
 }

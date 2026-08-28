@@ -1,3 +1,30 @@
+# SESSION 2026-08-28 (pod 6fe4ee0c) — PART 2: email i18n gaps + localized blog head + /press page
+- (1) EMAIL I18N GAPS (`backend/scripts/email_i18n_gap_fill.py`, 42 keys x 6 locales):
+  sendVolumeTierUpgradeEmail (accountEmails.ts) now fully t()-driven via merchant.volumeTierUpgrade.*
+  (finally uses its already-passed `language` opt + resolveEmailLang); referee reminder + invite
+  (linkCampaignEmails.ts) now t()-driven via referral.* (shared whyTitle/why1-4/codeLabel/unsubscribe,
+  reminder.subjectWeek1..Final/urgency*/cta*/intro/offerTitle/offerLine/heading, invite.*).
+  BONUS BUGS FIXED: week2 subject hardcoded "50%" -> {{discountPercent}}; final subject hardcoded
+  "3 days" -> {{daysRemaining}}; shouty "LAST CHANCE"/"FINAL REMINDER"/Title-Case CTAs -> sentence case.
+  Both reminder+invite "Why Dynopay?" lists unified to the honest 4-item set. tsc --noEmit clean,
+  backend restarted healthy.
+- (2) LOCALIZED BLOG HEAD (`scripts/i18n_add_blogindex_press.py`): blogIndex.* (title/meta/og/eyebrow/
+  split headline) x 6 locales; blog/index.tsx now t()-driven. Also added blog_title/blog_desc +
+  press_title/press_desc to pageTitles.json x 6 (blog was falling back to default_title before).
+- (3) /press PAGE (pages/press.tsx, press.* keys x 6): hero + copyable boilerplate (clipboard with
+  execCommand fallback) + 6 fast-fact cards + 3 downloadable assets (public/press/dynopay-logo-black.svg,
+  -white.svg, dynopay-icon-512.png — copied from assets/Icons/home + favicon-512) + media-contact CTA.
+  Added to _app.tsx homePaths + routeKeyMap, and to the header Company mega-menu
+  (nav.mega.press.*, NewspaperRoundedIcon).
+- (4) BONUS casing/claim fixes: "DynoPay" -> "Dynopay" in frontend catalogs (nav.mega.about.title,
+  share menu, dashboardLayout heroEmptyEyebrow — 18 strings across 6 locales); _app.tsx JSON-LD
+  "forwarded instantly" -> "forwarded directly", "instant stablecoin settlement" -> "automatic".
+- Verified in-browser: /press EN + DE (title, facts, logo downloads 200, copy button -> "Kopiert"),
+  /blog DE title "Blog — Einblicke in den Krypto-Handel · Dynopay" + headline, nav shows "Pressekit"
+  and corrected "Über Dynopay". check-i18n.mjs green; eslint clean (2 pre-existing _app warnings).
+
+
+
 # SESSION 2026-08-28 (pod 6fe4ee0c) — COPY_AUDIT Phase 2 (i18n migration + docs + email voice pass)
 - Pod re-setup from fresh cred paste (no vault pass): /app/.env + /app/backend/.env rebuilt by hand,
   SAFE MODE enforced (bg jobs OFF, email OFF, redis /1, Binance proxy blanked, fresh NEXTAUTH_SECRET);

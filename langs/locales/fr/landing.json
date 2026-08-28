@@ -51,7 +51,7 @@
         "desc": "Disponibilité et historique des incidents en temps réel"
       },
       "about": {
-        "title": "À propos de DynoPay",
+        "title": "À propos de Dynopay",
         "desc": "Notre mission, notre entreprise et nos offres d'emploi"
       },
       "support": {
@@ -70,6 +70,10 @@
         "title": "Commencez gratuitement",
         "desc": "Nous offrons nos frais de plateforme sur votre premier paiement — sans carte.",
         "cta": "Commencer gratuitement"
+      },
+      "press": {
+        "title": "Kit presse",
+        "desc": "Logos, chiffres et ressources presse"
       }
     }
   },
@@ -379,7 +383,7 @@
       "promptContribution": "Aidez {{name}} à toucher plus de monde",
       "copied": "Lien copié !",
       "fundraiser": "Partager cette collecte",
-      "dynopay": "Partager DynoPay"
+      "dynopay": "Partager Dynopay"
     },
     "status": {
       "confirming": "Paiement détecté — confirmation…",
@@ -720,5 +724,59 @@
     "buildBody": "Une petite équipe rapide, concentrée sur une seule chose : permettre aux marchands d'être payés en crypto sans la complexité. Voici les principes derrière chaque fonctionnalité que nous livrons.",
     "ctaTitle": "Envie de construire l'avenir des paiements avec nous ?",
     "ctaBody": "Nous sommes toujours ravis d'échanger avec des marchands, des partenaires et des personnes qui veulent rejoindre l'équipe. Contactez-nous à tout moment — nous lisons chaque message."
+  },
+  "blogIndex": {
+    "metaTitle": "Blog — Le commerce crypto décrypté · Dynopay",
+    "metaDescription": "Guides et stratégies pour vendre, recevoir des pourboires et collecter des fonds en crypto — réduisez les frais, réglez en stablecoins et développez-vous avec les paiements en cryptomonnaies.",
+    "ogDescription": "Guides, stratégies et analyses pour les marchands qui acceptent les paiements en cryptomonnaies.",
+    "eyebrow": "Blog",
+    "heroTitleLead": "Les paiements crypto",
+    "heroTitleAccent": "décryptés"
+  },
+  "press": {
+    "metaTitle": "Kit presse Dynopay — logos, chiffres et description type",
+    "metaDescription": "Ressources presse officielles de Dynopay : logos téléchargeables, chiffres clés, description type et contact média.",
+    "eyebrow": "Kit presse",
+    "heroTitle": "Tout ce qu'il vous faut pour écrire sur Dynopay.",
+    "heroBody": "Logos, chiffres clés et une description prête à l'emploi — libres de republication dans vos articles, tests et annuaires. Besoin d'autre chose ? Notre équipe est à un e-mail.",
+    "boilerplateTitle": "Description type",
+    "boilerplateBody": "Dynopay est une passerelle de paiement en cryptomonnaies non-custodial fondée en 2024. Les marchands l'utilisent pour vendre des produits, recevoir des pourboires et mener des campagnes de collecte — ou pour intégrer les paiements via API — en acceptant Bitcoin, Ethereum, les stablecoins et plus de 15 réseaux. Les paiements arrivent directement dans un wallet contrôlé par le marchand, avec conversion automatique optionnelle en USDT/USDC, des frais à partir de 0,5 % et aucune rétrofacturation.",
+    "factsTitle": "Chiffres clés",
+    "facts": {
+      "founded": {
+        "label": "Création",
+        "value": "2024"
+      },
+      "product": {
+        "label": "Produit",
+        "value": "Passerelle de paiement crypto non-custodial"
+      },
+      "pricing": {
+        "label": "Tarifs",
+        "value": "À partir de 0,5 % par transaction — sans frais mensuels"
+      },
+      "networks": {
+        "label": "Réseaux",
+        "value": "Plus de 15 blockchains, dont Bitcoin, Ethereum, Solana, XRP et les principaux stablecoins"
+      },
+      "settlement": {
+        "label": "Règlement",
+        "value": "Directement dans le wallet du marchand — conservez la crypto ou convertissez-la automatiquement en USDT/USDC"
+      },
+      "chargebacks": {
+        "label": "Rétrofacturation",
+        "value": "Aucune — les paiements crypto sont définitifs une fois confirmés"
+      }
+    },
+    "logosTitle": "Logos et éléments de marque",
+    "logosBody": "Utilisez le logotype tel quel. Merci de ne pas le recolorer, le déformer, le faire pivoter ni lui ajouter d'effets.",
+    "logoBlackLabel": "Logotype — foncé sur clair",
+    "logoWhiteLabel": "Logotype — clair sur foncé",
+    "iconLabel": "Icône de l'app",
+    "downloadSvg": "Télécharger le SVG",
+    "downloadPng": "Télécharger le PNG",
+    "contactTitle": "Contact média",
+    "contactBody": "Pour une interview, un commentaire ou tout élément manquant sur cette page, écrivez-nous — nous lisons chaque message.",
+    "storyCta": "Découvrir notre histoire"
   }
 }

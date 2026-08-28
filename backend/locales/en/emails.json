@@ -538,6 +538,19 @@
     "weeklyConversion": {
       "heading": "Weekly Conversion Report",
       "intro": "Here's your weekly auto-conversion report for <strong>{{companyName}}</strong>."
+    },
+    "volumeTierUpgrade": {
+      "subject": "You just unlocked the {{newTier}} tier — {{newPercent}}% fees",
+      "intro": "Great news — you've crossed <strong>{{volume}}</strong> in lifetime processed volume, and your platform-fee tier has just been upgraded from <strong>{{previousTier}}</strong> to <strong>{{newTier}}</strong>.",
+      "rateTitle": "Your new rate",
+      "previousFee": "Previous fee",
+      "newFee": "New fee ({{newTier}})",
+      "youSave": "You save",
+      "savingsPerTx": "{{savings}}% per transaction",
+      "applied": "This is applied automatically to every new payment starting now — no action needed. Keep processing, and the next tier down is waiting for you.",
+      "thanks": "Thanks for building on Dynopay.",
+      "heading": "You're now {{newTier}} — enjoy {{newPercent}}% fees",
+      "cta": "View your dashboard"
     }
   },
   "contributor": {
@@ -604,5 +617,42 @@
     "createPayLink": "Create a payment link →",
     "openDashboardBody": "Open your dashboard to explore transactions, adjust wallets, or share a new payment link.",
     "openDashboard": "Open dashboard"
+  },
+  "referral": {
+    "whyTitle": "Why Dynopay?",
+    "why1": "Accept Bitcoin, Ethereum, USDT, USDC and 15+ more coins",
+    "why2": "Non-custodial — funds settle straight to a wallet you control",
+    "why3": "Notifications the moment a payment confirms, and a clean dashboard",
+    "why4": "Lower fees than traditional payment processors",
+    "codeLabel": "Your code:",
+    "unsubscribe": "Unsubscribe",
+    "reminder": {
+      "subjectWeek1": "Don't forget your exclusive Dynopay offer",
+      "subjectWeek2": "Your {{discountPercent}}% discount is waiting - Dynopay",
+      "subjectWeek3": "Only {{daysRemaining}} days left on your Dynopay offer",
+      "subjectFinal": "Last chance: your Dynopay discount expires in {{daysRemaining}} days",
+      "urgencyWeek1": "You still have <strong>{{daysRemaining}} days</strong> to claim your exclusive discount.",
+      "urgencyWeek2": "Your exclusive <strong>{{discountPercent}}% discount</strong> is still available. Only <strong>{{daysRemaining}} days</strong> remaining.",
+      "urgencyWeek3": "<strong>Time is running out.</strong> Your exclusive {{discountPercent}}% discount expires in just <strong>{{daysRemaining}} days</strong>.",
+      "urgencyFinal": "<strong style=\"color: #dc2626;\">Final reminder:</strong> your exclusive {{discountPercent}}% discount expires in just <strong>{{daysRemaining}} days</strong>. This is your last chance.",
+      "ctaWeek1": "Claim your discount",
+      "ctaWeek2": "Start saving today",
+      "ctaWeek3": "Don't miss out",
+      "ctaFinal": "Claim it before it's gone",
+      "intro": "We noticed you haven't claimed your exclusive Dynopay discount yet.",
+      "offerTitle": "Your exclusive offer",
+      "offerLine": "<strong>{{discountPercent}}% OFF</strong> all transaction fees for <strong>{{days}} days</strong>",
+      "heading": "Your discount is waiting",
+      "unsubscribeSuffix": "from these reminders"
+    },
+    "invite": {
+      "subject": "You've got {{discountPercent}}% off Dynopay fees",
+      "intro": "Thanks for paying with Dynopay! Did you know you can accept crypto payments for your own business too?",
+      "giftTitle": "A welcome gift for you",
+      "offerLine": "<strong>{{discountPercent}}% OFF</strong> all Dynopay fees for <strong>{{days}} days</strong>",
+      "cta": "Start accepting crypto",
+      "heading": "Your welcome gift from Dynopay",
+      "unsubscribeSuffix": "from these emails"
+    }
   }
 }

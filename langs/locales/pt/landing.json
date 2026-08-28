@@ -51,7 +51,7 @@
         "desc": "Disponibilidade e histórico de incidentes em tempo real"
       },
       "about": {
-        "title": "Sobre a DynoPay",
+        "title": "Sobre a Dynopay",
         "desc": "A nossa missão, empresa e carreiras"
       },
       "support": {
@@ -70,6 +70,10 @@
         "title": "Comece grátis hoje",
         "desc": "Isentamos a nossa taxa de plataforma no seu primeiro pagamento — sem cartão.",
         "cta": "Comece grátis"
+      },
+      "press": {
+        "title": "Kit de imprensa",
+        "desc": "Logos, fatos e recursos para a mídia"
       }
     }
   },
@@ -379,7 +383,7 @@
       "promptContribution": "Ajuda {{name}} a chegar a mais pessoas",
       "copied": "Link copiado!",
       "fundraiser": "Partilhar esta angariação",
-      "dynopay": "Partilhar o DynoPay"
+      "dynopay": "Partilhar o Dynopay"
     },
     "status": {
       "confirming": "Pagamento detetado — a confirmar…",
@@ -720,5 +724,59 @@
     "buildBody": "Uma equipe pequena e ágil focada em uma coisa: fazer comerciantes receberem em cripto sem complexidade. Estes são os princípios por trás de cada recurso que lançamos.",
     "ctaTitle": "Quer construir o futuro dos pagamentos com a gente?",
     "ctaBody": "Adoramos ouvir comerciantes, parceiros e pessoas que querem entrar para o time. Fale com a gente a qualquer momento — lemos todas as mensagens."
+  },
+  "blogIndex": {
+    "metaTitle": "Blog — Insights de comércio cripto · Dynopay",
+    "metaDescription": "Guias e estratégias para vender, receber gorjetas e arrecadar em cripto — reduza taxas, liquide em stablecoins e cresça com pagamentos em criptomoedas.",
+    "ogDescription": "Guias, estratégias e insights para comerciantes que aceitam pagamentos em criptomoedas.",
+    "eyebrow": "Blog",
+    "heroTitleLead": "Insights sobre",
+    "heroTitleAccent": "pagamentos cripto"
+  },
+  "press": {
+    "metaTitle": "Kit de imprensa da Dynopay — logos, fatos e descrição",
+    "metaDescription": "Recursos oficiais de imprensa da Dynopay: logos para download, fatos da empresa, descrição padrão e contato para a mídia.",
+    "eyebrow": "Kit de imprensa",
+    "heroTitle": "Tudo o que você precisa para escrever sobre a Dynopay.",
+    "heroBody": "Logos, fatos da empresa e uma descrição pronta para uso — livres para republicação em artigos, análises e diretórios. Precisa de algo mais? Nossa equipe está a um e-mail de distância.",
+    "boilerplateTitle": "Descrição padrão",
+    "boilerplateBody": "A Dynopay é um gateway de pagamentos em criptomoedas sem custódia fundado em 2024. Comerciantes o usam para vender produtos, receber gorjetas e criar campanhas de arrecadação — ou para integrar pagamentos via API — aceitando Bitcoin, Ethereum, stablecoins e mais de 15 redes. Os pagamentos são liquidados direto em uma carteira controlada pelo comerciante, com conversão automática opcional para USDT/USDC, taxas a partir de 0,5% e sem estornos.",
+    "factsTitle": "Fatos rápidos",
+    "facts": {
+      "founded": {
+        "label": "Fundação",
+        "value": "2024"
+      },
+      "product": {
+        "label": "Produto",
+        "value": "Gateway de pagamentos em cripto sem custódia"
+      },
+      "pricing": {
+        "label": "Preços",
+        "value": "A partir de 0,5% por transação — sem mensalidades"
+      },
+      "networks": {
+        "label": "Redes",
+        "value": "Mais de 15 blockchains, incluindo Bitcoin, Ethereum, Solana, XRP e as principais stablecoins"
+      },
+      "settlement": {
+        "label": "Liquidação",
+        "value": "Direto na carteira do próprio comerciante — mantenha a cripto ou converta automaticamente para USDT/USDC"
+      },
+      "chargebacks": {
+        "label": "Estornos",
+        "value": "Nenhum — pagamentos em cripto são definitivos após a confirmação"
+      }
+    },
+    "logosTitle": "Logos e materiais de marca",
+    "logosBody": "Use o logotipo como fornecido. Não recolora, distorça, gire nem adicione efeitos.",
+    "logoBlackLabel": "Logotipo — escuro sobre claro",
+    "logoWhiteLabel": "Logotipo — claro sobre escuro",
+    "iconLabel": "Ícone do app",
+    "downloadSvg": "Baixar SVG",
+    "downloadPng": "Baixar PNG",
+    "contactTitle": "Contato para imprensa",
+    "contactBody": "Para entrevistas, comentários ou algo que falte nesta página, escreva para nós — lemos todas as mensagens.",
+    "storyCta": "Leia nossa história"
   }
 }

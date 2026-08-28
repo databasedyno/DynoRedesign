@@ -96,5 +96,9 @@
   "authSecureAccount_title": "Secure your account · Dynopay",
   "authSecureAccount_desc": "Review recent login activity and secure your Dynopay account.",
   "authGithubCallback_title": "Signing you in · Dynopay",
-  "authGithubCallback_desc": "Completing your GitHub sign-in."
+  "authGithubCallback_desc": "Completing your GitHub sign-in.",
+  "press_title": "Dynopay press kit — logos, facts & boilerplate",
+  "press_desc": "Official Dynopay press resources: downloadable logos, company facts, boilerplate description and media contact.",
+  "blog_title": "Blog — Crypto commerce insights · Dynopay",
+  "blog_desc": "Guides and strategies for selling, tipping, and fundraising in crypto — reduce fees, settle to stablecoins, and grow with cryptocurrency payments."
 }

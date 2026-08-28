@@ -538,6 +538,19 @@
     "weeklyConversion": {
       "heading": "Wekelijks omzettingsrapport",
       "intro": "Hier is uw wekelijkse rapport voor automatische omzetting voor <strong>{{companyName}}</strong>."
+    },
+    "volumeTierUpgrade": {
+      "subject": "U heeft zojuist het {{newTier}}-niveau ontgrendeld — {{newPercent}}% kosten",
+      "intro": "Goed nieuws — u heeft <strong>{{volume}}</strong> aan totaal verwerkt volume overschreden, en uw platformkosten-niveau is zojuist opgewaardeerd van <strong>{{previousTier}}</strong> naar <strong>{{newTier}}</strong>.",
+      "rateTitle": "Uw nieuwe tarief",
+      "previousFee": "Vorig tarief",
+      "newFee": "Nieuw tarief ({{newTier}})",
+      "youSave": "U bespaart",
+      "savingsPerTx": "{{savings}}% per transactie",
+      "applied": "Dit wordt vanaf nu automatisch toegepast op elke nieuwe betaling — u hoeft niets te doen. Ga zo door, het volgende niveau wacht op u.",
+      "thanks": "Bedankt dat u op Dynopay bouwt.",
+      "heading": "U bent nu {{newTier}} — profiteer van {{newPercent}}% kosten",
+      "cta": "Naar uw dashboard"
     }
   },
   "contributor": {
@@ -604,5 +617,42 @@
     "createPayLink": "Een betaallink maken →",
     "openDashboardBody": "Open je dashboard om transacties te bekijken, wallets aan te passen of een nieuwe betaallink te delen.",
     "openDashboard": "Dashboard openen"
+  },
+  "referral": {
+    "whyTitle": "Waarom Dynopay?",
+    "why1": "Accepteer Bitcoin, Ethereum, USDT, USDC en 15+ andere munten",
+    "why2": "Non-custodial — tegoeden komen rechtstreeks terecht in een wallet die u beheert",
+    "why3": "Meldingen zodra een betaling is bevestigd, en een overzichtelijk dashboard",
+    "why4": "Lagere kosten dan traditionele betaalproviders",
+    "codeLabel": "Uw code:",
+    "unsubscribe": "Uitschrijven",
+    "reminder": {
+      "subjectWeek1": "Vergeet uw exclusieve Dynopay-aanbieding niet",
+      "subjectWeek2": "Uw korting van {{discountPercent}}% wacht op u - Dynopay",
+      "subjectWeek3": "Nog maar {{daysRemaining}} dagen voor uw Dynopay-aanbieding",
+      "subjectFinal": "Laatste kans: uw Dynopay-korting verloopt over {{daysRemaining}} dagen",
+      "urgencyWeek1": "U heeft nog <strong>{{daysRemaining}} dagen</strong> om uw exclusieve korting te claimen.",
+      "urgencyWeek2": "Uw exclusieve <strong>korting van {{discountPercent}}%</strong> is nog beschikbaar. Nog maar <strong>{{daysRemaining}} dagen</strong>.",
+      "urgencyWeek3": "<strong>De tijd dringt.</strong> Uw exclusieve korting van {{discountPercent}}% verloopt over slechts <strong>{{daysRemaining}} dagen</strong>.",
+      "urgencyFinal": "<strong style=\"color: #dc2626;\">Laatste herinnering:</strong> uw exclusieve korting van {{discountPercent}}% verloopt over slechts <strong>{{daysRemaining}} dagen</strong>. Dit is uw laatste kans.",
+      "ctaWeek1": "Claim uw korting",
+      "ctaWeek2": "Begin vandaag met besparen",
+      "ctaWeek3": "Mis het niet",
+      "ctaFinal": "Claim voordat het verloopt",
+      "intro": "We zagen dat u uw exclusieve Dynopay-korting nog niet heeft geclaimd.",
+      "offerTitle": "Uw exclusieve aanbieding",
+      "offerLine": "<strong>{{discountPercent}}% KORTING</strong> op alle transactiekosten gedurende <strong>{{days}} dagen</strong>",
+      "heading": "Uw korting wacht op u",
+      "unsubscribeSuffix": "voor deze herinneringen"
+    },
+    "invite": {
+      "subject": "U krijgt {{discountPercent}}% korting op Dynopay-kosten",
+      "intro": "Bedankt dat u met Dynopay heeft betaald! Wist u dat u ook cryptobetalingen kunt accepteren voor uw eigen bedrijf?",
+      "giftTitle": "Een welkomstcadeau voor u",
+      "offerLine": "<strong>{{discountPercent}}% KORTING</strong> op alle Dynopay-kosten gedurende <strong>{{days}} dagen</strong>",
+      "cta": "Begin crypto te accepteren",
+      "heading": "Uw welkomstcadeau van Dynopay",
+      "unsubscribeSuffix": "voor deze e-mails"
+    }
   }
 }

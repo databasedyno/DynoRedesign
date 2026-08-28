@@ -538,6 +538,19 @@
     "weeklyConversion": {
       "heading": "Wöchentlicher Umwandlungsbericht",
       "intro": "Hier ist Ihr wöchentlicher Bericht zur automatischen Umwandlung für <strong>{{companyName}}</strong>."
+    },
+    "volumeTierUpgrade": {
+      "subject": "Sie haben die Stufe {{newTier}} freigeschaltet — {{newPercent}} % Gebühren",
+      "intro": "Gute Nachrichten — Sie haben <strong>{{volume}}</strong> an insgesamt verarbeitetem Volumen überschritten, und Ihre Plattformgebühren-Stufe wurde soeben von <strong>{{previousTier}}</strong> auf <strong>{{newTier}}</strong> angehoben.",
+      "rateTitle": "Ihr neuer Satz",
+      "previousFee": "Bisherige Gebühr",
+      "newFee": "Neue Gebühr ({{newTier}})",
+      "youSave": "Sie sparen",
+      "savingsPerTx": "{{savings}} % pro Transaktion",
+      "applied": "Der neue Satz gilt ab sofort automatisch für jede neue Zahlung — Sie müssen nichts tun. Machen Sie weiter, die nächste Stufe wartet schon auf Sie.",
+      "thanks": "Danke, dass Sie auf Dynopay bauen.",
+      "heading": "Sie sind jetzt {{newTier}} — profitieren Sie von {{newPercent}} % Gebühren",
+      "cta": "Zum Dashboard"
     }
   },
   "contributor": {
@@ -604,5 +617,42 @@
     "createPayLink": "Zahlungslink erstellen →",
     "openDashboardBody": "Öffnen Sie Ihr Dashboard, um Transaktionen zu erkunden, Wallets anzupassen oder einen neuen Zahlungslink zu teilen.",
     "openDashboard": "Dashboard öffnen"
+  },
+  "referral": {
+    "whyTitle": "Warum Dynopay?",
+    "why1": "Akzeptieren Sie Bitcoin, Ethereum, USDT, USDC und 15+ weitere Coins",
+    "why2": "Non-custodial — Gelder landen direkt in einer Wallet, die Sie kontrollieren",
+    "why3": "Benachrichtigungen, sobald eine Zahlung bestätigt ist, und ein übersichtliches Dashboard",
+    "why4": "Niedrigere Gebühren als bei klassischen Zahlungsdienstleistern",
+    "codeLabel": "Ihr Code:",
+    "unsubscribe": "Abmelden",
+    "reminder": {
+      "subjectWeek1": "Vergessen Sie Ihr exklusives Dynopay-Angebot nicht",
+      "subjectWeek2": "Ihr Rabatt von {{discountPercent}} % wartet - Dynopay",
+      "subjectWeek3": "Nur noch {{daysRemaining}} Tage für Ihr Dynopay-Angebot",
+      "subjectFinal": "Letzte Chance: Ihr Dynopay-Rabatt läuft in {{daysRemaining}} Tagen ab",
+      "urgencyWeek1": "Sie haben noch <strong>{{daysRemaining}} Tage</strong>, um Ihren exklusiven Rabatt einzulösen.",
+      "urgencyWeek2": "Ihr exklusiver <strong>Rabatt von {{discountPercent}} %</strong> ist noch verfügbar. Nur noch <strong>{{daysRemaining}} Tage</strong>.",
+      "urgencyWeek3": "<strong>Die Zeit läuft ab.</strong> Ihr exklusiver Rabatt von {{discountPercent}} % läuft in nur <strong>{{daysRemaining}} Tagen</strong> ab.",
+      "urgencyFinal": "<strong style=\"color: #dc2626;\">Letzte Erinnerung:</strong> Ihr exklusiver Rabatt von {{discountPercent}} % läuft in nur <strong>{{daysRemaining}} Tagen</strong> ab. Das ist Ihre letzte Chance.",
+      "ctaWeek1": "Rabatt einlösen",
+      "ctaWeek2": "Jetzt sparen",
+      "ctaWeek3": "Nicht verpassen",
+      "ctaFinal": "Einlösen, bevor es zu spät ist",
+      "intro": "Wir haben bemerkt, dass Sie Ihren exklusiven Dynopay-Rabatt noch nicht eingelöst haben.",
+      "offerTitle": "Ihr exklusives Angebot",
+      "offerLine": "<strong>{{discountPercent}} % RABATT</strong> auf alle Transaktionsgebühren für <strong>{{days}} Tage</strong>",
+      "heading": "Ihr Rabatt wartet",
+      "unsubscribeSuffix": "von diesen Erinnerungen"
+    },
+    "invite": {
+      "subject": "Sie erhalten {{discountPercent}} % Rabatt auf Dynopay-Gebühren",
+      "intro": "Danke, dass Sie mit Dynopay bezahlt haben! Wussten Sie, dass Sie auch für Ihr eigenes Unternehmen Krypto-Zahlungen akzeptieren können?",
+      "giftTitle": "Ein Willkommensgeschenk für Sie",
+      "offerLine": "<strong>{{discountPercent}} % RABATT</strong> auf alle Dynopay-Gebühren für <strong>{{days}} Tage</strong>",
+      "cta": "Krypto akzeptieren",
+      "heading": "Ihr Willkommensgeschenk von Dynopay",
+      "unsubscribeSuffix": "von diesen E-Mails"
+    }
   }
 }
