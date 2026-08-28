@@ -1,3 +1,24 @@
+# SESSION 2026-06 (fork) — SINGLE-INSTANCE backend track: F-CIDR + D wave 1 + E phase 1 — DONE & verified
+
+Commit c42390163 (branch New-DesignFixes). Preview: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com
+(LIVE prod DB, SAFE MODE). backend tsc EXIT 0 · file-size gate OK · boot healthy (migrations 0 applied/6 present).
+
+- **F (CIDR)** — NEW `backend/utils/ipMatch.ts` (`createIpMatcher`, ipaddr.js pinned) replaces the exact-match
+  `TATUM_KNOWN_IPS.has()` in `routes/index.ts`; the 3 GCP "range" entries are now real `/16` CIDRs (were dead
+  bare IPs). Log-accuracy only (unsigned-webhook flag path never blocks). Unit-tested 8/8.
+- **D wave 1** — `controller/dashboardController.ts` 1444→1069; extracted getRecentTransactions/getConversions/
+  getConversionDetail → NEW `controller/dashboard/dashboardReadController.ts` (376); removed dead
+  convertVolumesToFiat. 3 live endpoints HTTP 200. API shape unchanged.
+- **E phase 1** — versioned pipeline (`bootMigrations.ts`+`migrationRunner`) confirmed as the single active
+  mechanism; archived 13 legacy `add*.ts` + 5 `.sql` one-offs into `migrations/legacy/` (imports fixed, 5
+  comment refs updated) + added `migrations/README.md`. `migrations/` now = pipeline + legacy/ + README.
+
+Full re-scoped single-instance plan + remaining D waves in memory/REFACTOR_STATUS.md.
+
+---
+
+
+
 # SESSION 2026-06 (fork) — /payouts full i18n + Save-to-GitHub blocker ROOT-CAUSED & fixed + backend backlog documented
 
 Preview: https://d004a6e0-837b-495f-bf83-d1a9cc4a5254.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
