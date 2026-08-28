@@ -948,7 +948,7 @@ const PayoutsPage: React.FC = () => {
               display: "grid",
               placeItems: "center",
               bgcolor: `${theme.palette.primary.main}1A`,
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
               flexShrink: 0,
             }}
           >

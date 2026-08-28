@@ -67,6 +67,7 @@ import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
 import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
 import { useRefundMap, RefundStatusChip } from "@/Components/Page/Refund/refundStatus";
+import { brandFg } from "@/constants/theme";
 
 const CRYPTO_REFUNDS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS === "true";
@@ -529,7 +530,7 @@ const PaymentLinksTable = ({
                             onClick={() => setCryptoRefundLinkId(String(row.id))}
                             sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.primary.main }}
                           >
-                            <CurrencyExchangeRounded sx={{ fontSize: 14, color: theme.palette.primary.main }} />
+                            <CurrencyExchangeRounded sx={{ fontSize: 14, color: brandFg(theme.palette.mode === "dark") }} />
                           </CopyButton>
                         </Tooltip>
                       )}
@@ -892,7 +893,7 @@ const PaymentLinksTable = ({
                               "&:hover": { backgroundColor: "transparent", boxShadow: "none" },
                             }}
                           >
-                            <CurrencyExchangeRounded sx={{ fontSize: isMobile ? 14 : 18, color: theme.palette.primary.main }} />
+                            <CurrencyExchangeRounded sx={{ fontSize: isMobile ? 14 : 18, color: brandFg(theme.palette.mode === "dark") }} />
                           </CopyButton>
                         </Tooltip>
                       )}

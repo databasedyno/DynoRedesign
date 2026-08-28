@@ -295,10 +295,12 @@ no git history rewrite.
         `eslint . --ext .ts,.tsx` as before; FAILS on any error or if warnings exceed baseline; count
         can only go DOWN (--update-baseline to re-lock; --hook = warn-only). Wired into `yarn lint`,
         new `lint:eslint`, and a HARD-GATE CI job `frontend-eslint-ratchet` in preflight.yml.
-      - ⚠️ Running full strict `yarn lint` SURFACED 7 PRE-EXISTING contrast-guardrail findings in 5
-        UNTOUCHED files (Payment-link/PaymentLinksTable.tsx:532,895; Payment-link/QuickCreateLinkPanel.tsx:352;
-        Payouts/index.tsx:951; Refund/refundStatus.tsx:112; UI/UserMenu/index.tsx:303,310) — raw
-        primary.main / #4F46E5 as FOREGROUND on dark. NOT from Phase 4. Awaiting user decision:
-        fix via brandFg(isDark) (accessibility fix) vs re-baseline (grandfather). yarn lint is RED
-        only because of these; CI (tsc + eslint ratchet) and DO `next build` are unaffected.
+      - ✅ FIXED 2026-08-27 (pod d004a6e0): the 7 contrast findings surfaced by strict `yarn lint`
+        are resolved — replaced raw primary.main / #4F46E5 FOREGROUND with brandFg(isDark)
+        (#4F46E5 light / #818CF8 dark) in Payment-link/PaymentLinksTable.tsx (crypto-refund icon x2),
+        Payment-link/QuickCreateLinkPanel.tsx ("All options" link), Payouts/index.tsx (email icon),
+        Refund/refundStatus.tsx (active-step label; added useTheme before the early return), and
+        UI/UserMenu/index.tsx (Setup icon + label). Backgrounds/borders kept brand indigo.
+        `yarn lint` is now GREEN end-to-end (tsc 0 · eslint-ratchet 0/74 · contrast 0 new). Testing
+        agent confirmed the Payouts email icon = rgb(129,140,248)=#818CF8 in dark, zero console errors.
 - DEFERRED: FP2-4 auth unification (needs own approval) · App Router (never) · all backend items

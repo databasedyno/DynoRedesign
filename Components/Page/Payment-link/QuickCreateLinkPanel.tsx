@@ -36,6 +36,7 @@ import { usePaymentLinks } from "@/hooks/usePaymentLinks";
 import CustomButton from "@/Components/UI/Buttons";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
 import { MONO } from "@/styles/uiKit";
+import { brandFg } from "@/constants/theme";
 
 const FIAT_OPTIONS = ["USD", "EUR", "GBP"] as const;
 
@@ -349,7 +350,7 @@ const QuickCreateLinkPanel = ({
                   fontFamily: "var(--font-sans)",
                   fontSize: 12.5,
                   fontWeight: 700,
-                  color: isDark ? "#A5B4FC" : "#4F46E5",
+                  color: brandFg(isDark),
                   textDecoration: "underline",
                 }}
               >

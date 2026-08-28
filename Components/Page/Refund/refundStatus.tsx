@@ -5,8 +5,9 @@
  */
 import React from "react";
 import useSWR from "swr";
-import { Box, Chip, Stack, Typography } from "@mui/material";
+import { Box, Chip, Stack, Typography, useTheme } from "@mui/material";
 import axiosBaseApi from "@/axiosConfig";
+import { brandFg } from "@/constants/theme";
 
 export const CRYPTO_REFUNDS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS === "true";
@@ -65,6 +66,9 @@ const TERMINAL_NEGATIVE = ["cancelled", "failed", "expired"];
  * single status chip instead.
  */
 export const RefundStatusTimeline: React.FC<{ status: string }> = ({ status }) => {
+  // Hook must run before any early return (Rules of Hooks).
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   if (TERMINAL_NEGATIVE.includes(status)) {
     return (
       <Box data-testid="refund-timeline">
@@ -109,7 +113,7 @@ export const RefundStatusTimeline: React.FC<{ status: string }> = ({ status }) =
                   lineHeight: 1.2,
                   textAlign: "center",
                   fontWeight: active ? 700 : 500,
-                  color: done ? "success.main" : active ? "primary.main" : "text.secondary",
+                  color: done ? "success.main" : active ? brandFg(isDark) : "text.secondary",
                 }}
               >
                 {s.label}

@@ -13,6 +13,7 @@ import useAccountProfile from "@/hooks/useAccountProfile";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import useProfile from "@/hooks/useProfile";
+import { brandFg } from "@/constants/theme";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
@@ -300,14 +301,14 @@ export default function UserMenu() {
                   }}
                 >
                   <InfoOutlinedIcon
-                    sx={{ fontSize: "16px", color: theme.palette.primary.main }}
+                    sx={{ fontSize: "16px", color: brandFg(isDark) }}
                   />
                   <Typography
                     sx={{
                       fontFamily: "var(--font-sans)",
                       fontSize: isMobile ? "12.5px" : "13.5px",
                       fontWeight: 600,
-                      color: theme.palette.primary.main,
+                      color: brandFg(isDark),
                     }}
                   >
                     {setupLabel}
