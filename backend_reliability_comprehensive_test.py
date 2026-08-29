@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://merchant-onboard-18.preview.emergentagent.com"
+BASE_URL = "https://crypto-payment-init-1.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
