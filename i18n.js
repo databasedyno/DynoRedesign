@@ -58,121 +58,11 @@ function requireLanguage(lang) {
       ns.referrals = require("./langs/locales/en/referrals.json");
       ns.pageTitles = require("./langs/locales/en/pageTitles.json");
       break;
-    case "pt":
-      ns.common = require("./langs/locales/pt/common.json");
-      ns.auth = require("./langs/locales/pt/auth.json");
-      ns.dashboardLayout = require("./langs/locales/pt/dashboardLayout.json");
-      ns.profile = require("./langs/locales/pt/profile.json");
-      ns.notifications = require("./langs/locales/pt/notifications.json");
-      ns.apiScreen = require("./langs/locales/pt/apiScreen.json");
-      ns.walletScreen = require("./langs/locales/pt/walletScreen.json");
-      ns.companyDialog = require("./langs/locales/pt/companyDialog.json");
-      ns.companySettings = require("./langs/locales/pt/companySettings.json");
-      ns.transactions = require("./langs/locales/pt/transactions.json");
-      ns.createPaymentLinkScreen = require("./langs/locales/pt/createPaymentLinkScreen.json");
-      ns.paymentLinks = require("./langs/locales/pt/paymentLinks.json");
-      ns.helpAndSupport = require("./langs/locales/pt/helpAndSupport.json");
-      ns.landing = require("./langs/locales/pt/landing.json");
-      ns.fees = require("./langs/locales/pt/fees.json");
-      ns.apiStatus = require("./langs/locales/pt/apiStatus.json");
-      ns.termsConditions = require("./langs/locales/pt/termsConditions.json");
-      ns.privacyPolicy = require("./langs/locales/pt/privacyPolicy.json");
-      ns.amlPolicy = require("./langs/locales/pt/amlPolicy.json");
-      ns.referrals = require("./langs/locales/pt/referrals.json");
-      ns.pageTitles = require("./langs/locales/pt/pageTitles.json");
-      break;
-    case "fr":
-      ns.common = require("./langs/locales/fr/common.json");
-      ns.auth = require("./langs/locales/fr/auth.json");
-      ns.dashboardLayout = require("./langs/locales/fr/dashboardLayout.json");
-      ns.profile = require("./langs/locales/fr/profile.json");
-      ns.notifications = require("./langs/locales/fr/notifications.json");
-      ns.apiScreen = require("./langs/locales/fr/apiScreen.json");
-      ns.walletScreen = require("./langs/locales/fr/walletScreen.json");
-      ns.companyDialog = require("./langs/locales/fr/companyDialog.json");
-      ns.companySettings = require("./langs/locales/fr/companySettings.json");
-      ns.transactions = require("./langs/locales/fr/transactions.json");
-      ns.createPaymentLinkScreen = require("./langs/locales/fr/createPaymentLinkScreen.json");
-      ns.paymentLinks = require("./langs/locales/fr/paymentLinks.json");
-      ns.helpAndSupport = require("./langs/locales/fr/helpAndSupport.json");
-      ns.landing = require("./langs/locales/fr/landing.json");
-      ns.fees = require("./langs/locales/fr/fees.json");
-      ns.apiStatus = require("./langs/locales/fr/apiStatus.json");
-      ns.termsConditions = require("./langs/locales/fr/termsConditions.json");
-      ns.privacyPolicy = require("./langs/locales/fr/privacyPolicy.json");
-      ns.amlPolicy = require("./langs/locales/fr/amlPolicy.json");
-      ns.referrals = require("./langs/locales/fr/referrals.json");
-      ns.pageTitles = require("./langs/locales/fr/pageTitles.json");
-      break;
-    case "es":
-      ns.common = require("./langs/locales/es/common.json");
-      ns.auth = require("./langs/locales/es/auth.json");
-      ns.dashboardLayout = require("./langs/locales/es/dashboardLayout.json");
-      ns.profile = require("./langs/locales/es/profile.json");
-      ns.notifications = require("./langs/locales/es/notifications.json");
-      ns.apiScreen = require("./langs/locales/es/apiScreen.json");
-      ns.walletScreen = require("./langs/locales/es/walletScreen.json");
-      ns.companyDialog = require("./langs/locales/es/companyDialog.json");
-      ns.companySettings = require("./langs/locales/es/companySettings.json");
-      ns.transactions = require("./langs/locales/es/transactions.json");
-      ns.createPaymentLinkScreen = require("./langs/locales/es/createPaymentLinkScreen.json");
-      ns.paymentLinks = require("./langs/locales/es/paymentLinks.json");
-      ns.helpAndSupport = require("./langs/locales/es/helpAndSupport.json");
-      ns.landing = require("./langs/locales/es/landing.json");
-      ns.fees = require("./langs/locales/es/fees.json");
-      ns.apiStatus = require("./langs/locales/es/apiStatus.json");
-      ns.termsConditions = require("./langs/locales/es/termsConditions.json");
-      ns.privacyPolicy = require("./langs/locales/es/privacyPolicy.json");
-      ns.amlPolicy = require("./langs/locales/es/amlPolicy.json");
-      ns.referrals = require("./langs/locales/es/referrals.json");
-      ns.pageTitles = require("./langs/locales/es/pageTitles.json");
-      break;
-    case "de":
-      ns.common = require("./langs/locales/de/common.json");
-      ns.auth = require("./langs/locales/de/auth.json");
-      ns.dashboardLayout = require("./langs/locales/de/dashboardLayout.json");
-      ns.profile = require("./langs/locales/de/profile.json");
-      ns.notifications = require("./langs/locales/de/notifications.json");
-      ns.apiScreen = require("./langs/locales/de/apiScreen.json");
-      ns.walletScreen = require("./langs/locales/de/walletScreen.json");
-      ns.companyDialog = require("./langs/locales/de/companyDialog.json");
-      ns.companySettings = require("./langs/locales/de/companySettings.json");
-      ns.transactions = require("./langs/locales/de/transactions.json");
-      ns.createPaymentLinkScreen = require("./langs/locales/de/createPaymentLinkScreen.json");
-      ns.paymentLinks = require("./langs/locales/de/paymentLinks.json");
-      ns.helpAndSupport = require("./langs/locales/de/helpAndSupport.json");
-      ns.landing = require("./langs/locales/de/landing.json");
-      ns.fees = require("./langs/locales/de/fees.json");
-      ns.apiStatus = require("./langs/locales/de/apiStatus.json");
-      ns.termsConditions = require("./langs/locales/de/termsConditions.json");
-      ns.amlPolicy = require("./langs/locales/de/amlPolicy.json");
-      ns.privacyPolicy = require("./langs/locales/de/privacyPolicy.json");
-      ns.referrals = require("./langs/locales/de/referrals.json");
-      ns.pageTitles = require("./langs/locales/de/pageTitles.json");
-      break;
-    case "nl":
-      ns.common = require("./langs/locales/nl/common.json");
-      ns.auth = require("./langs/locales/nl/auth.json");
-      ns.dashboardLayout = require("./langs/locales/nl/dashboardLayout.json");
-      ns.profile = require("./langs/locales/nl/profile.json");
-      ns.notifications = require("./langs/locales/nl/notifications.json");
-      ns.apiScreen = require("./langs/locales/nl/apiScreen.json");
-      ns.walletScreen = require("./langs/locales/nl/walletScreen.json");
-      ns.companyDialog = require("./langs/locales/nl/companyDialog.json");
-      ns.companySettings = require("./langs/locales/nl/companySettings.json");
-      ns.transactions = require("./langs/locales/nl/transactions.json");
-      ns.createPaymentLinkScreen = require("./langs/locales/nl/createPaymentLinkScreen.json");
-      ns.paymentLinks = require("./langs/locales/nl/paymentLinks.json");
-      ns.helpAndSupport = require("./langs/locales/nl/helpAndSupport.json");
-      ns.landing = require("./langs/locales/nl/landing.json");
-      ns.fees = require("./langs/locales/nl/fees.json");
-      ns.apiStatus = require("./langs/locales/nl/apiStatus.json");
-      ns.termsConditions = require("./langs/locales/nl/termsConditions.json");
-      ns.amlPolicy = require("./langs/locales/nl/amlPolicy.json");
-      ns.privacyPolicy = require("./langs/locales/nl/privacyPolicy.json");
-      ns.referrals = require("./langs/locales/nl/referrals.json");
-      ns.pageTitles = require("./langs/locales/nl/pageTitles.json");
-      break;
+    // Non-English locales are intentionally NOT statically required here.
+    // A static require() switch forced webpack to bundle ALL 6 locales
+    // (~1.5 MB raw JSON) into _app for every visitor. Saved non-English
+    // preferences now load through loadLanguageAsync() (per-locale async
+    // chunks) inside applyDetectedLanguage() — see below.
     default:
       return requireLanguage("en");
   }
@@ -245,9 +135,8 @@ async function loadLanguageAsync(lang) {
 //   after React has hydrated, inside `LanguageBootstrap` via
 //   `applyDetectedLanguage()` below. i18n's `changeLanguage()` triggers a
 //   re-render of every `useTranslation()` consumer, so the visible language
-//   updates immediately (and because we PRE-LOAD the detected language into
-//   `initialResources` on the client, the switch is synchronous — no async
-//   chunk load, no visible flash beyond the very first paint).
+//   updates as soon as the locale's async chunk has loaded (first paint is
+//   English, matching SSR — then swaps, same as using the language switcher).
 // Captured at MODULE-LOAD time — i.e. BEFORE i18n.init() below. This matters:
 // the LanguageDetector's localStorage cache and our own languageChanged
 // listener both write "en" into localStorage DURING init, so reading
@@ -261,6 +150,7 @@ const savedLangAtBoot = (() => {
   } catch { return null; }
 })();
 const clientDetectedLang = !isServer ? getInitialLanguage() : DEFAULT_LANGUAGE;
+void clientDetectedLang; // detection still runs; resources load lazily in applyDetectedLanguage()
 const initialLang = DEFAULT_LANGUAGE;
 
 const initialResources = {};
@@ -269,17 +159,11 @@ const initialResources = {};
 initialResources.en = requireLanguage("en");
 _loadedLanguages.add("en");
 
-// On the CLIENT, also pre-load the detected language's resources so the
-// post-hydration `changeLanguage(clientDetectedLang)` call is synchronous.
-// On the server, we skip this because SSR only ever renders in English now.
-if (
-  !isServer &&
-  clientDetectedLang !== "en" &&
-  SUPPORTED_LANGUAGES.includes(clientDetectedLang)
-) {
-  initialResources[clientDetectedLang] = requireLanguage(clientDetectedLang);
-  _loadedLanguages.add(clientDetectedLang);
-}
+// On the CLIENT, a saved non-English preference is loaded as an async
+// per-locale chunk inside applyDetectedLanguage() (post-hydration). The
+// first paint is English (matching SSR), then swaps once the chunk lands —
+// same UX as the language switcher, and it keeps ~1.25 MB of locale JSON
+// out of the _app bundle for everyone.
 
 const instance = i18n.use(LanguageDetector).use(initReactI18next);
 
@@ -329,7 +213,7 @@ if (!isServer) {
  * English is the default. i18n initialises with "en" on BOTH server and client
  * (so SSR and the first client paint match — no hydration mismatch); once
  * hydrated we switch to the language the user previously CHOSE (persisted in
- * localStorage, pre-loaded into the initial bundle so the switch is instant).
+ * localStorage; its resources arrive as a lazy per-locale chunk right here).
  * There is NO browser/timezone/IP auto-detection: a non-English language only
  * appears because the user explicitly selected it.
  */

@@ -1,0 +1,36 @@
+{
+  "summary": "Frontend regression testing for i18n async chunk refactor, /pay duplicate-fetch collapse, and Sparkline rules-of-hooks fix. i18n language switching + reload persistence works cleanly for ES/DE (no missing-resource errors). Dashboard renders (85 SVGs) with NO 'Rendered more hooks' errors — Sparkline fix confirmed. /pay parent fires exactly 1 POST /api/pay/getData in a clean session (both anonymous and logged-in). Landing below-fold sections (How it works / audience doors / FAQ) hydrate correctly on scroll in DE locale. Could NOT create a valid pay link via UI (wallet setup incomplete for the SMADAV workspace / MUI submit button stayed disabled), so V2's initialMeta skip could not be end-to-end verified with a real checkout render — verified via code inspection only.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "/pay?d=<invalid> initial getData count",
+        "issue": "During my FIRST /pay run (right after switching landing locale to DE while logged in as merchant), 2x POST /api/pay/getData fired. Reproducing with a cleared localStorage + fresh session (both anon AND logged-in) consistently shows exactly 1 call. Likely a stale-state / double-render triggered by a leftover token that gets cleared inside getQueryData (localStorage.removeItem('token') at line 466 of /app/pages/pay/index.tsx) — that mutation could invalidate a request in flight and cause the useEffect dep [router.isReady, router.query] to re-fire. Worth double-checking whether the parent effect can double-fire when a merchant is logged-in and opens their own checkout link the first time. Not reproducible on repeat loads.",
+        "affected_selectors": []
+      }
+    ],
+    "design_issues": [
+      { "screen": "Landing header language dropdown", "issues": ["When header EN/ES dropdown is opened, the persistent 'Choose your language' bottom bar remains overlaid on top of the dropdown menu on desktop (1440x900) — mildly awkward but not blocking."] }
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "Investigate whether parent /pay useEffect can double-fire getData when the merchant is authenticated (I saw 2 calls once, then 1 on repeat; likely from the localStorage.removeItem('token') side-effect at pay/index.tsx L466 causing a re-render that changes router.query reference and re-runs the effect). Consider guarding getQueryData with a ref-based 'already-fetched-for-this-ref' latch.",
+    "Add data-testids to /pay checkout network/coin selectors + Continue button so the full checkout QR step can be reliably automated in future regression runs.",
+    "Consider enabling reactStrictMode + audit useEffect deps in /pay/index.tsx — the router.query object dep on line 458 is a fresh reference each render.",
+    "The SMADAV workspace on the test merchant account has no ACTIVE pay links and the Create Payment Link submit button remained disabled (unclear which required field). Please seed an active pay link (and ideally one completed/paid link) for the test merchant so future runs can verify the initialMeta prop skip and the 'Payment Completed' card without going through wallet setup."
+  ],
+  "critical_code_review_comments": [
+    "/app/pages/pay/index.tsx L437-458: useEffect deps are [router.isReady, router.query]. router.query is a new object reference on every render, so the effect can fire more than once after hydration. Recommend depending on `router.isReady, router.query?.d` (primitive) plus a ref-latched fetch guard.",
+    "/app/pages/pay/index.tsx L466: localStorage.removeItem('token') inside getQueryData mutates auth state as a side effect on every load — this could trigger downstream re-renders and, combined with the object-ref dep above, cause a second getData fetch in some sessions.",
+    "/app/pages/pay/index.tsx is 1907 lines — split into focused modules (per code-review guideline: >700 lines should be split)."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (skipped)", "frontend": "83%" },
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ — logs in successfully to /dashboard as workspace 'SMADAV' (note: memory/test_credentials.md said 'Hostbay' — appears renamed or a different workspace is now default).",
+  "seed_data_creation": "None — could not complete Create Payment Link form (submit button remained disabled, likely missing wallet/currency setup).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Primary regression items verified in isolation: (1) i18n async chunks — EN default, then ES/DE via bottom bar + header dropdown both apply Spanish/German copy including 'Comisiones desde el 1,5 %' and 'Gebühren ab 1,5 %'. Reload with savedLang=es preserves Spanish. Zero 'missing i18n resource' console errors. (2) Sparkline conditional-hook fix — /dashboard renders 85 SVGs with zero 'Rendered more hooks' or hook-order errors in console. (3) /pay?d=<any> single-fetch — clean-session POST count to /api/pay/getData = 1 (both anon and authenticated). Only oddity: one run with mixed state (logged-in + landing lang switch preceded) showed 2 calls; not reproducible on retry. What was NOT verified end-to-end: valid checkout render where CleanCheckoutV2 mounts, network/coin selection → QR/address step, verifyCryptoPayment 10s polling, and Payment Completed card — because no active/paid pay link exists on this workspace and the Create-Pay-Link form's submit button stayed disabled (likely wallet setup gap). Recommend main agent seed at least one active + one paid link on the SMADAV workspace, then a targeted retest of the full checkout flow + initialMeta skip on V2 (add a console.log('[V2] using initialMeta') inside CleanCheckoutV2's short-circuit to make it observable in playwright).",
+  "rca of the issue": "N/A — no confirmed bug; one flaky observation of 2 getData calls in a stateful session (see integration_issues + code review comments for hypothesis)."
+}

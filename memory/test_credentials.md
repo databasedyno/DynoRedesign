@@ -505,3 +505,16 @@
 #  #9 sendCreatorHandleUpdatedEmail (accountEmails.ts) fired on handle reserve/change
 #     (email suppressed in preview; do NOT trigger by changing the live handle).
 # ============================================================================
+
+# ============================================================================
+# 2026-08-29 (perf session) — TEST SEED DATA + workspace note
+# ----------------------------------------------------------------------------
+# - Merchant login unchanged: onarrival21@gmail.com / Katiekendra123@ (user_id=1)
+#   NOTE: dashboard default workspace now shows as "SMADAV" (company_id=71);
+#   userData.name is still "Hostbay". Use x-company-id: 71 for API calls.
+# - ACTIVE test payment link (seeded via API for checkout regression tests):
+#     /pay?d=aEmBUd  ($5.00 USD, link_id=286, transaction_id 2c74c734-4bb6-4d6d-ab93-33a84b3a72e5,
+#     description "Perf test link (agent) - safe to delete") — PROD DB, do not pay it.
+# - API notes: POST /api/user/login (exempt from CSRF) -> data.accessToken;
+#   POST /api/pay/createPaymentLink needs Authorization Bearer + company_id in body.
+# ============================================================================

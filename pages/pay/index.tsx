@@ -29,7 +29,7 @@ import {
   Alert,
   AlertTitle
 } from '@mui/material'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import 'react-credit-cards-2/dist/es/styles-compiled.css'
 import { useDispatch } from 'react-redux'
 import { walletState } from '../../utils/types/paymentTypes'
@@ -191,6 +191,9 @@ const Payment = () => {
   const [payLoading, setPayloading] = useState(false)
   const [paymentMode, setPaymentMode] = useState('payment')
   const [allowedModes, setAllowedModes] = useState<any[]>([])
+  // Raw pay/getData response cache (keyed by ref) — handed to CleanCheckoutV2
+  // as initialMeta so the checkout doesn't re-fetch the same payload again.
+  const [prefetchedMeta, setPrefetchedMeta] = useState<{ ref: string; data: any } | null>(null)
   const [accountDetails, setAccountDetails] = useState<CommonDetails>()
   const [selectedCurrency, setSelectedCurrency] = useState('USD')
   const [currencyRates, setCurrencyRates] = useState<currencyData>()
@@ -441,18 +444,26 @@ const Payment = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentType])
 
+  // Ref-latch: pay/getData must fire exactly once per payment ref.
+  // router.query is a fresh object on every render and getQueryData has
+  // side-effects (localStorage token clear) that can re-render — depending on
+  // the primitive ref + latching prevents a duplicate fetch in stateful sessions.
+  const fetchedRefRef = useRef<string | null>(null)
   useEffect(() => {
     // Wait for Next.js to parse the query string — router.query is {} on the
     // first hydration render even when a ?d= param is present in the URL.
     if (!router.isReady) return
-    if (router.query?.d) {
+    const ref = typeof router.query?.d === 'string' ? router.query.d : ''
+    if (ref) {
+      if (fetchedRefRef.current === ref) return
+      fetchedRefRef.current = ref
       getQueryData()
     } else {
       setLoading(false)
       setInitialLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady, router.query])
+  }, [router.isReady, router.query?.d])
 
   const getQueryData = async (refOverride?: string) => {
     try {
@@ -472,6 +483,11 @@ const Payment = () => {
         timezone: customerTimezone,
         language: i18n.language
       })
+
+      // Collapsed round-trip: cache the raw meta so CleanCheckoutV2 skips its
+      // own duplicate pay/getData call (keyed by ref — donation child-ref
+      // re-entries with a different ref simply fall back to self-fetching).
+      setPrefetchedMeta({ ref: String(query_data), data })
 
       // Check if payment is already completed (Direct Pay edge case
       // AND revisit-after-paid case — the customer opened the link a second
@@ -1141,7 +1157,10 @@ const Payment = () => {
   if (cleanCheckoutEligible) {
     return (
       <Pay3Layout embed={isEmbed}>
-        <CleanCheckoutV2 d={String(router.query.d)} />
+        <CleanCheckoutV2
+          d={String(router.query.d)}
+          initialMeta={prefetchedMeta && prefetchedMeta.ref === String(router.query.d) ? prefetchedMeta.data : undefined}
+        />
       </Pay3Layout>
     );
   }

@@ -84,9 +84,13 @@ interface CleanCheckoutV2Props {
   /** Called after payment confirms so the parent page can react (e.g. show
    *  a share sheet, refresh a campaign progress bar, etc). Optional. */
   onSuccess?: () => void
+  /** Raw `pay/getData` response already fetched by the parent page for this
+   *  same ref — when provided, the meta fetch is skipped entirely (collapses
+   *  the duplicate getData round-trip on checkout open). */
+  initialMeta?: Record<string, any>
 }
 
-const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
+const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initialMeta }) => {
   const theme = useTheme()
   const { t } = useTranslation('landing')
   const isDark = theme.palette.mode === 'dark'
@@ -265,9 +269,17 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     setPhase('currency_select')
   }, [])
 
+  // Collapsed round-trip: when the parent page (/pay) already fetched
+  // pay/getData for this exact ref, reuse it — skip BOTH meta fetch paths.
+  useEffect(() => {
+    if (!initialMeta) return
+    applyMeta({ ok: true, status: 200, data: initialMeta })
+  }, [initialMeta, applyMeta])
+
   // Legacy path (flag OFF): manual fetch on mount / when `d` changes.
   useEffect(() => {
     if (SWR_ON) return // SWR drives the meta load — see metaSwr below.
+    if (initialMeta) return // parent already provided the meta — no refetch.
     let cancelled = false
     ;(async () => {
       setPhase('loading_meta')
@@ -281,12 +293,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       applyMeta(r)
     })()
     return () => { cancelled = true }
-  }, [d, SWR_ON, applyMeta])
+  }, [d, SWR_ON, initialMeta, applyMeta])
 
   // Phase C (flag ON): single server-state layer for the meta load. The key
-  // is null when the flag is off, so the fetcher never runs on the legacy path.
+  // is null when the flag is off (or the parent already provided the meta),
+  // so the fetcher never runs on those paths.
   const metaSwr = useSWR(
-    SWR_ON ? ['checkout/getData', d] : null,
+    SWR_ON && !initialMeta ? ['checkout/getData', d] : null,
     async () => {
       try { if (typeof window !== 'undefined') localStorage.removeItem('token') } catch { /* ignore */ }
       return api('/pay/getData', { data: d, language: 'en' }, undefined)

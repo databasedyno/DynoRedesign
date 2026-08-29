@@ -80,6 +80,13 @@ const Sparkline: React.FC<SparklineProps> = ({
     ariaLabel
     || `Trend line — ${safe.length} datapoints, total ${safe.reduce((a, b) => a + b, 0)}, peak ${max}`;
 
+  // Hooks must run unconditionally — keep this ABOVE the allZero early return
+  // (conditional useMemo broke rules-of-hooks and failed `next build`).
+  const gradId = useMemo(
+    () => `spark-fill-${Math.random().toString(36).slice(2, 9)}`,
+    [],
+  );
+
   if (allZero) {
     return (
       <Box
@@ -115,11 +122,6 @@ const Sparkline: React.FC<SparklineProps> = ({
       </Box>
     );
   }
-
-  const gradId = useMemo(
-    () => `spark-fill-${Math.random().toString(36).slice(2, 9)}`,
-    [],
-  );
 
   return (
     <svg

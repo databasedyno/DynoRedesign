@@ -1,3 +1,42 @@
+# FRONTEND PERF PASS (2026-06 fork) — bundle −288 kB/page, checkout single-fetch, build unblocked — DONE (build + testing_agent + e2e verified)
+
+## 1. Bundle analysis + i18n fix (THE win — every page −288 kB gzipped, −46-49%)
+- ROOT CAUSE: i18n.js requireLanguage() was a switch of static require()s over ALL 6 locales × 21 namespaces
+  (~1.5 MB raw JSON) — webpack bundled every branch into _app for every visitor.
+- FIX: requireLanguage() now EN-only; boot preload block removed. Saved non-EN preferences load via the EXISTING
+  loadLanguageAsync() per-locale async chunks inside applyDetectedLanguage() (which already awaits the chunk BEFORE
+  changeLanguage — no re-render dependency on 'added' events). UX: EN first paint (matches SSR) → swap, same as switcher.
+- NUMBERS (next build, gzipped): _app 490→200 kB; shared first-load 580→293 kB; / 624→336 kB; /pay 662→374 kB;
+  /auth/login 723→436 kB. Logs: /app/memory/next_build_baseline.log + next_build_after.log.
+  (Remaining fat: /dashboard 642 kB with 139 kB page-specific — future work.)
+
+## 2. Deploy blocker fixed: `next build` FAILED on react-hooks/rules-of-hooks
+- Components/UI/Sparkline.tsx: gradId useMemo was AFTER the allZero early return (conditional hook = crash risk when
+  data toggles empty↔non-empty). Hoisted above the return. Build now passes WITH lint.
+
+## 3. Checkout duplicate getData collapsed (2 → 1 round-trips on open)
+- pages/pay/index.tsx: getQueryData caches setPrefetchedMeta({ref, data}); CleanCheckoutV2 gets initialMeta prop
+  (only when prefetched ref === router.query.d — donation child-ref re-entries fall back to self-fetch).
+- CleanCheckoutV2.tsx: initialMeta short-circuits BOTH meta paths (legacy effect returns early; metaSwr key null);
+  applyMeta({ok:true,status:200,data:initialMeta}).
+- HARDENING (post-test): parent effect deps [router.isReady, router.query] → [router.isReady, router.query?.d]
+  (primitive) + fetchedRefRef latch — kills the flaky double-fire the testing agent saw once in a stateful session
+  (localStorage.removeItem('token') side-effect + fresh router.query object ref).
+- Checkout polling itself was ALREADY minimal (1× verifyCryptoPayment / 10s) — no change needed.
+- Landing below-fold sections were ALREADY next/dynamic (12 sections, since 2026-08) — no change needed.
+
+## VERIFIED
+- testing_agent iteration_98: i18n ES/DE switch + reload persistence ✓ (no missing-resource errors); dashboard renders,
+  zero hook-order errors ✓; /pay clean-session getData count = 1 ✓ (anon + authed); landing below-fold hydrates ✓.
+- E2E (real link): seeded /pay?d=aEmBUd ($5, link_id 286, "safe to delete", PROD DB) via API — V2 checkout renders
+  (Pay SMADAV, $5.00, LTC selector, live conversion) with EXACTLY 1 getData POST.
+- next build EXIT 0 with lint; frontend restarted healthy; landing SSR intact.
+- MINOR BACKLOG (from tester): language bottom-bar overlays the header language dropdown on desktop; /pay checkout
+  selectors need data-testids; pages/pay/index.tsx is 1907 lines (split candidate).
+
+---
+
+
 # SETTLEMENT KEY HARDENING + AUDIT TRAIL ENFORCEMENT (2026-06 fork) — DONE (tsc + 149 tests + health verified)
 
 ## Task A — Settlement key hardening (extends sweep hardening to ALL remaining raw decrypts; ZERO left codebase-wide)
