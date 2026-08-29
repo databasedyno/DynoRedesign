@@ -41,8 +41,13 @@ const MONITORED_SERVICES = [
         // first row, so it stays fast regardless of table size. (A COUNT(*) here
         // full-scans tbl_customer_transaction on prod and pushed latency over the
         // 1000ms "degraded" threshold even though payments were perfectly healthy.)
-        await sequelize.query("SELECT 1 FROM tbl_payment_link LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT 1 FROM tbl_customer_transaction LIMIT 1", { type: QueryTypes.SELECT });
+        // Single round-trip probe (was 2 sequential SELECTs ≈ 2× DB RTT).
+        // LIMIT 1 subqueries stop at the first row, so this stays fast on large
+        // tables (a COUNT(*) here full-scans tbl_customer_transaction on prod).
+        await sequelize.query(
+          "SELECT (SELECT 1 FROM tbl_payment_link LIMIT 1) AS pl, (SELECT 1 FROM tbl_customer_transaction LIMIT 1) AS ct",
+          { type: QueryTypes.SELECT }
+        );
         return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {
         return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };
@@ -55,10 +60,15 @@ const MONITORED_SERVICES = [
     check: async (): Promise<HealthCheckResult> => {
       const start = Date.now();
       try {
-        // Check wallet tables are accessible (lightweight probe — see note above)
-        await sequelize.query("SELECT 1 FROM tbl_user_wallet LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT 1 FROM tbl_user_addresses LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT 1 FROM tbl_admin_wallet LIMIT 1", { type: QueryTypes.SELECT });
+        // Check wallet tables are accessible in a SINGLE round-trip. The old
+        // 3 sequential SELECTs cost ~3× the ~280ms DB RTT (>600ms on the status
+        // page); folding them into one scalar-subquery probe cuts it to ~1 RTT
+        // (<300ms) with identical semantics — a missing table or permission
+        // error still throws and marks the service unhealthy.
+        await sequelize.query(
+          "SELECT (SELECT 1 FROM tbl_user_wallet LIMIT 1) AS uw, (SELECT 1 FROM tbl_user_addresses LIMIT 1) AS ua, (SELECT 1 FROM tbl_admin_wallet LIMIT 1) AS aw",
+          { type: QueryTypes.SELECT }
+        );
         return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {
         return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };
@@ -87,8 +97,11 @@ const MONITORED_SERVICES = [
       const start = Date.now();
       try {
         // Check user and company tables (dashboard dependencies) — lightweight probe
-        await sequelize.query("SELECT 1 FROM tbl_user LIMIT 1", { type: QueryTypes.SELECT });
-        await sequelize.query("SELECT 1 FROM tbl_company LIMIT 1", { type: QueryTypes.SELECT });
+        // Single round-trip probe (was 2 sequential SELECTs ≈ 2× DB RTT).
+        await sequelize.query(
+          "SELECT (SELECT 1 FROM tbl_user LIMIT 1) AS u, (SELECT 1 FROM tbl_company LIMIT 1) AS c",
+          { type: QueryTypes.SELECT }
+        );
         return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {
         return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };

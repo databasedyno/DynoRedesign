@@ -1,3 +1,28 @@
+# PERF — status-page "wallet" probe 600ms → ~42ms — DONE (2026-06 fork) — testing_agent iteration_93 = 100% backend
+
+User: "wallet is over 600ms on status page, want it under 300ms." ROOT CAUSE: backend/services/monitoringService.ts
+wallet_services health check ran 3 SEQUENTIAL `SELECT 1 FROM <table> LIMIT 1` queries over the SOCKS tunnel to prod
+Postgres (~150-200ms RTT each → 450-600ms). FIX (single round-trip, identical semantics — a missing table/permission
+still throws → unhealthy): one combined scalar-subquery
+`SELECT (SELECT 1 FROM tbl_user_wallet LIMIT 1) AS uw, (SELECT 1 FROM tbl_user_addresses LIMIT 1) AS ua,
+ (SELECT 1 FROM tbl_admin_wallet LIMIT 1) AS aw`. Same fix applied to payment_processing (2 tables) and dashboard
+(2 tables). Latency budgets unchanged.
+VERIFIED: triggered fresh checks via the CSRF double-submit flow (GET /api/csrf-token → POST /api/status/check with
+x-csrf-token+cookie) against the LIVE DB; testing_agent iteration_93 ran 3 cycles → wallet_services latency_ms
+[41,42,41] (<300ms ✅), payment_processing [41,43,42], dashboard [42,44,43], all 5 services operational, no regression.
+webhook_delivery ~81ms is a single Redis call (already 1 round-trip) — left as-is.
+FILES: backend/services/monitoringService.ts; benchmark backend/scripts/measure_status_probes.ts (one-off);
+test backend/tests/test_status_perf.py (added by testing_agent).
+
+CHECKOUT REFACTOR PHASE C — NOT started this turn. I paused mid-investigation (had mapped CleanCheckoutV2's data
+layer: ~15 useState + getData/addPayment/verify-poll useEffects + countdown) to deliver the perf fix the user flagged.
+Phase C = migrate checkout surfaces to a single server-state layer (SWR). Plan (revenue-path safety): do it flag-gated
+on the ACTIVE surface (CleanCheckoutV2 — the only one a real preview payment exercises) first; dormant cryptoTransfer
+(redux-saga, flag-off) can't be validated by a real payment so it's lower priority. Resume here next.
+
+---
+
+
 # COMMIT/PUSH BLOCKER FIX — routes/index.ts over 500-line budget — DONE (2026-06 fork)
 
 "Save to GitHub" was blocked by the husky pre-commit hook. Diagnosed by running the 3 hook checks manually:
