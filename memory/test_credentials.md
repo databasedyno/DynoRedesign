@@ -1,4 +1,35 @@
 # ============================================================================
+# 2026-08-29 (pod eddcc06a) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
+# ----------------------------------------------------------------------------
+# - Preview URL: https://eddcc06a-c59c-436c-bbb2-6bfe1f357032.preview.emergentagent.com
+# - Branch: conflict_280826_1905
+# - Fresh pod: /app restored from git only -> BOTH .env files were MISSING (gitignored).
+#     Rebuilt by hand from the user's full cred paste:
+#       /app/.env         (Next.js frontend subset; NEXT_PUBLIC_BASE_URL EMPTY -> relative /api)
+#       /app/backend/.env (full backend key set)
+#     Installed deps (root next + backend ts-node + python uvicorn/httpx/dotenv).
+# - SAFE MODE (preview talks to the LIVE prod Railway DB):
+#     ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (paste had jobs=true — OVERRIDDEN)
+#     DISABLE_OUTBOUND_EMAIL=true (no Brevo outbound email)
+#     REDIS_PUBLIC_URL -> nozomi.proxy.rlwy.net:15794/1 (isolated Redis DB index 1, not prod's 0)
+#     BINANCE_PROXY_URL + SSH_TUNNEL_HOST BLANKED (Binance geo-blocked 451; FX via Tatum/CoinGecko)
+#     NEXTAUTH_SECRET freshly generated (paste had literal placeholder "openssl rand -base64 32")
+#     DATABASE_URL set explicitly (postgres@roundhouse.proxy.rlwy.net:23599/railway, ssl reject=false)
+#     GOOGLE_CLIENT_KEY inline (no backend/dynopay.json needed at boot; no KMS errors)
+# - >>> CURRENT MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, "Hostbay") <<<
+# - Admin email on record: moxxcompany@gmail.com (password NOT provided -> do not use for login)
+# - VERIFIED: :8001/health healthy (db+redis connected, tatum CLOSED/operational, bg_jobs=false);
+#     POST <preview>/api/user/login -> 200 "Login Successful!" (Hostbay) end-to-end through ingress;
+#     frontend 200 internal :3000 + external preview.
+# - NOTE for testing agents: WIRED TO PRODUCTION DB. Prefer READ-ONLY checks. Next.js dev server
+#     never hits 'networkidle' (HMR ws) -> wait on selectors, not networkidle. Social login
+#     (Google/GitHub) will redirect_uri_mismatch on preview (OAuth redirect URIs point at dynopay.com);
+#     email/password works fine.
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-08-29 (pod ef498f41) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - Preview URL: https://ef498f41-25f6-4b64-922d-cada2ae0e8ff.preview.emergentagent.com
