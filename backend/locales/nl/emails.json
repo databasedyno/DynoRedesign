@@ -109,6 +109,29 @@
     "pdfAttached": "<strong>PDF-bon bijgevoegd</strong> - Een gedetailleerde bon is bij deze e-mail gevoegd voor uw administratie.",
     "contact": "Als u vragen heeft over deze betaling, neem dan rechtstreeks contact op met <strong>{{companyName}}</strong>."
   },
+  "invoice": {
+    "title": "FACTUUR",
+    "number": "Factuurnr.: {{number}}",
+    "date": "Datum: {{date}}",
+    "from": "Van:",
+    "billTo": "Factureren aan:",
+    "taxId": "Btw-nummer: {{id}}",
+    "description": "Omschrijving",
+    "qty": "Aantal",
+    "price": "Prijs",
+    "amount": "Bedrag",
+    "transactionFee": "Transactiekosten ({{pct}}%)",
+    "blockchainBuffer": "Blockchain-buffer ({{pct}}%)",
+    "subtotal": "Subtotaal:",
+    "vat": "Btw ({{pct}}%):",
+    "totalAmount": "Totaalbedrag:",
+    "cryptoEquivalent": "Crypto-equivalent:",
+    "paymentTerms": "Betalingsvoorwaarden:",
+    "underlyingTx": "Onderliggende transactie (context, niet gefactureerd): {{amount}}",
+    "feeBreakdown": "  = Vast {{fixed}} + {{pct}}% van {{base}} ({{fee}})",
+    "transactionReference": "Transactiereferentie: {{id}}",
+    "thankYou": "Bedankt voor uw vertrouwen!"
+  },
   "receipt": {
     "title": "BETALINGSBON",
     "successful": "BETALING GESLAAGD",
@@ -195,7 +218,7 @@
     "typeProduction": "productie",
     "typeDevelopment": "ontwikkeling",
     "welcome": {
-      "subject": "Welkom bij Dynopay - laten we u laten betalen",
+      "subject": "Welkom bij Dynopay - tijd om betaald te worden",
       "heading": "Welkom bij Dynopay",
       "intro1": "Welkom bij Dynopay! We zijn blij dat u erbij bent.",
       "intro2": "Dynopay maakt het accepteren van cryptobetalingen eenvoudig en veilig — tegoeden komen rechtstreeks terecht in een wallet die u beheert. Of u nu freelancer, ondernemer of ontwikkelaar bent, wij hebben alles voor u.",

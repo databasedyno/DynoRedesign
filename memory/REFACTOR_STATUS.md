@@ -134,9 +134,17 @@ Full detail in `memory/COPY_AUDIT.md` + `memory/CHANGELOG.md`. Highlights:
 ### Carried over (pre-2026-08-28, still open)
 - [ ] **P0 Deploy**: Save to GitHub to push the styled.tsx fix → confirm DO build goes ACTIVE.
       (2026-08-28 work is also working-tree-only until the next Save to GitHub.)
-- [ ] **P1 Receipt/Invoice PDF locale**: render downloaded PDF dates+labels in merchant's language.
-- [ ] **P1 Relative-time coverage**: ensure all "X ago" timestamps use shared translated strings.
+- [x] **P1 Receipt/Invoice PDF locale** (2026-08-29): invoice PDF (`services/pdfService.ts` +
+      `controller/invoiceController.ts`) now localizes all 21 labels + date via `emailI18n` `invoice.*`
+      keys × 6 locales; merchant lang resolved via `resolveLangByEmail`. VERIFIED by generating real PDFs
+      EN/DE/PT and extracting text (RECHNUNG/Zwischensumme/Gesamtbetrag/Vielen Dank; FATURA/Valor total/Obrigado).
+      Receipt PDF (`pdfReceiptService.ts`) was already localized.
+- [x] **P1 Relative-time coverage** (2026-08-29): shared `hooks/useRelativeTime.ts` (`relativeTime.*` in
+      common.json ×6). Migrated 6 hardcoded-English `timeAgo`/`relativeFromNow` sites: RateFreshness,
+      LivePaymentFeed, DonorWallV2, donationCampaign, NotificationPage (keeps 7-day→absolute fallback),
+      Payouts. ActiveSessions/LoginActivity already used t(). tsc 0; i18next resolution verified all 6 locales.
 - [ ] **P1 Locale QA screens**: PT (and other langs) side-by-side screenshots of key pages.
+      NOTE: external-preview screenshots blank (Cloudflare→headless timing) — used i18next resolution + SSR/compile.
 - [ ] **P2 Deep read-only page sweep**: safe click-through of logged-in pages for console errors.
 - [ ] **P2 tsc-in-preview guard**: consider a pre-Save `tsc --noEmit` gate so a dev-only type
       error can never reach a DO build again (this exact class of failure).
@@ -144,8 +152,13 @@ Full detail in `memory/COPY_AUDIT.md` + `memory/CHANGELOG.md`. Highlights:
 ### New (from 2026-08-28 finish handoff — not started)
 - [ ] **P1 Real Testimonials** (BLOCKED on user input): landing-page section with real customer
       quotes — user must paste actual quotes first, nothing fabricated (COPY_AUDIT rule).
-- [ ] **P1 Non-EN email subject sweep**: polish de/es/fr/nl/pt email subject lines for casing/
-      tone per-language norms (EN already sentence-cased in Phase 2).
+- [x] **P1 Non-EN email subject sweep** (2026-08-29): audited all ~60 subject keys ×5 non-EN locales.
+      Translations were mostly native/formal already. Fixed 16 outliers: NL welcome MEANING BUG
+      ("laten we u laten betalen" = "let's make you pay" → "tijd om betaald te worden"); DE welcome
+      awkward "Bezahltwerden" → "Zeit, bezahlt zu werden"; es lone-informal → formal (crowdfundingCreated
+      "Tu"→"Su", volumeTierUpgrade, 5× referral); pt BR-style → European-pt formal (volumeTierUpgrade
+      "Você"→dropped, 5× referral: "chance"→"oportunidade", "esperando"→"à espera", "seu/sua"→"o seu/a sua").
+      Donor/contributor family left informal (deliberate warm voice). JSON valid ×5, placeholders intact ×0 mismatch.
 - [ ] **P2 Press OG image**: branded social-preview image for /press (og:image + twitter:card),
       drop into `public/og/`, reference from press.tsx Head.
 - [ ] **P2 Locale parity fix**: de/es/fr/nl/pt `emails.json` miss EN key

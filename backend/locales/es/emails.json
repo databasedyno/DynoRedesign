@@ -109,6 +109,29 @@
     "pdfAttached": "<strong>Recibo en PDF adjunto</strong> - Se adjunta un recibo detallado a este correo para tus registros.",
     "contact": "Si tienes alguna pregunta sobre este pago, ponte en contacto directamente con <strong>{{companyName}}</strong>."
   },
+  "invoice": {
+    "title": "FACTURA",
+    "number": "Factura n.º: {{number}}",
+    "date": "Fecha: {{date}}",
+    "from": "De:",
+    "billTo": "Facturar a:",
+    "taxId": "NIF: {{id}}",
+    "description": "Descripción",
+    "qty": "Cant.",
+    "price": "Precio",
+    "amount": "Importe",
+    "transactionFee": "Comisión de transacción ({{pct}} %)",
+    "blockchainBuffer": "Margen de blockchain ({{pct}} %)",
+    "subtotal": "Subtotal:",
+    "vat": "IVA ({{pct}} %):",
+    "totalAmount": "Importe total:",
+    "cryptoEquivalent": "Equivalente en cripto:",
+    "paymentTerms": "Condiciones de pago:",
+    "underlyingTx": "Transacción subyacente (contexto, no facturada): {{amount}}",
+    "feeBreakdown": "  = Fijo {{fixed}} + {{pct}} % de {{base}} ({{fee}})",
+    "transactionReference": "Referencia de transacción: {{id}}",
+    "thankYou": "¡Gracias por su confianza!"
+  },
   "receipt": {
     "title": "RECIBO DE PAGO",
     "successful": "PAGO EXITOSO",
@@ -195,7 +218,7 @@
     "typeProduction": "producción",
     "typeDevelopment": "desarrollo",
     "welcome": {
-      "subject": "Bienvenido a Dynopay: empieza a cobrar",
+      "subject": "Bienvenido a Dynopay: empiece a cobrar",
       "heading": "Bienvenido a Dynopay",
       "intro1": "¡Bienvenido a Dynopay! Nos alegra tenerle con nosotros.",
       "intro2": "Dynopay hace que aceptar pagos en cripto sea simple y seguro — los fondos se liquidan directamente en una wallet que tú controlas. Ya sea freelancer, empresario o desarrollador, le tenemos cubierto.",
@@ -408,7 +431,7 @@
       "cta": "Abrir enlace de pago"
     },
     "crowdfundingCreated": {
-      "subject": "Tu campaña de crowdfunding está activa — {{title}}",
+      "subject": "Su campaña de crowdfunding está activa — {{title}}",
       "heading": "Campaña de crowdfunding activa",
       "intro": "Tu campaña de crowdfunding está lista para recibir contribuciones.",
       "outro": "Comparte la página de la campaña con tu comunidad para comenzar a recibir contribuciones. Puedes seguir el progreso desde tu panel.",
@@ -540,7 +563,7 @@
       "intro": "Aquí tiene su informe semanal de conversión automática para <strong>{{companyName}}</strong>."
     },
     "volumeTierUpgrade": {
-      "subject": "Acabas de desbloquear el nivel {{newTier}} — {{newPercent}}% de comisión",
+      "subject": "Acaba de desbloquear el nivel {{newTier}} — {{newPercent}}% de comisión",
       "intro": "Buenas noticias — has superado <strong>{{volume}}</strong> en volumen procesado acumulado, y tu nivel de comisión de plataforma acaba de subir de <strong>{{previousTier}}</strong> a <strong>{{newTier}}</strong>.",
       "rateTitle": "Tu nueva tarifa",
       "previousFee": "Comisión anterior",
@@ -627,10 +650,10 @@
     "codeLabel": "Tu código:",
     "unsubscribe": "Cancelar suscripción",
     "reminder": {
-      "subjectWeek1": "No olvides tu oferta exclusiva de Dynopay",
-      "subjectWeek2": "Tu descuento del {{discountPercent}}% te espera - Dynopay",
-      "subjectWeek3": "Solo quedan {{daysRemaining}} días de tu oferta de Dynopay",
-      "subjectFinal": "Última oportunidad: tu descuento de Dynopay caduca en {{daysRemaining}} días",
+      "subjectWeek1": "No olvide su oferta exclusiva de Dynopay",
+      "subjectWeek2": "Su descuento del {{discountPercent}}% le espera - Dynopay",
+      "subjectWeek3": "Solo quedan {{daysRemaining}} días de su oferta de Dynopay",
+      "subjectFinal": "Última oportunidad: su descuento de Dynopay caduca en {{daysRemaining}} días",
       "urgencyWeek1": "Todavía tienes <strong>{{daysRemaining}} días</strong> para reclamar tu descuento exclusivo.",
       "urgencyWeek2": "Tu <strong>descuento exclusivo del {{discountPercent}}%</strong> sigue disponible. Solo quedan <strong>{{daysRemaining}} días</strong>.",
       "urgencyWeek3": "<strong>El tiempo se acaba.</strong> Tu descuento exclusivo del {{discountPercent}}% caduca en solo <strong>{{daysRemaining}} días</strong>.",
@@ -646,7 +669,7 @@
       "unsubscribeSuffix": "de estos recordatorios"
     },
     "invite": {
-      "subject": "Tienes un {{discountPercent}}% de descuento en las comisiones de Dynopay",
+      "subject": "Tiene un {{discountPercent}}% de descuento en las comisiones de Dynopay",
       "intro": "¡Gracias por pagar con Dynopay! ¿Sabías que tú también puedes aceptar pagos en cripto para tu propio negocio?",
       "giftTitle": "Un regalo de bienvenida para ti",
       "offerLine": "<strong>{{discountPercent}}% DE DESCUENTO</strong> en todas las comisiones de Dynopay durante <strong>{{days}} días</strong>",

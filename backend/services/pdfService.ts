@@ -2,6 +2,7 @@ import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
 import { getCurrencySymbol as getCurrencySymbolShared } from "../utils/currencyUtils";
+import { t, normalizeLang } from "../utils/emailI18n";
 
 interface InvoiceData {
   invoice_number: string;
@@ -40,6 +41,8 @@ interface InvoiceData {
   // `base_currency`/`total_amount` behaviour so old callers still work.
   display_currency?: string;
   usd_to_display_rate?: number;
+  // Merchant's language for localizing labels + dates (ISO 639-1). Defaults to "en".
+  lang?: string;
 }
 
 /**
@@ -57,6 +60,10 @@ const getCurrencySymbol = (currency: string): string =>
  */
 export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument => {
   const doc = new PDFDocument({ size: "A4", margin: 50 });
+
+  // Localize labels + date formatting to the merchant's language (falls back to "en").
+  const L = normalizeLang(invoiceData.lang);
+  const dateLocale = L === "en" ? "en-GB" : L;
 
   // "Fiat Everywhere Invoice PDF" — prefer the merchant's chosen DISPLAY
   // currency (Settings → Payments) when the caller supplies it. All stored
@@ -103,7 +110,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
 
   // Helper function to format date
   const formatDate = (date: Date): string => {
-    return new Date(date).toLocaleDateString("en-GB", {
+    return new Date(date).toLocaleDateString(dateLocale, {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -143,11 +150,11 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
   doc
     .fontSize(24)
     .font("Helvetica-Bold")
-    .text("INVOICE", 50, 50, { align: "right" })
+    .text(t("invoice.title", L), 50, 50, { align: "right" })
     .fontSize(10)
     .font("Helvetica")
-    .text(`Invoice #: ${invoiceData.invoice_number}`, 50, 80, { align: "right" })
-    .text(`Date: ${formatDate(invoiceData.invoice_date)}`, 50, 95, {
+    .text(t("invoice.number", L, { number: invoiceData.invoice_number }), 50, 80, { align: "right" })
+    .text(t("invoice.date", L, { date: formatDate(invoiceData.invoice_date) }), 50, 95, {
       align: "right",
     });
 
@@ -156,7 +163,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
   doc
     .fontSize(12)
     .font("Helvetica-Bold")
-    .text("From:", 50, providerStartY)
+    .text(t("invoice.from", L), 50, providerStartY)
     .fontSize(10)
     .font("Helvetica-Bold")
     .text("Dynopay Innovations, LDA", 50, providerStartY + 20)
@@ -176,7 +183,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .fontSize(12)
     .font("Helvetica-Bold")
     .fillColor("#000000")
-    .text("Bill To:", 320, providerStartY)
+    .text(t("invoice.billTo", L), 320, providerStartY)
     .fontSize(10)
     .font("Helvetica")
     .text(invoiceData.customer_name, 320, providerStartY + 20);
@@ -191,7 +198,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
   // Add Tax ID if provided
   if (invoiceData.customer_tax_id) {
     const taxIdY = providerStartY + 35 + (customerAddressLines.length * 13) + 5;
-    doc.fontSize(9).text(`Tax ID: ${invoiceData.customer_tax_id}`, 320, taxIdY);
+    doc.fontSize(9).text(t("invoice.taxId", L, { id: invoiceData.customer_tax_id }), 320, taxIdY);
   }
 
   // --- Separator Line ---
@@ -209,10 +216,10 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .fontSize(10)
     .font("Helvetica-Bold")
     .fillColor("#000000")
-    .text("Description", 50, tableTop)
-    .text("Qty", 300, tableTop, { width: 50, align: "right" })
-    .text("Price", 360, tableTop, { width: 80, align: "right" })
-    .text("Amount", 460, tableTop, { width: 90, align: "right" });
+    .text(t("invoice.description", L), 50, tableTop)
+    .text(t("invoice.qty", L), 300, tableTop, { width: 50, align: "right" })
+    .text(t("invoice.price", L), 360, tableTop, { width: 80, align: "right" })
+    .text(t("invoice.amount", L), 460, tableTop, { width: 90, align: "right" });
 
   // --- Table Header Line ---
   doc
@@ -242,7 +249,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       .font("Helvetica-Oblique")
       .fillColor("#888888")
       .text(
-        `Underlying transaction (context, not billed): ${formatCurrency(numTxAmount)}`,
+        t("invoice.underlyingTx", L, { amount: formatCurrency(numTxAmount) }),
         50,
         yPosition,
         { width: 500 }
@@ -290,7 +297,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       .fontSize(9)
       .font("Helvetica")
       .fillColor("#666666")
-      .text(`Transaction Fee (${numTxFeePercent}%)`, 50, yPosition, { width: 240 })
+      .text(t("invoice.transactionFee", L, { pct: numTxFeePercent }), 50, yPosition, { width: 240 })
       .fillColor("#000000")
       .text(
         formatCurrency(totalTransactionFee),
@@ -312,7 +319,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       .font("Helvetica-Oblique")
       .fillColor("#888888")
       .text(
-        `  = Fixed ${formatCurrency(numFixedFee)} + ${numTxFeePercent}% of ${formatCurrency(numTxAmount)} (${formatCurrency(txFeeAmount)})`,
+        t("invoice.feeBreakdown", L, { fixed: formatCurrency(numFixedFee), pct: numTxFeePercent, base: formatCurrency(numTxAmount), fee: formatCurrency(txFeeAmount) }),
         50,
         yPosition,
         { width: 400 }
@@ -330,7 +337,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       .fontSize(9)
       .font("Helvetica")
       .fillColor("#666666")
-      .text(`Blockchain Buffer (${numBlockchainBuffer}%)`, 50, yPosition, { width: 240 })
+      .text(t("invoice.blockchainBuffer", L, { pct: numBlockchainBuffer }), 50, yPosition, { width: 240 })
       .fillColor("#000000")
       .text(
         formatCurrency(bufferAmount),
@@ -375,7 +382,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .fontSize(10)
     .font("Helvetica")
     .fillColor("#000000")
-    .text("Subtotal:", 360, yPosition, { width: 90, align: "right" })
+    .text(t("invoice.subtotal", L), 360, yPosition, { width: 90, align: "right" })
     .text(formatCurrency(subtotal), 460, yPosition, {
       width: 90,
       align: "right",
@@ -387,7 +394,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     const numVatRate = typeof invoiceData.vat_rate === 'string' ? parseFloat(invoiceData.vat_rate) || 0 : invoiceData.vat_rate;
     doc
       .fontSize(10)
-      .text(`VAT (${numVatRate}%):`, 360, yPosition, {
+      .text(t("invoice.vat", L, { pct: numVatRate }), 360, yPosition, {
         width: 90,
         align: "right",
       })
@@ -414,7 +421,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .fontSize(12)
     .font("Helvetica-Bold")
     .fillColor("#000000")
-    .text("Total Amount:", 360, yPosition, { width: 90, align: "right" })
+    .text(t("invoice.totalAmount", L), 360, yPosition, { width: 90, align: "right" })
     .text(formatCurrency(numDisplayAmount), 460, yPosition, {
       width: 90,
       align: "right",
@@ -428,7 +435,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       .fontSize(9)
       .font("Helvetica")
       .fillColor("#666666")
-      .text("Crypto Equivalent:", 360, yPosition, { width: 90, align: "right" })
+      .text(t("invoice.cryptoEquivalent", L), 360, yPosition, { width: 90, align: "right" })
       .text(
         `${numTotalCrypto.toFixed(8)} ${invoiceData.crypto_currency}`,
         460,
@@ -450,7 +457,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .fontSize(11)
     .font("Helvetica-Bold")
     .fillColor("#000000")
-    .text("Payment Terms:", 50, yPosition)
+    .text(t("invoice.paymentTerms", L), 50, yPosition)
     .fontSize(9)
     .font("Helvetica")
     .fillColor("#333333")
@@ -464,14 +471,14 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .font("Helvetica")
     .fillColor("#999999")
     .text(
-      `Transaction Reference: ${invoiceData.transaction_id}`,
+      t("invoice.transactionReference", L, { id: invoiceData.transaction_id }),
       50,
       footerY,
       { align: "center" }
     )
     .fontSize(9)
     .fillColor("#333333")
-    .text("Thank you for your business!", 50, footerY + 20, { align: "center" })
+    .text(t("invoice.thankYou", L), 50, footerY + 20, { align: "center" })
     .fontSize(8)
     .fillColor("#1976D2")
     .text("Powered by Dynopay - dynopay.com", 50, footerY + 35, { align: "center" })

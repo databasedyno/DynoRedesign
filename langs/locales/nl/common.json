@@ -1,4 +1,15 @@
 {
+  "relativeTime": {
+    "justNow": "zojuist",
+    "secondsAgo": "{{count}} sec geleden",
+    "minutesAgo": "{{count}} min geleden",
+    "hoursAgo": "{{count}} u geleden",
+    "daysAgo": "{{count}} d geleden",
+    "monthsAgo": "{{count}} mnd geleden",
+    "rateJustNow": "Koers zojuist bijgewerkt",
+    "rateSecondsAgo": "Koers {{count}} sec geleden bijgewerkt",
+    "rateMinutesSecondsAgo": "Koers {{m}} min {{s}} sec geleden bijgewerkt"
+  },
   "chooseYourLanguage": "Kies je taal",
   "header": {
     "wallet": "Dynopay Portemonnee",

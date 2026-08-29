@@ -1,4 +1,15 @@
 {
+  "relativeTime": {
+    "justNow": "à l'instant",
+    "secondsAgo": "il y a {{count}} s",
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}} h",
+    "daysAgo": "il y a {{count}} j",
+    "monthsAgo": "il y a {{count}} mois",
+    "rateJustNow": "Taux mis à jour à l'instant",
+    "rateSecondsAgo": "Taux mis à jour il y a {{count}} s",
+    "rateMinutesSecondsAgo": "Taux mis à jour il y a {{m}} min {{s}} s"
+  },
   "chooseYourLanguage": "Choisissez votre langue",
   "language": "Langue",
   "english": "Anglais",

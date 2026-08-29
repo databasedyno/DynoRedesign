@@ -8,6 +8,7 @@ import {
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { useLivePayments, LivePaymentItem } from "@/hooks/useLivePayments";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
 import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
 import { CB_TOKENS, SurfaceCard, Eyebrow } from "./styled";
 import { BRAND_ACCENT } from "@/constants/theme";
@@ -107,22 +108,6 @@ function formatAmount(n: unknown, currency?: string | null): string {
     : `${withComma} ${String(currency).toUpperCase()}`;
 }
 
-function timeAgo(iso?: string): string {
-  if (!iso) return "";
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return "";
-  const now = Date.now();
-  const diff = Math.max(0, Math.round((now - then) / 1000));
-  if (diff < 5) return "just now";
-  if (diff < 60) return `${diff}s ago`;
-  const mins = Math.round(diff / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  return `${days}d ago`;
-}
-
 function txShortId(tx: LivePaymentItem): string {
   const src = tx.transaction_id || String(tx.id || "");
   if (!src) return "—";
@@ -139,6 +124,7 @@ const LivePaymentFeed: React.FC<Props> = ({ paused = false }) => {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation(["dashboardLayout", "common"]);
+  const rel = useRelativeTime();
   const { items, newIds, loading, error } = useLivePayments({
     limit: 10,
     intervalMs: 20000,
@@ -441,7 +427,7 @@ const LivePaymentFeed: React.FC<Props> = ({ paused = false }) => {
                   }}
                 >
                   <TrendingUpRounded sx={{ fontSize: 10 }} />
-                  {timeAgo(tx.createdAt)}
+                  {rel(tx.createdAt)}
                 </Box>
               </Box>
             );

@@ -109,6 +109,29 @@
     "pdfAttached": "<strong>Recibo em PDF anexado</strong> - Um recibo detalhado está anexado a este e-mail para os seus registos.",
     "contact": "Se tiver alguma dúvida sobre este pagamento, contacte diretamente <strong>{{companyName}}</strong>."
   },
+  "invoice": {
+    "title": "FATURA",
+    "number": "Fatura n.º: {{number}}",
+    "date": "Data: {{date}}",
+    "from": "De:",
+    "billTo": "Faturar para:",
+    "taxId": "NIF: {{id}}",
+    "description": "Descrição",
+    "qty": "Qtd.",
+    "price": "Preço",
+    "amount": "Valor",
+    "transactionFee": "Taxa de transação ({{pct}}%)",
+    "blockchainBuffer": "Margem de blockchain ({{pct}}%)",
+    "subtotal": "Subtotal:",
+    "vat": "IVA ({{pct}}%):",
+    "totalAmount": "Valor total:",
+    "cryptoEquivalent": "Equivalente em cripto:",
+    "paymentTerms": "Condições de pagamento:",
+    "underlyingTx": "Transação subjacente (contexto, não faturada): {{amount}}",
+    "feeBreakdown": "  = Fixo {{fixed}} + {{pct}}% de {{base}} ({{fee}})",
+    "transactionReference": "Referência da transação: {{id}}",
+    "thankYou": "Obrigado pela sua preferência!"
+  },
   "receipt": {
     "title": "RECIBO DE PAGAMENTO",
     "successful": "PAGAMENTO BEM-SUCEDIDO",
@@ -540,7 +563,7 @@
       "intro": "Aqui está o seu relatório semanal de conversão automática para <strong>{{companyName}}</strong>."
     },
     "volumeTierUpgrade": {
-      "subject": "Você desbloqueou o nível {{newTier}} — {{newPercent}}% de taxa",
+      "subject": "Desbloqueou o nível {{newTier}} — {{newPercent}}% de taxa",
       "intro": "Boa notícia — você ultrapassou <strong>{{volume}}</strong> em volume processado acumulado, e o seu nível de taxa de plataforma acaba de subir de <strong>{{previousTier}}</strong> para <strong>{{newTier}}</strong>.",
       "rateTitle": "Sua nova taxa",
       "previousFee": "Taxa anterior",
@@ -627,10 +650,10 @@
     "codeLabel": "Seu código:",
     "unsubscribe": "Cancelar inscrição",
     "reminder": {
-      "subjectWeek1": "Não esqueça sua oferta exclusiva da Dynopay",
-      "subjectWeek2": "Seu desconto de {{discountPercent}}% está esperando - Dynopay",
-      "subjectWeek3": "Faltam só {{daysRemaining}} dias para sua oferta da Dynopay",
-      "subjectFinal": "Última chance: seu desconto da Dynopay expira em {{daysRemaining}} dias",
+      "subjectWeek1": "Não se esqueça da sua oferta exclusiva da Dynopay",
+      "subjectWeek2": "O seu desconto de {{discountPercent}}% está à sua espera - Dynopay",
+      "subjectWeek3": "Restam apenas {{daysRemaining}} dias da sua oferta da Dynopay",
+      "subjectFinal": "Última oportunidade: o seu desconto da Dynopay expira em {{daysRemaining}} dias",
       "urgencyWeek1": "Você ainda tem <strong>{{daysRemaining}} dias</strong> para resgatar seu desconto exclusivo.",
       "urgencyWeek2": "Seu <strong>desconto exclusivo de {{discountPercent}}%</strong> ainda está disponível. Restam apenas <strong>{{daysRemaining}} dias</strong>.",
       "urgencyWeek3": "<strong>O tempo está acabando.</strong> Seu desconto exclusivo de {{discountPercent}}% expira em apenas <strong>{{daysRemaining}} dias</strong>.",
@@ -646,7 +669,7 @@
       "unsubscribeSuffix": "destes lembretes"
     },
     "invite": {
-      "subject": "Você tem {{discountPercent}}% de desconto nas taxas da Dynopay",
+      "subject": "Tem {{discountPercent}}% de desconto nas taxas da Dynopay",
       "intro": "Obrigado por pagar com a Dynopay! Sabia que você também pode aceitar pagamentos em cripto no seu próprio negócio?",
       "giftTitle": "Um presente de boas-vindas para você",
       "offerLine": "<strong>{{discountPercent}}% DE DESCONTO</strong> em todas as taxas da Dynopay por <strong>{{days}} dias</strong>",

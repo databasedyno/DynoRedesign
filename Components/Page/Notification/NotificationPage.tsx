@@ -24,6 +24,7 @@ import CircleIcon from "@mui/icons-material/Circle";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useApiSWR } from "@/hooks/useApiSWR";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
 import axiosBaseApi from "@/axiosConfig";
 import SkeletonList from "@/Components/UI/SkeletonList";
 import { useSelector } from "react-redux";
@@ -111,6 +112,7 @@ const NotificationPage = () => {
   const theme = useTheme();
   const namespaces = ["notifications"];
   const { t } = useTranslation(namespaces);
+  const rel = useRelativeTime();
   const tNotifications = useCallback(
     (key: string) => t(key, { ns: "notifications" }),
     [t],
@@ -282,12 +284,8 @@ const NotificationPage = () => {
 
   const formatTimeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    if (days < 7) return `${days}d ago`;
+    const days = Math.floor(diff / 86400000);
+    if (days < 7) return rel(dateStr);
     return formatDateI18n(dateStr);
   };
 

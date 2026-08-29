@@ -22,6 +22,7 @@ import {
 import { Icon } from '@iconify/react'
 import { useTranslation } from 'react-i18next'
 import Logo from '@/assets/Icons/Logo'
+import { useRelativeTime } from '@/hooks/useRelativeTime'
 import {
   formatWithSeparators,
   getCurrencySymbolFromFormat,
@@ -168,23 +169,11 @@ interface DonationCampaignProps {
 const MESSAGE_MAX = 280
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 
-const timeAgo = (iso: string): string => {
-  const d = new Date(iso).getTime()
-  if (!Number.isFinite(d)) return ''
-  const s = Math.max(1, Math.floor((Date.now() - d) / 1000))
-  if (s < 60) return `${s}s ago`
-  const m = Math.floor(s / 60)
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  const dd = Math.floor(h / 24)
-  return dd < 30 ? `${dd}d ago` : `${Math.floor(dd / 30)}mo ago`
-}
-
 const DonationCampaign = ({ donation, merchant, submitting, onDonate }: DonationCampaignProps) => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const { t } = useTranslation('common')
+  const rel = useRelativeTime()
 
   const currency = donation.currency || 'USD'
   const symbol = getCurrencySymbolFromFormat(currency)
@@ -925,7 +914,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                             {upd.title}
                           </Typography>
                           <Typography fontSize={11.5} color={theme.palette.text.secondary} sx={{ mt: 0.25, mb: 1 }}>
-                            {timeAgo(upd.created_at)}
+                            {rel(upd.created_at)}
                           </Typography>
                           {upd.image_url && (
                             <Box

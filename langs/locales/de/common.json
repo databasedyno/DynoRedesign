@@ -1,4 +1,15 @@
 {
+  "relativeTime": {
+    "justNow": "gerade eben",
+    "secondsAgo": "vor {{count}} Sek.",
+    "minutesAgo": "vor {{count}} Min.",
+    "hoursAgo": "vor {{count}} Std.",
+    "daysAgo": "vor {{count}} T.",
+    "monthsAgo": "vor {{count}} Mon.",
+    "rateJustNow": "Kurs gerade aktualisiert",
+    "rateSecondsAgo": "Kurs vor {{count}} Sek. aktualisiert",
+    "rateMinutesSecondsAgo": "Kurs vor {{m}} Min. {{s}} Sek. aktualisiert"
+  },
   "chooseYourLanguage": "Wählen Sie Ihre Sprache",
   "header": {
     "wallet": "Dynopay Wallet",

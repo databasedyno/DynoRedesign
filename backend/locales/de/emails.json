@@ -109,6 +109,29 @@
     "pdfAttached": "<strong>PDF-Beleg angehängt</strong> - Ein detaillierter Beleg ist dieser E-Mail für Ihre Unterlagen beigefügt.",
     "contact": "Bei Fragen zu dieser Zahlung wenden Sie sich bitte direkt an <strong>{{companyName}}</strong>."
   },
+  "invoice": {
+    "title": "RECHNUNG",
+    "number": "Rechnungsnr.: {{number}}",
+    "date": "Datum: {{date}}",
+    "from": "Von:",
+    "billTo": "Rechnung an:",
+    "taxId": "Steuer-ID: {{id}}",
+    "description": "Beschreibung",
+    "qty": "Menge",
+    "price": "Preis",
+    "amount": "Betrag",
+    "transactionFee": "Transaktionsgebühr ({{pct}} %)",
+    "blockchainBuffer": "Blockchain-Puffer ({{pct}} %)",
+    "subtotal": "Zwischensumme:",
+    "vat": "MwSt. ({{pct}} %):",
+    "totalAmount": "Gesamtbetrag:",
+    "cryptoEquivalent": "Krypto-Gegenwert:",
+    "paymentTerms": "Zahlungsbedingungen:",
+    "underlyingTx": "Zugrunde liegende Transaktion (Kontext, nicht berechnet): {{amount}}",
+    "feeBreakdown": "  = Fest {{fixed}} + {{pct}} % von {{base}} ({{fee}})",
+    "transactionReference": "Transaktionsreferenz: {{id}}",
+    "thankYou": "Vielen Dank für Ihr Vertrauen!"
+  },
   "receipt": {
     "title": "ZAHLUNGSBELEG",
     "successful": "ZAHLUNG ERFOLGREICH",
@@ -195,7 +218,7 @@
     "typeProduction": "Produktion",
     "typeDevelopment": "Entwicklung",
     "welcome": {
-      "subject": "Willkommen bei Dynopay - los geht's mit dem Bezahltwerden",
+      "subject": "Willkommen bei Dynopay - Zeit, bezahlt zu werden",
       "heading": "Willkommen bei Dynopay",
       "intro1": "Willkommen bei Dynopay! Wir freuen uns, Sie an Bord zu haben.",
       "intro2": "Dynopay macht das Akzeptieren von Krypto-Zahlungen einfach und sicher — Gelder landen direkt in einer Wallet, die Sie kontrollieren. Ob Freelancer, Unternehmer oder Entwickler – wir haben alles für Sie.",

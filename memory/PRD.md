@@ -1,3 +1,28 @@
+# i18n POLISH SWEEP (2026-08-29 fork, pod 202ba772) — Invoice PDF locale + Relative-time + Email subjects — DONE (verified)
+
+Preview: https://202ba772-6f6c-47cd-b818-8283625b1748.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF). FE tsc EXIT 0, BE healthy.
+
+Four user-picked i18n items completed:
+1. **Invoice PDF localization** — `services/pdfService.ts` + `controller/invoiceController.ts`: 21 `invoice.*`
+   label keys ×6 locales in emails.json + locale-aware dates; merchant lang via `resolveLangByEmail`.
+   VERIFIED: generated real PDFs EN/DE/PT, extracted text — DE "RECHNUNG/Zwischensumme/Gesamtbetrag/Vielen Dank",
+   PT "FATURA/Valor total/Obrigado" all render (accents intact). (Receipt PDF already localized.)
+2. **Relative-time "X ago"** — new shared `hooks/useRelativeTime.ts` (`relativeTime.*` in common.json ×6).
+   Migrated 6 hardcoded-English sites: RateFreshness, LivePaymentFeed, DonorWallV2, donationCampaign,
+   NotificationPage (7-day→absolute date fallback kept), Payouts. VERIFIED: tsc 0 + i18next resolution
+   proves all 6 locales incl multi-token rate format ("Kurs vor 2 Min. 5 Sek. aktualisiert" etc).
+3. **Non-EN email subject sweep** — audited ~60 subjects ×5 locales; fixed 16 outliers (NL welcome MEANING
+   BUG "let's make you pay"→"time to get paid"; DE welcome awkward; es→formal; pt BR→European-pt). JSON valid,
+   placeholders intact. Donor/contributor family left informal (deliberate). STATIC ONLY (email OFF).
+4. **FAQ A3 fee-basis** — already correct (all-time settled volume) in all 6 locales; NO change needed.
+
+CAVEAT: external-preview screenshots blank (Cloudflare→headless timing, known); verified via PDF text
+extraction + i18next resolution + FE compile/tsc, NOT device screenshots. No testing_agent run (SAFE MODE,
+low-risk mechanical change). Files: see REFACTOR_STATUS.md "Next Actions" checkboxes.
+
+---
+
+
 # HOSTBAY WEBHOOK / CREDITING FIX (2026-08-29 fork) — CODE DONE, DEPLOY PENDING
 - Problem: Hostbay crypto orders paid on-chain but never credited. RCA via DigitalOcean + Railway logs.
 - Root cause: DynoPay's merchant re-verify endpoint GET /api/user/getCryptoTransaction/:address returned HTTP 400

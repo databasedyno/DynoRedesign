@@ -1,4 +1,15 @@
 {
+  "relativeTime": {
+    "justNow": "just now",
+    "secondsAgo": "{{count}}s ago",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago",
+    "monthsAgo": "{{count}}mo ago",
+    "rateJustNow": "Rate updated just now",
+    "rateSecondsAgo": "Rate updated {{count}}s ago",
+    "rateMinutesSecondsAgo": "Rate updated {{m}}m {{s}}s ago"
+  },
   "chooseYourLanguage": "Choose your language",
   "language": "Language",
   "english": "English",

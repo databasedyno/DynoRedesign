@@ -16,6 +16,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 export interface DonorSupporter {
   name: string | null;
@@ -38,20 +39,6 @@ interface Props {
 }
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
-
-function timeAgo(iso: string): string {
-  const d = new Date(iso).getTime();
-  if (!Number.isFinite(d)) return "";
-  const s = Math.max(1, Math.floor((Date.now() - d) / 1000));
-  if (s < 45) return "just now";
-  if (s < 60) return `${s}s ago`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const dd = Math.floor(h / 24);
-  return dd < 30 ? `${dd}d ago` : `${Math.floor(dd / 30)}mo ago`;
-}
 
 function hueFromName(name: string | null): number {
   const s = name || "anon";
@@ -76,6 +63,7 @@ export default function DonorWallV2({
 }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const rel = useRelativeTime();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -280,7 +268,7 @@ export default function DonorWallV2({
                     mt={0.35}
                     data-testid={`donation-supporter-time-${i}`}
                   >
-                    {timeAgo(s.at)}
+                    {rel(s.at)}
                   </Typography>
                 )}
               </Box>

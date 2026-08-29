@@ -35,6 +35,7 @@ import Sparkline from "@/Components/UI/Sparkline";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import useApiSWR from "@/hooks/useApiSWR";
+import { useRelativeTime } from "@/hooks/useRelativeTime";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import API_ENDPOINTS from "@/api/endpoints";
 import { formatDateI18n } from "@/utils/formatDate";
@@ -151,18 +152,6 @@ const statusMeta = (status?: string) => {
 
 // Matches the backend UNPAID_AFTER_MINUTES payment window — a fresh 'pending'
 // row auto-expires (shown as 'unpaid') after this many minutes.
-const relativeFromNow = (v?: string) => {
-  if (!v) return "";
-  const t = new Date(v).getTime();
-  if (!Number.isFinite(t)) return "";
-  const m = Math.floor((Date.now() - t) / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-};
-
 const PAYMENT_WINDOW_MIN = 60;
 const minutesLeftToConfirm = (v?: string) => {
   if (!v) return null;
@@ -317,6 +306,7 @@ const PayoutsPage: React.FC = () => {
 
   const dispatch = useDispatch();
   const { t } = useTranslation("common");
+  const rel = useRelativeTime();
 
   // Pending funds — awaiting on-chain confirmation. Dedicated endpoint returns
   // fresh-pending rows + an accurate USD total (server converts crypto → USD).
@@ -1183,7 +1173,7 @@ const PayoutsPage: React.FC = () => {
           <Stack divider={<Divider flexItem />} spacing={0}>
             {pendingTxns.slice(0, 6).map((tx, i) => {
               const who = payerLabel(tx);
-              const started = relativeFromNow(tx?.createdAt || tx?.created_at);
+              const started = rel(tx?.createdAt || tx?.created_at);
               const left = minutesLeftToConfirm(tx?.createdAt || tx?.created_at);
               return (
                 <Stack
