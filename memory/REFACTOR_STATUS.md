@@ -1,5 +1,197 @@
 # REFACTOR STATUS
 
+---
+
+# 📋 IMPLEMENTATION PLAN — Referral Revenue-Share Rewards (added 2026-06, pod eddcc06a)
+
+> STATUS: PLAN ONLY — not yet built. Awaiting go-ahead. Money-path feature; prod Railway DB in SAFE MODE
+> (background jobs OFF), so accrual + payout crons will NOT run in preview — they run on the prod leader only.
+
+## 0. Decision (from user)
+- Reward model: **recurring revenue share** — referrer earns **25% of the platform fees Dynopay collects
+  from each merchant they referred, for 12 months** from activation.
+- Payout: **real crypto payout to the referrer's wallet** (with a minimum threshold).
+- Activation gate: **keep** the existing "referred merchant's first $100+ successful payment" rule.
+- Invitee reward is UNCHANGED: they still get 50% off fees for 30 days at signup.
+- What this REPLACES: the old broken referrer reward ("50% off / 30d, no stacking, no extension, often $0"
+  granted by `referralService.processReferrerReward`). Referrer now gets cash revenue share instead of a
+  fee discount.
+
+## 1. Code-review findings (money path — verified)
+- Per-transaction platform fee is stored on **tbl_user_transaction**: `transaction_fee` (percent-fee portion)
+  + `fixed_fee` (fixed portion), both in the transaction's `base_currency`; `usd_value` holds the USD value;
+  `status` gates settlement. `blockchain_buffer_fee` is a NETWORK pass-through, NOT platform margin → EXCLUDE.
+- Canonical USD fee-collected formula (already used by `services/payoutDigestService.ts` L176-177):
+  `(COALESCE(transaction_fee,0) + COALESCE(fixed_fee,0)) * (COALESCE(usd_value,0) / NULLIF(base_amount,0))`.
+  → This is the exact base the 25% is taken from. Because a discounted merchant's stored `transaction_fee`
+    is ALREADY the discounted amount, 25% of it is automatically correct (no double-pay).
+- **tbl_customer_transaction** has NO fee columns (buyer-side: base_amount/paid_amount/status). Use it ONLY
+  for the $100 activation gate (the existing cron already does: `referralRewardMonitor.processPendingReferrerRewards`).
+- Settled-status definition: reuse the app-wide `PROCESSED_STATUS_SQL` (utils/processedVolume.ts) that
+  dashboard/wallet already use, so referral revenue reconciles with the merchant's reported fees.
+- Existing schema to reuse:
+  - `tbl_referral` (referrer_user_id, referred_user_id, status pending|active|rewarded|expired, activated_at,
+    referred_at, expires_at). Currently `bonus_amount` DECIMAL(10,2) default 10.00 — unused for revenue share.
+  - `tbl_referral_reward` (reward_id, referral_id, user_id, reward_type: 'bonus_credit'|'discount'|'commission',
+    amount DECIMAL(10,2), currency, status: 'pending'|'credited'|'withdrawn', transaction_id, credited_at,
+    withdrawn_at). `reward_type='commission'` ALREADY exists → perfect for this.
+  - Endpoints already present: `GET /api/referral/my-code`, `/list`, `/earnings` (reads tbl_referral_reward),
+    `/discount-status`. Frontend `hooks/useDashboardData` action-counts already exposes `referrals_pending`.
+  - Cron: `utils/crons/referralRewardMonitor.ts` (every 15 min, leader-only via registerLeaderCronJobs, OFF when
+    ENABLE_BACKGROUND_JOBS=false). Extend this rather than add a new cron.
+- OPEN ITEM to confirm at build time: `processReferrerReward` (referralService.ts) currently GRANTS a referrer
+  fee discount and has a "only if no active discount" guard (the no-stacking bug). This must be REPURPOSED to
+  "activate + open the 12-month commission window" and must NOT grant a fee discount anymore.
+
+## 2. Reward math (precise)
+- On activation (first $100+ settled payment by the referred merchant, on/after `referred_at`):
+  - `referral.status = 'active'`, `referral.activated_at = now`.
+  - Open commission window: `commission_window_ends_at = activated_at + 12 months`.
+- Accrual (periodic, per active referral, while `now < commission_window_ends_at`):
+  - `feesUSD = SUM( (transaction_fee + fixed_fee) * usd_value/NULLIF(base_amount,0) )`
+    FROM tbl_user_transaction WHERE user_id = referred_user_id AND <PROCESSED_STATUS_SQL>
+    AND "createdAt" > last_accrual_at AND "createdAt" <= LEAST(now, commission_window_ends_at).
+  - `commissionUSD = round(feesUSD * 0.25, 2)`; add to running accrued balance; advance `last_accrual_at`.
+- Payout: when accrued-unpaid balance ≥ MIN_PAYOUT_USD (default $25), pay it out in crypto to the referrer's
+  chosen wallet; mark the corresponding `tbl_referral_reward` rows `status='withdrawn'`, store the crypto tx hash.
+
+## 3. Schema changes (migration — versioned boot migration, create-only in prod)
+Add to **tbl_referral**:
+- `commission_rate DECIMAL(5,4) DEFAULT 0.2500`
+- `commission_window_ends_at TIMESTAMP NULL`
+- `commission_accrued_usd DECIMAL(14,2) DEFAULT 0`  (lifetime accrued for this referral)
+- `commission_paid_usd DECIMAL(14,2) DEFAULT 0`     (lifetime paid out)
+- `last_accrual_at TIMESTAMP NULL`                   (accrual watermark; init = activated_at)
+Add a payout-preference (referrer-level) — reuse existing merchant wallet or add:
+- `tbl_user.referral_payout_wallet_type` / `referral_payout_address` (nullable) OR reuse a selected reusable
+  wallet. DECISION at build: prefer letting the referrer pick one of their existing verified wallet addresses.
+Optionally add to **tbl_referral_reward**: `period_start`, `period_end`, `tx_hash` (for payout audit); or store
+tx hash in the existing `transaction_id` column and periods in a JSON `notes`. (Keep model < schema churn.)
+
+## 4. Backend build (phased for money-safety)
+PHASE 1 — Accrual + visibility (NO money movement, safe to ship first):
+1. Migration: add the tbl_referral columns above (bootMigrations.ts).
+2. `referralService.ts`:
+   - Repurpose `processReferrerReward()` → `activateReferral()`: set status='active', activated_at,
+     commission_window_ends_at = +12mo, last_accrual_at = activated_at. REMOVE the referrer fee-discount grant.
+   - New `accrueReferralCommission(referral)`: run the accrual SQL above, upsert a running 'commission'
+     `tbl_referral_reward` row (status='pending'), bump `commission_accrued_usd`, advance `last_accrual_at`,
+     increment `User.referral_bonus_earned`. Idempotent via the watermark.
+   - New `getReferrerCommissionSummary(userId)`: per-referral + totals (accrued / pending-unpaid / paid).
+3. `utils/crons/referralRewardMonitor.ts`: keep `processPendingReferrerRewards` for ACTIVATION; add
+   `accrueActiveReferralCommissions()` that loops active, in-window referrals and calls accrueReferralCommission.
+4. Endpoints: extend `GET /api/referral/earnings` to include the running commission summary + 12-month
+   window countdown; keep response backward-compatible.
+PHASE 2 — Crypto payout (guarded; ship after Phase 1 is verified in prod):
+5. `POST /api/referral/payout/request` — referrer requests payout of unpaid balance (≥ MIN_PAYOUT_USD) to a
+   chosen verified wallet. Gate with the SAME OTP/2FA the withdrawal flow uses (controller/wallet/withdrawals.ts,
+   walletOtp.ts). Idempotency key per request. Creates a payout record (pending).
+6. Payout execution (leader cron or admin approval): platform-funded crypto send from an admin/treasury wallet
+   to the referrer address (reuse the Tatum send + admin fee wallet infra). On success: set referral_reward rows
+   'withdrawn', store tx_hash, bump `commission_paid_usd`. On fail: retry/backoff, never double-send.
+7. Admin surface: optional manual approve/deny + a treasury-balance guard so payouts can't exceed funds.
+
+## 5. Frontend build
+- `pages/referrals` (or Referrals section): show per-referred-merchant commission (accrued, this-month, window
+  days remaining), lifetime paid, and a "Withdraw to wallet" button (Phase 2) with wallet picker + OTP modal.
+- Dashboard "Referral Earnings" card (the P1 backlog item): now shows REAL pending commission (USD) with a CTA.
+  Data from the extended `/api/referral/earnings`. Add data-testids.
+- Copy: explain "Earn 25% of the fees from every merchant you refer, for 12 months. Paid in crypto."
+
+## 6. Risks / guardrails
+- MONEY PATH: Phase 2 moves real funds out of a treasury wallet → must have: min threshold, OTP/2FA, idempotency,
+  treasury-balance check, admin approval option, full audit (tx_hash), and reconciliation vs commission_accrued.
+- Accrual must be idempotent (watermark) so a cron re-run never double-credits.
+- Window boundary: cap accrual at `commission_window_ends_at`; after it, referral → 'rewarded'/'expired' (closed).
+- Fee discounts on the referred merchant are already baked into stored `transaction_fee` → no double counting.
+- SAFE MODE: crons don't run in preview; test Phase 1 accrual with a manual invoke script against a scratch
+  referral, or on a staging DB — DO NOT hand-mutate prod referral rows.
+- Chargeback/refund: if a referred merchant's payment is later reversed, the accrued fee should be clawed back;
+  Phase 1 note — only accrue on terminally-settled statuses (PROCESSED_STATUS_SQL) to minimise this.
+
+## 7. Suggested ship order
+P1 (safe, visible value): §3 migration → §4 Phase 1 (activation repurpose + accrual + earnings endpoint) →
+§5 dashboard Referral Earnings card + referrals breakdown.  ← delivers real, growing numbers with zero fund risk.
+P2 (funds movement): §4 Phase 2 crypto payout with OTP + treasury guard + admin approval.
+
+## 8. DISCUSSION NOTES & OPEN DECISIONS (2026-06 — read before building Phase 2)
+
+### 8.1 Audience (confirmed by user)
+Referrers will be a MIX of (a) existing Dynopay merchants who transact and (b) affiliates/agencies/influencers
+who do NOT run their own payments. Consequence: a single pure model fails half the audience — merchants won't
+bother to cash out, affiliates can't use fee credit. → Points to a BLENDED delivery model.
+
+### 8.2 Recommended delivery model (user still deciding — "keep discussing"; NOT locked)
+Decouple ACCOUNTING from PAYOUT: accrue the 25%/12mo as ONE USD balance per referrer (build once). Then:
+- DEFAULT = auto fee-credit — the USD balance auto-reduces the referrer's own Dynopay fees at settlement.
+  Zero friction, no funds leave the business, reuses the existing fee_discount machinery. Serves merchant-referrers.
+- OPT-IN cash-out — for referrers whose balance outgrows their own fees (affiliates). Gated (threshold +
+  verification + OTP). Serves affiliate-referrers.
+This is self-protecting: merchants stay on the cheap credit path; only those who can't consume credit cash out,
+and that path is gated. NOTE: unlike the OLD reward (use-it-or-lose-it 50%/30d), a credit BALANCE doesn't expire
+and stacks per referral — strictly better even before adding cash-out.
+
+### 8.3 KEY ECONOMIC INSIGHT (settles the "what does it cost me" worry)
+Revenue-share is SELF-FUNDING — it pays back a slice of fees ALREADY collected into treasury. Margin is
+IDENTICAL whether delivered as credit or cash: credit → forgo 25% of the fee (keep 75%); cash → collected 100%
+into treasury, send back 25% (keep 75%). Same 75% either way. So credit-vs-cash is NOT a P&L question — it's a
+risk / operations / cash-flow-timing question. You can never pay out more than you earned from that merchant
+(ignoring on-chain network fee + fraud).
+
+### 8.4 PAYOUT MECHANICS — verified against the codebase (for Phase 2 cash-out)
+- FUNDING SOURCE: the platform's collected fees. Fees are skimmed into treasury wallets defined as
+  `FEE_WALLETS` / `ADMIN_WALLETS` in `services/merchantPool/merchantPoolConfig` (per-transaction fee events are
+  also logged in `tbl_admin_fee_transaction`, amount_in_usd). Pay referral cash-outs FROM this treasury.
+- TWO EXISTING PAYOUT RAILS already in the code:
+  1. ON-CHAIN via Tatum — the SAME rail merchant withdrawals use: `controller/wallet/withdrawals.ts` →
+     `tatumClient.assetBatchAddressesToOtherAddress` (+ `tatumClient.batchFeeEstimation`), gated by a Redis
+     withdrawal-OTP (`<email>-withdrawal-otp`). RECOMMENDED: send USDT direct from treasury to the referrer's
+     saved address. Cheapest, no exchange dependency.
+  2. BINANCE API withdrawal — `services/conversionService.ts` already does exchange-based payouts
+     (trade → binanceWithdrawal, tracks binanceWithdrawalFee). Only needed if you want to CONVERT mixed fee
+     coins → USDT before paying. Adds Binance KYC/API-key/geo dependency (Binance WS is already geo-blocked in
+     this infra — see binanceService.detectBinanceAccess).
+- CURRENCY: default USDT (balance accrues in USD → stablecoin = zero FX drift). CHAIN: TRC-20 (Tron) for ~$1
+  network fee (ERC-20 would eat small payouts). Optionally let referrer pick from supported chains later.
+- LIQUIDITY GOTCHA: treasury holds MIXED coins (whatever merchants paid in). To pay USDT you must either
+  (a) keep USDT liquidity in treasury, or (b) convert collected fees → USDT on demand via the Binance
+  conversion rail. Decide before Phase 2.
+- AUTO vs MANUAL: referrer saves a payout address once; can auto-send when balance ≥ threshold. Fully-auto
+  on-chain sends are the highest fraud surface → recommended: auto-accrue always, but first-ever cash-out
+  passes OTP/verification (reuse withdrawal OTP); can go auto after the referrer is trusted.
+- FRAUD is self-limiting: to accrue anything a fraudster must push real $100+ settled payments through Dynopay
+  and pay 75% of the fee to claw back 25% — a losing game. Still gate cash-out (threshold + verification + OTP).
+
+### 8.5 OPEN QUESTIONS — still UNANSWERED by user (get these before implementing Phase 2)
+Q1 Reward delivery final call: fee-credit only / cash-only / BLENDED (recommended). (User: "keep discussing".)
+Q2 Payout rail: (a) Tatum on-chain USDT-TRC20 from treasury [recommended] / (b) Binance API / (c) decide at P2.
+Q3 Cash-out trigger: (a) auto to saved wallet w/ first-time OTP [recommended] / (b) always user-initiated+OTP /
+   (c) fully automatic.
+Q4 Treasury USDT liquidity: (a) keep USDT in treasury / (b) convert on demand via Binance / (c) revisit at P2.
+Q5 Ship order: (a) Phase 1 fee-credit now, cash-out later [recommended] / (b) both now / (c) discuss more.
+
+### 8.6 WHAT THE NEXT AGENT CAN SAFELY BUILD NOW (independent of Q1–Q5)
+Phase 1 is safe regardless of the payout decision because it moves NO funds:
+1. Migration: add tbl_referral columns from §3 (commission_rate, commission_window_ends_at,
+   commission_accrued_usd, commission_paid_usd, last_accrual_at).
+2. referralService: repurpose `processReferrerReward` → `activateReferral` (status='active', activated_at,
+   commission_window_ends_at = +12mo, last_accrual_at = activated_at; REMOVE the referrer fee-discount grant +
+   its "only if no active discount" no-stacking guard). Add idempotent `accrueReferralCommission` (watermark
+   SQL from §2 over tbl_user_transaction, PROCESSED_STATUS_SQL) writing a running 'commission'
+   tbl_referral_reward row. Add `getReferrerCommissionSummary`.
+3. Cron: extend `utils/crons/referralRewardMonitor.ts` with `accrueActiveReferralCommissions()`.
+   (Runs leader-only, ENABLE_BACKGROUND_JOBS=true — NOT in this SAFE-MODE preview. Test accrual via a manual
+   invoke script against a SCRATCH referral or staging DB — DO NOT hand-mutate prod referral rows.)
+4. Endpoint: extend `GET /api/referral/earnings` with the commission summary + 12-month window countdown
+   (backward-compatible).
+5. Frontend: real dashboard "Referral Earnings" card + per-referred-merchant breakdown (accrued / this-period /
+   window days left), data-testids. Copy: "Earn 25% of the fees from every merchant you refer, for 12 months."
+DEFER to Phase 2 (needs Q1–Q4): the actual cash-out endpoint, treasury send, OTP payout, admin approval,
+liquidity/conversion.
+
+---
+
+
 _Last updated: 2026-08-28_
 
 ## Context
