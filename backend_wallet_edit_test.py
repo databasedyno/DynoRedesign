@@ -13,7 +13,7 @@ import json
 import sys
 
 # Configuration - use the external URL from backend/.env
-BASE_URL = "https://crypto-checkout-45.preview.emergentagent.com"
+BASE_URL = "https://payment-gateway-init-1.preview.emergentagent.com"
 
 # Test credentials (returns JWT directly, NO OTP for this account)
 LOGIN_EMAIL = "moxxcompany@gmail.com"

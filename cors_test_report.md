@@ -1,7 +1,7 @@
 # Session 67 — CORS Domain Guardrail Testing Report
 
 ## Test Date: 2026-07-17
-## Backend URL: https://crypto-checkout-45.preview.emergentagent.com
+## Backend URL: https://payment-gateway-init-1.preview.emergentagent.com
 ## Testing Agent: deep_testing_backend_v2
 
 ---
@@ -29,7 +29,7 @@
 | 2 | https://checkout.dynopay.com | ALLOWED | `*` (wildcard) | ⚠️ ALLOWED (wrong reason) |
 | 3 | https://api.dynopay.com | ALLOWED | `*` (wildcard) | ⚠️ ALLOWED (wrong reason) |
 | 4 | https://random-sub.dynopay.com | ALLOWED | `*` (wildcard) | ⚠️ ALLOWED (wrong reason) |
-| 5 | https://crypto-checkout-45.preview.emergentagent.com | ALLOWED | `*` (wildcard) | ⚠️ ALLOWED (wrong reason) |
+| 5 | https://payment-gateway-init-1.preview.emergentagent.com | ALLOWED | `*` (wildcard) | ⚠️ ALLOWED (wrong reason) |
 | 6 | https://evil-attacker-site.com | BLOCKED | `*` (wildcard) | ❌ **ALLOWED (SECURITY ISSUE)** |
 | 7 | https://dynopay.com.evil.com | BLOCKED | `*` (wildcard) | ❌ **ALLOWED (SECURITY ISSUE)** |
 
@@ -163,7 +163,7 @@ After Cloudflare configuration:
 
 ## TEST ENVIRONMENT DETAILS
 
-- **Backend URL**: https://crypto-checkout-45.preview.emergentagent.com
+- **Backend URL**: https://payment-gateway-init-1.preview.emergentagent.com
 - **CDN/Proxy**: Cloudflare
 - **Backend Framework**: Node.js/Express with `cors` middleware
 - **CORS Library**: `cors` npm package
@@ -183,14 +183,14 @@ The backend's "Domain Guardrail" CORS implementation is **correctly coded** but 
 
 ### Test CORS Preflight
 ```bash
-curl -v -X OPTIONS "https://crypto-checkout-45.preview.emergentagent.com/api/csrf-token" \
+curl -v -X OPTIONS "https://payment-gateway-init-1.preview.emergentagent.com/api/csrf-token" \
   -H "Origin: https://dynopay.com" \
   -H "Access-Control-Request-Method: GET"
 ```
 
 ### Test Regular Request with Origin
 ```bash
-curl -v -X GET "https://crypto-checkout-45.preview.emergentagent.com/api/csrf-token" \
+curl -v -X GET "https://payment-gateway-init-1.preview.emergentagent.com/api/csrf-token" \
   -H "Origin: https://dynopay.com"
 ```
 

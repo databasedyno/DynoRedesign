@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://crypto-checkout-45.preview.emergentagent.com"
+BASE_URL = "https://payment-gateway-init-1.preview.emergentagent.com"
 LOGIN = {"email": "hostbay@moxx.co", "password": "Katiekendra123@"}
 
 
