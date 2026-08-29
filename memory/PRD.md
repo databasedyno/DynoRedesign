@@ -41,6 +41,26 @@
 ## VERIFIED: FE tsc 0, BE tsc 0, next lint 0 errors, backend restart healthy (SAFE MODE intact), landing
   screenshot identical, /blog /about /press /for/vpn /for/nonprofits all 200. Prod deploy required to ship.
 
+## 5. Vertical fact audit (2026-08-29, follow-up) — 27 claims softened/corrected across the 15 JSONs
+- KYC truth established from code (kycRouter + onboarding.ts: Veriff KYC, $10k volume threshold, 90d grace):
+  4 pages falsely claimed "no KYC required" (digital-downloads, gaming, remittance, fundraisers) → corrected to
+  "KYC applies once settled volume passes a threshold; off-ramps run their own KYC".
+- Recurring-billing falsehood fixed (crypto has NO pull payments): saas/vpn/hosting claimed "charge their wallet
+  each cycle" / "automated subscription management" → now "per-cycle payment links, automatable via API+webhooks".
+- Regulatory softening: gaming ("players cannot reverse deposits after losing", "serve players in any country…no
+  need to navigate banking regulations", "no compliance holds") and remittance ("KYC friction that blocks your
+  customers", "Send funds across borders") reframed w/ explicit "your own licensing/AML obligations" notes.
+- Fabricated stats removed/hedged: "Reduce involuntary churn by 40%" (vpn), "9-15% revenue" (saas), "20-40% churn",
+  "0.5-2% of volume", "2-5% chargebacks" (agencies), PayPal "holds 180 days"→"can hold up to 180 days".
+- Factual errors: USDC wrongly listed on Polygon/Tron (remittance ×2 → USDC is ERC20-only), "seven blockchains"→
+  nine (fundraisers), "USDT across four chains"→three (vpn ×2), duplicate Tron in asset list (marketplaces),
+  Shopify embed claim removed (closed checkout), hosting auto-convert answer fixed (feature exists, was denied),
+  creators "DynoPay doesn't store any of their information"→optional receipt email caveat, all "instantly"→
+  "in minutes" (BTC 10-60 min).
+- Generator hardened: DYNOPAY_FACTS now has a CLAIM RULES block (KYC, no pull-payments, no invented stats, no
+  regulation-evasion framing, no "instant", no Shopify) so future regenerations can't reintroduce these.
+- VERIFIED: all 15 JSONs parse, risky-phrase grep = 0 hits, /for/gaming /for/remittance /for/vpn render w/ h1+FAQ schema.
+
 ---
 
 # FRONTEND PERF PASS (2026-06 fork) — bundle −288 kB/page, checkout single-fetch, build unblocked — DONE (build + testing_agent + e2e verified)

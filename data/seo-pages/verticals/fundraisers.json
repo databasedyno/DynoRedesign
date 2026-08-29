@@ -34,7 +34,7 @@
     },
     {
       "question": "Which cryptocurrencies can donors use?",
-      "answer": "Supporters can donate using Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT, USDC, RLUSD, MATIC, Tron, Solana, and XRP. That's 15+ cryptocurrencies across seven blockchains, giving donors flexibility in how they contribute."
+      "answer": "Supporters can donate using Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT, USDC, RLUSD, MATIC, Tron, Solana, and XRP. That's 15+ cryptocurrencies across nine blockchains, giving donors flexibility in how they contribute."
     },
     {
       "question": "Can I offer rewards to donors at different levels?",
@@ -42,7 +42,7 @@
     },
     {
       "question": "Are there any country restrictions on collecting donations?",
-      "answer": "No geographic restrictions apply to receiving crypto donations. Supporters from any country can contribute to your campaign. KYC requirements only apply if you later choose to convert crypto to fiat currency through an off-ramp service."
+      "answer": "No geographic restrictions apply to receiving crypto donations—supporters from any country can contribute to your campaign. Identity verification (KYC) applies to your DynoPay account once settled volume passes a threshold, and fiat off-ramps run their own KYC if you convert to local currency."
     }
   ],
   "cta_headline": "Launch your crypto fundraising campaign today",

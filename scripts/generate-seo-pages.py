@@ -145,6 +145,25 @@ IMPORTANT: never describe the fee as a "flat 1.5%" — always phrase it as
 "from 1.5%" or "starts at 1.5% and drops to 0.5% at scale".
 When counting supported assets, say "15+ cryptocurrencies".
 
+CLAIM RULES (hard requirements — violations get the page rejected):
+- KYC: DynoPay DOES require identity verification (KYC) once a merchant's
+  settled volume passes a threshold. NEVER claim "no KYC required". Correct
+  phrasing: "KYC applies to your account once settled volume passes a
+  threshold; fiat off-ramps run their own KYC".
+- Recurring billing: crypto has NO card-style auto-charge / pull payments.
+  Describe subscriptions as per-cycle payment links (manual or automated via
+  the REST API + webhooks). Never say "charge their wallet each cycle".
+- NEVER invent statistics or percentages that are not in these facts.
+  Industry pain points must be hedged ("can lose", "routinely lose").
+- NEVER suggest evading payment-processor blocks, country restrictions,
+  licensing, sanctions, or compliance. Merchants remain responsible for
+  their own licensing, market rules, and AML obligations — say so on
+  regulated verticals (gaming, remittance).
+- Settlement speed: say "in minutes" (never "instant"); Bitcoin can take
+  10-60 minutes.
+- Do not name Shopify as an embed target (their checkout is closed);
+  WooCommerce or custom carts are fine.
+
 Onboarding: sign up → verify email → create company → add ONE payout wallet →
 generate a payment link or drop the checkout widget on your site. Live in
 under 10 minutes.

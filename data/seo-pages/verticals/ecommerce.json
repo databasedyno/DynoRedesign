@@ -1,6 +1,6 @@
 {
   "meta_title": "Crypto Payments for E-commerce Stores | DynoPay",
-  "meta_description": "Accept crypto payments for e-commerce stores. Bitcoin, Ethereum, USDT, Solana + 15 cryptos. No chargebacks. Funds go direct to your wallet. Start free.",
+  "meta_description": "Accept crypto payments for e-commerce stores. Bitcoin, Ethereum, USDT, Solana and 15+ cryptos. No chargebacks. Funds go direct to your wallet. Start free.",
   "h1": "Accept crypto payments for e-commerce stores without chargebacks",
   "subheading": "Receive Bitcoin, Ethereum, stablecoins, and 15+ cryptocurrencies directly to your wallet. No payment holds, no fraud disputes, no 2-4% processor fees.",
   "intro_paragraph": "E-commerce merchants lose 0.47% of revenue to chargebacks and another 2.9% + $0.30 per card transaction. DynoPay is a non-custodial crypto commerce platform built for online stores: you receive funds directly in your own wallet the moment a customer pays, eliminating chargeback risk entirely. Pricing starts at 1.5% and drops to 0.5% at scale based on volume, with no monthly fees, no setup costs, and your first payment is completely free.",
@@ -11,7 +11,7 @@
     },
     {
       "title": "Funds arrive in your wallet",
-      "description": "DynoPay never holds your money. Payments settle directly to your Ethereum address, Bitcoin wallet, or Solana account within minutes. You control the private keys and custody at all times."
+      "description": "DynoPay never holds your money. Payments settle directly to your Ethereum address, Bitcoin wallet, or Solana account, usually within minutes. You control the private keys and custody at all times."
     },
     {
       "title": "Lower fees than card processors",
@@ -21,7 +21,7 @@
   "how_it_works": [
     "Sign up, verify your email, and create a company profile in under three minutes.",
     "Add one payout wallet address for Bitcoin, Ethereum, USDT, or any supported crypto you want to accept.",
-    "Generate a payment link or embed the checkout widget on your Shopify, WooCommerce, or custom store. Go live."
+    "Generate a payment link or embed the checkout widget on your WooCommerce or custom store. Go live."
   ],
   "faqs": [
     {

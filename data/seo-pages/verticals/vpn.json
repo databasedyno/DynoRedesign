@@ -3,7 +3,7 @@
   "meta_description": "Accept Bitcoin, Ethereum, USDT, and 15+ cryptocurrencies for your VPN or privacy service. Non-custodial, no chargebacks, live in 10 minutes. Start now.",
   "h1": "Accept crypto payments for VPN & privacy software without chargebacks",
   "subheading": "Stop losing revenue to payment fraud and involuntary churn. DynoPay delivers Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet.",
-  "intro_paragraph": "VPN and privacy software providers face constant payment friction: card declines from security flags, chargeback fraud from users who consumed bandwidth then disputed charges, and involuntary churn when banks flag recurring payments as suspicious. DynoPay is a non-custodial crypto commerce platform that deposits every payment directly into your wallet—no intermediary custody, no chargeback risk, no surprise account freezes. Support Bitcoin, Ethereum, USDT across four chains, and 15+ total cryptocurrencies with fees starting at 1.5% that drop to 0.5% as you scale.",
+  "intro_paragraph": "VPN and privacy software providers face constant payment friction: card declines from security flags, chargeback fraud from users who consumed bandwidth then disputed charges, and involuntary churn when banks flag recurring payments as suspicious. DynoPay is a non-custodial crypto commerce platform that deposits every payment directly into your wallet—no intermediary custody, no chargeback risk, no frozen funds. Support Bitcoin, Ethereum, USDT across three chains, and 15+ total cryptocurrencies with fees starting at 1.5% that drop to 0.5% as you scale.",
   "features": [
     {
       "title": "Zero chargeback risk, ever",
@@ -14,7 +14,7 @@
       "description": "Every payment settles directly to your Bitcoin, Ethereum, or stablecoin wallet. DynoPay never holds your money, so you control liquidity and eliminate counterparty risk from payment processors."
     },
     {
-      "title": "Reduce involuntary churn by 40%",
+      "title": "Cut involuntary churn from card declines",
       "description": "Card networks flag VPN subscriptions as high-risk, causing false declines. Crypto payments bypass legacy rails entirely, so privacy-conscious users renew without friction and you retain more revenue."
     }
   ],
@@ -26,7 +26,7 @@
   "faqs": [
     {
       "question": "Why do VPN companies accept cryptocurrency payments?",
-      "answer": "Crypto eliminates chargebacks, reduces involuntary churn from card declines, and appeals to privacy-focused users who prefer not to link bank accounts. DynoPay supports Bitcoin, Ethereum, USDT on four chains, and 15+ total cryptocurrencies with non-custodial settlement directly to your wallet."
+      "answer": "Crypto eliminates chargebacks, reduces involuntary churn from card declines, and appeals to privacy-focused users who prefer not to link bank accounts. DynoPay supports Bitcoin, Ethereum, USDT on three chains, and 15+ total cryptocurrencies with non-custodial settlement directly to your wallet."
     },
     {
       "question": "How much does DynoPay charge for crypto payments?",
@@ -34,7 +34,7 @@
     },
     {
       "question": "Can users subscribe monthly with cryptocurrency?",
-      "answer": "Yes. DynoPay supports recurring billing via payment links and checkout widgets. Customers authorize recurring crypto payments, and you charge their wallet each billing cycle. Crypto subscriptions see lower involuntary churn than card-based plans because there are no issuer declines or expired cards."
+      "answer": "Yes, cycle by cycle. Crypto has no card-style auto-charge, so each renewal is a fresh payment: send subscribers a payment link per billing cycle, or automate it with the REST API and webhooks. Renewals never fail on issuer declines or expired cards, so involuntary churn stays lower than card-based plans."
     },
     {
       "question": "Which cryptocurrencies can my VPN accept?",

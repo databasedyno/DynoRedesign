@@ -15,7 +15,7 @@
     },
     {
       "title": "Global Sales Without Barriers",
-      "description": "Sell to customers in any country without payment processor restrictions or currency conversion fees. Accept Bitcoin, USDT, USDC, SOL, and 15+ cryptocurrencies from buyers anywhere, with no geographic limits on who can pay you."
+      "description": "Sell to customers in any country without cross-border card fees or currency conversion costs. Accept Bitcoin, USDT, USDC, SOL, and 15+ cryptocurrencies from buyers anywhere in the world."
     }
   ],
   "how_it_works": [
@@ -42,7 +42,7 @@
     },
     {
       "question": "Do I need KYC verification to receive crypto payments for courses?",
-      "answer": "No KYC is required to receive cryptocurrency payments directly to your wallet. You maintain full custody and DynoPay never holds your funds. KYC only applies if you choose to use a third-party fiat off-ramp service in certain jurisdictions."
+      "answer": "You can start receiving crypto straight to your own wallet in minutes with no merchant underwriting. Identity verification (KYC) applies to your account once settled volume passes a threshold, and third-party fiat off-ramps run their own KYC when you convert to local currency."
     }
   ],
   "cta_headline": "Start Accepting Crypto Payments Today",

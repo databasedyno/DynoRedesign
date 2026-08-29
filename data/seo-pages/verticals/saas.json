@@ -3,7 +3,7 @@
   "meta_description": "Accept crypto payments for SaaS & subscription products with DynoPay. No chargebacks, global reach, 15+ cryptocurrencies. Fees from 1.5%. Start today.",
   "h1": "Accept crypto payments for SaaS & subscription products without chargebacks",
   "subheading": "DynoPay helps subscription businesses eliminate involuntary churn, expand to restricted markets, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet.",
-  "intro_paragraph": "Subscription businesses lose 9-15% of revenue to failed card payments and involuntary churn. International customers face currency conversion fees and payment method restrictions. DynoPay is a non-custodial platform that deposits crypto payments directly into your wallet—no middleman holding your funds. You get payment links, hosted checkout, and a REST API to bill subscribers in 15+ cryptocurrencies with fees starting at 1.5% and dropping to 0.5% at scale. No chargebacks. No monthly fees. First payment is free.",
+  "intro_paragraph": "Subscription businesses routinely lose revenue to failed card payments and involuntary churn. International customers face currency conversion fees and payment method restrictions. DynoPay is a non-custodial platform that deposits crypto payments directly into your wallet—no middleman holding your funds. You get payment links, hosted checkout, and a REST API to bill subscribers in 15+ cryptocurrencies with fees starting at 1.5% and dropping to 0.5% at scale. No chargebacks. No monthly fees. First payment is free.",
   "features": [
     {
       "title": "Non-custodial settlement to your wallet",
@@ -14,8 +14,8 @@
       "description": "Crypto payments don't expire or decline. Customers who prefer stablecoins or Bitcoin stay subscribed longer because there are no failed card transactions or outdated billing details."
     },
     {
-      "title": "Reach customers in restricted markets",
-      "description": "Accept payment from regions where card networks won't operate or where your payment processor blocks transactions. Crypto has no geographic restrictions on who can pay you."
+      "title": "Reach customers in underserved markets",
+      "description": "Accept payment from regions poorly served by card networks. Crypto lets customers pay you from anywhere, so you can serve every market you choose to operate in."
     }
   ],
   "how_it_works": [
@@ -26,7 +26,7 @@
   "faqs": [
     {
       "question": "How do crypto payments reduce involuntary churn for subscription businesses?",
-      "answer": "Crypto wallets don't expire and transactions don't fail due to insufficient funds in the same way cards do. Subscribers who hold stablecoins or Bitcoin can pay reliably without the card decline issues that cause 20-40% of involuntary churn in traditional SaaS billing."
+      "answer": "Crypto wallets don't expire and transactions don't fail due to insufficient funds in the same way cards do. Subscribers who hold stablecoins or Bitcoin can pay reliably without the card decline issues that are a leading cause of involuntary churn in traditional SaaS billing."
     },
     {
       "question": "What cryptocurrencies can my SaaS customers use to pay?",
@@ -42,7 +42,7 @@
     },
     {
       "question": "Can I bill recurring subscriptions in cryptocurrency using DynoPay?",
-      "answer": "Yes. Use the REST API and webhooks to create payment links for each billing cycle, or build a recurring flow where subscribers approve payments from their wallet. DynoPay handles one-time and subscription use cases for SaaS products."
+      "answer": "Yes, on a per-cycle basis. Crypto has no card-style auto-charge, so each renewal is a fresh payment: use the REST API and webhooks to generate a payment link per billing cycle and send it automatically. Renewals never fail on expired cards or issuer declines."
     }
   ],
   "cta_headline": "Start accepting crypto payments in 10 minutes",
