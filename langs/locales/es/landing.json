@@ -109,7 +109,7 @@
       "headline1": "Acepta pagos en cripto.",
       "headlineHighlight": "Cobra",
       "headline2": "a tu manera.",
-      "body": "Acepta Bitcoin, Ethereum y stablecoins en un checkout alojado o enlace de pago. Conserva la moneda original o <b>convierte automáticamente a USDC o USDT</b> —tú eliges— y liquida en una wallet que tú controlas. Sin contracargos. <b>Comisiones desde el 1,5 % por pago, bajando hasta el 0,5 % a medida que crece tu volumen.</b>",
+      "body": "Acepta Bitcoin, Ethereum y stablecoins en un checkout alojado, enlace de pago o API. Conserva la moneda o <b>convierte automáticamente a USDC o USDT</b> — liquidado en una wallet que tú controlas. Sin contracargos.",
       "claimBtn": "Reservar",
       "chooseHandle": "Elige tu nombre de creador",
       "rewardBadge": "¿Eres nuevo? Eximimos nuestra <b>comisión de plataforma</b> en tu primer pago.",

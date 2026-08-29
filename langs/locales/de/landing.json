@@ -109,7 +109,7 @@
       "headline1": "Krypto-Zahlungen annehmen.",
       "headlineHighlight": "Auszahlung",
       "headline2": "nach deiner Wahl.",
-      "body": "Akzeptiere Bitcoin, Ethereum und Stablecoins über einen gehosteten Checkout oder Zahlungslink. Behalte die ursprüngliche Coin oder <b>wandle automatisch in USDC oder USDT um</b> – deine Wahl – und lass die Auszahlung in eine Wallet fließen, die du kontrollierst. Keine Rückbuchungen. <b>Gebühren ab 1,5 % pro Zahlung, sinkend auf bis zu 0,5 %, wenn dein Volumen wächst.</b>",
+      "body": "Akzeptiere Bitcoin, Ethereum und Stablecoins über einen gehosteten Checkout, Zahlungslink oder eine API. Behalte die Coin oder <b>wandle automatisch in USDC oder USDT um</b> – ausgezahlt in eine Wallet, die du kontrollierst. Keine Rückbuchungen.",
       "claimBtn": "Sichern",
       "chooseHandle": "Wähle deinen Creator-Handle",
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",

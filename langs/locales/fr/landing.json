@@ -109,7 +109,7 @@
       "headline1": "Acceptez les paiements crypto.",
       "headlineHighlight": "Encaissez",
       "headline2": "à votre façon.",
-      "body": "Acceptez Bitcoin, Ethereum et stablecoins via un checkout hébergé ou un lien de paiement. Gardez la crypto d'origine ou <b>convertissez automatiquement en USDC ou USDT</b> — à vous de choisir — et recevez le règlement sur un wallet que vous contrôlez. Aucune rétrofacturation. <b>Frais à partir de 1,5 % par paiement, jusqu'à 0,5 % à mesure que votre volume augmente.</b>",
+      "body": "Acceptez Bitcoin, Ethereum et stablecoins via un checkout hébergé, un lien de paiement ou une API. Gardez la crypto ou <b>convertissez automatiquement en USDC ou USDT</b> — réglé sur un wallet que vous contrôlez. Aucune rétrofacturation.",
       "claimBtn": "Réserver",
       "chooseHandle": "Choisissez votre pseudo de créateur",
       "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",

@@ -109,7 +109,7 @@
       "headline1": "Accepteer cryptobetalingen.",
       "headlineHighlight": "Ontvang",
       "headline2": "op jouw manier.",
-      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout of betaallink. Houd de originele munt of <b>converteer automatisch naar USDC of USDT</b> — jouw keuze — en laat uitbetalen naar een wallet die jij beheert. Geen terugboekingen. <b>Kosten vanaf 1,5% per betaling, dalend tot 0,5% naarmate je volume groeit.</b>",
+      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout, betaallink of API. Houd de munt of <b>converteer automatisch naar USDC of USDT</b> — uitbetaald naar een wallet die jij beheert. Geen terugboekingen.",
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
