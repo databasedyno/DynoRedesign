@@ -10,7 +10,10 @@ export const FooterWrapper = styled("footer")(({ theme }) => {
     overflow: "hidden",
     marginTop: "auto",
     paddingTop: 72,
-    paddingBottom: 40,
+    // Reserve the fixed language-onboarding bar's footprint (--dp-lang-bar,
+    // 0px when hidden) so the bar never overlaps the footer's bottom row /
+    // language control. The bar's upward dropdown (zIndex 1600) already clears it.
+    paddingBottom: "calc(40px + var(--dp-lang-bar, 0px))",
     display: "flex",
     justifyContent: "center",
     backgroundColor: dark ? "#0A0A0F" : "#F6F6F8",
@@ -35,7 +38,7 @@ export const FooterWrapper = styled("footer")(({ theme }) => {
 
     [theme.breakpoints.down("md")]: {
       paddingTop: 48,
-      paddingBottom: 28,
+      paddingBottom: "calc(28px + var(--dp-lang-bar, 0px))",
       paddingLeft: 16,
       paddingRight: 16,
     },

@@ -530,5 +530,9 @@
 # - Verified: /health -> db=connected, redis=connected, tatum operational.
 #   Frontend 200 on :3000. Preview URL 200.
 # - Binance WS geo-blocked (no SSH tunnel) -> REST fallback prices only; fine in SAFE MODE.
-# - CURRENT MERCHANT LOGIN FOR TESTING: moxxcompany@gmail.com / Katiekendra123@ (user_id=1, "Hostbay")
+# - CURRENT MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, "Hostbay")
+#   NOTE: moxxcompany@gmail.com returns "We couldn't find that email" — it was migrated
+#   to onarrival21@gmail.com. Login flow: email (testid login-email-input) -> Continue,
+#   then password (testid password-input) -> Sign in (testid signin-submit-btn).
+#   Password login for this account does NOT trigger step-up 2FA (verified 2026-08-29).
 # ---------------------------------------------------------------------------

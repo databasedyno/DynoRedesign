@@ -750,7 +750,10 @@ export const LangPanel = styled(Box)(({ theme }) => {
     minWidth: 220,
     padding: 8,
     borderRadius: 16,
-    zIndex: 1460,
+    // Must sit ABOVE the fixed language-onboarding bottom bar (zIndex 1500),
+    // otherwise the footer instance (opens upward, right into the bar) gets
+    // covered by it. The auth/checkout LanguageSwitcher already uses 2000.
+    zIndex: 1600,
     backgroundColor: dark ? "rgba(18,18,24,0.98)" : "#FFFFFF",
     border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
     boxShadow: dark

@@ -9,19 +9,43 @@ import { useTranslation } from "react-i18next";
 import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
-import fireConfetti from "@/helpers/fireConfetti";
+import dynamic from "next/dynamic";
 import { RangeId } from "./CommandBar";
 import BalanceStrip from "./BalanceStrip";
-import VolumeChart from "./VolumeChart";
 import ActionsRow from "./ActionsRow";
 import EmptyHero from "./EmptyHero";
-import KpiStrip from "./KpiStrip";
 import FeeTierCard from "./FeeTierCard";
 import AssetsCard from "./AssetsCard";
 import ActivationChecklist from "./ActivationChecklist";
 import RecentTransactionsWidget from "../RecentTransactionsWidget";
 import GrowSlot from "./GrowSlot";
 import ReferralCodeCard from "../ReferralCodeCard";
+
+// Dashboard Diet: VolumeChart and KpiStrip both pull in `recharts` (a large
+// dependency). Loading them via next/dynamic (ssr:false) moves recharts into
+// separate async chunks so the dashboard's initial JS paints the numbers first;
+// height-matched skeletons hold the layout so there's no shift when they hydrate.
+const ChartSkeleton = ({ h }: { h: number }) => (
+  <Box
+    aria-hidden
+    sx={{
+      height: h,
+      width: "100%",
+      borderRadius: 3,
+      backgroundColor: "action.hover",
+      opacity: 0.4,
+    }}
+  />
+);
+const VolumeChart = dynamic(() => import("./VolumeChart"), {
+  ssr: false,
+  loading: () => <ChartSkeleton h={340} />,
+});
+const KpiStrip = dynamic(() => import("./KpiStrip"), {
+  ssr: false,
+  loading: () => <ChartSkeleton h={116} />,
+});
+
 
 /**
  * Dashboard2026 — the merchant command center (P4 "Quiet Money" re-layout).
@@ -89,7 +113,11 @@ const Dashboard2026: React.FC = () => {
     }
     if (last && last !== id) {
       confettiFiredRef.current = true;
-      void fireConfetti();
+      // Lazy-load canvas-confetti only when actually celebrating a settlement,
+      // keeping it out of the dashboard's initial bundle (Dashboard Diet).
+      void import("@/helpers/fireConfetti")
+        .then((m) => m.default())
+        .catch(() => {});
     }
     try {
       window.localStorage.setItem("dyno_last_settled_txn", id);
