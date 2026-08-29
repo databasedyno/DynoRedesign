@@ -3,7 +3,7 @@
 DynoPay Backend API Testing Script - Admin Email Notification Feature
 Tests the EXACT endpoints specified in the review request after adding admin email notification for new user registration.
 
-Target URL: https://payment-gateway-init-1.preview.emergentagent.com
+Target URL: https://merchant-onboard-18.preview.emergentagent.com
 
 Test these endpoints:
 1. GET /api/ — Health check (should return 200 with status: operational)
@@ -19,7 +19,7 @@ import json
 from datetime import datetime
 
 # Target API base URL
-BASE_URL = "https://payment-gateway-init-1.preview.emergentagent.com/api"
+BASE_URL = "https://merchant-onboard-18.preview.emergentagent.com/api"
 
 def test_admin_notification_endpoints():
     """Test the exact endpoints specified in the review request"""

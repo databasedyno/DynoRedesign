@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://payment-gateway-init-1.preview.emergentagent.com",
+        "origin": "https://merchant-onboard-18.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
