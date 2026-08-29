@@ -382,3 +382,65 @@ export function toConversionDisplayStatus(rawDbStatus: string | null | undefined
   if (!rawDbStatus) return "unknown";
   return CONVERSION_DISPLAY_MAP[rawDbStatus.toUpperCase()] ?? rawDbStatus.toLowerCase();
 }
+
+
+// ── Persisted (audited) transitions ──────────────────────────────────────────
+
+export interface PersistTransitionParams {
+  paymentId: string;
+  from?: PaymentState | string | null;
+  to: PaymentState | string;
+  event: string;
+  actor?: string;
+  txId?: string | null;
+  address?: string | null;
+  currency?: string | null;
+  amount?: number | null;
+  companyId?: number | null;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * THE single audited gateway for payment state changes (tbl_payment_journal).
+ * Every state write must call this so no transition goes unrecorded.
+ * Invalid transitions are journaled with `state_machine_valid: false` instead
+ * of throwing — the audit trail must never break the money path.
+ */
+export async function persistTransition(p: PersistTransitionParams): Promise<void> {
+  try {
+    const fromState = typeof p.from === "string" ? parseState(p.from) : p.from ?? undefined;
+    const toState = typeof p.to === "string" ? parseState(p.to) : p.to;
+
+    let machineValid: boolean | undefined;
+    if (fromState && toState) {
+      machineValid = fromState === toState || canTransition(fromState, toState);
+      if (!machineValid) {
+        webhookLogs.warn(
+          `[StateMachine] ⚠️ AUDIT VIOLATION: ${fromState} → ${toState} for ${p.paymentId} ` +
+          `(event=${p.event}, actor=${p.actor || "unknown"}) — journaled with violation flag`
+        );
+      }
+    }
+
+    // Lazy require avoids a module cycle with paymentReliability.
+    const { journalStateTransition } = require("./paymentReliability");
+    await journalStateTransition({
+      paymentId: p.paymentId,
+      txId: p.txId ?? null,
+      address: p.address ?? "",
+      currency: p.currency ?? "",
+      event: p.event,
+      fromState: p.from != null ? String(p.from) : null,
+      toState: String(p.to),
+      amount: p.amount ?? null,
+      companyId: p.companyId ?? null,
+      metadata: {
+        ...(p.metadata || {}),
+        ...(p.actor ? { actor: p.actor } : {}),
+        ...(machineValid === undefined ? {} : { state_machine_valid: machineValid }),
+      },
+    });
+  } catch (err) {
+    webhookLogs.warn(`[StateMachine] persistTransition failed for ${p.paymentId}: ${(err as Error).message}`);
+  }
+}

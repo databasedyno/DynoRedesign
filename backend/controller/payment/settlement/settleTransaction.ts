@@ -23,6 +23,8 @@ import {
 } from "../../../utils/redisInstance";
 import sequelize from "../../../utils/dbInstance";
 import { Op } from "sequelize";
+// Audited custody boundary for private keys — do NOT decrypt key material directly.
+import * as keyCustody from "../../../services/keyCustody/keyCustodyService";
 import jwt from "jsonwebtoken";
 // Product Catalog (Phase 1) — cart-order settlement fan-out
 import { handleCartPaymentSettled } from "../../../services/orderFulfillmentService";
@@ -109,6 +111,8 @@ export const settleCryptoTransaction = async ({
   // Get the address - use wallet_address if available, otherwise use address
   const fromAddress = tempAddressData.wallet_address || tempAddressData.address;
   const paymentId = tempAddressData.payment_id || `unknown-${Date.now()}`;
+  // MEMORY HARDENING: hoisted so `finally` can drop the reference on every exit path.
+  let privateKey = "";
   
   try {
     // ── RELIABILITY GUARD 1: Settlement Idempotency ──────────────────────────
@@ -218,9 +222,11 @@ export const settleCryptoTransaction = async ({
 
     // Get private key - merchant pool addresses use different field names
     const privateKeyField = isMerchantPool ? tempAddressData.private_key : tempAddressData.privateKey;
-    const privateKey = await tatumClient.decryptSymmetric(
-      privateKeyField,
-      envRaw("TEMP_KEY_ID")
+    // Audited custody boundary (writes tbl_key_access_audit).
+    privateKey = await keyCustody.decryptPrivateKey(
+      privateKeyField as string,
+      envRaw("TEMP_KEY_ID"),
+      { purpose: "payment_settlement", actor: "worker", walletType: currency, walletAddress: fromAddress }
     );
 
     let fees;
@@ -1050,6 +1056,9 @@ export const settleCryptoTransaction = async ({
       }
     }
 
+    // MEMORY HARDENING: broadcasts + recovery are done — drop the key before bookkeeping.
+    privateKey = "";
+
     // ── RELIABILITY: For chains that don't go through the confirmation check above
     // (UTXO chains like BTC, LTC, DOGE, BCH), mark settlement as completed here.
     // Account-based chains already had markSettlementCompleted called inside the
@@ -1104,6 +1113,9 @@ export const settleCryptoTransaction = async ({
       new Error(error instanceof Error ? error.message : String(error))
     );
     throw error;
+  } finally {
+    // MEMORY HARDENING: drop the plaintext key reference on every exit path.
+    privateKey = "";
   }
 };
 

@@ -18,7 +18,7 @@ import { raw as envRaw } from "../utils/config";
 import { QueryTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import { cronLogger } from "../utils/loggers";
-import { PaymentState, parseState } from "./paymentStateMachine";
+import { PaymentState, parseState, persistTransition } from "./paymentStateMachine";
 import { emitPaymentExpired } from "./webhookEvents";
 
 export interface ExpirySweepResult {
@@ -102,8 +102,23 @@ export async function sweepExpiredPaymentLinks(
           expires_at: row.expires_at,
         }
       );
-      if (emit.emitted) result.emitted++;
-      else result.skipped_not_emitted++;
+      if (emit.emitted) {
+        result.emitted++;
+        // AUDIT: journal the computed expiry as a real state transition
+        await persistTransition({
+          paymentId: row.transaction_id || `link-${row.link_id}`,
+          from: PaymentState.PENDING,
+          to: PaymentState.EXPIRED,
+          event: "payment_expired",
+          actor: "expiry_sweeper",
+          currency: row.base_currency || null,
+          amount: Number(row.base_amount) || null,
+          companyId: row.company_id,
+          metadata: { link_id: row.link_id, expires_at: row.expires_at },
+        });
+      } else {
+        result.skipped_not_emitted++;
+      }
     } catch (err) {
       result.errors++;
       cronLogger.error(`[ExpirySweeper] link ${row.link_id} failed: ${(err as Error).message}`);

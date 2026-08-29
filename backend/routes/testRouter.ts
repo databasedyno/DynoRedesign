@@ -9,6 +9,8 @@ import { apiLogger } from "../utils/loggers";
 import { QueryTypes } from "sequelize";
 import { successResponseHelper, errorResponseHelper, getErrorMessage } from "../helper";
 import { setRedisItem, getRedisItem, deleteRedisItem } from "../utils/redisInstance";
+// Audited custody boundary for private keys — do NOT decrypt key material directly.
+import * as keyCustody from "../services/keyCustody/keyCustodyService";
 import { calculateTransactionFees } from "../controller/index";
 // getBlockchainConfig import removed - not used
 import { getBlockchainThreshold } from "../utils/feeConfigUtils";
@@ -378,7 +380,7 @@ testRouter.post("/diagnose-temp-address", authMiddleware, async (req, res) => {
     let addressMatch = false;
     
     try {
-      decryptedKey = await tatumApi.decryptSymmetric(tempData.privateKey, envRaw("TEMP_KEY_ID"));
+      decryptedKey = await keyCustody.decryptPrivateKey(tempData.privateKey, envRaw("TEMP_KEY_ID"), { purpose: "key_verification", actor: "admin", walletAddress: tempData.wallet_address });
       
       // Derive address from private key
       const wallet = new ethers.Wallet(decryptedKey);
@@ -395,7 +397,8 @@ testRouter.post("/diagnose-temp-address", authMiddleware, async (req, res) => {
       expected_address: expectedAddress,
       derived_address: derivedAddress,
       addresses_match: addressMatch,
-      private_key_preview: decryptedKey ? decryptedKey.substring(0, 10) + "..." : null,
+      // SECURITY: never return raw key material — a sha256 fingerprint is enough to compare keys.
+      private_key_fingerprint: decryptedKey ? require("crypto").createHash("sha256").update(decryptedKey).digest("hex").substring(0, 16) : null,
     });
   } catch (e) {
     errorResponseHelper(res, 500, getErrorMessage(e));
@@ -424,7 +427,7 @@ testRouter.post("/manual-transfer", authMiddleware, async (req, res) => {
     const tempData = result[0];
     
     // Decrypt private key
-    const decryptedKey = await tatumApi.decryptSymmetric(tempData.privateKey, envRaw("TEMP_KEY_ID"));
+    const decryptedKey = await keyCustody.decryptPrivateKey(tempData.privateKey, envRaw("TEMP_KEY_ID"), { purpose: "manual_transfer", actor: "admin", walletAddress: tempData.wallet_address });
     
     // Verify address
     const wallet = new ethers.Wallet(decryptedKey);

@@ -1,3 +1,39 @@
+# SETTLEMENT KEY HARDENING + AUDIT TRAIL ENFORCEMENT (2026-06 fork) — DONE (tsc + 149 tests + health verified)
+
+## Task A — Settlement key hardening (extends sweep hardening to ALL remaining raw decrypts; ZERO left codebase-wide)
+- settleTransaction.ts: decrypt → keyCustody.decryptPrivateKey (purpose payment_settlement); `let privateKey` hoisted
+  above try; explicit drop (`privateKey = ""`) right after the broadcast/recovery phase (before bookkeeping) AND in a
+  new `finally` on every exit path. Key must legitimately live through confirmation+recovery (retries re-sign), so
+  scoped-callback form wasn't safe there — audited + bounded lifetime is the correct treatment.
+- diagnosticsRouter.ts: manual_recovery_gas + manual_gas_reclaim → withPrivateKey (scoped); recover-stuck-payment
+  decrypt → audited raw (key spans steps 8-10 w/ Redis fallback), purpose manual_recovery.
+- testRouter.ts: key_verification + manual_transfer → audited raw; SECURITY FIX: `private_key_preview` (first 10
+  chars of plaintext key in HTTP response!) replaced with sha256 `private_key_fingerprint` (16 hex chars).
+- VERIFIED: `grep decryptSymmetric` outside keyCustody/apis → 0 call sites.
+
+## Task B — Audit trail: persistTransition() gateway (paymentStateMachine.ts, appended at end of file)
+- New export persistTransition(params): parses from/to (enum or string), validates via canTransition (self-transition
+  = valid), journals EVERYTHING to tbl_payment_journal via lazy-required journalStateTransition (no module cycle),
+  metadata gets actor + state_machine_valid; INVALID transitions are journaled with violation flag + webhookLogs.warn
+  — NEVER throws (money-path safety, outer try/catch).
+- Wired into the 4 previously-UNJOURNALED state writers found by survey:
+  1. chainVerification.ts partial branch (after userTempAddressModel status:"partial") → partial_payment_received,
+     pending → underpaid
+  2. chainVerification.ts overpayment branch (before throw) → overpayment_rejected, detected → "overpayment" (free-form)
+  3. chainVerification.ts completion (after paymentLinkModel status:"successful") → payment_completed,
+     processing → payout_complete
+  4. paymentExpirySweeper.ts (only when emit.emitted — idempotent) → payment_expired, pending → expired
+- NOT gaps (verified): pendingPaymentService "status" writes are notification metadata only; recordPoolTransaction
+  status is a pool-tx record; webhookProcessor (6) + settleTransaction (5) + chainVerification deferred-gas already
+  journal via journalStateTransition directly (left as-is — already recorded; persistTransition preferred for new code).
+- TESTS: __tests__/persistTransition.test.ts (6 tests: valid flagged true, invalid flagged false not thrown, string
+  states parsed, free-form states no verdict, self-transition valid, journal failure never throws). 149 total pass
+  (persistTransition 6 + stateMachine regression + keyCustody 7 + others). tsc EXIT 0; file-size hook OK; backend
+  restarted healthy; /api/pay/getData responds.
+
+---
+
+
 # KEY MEMORY HARDENING (2026-06 fork) — P0 sweep-path key custody — DONE (tsc + 31 tests + health verified)
 
 PROBLEM: plaintext private keys lingered in Node memory during sweeps. Worst: sweepPoolAddress decrypted the pool

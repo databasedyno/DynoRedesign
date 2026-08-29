@@ -14,6 +14,8 @@ import { enqueueWebhook } from "../services/webhookQueue";
 import { sweepExpiredPaymentLinks } from "../services/paymentExpirySweeper";
 import { webhookLogs } from "../utils/loggers";
 import tatumHttp from "../utils/tatumHttp";
+// Audited custody boundary for private keys — do NOT decrypt key material directly.
+import * as keyCustody from "../services/keyCustody/keyCustodyService";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -1133,19 +1135,20 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
           const feeWallet = await adminFeeModel.findOne({ where: { wallet_type: "TRX" } });
           if (!feeWallet) throw new Error("TRX fee wallet not found");
           
-          const feeWalletPrivateKey = await tatumApi.decryptSymmetric(
+          // Key scoped to the signing call via the audited custody boundary.
+          const gasTxResult = await keyCustody.withPrivateKey(
             feeWallet.dataValues.privateKey,
-            envRaw("TEMP_KEY_ID")
+            envRaw("TEMP_KEY_ID"),
+            { purpose: "manual_recovery_gas", actor: "admin", walletType: "TRX", walletAddress: feeWallet.dataValues.address },
+            (feeWalletPrivateKey) => tatumApi.assetToOtherAddress({
+              currency: "TRX",
+              fromAddress: feeWallet.dataValues.address,
+              toAddress: tempAddress,
+              privateKey: feeWalletPrivateKey,
+              amount: fundAmount,
+              fee: null,
+            })
           );
-          
-          const gasTxResult = await tatumApi.assetToOtherAddress({
-            currency: "TRX",
-            fromAddress: feeWallet.dataValues.address,
-            toAddress: tempAddress,
-            privateKey: feeWalletPrivateKey,
-            amount: fundAmount,
-            fee: null,
-          });
           
           steps.push({ step: "gas_refund_direct", status: gasTxResult?.txId ? "ok" : "failed", details: {
             funded: true,
@@ -1220,7 +1223,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
     
     if (encryptedPrivateKey) {
       try {
-        privateKey = await tatumApi.decryptSymmetric(encryptedPrivateKey, envRaw("TEMP_KEY_ID"));
+        privateKey = await keyCustody.decryptPrivateKey(encryptedPrivateKey, envRaw("TEMP_KEY_ID"), { purpose: "manual_recovery", actor: "admin", walletAddress: tempAddress });
       } catch (decryptErr) {
         steps.push({ step: "decrypt_private_key", status: "error", details: String(decryptErr) });
       }
@@ -1784,20 +1787,20 @@ router.post("/recover-excess-trx", adminAuthMiddleware, async (req: express.Requ
           });
           totalRecovered += recoverable;
         } else {
-          // Actually send TRX back to fee wallet
-          const privateKey = await tatumApi.decryptSymmetric(
+          // Actually send TRX back to fee wallet — key scoped to the signing call.
+          const txResult = await keyCustody.withPrivateKey(
             addr.dataValues.private_key,
-            envRaw("TEMP_KEY_ID")
+            envRaw("TEMP_KEY_ID"),
+            { purpose: "manual_gas_reclaim", actor: "admin", walletType: "TRX", walletAddress },
+            (privateKey) => tatumApi.assetToOtherAddress({
+              currency: "TRX",
+              fromAddress: walletAddress,
+              toAddress: feeWalletAddress,
+              privateKey,
+              amount: recoverable,
+              fee: null,
+            })
           );
-
-          const txResult = await tatumApi.assetToOtherAddress({
-            currency: "TRX",
-            fromAddress: walletAddress,
-            toAddress: feeWalletAddress,
-            privateKey,
-            amount: recoverable,
-            fee: null,
-          });
 
           results.push({
             address: walletAddress,

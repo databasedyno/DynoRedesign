@@ -69,7 +69,7 @@ import { getCryptoRedisKey } from "../../../services/merchantPool/merchantPoolCo
 import { recordTransactionVolume, reverseTransactionVolume } from "../../../services/feeFreeService";
 import { isVolatileCrypto } from "../../../services/binanceService";
 import { createConversionRecord } from "../../../services/conversionService";
-import { PaymentState, parseState, toRedisStatus } from "../../../services/paymentStateMachine";
+import { PaymentState, parseState, toRedisStatus, persistTransition } from "../../../services/paymentStateMachine";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 
 import { settleCryptoTransaction } from "./settleTransaction";
@@ -340,6 +340,20 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           },
           { where: { temp_id: tempAddressData.temp_id } }
         );
+
+        // AUDIT: journal the partial-payment state change (pending → underpaid)
+        await persistTransition({
+          paymentId: tempAddressData.payment_id || transactionId,
+          from: PaymentState.PENDING,
+          to: PaymentState.UNDERPAID,
+          event: "partial_payment_received",
+          actor: "chain_verification",
+          txId: transactionId,
+          address,
+          currency: tempCurrency,
+          amount: Number(receivedAmount),
+          metadata: { expected_total: expectedAmount, remaining: pendingAmount },
+        });
 
         // Send partial payment notification
         await sendPartialPaymentNotification(
@@ -1221,6 +1235,19 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               completedAt: new Date().toISOString(),
             });
             await softDeleteRedisItem(cryptoKey, PAYMENT_TIMING.REDIS_SOFT_DELETE_TTL_SECONDS);
+            // AUDIT: journal the overpayment rejection state change
+            await persistTransition({
+              paymentId: tempData?.payment_id || tempData?.unique_tx_id || transactionId,
+              from: PaymentState.DETECTED,
+              to: "overpayment",
+              event: "overpayment_rejected",
+              actor: "chain_verification",
+              txId: transactionId,
+              address,
+              currency: tempCurrency,
+              amount: Number(tempAmount),
+              metadata: { amount_base: newAmount[0].amount, base_currency: customerData?.base_currency || "USD" },
+            });
             throw {
               status: 200,
               paymentStatus: "overpayment",
@@ -1269,6 +1296,18 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             }
           );
 
+          // AUDIT: journal the terminal completion state change (processing → payout_complete)
+          await persistTransition({
+            paymentId: String(linkTransactionId),
+            from: PaymentState.PROCESSING,
+            to: PaymentState.PAYOUT_COMPLETE,
+            event: "payment_completed",
+            actor: "chain_verification",
+            txId: transactionId,
+            address,
+            currency: tempCurrency,
+            amount: Number(totalAmountReceived),
+          });
         }
 
         // Product Catalog (Phase 1) — fan-out for cart orders.
