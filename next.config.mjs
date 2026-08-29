@@ -131,4 +131,14 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// F3: opt-in bundle analysis. Lazily import @next/bundle-analyzer ONLY when
+// ANALYZE=true so normal dev/prod builds and the running server never load it.
+// Run `ANALYZE=true yarn build` to generate the treemap report and name the
+// exact heavy chunks (framer-motion / MUI / recharts) before trimming them.
+let withBundleAnalyzer = (config) => config;
+if (process.env.ANALYZE === "true") {
+  const mod = await import("@next/bundle-analyzer");
+  withBundleAnalyzer = mod.default({ enabled: true });
+}
+
+export default withBundleAnalyzer(nextConfig);

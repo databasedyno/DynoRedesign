@@ -136,7 +136,16 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
   const fetched = data !== undefined || !!error;
   const fetchError = !!error;
 
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  // F1: seed the selected company SYNCHRONOUSLY from localStorage at mount, so
+  // it's known BEFORE /company/getCompany resolves. This lets useDashboardData
+  // fire the dashboard/chart/wallet requests in the FIRST wave (in parallel
+  // with the company-list fetch) instead of waiting for it — collapsing the
+  // old 3-wave waterfall. If the seeded id turns out to be stale, the reconcile
+  // effect below corrects it once the real list arrives (which re-fires the
+  // dashboard fetch with the valid id).
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
+    () => getLastCompanyId()
+  );
   const [taxValidation, setTaxValidation] = useState<any>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [createErrorField, setCreateErrorField] = useState<string | null>(null);

@@ -1,3 +1,43 @@
+# SESSION 2026-06 (fork, pod eddcc06a) — SHIPPED 10 perf optimizations (B1-B4, F1-F6) — SAFE MODE, prod DB
+CONTEXT: Implemented the 10 user-approved fixes from PERF_ANALYSIS_2026-06_FULLSTACK.md. Prod Railway DB, SAFE MODE
+(ENABLE_BACKGROUND_JOBS=false, DISABLE_OUTBOUND_EMAIL=true, Redis index 1) untouched. No money-math changed.
+
+BACKEND:
+- B1 controller/user/userShared.ts finalizeLogin(): respond immediately after 2FA check + createSession; geo-IP
+  (ip-api.com), loginActivity insert, login-notification email + throttle, and last_login_ip update all moved into
+  setImmediate(async…) wrapped in try/catch. Login 1.3-1.5s -> ~0.97s (curl), now immune to ip-api outages.
+- B2 middleware/authMiddleware.ts: userAccountExists -> resolveAuthUser; auth:user:<id> Redis entry now carries
+  {exists,email,email_verified} (legacy {exists:true} blobs re-fetched via `"email" in cached` guard). res.locals.authUser
+  set. middleware/emailVerifiedMiddleware.ts reads res.locals.authUser instead of a per-request userModel.findOne
+  (DB read only as fallback). invalidateUserAuthCache() now also called on onboarding.verifyEmail + contactEmail add.
+- B3 dashboardController.ts (getDashboard/getChartData/getFeeTiers/getRecentTransactions/getActionCounts) +
+  walletRead.ts getWallet: replaced `await setRedisItem + await setRedisTTL` (4 RTs) with fire-and-forget
+  setRedisItemWithTTL(...).catch(()=>{}) (1 SET EX, non-blocking).
+- B4 walletRead.ts getWallet: independent reads parallelized — [walletData, processedRows, fiatRate] Promise.all,
+  then [companies, convertToMultiple] Promise.all. Original fallback semantics preserved. Wallet cold 1.2s -> 0.65s;
+  cold==warm parity verified (no money-display drift; live Hostbay wallet = $27,883.35, per-chain values well-formed).
+
+FRONTEND:
+- F1 contexts/CompanyDataContext.tsx: selectedCompanyId seeded synchronously from localStorage last_company_id at mount.
+  hooks/useDashboardData.ts: shouldFetch = selectedCompanyId != null || (companiesFetched && !hasCompanies); chart gate
+  relaxed the same way. Dashboard/chart/recent-tx now fire in wave 1 (parallel with /company), self-heal via reconcile.
+- F2 utils/swrLocalCache.ts (NEW) + pages/_app.tsx SWRConfig provider: SWR cache persisted to localStorage, namespaced
+  per user_id (decoded from JWT), 5-min max-age hydration gate, purges other users' blobs, persists on
+  beforeunload/visibilitychange. Repeat dashboard visits hydrate instantly then revalidate.
+- F4 hooks/useUsdRates.ts: module-level shared rates cache + in-flight promise (60s TTL) so multiple/ remounted
+  consumers reuse ONE /api/public/tickers call. (Deferral of below-the-fold calls NOT done — higher risk on live app.)
+- F5 pages/auth/login.tsx: router.prefetch('/dashboard') fired when the password/OTP screen shows.
+- F6 pages/_app.tsx: Unbounded next/font trimmed 5 weights -> ['400'] (it's only a fallback behind Manrope) — ~4 fewer
+  font files.
+- F3 next.config.mjs: @next/bundle-analyzer wired lazily behind ANALYZE=true (zero impact on normal dev/prod runtime).
+  Run `ANALYZE=true yarn build` to name heavy chunks before trimming.
+
+VALIDATION: backend curl (login/dashboard/wallet latency + cold/warm parity). Frontend testing_agent
+(/app/test_reports/iteration_99.json) = 100% (7/7): login->dashboard, stats/chart render (no stuck skeletons),
+wallet money well-formed, verified merchant not 403-gated, repeat-visit instant, zero 5xx, no console crashes.
+Only pre-existing cosmetic warnings (recharts width(-1), next/image aspect on hexagon-icon.svg) — out of scope.
+
+
 # SESSION 2026-08-29 (fork) — Hostbay webhook RCA + fix (getCryptoTransaction pool addrs + payment.settled)
 CONTEXT: Hostbay (company_id=1, merchant hostbay@moxx.co, store webhook https://nomadly-email-ivr-production.up.railway.app/store/crypto-webhook)
 reported paid crypto orders not being credited. Diagnosed across BOTH systems using DigitalOcean App Platform

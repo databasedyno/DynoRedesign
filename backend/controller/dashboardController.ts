@@ -12,7 +12,7 @@ import { IUserType } from "../utils/types";
 import { userTransactionModel, userWalletModel, companyModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
-import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
+import { getRedisItem, setRedisItem, setRedisItemWithTTL, setRedisTTL } from "../utils/redisInstance";
 import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, convertToUSD, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
@@ -325,9 +325,8 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
       fee_tier: feeTier,
     };
 
-    // Cache the result
-    await setRedisItem(cacheKey, dashboardData);
-    await setRedisTTL(cacheKey, DASHBOARD_CACHE_TTL);
+    // Cache the result (B3: single SET EX round-trip, fire-and-forget)
+    setRedisItemWithTTL(cacheKey, dashboardData, DASHBOARD_CACHE_TTL).catch(() => {});
 
     return successResponseHelper(res, 200, "Dashboard data retrieved successfully", dashboardData);
 
@@ -593,8 +592,8 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     };
 
     // Cache the result (120 second TTL — chart data changes slowly)
-    await setRedisItem(cacheKey, responseData);
-    await setRedisTTL(cacheKey, 120);
+    // B3: single SET EX round-trip, fire-and-forget.
+    setRedisItemWithTTL(cacheKey, responseData, 120).catch(() => {});
 
     return successResponseHelper(res, 200, "Chart data retrieved successfully", responseData);
 
@@ -779,9 +778,8 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
       },
     };
 
-    // Cache for 5 minutes
-    await setRedisItem(cacheKey, feeTiersResponse);
-    await setRedisTTL(cacheKey, 300);
+    // Cache for 5 minutes (B3: single SET EX round-trip, fire-and-forget)
+    setRedisItemWithTTL(cacheKey, feeTiersResponse, 300).catch(() => {});
 
     return successResponseHelper(res, 200, "Fee tiers retrieved successfully", feeTiersResponse);
   } catch (e) {
@@ -905,9 +903,8 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
       count: recentTxMapped.length,
     };
 
-    // Cache for 60 seconds
-    await setRedisItem(cacheKey, recentTxResponse);
-    await setRedisTTL(cacheKey, 60);
+    // Cache for 60 seconds (B3: single SET EX round-trip, fire-and-forget)
+    setRedisItemWithTTL(cacheKey, recentTxResponse, 60).catch(() => {});
 
     return successResponseHelper(res, 200, "Recent transactions retrieved successfully", recentTxResponse);
 
@@ -1328,8 +1325,8 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
       generated_at: new Date().toISOString(),
     };
 
-    await setRedisItem(cacheKey, actionCounts);
-    await setRedisTTL(cacheKey, ACTION_COUNTS_CACHE_TTL);
+    // B3: single SET EX round-trip, fire-and-forget
+    setRedisItemWithTTL(cacheKey, actionCounts, ACTION_COUNTS_CACHE_TTL).catch(() => {});
 
     return successResponseHelper(res, 200, "Action counts retrieved successfully", actionCounts);
   } catch (e) {

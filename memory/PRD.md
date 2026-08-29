@@ -1,3 +1,6 @@
+<!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
+
+
 # i18n POLISH SWEEP (2026-08-29 fork, pod 202ba772) — Invoice PDF locale + Relative-time + Email subjects — DONE (verified)
 
 Preview: https://crypto-payment-init-1.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF). FE tsc EXIT 0, BE healthy.

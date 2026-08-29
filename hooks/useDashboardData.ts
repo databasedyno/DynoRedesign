@@ -44,11 +44,15 @@ export const useDashboardData = () => {
     (state: any) => Boolean(state.userReducer?.profile)
   );
 
-  // Only fetch dashboard data once companies have been fetched AND a company is selected
-  // (or if user truly has no companies after fetch completes).
-  // This prevents the flash where aggregate data shows briefly before company-specific data.
+  // F1: fire the dashboard fetch the moment we have a company id. That id is now
+  // seeded synchronously from localStorage (CompanyDataContext) BEFORE
+  // /company/getCompany resolves, so the stats/fee-tiers/recent-tx wave no
+  // longer waits on the company list — it runs in parallel, collapsing the
+  // 3-wave waterfall. If the seeded id is stale, CompanyDataContext reconciles
+  // it once the real list arrives and this effect re-fires with the valid id.
+  // With no companies, fall back to the aggregate fetch once the list resolves.
   const hasCompanies = companyList && companyList.length > 0;
-  const shouldFetch = companiesFetched && (!hasCompanies || selectedCompanyId != null);
+  const shouldFetch = selectedCompanyId != null || (companiesFetched && !hasCompanies);
 
   useEffect(() => {
     if (!shouldFetch) return;
@@ -82,7 +86,9 @@ export const useDashboardData = () => {
 
   const fetchChartData = useCallback(
     (period: string, startDate?: string, endDate?: string) => {
-      if (!companiesFetched) return;
+      // F1: allow the chart to fetch as soon as a company id is known (seeded
+      // from localStorage), not only after the company list resolves.
+      if (!companiesFetched && selectedCompanyId == null) return;
       // Dispatched on its own DASHBOARD_CHART_INIT channel (takeLatest).
       // The shared DASHBOARD_INIT channel is debounced 400ms — chart fetches
       // dispatched alongside DASHBOARD_FETCH_ALL on mount were dropped,

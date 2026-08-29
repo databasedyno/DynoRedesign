@@ -41,6 +41,7 @@ import {
   deleteRedisItem,
   getRedisItem,
   setRedisItem,
+  setRedisItemWithTTL,
   setRedisTTL,
   redis,
 } from "../../utils/redisInstance";
@@ -108,96 +109,99 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
       whereClause.company_id = company_id;
     }
 
-    const walletData = await userWalletModel.findAll({
-      attributes: {
-        exclude: [
-          // "wallet_id", // ✅ MUST RETURN: Required for delete operations
-          "privateKey",
-          "subscription_id",
-          "wallet_account_id",
-          "xpub",
-          "mnemonic",
-        ],
-      },
-      where: whereClause,
-    });
+    // ── B4: independent reads in parallel ────────────────────────────────
+    // walletData, the per-wallet processed-volume rollup and the USD→preferred
+    // fiat rate are independent of each other, so fetch them concurrently.
+    // (company-name + per-currency-rate lookups below depend on walletData, so
+    // they run in a 2nd parallel wave.) No money-math changed — only ordering.
+    const USD_FALLBACK_EXPR = PROCESSED_USD_EXPR;
+    const volCompanyJoin = company_id ? 'LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id' : '';
+    const volCompanyFilter = company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : '';
 
-    // Get all unique company IDs from wallets
+    const [walletData, processedRows, fiatRateResult] = await Promise.all([
+      userWalletModel.findAll({
+        attributes: {
+          exclude: [
+            // "wallet_id", // ✅ MUST RETURN: Required for delete operations
+            "privateKey",
+            "subscription_id",
+            "wallet_account_id",
+            "xpub",
+            "mnemonic",
+          ],
+        },
+        where: whereClause,
+      }),
+      sequelize.query(
+        `SELECT ut.wallet_id AS wallet_id, COALESCE(SUM(${USD_FALLBACK_EXPR}), 0) AS processed_usd
+         FROM tbl_user_transaction ut
+         ${volCompanyJoin}
+         WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} ${volCompanyFilter}
+         GROUP BY ut.wallet_id`,
+        {
+          replacements: { userId: userData.user_id, companyId: company_id },
+          type: QueryTypes.SELECT,
+        }
+      ) as Promise<Array<{ wallet_id: string | number | null; processed_usd: string }>>,
+      preferredCurrency !== 'USD'
+        ? convertToFiat('USD', preferredCurrency, 1)
+            .then((r) => ({ threw: false, amount: r.amount as number | undefined }))
+            .catch(() => ({ threw: true, amount: undefined as number | undefined }))
+        : Promise.resolve({ threw: false, amount: 1 as number | undefined }),
+    ]);
+
+    // Resolve USD→preferred fiat rate — preserve original fallback semantics:
+    // only fall back to USD when the conversion actually threw.
+    if (preferredCurrency !== 'USD') {
+      if (fiatRateResult.threw) {
+        walletLogger.warn(`[getWallet] Currency conversion failed, using USD`);
+        preferredCurrency = 'USD';
+      } else if (fiatRateResult.amount) {
+        fiatConversionRate = fiatRateResult.amount;
+      }
+    }
+
+    // Per-wallet processed-volume lookup (from the parallel query above).
+    // RECONCILED with the dashboard "Overall volume" (dashboardController
+    // volumeQuery): sum the USD value LOCKED IN at settlement time
+    // (ut.usd_value, with the same stablecoin base_amount fallback) grouped by
+    // wallet, using the SAME user/company scope the dashboard uses.
+    const processedByWalletId = new Map<string, number>();
+    for (const r of processedRows) {
+      if (r.wallet_id !== null && r.wallet_id !== undefined) {
+        processedByWalletId.set(String(r.wallet_id), parseFloat(String(r.processed_usd)) || 0);
+      }
+    }
+
+    // ── 2nd wave: company names + per-currency transfer rates (both need walletData) ──
     const companyIds = [...new Set(walletData.map(w => w.dataValues.company_id))];
-    
-    // Fetch company names
-    const companies = await companyModel.findAll({
-      where: { company_id: companyIds },
-      attributes: ['company_id', 'company_name'],
-    });
-    
+    const currencyList = [];
+    for (let i = 0; i < walletData.length; i++) {
+      currencyList.push(walletData[i].dataValues.wallet_type);
+    }
+
+    const [companies, currencyData] = await Promise.all([
+      companyModel.findAll({
+        where: { company_id: companyIds },
+        attributes: ['company_id', 'company_name'],
+      }),
+      convertToMultiple("USD", currencyList, 1, false).catch(() => {
+        walletLogger.warn(`[getWallet] Currency conversion failed for some currencies, using fallback rates`);
+        // Fallback: return empty rates - wallet will still load with 0 USD values
+        return currencyList.map((c: string) => ({ currency: c, amount: 0, transferRate: 0 }));
+      }),
+    ]);
+
     // Create company lookup map
     const companyMap = new Map<number, string>();
     for (const company of companies) {
       companyMap.set(company.dataValues.company_id, company.dataValues.company_name);
     }
 
-    const currencyList = [];
-
-    for (let i = 0; i < walletData.length; i++) {
-      currencyList.push(walletData[i].dataValues.wallet_type);
-    }
-
-    let currencyData: Array<{ currency: string; amount: number; transferRate: number }> = [];
-    try {
-      currencyData = await convertToMultiple("USD", currencyList, 1, false);
-    } catch (e) {
-      walletLogger.warn(`[getWallet] Currency conversion failed for some currencies, using fallback rates`);
-      // Fallback: return empty rates - wallet will still load with 0 USD values
-      currencyData = currencyList.map((c: string) => ({ currency: c, amount: 0, transferRate: 0 }));
-    }
-    
-    // Get USD to preferred currency conversion rate
-    if (preferredCurrency !== 'USD') {
-      try {
-        const fiatResult = await convertToFiat('USD', preferredCurrency, 1);
-        if (fiatResult.amount) {
-          fiatConversionRate = fiatResult.amount;
-        }
-      } catch (e) {
-        walletLogger.warn(`[getWallet] Currency conversion failed, using USD`);
-        preferredCurrency = 'USD';
-      }
-    }
-
     // Create a map of currency to transfer rate for lookup
     const rateMap = new Map<string, number>();
     for (const cd of currencyData) {
       rateMap.set(cd.currency, cd.transferRate);
-    }
-
-    // ── "Total processed" per wallet ─────────────────────────────────────
-    // RECONCILED with the dashboard "Overall volume" (dashboardController
-    // volumeQuery): sum the USD value LOCKED IN at settlement time
-    // (ut.usd_value, with the same stablecoin base_amount fallback) grouped by
-    // wallet, using the SAME user/company scope the dashboard uses. This
-    // replaces the old "current crypto balance ÷ today's rate", which is a
-    // live spendable balance — NOT processed volume — and was the source of the
-    // mismatch the merchant reported between /wallet and the dashboard.
-    const USD_FALLBACK_EXPR = PROCESSED_USD_EXPR;
-    const volCompanyJoin = company_id ? 'LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id' : '';
-    const volCompanyFilter = company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : '';
-    const processedRows = await sequelize.query(
-      `SELECT ut.wallet_id AS wallet_id, COALESCE(SUM(${USD_FALLBACK_EXPR}), 0) AS processed_usd
-       FROM tbl_user_transaction ut
-       ${volCompanyJoin}
-       WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} ${volCompanyFilter}
-       GROUP BY ut.wallet_id`,
-      {
-        replacements: { userId: userData.user_id, companyId: company_id },
-        type: QueryTypes.SELECT,
-      }
-    ) as Array<{ wallet_id: string | number | null; processed_usd: string }>;
-    const processedByWalletId = new Map<string, number>();
-    for (const r of processedRows) {
-      if (r.wallet_id !== null && r.wallet_id !== undefined) {
-        processedByWalletId.set(String(r.wallet_id), parseFloat(String(r.processed_usd)) || 0);
-      }
     }
 
     // Build return data - iterate through walletData directly to preserve all wallets
@@ -249,9 +253,9 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
       ? "No wallets found. Add your first wallet address to start receiving payments."
       : `Successfully retrieved ${totalWallets} wallet${totalWallets === 1 ? '' : 's'} from ${returnData.length} compan${returnData.length === 1 ? 'y' : 'ies'}`;
     
-    // Cache the result (120s TTL — rates update in background cache every 60s)
-    await setRedisItem(cacheKey, returnData);
-    await setRedisTTL(cacheKey, 120);
+    // Cache the result (120s TTL — rates update in background cache every 60s).
+    // B3: single SET EX round-trip, fire-and-forget so it never blocks the response.
+    setRedisItemWithTTL(cacheKey, returnData, 120).catch(() => {});
     
     successResponseHelper(res, 200, message, returnData);
   } catch (e) {

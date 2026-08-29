@@ -37,28 +37,55 @@ export function normalizeSymbol(currency?: string | null): string {
   return s;
 }
 
+// F4: module-level dedupe. useUsdRates can be mounted by several widgets (and
+// remounts on navigation); without sharing, each mount fires its own
+// /api/public/tickers request. Cache the parsed rates + the in-flight promise
+// so concurrent/remounted consumers reuse a single network call, refreshed at
+// most once per TTL.
+let _ratesCache: Record<string, number> | null = null;
+let _ratesFetchedAt = 0;
+let _ratesInFlight: Promise<Record<string, number>> | null = null;
+const RATES_TTL_MS = 60_000;
+
+function fetchRatesShared(): Promise<Record<string, number>> {
+  const now = Date.now();
+  if (_ratesCache && now - _ratesFetchedAt < RATES_TTL_MS) {
+    return Promise.resolve(_ratesCache);
+  }
+  if (_ratesInFlight) return _ratesInFlight;
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+  _ratesInFlight = fetch(`${base}/api/public/tickers`, { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((json) => {
+      const list = json?.data || json || [];
+      const map: Record<string, number> = {};
+      (Array.isArray(list) ? list : []).forEach((t: { symbol?: string; price?: number }) => {
+        if (t?.symbol && typeof t.price === "number" && t.price > 0) {
+          map[String(t.symbol).toUpperCase()] = t.price;
+        }
+      });
+      if (Object.keys(map).length) {
+        _ratesCache = map;
+        _ratesFetchedAt = Date.now();
+      }
+      return _ratesCache || {};
+    })
+    .catch(() => _ratesCache || {})
+    .finally(() => {
+      _ratesInFlight = null;
+    });
+  return _ratesInFlight;
+}
+
 export function useUsdRates() {
-  const [rates, setRates] = useState<Record<string, number>>({});
+  // Seed from the shared cache so a remount with warm rates paints instantly.
+  const [rates, setRates] = useState<Record<string, number>>(() => _ratesCache || {});
 
   useEffect(() => {
     let alive = true;
-    const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
-    fetch(`${base}/api/public/tickers`, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((json) => {
-        if (!alive || !json) return;
-        const list = json?.data || json || [];
-        const map: Record<string, number> = {};
-        (Array.isArray(list) ? list : []).forEach((t: { symbol?: string; price?: number }) => {
-          if (t?.symbol && typeof t.price === "number" && t.price > 0) {
-            map[String(t.symbol).toUpperCase()] = t.price;
-          }
-        });
-        if (Object.keys(map).length) setRates(map);
-      })
-      .catch(() => {
-        /* silent — estimate simply won't render */
-      });
+    fetchRatesShared().then((map) => {
+      if (alive && map && Object.keys(map).length) setRates(map);
+    });
     return () => {
       alive = false;
     };

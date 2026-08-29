@@ -23,6 +23,7 @@ import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
 import axios from "axios";
 import { userLogger } from "../../utils/loggers";
+import { invalidateUserAuthCache } from "../../middleware/authMiddleware";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../../services/accountLockoutService";
 import { createSession } from "../../services/sessionService";
@@ -325,6 +326,9 @@ export const verifyEmail = async (req: express.Request, res: express.Response) =
 
     // Invalidate profile cache so subsequent calls reflect the change
     await deleteRedisItem(`profile:${userId}`);
+    // B2: bump the auth cache so emailVerifiedMiddleware stops gating this user
+    // immediately (otherwise the cached email_verified=false lingers up to 60s).
+    await invalidateUserAuthCache(userId);
 
     userLogger.info(`[VerifyEmail] Email verified for user ${userId}`);
 

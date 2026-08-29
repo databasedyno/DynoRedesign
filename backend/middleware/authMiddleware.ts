@@ -7,33 +7,63 @@ import { userModel } from "../models";
 import { IUserType } from "../utils/types";
 import { getRedisItem, setRedisItemWithTTL, deleteRedisItem } from "../utils/redisInstance";
 
-// P1 perf: cache the per-request "does this user still exist?" check in Redis
-// (60s TTL) so authenticated requests skip a userModel.findOne DB round-trip.
-// Existence-only (matches the check below); invalidated on account deletion.
+// P1 perf: cache the per-request user lookup in Redis (60s TTL) so authenticated
+// requests skip a userModel.findOne DB round-trip. Stores existence PLUS the
+// email / email_verified fields so emailVerifiedMiddleware can gate routes from
+// the SAME cache entry instead of its own per-request DB query (see B2).
+// Invalidated on account deletion AND whenever email/email_verified changes.
 const AUTH_CACHE_TTL_SECONDS = 60;
 const authCacheKey = (userId: number | string) => `auth:user:${userId}`;
 
-const userAccountExists = async (userId: number | string): Promise<boolean> => {
+export interface AuthUserInfo {
+  exists: true;
+  email: string | null;
+  email_verified: boolean;
+}
+
+const resolveAuthUser = async (userId: number | string): Promise<AuthUserInfo | null> => {
   const key = authCacheKey(userId);
   try {
     const cached = await getRedisItem(key);
-    if (cached && cached.exists) return true;
+    // Only trust the cache if it carries the newer shape (has the `email`
+    // field). Legacy `{ exists: true }` entries are re-fetched so a verified
+    // user is never wrongly gated right after deploy.
+    if (cached && cached.exists && "email" in cached) {
+      return {
+        exists: true,
+        email: cached.email ?? null,
+        email_verified: cached.email_verified === true || cached.email_verified === "true",
+      };
+    }
   } catch {
     // Redis unavailable — fall through to DB so auth never depends on cache.
   }
 
-  const userExists = await userModel.findOne({ where: { user_id: userId } });
-  if (!userExists) return false;
+  const user = await userModel.findOne({
+    where: { user_id: userId },
+    attributes: ["user_id", "email", "email_verified"],
+  });
+  if (!user) return null;
+
+  const info: AuthUserInfo = {
+    exists: true,
+    email: (user.dataValues.email ?? null) as string | null,
+    email_verified: user.dataValues.email_verified === true,
+  };
 
   try {
-    await setRedisItemWithTTL(key, { exists: true }, AUTH_CACHE_TTL_SECONDS);
+    await setRedisItemWithTTL(key, info, AUTH_CACHE_TTL_SECONDS);
   } catch {
     // Non-critical — proceed without caching.
   }
-  return true;
+  return info;
 };
 
-/** Invalidate the cached existence entry (call on account deletion). */
+/**
+ * Invalidate the cached auth entry. Call on account deletion AND whenever a
+ * user's email or email_verified flag changes so the emailVerifiedMiddleware
+ * gate reflects the change immediately.
+ */
 export const invalidateUserAuthCache = async (userId: number | string): Promise<void> => {
   try {
     await deleteRedisItem(authCacheKey(userId));
@@ -77,16 +107,19 @@ const authMiddleware = async (
         return errorResponseHelper(res, 401, "Invalid token format. Please login again.");
       }
       
-      // Check if user exists (Redis-cached, 60s TTL — see userAccountExists)
-      const userExists = await userAccountExists(decoded.user_id);
+      // Resolve the user (Redis-cached, 60s TTL — see resolveAuthUser). Carries
+      // existence + email/email_verified so downstream middleware/controllers
+      // don't need their own DB round-trip.
+      const authUser = await resolveAuthUser(decoded.user_id);
 
-      if (!userExists) {
+      if (!authUser) {
         return errorResponseHelper(res, 401, "User account does not exist. Please login again.");
       }
       
       // Store token in res.locals for use in controllers
       res.locals.token = token;
       res.locals.user = decoded;
+      res.locals.authUser = authUser;
       
       next();
     } catch (err: unknown) {

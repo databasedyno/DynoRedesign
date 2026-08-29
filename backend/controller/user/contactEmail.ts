@@ -8,6 +8,7 @@ import {
   successResponseHelper,
 } from "../../helper/index";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
+import { invalidateUserAuthCache } from "../../middleware/authMiddleware";
 import emailService from "../../services/emailService";
 import { adminWalletModel, userModel, userWalletModel, companyModel, apiModel, loginActivityModel } from "../../models";
 import { userWalletAddressModel } from "../../models/userModels";
@@ -249,6 +250,9 @@ export const verifyAddEmail = async (req: express.Request, res: express.Response
       { where: { user_id: userData.user_id } }
     );
     await deleteRedisItem(otpKey);
+    // B2: email + email_verified just changed — bump the auth cache so the
+    // gate/downstream reflect it immediately.
+    await invalidateUserAuthCache(userData.user_id);
 
     // Generate new token with updated data
     const token = await getAccessToken(userData.user_id);

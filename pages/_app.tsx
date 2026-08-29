@@ -37,7 +37,11 @@ import { Unbounded, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 
 const UnboundedFont = Unbounded({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "800"],
+  // F6 font diet: Unbounded is only a FALLBACK in the --font-hero stack (Manrope
+  // wins, see globals.css), so it is essentially never painted. It previously
+  // shipped 5 weight files (300/400/500/600/800) for nothing. Trimmed to a
+  // single weight — enough for the rare fallback case, ~4 fewer font downloads.
+  weight: ["400"],
   display: "swap",
 });
 
@@ -77,6 +81,7 @@ import ErrorBoundary from "@/Components/ErrorBoundary";
 import { ThemeProvider as AppThemeProvider, useThemeMode } from "@/contexts/ThemeContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { SWRConfig } from "swr";
+import { localStorageProvider } from "@/utils/swrLocalCache";
 import { CompanyDataProvider } from "@/contexts/CompanyDataContext";
 import { WalletDataProvider } from "@/contexts/WalletDataContext";
 import IdleTimeoutManager from "@/Components/UI/IdleTimeoutManager";
@@ -631,6 +636,11 @@ export default function App({
                     instead of redux-saga. */}
                 <SWRConfig
                   value={{
+                    // F2: persist SWR cache to localStorage (per-user, TTL'd)
+                    // so repeat dashboard/company/wallet visits hydrate
+                    // instantly with last-known values, then revalidate in the
+                    // background — no more skeletons on every visit.
+                    provider: localStorageProvider,
                     revalidateOnFocus: false,
                     revalidateOnReconnect: true,
                     shouldRetryOnError: true,

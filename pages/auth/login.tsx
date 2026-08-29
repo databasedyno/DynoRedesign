@@ -217,6 +217,16 @@ export default function Login() {
     }
   }, [userState, router, isPasswordRecoveryMode]);
 
+  // F5: prefetch the /dashboard route chunk once the user reaches the
+  // password / OTP screen, so the post-login navigation is instant (the route
+  // JS + data are already warmed while they type). Best-effort — dev mode is a
+  // no-op and any failure is swallowed.
+  useEffect(() => {
+    if (showLoginMethods || showPhoneLoginOtp) {
+      router.prefetch("/dashboard").catch(() => {});
+    }
+  }, [showLoginMethods, showPhoneLoginOtp, router]);
+
   // Handle successful OTP verification for password recovery
   useEffect(() => {
     if (

@@ -1,5 +1,12 @@
 # DynoPay — Full-Stack Performance Analysis (2026-06 fork, pod eddcc06a)
 
+> STATUS 2026-06 (pod eddcc06a): ALL 10 APPROVED FIXES SHIPPED & VALIDATED — B1,B2,B3,B4,F1,F2,F3(wired),F4(dedupe only),F5,F6.
+> See memory/CHANGELOG.md top entry for exact files. Login 1.3-1.5s->~0.97s; wallet cold 1.2s->0.65s; dashboard waterfall
+> collapsed; SWR localStorage persistence live. testing_agent 100% (7/7) — /app/test_reports/iteration_99.json.
+> NOT done: F4 deferral of below-the-fold calls (reusable-wallets/creator-profile/getPaymentLinks/action-counts) — deferred
+> as higher-risk on the live dashboard; can be picked up separately.
+
+
 Analysis-only pass (user choice). Evidence measured live on this pod against the prod Railway DB.
 Prior perf work already shipped (do NOT redo): bundle −288 kB/page (i18n EN-only), checkout single-fetch,
 status probe 600→42ms, CDN cache on creator/shop/product SSR, recharts/KpiStrip dynamic on dashboard,
