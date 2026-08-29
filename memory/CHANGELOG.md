@@ -28,6 +28,13 @@ FIX (applied in pod, branch conflict_280826_1905 — NOT yet deployed to DO unti
   merchant.webhook = actually delivered), keeping the confirmed-webhook-sent-{paymentId} dedup so webhookProcessor.ts
   does NOT double-send. This is the common completion point for webhook/pool-monitor/polling paths. Added import
   of deliverMerchantWebhook. tsc --noEmit EXIT 0, backend restarted clean.
+- (C) NEW ENDPOINT GET /api/user/getPaymentStatus/:payment_id (routes/merchantApiRouter.ts) — merchant re-verify
+  keyed on the immutable payment_id (tbl_user_transaction.id), company-scoped, DB-authoritative (persists after
+  Redis expires). Maps status via parseState→toExternalStatus; adds is_paid (payment_status==="settled") + amounts
+  + incoming/outgoing tx hashes + optional auto_convert block. VERIFIED live read-only: payment 0f3a89a2 →
+  200 {payment_status:"settled", is_paid:true, outgoing_tx_hash:0xd57f5f…}; bogus id → 404; undefined → 400.
+  Docs updated: backend/swagger/paths/directApi.ts (getPaymentStatus spec) + pages/documentation.tsx (new
+  "Verify Payment by ID (recommended)" card under Transactions; getCryptoTransaction cross-references it). SSR verified.
 
 STILL OPEN: (1) push/deploy to production (DO auto-deploys on push). (2) reconcile any PAST Hostbay orders paid
 on-chain but never credited (not yet done — needs user go-ahead). (3) Part B not E2E-tested (can't create real

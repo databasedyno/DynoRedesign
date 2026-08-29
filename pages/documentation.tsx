@@ -791,7 +791,7 @@ const ENDPOINTS: Endpoint[] = [
     method: "GET",
     path: "/getCryptoTransaction/:address",
     title: "Verify Crypto Payment",
-    description: "Verify a crypto payment by its blockchain deposit address. Use this to poll payment status. Works with just your API key (userless mode) or with a customer Bearer token.",
+    description: "Verify a crypto payment by its blockchain deposit address. Use this to poll payment status. Works with just your API key (userless mode) or with a customer Bearer token. Tip: for webhook re-verification prefer GET /getPaymentStatus/:payment_id, which is keyed on the immutable payment_id (not a reusable address) and stays correct after the checkout session expires.",
     auth: "api-key-optional-bearer",
     headers: [
       { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
@@ -801,6 +801,40 @@ const ENDPOINTS: Endpoint[] = [
     responseExample: `{
   "success": true,
   "data": { "status": "completed", "amount": 0.00084, "currency": "BTC", "confirmations": 3 }
+}`,
+  },
+  {
+    id: "get-payment-status",
+    method: "GET",
+    path: "/getPaymentStatus/:payment_id",
+    title: "Verify Payment by ID (recommended)",
+    description:
+      "Verify a payment by its unique payment_id (the id returned by /cryptoPayment). Recommended for confirming payments when you receive a webhook: it is keyed on the immutable payment_id — not a reusable deposit address — and returns the authoritative status straight from the database, so it stays correct even after the checkout session expires. payment_status is one of: waiting, pending, confirmed, processing, settled, underpaid, failed, expired, refunded. Funds have reached your merchant wallet when payment_status is \"settled\" (or is_paid is true). Works with just your API key (userless mode) or with a customer Bearer token.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+    ],
+    pathParams: [{ name: "payment_id", type: "string", description: "The payment_id from the cryptoPayment response" }],
+    responseExample: `{
+  "success": true,
+  "message": "Payment status retrieved",
+  "data": {
+    "payment_id": "0f3a89a2-27bc-4729-898c-d03492854540",
+    "payment_status": "settled",
+    "is_paid": true,
+    "amount": 69,
+    "currency": "USDT-ERC20",
+    "base_amount": 69,
+    "base_currency": "USD",
+    "usd_value": 69,
+    "fee": 1.69,
+    "confirmations": 12,
+    "incoming_tx_hash": "0x3cfa5acc...",
+    "outgoing_tx_hash": "0xd57f5f52...",
+    "created_at": "2026-08-29T17:08:34.000Z",
+    "updated_at": "2026-08-29T17:11:40.000Z"
+  }
 }`,
   },
   {
@@ -897,7 +931,7 @@ const SECTIONS: Section[] = [
   { id: "embed", title: "Embedded Checkout", icon: <CodeIcon />, endpoints: ["embed-session"] },
   { id: "elements", title: "Elements Inline Widget", icon: <CodeIcon />, endpoints: ["elements-intent", "elements-select-currency", "elements-status"] },
   { id: "wallets", title: "Wallets", icon: <AccountBalanceWalletIcon />, endpoints: ["add-funds", "use-wallet", "get-balance"] },
-  { id: "transactions", title: "Transactions", icon: <ReceiptLongIcon />, endpoints: ["get-transactions", "get-single-transaction", "get-crypto-transaction"] },
+  { id: "transactions", title: "Transactions", icon: <ReceiptLongIcon />, endpoints: ["get-transactions", "get-single-transaction", "get-crypto-transaction", "get-payment-status"] },
   { id: "currencies", title: "Currencies", icon: <CurrencyExchangeIcon />, endpoints: ["get-supported-currency"] },
   { id: "wallet-management", title: "Merchant Wallet Management", icon: <AccountBalanceWalletIcon />, endpoints: ["admin-credit-wallet", "admin-debit-wallet"] },
   { id: "webhooks", title: "Webhooks", icon: <NotificationsActiveIcon /> },

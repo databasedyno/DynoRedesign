@@ -1077,6 +1077,120 @@ router.get("/getCryptoTransaction/:address", legacyApiAuthMiddleware, asyncHandl
 }, { logger: apiLogger, label: "[MerchantAPI] getCryptoTransaction" }));
 
 // ============================================================
+// GET /api/user/getPaymentStatus/:payment_id
+// Verify a payment by its DynoPay payment_id (the id returned when the payment
+// was created). Unlike getCryptoTransaction/:address, this is keyed on the
+// unique, immutable payment_id — so it never breaks on reusable merchant-pool
+// addresses and returns the AUTHORITATIVE final status from the database even
+// after the short-lived Redis session has expired. Recommended for webhook
+// re-verification.
+// ============================================================
+router.get("/getPaymentStatus/:payment_id", legacyApiAuthMiddleware, asyncHandler(async (req, res) => {
+  const apiKeyData = res.locals.apiKeyData;
+  const baseCurrency = apiKeyData?.base_currency || "USD";
+  const companyId = apiKeyData?.company_id;
+  const { payment_id } = req.params;
+
+  if (!payment_id || payment_id === "undefined" || payment_id === "null") {
+    return sendError(res, {
+      status: 400,
+      message: "Please provide a valid payment_id (received: " + payment_id + ")",
+    });
+  }
+
+  if (!companyId) {
+    return sendError(res, { status: 401, message: "Invalid or missing API key" });
+  }
+
+  // Scope strictly to the authenticated merchant's company so a merchant can
+  // only ever read their own payments.
+  const rows = await sequelize.query<Record<string, unknown>>(
+    `SELECT ut.id, ut.payment_mode, ut.base_amount, ut.base_currency,
+            ut.crypto_amount, ut.crypto_currency, ut.usd_value, ut.transaction_fee,
+            ut.tax_amount, ut.confirmations, ut.required_confirmations,
+            ut.transaction_reference, ut.incoming_tx_hash, ut.outgoing_tx_hash,
+            ut.status, ut."createdAt", ut."updatedAt",
+            sc.conversion_id as auto_convert_id,
+            sc.status as auto_convert_status,
+            sc.source_currency as auto_convert_source_currency,
+            sc.source_amount as auto_convert_source_amount,
+            sc.source_amount_usd as auto_convert_source_amount_usd,
+            sc.target_currency as auto_convert_target_currency,
+            sc.target_amount as auto_convert_target_amount,
+            sc.settlement_chain as auto_convert_settlement_chain,
+            sc.conversion_rate as auto_convert_rate,
+            sc.completed_at as auto_convert_completed_at
+     FROM tbl_user_transaction ut
+     LEFT JOIN tbl_stablecoin_conversion sc ON sc.transaction_id = ut.transaction_id
+     WHERE ut.id = $1 AND ut.company_id = $2
+     LIMIT 1`,
+    {
+      bind: [payment_id, companyId],
+      type: QueryTypes.SELECT,
+    }
+  );
+
+  if (rows.length === 0) {
+    return sendError(res, {
+      status: 404,
+      message: "Please provide a valid payment_id!",
+    });
+  }
+
+  const row = rows[0];
+  const rawStatus = row.status as string;
+  const formalState = parseState(rawStatus);
+  const paymentStatus = formalState ? toExternalStatus(formalState) : rawStatus;
+  // "settled" is the terminal state where funds have been forwarded to the merchant.
+  const isPaid = paymentStatus === "settled";
+
+  const data: Record<string, unknown> = {
+    payment_id: row.id,
+    payment_status: paymentStatus, // waiting | pending | confirmed | processing | settled | underpaid | failed | expired | refunded
+    status: rawStatus, // raw DB status (backward compatibility)
+    is_paid: isPaid, // convenience flag: funds settled to the merchant
+    payment_mode: row.payment_mode,
+    amount: row.crypto_amount != null ? Number(row.crypto_amount) : null,
+    currency: row.crypto_currency,
+    base_amount: row.base_amount != null ? Number(row.base_amount) : null,
+    base_currency: row.base_currency || baseCurrency,
+    usd_value: row.usd_value != null ? Number(row.usd_value) : null,
+    fee: row.transaction_fee != null ? Number(row.transaction_fee) : null,
+    tax_amount: row.tax_amount != null ? Number(row.tax_amount) : null,
+    confirmations: row.confirmations != null ? Number(row.confirmations) : null,
+    required_confirmations: row.required_confirmations != null ? Number(row.required_confirmations) : null,
+    transaction_reference: row.transaction_reference,
+    incoming_tx_hash: row.incoming_tx_hash,
+    outgoing_tx_hash: row.outgoing_tx_hash,
+    created_at: row.createdAt,
+    updated_at: row.updatedAt,
+    auto_converted: !!row.auto_convert_id,
+    auto_convert: row.auto_convert_id
+      ? {
+          conversion_id: row.auto_convert_id,
+          status: row.auto_convert_status,
+          display_status: toConversionDisplayStatus(row.auto_convert_status as string),
+          source_currency: row.auto_convert_source_currency,
+          source_amount: row.auto_convert_source_amount ? Number(row.auto_convert_source_amount) : null,
+          source_amount_usd: row.auto_convert_source_amount_usd ? Number(row.auto_convert_source_amount_usd) : null,
+          target_currency: row.auto_convert_target_currency,
+          target_amount: row.auto_convert_target_amount ? Number(row.auto_convert_target_amount) : null,
+          settlement_chain: row.auto_convert_settlement_chain,
+          conversion_rate: row.auto_convert_rate ? Number(row.auto_convert_rate) : null,
+          completed_at: row.auto_convert_completed_at,
+        }
+      : null,
+  };
+
+  return sendSuccess(res, {
+    status: 200,
+    message: "Payment status retrieved",
+    data,
+    extra: { display_currency: baseCurrency },
+  });
+}, { logger: apiLogger, label: "[MerchantAPI] getPaymentStatus" }));
+
+// ============================================================
 // GET /api/user/getSupportedCurrency
 // Get list of supported cryptocurrencies for this merchant
 // ============================================================
