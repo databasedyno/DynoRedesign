@@ -1858,4 +1858,86 @@ router.post("/recover-excess-trx", adminAuthMiddleware, async (req: express.Requ
   }
 });
 
+/**
+ * GET /api/diagnostics/tier2-health
+ *
+ * Observability for the Tier-2 reliability subsystems (admin-only):
+ *   - #10 transactional outbox: status counts, oldest-pending age, recent failures
+ *   - #4 inbound-event idempotency: per-provider/status counts
+ *   - #8 key-custody: 24h key-access audit summary
+ * plus the current feature-flag state so a single-instance operator can see at a
+ * glance whether the flags are on and the relay is keeping up.
+ */
+router.get("/tier2-health", adminAuthMiddleware, async (_req: express.Request, res: express.Response) => {
+  const { QueryTypes } = await import("sequelize");
+  const { default: sequelize } = await import("../utils/dbInstance");
+
+  // Each section is defensive: a missing table / query error degrades to an
+  // { error } object instead of failing the whole health call.
+  const safe = async <T>(fn: () => Promise<T>): Promise<T | { error: string }> => {
+    try { return await fn(); } catch (e) { return { error: (e as Error).message }; }
+  };
+
+  const outboxCounts = await safe(async () => {
+    const { getOutboxHealth } = await import("../services/outbox/outboxService");
+    return getOutboxHealth();
+  });
+
+  const oldestPending = await safe(async () => {
+    const rows = (await sequelize.query(
+      `SELECT EXTRACT(EPOCH FROM (NOW() - MIN(available_at)))::int AS age_seconds
+         FROM tbl_outbox WHERE status = 'pending'`,
+      { type: QueryTypes.SELECT }
+    )) as Array<{ age_seconds: number | null }>;
+    return rows[0]?.age_seconds ?? null;
+  });
+
+  const recentFailed = await safe(async () =>
+    sequelize.query(
+      `SELECT event_id, event_type, aggregate_id, attempts, last_error, available_at
+         FROM tbl_outbox WHERE status = 'failed' ORDER BY id DESC LIMIT 10`,
+      { type: QueryTypes.SELECT }
+    )
+  );
+
+  const inboundEvents = await safe(async () =>
+    sequelize.query(
+      `SELECT provider, status, COUNT(*)::int AS n
+         FROM tbl_inbound_events GROUP BY provider, status ORDER BY provider, status`,
+      { type: QueryTypes.SELECT }
+    )
+  );
+
+  const keyAudit24h = await safe(async () =>
+    sequelize.query(
+      `SELECT purpose, success, COUNT(*)::int AS n
+         FROM tbl_key_access_audit
+        WHERE created_at > NOW() - INTERVAL '24 hours'
+        GROUP BY purpose, success ORDER BY purpose`,
+      { type: QueryTypes.SELECT }
+    )
+  );
+
+  res.status(200).json({
+    status: "ok",
+    flags: {
+      ENABLE_OUTBOX: envRaw("ENABLE_OUTBOX") === "true",
+      ENABLE_INBOUND_EVENT_DEDUP: envRaw("ENABLE_INBOUND_EVENT_DEDUP") === "true",
+      ENABLE_BACKGROUND_JOBS: envRaw("ENABLE_BACKGROUND_JOBS") === "true",
+      WORKER_ROLE: envRaw("WORKER_ROLE") || "primary",
+      relay_active: envRaw("ENABLE_OUTBOX") === "true"
+        && envRaw("ENABLE_BACKGROUND_JOBS") === "true"
+        && (envRaw("WORKER_ROLE") || "primary") !== "secondary",
+    },
+    outbox: {
+      counts: outboxCounts,
+      oldest_pending_age_seconds: oldestPending,
+      recent_failed: recentFailed,
+    },
+    inbound_events: inboundEvents,
+    key_access_audit_24h: keyAudit24h,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 export default router;

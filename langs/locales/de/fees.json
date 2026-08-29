@@ -129,6 +129,26 @@
     "sec3Body": "Verschlüsselte Secrets in Google KMS, PII minimiert, Audit-Trail aufbewahrt. Export oder Löschung auf Anfrage.",
     "plusFixed": "+ 1 $ pro Zahlung",
     "paymentsLabel": "Zahlungen pro Monat",
-    "effectiveRate": "effektiver Satz"
+    "effectiveRate": "effektiver Satz",
+    "whoPaysEyebrow": "[ 04 · Wer zahlt? ]",
+    "whoPaysTitle": "Wer zahlt die Gebühr? Sie entscheiden.",
+    "whoPaysBody": "Bei jedem Link und Checkout wählen Sie, ob Sie die Gebühr übernehmen oder an den Kunden weitergeben. Es gibt keine falsche Antwort.",
+    "wpMerchantTitle": "Sie übernehmen die Gebühr",
+    "wpMerchantDesc": "Der Preis bleibt genau der, den Sie festgelegt haben. Bei einer Zahlung von $100 zu 1,5 % + $1 erhalten Sie $97,50.",
+    "wpCustomerTitle": "Der Kunde zahlt die Gebühr",
+    "wpCustomerDesc": "Die Gebühr kommt oben drauf. Bei einer Zahlung von $100 zahlt der Kunde $102,50 und Sie behalten die vollen $100.",
+    "wpFootnote": "Gezeigt zum Starter-Satz von 1,5 %. Ihr Satz sinkt mit steigendem Monatsvolumen auf 0,5 %.",
+    "includedEyebrow": "[ 05 · Kostenlos inklusive ]",
+    "includedTitle": "Alles inklusive. Keine Zusatzkosten.",
+    "includedBody": "Ein Prozentsatz deckt alles ab. Keine Monatsgebühr, keine Einrichtung, kein Preis pro Funktion – alles unten geht aufs Haus.",
+    "inc1": "On-Chain-Auszahlungen in Ihre eigene Wallet",
+    "inc2": "Krypto-Rückerstattungen mit einem Klick",
+    "inc3": "Signierte Webhooks + Event-Konsole",
+    "inc4": "Gehosteter Shop & Produktkatalog",
+    "inc5": "Rechnungen mit USt & EU-Reverse-Charge",
+    "inc6": "Automatische Wandlung in USDC / USDT",
+    "inc7": "Zahlungslinks & Kauf-Buttons",
+    "inc8": "Checkout in 6 Sprachen",
+    "inc9": "Keine Monats- oder Einrichtungsgebühren"
   }
 }

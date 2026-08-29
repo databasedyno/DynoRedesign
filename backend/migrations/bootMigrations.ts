@@ -82,7 +82,20 @@ export async function getBootModels(): Promise<unknown[]> {
   const { default: serviceHealthDailyModel } = await import(
     "../models/serviceHealthDailyModel"
   );
-  return [...v1, ...extra, refundModel, serviceHealthDailyModel];
+  // Tier-2 (#4/#10/#8) additive tables — included so the dev alter-sync path
+  // also provisions them (prod uses the versioned migrations 0007–0009).
+  const { default: inboundEventModel } = await import("../models/inboundEventModel");
+  const { default: outboxEventModel } = await import("../models/outboxEventModel");
+  const { default: keyAccessAuditModel } = await import("../models/keyAccessAuditModel");
+  return [
+    ...v1,
+    ...extra,
+    refundModel,
+    serviceHealthDailyModel,
+    inboundEventModel,
+    outboxEventModel,
+    keyAccessAuditModel,
+  ];
 }
 
 interface SyncableModel {
@@ -217,6 +230,34 @@ const addStorefrontVisibilityFlags = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0007 — Tier-2 Item #4: inbound-event idempotency table (tbl_inbound_events).
+ * Brand-new table with UNIQUE(provider, provider_event_id). Create-only sync —
+ * no existing data is touched, so this is safe to apply on live prod.
+ */
+const createInboundEventsTable = async (): Promise<void> => {
+  const { default: inboundEventModel } = await import("../models/inboundEventModel");
+  if (isSyncable(inboundEventModel)) await inboundEventModel.sync();
+};
+
+/**
+ * 0008 — Tier-2 Item #10: transactional outbox table (tbl_outbox).
+ * Brand-new table. Create-only sync — safe on prod.
+ */
+const createOutboxTable = async (): Promise<void> => {
+  const { default: outboxEventModel } = await import("../models/outboxEventModel");
+  if (isSyncable(outboxEventModel)) await outboxEventModel.sync();
+};
+
+/**
+ * 0009 — Tier-2 Item #8: append-only key-access audit table
+ * (tbl_key_access_audit). Brand-new table. Create-only sync — safe on prod.
+ */
+const createKeyAccessAuditTable = async (): Promise<void> => {
+  const { default: keyAccessAuditModel } = await import("../models/keyAccessAuditModel");
+  if (isSyncable(keyAccessAuditModel)) await keyAccessAuditModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -226,5 +267,8 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0004_crypto_refund_flow", up: createRefundTables },
     { version: "0005_service_health_daily", up: createServiceHealthDailyTable },
     { version: "0006_add_storefront_visibility_flags", up: addStorefrontVisibilityFlags },
+    { version: "0007_inbound_events", up: createInboundEventsTable },
+    { version: "0008_outbox", up: createOutboxTable },
+    { version: "0009_key_access_audit", up: createKeyAccessAuditTable },
   ];
 }

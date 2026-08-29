@@ -15,7 +15,7 @@ import tatumApi from "../../apis/tatumApi";
 import { getErrorMessage } from "../../helper";
 import { cronLogger } from "../../utils/loggers";
 import { paymentController } from "../../controller";
-import { callMerchantWebhook } from "../../webhooks";
+import { deliverMerchantWebhook } from "../outbox/merchantWebhookOutbox";
 import {
   POOL_CONFIG,
   TOKEN_CHAINS,
@@ -1345,7 +1345,7 @@ export const detectOrphanPayments = async (): Promise<{
 
             if (paymentContext?.webhook_url || paymentContext?.callback_url || companyId) {
               try {
-                await callMerchantWebhook(customerData, {
+                await deliverMerchantWebhook(customerData, {
                   event: 'payment.confirmed',
                   payment_id: paymentId,
                   transaction_reference: latestTx.txId,

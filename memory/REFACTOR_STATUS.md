@@ -150,3 +150,103 @@ Full detail in `memory/COPY_AUDIT.md` + `memory/CHANGELOG.md`. Highlights:
       drop into `public/og/`, reference from press.tsx Head.
 - [ ] **P2 Locale parity fix**: de/es/fr/nl/pt `emails.json` miss EN key
       `merchant.locked.suspendedLine` (pre-existing; falls back to EN today) — translate ×5.
+
+
+# ============================================================================
+# 2026-06 — CHECKOUT REFACTOR (all phases) — pod fork continuation
+# ============================================================================
+
+## Background
+Three large "god-components" own the checkout surfaces and each grew its own data + helper layer:
+- `Components/Page/Pay3Components/cryptoTransfer.tsx` (2,563 lines) — the crypto **checkout** widget
+  (data layer: `axiosBaseApi` + Redux `useDispatch`; endpoints configuredCurrencies / getCurrencyRates /
+  addPayment / verifyCryptoPayment).
+- `Components/Page/Creator/InlineTipCheckout.tsx` (1,234 lines) — inline creator tip / donation / link
+  **checkout** (data layer: raw `fetch()` with explicit Bearer, deliberately never touches localStorage).
+- `Components/Page/CreatePaymentLink/index.tsx` (~2,082 lines) — a merchant **creation FORM** (NOT a
+  checkout display; only truly-common helpers overlap).
+`CleanCheckoutV2.tsx` was already modularised in a prior session into the shared `checkout/*` modules:
+`checkoutTypes.ts` (Meta / CryptoInfo / Phase / PaymentUri), `checkoutConstants.ts` (MONO / LIME / INK /
+ON_BRAND / PREF_* / CRYPTO_INFO), `checkoutHelpers.ts` (formatCryptoAmount / buildPaymentUri /
+copyToClipboard / read+writeCheckoutPref), `checkoutApi.ts` (checkoutApi / fetchReceiptBlob),
+`checkoutPrimitives.tsx` (CheckoutStatusTimeline / PanelShell).
+
+User steer (ask_human, this fork): **implement Phase A only**; document all phases here after.
+Overriding rule for every phase: **ZERO behaviour change on the revenue path** — only swap logic that is
+*functionally identical* to the shared version; never force divergent implementations together.
+
+## Phase A — Extract shared PURE logic — ✅ DONE (2026-06)
+Goal: point the god-components at the shared `checkout/*` modules for logic they *identically* re-implement.
+
+What was actually de-duped (after a line-by-line equivalence check):
+- **InlineTipCheckout.tsx** — removed its local `MONO`, `LIME (= BRAND_ACCENT)`, `INK` constants and its
+  local `Phase` union + `CryptoInfo` interface; now imports `{ MONO, LIME, INK }` from
+  `checkout/checkoutConstants` and `type { Phase, CryptoInfo }` from `checkout/checkoutTypes`. The shared
+  values/shapes are byte-for-byte equivalent (Phase = same 9 members, union order irrelevant; CryptoInfo =
+  same 7 fields/types). Also dropped the now-unused `BRAND_ACCENT` import. ~30 lines of duplication removed;
+  all 26 `MONO/LIME/INK` references + all `Phase`/`CryptoInfo` usages compile unchanged.
+
+What was deliberately **NOT** touched (would have changed behaviour — Phase A must not):
+- **cryptoTransfer.tsx `walletUri`** intentionally DIVERGES from shared `buildPaymentUri`: it also emits
+  `ethereum:?value=<wei>` (via a local pure `toWei` string-math helper) and `tron:` deep-links, and encodes
+  the *raw* amount string; the shared helper deliberately returns `null` for EVM/TRON/token chains and runs
+  the amount through `formatCryptoAmount`. Merging them would drop ETH/TRX deep-links → left as-is.
+- **cryptoTransfer.tsx `formatAmount`** already delegates to the *richer* shared `formatCryptoAmount` in
+  `utils/currencyFormat.ts` (handles fiat + chain-suffixed codes) — a different, more capable single source
+  than the checkout copy. Swapping to the checkout one would lose capability → left as-is.
+- **Both components' clipboard** already use the global `@/helpers/copyToClipboard` (not the checkout copy).
+- **Meta** shapes differ per surface (InlineTip's is narrower + has campaign fields) → left local.
+- **CreatePaymentLink** is a creation form → out of scope for checkout-display de-dup.
+Net honest finding: the prior refactor had already routed cryptoTransfer's big shared helpers through global
+utils, so the only *safe, identical* remaining duplication lived in InlineTipCheckout (done).
+
+Verified: `tsc --noEmit` EXIT 0 (proves shared Phase/CryptoInfo/constants are compatible across every usage);
+live render smoke test on `/devhub` → opened the "Support me" widget → InlineTipCheckout mounts and reaches
+the `currency_select` phase ("Pick a crypto to pay $10.00", full coin grid via shared CRYPTO_INFO, receipt
+field), no error boundary, no console crash. No money-path/API/UI change.
+
+## Phase B — Unify the API call sites — ✅ DONE (2026-06)
+Goal: route all checkout surfaces through ONE module (`checkout/checkoutApi.ts`) so every pay call lives in
+one place — while preserving each surface's auth model EXACTLY.
+- The module now holds BOTH transports:
+  - `checkoutApi()` / `fetchReceiptBlob()` — the fetch/Bearer client that NEVER reads localStorage (the
+    anonymous-customer auth model). Used by `CleanCheckoutV2` (already) and now `InlineTipCheckout`.
+  - NEW `payAxios` — thin wrappers over the app-wide `axiosBaseApi` (interceptors + localStorage token, the
+    merchant-session auth model). Used by the legacy `cryptoTransfer`.
+- `InlineTipCheckout.tsx`: deleted its LOCAL `api()` fetch wrapper (which was byte-identical to `checkoutApi`)
+  and now imports `{ checkoutApi as api }` — so all 8 call sites are unchanged and the two fetch surfaces
+  share one client. Exact parity (same URL base, headers, envelope, no-localStorage rule).
+- `cryptoTransfer.tsx`: replaced its 5 `axiosBaseApi.get/post(API_ENDPOINTS.pay.*)` sites with
+  `payAxios.{getConfiguredCurrencies|getCurrencyRates|addPayment|verifyCryptoPayment}(...)`. The wrappers are
+  literal pass-throughs returning the raw `AxiosResponse` and throwing on non-2xx exactly like axios, so every
+  `response.data?.data` and `catch (e){ e.response.status/.data.message }` behaves identically. Removed the now
+  -unused `axiosBaseApi` + `API_ENDPOINTS` imports (only a dead commented block still references them).
+- Auth models preserved EXACTLY: fetch/Bearer/no-localStorage for the public surfaces; axios/interceptor for
+  cryptoTransfer. No endpoint, payload, response-shape, or error-handling change.
+
+Verified: `tsc --noEmit` EXIT 0. Live smoke on the TWO ACTIVE surfaces:
+- InlineTipCheckout (`/devhub` → "Support me") reaches `currency_select` ("Pick a crypto to pay $10.00", full
+  coin grid, receipt field) — its `api('/pay/getData')` through the shared client succeeded; no error boundary.
+- CleanCheckoutV2 (`/pay/demo` mirror, which imports the extended `checkoutApi.ts`) renders the full waiting
+  state with a live rate + QR ("Pay 0.40707496 LTC on Litecoin") — proving `payAxios` + the axios import did
+  NOT break the anonymous checkout chunk. No error boundary.
+- ⚠️ cryptoTransfer is the DORMANT fallback (only mounts when `NEXT_PUBLIC_CLEAN_CHECKOUT_V2=false`, a
+  build-time env with no runtime/query override) so it could NOT be e2e-rendered in preview. Its rewrite is
+  behaviour-preserving by construction (pass-through wrappers) + tsc-clean; verify in prod if the flag is ever
+  flipped.
+
+## Phase C — Rewrite the data layer — ⛔ DEFERRED (NOT recommended; HIGH risk)
+Idea: replace Redux-saga / raw-fetch with a single server-state layer (e.g. SWR/react-query) across the money
+path.
+- Benefit: consistent caching/polling/retry model; less bespoke state; the "unify 3 data layers" end-state.
+- Risk (why HIGH): touches confirmation polling + settlement-adjacent flows that CANNOT be fully e2e-tested in
+  preview (needs real on-chain confirmations); a subtle polling/timing regression = missed/duplicated payment
+  states. Zero user-visible upside. Recommendation: only attempt alongside a broader checkout change, behind a
+  flag, with real-network QA.
+
+## Files touched
+- Phase A: `Components/Page/Creator/InlineTipCheckout.tsx` (constants/types de-dup).
+- Phase B: `Components/Page/Pay3Components/checkout/checkoutApi.ts` (added `payAxios` transport),
+  `Components/Page/Pay3Components/cryptoTransfer.tsx` (5 calls → `payAxios`),
+  `Components/Page/Creator/InlineTipCheckout.tsx` (local `api()` → shared `checkoutApi`).
+  Shared `checkout/*` type/constant/helper modules otherwise unchanged.

@@ -319,6 +319,110 @@
       "step3title": "Word betaald op jouw manier",
       "step3desc": "Houd de originele munt of zet automatisch om naar USDC of USDT — jouw keuze — uitbetaald op een wallet die jij beheert.",
       "cta": "Begin met betalingen ontvangen"
+    },
+    "ways": {
+      "eyebrow": "[ Manieren om betaald te worden ]",
+      "headline1": "Negen manieren",
+      "headline2": "om een betaling te innen.",
+      "body": "Kies wat past: een link, een gehoste pagina, een API-aanroep of een volledige winkel. Erachter: één wallet, één dashboard.",
+      "links": {
+        "title": "Betaallinks",
+        "desc": "Deel één link overal. Kopers betalen in seconden – zonder account."
+      },
+      "checkout": {
+        "title": "Gehoste checkout",
+        "desc": "Een betaalpagina in jouw huisstijl, klaar voor elk bedrag of product."
+      },
+      "api": {
+        "title": "REST-API",
+        "desc": "Maak betalingen vanuit je backend, met ondertekende webhooks en testsleutels."
+      },
+      "buttons": {
+        "title": "Koopknoppen",
+        "desc": "Voeg met een stukje HTML een betaalknop toe aan elke website."
+      },
+      "elements": {
+        "title": "Insluitbare elementen",
+        "desc": "Zet de checkout in je eigen pagina's met publiceerbare sleutels."
+      },
+      "storefront": {
+        "title": "Winkel",
+        "desc": "Een volledige catalogus – digitaal, fysiek of dienst – met winkelwagen en btw."
+      },
+      "tips": {
+        "title": "Creator-fooien",
+        "desc": "Je eigen @handle-pagina voor fooien met één tik."
+      },
+      "donations": {
+        "title": "Donaties",
+        "desc": "Inzamelingslinks met doelen, niveaus en een live donateursmuur."
+      },
+      "invoices": {
+        "title": "Facturen",
+        "desc": "Verstuur crypto-facturen met btw, verlegging en pdf-bonnen."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Kosten op jouw manier ]",
+      "headline": "Jij kiest wie de kosten betaalt.",
+      "body": "Neem de kosten zelf op je, of geef ze door aan de klant en houd 100% van je prijs. Wissel per link of per checkout, wanneer je wilt.",
+      "tabMerchant": "Ik betaal de kosten",
+      "tabCustomer": "Klant betaalt",
+      "exampleLabel": "Bij een betaling van $100",
+      "customerPaysLabel": "Klant betaalt",
+      "youReceiveLabel": "Jij ontvangt",
+      "merchantNote": "Jij draagt de kosten van 1,5% + $1, dus de prijs die je klant ziet blijft precies $100.",
+      "customerNote": "De kosten komen er bovenop: de klant betaalt ze en jij houdt je volle $100.",
+      "feeFootnote": "Voorbeeld met het Starter-tarief van 1,5% + $1 per betaling. Je tarief daalt naar 0,5% naarmate je volume groeit."
+    },
+    "coins": {
+      "eyebrow": "[ Munten & tokens ]",
+      "headline": "15 munten & tokens.",
+      "headline2": "Negen chains.",
+      "body": "Bitcoin, Ethereum, Solana, XRP en meer, plus USDT, USDC en RLUSD op Ethereum, Tron en Polygon.",
+      "convertTitle": "Houd het, of zet automatisch om.",
+      "convertDesc": "Word betaald in elke munt en houd 'm, of zet automatisch om naar USDC of USDT zodra de betaling bevestigt. Jouw keuze, elke keer."
+    },
+    "refunds": {
+      "eyebrow": "[ Vertrouwen ingebouwd ]",
+      "headline": "Crypto die je écht kunt terugbetalen.",
+      "body": "De dingen die crypto spannend maken? Opgelost. Terugbetalingen, bewaring en webhooks, goed geregeld.",
+      "refundsTitle": "Crypto-terugbetalingen met één klik",
+      "refundsDesc": "Betaal een betaling terug op de oorspronkelijke chain, volledig of gedeeltelijk; de klant krijgt een bon per e-mail.",
+      "custodyTitle": "Non-custodial van opzet",
+      "custodyDesc": "Geld komt direct in je eigen wallet. Wij houden je geld nooit vast: jouw sleutels, jouw crypto.",
+      "webhooksTitle": "Ondertekende webhooks",
+      "webhooksDesc": "Met HMAC ondertekende events, automatische herhalingen en een dead-letter-queue houden je systemen in sync."
+    },
+    "solutions": {
+      "eyebrow": "[ Oplossingen ]",
+      "headline1": "Gebouwd voor hoe",
+      "headline2": "jij betaald wordt.",
+      "body": "Wat je ook verkoopt, er is een Dynopay-opzet voor: dezelfde wallet, dezelfde lage kosten, dezelfde non-custodial rails.",
+      "ecommerce": {
+        "title": "E-commerce",
+        "desc": "Een gehoste winkelwagen met btw en directe crypto-checkout voor fysieke of digitale producten."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Factureer abonnementen en seats via de API, met ondertekende webhooks voor provisioning."
+      },
+      "downloads": {
+        "title": "Digitale downloads",
+        "desc": "Lever bestanden, licentiesleutels of links automatisch zodra de betaling bevestigt."
+      },
+      "freelancers": {
+        "title": "Freelancers",
+        "desc": "Verstuur crypto-facturen met btw en word direct betaald in je eigen wallet."
+      },
+      "remittance": {
+        "title": "Overboekingen",
+        "desc": "Verplaats waarde in minuten over grenzen — geen banktijden, geen terugboekingen."
+      },
+      "gaming": {
+        "title": "Gaming",
+        "desc": "Accepteer wereldwijde top-ups en in-game aankopen met lage, voorspelbare kosten."
+      }
     }
   },
   "checkout": {

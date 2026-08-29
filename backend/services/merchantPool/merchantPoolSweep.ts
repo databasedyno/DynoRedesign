@@ -15,6 +15,10 @@ import {
 } from "../../models";
 import { cronLogger } from "../../utils/loggers";
 import tatumApi from "../../apis/tatumApi";
+// Tier-2 Item #8 — all private-key decryption goes through the audited custody
+// boundary (writes tbl_key_access_audit). Do NOT call tatumApi.decryptSymmetric
+// directly for key material.
+import * as keyCustody from "../keyCustody/keyCustodyService";
 import { getErrorMessage, sendAdminFeeSweepEmail } from "../../helper";
 import { sendPaymentReceivedEmail } from "../../helper/sendEmail";
 import { normalizeLang } from "../../utils/emailI18n";
@@ -232,9 +236,10 @@ export const fundGasIfNeeded = async (
       throw new Error(`Fee wallet not found for ${gasToken}`);
     }
 
-    const feeWalletPrivateKey = await tatumApi.decryptSymmetric(
+    const feeWalletPrivateKey = await keyCustody.decryptPrivateKey(
       feeWallet.dataValues.privateKey,
-      envRaw("TEMP_KEY_ID")
+      envRaw("TEMP_KEY_ID"),
+      { purpose: "gas_funding", actor: "worker", walletType: gasToken, walletAddress: feeWalletAddress }
     );
 
     cronLogger.info(`[SmartGas] 🔥 Funding ${fundAmount.toFixed(6)} ${gasToken} to ${tempAddress}`);
@@ -336,9 +341,10 @@ export const reclaimExcessGas = async (
       return { reclaimed: false, amount: 0 };
     }
 
-    const privateKey = await tatumApi.decryptSymmetric(
+    const privateKey = await keyCustody.decryptPrivateKey(
       poolRecord.dataValues.privateKey,
-      envRaw("TEMP_KEY_ID")
+      envRaw("TEMP_KEY_ID"),
+      { purpose: "gas_reclaim", actor: "worker", walletType: gasToken, walletAddress: poolAddress }
     );
 
     cronLogger.info(`[GasReclaim] ♻️ Reclaiming ${reclaimAmount.toFixed(4)} ${gasToken} from ${poolAddress.substring(0, 12)}... → fee wallet`);
@@ -741,9 +747,10 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
 
     const privateKey = __loadtest.isLoadtestNoBroadcast()
       ? "LOADTEST-PRIVATE-KEY"
-      : await tatumApi.decryptSymmetric(
+      : await keyCustody.decryptPrivateKey(
           poolAddress.dataValues.private_key,
-          envRaw("TEMP_KEY_ID")
+          envRaw("TEMP_KEY_ID"),
+          { purpose: "pool_sweep", actor: "worker", walletType, walletAddress: poolAddress.dataValues.wallet_address }
         );
 
     const isAccountChain = ACCOUNT_CHAINS.includes(walletType);

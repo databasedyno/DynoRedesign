@@ -129,6 +129,26 @@
     "sec3Body": "Versleutelde secrets in Google KMS, PII geminimaliseerd, audittrail bewaard. Exporteren of verwijderen op verzoek.",
     "plusFixed": "+ $1 per betaling",
     "paymentsLabel": "Betalingen per maand",
-    "effectiveRate": "effectief tarief"
+    "effectiveRate": "effectief tarief",
+    "whoPaysEyebrow": "[ 04 · Wie betaalt? ]",
+    "whoPaysTitle": "Wie betaalt de kosten? Jij beslist.",
+    "whoPaysBody": "Bij elke link en checkout kies je of je de kosten opneemt of doorgeeft aan de klant. Er is geen fout antwoord.",
+    "wpMerchantTitle": "Jij neemt de kosten op je",
+    "wpMerchantDesc": "De prijs blijft precies wat je instelde. Bij een betaling van $100 tegen 1,5% + $1 ontvang je $97,50.",
+    "wpCustomerTitle": "De klant betaalt de kosten",
+    "wpCustomerDesc": "De kosten komen er bovenop. Bij een betaling van $100 betaalt de klant $102,50 en houd jij de volle $100.",
+    "wpFootnote": "Getoond tegen het Starter-tarief van 1,5%. Je tarief daalt naar 0,5% naarmate je maandvolume groeit.",
+    "includedEyebrow": "[ 05 · Gratis inbegrepen ]",
+    "includedTitle": "Alles inbegrepen. Geen add-ons.",
+    "includedBody": "Eén percentage dekt alles. Geen maandbedrag, geen setup, geen prijs per functie: alles hieronder is van het huis.",
+    "inc1": "On-chain uitbetalingen naar je eigen wallet",
+    "inc2": "Crypto-terugbetalingen met één klik",
+    "inc3": "Ondertekende webhooks + event-console",
+    "inc4": "Gehoste winkel & productcatalogus",
+    "inc5": "Facturen met btw & EU-verlegging",
+    "inc6": "Automatische omzetting naar USDC / USDT",
+    "inc7": "Betaallinks & koopknoppen",
+    "inc8": "Checkout in 6 talen",
+    "inc9": "Geen maand- of setupkosten"
   }
 }

@@ -15,6 +15,7 @@ import {
 import AddRounded from "@mui/icons-material/AddRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import CloudUploadRounded from "@mui/icons-material/CloudUploadRounded";
+import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
 import { useRouter } from "next/router";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
@@ -134,6 +135,30 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [taxCategory, setTaxCategory] = useState<"digital" | "physical" | "service" | "exempt">("digital");
   const [applyTaxOverride, setApplyTaxOverride] = useState<"inherit" | "on" | "off">("inherit");
   const [hideQuantity, setHideQuantity] = useState<boolean>(false);
+
+  // Merchant-level tax default (Settings → Tax) — surfaced here so the
+  // "Inherit merchant default" option shows what buyers are actually charged,
+  // and so the "at checkout" preview matches the storefront exactly.
+  const [merchantTax, setMerchantTax] = useState<{ applyTax: boolean; country: string | null; loaded: boolean }>(
+    { applyTax: false, country: null, loaded: false }
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    axiosBaseApi
+      .get("user/tax-settings")
+      .then((r) => {
+        const d = r.data?.data || {};
+        if (!mounted) return;
+        setMerchantTax({ applyTax: !!d.default_apply_tax, country: d.merchant_country_code || null, loaded: true });
+      })
+      .catch(() => {
+        if (mounted) setMerchantTax((p) => ({ ...p, loaded: true }));
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (mode !== "edit" || !productId) return;
@@ -624,6 +649,20 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       `pay-links/products/${product.product_id}/edit`
     : "#";
 
+  // Effective tax behavior for THIS product at checkout — mirrors the backend
+  // cartController resolution (exempt always wins; else per-product override
+  // beats the merchant default). Drives the "at checkout" preview below.
+  const taxIsExempt = taxCategory === "exempt";
+  const taxEffectiveOn = taxIsExempt
+    ? false
+    : applyTaxOverride === "on"
+    ? true
+    : applyTaxOverride === "off"
+    ? false
+    : merchantTax.applyTax;
+  const taxInheritsOffDefault =
+    !taxIsExempt && applyTaxOverride === "inherit" && merchantTax.loaded && !merchantTax.applyTax;
+
   return (
     <Stack spacing={2} data-testid="product-editor">
       {toast && (
@@ -1014,8 +1053,39 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         </Stack>
       </PanelCard>
 
-      <PanelCard title="Tax">
+      <PanelCard title="Tax & VAT">
         <Stack spacing={2}>
+          <Typography variant="body2" color="text.secondary" data-testid="product-tax-intro">
+            Choose whether buyers are charged tax on this product. This is exactly what shows on your storefront checkout.
+          </Typography>
+
+          {/* Primary decision — charge tax or not */}
+          <FormControl fullWidth>
+            <InputLabel id="tax-override-label">Charge tax on this product</InputLabel>
+            <Select
+              labelId="tax-override-label"
+              label="Charge tax on this product"
+              value={applyTaxOverride}
+              onChange={(e) => setApplyTaxOverride(String(e.target.value) as any)}
+              inputProps={{ "data-testid": "product-tax-override-select" }}
+              disabled={taxCategory === "exempt"}
+            >
+              <MenuItem value="inherit" data-testid="product-tax-override-opt-inherit">
+                {merchantTax.loaded
+                  ? `Inherit store default (currently: ${merchantTax.applyTax ? "charging tax" : "no tax"})`
+                  : "Inherit store default"}
+              </MenuItem>
+              <MenuItem value="on" data-testid="product-tax-override-opt-on">Always charge tax</MenuItem>
+              <MenuItem value="off" data-testid="product-tax-override-opt-off">Never charge tax</MenuItem>
+            </Select>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+              {taxCategory === "exempt"
+                ? "Overrides don't apply to tax-exempt products."
+                : "Overrides your store-wide default (Settings → Tax) for this product only."}
+            </Typography>
+          </FormControl>
+
+          {/* Tax category — jurisdiction rules */}
           <FormControl fullWidth>
             <InputLabel id="tax-category-label">Tax category</InputLabel>
             <Select
@@ -1039,26 +1109,58 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             </Typography>
           </FormControl>
 
-          <FormControl fullWidth>
-            <InputLabel id="tax-override-label">Charge tax on this product</InputLabel>
-            <Select
-              labelId="tax-override-label"
-              label="Charge tax on this product"
-              value={applyTaxOverride}
-              onChange={(e) => setApplyTaxOverride(String(e.target.value) as any)}
-              inputProps={{ "data-testid": "product-tax-override-select" }}
-              disabled={taxCategory === "exempt"}
-            >
-              <MenuItem value="inherit" data-testid="product-tax-override-opt-inherit">Inherit merchant default</MenuItem>
-              <MenuItem value="on" data-testid="product-tax-override-opt-on">Always charge tax</MenuItem>
-              <MenuItem value="off" data-testid="product-tax-override-opt-off">Never charge tax</MenuItem>
-            </Select>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-              {taxCategory === "exempt"
-                ? "Overrides don't apply to tax-exempt products."
-                : "Overrides your merchant-level default from Settings → Tax for this product only."}
-            </Typography>
-          </FormControl>
+          {/* Effective preview — what the buyer actually sees at checkout */}
+          <Box
+            data-testid="product-tax-effective"
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 1.25,
+              p: 1.5,
+              borderRadius: "10px",
+              border: `1px solid ${theme.palette.divider}`,
+              bgcolor: taxEffectiveOn
+                ? (theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)")
+                : (theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)"),
+            }}
+          >
+            <ReceiptLongRounded sx={{ fontSize: 18, color: "text.secondary", mt: "1px" }} />
+            <Box>
+              <Typography variant="caption" sx={{ fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "text.secondary", display: "block" }}>
+                At checkout
+              </Typography>
+              <Typography variant="body2" sx={{ color: "text.primary", mt: 0.25 }} data-testid="product-tax-effective-text">
+                {taxIsExempt
+                  ? "Tax-exempt — this product is always sold tax-free."
+                  : taxEffectiveOn
+                  ? `Buyers are charged VAT/tax based on their ${taxCategory === "physical" ? "shipping-address country" : "location"}.`
+                  : "No tax is added — buyers pay exactly the listed price."}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Discoverability nudge — inheriting a store default that is OFF */}
+          {taxInheritsOffDefault && (
+            <Alert severity="info" data-testid="product-tax-default-hint" sx={{ borderRadius: "10px" }}>
+              Your store default is currently <strong>No tax</strong>. Turn it on for all checkouts in Settings → Tax,
+              or set this product to <strong>Always charge tax</strong>.
+            </Alert>
+          )}
+
+          <Typography
+            variant="body2"
+            data-testid="product-tax-settings-link"
+            onClick={() => router.push("/settings?section=tax")}
+            sx={{
+              color: "primary.main",
+              fontWeight: 600,
+              cursor: "pointer",
+              width: "fit-content",
+              "&:hover": { textDecoration: "underline" },
+            }}
+          >
+            Manage your store-wide tax default in Settings → Tax →
+          </Typography>
         </Stack>
       </PanelCard>
 

@@ -1,3 +1,189 @@
+# COMMIT/PUSH BLOCKER FIX — routes/index.ts over 500-line budget — DONE (2026-06 fork)
+
+"Save to GitHub" was blocked by the husky pre-commit hook. Diagnosed by running the 3 hook checks manually:
+tsc (preflight-tsc.sh) PASSED, secrets (check-secrets.mjs) PASSED, but check-file-size.mjs FAILED (exit 1) —
+`backend/routes/index.ts` had grown to 508 lines and is NOT in file-size-baseline.json, so the R2 rule
+("NEW backend .ts files must be <= 500 lines"; legacy growth is warn-only) blocked it.
+FIX (zero behaviour change): extracted the self-contained public sandbox playground (~119 lines, demo-only fake
+data) into NEW `backend/routes/publicSandboxRouter.ts` (133 lines) mounted at `/public/sandbox`; removed the
+now-unused `crypto` import and trimmed `sandboxRateLimiter` from index.ts. index.ts is now 398 lines.
+VERIFIED: all 3 hook checks pass; backend restarts clean; curl parity — GET /api/public/sandbox/info returns the
+key, POST /api/public/sandbox/payment-links returns object=payment_link (13 chains), GET .../payment-links/bad-id
+→ 404. Paths + responses unchanged. User can now Save to GitHub.
+
+---
+
+
+# CHECKOUT REFACTOR — Phase B (one API client, two auth models) — DONE (2026-06 fork) — verified on both active surfaces
+
+Preview: https://93a6ba2d-1fd6-4d17-b93a-74d1b9eeeab4.preview.emergentagent.com (LIVE prod DB, SAFE MODE). tsc EXIT 0.
+User: "Phase B Go — unify all three checkout surfaces onto one API client, preserving each auth model exactly."
+Full detail in memory/REFACTOR_STATUS.md ("Phase B — Unify the API call sites — DONE").
+
+WHAT: `checkout/checkoutApi.ts` is now the single module for every checkout network call, holding BOTH transports
+(each auth model preserved EXACTLY):
+- `checkoutApi()`/`fetchReceiptBlob()` — fetch + explicit Bearer, NEVER localStorage (anonymous-customer model).
+  Used by CleanCheckoutV2 (already) + now InlineTipCheckout.
+- NEW `payAxios` — thin pass-through wrappers over app-wide axiosBaseApi (interceptors + localStorage token,
+  merchant-session model). Used by legacy cryptoTransfer.
+CHANGES:
+- InlineTipCheckout.tsx: deleted its LOCAL `api()` (byte-identical to checkoutApi) → imports { checkoutApi as api };
+  all 8 call sites unchanged.
+- cryptoTransfer.tsx: 5 axiosBaseApi.get/post(API_ENDPOINTS.pay.*) → payAxios.{getConfiguredCurrencies|
+  getCurrencyRates|addPayment|verifyCryptoPayment}(...); wrappers return the raw AxiosResponse + throw on non-2xx
+  exactly like axios, so response.data?.data + catch(e){e.response...} are identical. Removed now-unused
+  axiosBaseApi/API_ENDPOINTS imports.
+- Zero endpoint/payload/response-shape/error-handling/auth change.
+
+VERIFIED: tsc EXIT 0. Smoke on the two ACTIVE surfaces: InlineTip (/devhub "Support me") reaches currency_select
+("Pick a crypto to pay $10.00", coin grid) via shared client, no error boundary; CleanCheckoutV2 (/pay/demo mirror,
+imports extended checkoutApi.ts) renders full waiting state + live rate + QR ("Pay 0.40707496 LTC"), no error
+boundary. cryptoTransfer is the DORMANT fallback (mounts only when NEXT_PUBLIC_CLEAN_CHECKOUT_V2=false, a build-time
+env) so NOT e2e-rendered in preview — rewrite is behaviour-preserving by construction + tsc-clean; verify in prod if
+the flag flips.
+
+FILES: Components/Page/Pay3Components/checkout/checkoutApi.ts, Components/Page/Pay3Components/cryptoTransfer.tsx,
+Components/Page/Creator/InlineTipCheckout.tsx; docs memory/REFACTOR_STATUS.md.
+
+REMAINING: Phase C (single server-state data-layer rewrite) — HIGH risk, not started (see REFACTOR_STATUS.md).
+
+---
+
+
+# CHECKOUT REFACTOR — Phase A (shared-logic de-dup) — DONE (2026-06 fork) — verified render smoke test
+
+Preview: https://93a6ba2d-1fd6-4d17-b93a-74d1b9eeeab4.preview.emergentagent.com (LIVE prod DB, SAFE MODE). tsc EXIT 0.
+User steer (ask_human): "implement Phase A only and document all phases in refactor status doc after." Full phase
+breakdown (A done, B/C scoped + deferred) lives in memory/REFACTOR_STATUS.md (section "2026-06 — CHECKOUT REFACTOR").
+
+PHASE A — ZERO behaviour change, only swapped logic proven functionally IDENTICAL to the shared checkout/* modules:
+- Components/Page/Creator/InlineTipCheckout.tsx: removed local MONO / LIME(=BRAND_ACCENT) / INK constants + local
+  Phase union + CryptoInfo interface; now imports { MONO, LIME, INK } from checkout/checkoutConstants and
+  type { Phase, CryptoInfo } from checkout/checkoutTypes (shared values/shapes are byte-equivalent; all 26
+  MONO/LIME/INK refs + Phase/CryptoInfo usages unchanged). Dropped the now-unused BRAND_ACCENT import.
+- cryptoTransfer.tsx deliberately NOT changed: its walletUri intentionally diverges from shared buildPaymentUri
+  (adds ethereum:?value=wei + tron: deep-links, raw amount), its formatAmount already delegates to the richer
+  utils/currencyFormat.ts, and its clipboard already uses global @/helpers/copyToClipboard — so no safe identical
+  duplication remained. CreatePaymentLink is a creation form (out of checkout-display scope).
+
+VERIFIED: tsc EXIT 0 (confirms shared types/constants compatible with every usage); live render smoke test on
+/devhub → "Support me" widget mounts → currency_select phase ("Pick a crypto to pay $10.00" + full coin grid via
+shared CRYPTO_INFO + receipt field), no error boundary, no console crash. No money-path/API/UI change.
+
+PHASE B (unify API call sites) + PHASE C (single server-state data-layer rewrite): scoped in REFACTOR_STATUS.md,
+NOT started — B is medium-risk (must preserve InlineTip's no-localStorage Bearer auth vs cryptoTransfer's axios
+interceptors), C is high-risk (polling/settlement can't be e2e-tested in preview). Awaiting user go-ahead.
+
+FILES: Components/Page/Creator/InlineTipCheckout.tsx; docs memory/REFACTOR_STATUS.md.
+
+---
+
+
+# FEATURES (2026-06 fork) — Tax discoverability UX + coin brand logos + Solutions grid — DONE (testing_agent iteration_92 = 100% frontend)
+
+Preview: https://93a6ba2d-1fd6-4d17-b93a-74d1b9eeeab4.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+Follow-up to the landing a–e pass. User picks (ask_human): tax = "controls exist but hard to find → improve discoverability/UX";
+prod-DB writes OK; order = Tax → Coin logos → Solutions → Checkout Refactor (last); coin logos via iconify OK. Checkout
+Refactor NOT done — user asked "what's the benefit?" (left for their decision; explained in finish).
+
+## 1) TAX DISCOVERABILITY/UX (Product editor) — DONE (screenshot + read-only consistency proof)
+FINDING: the whole tax feature already existed end-to-end — merchant defaults (Settings→Tax `TaxSettingsSection`:
+"Charge tax" toggle + tax-inclusive + business country + VAT ID → PATCH /api/user/tax-settings), per-product controls
+(ProductEditor: tax_category + apply_tax_override), and store checkout live-computes via POST /api/cart/quote-tax
+(backend cartController resolves effective apply_tax = per-product override > merchant default; exempt wins). The GAP was
+purely discoverability: "Inherit merchant default" gave no hint what the default was, and the card was a bare "Tax" panel.
+IMPLEMENTED (Components/Page/ProductEditor/index.tsx — English, matches file convention; NO backend/logic change):
+- New fetch of GET user/tax-settings on mount → `merchantTax {applyTax, country, loaded}`.
+- Tax card retitled "Tax & VAT" + intro "…exactly what shows on your storefront checkout."; reordered so the DECISION
+  ("Charge tax on this product") comes first, then Tax category.
+- "Inherit" option now reads "Inherit store default (currently: charging tax / no tax)".
+- NEW live "AT CHECKOUT" preview box [data-testid=product-tax-effective/-text] mirroring backend resolution: exempt →
+  "Tax-exempt — always sold tax-free"; on → "Buyers are charged VAT/tax based on their {shipping-address country|location}";
+  off → "No tax is added — buyers pay exactly the listed price".
+- NEW off-default nudge [product-tax-default-hint] when inheriting a store default that's OFF, + a
+  "Manage your store-wide tax default in Settings → Tax →" link [product-tax-settings-link] → /settings?section=tax.
+- Added ReceiptLongRounded import.
+CONSISTENCY PROVEN (read-only, NO prod writes): curl POST /api/cart/quote-tax {merchant_handle:devhub, items:[{product_id:9}]}
+→ apply_tax:false, total_cents:10000 ($100, no tax) — exactly what the editor preview shows. Editor ↔ checkout consistent.
+
+## 2) COIN BRAND LOGOS (landing) — DONE (screenshot)
+Components/Page/Home/v3/CoinShowcaseV3.tsx: swapped the coin marquee's text badges for real brand logos via
+`@iconify/react` `cryptocurrency-color:*` (btc/eth/sol/xrp/trx/ltc/doge/bch/matic[=POL]/usdt/usdc — all confirmed present
+in the set) rendered in a white circle; RLUSD (no icon in set) keeps a brand-color text badge fallback. Marquee still
+pauses on hover + respects prefers-reduced-motion.
+
+## 3) SOLUTIONS GRID (landing) — DONE (SSR + screenshot + routes 200)
+NEW Components/Page/Home/v3/SolutionsGridV3.tsx [data-testid=solutions-grid], wired in Home/index.tsx right after
+AudienceDoorsV3 (shares bg with a hairline top-border as a thematic continuation of the audience doors). 6 cards
+[solution-card-{ecommerce,saas,downloads,freelancers,remittance,gaming}] → existing /for/<vertical> SEO pages (all HTTP
+200). i18n v3.solutions.* added to all 6 landing.json via scripts/inject_solutions_i18n.py (format-preserving).
+
+VERIFIED: frontend tsc EXIT 0; testing_agent iteration_92 = 100% frontend — Solutions 6 cards + 6 routes 200 + mobile
+390×844 zero overflow + dark mode; coin marquee 23 SVG logos + RLUSD badge + dark mode + 0 console errors; Tax card title/
+intro/inherit-default-hint/effective-preview/settings-link, preview updates on→VAT / off→no-tax / exempt→tax-exempt(+override
+disabled), settings link → /settings?section=tax renders tax-settings-section. NO Save/Publish clicked (no prod writes).
+NOTE: one pre-existing 403 on a dashboard resource post-login — unrelated to these features.
+
+FILES: Components/Page/ProductEditor/index.tsx, Components/Page/Home/v3/{CoinShowcaseV3,SolutionsGridV3}.tsx (Solutions new),
+Components/Page/Home/index.tsx, langs/locales/{en,es,pt,fr,de,nl}/landing.json (v3.solutions),
+scripts/inject_solutions_i18n.py (new).
+
+PENDING: Checkout Refactor Task 2 (deeper data-layer unification) — awaiting user go-ahead after the "what's the benefit?"
+explanation.
+
+---
+
+
+# FEATURE (2026-06 fork) — Landing + Fees enhancements a–e (feature-gap closure) — DONE (testing_agent iteration_91 = 100% frontend, 0 console errors)
+
+Preview: https://93a6ba2d-1fd6-4d17-b93a-74d1b9eeeab4.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+Fork continued the Checkout-Refactor/Landing-gap plan. User approved proceeding with the highest-value, lowest-risk
+work first ("as long as it works as intended and is beneficial") → shipped the 5 landing/fees enhancements from
+LANDING_FEATURE_GAP_ANALYSIS.md. ALL frontend-only, ZERO money-path change, localized across all 6 locales.
+
+IMPLEMENTED (Components/Page/Home/v3 + pages/fees.tsx, aurora v3 design system):
+- (a) NEW WaysToGetPaidV3.tsx — "Ways to get paid" band: 3×3 grid of the 9 integration methods (Payment links,
+  Hosted checkout, REST API, Buy buttons, Embeddable elements, Storefront, Creator tips, Donations, Invoices),
+  each icon + one-liner + link. testids ways-to-get-paid, way-card-{links,checkout,api,buttons,elements,storefront,
+  tips,donations,invoices}. Cards navigate to valid /for/<vertical> + /documentation routes (all HTTP 200).
+- (b) NEW WhoPaysFeeV3.tsx — "You choose who pays the fee" differentiator: framer-motion segmented toggle
+  [whopays-tab-merchant | whopays-tab-customer] with a live $100 worked example. Merchant: customer pays $100.00 /
+  you receive $97.50; Customer: customer pays $102.50 / you receive $100.00 (dollar figures are JS literals, not
+  translated). testids who-pays-fee, whopays-example, whopays-customer-pays, whopays-you-receive.
+- (c) NEW CoinShowcaseV3.tsx — "15 coins & tokens. Nine chains." animated coin marquee (12 brand-colored pills from
+  helpers/assetColor COIN_COLOR; pauses on hover, respects prefers-reduced-motion) + "Keep it, or auto-convert" card.
+  15 canonical assets confirmed from backend/types/index.ts CryptoCurrency union. testid coin-showcase.
+- (d) NEW RefundsTrustV3.tsx — "Crypto you can actually refund." trust row: 3 cards (one-click refunds / non-custodial
+  / signed webhooks). testids refunds-trust, trust-card-{refunds,custody,webhooks}.
+- (e) pages/fees.tsx — TWO new sections before SECURITY: "Who pays the fee? You decide." (two cards: You absorb →
+  $97.50, Customer pays → $102.50 keep full $100) + "Everything included. No add-ons." 9-item checklist (payouts,
+  refunds, webhooks, storefront, invoices, auto-convert, links/buttons, 6 languages, no monthly). Uses existing
+  fees.tsx CheckIcon + aurora tokens.
+- WIRING: Components/Page/Home/index.tsx adds the 4 sections as next/dynamic imports between ProductFeatureCards and
+  NumbersTrustBand, ordered so backgrounds alternate (features bgAlt → ways bg → whopays bgAlt → coins bg → refunds
+  bgAlt → numbers bg).
+- i18n: added v3.ways/whopays/coins/refunds to all 6 landing.json and v3.whoPays*/wp*/included*/inc* to all 6
+  fees.json via format-preserving injector scripts/inject_landing_fees_i18n.py (indent=2, ensure_ascii=False,
+  trailing newline kept). Localized per language (VAT→IVA/TVA/USt/btw, "reverse-charge"→autoliquidation/verlegging,
+  etc). All 12 files parse-valid.
+
+VERIFIED: frontend tsc EXIT 0; SSR curl on / and /fees confirms every new section+string present; screenshots
+(light) of all 5 blocks + the toggle updating $100→$102.50; testing_agent iteration_91 = 100% frontend — all
+testids present, toggle round-trips, 6 nav routes HTTP 200, mobile 390×844 zero horizontal overflow, dark mode
+readable (bg #060606 / text #FAFAFA), i18n DE ("Wege zur Bezahlung"/"Neun Wege"/"Wer zahlt die Gebühr? Sie
+entscheiden.") + FR ("Neuf façons"/"Qui paie les frais"), ZERO console errors on any view.
+
+FILES: Components/Page/Home/index.tsx, Components/Page/Home/v3/{WaysToGetPaidV3,WhoPaysFeeV3,CoinShowcaseV3,
+RefundsTrustV3}.tsx (all new), pages/fees.tsx, langs/locales/{en,es,pt,fr,de,nl}/{landing,fees}.json,
+scripts/inject_landing_fees_i18n.py (new one-shot injector).
+
+STILL PENDING (from handoff, not started this pass): Checkout Refactor Task 2 deep data-layer unification of
+cryptoTransfer.tsx / CreatePaymentLink / InlineTipCheckout (CleanCheckoutV2 modularization already done + compiles;
+the deeper refactor is revenue-path-risky — parked per user's "as long as it works & is beneficial" steer).
+
+---
+
+
 # FEATURE (2026-06 fork) — Honesty copy extended to /about + Auth screens; coin count → "15 coins & tokens" sitewide — DONE (screenshot-verified EN+ES; tsc EXIT 0)
 
 Preview: https://crypto-checkout-45.preview.emergentagent.com (LIVE prod DB, SAFE MODE).

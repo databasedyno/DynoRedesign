@@ -22,6 +22,7 @@
  */
 
 import { randomUUID } from "crypto";
+import type { Transaction } from "sequelize";
 import LedgerEntry, { Direction } from "../../models/ledger/ledgerEntryModel";
 import LedgerAccount from "../../models/ledger/ledgerAccountModel";
 import { cronLogger } from "../../utils/loggers";
@@ -78,6 +79,13 @@ export interface PostBatchInput {
   reversal_of?: string | null;
   metadata?: Record<string, unknown>;
   lines: LedgerLineInput[];
+  /**
+   * Optional Sequelize transaction. When supplied, the ledger rows are written
+   * inside the caller's unit of work so they commit atomically with whatever
+   * else the caller does in the same txn (e.g. a transactional-outbox insert).
+   * Omitted => current behaviour (its own single-statement atomic insert).
+   */
+  transaction?: Transaction;
 }
 
 export interface PostResult {
@@ -144,6 +152,7 @@ export async function postDoubleEntry(input: PostBatchInput): Promise<PostResult
         dedup_key: input.dedup_key,
       },
       attributes: ["batch_id"],
+      transaction: input.transaction,
     });
     if (existing) {
       return { batch_id: existing.batch_id, posted: false, entries_created: 0 };
@@ -174,7 +183,7 @@ export async function postDoubleEntry(input: PostBatchInput): Promise<PostResult
     // Single-statement atomic multi-row INSERT — either all rows commit or none.
     // The unique index (payment_id, journal_event, dedup_key, account_code, direction)
     // provides idempotency at the DB level.
-    await LedgerEntry.bulkCreate(rows as never);
+    await LedgerEntry.bulkCreate(rows as never, { transaction: input.transaction });
   } catch (err: unknown) {
     const msg = (err as Error).message || "";
     // Race with a concurrent poster of the exact same batch — treat as success (idempotent)
@@ -186,6 +195,7 @@ export async function postDoubleEntry(input: PostBatchInput): Promise<PostResult
           dedup_key: input.dedup_key,
         },
         attributes: ["batch_id"],
+        transaction: input.transaction,
       });
       if (existing) return { batch_id: existing.batch_id, posted: false, entries_created: 0 };
     }

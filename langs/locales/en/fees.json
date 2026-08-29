@@ -129,6 +129,26 @@
     "sec3Body": "Encrypted secrets in Google KMS, PII minimised, audit trail retained. Export or delete on request.",
     "plusFixed": "+ $1 per payment",
     "paymentsLabel": "Payments per month",
-    "effectiveRate": "effective rate"
+    "effectiveRate": "effective rate",
+    "whoPaysEyebrow": "[ 04 · Who pays? ]",
+    "whoPaysTitle": "Who pays the fee? You decide.",
+    "whoPaysBody": "On every link and checkout you choose whether to absorb the fee or pass it to the customer — there's no wrong answer.",
+    "wpMerchantTitle": "You absorb the fee",
+    "wpMerchantDesc": "The price stays exactly what you set. On a $100 payment at 1.5% + $1, you receive $97.50.",
+    "wpCustomerTitle": "Customer pays the fee",
+    "wpCustomerDesc": "The fee is added on top. On a $100 payment the customer pays $102.50 and you keep the full $100.",
+    "wpFootnote": "Shown at the 1.5% Starter rate. Your rate falls to 0.5% as monthly volume grows.",
+    "includedEyebrow": "[ 05 · Included free ]",
+    "includedTitle": "Everything included. No add-ons.",
+    "includedBody": "One percentage covers it. No monthly fee, no setup, no per-feature pricing — every tool below is on the house.",
+    "inc1": "On-chain payouts to your own wallet",
+    "inc2": "One-click crypto refunds",
+    "inc3": "Signed webhooks + event console",
+    "inc4": "Hosted storefront & product catalog",
+    "inc5": "Invoices with VAT & EU reverse-charge",
+    "inc6": "Auto-convert to USDC / USDT",
+    "inc7": "Payment links & buy buttons",
+    "inc8": "Checkout in 6 languages",
+    "inc9": "No monthly or setup fees"
   }
 }

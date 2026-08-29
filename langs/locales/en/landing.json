@@ -319,6 +319,110 @@
       "step3title": "Get paid your way",
       "step3desc": "Keep the original coin or auto-convert to USDC or USDT — your choice — settled to a wallet you control.",
       "cta": "Start accepting payments"
+    },
+    "ways": {
+      "eyebrow": "[ Ways to get paid ]",
+      "headline1": "Nine ways to",
+      "headline2": "take a payment.",
+      "body": "Pick the surface that fits — a link, a hosted page, an API call or a full storefront. One wallet, one dashboard behind them all.",
+      "links": {
+        "title": "Payment links",
+        "desc": "Share one link anywhere. Buyers pay in seconds — no account needed."
+      },
+      "checkout": {
+        "title": "Hosted checkout",
+        "desc": "A branded, drop-in payment page for any amount or product."
+      },
+      "api": {
+        "title": "REST API",
+        "desc": "Create charges from your backend, with signed webhooks and sandbox keys."
+      },
+      "buttons": {
+        "title": "Buy buttons",
+        "desc": "Embed a pay button on any website with a snippet of HTML."
+      },
+      "elements": {
+        "title": "Embeddable elements",
+        "desc": "Drop checkout into your own pages using publishable keys."
+      },
+      "storefront": {
+        "title": "Storefront",
+        "desc": "A full catalog — digital, physical or service — with cart and VAT."
+      },
+      "tips": {
+        "title": "Creator tips",
+        "desc": "Your own @handle page for one-tap tips from your fans."
+      },
+      "donations": {
+        "title": "Donations",
+        "desc": "Fundraising links with goals, tiers and a live donor wall."
+      },
+      "invoices": {
+        "title": "Invoices",
+        "desc": "Send crypto invoices with VAT, reverse-charge and PDF receipts."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Fees, your way ]",
+      "headline": "You choose who pays the fee.",
+      "body": "Absorb the fee yourself, or pass it to the customer and keep 100% of your price. Switch it per link or per checkout, whenever you like.",
+      "tabMerchant": "I pay the fee",
+      "tabCustomer": "Customer pays",
+      "exampleLabel": "On a $100 payment",
+      "customerPaysLabel": "Customer pays",
+      "youReceiveLabel": "You receive",
+      "merchantNote": "You cover the 1.5% + $1 fee, so the price your customer sees stays exactly $100.",
+      "customerNote": "The fee is added on top — the customer covers it and you keep your full $100.",
+      "feeFootnote": "Example at the 1.5% Starter rate + $1 per payment. Your rate drops to 0.5% as volume grows."
+    },
+    "coins": {
+      "eyebrow": "[ Coins & tokens ]",
+      "headline": "15 coins & tokens.",
+      "headline2": "Nine chains.",
+      "body": "Bitcoin, Ethereum, Solana, XRP and more — plus USDT, USDC and RLUSD across Ethereum, Tron and Polygon.",
+      "convertTitle": "Keep it, or auto-convert.",
+      "convertDesc": "Get paid in any coin and keep it, or auto-convert to USDC or USDT the moment it confirms. Your choice, every time."
+    },
+    "refunds": {
+      "eyebrow": "[ Trust, built in ]",
+      "headline": "Crypto you can actually refund.",
+      "body": "The parts that make crypto feel risky? Handled. Refunds, custody and webhooks — done right.",
+      "refundsTitle": "One-click crypto refunds",
+      "refundsDesc": "Refund a payment on its original chain, full or partial — the customer gets an emailed receipt.",
+      "custodyTitle": "Non-custodial by design",
+      "custodyDesc": "Funds settle straight to your own wallet. We never hold your money — your keys, your crypto.",
+      "webhooksTitle": "Signed webhooks",
+      "webhooksDesc": "HMAC-signed events, automatic retries and a dead-letter queue keep your systems in sync."
+    },
+    "solutions": {
+      "eyebrow": "[ Solutions ]",
+      "headline1": "Built for how",
+      "headline2": "you get paid.",
+      "body": "Whatever you sell, there's a Dynopay setup for it — same wallet, same low fees, same non-custodial rails.",
+      "ecommerce": {
+        "title": "E-commerce",
+        "desc": "A hosted cart with VAT and instant crypto checkout for physical or digital goods."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Bill subscriptions and seats through the API, with signed webhooks for provisioning."
+      },
+      "downloads": {
+        "title": "Digital downloads",
+        "desc": "Deliver files, license keys or links automatically the moment payment confirms."
+      },
+      "freelancers": {
+        "title": "Freelancers",
+        "desc": "Send crypto invoices with VAT and get paid straight to your own wallet."
+      },
+      "remittance": {
+        "title": "Remittance",
+        "desc": "Move value across borders in minutes — no bank hours, no chargebacks."
+      },
+      "gaming": {
+        "title": "Gaming",
+        "desc": "Take global top-ups and in-game purchases with low, predictable fees."
+      }
     }
   },
   "checkout": {

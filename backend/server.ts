@@ -1556,6 +1556,20 @@ const startServer = async () => {
     //   - BullMQ webhook worker (both consumed the shared queue)
     //   - startup + fee-free reconciliation (duplicate re-queues)
     if (isCronEnabled) {
+      // Tier-2 Item #10 — transactional-outbox relay. Uses FOR UPDATE SKIP LOCKED
+      // so it is safe to run on every primary replica (no leader election needed).
+      // Gated by ENABLE_OUTBOX (default OFF) => no-op until explicitly enabled.
+      if (config.bool("ENABLE_OUTBOX")) {
+        import("./services/outbox/outboxDispatchers")
+          .then(({ registerDefaultOutboxDispatchers }) => registerDefaultOutboxDispatchers())
+          .catch((e: Error) => log(`Outbox dispatcher registration failed: ${e.message}`, "warn"));
+        import("./services/outbox/outboxService")
+          .then(({ startOutboxRelay }) => {
+            startOutboxRelay(5000);
+            log("Transactional outbox relay started (Tier-2 #10)", "info");
+          })
+          .catch((e: Error) => log(`Outbox relay start failed: ${e.message}`, "warn"));
+      }
       startLeaderElection({
         onPromoted: () => {
           registerLeaderCronJobs();

@@ -319,6 +319,110 @@
       "step3title": "Cobra a tu manera",
       "step3desc": "Quédate con la moneda original o convierte automáticamente a USDC o USDT —tú eliges— liquidado en un monedero que tú controlas.",
       "cta": "Empieza a aceptar pagos"
+    },
+    "ways": {
+      "eyebrow": "[ Formas de cobrar ]",
+      "headline1": "Nueve formas de",
+      "headline2": "recibir un pago.",
+      "body": "Elige la que encaje: un enlace, una página alojada, una llamada a la API o una tienda completa. Detrás de todas, una sola cartera y un solo panel.",
+      "links": {
+        "title": "Enlaces de pago",
+        "desc": "Comparte un enlace donde quieras. Tus clientes pagan en segundos, sin cuenta."
+      },
+      "checkout": {
+        "title": "Checkout alojado",
+        "desc": "Una página de pago con tu marca, lista para cualquier importe o producto."
+      },
+      "api": {
+        "title": "API REST",
+        "desc": "Crea cobros desde tu backend, con webhooks firmados y claves de prueba."
+      },
+      "buttons": {
+        "title": "Botones de compra",
+        "desc": "Añade un botón de pago a cualquier web con un fragmento de HTML."
+      },
+      "elements": {
+        "title": "Elementos integrables",
+        "desc": "Integra el checkout en tus propias páginas con claves publicables."
+      },
+      "storefront": {
+        "title": "Tienda",
+        "desc": "Un catálogo completo —digital, físico o servicios— con carrito e IVA."
+      },
+      "tips": {
+        "title": "Propinas de creador",
+        "desc": "Tu propia página @usuario para recibir propinas con un toque."
+      },
+      "donations": {
+        "title": "Donaciones",
+        "desc": "Enlaces de recaudación con metas, niveles y muro de donantes en vivo."
+      },
+      "invoices": {
+        "title": "Facturas",
+        "desc": "Envía facturas cripto con IVA, inversión del sujeto pasivo y recibos en PDF."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Comisiones a tu manera ]",
+      "headline": "Tú eliges quién paga la comisión.",
+      "body": "Asume tú la comisión o pásasela al cliente y quédate con el 100% de tu precio. Cámbialo por enlace o por checkout, cuando quieras.",
+      "tabMerchant": "La pago yo",
+      "tabCustomer": "La paga el cliente",
+      "exampleLabel": "En un pago de $100",
+      "customerPaysLabel": "El cliente paga",
+      "youReceiveLabel": "Tú recibes",
+      "merchantNote": "Tú cubres la comisión del 1,5% + $1, así que el precio que ve tu cliente sigue siendo exactamente $100.",
+      "customerNote": "La comisión se añade encima: la paga el cliente y tú te quedas con tus $100 completos.",
+      "feeFootnote": "Ejemplo con la tarifa Starter del 1,5% + $1 por pago. Tu tarifa baja al 0,5% a medida que creces."
+    },
+    "coins": {
+      "eyebrow": "[ Monedas y tokens ]",
+      "headline": "15 monedas y tokens.",
+      "headline2": "Nueve redes.",
+      "body": "Bitcoin, Ethereum, Solana, XRP y más, además de USDT, USDC y RLUSD en Ethereum, Tron y Polygon.",
+      "convertTitle": "Consérvala o conviértela sola.",
+      "convertDesc": "Cobra en cualquier moneda y consérvala, o conviértela automáticamente a USDC o USDT en cuanto se confirme. Tú eliges, siempre."
+    },
+    "refunds": {
+      "eyebrow": "[ Confianza de serie ]",
+      "headline": "Cripto que sí puedes reembolsar.",
+      "body": "¿Lo que hace que la cripto dé respeto? Resuelto. Reembolsos, custodia y webhooks, bien hechos.",
+      "refundsTitle": "Reembolsos cripto en un clic",
+      "refundsDesc": "Reembolsa un pago en su red original, total o parcial; el cliente recibe un recibo por email.",
+      "custodyTitle": "Sin custodia por diseño",
+      "custodyDesc": "Los fondos llegan directos a tu propia cartera. Nunca guardamos tu dinero: tus claves, tu cripto.",
+      "webhooksTitle": "Webhooks firmados",
+      "webhooksDesc": "Eventos firmados con HMAC, reintentos automáticos y cola de mensajes fallidos mantienen tus sistemas al día."
+    },
+    "solutions": {
+      "eyebrow": "[ Soluciones ]",
+      "headline1": "Hecho para tu",
+      "headline2": "forma de cobrar.",
+      "body": "Vendas lo que vendas, hay una configuración de Dynopay para ti: la misma cartera, las mismas comisiones bajas, los mismos rieles sin custodia.",
+      "ecommerce": {
+        "title": "E-commerce",
+        "desc": "Un carrito alojado con IVA y checkout cripto instantáneo para productos físicos o digitales."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Cobra suscripciones y licencias vía API, con webhooks firmados para el aprovisionamiento."
+      },
+      "downloads": {
+        "title": "Descargas digitales",
+        "desc": "Entrega archivos, claves de licencia o enlaces automáticamente en cuanto se confirma el pago."
+      },
+      "freelancers": {
+        "title": "Freelancers",
+        "desc": "Envía facturas cripto con IVA y cobra directo en tu propia cartera."
+      },
+      "remittance": {
+        "title": "Remesas",
+        "desc": "Mueve valor entre países en minutos: sin horarios bancarios ni contracargos."
+      },
+      "gaming": {
+        "title": "Gaming",
+        "desc": "Acepta recargas globales y compras dentro del juego con comisiones bajas y predecibles."
+      }
     }
   },
   "checkout": {

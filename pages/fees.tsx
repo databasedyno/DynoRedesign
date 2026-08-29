@@ -426,6 +426,102 @@ const FeesPage = () => {
           </Box>
         </Container>
 
+        {/* ===== WHO PAYS THE FEE? ===== */}
+        <Container>
+          <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
+            <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 640 }}>
+              <Eyebrow tone="violet" sx={{ mb: 2 }}>{t("v3.whoPaysEyebrow")}</Eyebrow>
+              <HeadlineL sx={{ color: s.ink }}>{t("v3.whoPaysTitle")}</HeadlineL>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 16.5 }, color: s.ink2, mt: 2.5, lineHeight: 1.6 }}>
+                {t("v3.whoPaysBody")}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2.5, maxWidth: 900 }}>
+              {[
+                { title: t("v3.wpMerchantTitle"), desc: t("v3.wpMerchantDesc"), highlight: false },
+                { title: t("v3.wpCustomerTitle"), desc: t("v3.wpCustomerDesc"), highlight: true },
+              ].map((c) => (
+                <Box
+                  key={c.title}
+                  sx={{
+                    background: c.highlight ? BRAND_ACCENT : s.surface,
+                    color: c.highlight ? "#fff" : s.ink,
+                    border: `1px solid ${c.highlight ? BRAND_ACCENT : s.line}`,
+                    borderRadius: "22px",
+                    p: { xs: 3, md: 4 },
+                    transition: "transform .3s ease",
+                    "&:hover": { transform: "translateY(-2px)" },
+                  }}
+                >
+                  <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 21, letterSpacing: "-0.02em", mb: 1.5 }}>
+                    {c.title}
+                  </Typography>
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.65, color: c.highlight ? "rgba(255,255,255,0.9)" : s.ink2 }}>
+                    {c.desc}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, color: s.ink3, mt: 3, maxWidth: 900, lineHeight: 1.5 }}>
+              {t("v3.wpFootnote")}
+            </Typography>
+          </Box>
+        </Container>
+
+        {/* ===== EVERYTHING INCLUDED FREE ===== */}
+        <Container>
+          <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
+            <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 640 }}>
+              <Eyebrow tone="coral" sx={{ mb: 2 }}>{t("v3.includedEyebrow")}</Eyebrow>
+              <HeadlineL sx={{ color: s.ink }}>{t("v3.includedTitle")}</HeadlineL>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 16.5 }, color: s.ink2, mt: 2.5, lineHeight: 1.6 }}>
+                {t("v3.includedBody")}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "1fr 1fr 1fr" },
+                gap: 1.5,
+              }}
+            >
+              {["inc1", "inc2", "inc3", "inc4", "inc5", "inc6", "inc7", "inc8", "inc9"].map((k) => (
+                <Box
+                  key={k}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    background: s.surface,
+                    border: `1px solid ${s.line}`,
+                    borderRadius: "14px",
+                    px: 2.5,
+                    py: 2,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      width: 26,
+                      height: 26,
+                      borderRadius: "50%",
+                      background: s.dark ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : BRAND_ACCENT }} />
+                  </Box>
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink, lineHeight: 1.4 }}>
+                    {t(`v3.${k}`)}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Container>
+
         {/* ===== SECURITY ===== */}
         <Container>
           <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>

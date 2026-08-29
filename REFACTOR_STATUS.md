@@ -1002,3 +1002,115 @@ then validate with a small live amount before general availability.
 #   10). Surfaces: Components/Page/Creator/SupportWidget.tsx,
 #   Components/Page/Creator/CreatorPageSettings.tsx, pages/[handle]/checkout.tsx.
 
+# =============================================================================
+# ARCHITECTURE REVIEW (external) — verified against code + Tier-2 work plan
+# Added this session. Working language: English.
+# =============================================================================
+#
+# An external reviewer scored the architecture ~7/10 from a DIAGRAM. We verified
+# every point against the actual code. Corrected scorecard:
+#
+#   SOLID (already implemented, evidence in code):
+#     - Python proxy is a PREVIEW-ONLY shim (backend/server.py docstring); prod is
+#       Internet -> nginx -> Node (nginx.conf, start-all.sh). Non-issue for prod.
+#     - Double-entry LEDGER: services/ledger/*, tbl_ledger_entries (append-only,
+#       DR/CR, DECIMAL(30,12), unique idempotency index) + ledgerInvariantChecker
+#       (sum(DR)==sum(CR) per currency/batch, drift alerts).
+#     - Postgres is source of truth; Redis holds a DERIVED status string
+#       (paymentStateMachine.toRedisStatus) + tbl_payment_journal is the recovery
+#       source. Not authoritative-in-Redis.
+#     - Worker/API split: worker.ts (WORKER_ROLE=primary runs cron/sweeps/queue;
+#       secondary = API only). Leader election.
+#     - Durable queue: BullMQ tatum-webhooks + DLQ tatum-webhooks-dlq.
+#     - Webhook hostile-input: routes/index.ts verifies Tatum x-payload-hash
+#       (HMAC-SHA512) + IP allow-list + rate limit, then enqueue -> async worker.
+#
+#   REAL GAPS (the honest work list):
+#     - #4 Idempotency: primary webhook gate was a Redis key `processed-tx-<txId>`
+#       (server.ts:602); DB backstops existed (ledger dedup index, unique_tx_id,
+#       pool "unique payment reference") but NO canonical UNIQUE(provider,event_id)
+#       ingress table.
+#     - #7 Boundaries: a thin client exists (apis/tatumApi, binanceService) but
+#       ~20 controllers import tatumApi DIRECTLY (controller/wallet/*,
+#       controller/payment/settlement/*). Clean PaymentService->BlockchainService->
+#       TatumClient layering absent.
+#     - #8 Key handling: keys are KMS/Tatum-encrypted at rest, but sweeps decrypt
+#       the RAW private key into Node memory (merchantPoolSweep.ts ->
+#       tatumApi.decryptSymmetric -> directEvmTransfer(privateKey)). No access audit,
+#       no single choke point. Refunds are TODO(staging)/no-op.
+#     - #10 Outbox: ABSENT (grep). Ledger write / status update / BullMQ enqueue are
+#       3 separate ops — crash between DB commit and enqueue relies on later
+#       reconciliation.
+#
+# FRONTEND ASSESSMENT (reviewer skipped it; ours):
+#   - Next.js Pages Router at repo root: 73 pages, 314 components, ~124k lines TSX.
+#   - BIGGEST SMELL: THREE overlapping data/state layers — Redux Toolkit +
+#     redux-saga (Redux/*, store.ts) AND SWR (~16 uses) AND ~72 files doing raw
+#     axios/fetch. Recommend: standardize server-state on SWR (or RTK Query),
+#     shrink Redux to true global/UI state, force all HTTP through axiosConfig.
+#   - GOD-COMPONENTS mirror the backend god-controller: Pay3Components/
+#     cryptoTransfer.tsx 2,563 lines, CreatePaymentLink 2,082, QA.tsx 2,023,
+#     auth/login.tsx 1,914, pay/index.tsx 1,895, CleanCheckoutV2.tsx 1,885. The
+#     checkout path (highest-risk UI) is 2k-line monoliths — top refactor target.
+#   - Styling: MUI v5 + Emotion (@mui/material/styles in 41 files, styled.tsx).
+#     Consistent. (Not Tailwind/styled-components.)
+#   - SSR: ~16 pages use getServerSideProps/getStaticProps — mostly CSR SPA-in-Next.
+#   - Real-time: backend sseService pushes payment_status_change over SSE. Good.
+#   - Auth caveat: middleware.ts allow-list matcher + NextAuth, but in-preview
+#     OAuth is stubbed (k8s routes /api/* to backend; server.py stubs /api/auth/*).
+
+# =============================================================================
+# TIER-2 IMPLEMENTATION — #4, #7, #8, #10  (this session; SAFE, flag-gated)
+# =============================================================================
+# Rollout posture (approved defaults): additive tables only; hot-path changes
+# behind flags defaulting OFF so the live payment flow is byte-identical until
+# the team flips them. New tables are created by the existing versioned boot
+# migration runner (0007–0009) against the live Railway DB on restart.
+#
+# ## T2-#4 [x] Inbound-event idempotency table — SHIPPED (flag: ENABLE_INBOUND_EVENT_DEDUP, default OFF)
+#   - models/inboundEventModel.ts -> tbl_inbound_events, UNIQUE(provider, provider_event_id).
+#   - services/idempotency/inboundEventService.ts -> recordInbound()/markProcessed()/markFailed()
+#     (unique violation => {isNew:false}; fail-open on infra errors).
+#   - routes/index.ts -> inboundEventDedup("tatum") middleware AFTER signature verify on
+#     /tatum-webhook + /tatum-crypto-webhook; duplicate => 200 without reprocessing.
+#   - Migration 0007_inbound_events (create-only; new empty table => zero risk).
+#   NEXT: extend to Flutterwave/Veriff; then make it the PRIMARY gate and retire the
+#   Redis processed-tx key once soaked in prod.
+#
+# ## T2-#10 [x] Transactional outbox — SHIPPED (flag: ENABLE_OUTBOX, default OFF)
+#   - models/outboxEventModel.ts -> tbl_outbox (pending->processing->dispatched|failed).
+#   - services/outbox/outboxService.ts -> enqueueOutbox({transaction}) writes the event in
+#     the SAME txn as the domain write; relay claims due rows via FOR UPDATE SKIP LOCKED
+#     (multi-replica safe), dispatches via registered handlers, exponential backoff, DLQ-style
+#     `failed` after max_attempts; getOutboxHealth().
+#   - services/outbox/outboxDispatchers.ts -> default handlers are OBSERVABILITY-ONLY (log) to
+#     avoid double-firing the existing direct merchant webhook during soak.
+#   - services/ledger/ledgerService.ts -> postDoubleEntry gained an OPTIONAL `transaction`
+#     (default undefined = unchanged). ledgerPaymentMapper.ts wraps ledger-post + outbox
+#     enqueue in one sequelize.transaction when ENABLE_OUTBOX is on (payment.settled /
+#     payment.detected; eventId keyed on txId => idempotent).
+#   - server.ts -> startOutboxRelay() started only when isCronEnabled && ENABLE_OUTBOX.
+#   - Migration 0008_outbox.
+#   NEXT (cutover, deliberate): flip dispatchers to drive enqueueWebhook and REMOVE the direct
+#   webhook call from the settlement path so the outbox becomes the single source of delivery.
+#
+# ## T2-#8 [~] Key-custody boundary + audit — INCREMENT 1 SHIPPED
+#   - models/keyAccessAuditModel.ts -> tbl_key_access_audit (append-only; stores sha256(ciphertext),
+#     NEVER plaintext/ciphertext).
+#   - services/keyCustody/keyCustodyService.ts -> decryptPrivateKey() (drop-in for
+#     tatumApi.decryptSymmetric + audit) and withPrivateKey() (scopes key to a callback).
+#   - merchantPoolSweep.ts -> 3 decrypt sites (gas_funding, gas_reclaim, pool_sweep) migrated
+#     onto the boundary. Behaviour-preserving.
+#   - Migration 0009_key_access_audit. Threat model: memory/KEY_CUSTODY_THREAT_MODEL.md.
+#   NEXT: migrate remaining decrypt sites; INCREMENT 2 = remote signing (key never in Node
+#   heap) + key-class separation (merchant vs gas vs treasury) + audit anomaly alerts +
+#   deny decryption to WORKER_ROLE=secondary.
+#
+# ## T2-#7 [~] Integration boundary — SEAM ESTABLISHED (incremental)
+#   - integrations/tatum/TatumClient.ts -> single seam re-exporting apis/tatumApi (zero behaviour
+#     change) as the migration target.
+#   - services/blockchain/blockchainService.ts -> domain-facing facade (verbs added as controllers
+#     migrate; `.client` escape hatch meanwhile).
+#   RULE: new/touched code imports the boundary, not apis/tatumApi. Full migration of the ~20
+#   controllers is incremental (do not rip out in one pass on a live money path).
+

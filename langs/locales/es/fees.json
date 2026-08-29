@@ -129,6 +129,26 @@
     "sec3Body": "Secretos cifrados en Google KMS, PII minimizada, registro de auditoría conservado. Exporta o elimina cuando lo pidas.",
     "plusFixed": "+ 1 $ por pago",
     "paymentsLabel": "Pagos por mes",
-    "effectiveRate": "tasa efectiva"
+    "effectiveRate": "tasa efectiva",
+    "whoPaysEyebrow": "[ 04 · ¿Quién paga? ]",
+    "whoPaysTitle": "¿Quién paga la comisión? Tú decides.",
+    "whoPaysBody": "En cada enlace y checkout eliges si asumes la comisión o se la pasas al cliente. No hay respuesta incorrecta.",
+    "wpMerchantTitle": "Asumes la comisión",
+    "wpMerchantDesc": "El precio sigue siendo el que fijaste. En un pago de $100 al 1,5% + $1, recibes $97,50.",
+    "wpCustomerTitle": "La paga el cliente",
+    "wpCustomerDesc": "La comisión se añade encima. En un pago de $100 el cliente paga $102,50 y tú te quedas con los $100 completos.",
+    "wpFootnote": "Mostrado con la tarifa Starter del 1,5%. Tu tarifa baja al 0,5% a medida que crece tu volumen mensual.",
+    "includedEyebrow": "[ 05 · Incluido gratis ]",
+    "includedTitle": "Todo incluido. Sin extras.",
+    "includedBody": "Un solo porcentaje lo cubre todo. Sin cuota mensual, sin alta, sin precios por función: todo lo de abajo va por nuestra cuenta.",
+    "inc1": "Pagos on-chain a tu propia cartera",
+    "inc2": "Reembolsos cripto en un clic",
+    "inc3": "Webhooks firmados + consola de eventos",
+    "inc4": "Tienda alojada y catálogo de productos",
+    "inc5": "Facturas con IVA e inversión del sujeto pasivo (UE)",
+    "inc6": "Conversión automática a USDC / USDT",
+    "inc7": "Enlaces de pago y botones de compra",
+    "inc8": "Checkout en 6 idiomas",
+    "inc9": "Sin cuotas mensuales ni de alta"
   }
 }

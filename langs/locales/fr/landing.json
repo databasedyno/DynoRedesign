@@ -319,6 +319,110 @@
       "step3title": "Encaissez comme vous voulez",
       "step3desc": "Gardez la crypto d'origine ou convertissez automatiquement en USDC ou USDT — à vous de choisir — reversé sur un portefeuille que vous contrôlez.",
       "cta": "Commencer à encaisser"
+    },
+    "ways": {
+      "eyebrow": "[ Façons d'être payé ]",
+      "headline1": "Neuf façons",
+      "headline2": "d'encaisser un paiement.",
+      "body": "Choisissez ce qui vous convient : un lien, une page hébergée, un appel API ou une boutique complète. Derrière tout ça, un seul portefeuille et un seul tableau de bord.",
+      "links": {
+        "title": "Liens de paiement",
+        "desc": "Partagez un lien partout. Vos clients paient en quelques secondes, sans compte."
+      },
+      "checkout": {
+        "title": "Checkout hébergé",
+        "desc": "Une page de paiement à votre marque, prête pour n'importe quel montant ou produit."
+      },
+      "api": {
+        "title": "API REST",
+        "desc": "Créez des paiements depuis votre backend, avec webhooks signés et clés de test."
+      },
+      "buttons": {
+        "title": "Boutons d'achat",
+        "desc": "Ajoutez un bouton de paiement à n'importe quel site avec un extrait de HTML."
+      },
+      "elements": {
+        "title": "Éléments intégrables",
+        "desc": "Intégrez le checkout à vos propres pages avec des clés publiables."
+      },
+      "storefront": {
+        "title": "Boutique",
+        "desc": "Un catalogue complet — numérique, physique ou service — avec panier et TVA."
+      },
+      "tips": {
+        "title": "Pourboires créateurs",
+        "desc": "Votre propre page @pseudo pour recevoir des pourboires en un geste."
+      },
+      "donations": {
+        "title": "Dons",
+        "desc": "Des liens de collecte avec objectifs, paliers et mur des donateurs en direct."
+      },
+      "invoices": {
+        "title": "Factures",
+        "desc": "Envoyez des factures crypto avec TVA, autoliquidation et reçus PDF."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Frais à votre façon ]",
+      "headline": "Vous choisissez qui paie les frais.",
+      "body": "Prenez les frais à votre charge, ou reportez-les sur le client et gardez 100 % de votre prix. Modifiable par lien ou par checkout, quand vous voulez.",
+      "tabMerchant": "Je paie les frais",
+      "tabCustomer": "Le client paie",
+      "exampleLabel": "Sur un paiement de $100",
+      "customerPaysLabel": "Le client paie",
+      "youReceiveLabel": "Vous recevez",
+      "merchantNote": "Vous couvrez les frais de 1,5 % + $1, donc le prix que voit votre client reste exactement $100.",
+      "customerNote": "Les frais s'ajoutent au-dessus : le client les paie et vous gardez vos $100 entiers.",
+      "feeFootnote": "Exemple au tarif Starter de 1,5 % + $1 par paiement. Votre taux descend à 0,5 % à mesure que le volume augmente."
+    },
+    "coins": {
+      "eyebrow": "[ Cryptos et tokens ]",
+      "headline": "15 cryptos et tokens.",
+      "headline2": "Neuf chaînes.",
+      "body": "Bitcoin, Ethereum, Solana, XRP et plus, ainsi que USDT, USDC et RLUSD sur Ethereum, Tron et Polygon.",
+      "convertTitle": "Gardez, ou convertissez tout seul.",
+      "convertDesc": "Encaissez dans n'importe quelle crypto et gardez-la, ou convertissez automatiquement en USDC ou USDT dès la confirmation. Votre choix, à chaque fois."
+    },
+    "refunds": {
+      "eyebrow": "[ La confiance intégrée ]",
+      "headline": "De la crypto que vous pouvez vraiment rembourser.",
+      "body": "Ce qui rend la crypto stressante ? Réglé. Remboursements, garde des fonds et webhooks, bien faits.",
+      "refundsTitle": "Remboursements crypto en un clic",
+      "refundsDesc": "Remboursez un paiement sur sa chaîne d'origine, total ou partiel ; le client reçoit un reçu par e-mail.",
+      "custodyTitle": "Non-dépositaire par conception",
+      "custodyDesc": "Les fonds arrivent directement dans votre propre portefeuille. Nous ne détenons jamais votre argent : vos clés, votre crypto.",
+      "webhooksTitle": "Webhooks signés",
+      "webhooksDesc": "Événements signés HMAC, nouvelles tentatives automatiques et file d'attente d'échecs gardent vos systèmes synchronisés."
+    },
+    "solutions": {
+      "eyebrow": "[ Solutions ]",
+      "headline1": "Pensé pour votre",
+      "headline2": "façon d'encaisser.",
+      "body": "Quoi que vous vendiez, il y a une configuration Dynopay pour ça : le même portefeuille, les mêmes frais bas, les mêmes rails non dépositaires.",
+      "ecommerce": {
+        "title": "E-commerce",
+        "desc": "Un panier hébergé avec TVA et checkout crypto instantané pour produits physiques ou numériques."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Facturez abonnements et sièges via l'API, avec webhooks signés pour le provisionnement."
+      },
+      "downloads": {
+        "title": "Téléchargements",
+        "desc": "Livrez fichiers, clés de licence ou liens automatiquement dès la confirmation du paiement."
+      },
+      "freelancers": {
+        "title": "Freelances",
+        "desc": "Envoyez des factures crypto avec TVA et soyez payé directement sur votre propre portefeuille."
+      },
+      "remittance": {
+        "title": "Transferts",
+        "desc": "Déplacez de la valeur entre pays en minutes — sans horaires bancaires ni rétrofacturations."
+      },
+      "gaming": {
+        "title": "Gaming",
+        "desc": "Acceptez recharges mondiales et achats in-game avec des frais bas et prévisibles."
+      }
     }
   },
   "checkout": {

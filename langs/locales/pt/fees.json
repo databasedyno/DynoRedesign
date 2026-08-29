@@ -129,6 +129,26 @@
     "sec3Body": "Segredos criptografados no Google KMS, PII minimizada, trilha de auditoria mantida. Exporte ou exclua quando solicitar.",
     "plusFixed": "+ $1 por pagamento",
     "paymentsLabel": "Pagamentos por mês",
-    "effectiveRate": "taxa efetiva"
+    "effectiveRate": "taxa efetiva",
+    "whoPaysEyebrow": "[ 04 · Quem paga? ]",
+    "whoPaysTitle": "Quem paga a taxa? Você decide.",
+    "whoPaysBody": "Em cada link e checkout você escolhe se assume a taxa ou repassa ao cliente. Não há resposta errada.",
+    "wpMerchantTitle": "Você assume a taxa",
+    "wpMerchantDesc": "O preço continua o que você definiu. Em um pagamento de $100 a 1,5% + $1, você recebe $97,50.",
+    "wpCustomerTitle": "O cliente paga a taxa",
+    "wpCustomerDesc": "A taxa é somada por cima. Em um pagamento de $100 o cliente paga $102,50 e você fica com os $100 completos.",
+    "wpFootnote": "Mostrado com a tarifa Starter de 1,5%. Sua tarifa cai para 0,5% conforme seu volume mensal cresce.",
+    "includedEyebrow": "[ 05 · Incluído grátis ]",
+    "includedTitle": "Tudo incluído. Sem extras.",
+    "includedBody": "Uma única porcentagem cobre tudo. Sem mensalidade, sem setup, sem preço por recurso: tudo abaixo é por nossa conta.",
+    "inc1": "Pagamentos on-chain para a sua própria carteira",
+    "inc2": "Reembolsos cripto em um clique",
+    "inc3": "Webhooks assinados + console de eventos",
+    "inc4": "Loja hospedada e catálogo de produtos",
+    "inc5": "Faturas com IVA e autoliquidação (UE)",
+    "inc6": "Conversão automática para USDC / USDT",
+    "inc7": "Links de pagamento e botões de compra",
+    "inc8": "Checkout em 6 idiomas",
+    "inc9": "Sem mensalidade ou taxa de setup"
   }
 }

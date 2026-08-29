@@ -23,7 +23,7 @@ import { paymentController } from "../controller";
 import { sendPendingPaymentNotification } from "./pendingPaymentService";
 import { ADMIN_WALLETS, FEE_WALLETS, isTagBasedChain, getCryptoRedisKey, XRP_MASTER_ADDRESS } from "./merchantPool/merchantPoolConfig";
 import tatumApi from "../apis/tatumApi";
-import { callMerchantWebhook } from "../webhooks";
+import { deliverMerchantWebhook } from "./outbox/merchantWebhookOutbox";
 import { WebhookJobData } from "./webhookQueue";
 import { validateTransition, parseState, PaymentState } from "./paymentStateMachine";
 import { Op } from "sequelize";
@@ -783,7 +783,7 @@ async function handleCrashRecovery(
         const linkId = customerData?.link_id || items?.link_id || null;
         const paymentType = linkId ? "payment_link" : "direct_api";
 
-        await callMerchantWebhook(customerData, {
+        await deliverMerchantWebhook(customerData, {
           event: "payment.confirmed",
           payment_type: paymentType,
           payment_id: items?.payment_id || items?.unique_tx_id,
@@ -915,7 +915,7 @@ async function handleNewTransaction(
       const linkIdPending = customerData?.link_id || null;
       const paymentTypePending = linkIdPending ? "payment_link" : "direct_api";
       // FIX (2026-04-12): Fire-and-forget — don't block settlement waiting for merchant server
-      callMerchantWebhook(customerData, {
+      deliverMerchantWebhook(customerData, {
         event: "payment.pending",
         payment_type: paymentTypePending,
         address, txId: payload.txId,
@@ -1016,7 +1016,7 @@ async function handleNewTransaction(
       });
 
       if (customerData && customerData.company_id) {
-        await callMerchantWebhook(customerData, {
+        await deliverMerchantWebhook(customerData, {
           event: "payment.underpaid", payment_type: "direct_api",
           address, txId: payload.txId,
           transaction_reference: payload.txId,
@@ -1050,7 +1050,7 @@ async function handleNewTransaction(
       await setRedisTTL(redisKey, merchantGracePeriodMinutes * 60);
 
       if (customerData && customerData.company_id) {
-        await callMerchantWebhook(customerData, {
+        await deliverMerchantWebhook(customerData, {
           event: "payment.underpaid", payment_type: "payment_link",
           address, txId: payload.txId,
           transaction_reference: payload.txId,
@@ -1086,7 +1086,7 @@ async function handleNewTransaction(
     const receivedLinkId = customerData?.link_id || items?.link_id || null;
     const receivedPaymentType = receivedLinkId ? "payment_link" : "direct_api";
     setTimeout(() => {
-      callMerchantWebhook(customerData, {
+      deliverMerchantWebhook(customerData, {
         event: "payment.confirmed",
         payment_type: receivedPaymentType,
         address,
@@ -1296,7 +1296,7 @@ async function handleNewTransaction(
           await setRedisItem(confirmedWebhookKey, { sent: true, sentAt: new Date().toISOString(), source: "webhookProcessor" });
           await setRedisTTL(confirmedWebhookKey, 86400);
 
-          await callMerchantWebhook(confirmedCustomerData, {
+          await deliverMerchantWebhook(confirmedCustomerData, {
             event: "payment.settled",
             payment_type: confirmedPaymentType,
             address,
@@ -1381,7 +1381,7 @@ async function handleNewTransaction(
         const failedLinkId = failedCustomerData?.link_id || items?.link_id || null;
         const failedPaymentType = failedLinkId ? "payment_link" : "direct_api";
 
-        await callMerchantWebhook(failedCustomerData, {
+        await deliverMerchantWebhook(failedCustomerData, {
           event: "payment.settlement_failed",
           payment_type: failedPaymentType,
           address,

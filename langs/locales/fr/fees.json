@@ -129,6 +129,26 @@
     "sec3Body": "Secrets chiffrés dans Google KMS, PII minimisées, piste d'audit conservée. Export ou suppression sur demande.",
     "plusFixed": "+ 1 $ par paiement",
     "paymentsLabel": "Paiements par mois",
-    "effectiveRate": "taux effectif"
+    "effectiveRate": "taux effectif",
+    "whoPaysEyebrow": "[ 04 · Qui paie ? ]",
+    "whoPaysTitle": "Qui paie les frais ? À vous de choisir.",
+    "whoPaysBody": "Sur chaque lien et checkout, vous choisissez d'assumer les frais ou de les reporter sur le client. Il n'y a pas de mauvaise réponse.",
+    "wpMerchantTitle": "Vous assumez les frais",
+    "wpMerchantDesc": "Le prix reste celui que vous avez fixé. Sur un paiement de $100 à 1,5 % + $1, vous recevez $97,50.",
+    "wpCustomerTitle": "Le client paie les frais",
+    "wpCustomerDesc": "Les frais s'ajoutent au-dessus. Sur un paiement de $100, le client paie $102,50 et vous gardez vos $100 entiers.",
+    "wpFootnote": "Affiché au tarif Starter de 1,5 %. Votre taux descend à 0,5 % à mesure que votre volume mensuel augmente.",
+    "includedEyebrow": "[ 05 · Inclus gratuitement ]",
+    "includedTitle": "Tout inclus. Aucune option payante.",
+    "includedBody": "Un seul pourcentage couvre tout. Pas d'abonnement, pas de frais d'installation, pas de tarif par fonctionnalité : tout ci-dessous est offert.",
+    "inc1": "Versements on-chain vers votre propre portefeuille",
+    "inc2": "Remboursements crypto en un clic",
+    "inc3": "Webhooks signés + console d'événements",
+    "inc4": "Boutique hébergée et catalogue produits",
+    "inc5": "Factures avec TVA et autoliquidation (UE)",
+    "inc6": "Conversion automatique en USDC / USDT",
+    "inc7": "Liens de paiement et boutons d'achat",
+    "inc8": "Checkout en 6 langues",
+    "inc9": "Aucun frais mensuel ni d'installation"
   }
 }

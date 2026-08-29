@@ -1,4 +1,3 @@
-import { BRAND_ACCENT } from "@/constants/theme";
 /**
  * InlineTipCheckout — self-contained inline crypto tip checkout for the
  * creator page Support Widget. Replaces the /pay full-page redirect so the
@@ -24,22 +23,12 @@ import { ReceiptEmailField, NotifyMeInline } from '@/Components/Page/Pay3Compone
 import { formatCryptoAmount, formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
 import fireConfettiBurst from '@/utils/confettiBurst'
-
-const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
-// Aurora indigo — Landing v3 canonical accent (Session 82 migration).
-const LIME = BRAND_ACCENT
-const INK = '#0A0A0B'
-
-type Phase =
-  | 'loading_meta'
-  | 'currency_select'
-  | 'creating_payment'
-  | 'awaiting_payment'
-  | 'underpaid'
-  | 'confirmed'
-  | 'expired'
-  | 'failed'
-  | 'error'
+// Shared checkout tokens/types (extracted from CleanCheckoutV2) — single source
+// of truth. The MONO/LIME/INK values and the `Phase` union are identical to the
+// local copies they replace, so this is a zero-behaviour-change de-dup.
+import { MONO, LIME, INK } from '@/Components/Page/Pay3Components/checkout/checkoutConstants'
+import type { Phase, CryptoInfo } from '@/Components/Page/Pay3Components/checkout/checkoutTypes'
+import { checkoutApi as api } from '@/Components/Page/Pay3Components/checkout/checkoutApi'
 
 interface Meta {
   amount: number
@@ -57,16 +46,6 @@ interface Meta {
     campaign_currency?: string | null
   } | null
   merchant?: { name?: string; company_logo?: string | null } | null
-}
-
-interface CryptoInfo {
-  address: string
-  qr_code: string
-  memo: string
-  expected_amount: number  // crypto amount to send
-  crypto_display: string   // e.g. "USDT-TRC20"
-  crypto_base: string      // e.g. "USDT"
-  network: string          // e.g. "TRC20"
 }
 
 interface PartialPay {
@@ -154,31 +133,6 @@ function shortenAddr(a: string): string {
   if (!a) return ''
   if (a.length <= 20) return a
   return `${a.slice(0, 10)}…${a.slice(-8)}`
-}
-
-/**
- * fetch wrapper that always adds Authorization: Bearer if provided AND
- * never uses localStorage. Returns the parsed { message, data } envelope.
- */
-async function api(
-  path: string,
-  body: Record<string, unknown>,
-  token?: string,
-): Promise<{ ok: boolean; status: number; message?: string; data?: any }> {
-  const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '')
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (token) headers['Authorization'] = `Bearer ${token}`
-  try {
-    const res = await fetch(`${base}/api${path}`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    })
-    const json = await res.json().catch(() => ({}))
-    return { ok: res.ok, status: res.status, message: json?.message, data: json?.data }
-  } catch (e: any) {
-    return { ok: false, status: 0, message: e?.message || 'Network error' }
-  }
 }
 
 interface InlineTipCheckoutProps {

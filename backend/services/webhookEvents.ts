@@ -115,9 +115,10 @@ export async function emitOptInWebhook(
       return { emitted: false, reason: "duplicate" };
     }
 
-    // Lazy require breaks the webhooks/index.ts <-> webhookEvents.ts import cycle.
-    const { callMerchantWebhook } = require("../webhooks");
-    await callMerchantWebhook(customerData, {
+    // Route opt-in events through the same outbox seam as the always-on events
+    // so the cutover is unified (ENABLE_OUTBOX on → enqueue; off → direct).
+    const { deliverMerchantWebhook } = require("./outbox/merchantWebhookOutbox");
+    await deliverMerchantWebhook(customerData, {
       ...eventData,
       created_at: eventData.created_at || new Date().toISOString(),
     });

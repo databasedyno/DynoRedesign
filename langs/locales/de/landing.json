@@ -319,6 +319,110 @@
       "step3title": "Ausgezahlt nach Wahl",
       "step3desc": "Behalte die ursprüngliche Coin oder wandle automatisch in USDC oder USDT um — deine Wahl — ausgezahlt auf ein Wallet, das du kontrollierst.",
       "cta": "Zahlungen annehmen"
+    },
+    "ways": {
+      "eyebrow": "[ Wege zur Bezahlung ]",
+      "headline1": "Neun Wege,",
+      "headline2": "eine Zahlung anzunehmen.",
+      "body": "Wählen Sie, was passt: ein Link, eine gehostete Seite, ein API-Aufruf oder ein kompletter Shop. Dahinter: eine Wallet, ein Dashboard.",
+      "links": {
+        "title": "Zahlungslinks",
+        "desc": "Teilen Sie einen Link überall. Käufer zahlen in Sekunden – ganz ohne Konto."
+      },
+      "checkout": {
+        "title": "Gehosteter Checkout",
+        "desc": "Eine Zahlungsseite in Ihrem Branding, bereit für jeden Betrag oder jedes Produkt."
+      },
+      "api": {
+        "title": "REST-API",
+        "desc": "Erstellen Sie Zahlungen aus Ihrem Backend – mit signierten Webhooks und Test-Keys."
+      },
+      "buttons": {
+        "title": "Kauf-Buttons",
+        "desc": "Fügen Sie jeder Website mit einem HTML-Schnipsel einen Bezahl-Button hinzu."
+      },
+      "elements": {
+        "title": "Einbettbare Elemente",
+        "desc": "Binden Sie den Checkout mit veröffentlichbaren Keys in Ihre Seiten ein."
+      },
+      "storefront": {
+        "title": "Shop",
+        "desc": "Ein voller Katalog – digital, physisch oder Service – mit Warenkorb und USt."
+      },
+      "tips": {
+        "title": "Creator-Trinkgeld",
+        "desc": "Ihre eigene @handle-Seite für Trinkgeld mit einem Tipp."
+      },
+      "donations": {
+        "title": "Spenden",
+        "desc": "Spendenlinks mit Zielen, Stufen und einer Live-Spenderwand."
+      },
+      "invoices": {
+        "title": "Rechnungen",
+        "desc": "Senden Sie Krypto-Rechnungen mit USt, Reverse-Charge und PDF-Belegen."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Gebühren nach Ihrer Wahl ]",
+      "headline": "Sie wählen, wer die Gebühr zahlt.",
+      "body": "Übernehmen Sie die Gebühr selbst, oder geben Sie sie an den Kunden weiter und behalten Sie 100 % Ihres Preises. Umschaltbar pro Link oder pro Checkout, wann immer Sie wollen.",
+      "tabMerchant": "Ich zahle die Gebühr",
+      "tabCustomer": "Kunde zahlt",
+      "exampleLabel": "Bei einer Zahlung von $100",
+      "customerPaysLabel": "Kunde zahlt",
+      "youReceiveLabel": "Sie erhalten",
+      "merchantNote": "Sie tragen die Gebühr von 1,5 % + $1, sodass der Preis für Ihren Kunden exakt $100 bleibt.",
+      "customerNote": "Die Gebühr kommt oben drauf – der Kunde trägt sie und Sie behalten Ihre vollen $100.",
+      "feeFootnote": "Beispiel zum Starter-Satz von 1,5 % + $1 pro Zahlung. Ihr Satz sinkt mit dem Volumen auf 0,5 %."
+    },
+    "coins": {
+      "eyebrow": "[ Coins & Tokens ]",
+      "headline": "15 Coins & Tokens.",
+      "headline2": "Neun Chains.",
+      "body": "Bitcoin, Ethereum, Solana, XRP und mehr – dazu USDT, USDC und RLUSD auf Ethereum, Tron und Polygon.",
+      "convertTitle": "Behalten oder automatisch wandeln.",
+      "convertDesc": "Werden Sie in jedem Coin bezahlt und behalten Sie ihn – oder wandeln Sie ihn bei Bestätigung automatisch in USDC oder USDT. Ihre Wahl, jedes Mal."
+    },
+    "refunds": {
+      "eyebrow": "[ Vertrauen eingebaut ]",
+      "headline": "Krypto, das Sie wirklich erstatten können.",
+      "body": "Was Krypto riskant wirken lässt? Gelöst. Rückerstattungen, Verwahrung und Webhooks – richtig gemacht.",
+      "refundsTitle": "Krypto-Rückerstattungen mit einem Klick",
+      "refundsDesc": "Erstatten Sie eine Zahlung auf ihrer ursprünglichen Chain, ganz oder teilweise – der Kunde erhält einen Beleg per E-Mail.",
+      "custodyTitle": "Non-custodial by Design",
+      "custodyDesc": "Gelder gehen direkt in Ihre eigene Wallet. Wir halten Ihr Geld nie – Ihre Keys, Ihr Krypto.",
+      "webhooksTitle": "Signierte Webhooks",
+      "webhooksDesc": "HMAC-signierte Events, automatische Wiederholungen und eine Dead-Letter-Queue halten Ihre Systeme synchron."
+    },
+    "solutions": {
+      "eyebrow": "[ Lösungen ]",
+      "headline1": "Gebaut für Ihre",
+      "headline2": "Art, bezahlt zu werden.",
+      "body": "Was auch immer Sie verkaufen — es gibt ein Dynopay-Setup dafür: dieselbe Wallet, dieselben niedrigen Gebühren, dieselben Non-custodial-Rails.",
+      "ecommerce": {
+        "title": "E-Commerce",
+        "desc": "Ein gehosteter Warenkorb mit USt und sofortigem Krypto-Checkout für physische oder digitale Waren."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Rechnen Sie Abos und Sitze über die API ab – mit signierten Webhooks fürs Provisioning."
+      },
+      "downloads": {
+        "title": "Digitale Downloads",
+        "desc": "Liefern Sie Dateien, Lizenzschlüssel oder Links automatisch, sobald die Zahlung bestätigt ist."
+      },
+      "freelancers": {
+        "title": "Freelancer",
+        "desc": "Senden Sie Krypto-Rechnungen mit USt und werden Sie direkt in Ihre eigene Wallet bezahlt."
+      },
+      "remittance": {
+        "title": "Überweisungen",
+        "desc": "Bewegen Sie Werte in Minuten über Grenzen – ohne Bankzeiten, ohne Rückbuchungen."
+      },
+      "gaming": {
+        "title": "Gaming",
+        "desc": "Nehmen Sie weltweite Aufladungen und In-Game-Käufe mit niedrigen, planbaren Gebühren an."
+      }
     }
   },
   "checkout": {

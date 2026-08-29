@@ -319,6 +319,110 @@
       "step3title": "Receba do seu jeito",
       "step3desc": "Fique com a moeda original ou converta automaticamente em USDC ou USDT — você escolhe — liquidado em uma carteira que você controla.",
       "cta": "Comece a aceitar pagamentos"
+    },
+    "ways": {
+      "eyebrow": "[ Formas de receber ]",
+      "headline1": "Nove formas de",
+      "headline2": "receber um pagamento.",
+      "body": "Escolha a que encaixa: um link, uma página hospedada, uma chamada de API ou uma loja completa. Por trás de todas, uma só carteira e um só painel.",
+      "links": {
+        "title": "Links de pagamento",
+        "desc": "Compartilhe um link em qualquer lugar. Os clientes pagam em segundos, sem conta."
+      },
+      "checkout": {
+        "title": "Checkout hospedado",
+        "desc": "Uma página de pagamento com a sua marca, pronta para qualquer valor ou produto."
+      },
+      "api": {
+        "title": "API REST",
+        "desc": "Crie cobranças a partir do seu backend, com webhooks assinados e chaves de teste."
+      },
+      "buttons": {
+        "title": "Botões de compra",
+        "desc": "Adicione um botão de pagamento a qualquer site com um trecho de HTML."
+      },
+      "elements": {
+        "title": "Elementos incorporáveis",
+        "desc": "Coloque o checkout nas suas próprias páginas com chaves publicáveis."
+      },
+      "storefront": {
+        "title": "Loja",
+        "desc": "Um catálogo completo — digital, físico ou serviço — com carrinho e IVA."
+      },
+      "tips": {
+        "title": "Gorjetas de criador",
+        "desc": "Sua própria página @usuário para receber gorjetas com um toque."
+      },
+      "donations": {
+        "title": "Doações",
+        "desc": "Links de arrecadação com metas, níveis e mural de doadores ao vivo."
+      },
+      "invoices": {
+        "title": "Faturas",
+        "desc": "Envie faturas cripto com IVA, autoliquidação e recibos em PDF."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Taxas do seu jeito ]",
+      "headline": "Você escolhe quem paga a taxa.",
+      "body": "Assuma a taxa ou repasse ao cliente e fique com 100% do seu preço. Troque por link ou por checkout, quando quiser.",
+      "tabMerchant": "Eu pago a taxa",
+      "tabCustomer": "O cliente paga",
+      "exampleLabel": "Em um pagamento de $100",
+      "customerPaysLabel": "O cliente paga",
+      "youReceiveLabel": "Você recebe",
+      "merchantNote": "Você cobre a taxa de 1,5% + $1, então o preço que o cliente vê continua exatamente $100.",
+      "customerNote": "A taxa é somada por cima: o cliente paga e você fica com os seus $100 completos.",
+      "feeFootnote": "Exemplo com a tarifa Starter de 1,5% + $1 por pagamento. Sua tarifa cai para 0,5% conforme você cresce."
+    },
+    "coins": {
+      "eyebrow": "[ Moedas e tokens ]",
+      "headline": "15 moedas e tokens.",
+      "headline2": "Nove redes.",
+      "body": "Bitcoin, Ethereum, Solana, XRP e mais, além de USDT, USDC e RLUSD em Ethereum, Tron e Polygon.",
+      "convertTitle": "Guarde ou converta sozinho.",
+      "convertDesc": "Receba em qualquer moeda e guarde, ou converta automaticamente para USDC ou USDT assim que confirmar. A escolha é sempre sua."
+    },
+    "refunds": {
+      "eyebrow": "[ Confiança de fábrica ]",
+      "headline": "Cripto que você pode mesmo reembolsar.",
+      "body": "As partes que fazem a cripto parecer arriscada? Resolvidas. Reembolsos, custódia e webhooks, bem feitos.",
+      "refundsTitle": "Reembolsos cripto em um clique",
+      "refundsDesc": "Reembolse um pagamento na rede original, total ou parcial; o cliente recebe um recibo por e-mail.",
+      "custodyTitle": "Sem custódia por design",
+      "custodyDesc": "Os fundos vão direto para a sua própria carteira. Nunca guardamos o seu dinheiro: suas chaves, sua cripto.",
+      "webhooksTitle": "Webhooks assinados",
+      "webhooksDesc": "Eventos assinados com HMAC, novas tentativas automáticas e fila de mensagens mantêm seus sistemas em sincronia."
+    },
+    "solutions": {
+      "eyebrow": "[ Soluções ]",
+      "headline1": "Feito para o seu",
+      "headline2": "jeito de receber.",
+      "body": "Não importa o que você venda, há uma configuração Dynopay para isso: a mesma carteira, as mesmas taxas baixas, os mesmos trilhos sem custódia.",
+      "ecommerce": {
+        "title": "E-commerce",
+        "desc": "Um carrinho hospedado com IVA e checkout cripto instantâneo para produtos físicos ou digitais."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Cobre assinaturas e licenças pela API, com webhooks assinados para o provisionamento."
+      },
+      "downloads": {
+        "title": "Downloads digitais",
+        "desc": "Entregue arquivos, chaves de licença ou links automaticamente assim que o pagamento confirmar."
+      },
+      "freelancers": {
+        "title": "Freelancers",
+        "desc": "Envie faturas cripto com IVA e receba direto na sua própria carteira."
+      },
+      "remittance": {
+        "title": "Remessas",
+        "desc": "Mova valor entre países em minutos — sem horário bancário, sem estornos."
+      },
+      "gaming": {
+        "title": "Games",
+        "desc": "Aceite recargas globais e compras no jogo com taxas baixas e previsíveis."
+      }
     }
   },
   "checkout": {

@@ -15,7 +15,12 @@ import { HomeWrapper } from "./styled";
  * imports. ssr:true (default) is required — the HTML must not change. */
 const HowItWorksV3 = dynamic(() => import("./v3/HowItWorksV3"));
 const AudienceDoorsV3 = dynamic(() => import("./v3/AudienceDoorsV3"));
+const SolutionsGridV3 = dynamic(() => import("./v3/SolutionsGridV3"));
 const ProductFeatureCards = dynamic(() => import("./v3/ProductFeatureCards"));
+const WaysToGetPaidV3 = dynamic(() => import("./v3/WaysToGetPaidV3"));
+const WhoPaysFeeV3 = dynamic(() => import("./v3/WhoPaysFeeV3"));
+const CoinShowcaseV3 = dynamic(() => import("./v3/CoinShowcaseV3"));
+const RefundsTrustV3 = dynamic(() => import("./v3/RefundsTrustV3"));
 const NumbersTrustBand = dynamic(() => import("./v3/NumbersTrustBand"));
 const LearnDocsCards = dynamic(() => import("./v3/LearnDocsCards"));
 const FAQCompact = dynamic(() => import("./v3/FAQCompact"));
@@ -67,9 +72,14 @@ const HomePage: FC = () => {
       <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
         <AudienceDoorsV3 />
       </Box>
+      <SolutionsGridV3 />
       <Box id="features" component="div" sx={{ scrollMarginTop: "88px" }}>
         <ProductFeatureCards />
       </Box>
+      <WaysToGetPaidV3 />
+      <WhoPaysFeeV3 />
+      <CoinShowcaseV3 />
+      <RefundsTrustV3 />
       <NumbersTrustBand />
       <LearnDocsCards />
       <FAQCompact />

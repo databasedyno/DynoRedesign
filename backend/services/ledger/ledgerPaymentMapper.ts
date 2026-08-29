@@ -28,6 +28,9 @@
 
 import { postDoubleEntry, PostResult } from "./ledgerService";
 import { cronLogger } from "../../utils/loggers";
+import sequelize from "../../utils/dbInstance";
+import { bool as envBool } from "../../utils/config";
+import { enqueueOutbox } from "../outbox/outboxService";
 
 export interface SettlementMapInput {
   paymentId: string;
@@ -72,7 +75,7 @@ export async function recordSettlementCompleted(input: SettlementMapInput): Prom
     return { batch_id: "", posted: false, entries_created: 0 };
   }
 
-  return postDoubleEntry({
+  const postInput = {
     payment_id: input.paymentId,
     company_id: input.companyId,
     journal_event: "settlement_sent",
@@ -80,7 +83,43 @@ export async function recordSettlementCompleted(input: SettlementMapInput): Prom
     tx_id: input.settlementTxId,
     metadata: { address: input.address, ...(input.metadata || {}) },
     lines,
-  });
+  };
+
+  // Tier-2 Item #10 (transactional outbox): when ENABLE_OUTBOX is on, write the
+  // ledger batch AND the `payment.settled` event in ONE transaction so a crash
+  // can never leave a settled ledger with no downstream event. Flag OFF
+  // (default) => original single-post behaviour, byte-for-byte unchanged.
+  if (envBool("ENABLE_OUTBOX")) {
+    return sequelize.transaction(async (t) => {
+      const result = await postDoubleEntry({ ...postInput, transaction: t });
+      if (result.posted) {
+        await enqueueOutbox(
+          {
+            aggregateType: "payment",
+            aggregateId: input.paymentId,
+            eventType: "payment.settled",
+            payload: {
+              paymentId: input.paymentId,
+              companyId: input.companyId,
+              currency: input.currency,
+              address: input.address,
+              settlementTxId: input.settlementTxId,
+              merchantAmount: merchantAmt,
+              adminAmount: adminAmt,
+              gasAmount: gasAmt,
+              ledgerBatchId: result.batch_id,
+            },
+            correlationId: input.settlementTxId || input.paymentId,
+            eventId: `settlement:${input.paymentId}:${input.settlementTxId || "no-tx"}`,
+          },
+          { transaction: t }
+        );
+      }
+      return result;
+    });
+  }
+
+  return postDoubleEntry(postInput);
 }
 
 export interface DetectionMapInput {
@@ -116,7 +155,7 @@ export async function recordPaymentDetected(input: DetectionMapInput): Promise<P
     return { batch_id: "", posted: false, entries_created: 0 };
   }
 
-  return postDoubleEntry({
+  const postInput = {
     payment_id: input.paymentId,
     company_id: input.companyId,
     journal_event: "payment_detected",
@@ -124,7 +163,40 @@ export async function recordPaymentDetected(input: DetectionMapInput): Promise<P
     tx_id: input.txId,
     metadata: { address: input.address, ...(input.metadata || {}) },
     lines,
-  });
+  };
+
+  // Tier-2 Item #10: atomic ledger-post + `payment.detected` outbox event when
+  // ENABLE_OUTBOX is on. Flag OFF (default) => original behaviour.
+  if (envBool("ENABLE_OUTBOX")) {
+    return sequelize.transaction(async (t) => {
+      const result = await postDoubleEntry({ ...postInput, transaction: t });
+      if (result.posted) {
+        await enqueueOutbox(
+          {
+            aggregateType: "payment",
+            aggregateId: input.paymentId,
+            eventType: "payment.detected",
+            payload: {
+              paymentId: input.paymentId,
+              companyId: input.companyId,
+              currency: input.currency,
+              address: input.address,
+              txId: input.txId,
+              merchantAmount: merchantAmt,
+              adminAmount: adminAmt,
+              ledgerBatchId: result.batch_id,
+            },
+            correlationId: input.txId || input.paymentId,
+            eventId: `detected:${input.paymentId}:${input.txId || "no-tx"}`,
+          },
+          { transaction: t }
+        );
+      }
+      return result;
+    });
+  }
+
+  return postDoubleEntry(postInput);
 }
 
 export default {
