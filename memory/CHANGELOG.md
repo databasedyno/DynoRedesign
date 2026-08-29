@@ -1,3 +1,40 @@
+# SESSION 2026-08-29 (fork) — Hostbay webhook RCA + fix (getCryptoTransaction pool addrs + payment.settled)
+CONTEXT: Hostbay (company_id=1, merchant hostbay@moxx.co, store webhook https://nomadly-email-ivr-production.up.railway.app/store/crypto-webhook)
+reported paid crypto orders not being credited. Diagnosed across BOTH systems using DigitalOcean App Platform
+logs (app `dynopay` id f86b27dc, service `dynoredesign`) and Railway logs (project "New Hosting" c23ac3d9,
+service Nomadly-EMAIL-IVR b9c4ad64) via the Railway GraphQL project token (`Project-Access-Token` header).
+
+ROOT CAUSE (two layered issues):
+- Example payment: 0f3a89a2-27bc-4729-898c-d03492854540, $69 USDT-ERC20, incoming tx 0x3cfa5acc…, pool addr
+  0xe8c0d38210490b7930f94cb3d5867a7850af7bfa, order refId 9fd5da6a (Premium Anti-Red 1-Week, lloyd-support.com).
+  DynoPay delivered payment.pending + payment.confirmed (both HTTP 200), settled on-chain (merchant tx 0xd57f5f…).
+- Nomadly log 17:11:15Z: "[Store] webhook: DynoPay re-verify failed … — NOT crediting". Hostbay re-verifies each
+  webhook by calling GET https://dynopay.com/api/user/getCryptoTransaction/{address} (runtime DYNO_PAY_BASE_URL is
+  dynopay.com; the pasted env showing dyno.up.railway.app was STALE — that URL is a dead Railway app, 404).
+  IP 162.220.232.99 in DO logs = Railway (Hostbay). That call returned HTTP 400.
+- Bug: getCryptoTransaction/:address pre-check (routes/merchantApiRouter.ts) only queried tbl_user_temp_address
+  (legacy). Merchant-pool payments live in tbl_merchant_temp_address → 0 rows → 400 "Please add valid address!"
+  → re-verify fails → order never credited. Secondary: DynoPay had stopped sending a terminal payment.settled
+  (April-2026 "redundant webhook" removal), so Hostbay only re-verified on payment.confirmed (before settlement
+  completed, when verify wouldn't return a completed status anyway).
+
+FIX (applied in pod, branch conflict_280826_1905 — NOT yet deployed to DO until Save to GitHub):
+- (A) routes/merchantApiRouter.ts getCryptoTransaction/:address pre-check now UNIONs tbl_user_temp_address +
+  tbl_merchant_temp_address so pool addresses resolve and route to the existing Redis-based verifyCryptoPayment
+  (returns status "confirmed" once PAYOUT_COMPLETE). VERIFIED live (read-only): pool addr → HTTP 200 waiting
+  (was 400); bogus addr → still 400.
+- (B) controller/payment/settlement/chainVerification.ts — restored terminal payment.settled merchant webhook at
+  the PAYOUT_COMPLETE point (replaces the 2026-04 skip), sent via deliverMerchantWebhook (outbox seam, event type
+  merchant.webhook = actually delivered), keeping the confirmed-webhook-sent-{paymentId} dedup so webhookProcessor.ts
+  does NOT double-send. This is the common completion point for webhook/pool-monitor/polling paths. Added import
+  of deliverMerchantWebhook. tsc --noEmit EXIT 0, backend restarted clean.
+
+STILL OPEN: (1) push/deploy to production (DO auto-deploys on push). (2) reconcile any PAST Hostbay orders paid
+on-chain but never credited (not yet done — needs user go-ahead). (3) Part B not E2E-tested (can't create real
+prod payments in SAFE MODE) — verified by tsc + runtime import + mirrors proven webhookProcessor path.
+DO log capture helper: /app/scripts/do_logs_capture.py ; Railway log helper: /app/scripts/railway_logs.py.
+
+
 # SESSION 2026-08-28 (pod 6fe4ee0c) — PART 2: email i18n gaps + localized blog head + /press page
 - (1) EMAIL I18N GAPS (`backend/scripts/email_i18n_gap_fill.py`, 42 keys x 6 locales):
   sendVolumeTierUpgradeEmail (accountEmails.ts) now fully t()-driven via merchant.volumeTierUpgrade.*

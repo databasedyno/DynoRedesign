@@ -1,3 +1,15 @@
+# HOSTBAY WEBHOOK / CREDITING FIX (2026-08-29 fork) — CODE DONE, DEPLOY PENDING
+- Problem: Hostbay crypto orders paid on-chain but never credited. RCA via DigitalOcean + Railway logs.
+- Root cause: DynoPay's merchant re-verify endpoint GET /api/user/getCryptoTransaction/:address returned HTTP 400
+  for merchant-pool addresses (pre-check queried only tbl_user_temp_address, not tbl_merchant_temp_address);
+  compounded by the April-2026 removal of the terminal payment.settled webhook.
+- Fix A: merchantApiRouter.ts pre-check now UNIONs both temp-address tables (VERIFIED live read-only: 200 vs old 400).
+- Fix B: chainVerification.ts restores terminal payment.settled at PAYOUT_COMPLETE via deliverMerchantWebhook,
+  dedup-guarded so webhookProcessor doesn't double-send. tsc clean, backend healthy.
+- Pending: deploy to prod (Save to GitHub → DO auto-deploy); optional reconciliation of past uncredited orders.
+- Details in CHANGELOG.md (this session, top entry).
+
+
 # SEO OVERHAUL + "PAGE APPEARS SMALL" RCA (2026-08-29 fork, pod 202ba772) — DONE (tsc FE+BE 0 errors, lint 0 errors, SSR-verified)
 
 ## 1. "Landing appears small then normal" — ROOT CAUSE: prod was on the PRE-FIX build

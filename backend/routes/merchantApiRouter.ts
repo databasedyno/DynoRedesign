@@ -1022,9 +1022,15 @@ router.get("/getCryptoTransaction/:address", legacyApiAuthMiddleware, asyncHandl
     return sendError(res, { status: 400, message: "Please add address!" });
   }
 
-  // Check if address exists in temp addresses
+  // Check if address exists in temp addresses. Merchant-pool payments store the
+  // receiving address in tbl_merchant_temp_address (not the legacy tbl_user_temp_address),
+  // so the verify endpoint must recognise BOTH tables — otherwise pool payments return
+  // 400 on re-verify even though the payment settled successfully.
   const addressExists = await sequelize.query<{ wallet_address: string }>(
-    `SELECT wallet_address FROM tbl_user_temp_address WHERE wallet_address = $1`,
+    `SELECT wallet_address FROM tbl_user_temp_address WHERE wallet_address = $1
+     UNION ALL
+     SELECT wallet_address FROM tbl_merchant_temp_address WHERE wallet_address = $1
+     LIMIT 1`,
     {
       bind: [address],
       type: QueryTypes.SELECT,

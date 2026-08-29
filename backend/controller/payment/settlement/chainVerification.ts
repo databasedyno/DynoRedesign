@@ -48,6 +48,7 @@ import { generatePaymentReceipt, getReceiptFilename } from "../../../services/pd
 import crypto from "crypto";
 import { safeDeleteSubscription } from "../../../helper/subscriptionHelpers";
 import { incrementAdminFee, incrementUserWallet, incrementCustomerWallet } from "../../../helper/walletHelpers";
+import { deliverMerchantWebhook } from "../../../services/outbox/merchantWebhookOutbox";
 
 import {
   userTempAddressModel,
@@ -1424,27 +1425,74 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         // so that fee-free volume is always tracked even when settlement fails/defers.
 
         if (webhook) {
-          // FIX (2026-04-02): Removed redundant payment.settled webhook.
-          // Merchant already receives payment.confirmed from webhookProcessor.ts when
-          // crypto is confirmed on-chain (before settlement). Sending payment.settled
-          // AGAIN after internal settlement is redundant — merchant doesn't need to know
-          // about internal wallet-to-wallet transfers.
-          // The settlement details (outgoing TX, fees, gas) are logged internally only.
-          cronLogger.info(`[cryptoVerification] Settlement complete — skipping payment.settled webhook (merchant already notified via payment.confirmed). ` +
-            `merchant_amount=${autoConvertEnabled ? originalUserAmount : userAmountToSend}, ` +
-            `total_fee=${autoConvertEnabled ? (adminAmountToSend - originalUserAmount) : adminAmountToSend}, ` +
-            `fee_payer=${tempData?.fee_payer || customerData?.fee_payer || 'company'}` +
-            `${autoConvertEnabled ? `, auto_convert=${autoConvertTargetCurrency}` : ''}`);
-          
-          // FIX (2026-04-12): Set dedup flag so webhookProcessor.ts doesn't send payment.settled again.
-          // The 2026-04-02 fix removed the settled webhook from here but forgot to signal
-          // webhookProcessor via the confirmed-webhook-sent-{paymentId} Redis key.
-          // Without this, webhookProcessor falls through to its own payment.settled send path.
-          const settledDedupPaymentId = tempData?.payment_id || tempData?.unique_tx_id || tempData?.ref || "unknown";
-          const settledDedupKey = `confirmed-webhook-sent-${settledDedupPaymentId}`;
-          await setRedisItem(settledDedupKey, { sent: true, sentAt: new Date().toISOString(), source: "cryptoVerification-skip" });
-          await setRedisTTL(settledDedupKey, 86400); // 24 hours
-          cronLogger.info(`[cryptoVerification] Set dedup key ${settledDedupKey} to prevent duplicate payment.settled from webhookProcessor`);
+          // Terminal merchant webhook: fire payment.settled AFTER on-chain settlement
+          // completes (PAYOUT_COMPLETE). Some merchant integrations only credit/fulfil an
+          // order on a terminal settled event and re-verify the payment via
+          // GET /api/user/getCryptoTransaction/:address — which only returns a completed
+          // status once settlement has finished. Emitting it here (the common completion
+          // point for the webhook, pool-monitor and polling paths) guarantees the merchant
+          // gets a terminal event and re-verifies at a point where the status is final.
+          const settledPaymentId = tempData?.payment_id || tempData?.unique_tx_id || tempData?.ref || "unknown";
+          const settledDedupKey = `confirmed-webhook-sent-${settledPaymentId}`;
+          const merchantAmountFinal = autoConvertEnabled ? originalUserAmount : userAmountToSend;
+          const totalFeeFinal = autoConvertEnabled ? (adminAmountToSend - originalUserAmount) : adminAmountToSend;
+
+          // Merge webhook routing from customerData + tempData (either may hold it).
+          const settledCustomerData: Record<string, unknown> = { ...(customerData || {}) };
+          if (!settledCustomerData.webhook_url && tempData?.webhook_url) settledCustomerData.webhook_url = tempData.webhook_url;
+          if (!settledCustomerData.callback_url && tempData?.callback_url) settledCustomerData.callback_url = tempData.callback_url;
+          if (!settledCustomerData.webhook_secret && tempData?.webhook_secret) settledCustomerData.webhook_secret = tempData.webhook_secret;
+          if (!settledCustomerData.company_id && tempData?.company_id) settledCustomerData.company_id = tempData.company_id;
+          if (!settledCustomerData.link_id && tempData?.link_id) settledCustomerData.link_id = tempData.link_id;
+
+          if (settledCustomerData.webhook_url || settledCustomerData.callback_url) {
+            const settledLinkId = settledCustomerData.link_id || tempData?.link_id || null;
+            const settledPaymentType = settledLinkId ? "payment_link" : "direct_api";
+
+            // Idempotency: set BEFORE sending. webhookProcessor.ts honours this same key
+            // (confirmed-webhook-sent-{paymentId}) so payment.settled is delivered exactly once
+            // regardless of which path (webhook / pool-monitor / polling) drove settlement.
+            await setRedisItem(settledDedupKey, { sent: true, sentAt: new Date().toISOString(), source: "cryptoVerification-settled" });
+            await setRedisTTL(settledDedupKey, 86400); // 24 hours
+
+            let settledMeta: unknown = settledCustomerData.meta_data ?? tempData?.meta_data ?? null;
+            if (typeof settledMeta === "string") { try { settledMeta = JSON.parse(settledMeta); } catch { /* keep raw */ } }
+
+            try {
+              const settledResult = await deliverMerchantWebhook(settledCustomerData, {
+                event: "payment.settled",
+                payment_type: settledPaymentType,
+                address,
+                txId: transactionId,
+                transaction_reference: transactionId,
+                amount: Number(totalAmountReceived),
+                currency: tempCurrency,
+                payment_id: settledPaymentId,
+                status: "settled",
+                payment_status: "settled",
+                base_amount: settledCustomerData.base_amount || tempData?.base_amount_usd || null,
+                base_currency: settledCustomerData.base_currency || "USD",
+                customer_name: settledCustomerData.customer_name || null,
+                customer_email: settledCustomerData.email || null,
+                description: settledCustomerData.description || null,
+                link_id: settledLinkId,
+                fee_payer: tempData?.fee_payer || settledCustomerData.fee_payer || "company",
+                merchant_amount: merchantAmountFinal,
+                admin_fee_amount: totalFeeFinal,
+                settlement_tx_id: outgoingMerchantTxHash,
+                meta_data: settledMeta,
+                ...(autoConvertEnabled ? { auto_convert_currency: autoConvertTargetCurrency } : {}),
+                created_at: new Date().toISOString(),
+                settled_at: new Date().toISOString(),
+              } as Record<string, unknown>);
+              cronLogger.info(`[cryptoVerification] payment.settled webhook ${settledResult?.success ? "delivered" : "attempted"} (mode=${settledResult?.mode || "n/a"}) for ${settledPaymentId} — merchant_amount=${merchantAmountFinal}, fee=${totalFeeFinal}, settlement_tx=${outgoingMerchantTxHash || "N/A"}`);
+            } catch (settledErr) {
+              // A webhook must never break payment processing.
+              cronLogger.error(`[cryptoVerification] payment.settled webhook error for ${settledPaymentId}: ${(settledErr as Error).message}`);
+            }
+          } else {
+            cronLogger.info(`[cryptoVerification] Settlement complete — no merchant webhook_url configured for ${settledPaymentId}, skipping payment.settled`);
+          }
         } else {
           let resData;
           if (customerData?.redirect_uri) {
