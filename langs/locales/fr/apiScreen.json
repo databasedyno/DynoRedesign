@@ -77,6 +77,8 @@
     "enable": "Activer"
   },
   "apiKeyTitle": "Clé API {{currency}}",
+  "apiKeyTitleLive": "Clé API en direct",
+  "apiKeyTitleTest": "Clé API de test",
   "keys": {
     "liveUnlockHint": "Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre premier portefeuille sur cette entreprise.",
     "testAutoCreatedBadge": "Créée automatiquement · Sandbox",

@@ -39,6 +39,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import useSWR from 'swr'
 import { useTranslation } from 'react-i18next'
 import {
   Alert,
@@ -155,6 +156,21 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const notif = usePaymentNotification()
   const notifiedRef = useRef(false)
 
+  // ── Phase C: single server-state (SWR) data layer — flag-gated ─────────
+  // Default OFF → the legacy manual-fetch + setInterval paths below run
+  // UNCHANGED (zero production risk). Opt in per-visit with `?swr=1` (easy
+  // real-payment validation, no rebuild) or globally via
+  // NEXT_PUBLIC_CHECKOUT_SWR=true. Both paths share the SAME result handlers
+  // (applyMeta / applyVerifyResult) so behaviour is identical either way.
+  const SWR_ON = useMemo(() => {
+    const envOn = String(process.env.NEXT_PUBLIC_CHECKOUT_SWR || '').toLowerCase() === 'true'
+    let queryOn = false
+    if (typeof window !== 'undefined') {
+      try { queryOn = new URLSearchParams(window.location.search).get('swr') === '1' } catch { /* ignore */ }
+    }
+    return envOn || queryOn
+  }, [])
+
   useEffect(() => {
     mountedRef.current = true
     return () => {
@@ -210,7 +226,48 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   }, [phase])
 
   // ─── Step 1: fetch meta via /pay/getData ──────────────────────────
+  // Shared result handler — BOTH the legacy manual fetch AND the SWR path
+  // funnel through this, so meta processing is byte-identical either way.
+  const applyMeta = useCallback((r: Awaited<ReturnType<typeof api>>) => {
+    if (!mountedRef.current) return
+    if (!r.ok || !r.data) {
+      setErrorMsg(r.message || 'Failed to load payment.')
+      setPhase('error')
+      return
+    }
+    const raw = r.data
+    const available: string[] = Array.isArray(raw.available_currencies)
+      ? raw.available_currencies
+      : Array.isArray(raw.allowedModes)
+        ? String(raw.allowedModes).split(',')
+        : (typeof raw.allowedModes === 'string' ? String(raw.allowedModes).split(',') : [])
+    const filtered = available.map((s) => s.trim()).filter(Boolean).filter((c) => CRYPTO_INFO[c])
+    setMeta({
+      amount: Number(raw.amount) || 0,
+      base_currency: raw.base_currency || 'USD',
+      fee_payer: raw.fee_payer || raw.fee_info?.fee_payer || 'company',
+      tax_amount: Number(raw.tax_info?.tax_amount ?? raw.fee_info?.tax_amount ?? 0) || 0,
+      estimated_fee: Number(raw.fee_info?.estimated_processing_fee ?? 0) || 0,
+      available_currencies: filtered,
+      token: String(raw.token || ''),
+      link_type: raw.link_type,
+      description: raw.description || null,
+      order_reference: raw.order_reference || raw.reference || null,
+      customer_name: raw.customer_name || null,
+      contribution: raw.contribution || null,
+      // Backend sends { company_name, company_logo } — normalise to .name so
+      // the headline can show "Pay <company>" instead of "Pay Merchant".
+      merchant: (() => {
+        const m = raw.merchant || raw.merchant_info || null
+        return m ? { ...m, name: m.name || m.company_name || null } : null
+      })(),
+    })
+    setPhase('currency_select')
+  }, [])
+
+  // Legacy path (flag OFF): manual fetch on mount / when `d` changes.
   useEffect(() => {
+    if (SWR_ON) return // SWR drives the meta load — see metaSwr below.
     let cancelled = false
     ;(async () => {
       setPhase('loading_meta')
@@ -221,42 +278,26 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
 
       const r = await api('/pay/getData', { data: d, language: 'en' }, undefined)
       if (cancelled || !mountedRef.current) return
-      if (!r.ok || !r.data) {
-        setErrorMsg(r.message || 'Failed to load payment.')
-        setPhase('error')
-        return
-      }
-      const raw = r.data
-      const available: string[] = Array.isArray(raw.available_currencies)
-        ? raw.available_currencies
-        : Array.isArray(raw.allowedModes)
-          ? String(raw.allowedModes).split(',')
-          : (typeof raw.allowedModes === 'string' ? String(raw.allowedModes).split(',') : [])
-      const filtered = available.map((s) => s.trim()).filter(Boolean).filter((c) => CRYPTO_INFO[c])
-      setMeta({
-        amount: Number(raw.amount) || 0,
-        base_currency: raw.base_currency || 'USD',
-        fee_payer: raw.fee_payer || raw.fee_info?.fee_payer || 'company',
-        tax_amount: Number(raw.tax_info?.tax_amount ?? raw.fee_info?.tax_amount ?? 0) || 0,
-        estimated_fee: Number(raw.fee_info?.estimated_processing_fee ?? 0) || 0,
-        available_currencies: filtered,
-        token: String(raw.token || ''),
-        link_type: raw.link_type,
-        description: raw.description || null,
-        order_reference: raw.order_reference || raw.reference || null,
-        customer_name: raw.customer_name || null,
-        contribution: raw.contribution || null,
-        // Backend sends { company_name, company_logo } — normalise to .name so
-        // the headline can show "Pay <company>" instead of "Pay Merchant".
-        merchant: (() => {
-          const m = raw.merchant || raw.merchant_info || null
-          return m ? { ...m, name: m.name || m.company_name || null } : null
-        })(),
-      })
-      setPhase('currency_select')
+      applyMeta(r)
     })()
     return () => { cancelled = true }
-  }, [d])
+  }, [d, SWR_ON, applyMeta])
+
+  // Phase C (flag ON): single server-state layer for the meta load. The key
+  // is null when the flag is off, so the fetcher never runs on the legacy path.
+  const metaSwr = useSWR(
+    SWR_ON ? ['checkout/getData', d] : null,
+    async () => {
+      try { if (typeof window !== 'undefined') localStorage.removeItem('token') } catch { /* ignore */ }
+      return api('/pay/getData', { data: d, language: 'en' }, undefined)
+    },
+    { revalidateOnFocus: false, revalidateOnReconnect: false, revalidateIfStale: false, shouldRetryOnError: false },
+  )
+  useEffect(() => {
+    if (!SWR_ON) return
+    if (metaSwr.data) applyMeta(metaSwr.data)
+    else if (metaSwr.error) { setErrorMsg('Failed to load payment.'); setPhase('error') }
+  }, [SWR_ON, metaSwr.data, metaSwr.error, applyMeta])
 
   // ─── Networks + currencies derived from meta ──────────────────────
   // Build a UNIQUE list of networks that have at least one supported currency
@@ -448,61 +489,90 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   }, [selectedCurrency])
 
   // ─── Step 3: poll /pay/verifyCryptoPayment ────────────────────────
+  // Shared status handler — BOTH the legacy setInterval poll AND the SWR poll
+  // funnel through this, so settlement processing is byte-identical either way.
+  const applyVerifyResult = useCallback((r: Awaited<ReturnType<typeof api>>) => {
+    if (!mountedRef.current) return
+    if (!r.ok || !r.data) return
+    if (!cryptoInfo || !meta_) return
+    const s = String(r.data.status || 'waiting')
+    const d_: any = r.data
+    if (d_.remaining_seconds !== undefined && d_.remaining_seconds > 0) {
+      setTimeLeft(Number(d_.remaining_seconds))
+      setTotalSeconds((prev) => Math.max(prev, Number(d_.remaining_seconds)))
+    }
+    // Live "detected" signal: backend 'pending' = tx seen, awaiting
+    // confirmation; 'underpaid' also means funds were received (partial).
+    if (s === 'pending') {
+      setDetected(true)
+    } else if (s === 'underpaid') {
+      setDetected(true)
+      setPhase('underpaid')
+      setPartial({
+        paidAmount: Number(d_.paidAmount || 0),
+        remainingAmount: Number(d_.remainingAmount || 0),
+        remainingAmountUsd: Number(d_.remainingAmountUsd || 0),
+        currency: String(d_.currency || cryptoInfo.crypto_base),
+        baseCurrency: String(d_.baseCurrency || meta_.base_currency),
+      })
+    } else if (s === 'waiting') {
+      setDetected(false)
+    }
+    if (s === 'confirmed' || s === 'overpaid') {
+      setConfirmedAmount({
+        crypto: Number(d_.paidAmount || d_.expectedAmount || cryptoInfo.expected_amount),
+        fiat: Number(d_.paidAmountUsd || meta_.amount),
+        fiatCurrency: String(d_.baseCurrency || meta_.base_currency),
+      })
+      setPhase('confirmed')
+      if (pollRef.current) clearInterval(pollRef.current)
+      if (timerRef.current) clearInterval(timerRef.current)
+      if (onSuccess) { try { onSuccess() } catch { /* ignore */ } }
+      return
+    }
+    if (s === 'expired') {
+      setPhase('expired')
+      if (pollRef.current) clearInterval(pollRef.current)
+      if (timerRef.current) clearInterval(timerRef.current)
+      return
+    }
+  }, [cryptoInfo, meta_, onSuccess])
+
+  // Legacy path (flag OFF): setInterval polling every 10s.
   useEffect(() => {
+    if (SWR_ON) return // SWR drives the verify poll — see verifySwr below.
     if (phase !== 'awaiting_payment' && phase !== 'underpaid') return
     if (!cryptoInfo?.address || !meta_?.token) return
 
     const poll = async () => {
       const r = await api('/pay/verifyCryptoPayment', { address: cryptoInfo.address }, meta_.token)
-      if (!mountedRef.current) return
-      if (!r.ok || !r.data) return
-      const s = String(r.data.status || 'waiting')
-      const d_: any = r.data
-      if (d_.remaining_seconds !== undefined && d_.remaining_seconds > 0) {
-        setTimeLeft(Number(d_.remaining_seconds))
-        setTotalSeconds((prev) => Math.max(prev, Number(d_.remaining_seconds)))
-      }
-      // Live "detected" signal: backend 'pending' = tx seen, awaiting
-      // confirmation; 'underpaid' also means funds were received (partial).
-      if (s === 'pending') {
-        setDetected(true)
-      } else if (s === 'underpaid') {
-        setDetected(true)
-        setPhase('underpaid')
-        setPartial({
-          paidAmount: Number(d_.paidAmount || 0),
-          remainingAmount: Number(d_.remainingAmount || 0),
-          remainingAmountUsd: Number(d_.remainingAmountUsd || 0),
-          currency: String(d_.currency || cryptoInfo.crypto_base),
-          baseCurrency: String(d_.baseCurrency || meta_.base_currency),
-        })
-      } else if (s === 'waiting') {
-        setDetected(false)
-      }
-      if (s === 'confirmed' || s === 'overpaid') {
-        setConfirmedAmount({
-          crypto: Number(d_.paidAmount || d_.expectedAmount || cryptoInfo.expected_amount),
-          fiat: Number(d_.paidAmountUsd || meta_.amount),
-          fiatCurrency: String(d_.baseCurrency || meta_.base_currency),
-        })
-        setPhase('confirmed')
-        if (pollRef.current) clearInterval(pollRef.current)
-        if (timerRef.current) clearInterval(timerRef.current)
-        if (onSuccess) { try { onSuccess() } catch { /* ignore */ } }
-        return
-      }
-      if (s === 'expired') {
-        setPhase('expired')
-        if (pollRef.current) clearInterval(pollRef.current)
-        if (timerRef.current) clearInterval(timerRef.current)
-        return
-      }
+      applyVerifyResult(r)
     }
     poll()
     pollRef.current = setInterval(poll, 10_000)
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, cryptoInfo, meta_])
+  }, [phase, cryptoInfo, meta_, SWR_ON])
+
+  // Phase C (flag ON): SWR drives the verify polling with the SAME 10s cadence.
+  // The key nulls out the moment we leave awaiting/underpaid (or lose the
+  // address/token) so SWR stops automatically on confirmed / expired — no
+  // manual clearInterval needed. refreshWhenHidden keeps polling while the
+  // buyer is on another tab (matching the legacy setInterval + the notify UX).
+  const verifyActive =
+    SWR_ON &&
+    (phase === 'awaiting_payment' || phase === 'underpaid') &&
+    !!cryptoInfo?.address &&
+    !!meta_?.token
+  const verifySwr = useSWR(
+    verifyActive ? ['checkout/verify', cryptoInfo!.address, meta_!.token] : null,
+    async () => api('/pay/verifyCryptoPayment', { address: cryptoInfo!.address }, meta_!.token),
+    { refreshInterval: 10_000, refreshWhenHidden: true, revalidateOnFocus: false, shouldRetryOnError: false },
+  )
+  useEffect(() => {
+    if (!SWR_ON) return
+    if (verifySwr.data) applyVerifyResult(verifySwr.data)
+  }, [SWR_ON, verifySwr.data, applyVerifyResult])
 
   // ─── Timer countdown ──────────────────────────────────────────────
   useEffect(() => {

@@ -137,13 +137,10 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
   const { t } = useTranslation("apiScreen");
   const dispatch = useDispatch();
   const [showApiKey, setShowApiKey] = useState(false);
-  const [showAdminToken, setShowAdminToken] = useState(false);
   const isMobile = useIsMobile("md");
   const theme = useTheme();
 
   const apiKey: string = apiRow?.apiKey || "";
-  const adminToken: string =
-    (apiRow as { admin_token?: string })?.admin_token || apiRow?.adminToken || "";
   const [baseCurrency, setBaseCurrency] = useState<string>(apiRow?.base_currency || "USD");
   const [savingCurrency, setSavingCurrency] = useState(false);
   const [currencySaved, setCurrencySaved] = useState(false);
@@ -230,11 +227,6 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
     ? apiKey
     : apiKey
       ? stringShorten(apiKey, 12, 4)
-      : "";
-  const displayAdminToken = showAdminToken
-    ? adminToken
-    : adminToken
-      ? stringShorten(adminToken, 10, 5)
       : "";
 
   return (
@@ -356,6 +348,22 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
         </Box>
       </ApiKeyCardSubTitle>
 
+      <Typography
+        data-testid="api-base-currency-helper"
+        sx={{
+          fontSize: 12,
+          lineHeight: 1.5,
+          color: theme.palette.text.secondary,
+          fontFamily: "var(--font-sans), sans-serif",
+          mt: 0.5,
+        }}
+      >
+        {t("currency.baseCurrencyHelper", {
+          defaultValue:
+            "The currency you price in — buyers still pay in Bitcoin, Ethereum or stablecoins.",
+        })}
+      </Typography>
+
       <ApiKeyCardBody sx={{ pt: isMobile ? "16px" : "18px" }}>
         <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
           <InputField
@@ -386,45 +394,6 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
           <ApiKeyViewButton
             size="small"
             onClick={() => setShowApiKey(!showApiKey)}
-          >
-            <Image
-              src={EyeIcon.src}
-              alt={t("icons.eyeAlt")}
-              width={20}
-              height={14}
-              draggable={false}
-            />
-          </ApiKeyViewButton>
-        </ApiKeyCardTopRow>
-        <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
-          <InputField
-            label={t("generate.adminToken")}
-            value={displayAdminToken}
-            readOnly
-            sx={{
-              width: "100%",
-              "& .label": {
-                fontSize: "13px",
-                lineHeight: "16px",
-                fontFamily: "var(--font-sans)",
-                fontWeight: 500,
-                color: theme.palette.text.secondary,
-              },
-            }}
-          />
-
-          <ApiKeyCopyButton onClick={() => onCopy(adminToken)}>
-            <Image
-              src={CopyIcon.src}
-              alt={t("icons.copyAlt")}
-              width={14}
-              height={14}
-              draggable={false}
-            />
-          </ApiKeyCopyButton>
-          <ApiKeyViewButton
-            size="small"
-            onClick={() => setShowAdminToken(!showAdminToken)}
           >
             <Image
               src={EyeIcon.src}
@@ -1535,7 +1504,17 @@ const ApiKeysPage = ({
               }}
             >
               <ApiKeyCard
-                title={t("apiKeyTitle", { currency: (api.base_currency || "USD").toUpperCase() })}
+                title={t(
+                  (api as { environment?: string })?.environment === "development"
+                    ? "apiKeyTitleTest"
+                    : "apiKeyTitleLive",
+                  {
+                    defaultValue:
+                      (api as { environment?: string })?.environment === "development"
+                        ? "Test API Key"
+                        : "Live API Key",
+                  },
+                )}
                 apiRow={api}
                 onCopy={handleCopy}
                 onDelete={requestDelete}

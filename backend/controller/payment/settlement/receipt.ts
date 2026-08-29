@@ -54,7 +54,6 @@ import {
   merchantTempAddressModel,
   paymentLinkModel,
 } from "../../../models";
-import tatumApi from "../../../apis/tatumApi";
 import { generateQRCodeWithLogo } from "../../../utils/qrCodeWithLogo";
 import { getAdminWalletAddress } from "../../../utils/adminUtils";
 import {

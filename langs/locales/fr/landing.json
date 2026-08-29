@@ -109,7 +109,7 @@
       "headline1": "Acceptez les paiements crypto.",
       "headlineHighlight": "Encaissez",
       "headline2": "à votre façon.",
-      "body": "Acceptez Bitcoin, Ethereum et stablecoins via un checkout hébergé ou un lien de paiement. Gardez la crypto d'origine ou <b>convertissez automatiquement en USDC ou USDT</b> — à vous de choisir — et recevez le règlement sur un wallet que vous contrôlez. Aucune rétrofacturation. <b>1,5 % + 1 $ par paiement, jusqu'à 0,5 % à mesure que votre volume augmente.</b>",
+      "body": "Acceptez Bitcoin, Ethereum et stablecoins via un checkout hébergé ou un lien de paiement. Gardez la crypto d'origine ou <b>convertissez automatiquement en USDC ou USDT</b> — à vous de choisir — et recevez le règlement sur un wallet que vous contrôlez. Aucune rétrofacturation. <b>Frais à partir de 1,5 % par paiement, jusqu'à 0,5 % à mesure que votre volume augmente.</b>",
       "claimBtn": "Réserver",
       "chooseHandle": "Choisissez votre pseudo de créateur",
       "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
@@ -118,7 +118,7 @@
       "livePill": "EN DIRECT",
       "sendTipLabel": "Envoyer un pourboire",
       "sendTipBtn": "Envoyer",
-      "metaSettle": "Règlement dans la crypto de votre choix · <b>1,5 % + 1 $, jusqu'à 0,5 % à grande échelle</b>",
+      "metaSettle": "Règlement dans la crypto de votre choix · <b>frais à partir de 1,5 %, jusqu'à 0,5 % à grande échelle</b>",
       "handleAvailable": "est disponible",
       "handleTaken": "Ce pseudo n'est pas disponible — essayez un autre.",
       "primaryCta": "Commencer à encaisser",
@@ -144,7 +144,7 @@
       },
       "step3": {
         "title": "Ça arrive dans votre wallet.",
-        "body": "Le règlement va directement à l'adresse du wallet que vous contrôlez — jamais détenu par nous. 1,5 % + 1 $ pour commencer, jusqu'à 0,5 % à grande échelle. Aucun frais mensuel, aucune rétrofacturation."
+        "body": "Le règlement va directement à l'adresse du wallet que vous contrôlez — jamais détenu par nous. 1,5 % pour commencer, jusqu'à 0,5 % à grande échelle. Aucun frais mensuel, aucune rétrofacturation."
       },
       "mock": {
         "awaitingPayment": "En attente de paiement",
@@ -223,9 +223,9 @@
     },
     "audience": {
       "eyebrow": "[ Pour qui ? ]",
-      "headline1": "Un wallet.",
-      "headline2": "Tous les publics.",
-      "body": "Choisissez votre porte — marchands, créateurs, collecteurs de fonds, développeurs. Les mêmes rails crypto, le même portefeuille, les mêmes frais.",
+      "headline1": "Un checkout crypto.",
+      "headline2": "Tous les types d'activité.",
+      "body": "Marchands, créateurs, collecteurs de fonds, développeurs — choisissez votre porte. Le même checkout hébergé et les mêmes liens de paiement, le même wallet que vous contrôlez, les mêmes frais simples.",
       "merchants": {
         "tag": "01 · Marchands",
         "title": "Vendez en crypto.",
@@ -271,7 +271,7 @@
       "q2": "Où atterrissent les fonds ?",
       "a2": "Directement à une adresse de wallet que vous contrôlez — pas gardée par nous. Dynopay est non-custodial. Chaque règlement est un vrai transfert on-chain à votre adresse.",
       "q3": "Combien ça coûte ?",
-      "a3": "Chaque paiement correspond à un pourcentage plus 1 $ fixe. Le pourcentage va de 1,5 % (Starter) à 0,5 % (Enterprise), selon votre volume réglé cumulé, et votre premier paiement est sans frais. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation. Voir la page Tarifs pour le tableau complet.",
+      "a3": "Chaque paiement coûte un simple pourcentage — de 1,5 % (Starter) à 0,5 % (Enterprise), selon votre volume réglé cumulé — et votre premier paiement est sans frais. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation. Voir la page Tarifs pour le détail complet.",
       "q4": "Quelle est la vitesse de règlement ?",
       "a4": "Cela dépend du réseau. Les rails stablecoins et les chaînes rapides (TRC-20, Polygon, L2) confirment généralement en une à deux minutes ; Bitcoin et Ethereum sur le mainnet peuvent être plus longs en période de congestion. Votre tableau de bord affiche le statut en temps réel — et si vous avez activé la conversion automatique, les fonds arrivent dans la stablecoin de votre choix dès la confirmation ; sinon, vous conservez la crypto envoyée par l'acheteur.",
       "q5": "Vous gérez fiat, remboursements et abonnements ?",
@@ -297,7 +297,7 @@
       "fees": {
         "tag": "Tarifs",
         "title": "Voir les tarifs",
-        "desc": "1,5 % + 1 $ par paiement, jusqu'à 0,5 % à mesure que vous grandissez. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation — jamais."
+        "desc": "À partir de 1,5 % par paiement, jusqu'à 0,5 % à mesure que vous grandissez. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation — jamais."
       },
       "exploreBtn": "Explorer"
     },
@@ -371,9 +371,9 @@
       "exampleLabel": "Sur un paiement de $100",
       "customerPaysLabel": "Le client paie",
       "youReceiveLabel": "Vous recevez",
-      "merchantNote": "Vous couvrez les frais de 1,5 % + $1, donc le prix que voit votre client reste exactement $100.",
+      "merchantNote": "Vous couvrez les frais, donc le prix que voit votre client reste exactement $100.",
       "customerNote": "Les frais s'ajoutent au-dessus : le client les paie et vous gardez vos $100 entiers.",
-      "feeFootnote": "Exemple au tarif Starter de 1,5 % + $1 par paiement. Votre taux descend à 0,5 % à mesure que le volume augmente."
+      "feeFootnote": "Exemple au tarif Starter, tous les frais par paiement inclus — voir la page Tarifs pour le détail complet. Votre taux descend à 0,5 % à mesure que le volume augmente."
     },
     "coins": {
       "eyebrow": "[ Cryptos et tokens ]",
@@ -843,7 +843,7 @@
     "heroTitle": "Tout ce qu'il vous faut pour écrire sur Dynopay.",
     "heroBody": "Logos, chiffres clés et une description prête à l'emploi — libres de republication dans vos articles, tests et annuaires. Besoin d'autre chose ? Notre équipe est à un e-mail.",
     "boilerplateTitle": "Description type",
-    "boilerplateBody": "Dynopay est une passerelle de paiement en cryptomonnaies non-dépositaire fondée en 2024. Les marchands l'utilisent pour vendre des produits, recevoir des pourboires et mener des campagnes de collecte — ou pour intégrer les paiements via API — en acceptant Bitcoin, Ethereum, stablecoins et 15 cryptos et tokens sur 9 blockchains. Les paiements sont réglés directement sur un wallet que le marchand contrôle, avec conversion automatique optionnelle en USDT/USDC. Les frais sont de 1,5 % + 1 $ par paiement, jusqu'à 0,5 % à grande échelle, sans rétrofacturation.",
+    "boilerplateBody": "Dynopay est une passerelle de paiement en cryptomonnaies non-dépositaire fondée en 2024. Les marchands l'utilisent pour vendre des produits, recevoir des pourboires et mener des campagnes de collecte — ou pour intégrer les paiements via API — en acceptant Bitcoin, Ethereum, stablecoins et 15 cryptos et tokens sur 9 blockchains. Les paiements sont réglés directement sur un wallet que le marchand contrôle, avec conversion automatique optionnelle en USDT/USDC. Les frais démarrent à 1,5 % par paiement, jusqu'à 0,5 % à grande échelle, sans rétrofacturation.",
     "factsTitle": "Chiffres clés",
     "facts": {
       "founded": {
@@ -856,7 +856,7 @@
       },
       "pricing": {
         "label": "Tarifs",
-        "value": "1,5 % + 1 $ par transaction, jusqu'à 0,5 % à grande échelle — aucun frais mensuel"
+        "value": "À partir de 1,5 % par transaction, jusqu'à 0,5 % à grande échelle — aucun frais mensuel"
       },
       "networks": {
         "label": "Réseaux",

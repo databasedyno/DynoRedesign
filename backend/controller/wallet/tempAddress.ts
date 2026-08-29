@@ -60,7 +60,7 @@ import {
   userWalletAddressModel,
   userTempAddressModel,
 } from "../../models/userModels";
-import tatumApi from "../../apis/tatumApi";
+import { tatumClient } from "../../integrations/tatum/TatumClient";
 import blockchairApi from "../../apis/blockchairApi";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import mailTransporter from "../../utils/mailTransporter";
@@ -136,9 +136,9 @@ export const getTempAddressBatches = async (
   let addressBalance;
 
   if (currency === "TRX") {
-    addressBalance = tatumApi.validateTronAddress(address);
+    addressBalance = tatumClient.validateTronAddress(address);
   } else {
-    addressBalance = await tatumApi.getAddressBalance(
+    addressBalance = await tatumClient.getAddressBalance(
       userWallet.dataValues?.wallet_address,
       userWallet.dataValues?.wallet_type
     );
@@ -185,11 +185,11 @@ export const getTempAddressBatches = async (
   if (["USDT-TRC20", "USDT-ERC20", "ETH", "TRX"].indexOf(currency) === -1) {
     for (let address of tempAddresses) {
       if (currency === "TRX") {
-        addressBalance = tatumApi.validateTronAddress(
+        addressBalance = tatumClient.validateTronAddress(
           address.dataValues.wallet_address
         );
       } else {
-        addressBalance = await tatumApi.getAddressBalance(
+        addressBalance = await tatumClient.getAddressBalance(
           address.dataValues?.wallet_address,
           address.dataValues?.wallet_type
         );

@@ -61,7 +61,7 @@ import {
   userWalletAddressModel,
   userTempAddressModel,
 } from "../../models/userModels";
-import tatumApi from "../../apis/tatumApi";
+import { tatumClient } from "../../integrations/tatum/TatumClient";
 import blockchairApi from "../../apis/blockchairApi";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import mailTransporter from "../../utils/mailTransporter";
@@ -127,7 +127,7 @@ export const withdrawAssets = async (req: express.Request, res: express.Response
           walletData?.dataValues.wallet_type
         ) !== -1
       ) {
-        const tempFees = await tatumApi.batchFeeEstimation({
+        const tempFees = await tatumClient.batchFeeEstimation({
           currency,
           fromAddresses: fromAddress,
           toAddresses: toAddress,
@@ -173,7 +173,7 @@ export const withdrawAssets = async (req: express.Request, res: express.Response
 
       // Transfer assets from temporary addresses to the user's address
       const transactionDetails =
-        await tatumApi.assetBatchAddressesToOtherAddress({
+        await tatumClient.assetBatchAddressesToOtherAddress({
           currency: currency,
           fromAddress: fromAddress,
           toAddress: toAddress,

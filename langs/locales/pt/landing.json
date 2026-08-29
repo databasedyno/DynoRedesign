@@ -109,7 +109,7 @@
       "headline1": "Aceite pagamentos em cripto.",
       "headlineHighlight": "Receba",
       "headline2": "do seu jeito.",
-      "body": "Aceite Bitcoin, Ethereum e stablecoins num checkout hospedado ou link de pagamento. Fique com a moeda original ou <b>converta automaticamente para USDC ou USDT</b> — você escolhe — e receba numa carteira que você controla. Sem estornos. <b>1,5% + $1 por pagamento, caindo para até 0,5% conforme seu volume cresce.</b>",
+      "body": "Aceite Bitcoin, Ethereum e stablecoins num checkout hospedado ou link de pagamento. Fique com a moeda original ou <b>converta automaticamente para USDC ou USDT</b> — você escolhe — e receba numa carteira que você controla. Sem estornos. <b>Taxas a partir de 1,5% por pagamento, caindo para até 0,5% conforme seu volume cresce.</b>",
       "claimBtn": "Reservar",
       "chooseHandle": "Escolha o seu nome de criador",
       "rewardBadge": "É novo por aqui? Isentamos a nossa <b>taxa de plataforma</b> no seu primeiro pagamento.",
@@ -118,7 +118,7 @@
       "livePill": "AO VIVO",
       "sendTipLabel": "Enviar uma gorjeta",
       "sendTipBtn": "Enviar gorjeta",
-      "metaSettle": "Liquida na moeda que você escolher · <b>1,5% + $1, até 0,5% em escala</b>",
+      "metaSettle": "Liquida na moeda que você escolher · <b>taxas a partir de 1,5%, até 0,5% em escala</b>",
       "handleAvailable": "está disponível",
       "handleTaken": "Esse identificador não está disponível — tente outro.",
       "primaryCta": "Comece a aceitar pagamentos",
@@ -144,7 +144,7 @@
       },
       "step3": {
         "title": "Chega à sua carteira.",
-        "body": "O pagamento vai direto para o endereço da carteira que você controla — nunca sob nossa custódia. 1,5% + $1 para começar, até 0,5% em escala. Sem taxa mensal, sem estornos."
+        "body": "O pagamento vai direto para o endereço da carteira que você controla — nunca sob nossa custódia. 1,5% para começar, até 0,5% em escala. Sem taxa mensal, sem estornos."
       },
       "mock": {
         "awaitingPayment": "A aguardar pagamento",
@@ -223,9 +223,9 @@
     },
     "audience": {
       "eyebrow": "[ Para quem é isto? ]",
-      "headline1": "Uma carteira.",
-      "headline2": "Todos os públicos.",
-      "body": "Escolha sua porta — lojistas, criadores, arrecadadores, desenvolvedores. Os mesmos trilhos cripto, a mesma carteira, as mesmas taxas.",
+      "headline1": "Um checkout cripto.",
+      "headline2": "Todo tipo de negócio.",
+      "body": "Lojistas, criadores, arrecadadores, desenvolvedores — escolha sua porta. O mesmo checkout hospedado e links de pagamento, a mesma carteira que você controla, a mesma taxa simples.",
       "merchants": {
         "tag": "01 · Comerciantes",
         "title": "Venda produtos em cripto.",
@@ -271,7 +271,7 @@
       "q2": "Onde chegam os fundos?",
       "a2": "Diretamente num endereço de carteira que controla — não guardado por nós. A Dynopay é sem custódia. Cada liquidação é uma transferência on-chain real para o seu endereço.",
       "q3": "Quanto custa?",
-      "a3": "Cada pagamento é uma porcentagem mais $1 fixo. A porcentagem vai de 1,5% (Starter) até 0,5% (Enterprise), com base no seu volume liquidado total, e seu primeiro pagamento é sem taxa. Sem taxa mensal, sem taxa de configuração, sem estornos. Veja a página de Taxas para a tabela completa.",
+      "a3": "Cada pagamento custa uma porcentagem simples — de 1,5% (Starter) até 0,5% (Enterprise), com base no seu volume liquidado total — e seu primeiro pagamento é sem taxa. Sem taxa mensal, sem taxa de configuração, sem estornos. Veja a página de Taxas para os detalhes completos.",
       "q4": "Qual a velocidade de liquidação?",
       "a4": "Depende da rede. Redes de stablecoin e cadeias rápidas (TRC-20, Polygon, L2) costumam confirmar em um ou dois minutos; Bitcoin e Ethereum na mainnet podem demorar mais quando estão congestionados. Seu painel mostra o status da transação em tempo real e, se você ativou a conversão automática, os fundos chegam na stablecoin escolhida assim que o pagamento é confirmado; caso contrário, você fica com a moeda que o comprador enviou.",
       "q5": "Suportam fiat, reembolsos ou subscrições?",
@@ -297,7 +297,7 @@
       "fees": {
         "tag": "Preços",
         "title": "Ver as comissões",
-        "desc": "1,5% + $1 por pagamento, até 0,5% conforme você cresce. Sem taxa mensal, sem taxa de configuração, sem estornos — nunca."
+        "desc": "A partir de 1,5% por pagamento, até 0,5% conforme você cresce. Sem taxa mensal, sem taxa de configuração, sem estornos — nunca."
       },
       "exploreBtn": "Explorar"
     },
@@ -371,9 +371,9 @@
       "exampleLabel": "Em um pagamento de $100",
       "customerPaysLabel": "O cliente paga",
       "youReceiveLabel": "Você recebe",
-      "merchantNote": "Você cobre a taxa de 1,5% + $1, então o preço que o cliente vê continua exatamente $100.",
+      "merchantNote": "Você cobre a taxa, então o preço que o cliente vê continua exatamente $100.",
       "customerNote": "A taxa é somada por cima: o cliente paga e você fica com os seus $100 completos.",
-      "feeFootnote": "Exemplo com a tarifa Starter de 1,5% + $1 por pagamento. Sua tarifa cai para 0,5% conforme você cresce."
+      "feeFootnote": "Exemplo com a tarifa Starter, com todas as taxas por pagamento incluídas — veja a página de Taxas para os detalhes completos. Sua tarifa cai para 0,5% conforme seu volume cresce."
     },
     "coins": {
       "eyebrow": "[ Moedas e tokens ]",
@@ -843,7 +843,7 @@
     "heroTitle": "Tudo o que você precisa para escrever sobre a Dynopay.",
     "heroBody": "Logos, fatos da empresa e uma descrição pronta para uso — livres para republicação em artigos, análises e diretórios. Precisa de algo mais? Nossa equipe está a um e-mail de distância.",
     "boilerplateTitle": "Descrição padrão",
-    "boilerplateBody": "A Dynopay é um gateway de pagamento de criptomoedas não custodial fundado em 2024. Os comerciantes a usam para vender produtos, receber gorjetas e realizar campanhas de arrecadação — ou para integrar pagamentos via API — aceitando Bitcoin, Ethereum, stablecoins e 15 moedas e tokens em 9 blockchains. Os pagamentos são liquidados diretamente numa carteira controlada pelo comerciante, com conversão automática opcional para USDT/USDC. As taxas são de 1,5% + $1 por pagamento, até 0,5% em escala, sem estornos.",
+    "boilerplateBody": "A Dynopay é um gateway de pagamento de criptomoedas não custodial fundado em 2024. Os comerciantes a usam para vender produtos, receber gorjetas e realizar campanhas de arrecadação — ou para integrar pagamentos via API — aceitando Bitcoin, Ethereum, stablecoins e 15 moedas e tokens em 9 blockchains. Os pagamentos são liquidados diretamente numa carteira controlada pelo comerciante, com conversão automática opcional para USDT/USDC. As taxas partem de 1,5% por pagamento, até 0,5% em escala, sem estornos.",
     "factsTitle": "Fatos rápidos",
     "facts": {
       "founded": {
@@ -856,7 +856,7 @@
       },
       "pricing": {
         "label": "Preços",
-        "value": "1,5% + $1 por transação, até 0,5% em escala — sem taxas mensais"
+        "value": "A partir de 1,5% por transação, até 0,5% em escala — sem taxas mensais"
       },
       "networks": {
         "label": "Redes",

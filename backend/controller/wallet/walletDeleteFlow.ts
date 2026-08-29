@@ -60,7 +60,7 @@ import {
   userWalletAddressModel,
   userTempAddressModel,
 } from "../../models/userModels";
-import tatumApi from "../../apis/tatumApi";
+import { tatumClient } from "../../integrations/tatum/TatumClient";
 import blockchairApi from "../../apis/blockchairApi";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import mailTransporter from "../../utils/mailTransporter";
@@ -355,9 +355,9 @@ export const editWalletAddress = async (req: express.Request, res: express.Respo
       // Validate the new address on-chain
       try {
         if (currency === "TRX" || currency === "USDT-TRC20") {
-          await tatumApi.validateTronAddress(wallet_address);
+          await tatumClient.validateTronAddress(wallet_address);
         } else {
-          await tatumApi.getAddressBalance(wallet_address, currency);
+          await tatumClient.getAddressBalance(wallet_address, currency);
         }
       } catch (e) {
         return errorResponseHelper(res, 400, `Invalid ${currency} address`);

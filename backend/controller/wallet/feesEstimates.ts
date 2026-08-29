@@ -62,7 +62,7 @@ import {
   userWalletAddressModel,
   userTempAddressModel,
 } from "../../models/userModels";
-import tatumApi from "../../apis/tatumApi";
+import { tatumClient } from "../../integrations/tatum/TatumClient";
 import blockchairApi from "../../apis/blockchairApi";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import mailTransporter from "../../utils/mailTransporter";
@@ -90,9 +90,9 @@ export const estimateFees = async (req: express.Request, res: express.Response) 
     let data;
     walletLogger.info("##address", address);
     if (currency === "TRX" || currency === "USDT-TRC20") {
-      data = tatumApi.validateTronAddress(address);
+      data = tatumClient.validateTronAddress(address);
     } else {
-      data = await tatumApi.getAddressBalance(address, currency);
+      data = await tatumClient.getAddressBalance(address, currency);
     }
     walletLogger.info(data);
 
@@ -131,7 +131,7 @@ export const estimateFees = async (req: express.Request, res: express.Response) 
     }
 
     // Get Fees for batch transactions
-    const batchFees = await tatumApi.batchFeeEstimation({
+    const batchFees = await tatumClient.batchFeeEstimation({
       currency,
       fromAddresses: fromAddress,
       toAddresses: toAddress,

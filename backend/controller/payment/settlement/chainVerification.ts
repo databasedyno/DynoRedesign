@@ -55,7 +55,7 @@ import {
   merchantTempAddressModel,
   paymentLinkModel,
 } from "../../../models";
-import tatumApi from "../../../apis/tatumApi";
+import { tatumClient } from "../../../integrations/tatum/TatumClient";
 import { generateQRCodeWithLogo } from "../../../utils/qrCodeWithLogo";
 import { getAdminWalletAddress } from "../../../utils/adminUtils";
 import {
@@ -641,7 +641,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             // This mismatch caused false DEFERRED settlements when the gas wallet was fine.
             const feeWalletAddress = envRaw("TRX_FEE_WALLET") || null;
             if (feeWalletAddress) {
-              const feeWalletCheck = await tatumApi.getAddressBalance(feeWalletAddress, "TRX", true).catch(() => null);
+              const feeWalletCheck = await tatumClient.getAddressBalance(feeWalletAddress, "TRX", true).catch(() => null);
               const feeWalletBalance = Number(feeWalletCheck?.balance || feeWalletCheck?.incoming || 0);
               
               if (feeWalletBalance < requiredTRX && poolResources.availableEnergy < 65000) {
@@ -1094,7 +1094,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           let finalConfirmations: number | null = null;
           try {
             if (transactionId && typeof transactionId === 'string') {
-              const confCheck = await tatumApi.getTransactionConfirmations(transactionId, tempCurrency);
+              const confCheck = await tatumClient.getTransactionConfirmations(transactionId, tempCurrency);
               if (confCheck && typeof confCheck.confirmations === 'number') {
                 finalConfirmations = confCheck.confirmations;
               }
@@ -1670,7 +1670,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         });
         currency = data.dataValues.wallet_type;
       }
-      const paymentStatus = await tatumApi.getCurrentPaymentStatus(address, currency);
+      const paymentStatus = await tatumClient.getCurrentPaymentStatus(address, currency);
       transactionFinished = true;
       await transaction.rollback();
       return paymentStatus;

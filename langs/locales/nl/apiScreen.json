@@ -77,6 +77,8 @@
     "enable": "Activeren"
   },
   "apiKeyTitle": "{{currency}} API-sleutel",
+  "apiKeyTitleLive": "Live API-sleutel",
+  "apiKeyTitleTest": "Test-API-sleutel",
   "keys": {
     "liveUnlockHint": "Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste wallet aan dit bedrijf toevoegt (of hergebruikt).",
     "testAutoCreatedBadge": "Automatisch aangemaakt · Sandbox",

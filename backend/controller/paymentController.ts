@@ -79,7 +79,9 @@ import {
   userTransactionModel,
   merchantTempAddressModel,
 } from "../models";
-import tatumApi from "../apis/tatumApi";
+import { tatumClient } from "../integrations/tatum/TatumClient";
+// Audited custody boundary for private keys — do NOT decrypt key material directly.
+import * as keyCustody from "../services/keyCustody/keyCustodyService";
 import blockchairApi from "../apis/blockchairApi";
 import { getAdminWalletAddress } from "../utils/adminUtils";
 import {
@@ -1107,7 +1109,7 @@ const checkingUSDT = async () => {
   for (let i = 0; i < USDT.length; i++) {
     try {
       const currentAddress = USDT[i];
-      const addressBalance = await tatumApi.getAddressBalance(
+      const addressBalance = await tatumClient.getAddressBalance(
         currentAddress?.wallet_address,
         currentAddress.wallet_type
       );
@@ -1146,7 +1148,7 @@ const checkingUSDT = async () => {
               "crypto-" + currentAddress?.wallet_address + "-fees_paid"
             );
           } else {
-            fees = await tatumApi.feeEstimation(
+            fees = await tatumClient.feeEstimation(
               currentAddress?.wallet_type,
               currentAddress?.wallet_address,
               userWallet?.wallet_address,
@@ -1156,18 +1158,20 @@ const checkingUSDT = async () => {
           }
         }
 
-        const privateKey = await tatumApi.decryptSymmetric(
+        // MEMORY HARDENING: key scoped to the signing call via the audited custody boundary.
+        const transactionDetails = await keyCustody.withPrivateKey(
           currentAddress.privateKey,
-          envRaw("TEMP_KEY_ID")
+          envRaw("TEMP_KEY_ID"),
+          { purpose: "usdt_admin_fee_sweep", actor: "worker", walletType: currentAddress?.wallet_type, walletAddress: currentAddress?.wallet_address },
+          (privateKey) => tatumClient.assetToOtherAddress({
+            amount: currentAddress?.amount_to_be_paid,
+            currency: currentAddress?.wallet_type,
+            fee: fees,
+            fromAddress: currentAddress?.wallet_address,
+            privateKey: privateKey,
+            toAddress: userWallet?.wallet_address,
+          })
         );
-        const transactionDetails = await tatumApi.assetToOtherAddress({
-          amount: currentAddress?.amount_to_be_paid,
-          currency: currentAddress?.wallet_type,
-          fee: fees,
-          fromAddress: currentAddress?.wallet_address,
-          privateKey: privateKey,
-          toAddress: userWallet?.wallet_address,
-        });
         await userTempAddressModel.update(
           {
             adminTxId: transactionDetails?.txId,
@@ -1221,7 +1225,7 @@ const sweepNativeAdminFees = async () => {
         cronLogger.info(`[sweepNativeAdminFees] Processing ${wallet_type} address: ${currentAddress.wallet_address}`);
 
         // Get current balance of temp address
-        const addressBalance = await tatumApi.getAddressBalance(
+        const addressBalance = await tatumClient.getAddressBalance(
           currentAddress.wallet_address,
           wallet_type
         );
@@ -1249,7 +1253,7 @@ const sweepNativeAdminFees = async () => {
 
           if (wallet_type === "ETH") {
             // Estimate gas fee for ETH transfer
-            fees = await tatumApi.feeEstimation(
+            fees = await tatumClient.feeEstimation(
               wallet_type,
               currentAddress.wallet_address,
               adminWalletAddress,
@@ -1267,21 +1271,20 @@ const sweepNativeAdminFees = async () => {
           if (sendAmount > 0) {
             cronLogger.info(`[sweepNativeAdminFees] Sweeping ${sendAmount} ${wallet_type} to admin wallet`);
 
-            // Decrypt private key
-            const privateKey = await tatumApi.decryptSymmetric(
+            // Transfer to admin fee wallet — key scoped to the signing call (memory hardening)
+            const transactionDetails = await keyCustody.withPrivateKey(
               currentAddress.privateKey,
-              envRaw("TEMP_KEY_ID")
+              envRaw("TEMP_KEY_ID"),
+              { purpose: "native_admin_fee_sweep", actor: "worker", walletType: wallet_type, walletAddress: currentAddress.wallet_address },
+              (privateKey) => tatumClient.assetToOtherAddress({
+                amount: sendAmount,
+                currency: wallet_type,
+                fee: fees,
+                fromAddress: currentAddress.wallet_address,
+                privateKey: privateKey,
+                toAddress: adminWalletAddress,
+              })
             );
-
-            // Transfer to admin fee wallet
-            const transactionDetails = await tatumApi.assetToOtherAddress({
-              amount: sendAmount,
-              currency: wallet_type,
-              fee: fees,
-              fromAddress: currentAddress.wallet_address,
-              privateKey: privateKey,
-              toAddress: adminWalletAddress,
-            });
 
             // Convert to USD for logging
             const finalAmount = await currencyConvert({
@@ -1379,7 +1382,7 @@ const checkFeeBalance = async () => {
       let currentBalance;
       try {
         // Use skipCache=true for fee balance monitoring — must be real-time to avoid false alerts
-        currentBalance = await tatumApi.getAddressBalance(
+        currentBalance = await tatumClient.getAddressBalance(
           adminFeesWallets[i]?.dataValues.wallet_address,
           balanceCheckCurrency,
           true
@@ -1660,7 +1663,7 @@ const processIncompletePayments = async () => {
           }
 
           cronLogger.info(`[processIncompletePayments] Company ${tempTx.company_id} grace: ${companyGracePeriodMinutes} min, elapsed: ${minutesSincePartial.toFixed(1)} min — processing...`);
-          const balanceData = await tatumApi.getAddressBalance(
+          const balanceData = await tatumClient.getAddressBalance(
             tempTx.wallet_address,
             tempTx.wallet_type
           );
@@ -2054,7 +2057,7 @@ const processIncompletePayments = async () => {
             }
             
             // Check on-chain balance
-            const balanceData = await tatumApi.getAddressBalance(walletAddress, walletType);
+            const balanceData = await tatumClient.getAddressBalance(walletAddress, walletType);
             const actualBalance = Number(balanceData?.balance || 0);
             
             if (actualBalance <= 0) {

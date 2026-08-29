@@ -1,14 +1,13 @@
 import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 import serviceHealthModel from "../models/serviceHealthModel";
-import { getRedisItem } from "../utils/redisInstance";
+import { redis } from "../utils/redisInstance";
 import { log } from "../utils/loggers";
 
 /**
  * Infrastructure Monitoring Service
  * Performs real health checks on Dynopay services and stores results
  */
-
 interface HealthCheckResult {
   healthy: boolean;
   latency: number;
@@ -81,8 +80,11 @@ const MONITORED_SERVICES = [
     check: async (): Promise<HealthCheckResult> => {
       const start = Date.now();
       try {
-        // Check Redis connectivity (used for webhook queuing)
-        await getRedisItem("health_check_test");
+        // Redis connectivity probe — a SINGLE PING round-trip. The old
+        // getRedisItem("health_check_test") did a GET and, on a miss (this key
+        // never exists), fell back to hGetAll — 2 round-trips (~2× Redis RTT,
+        // ~81ms). PING is one round-trip (~40ms).
+        await redis.ping();
         // Redis is connected if no error thrown
         return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {

@@ -60,7 +60,7 @@ import {
   userWalletAddressModel,
   userTempAddressModel,
 } from "../../models/userModels";
-import tatumApi from "../../apis/tatumApi";
+import { tatumClient } from "../../integrations/tatum/TatumClient";
 import blockchairApi from "../../apis/blockchairApi";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import mailTransporter from "../../utils/mailTransporter";
@@ -344,9 +344,9 @@ export const updateWalletWithOTP = async (
       // Validate address format
       let balance;
       if (currencyToValidate === "TRX" || currencyToValidate === "USDT-TRC20") {
-        balance = await tatumApi.validateTronAddress(wallet_address);
+        balance = await tatumClient.validateTronAddress(wallet_address);
       } else {
-        balance = await tatumApi.getAddressBalance(wallet_address, currencyToValidate);
+        balance = await tatumClient.getAddressBalance(wallet_address, currencyToValidate);
       }
 
       if (!balance || balance.error) {

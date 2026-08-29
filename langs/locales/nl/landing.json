@@ -109,7 +109,7 @@
       "headline1": "Accepteer cryptobetalingen.",
       "headlineHighlight": "Ontvang",
       "headline2": "op jouw manier.",
-      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout of betaallink. Houd de originele munt of <b>converteer automatisch naar USDC of USDT</b> — jouw keuze — en laat uitbetalen naar een wallet die jij beheert. Geen terugboekingen. <b>1,5% + $1 per betaling, dalend tot 0,5% naarmate je volume groeit.</b>",
+      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout of betaallink. Houd de originele munt of <b>converteer automatisch naar USDC of USDT</b> — jouw keuze — en laat uitbetalen naar een wallet die jij beheert. Geen terugboekingen. <b>Kosten vanaf 1,5% per betaling, dalend tot 0,5% naarmate je volume groeit.</b>",
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
@@ -118,7 +118,7 @@
       "livePill": "LIVE",
       "sendTipLabel": "Stuur een tip",
       "sendTipBtn": "Stuur tip",
-      "metaSettle": "Uitbetaling in de munt die jij kiest · <b>1,5% + $1, tot 0,5% bij schaal</b>",
+      "metaSettle": "Uitbetaling in de munt die jij kiest · <b>kosten vanaf 1,5%, tot 0,5% bij schaal</b>",
       "handleAvailable": "is beschikbaar",
       "handleTaken": "Die naam is niet beschikbaar — probeer een andere.",
       "primaryCta": "Begin met betalingen ontvangen",
@@ -144,7 +144,7 @@
       },
       "step3": {
         "title": "Het landt in je wallet.",
-        "body": "De uitbetaling gaat direct naar het walletadres dat jij beheert — nooit door ons aangehouden. 1,5% + $1 om te starten, tot 0,5% bij schaal. Geen maandkosten, geen terugboekingen."
+        "body": "De uitbetaling gaat direct naar het walletadres dat jij beheert — nooit door ons aangehouden. 1,5% om te starten, tot 0,5% bij schaal. Geen maandkosten, geen terugboekingen."
       },
       "mock": {
         "awaitingPayment": "Wacht op betaling",
@@ -223,9 +223,9 @@
     },
     "audience": {
       "eyebrow": "[ Voor wie is dit? ]",
-      "headline1": "Eén wallet.",
-      "headline2": "Elk publiek.",
-      "body": "Kies je deur — verkopers, creators, fondsenwervers, developers. Dezelfde crypto-rails, dezelfde wallet, dezelfde kosten.",
+      "headline1": "Eén crypto-checkout.",
+      "headline2": "Elk soort bedrijf.",
+      "body": "Verkopers, creators, fondsenwervers, developers — kies je deur. Dezelfde gehoste checkout en betaallinks, dezelfde wallet die jij beheert, dezelfde eenvoudige kosten.",
       "merchants": {
         "tag": "01 · Merchants",
         "title": "Verkoop producten in crypto.",
@@ -271,7 +271,7 @@
       "q2": "Waar landen de fondsen?",
       "a2": "Direct op een wallet-adres dat jij beheert — niet door ons gehouden. Dynopay is non-custodial. Elke vereffening is een echte on-chain transfer naar jouw adres.",
       "q3": "Wat kost het?",
-      "a3": "Elke betaling is een percentage plus een vast bedrag van $1. Het percentage loopt van 1,5% (Starter) tot 0,5% (Enterprise), op basis van je totale afgewikkelde volume, en je eerste betaling is gratis. Geen maandkosten, geen opstartkosten, geen terugboekingen. Zie de Tarievenpagina voor de volledige tabel.",
+      "a3": "Elke betaling kost een eenvoudig percentage — van 1,5% (Starter) tot 0,5% (Enterprise), op basis van je totale afgewikkelde volume — en je eerste betaling is gratis. Geen maandkosten, geen opstartkosten, geen terugboekingen. Zie de Tarievenpagina voor alle details.",
       "q4": "Hoe snel is de vereffening?",
       "a4": "Dat hangt af van het netwerk. Stablecoin-rails en snelle chains (TRC-20, Polygon, L2's) bevestigen meestal binnen een minuut of twee; Bitcoin en Ethereum op mainnet kunnen langer duren bij drukte. Je dashboard toont de status live — en als je auto-omzetten hebt aangezet, komt het geld in de door jou gekozen stablecoin zodra de betaling is bevestigd; anders houd je de munt die de koper stuurde.",
       "q5": "Ondersteunen jullie fiat, refunds of abonnementen?",
@@ -297,7 +297,7 @@
       "fees": {
         "tag": "Prijzen",
         "title": "Bekijk de fees",
-        "desc": "1,5% + $1 per betaling, tot 0,5% naarmate je groeit. Geen maandkosten, geen opstartkosten, geen terugboekingen — nooit."
+        "desc": "Vanaf 1,5% per betaling, tot 0,5% naarmate je groeit. Geen maandkosten, geen opstartkosten, geen terugboekingen — nooit."
       },
       "exploreBtn": "Ontdek"
     },
@@ -371,9 +371,9 @@
       "exampleLabel": "Bij een betaling van $100",
       "customerPaysLabel": "Klant betaalt",
       "youReceiveLabel": "Jij ontvangt",
-      "merchantNote": "Jij draagt de kosten van 1,5% + $1, dus de prijs die je klant ziet blijft precies $100.",
+      "merchantNote": "Jij draagt de kosten, dus de prijs die je klant ziet blijft precies $100.",
       "customerNote": "De kosten komen er bovenop: de klant betaalt ze en jij houdt je volle $100.",
-      "feeFootnote": "Voorbeeld met het Starter-tarief van 1,5% + $1 per betaling. Je tarief daalt naar 0,5% naarmate je volume groeit."
+      "feeFootnote": "Voorbeeld met het Starter-tarief, alle kosten per betaling inbegrepen — zie de Tarievenpagina voor alle details. Je tarief daalt naar 0,5% naarmate je volume groeit."
     },
     "coins": {
       "eyebrow": "[ Munten & tokens ]",
@@ -843,7 +843,7 @@
     "heroTitle": "Alles wat u nodig heeft om over Dynopay te schrijven.",
     "heroBody": "Logo's, bedrijfsfeiten en een kant-en-klare standaardtekst — vrij te herpubliceren in artikelen, reviews en gidsen. Meer nodig? Ons team is één e-mail verwijderd.",
     "boilerplateTitle": "Standaardtekst",
-    "boilerplateBody": "Dynopay is een non-custodial betaalgateway voor cryptovaluta, opgericht in 2024. Verkopers gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via API te integreren — met Bitcoin, Ethereum, stablecoins en 15 munten & tokens op 9 blockchains. Betalingen worden direct afgewikkeld naar een wallet die de verkoper beheert, met optionele automatische conversie naar USDT/USDC. De kosten zijn 1,5% + $1 per betaling, tot 0,5% bij schaal, zonder terugboekingen.",
+    "boilerplateBody": "Dynopay is een non-custodial betaalgateway voor cryptovaluta, opgericht in 2024. Verkopers gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via API te integreren — met Bitcoin, Ethereum, stablecoins en 15 munten & tokens op 9 blockchains. Betalingen worden direct afgewikkeld naar een wallet die de verkoper beheert, met optionele automatische conversie naar USDT/USDC. De kosten beginnen bij 1,5% per betaling, tot 0,5% bij schaal, zonder terugboekingen.",
     "factsTitle": "Feiten in het kort",
     "facts": {
       "founded": {
@@ -856,7 +856,7 @@
       },
       "pricing": {
         "label": "Prijzen",
-        "value": "1,5% + $1 per transactie, tot 0,5% bij schaal — geen maandkosten"
+        "value": "Vanaf 1,5% per transactie, tot 0,5% bij schaal — geen maandkosten"
       },
       "networks": {
         "label": "Netwerken",

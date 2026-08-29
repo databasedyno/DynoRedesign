@@ -32,21 +32,6 @@ export default function Pay3Layout({
                 overflow: 'hidden',
             }}
         >
-            {/* Swiss grid backdrop → aurora-tinted, kept subtle */}
-            <Box
-                sx={{
-                    position: 'absolute',
-                    inset: 0,
-                    backgroundImage: isDark
-                        ? 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)'
-                        : 'linear-gradient(rgba(10,10,10,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.045) 1px, transparent 1px)',
-                    backgroundSize: '54px 54px',
-                    maskImage: 'radial-gradient(ellipse 90% 80% at 50% 30%, black 25%, transparent 80%)',
-                    WebkitMaskImage: 'radial-gradient(ellipse 90% 80% at 50% 30%, black 25%, transparent 80%)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }}
-            />
             {/* Aurora indigo/violet orb behind card — session 82 migration
                 (was: volt-lime radial glow #CCFF00). Matches Landing v3. */}
             <Box

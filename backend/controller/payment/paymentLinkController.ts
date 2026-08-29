@@ -28,6 +28,46 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { STOREFRONT_PER_COMPANY, resolveStorefrontByHandle } from "../storefrontScope";
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SHORT PAYMENT REFERENCE — the `d` in /pay?d=<ref>
+// Intentionally short (6 base62 chars) for clean, shareable links.
+// SECURITY NOTE: a payment link is a bearer URL (it exposes amount/merchant), so
+// a short ref is enumerable. 62^6 ≈ 56.8B combos + the per-IP paymentRateLimiter
+// (30 req/min on /pay/getData) + a generic "not found or expired" 404 make
+// brute-force scanning impractical. Collision-checked with retry (a clash at
+// realistic link volumes is astronomically unlikely). Legacy 48-hex refs stay
+// valid — the checkout lookup is length-agnostic.
+// ═══════════════════════════════════════════════════════════════════════════
+const REF_ALPHABET =
+  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const REF_LENGTH = 6;
+
+const randomShortRef = (): string => {
+  let out = "";
+  // Rejection sampling (accept bytes < 248 = 4*62) to avoid modulo bias.
+  while (out.length < REF_LENGTH) {
+    const bytes = crypto.randomBytes(REF_LENGTH * 2);
+    for (let i = 0; i < bytes.length && out.length < REF_LENGTH; i++) {
+      if (bytes[i] < 248) out += REF_ALPHABET[bytes[i] % 62];
+    }
+  }
+  return out;
+};
+
+const generatePaymentRef = async (): Promise<string> => {
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const ref = randomShortRef();
+    const rows = await sequelize.query(
+      `SELECT 1 FROM tbl_payment_link WHERE payment_link LIKE :pat LIMIT 1`,
+      { replacements: { pat: `%/pay?d=${ref}` }, type: QueryTypes.SELECT }
+    );
+    if (rows.length === 0) return ref;
+  }
+  // Astronomically unlikely — fall back to a guaranteed-unique long ref so link
+  // creation never fails on collision.
+  return crypto.randomBytes(24).toString("hex");
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
 // DONATION / CROWDFUNDING HELPERS
 // A donation link is a multi-use campaign parent (link_type='donation').
 // Every donor spawns a 'contribution' child row (parent_link_id set) that
@@ -781,7 +821,7 @@ export const createPaymentLink = async (
       cronLogger.info(`[createPaymentLink] No currencies specified, using all configured: ${allConfiguredCurrencies.join(',')}`);
     }
     
-    const uniqueRef = crypto.randomBytes(24).toString("hex");
+    const uniqueRef = await generatePaymentRef();
     cronLogger.info(`[createPaymentLink] user_id=${userData.user_id}, company_id=${company_id}`);
     
     // Calculate expires_at based on expire option
@@ -1808,7 +1848,7 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
       
       // Extract the uniqueRef from payment_link URL (the 'd' parameter)
       const paymentLinkUrl = linkData.payment_link;
-      const urlMatch = paymentLinkUrl?.match(/[?&]d=([a-f0-9]+)/i);
+      const urlMatch = paymentLinkUrl?.match(/[?&]d=([A-Za-z0-9]+)/);
       const uniqueRef = urlMatch ? urlMatch[1] : null;
       
       if (uniqueRef) {
@@ -1978,7 +2018,7 @@ export const deletePaymentLink = async (
     
     // Extract uniqueRef from payment_link URL
     const paymentLinkUrl = linkToDelete.dataValues.payment_link;
-    const urlMatch = paymentLinkUrl?.match(/[?&]d=([a-f0-9]+)/i);
+    const urlMatch = paymentLinkUrl?.match(/[?&]d=([A-Za-z0-9]+)/);
     const uniqueRef = urlMatch ? urlMatch[1] : null;
     
     // Delete from database
@@ -2089,7 +2129,7 @@ export const startDonation = async (
     }
 
     // ── Create the contribution child row ──
-    const uniqueRef = crypto.randomBytes(24).toString("hex");
+    const uniqueRef = await generatePaymentRef();
     const childPayload = {
       transaction_id: crypto.randomUUID(),
       email: donorEmail || null,
@@ -2306,7 +2346,7 @@ export const startTip = async (
     const p = tipJar.dataValues as Record<string, any>;
 
     // ── Create the contribution child (mirrors startDonation) ──
-    const uniqueRef = crypto.randomBytes(24).toString("hex");
+    const uniqueRef = await generatePaymentRef();
     const childPayload = {
       transaction_id: crypto.randomUUID(),
       email: donorEmail || null,

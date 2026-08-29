@@ -235,14 +235,96 @@ Verified: `tsc --noEmit` EXIT 0. Live smoke on the TWO ACTIVE surfaces:
   behaviour-preserving by construction (pass-through wrappers) + tsc-clean; verify in prod if the flag is ever
   flipped.
 
-## Phase C — Rewrite the data layer — ⛔ DEFERRED (NOT recommended; HIGH risk)
-Idea: replace Redux-saga / raw-fetch with a single server-state layer (e.g. SWR/react-query) across the money
-path.
-- Benefit: consistent caching/polling/retry model; less bespoke state; the "unify 3 data layers" end-state.
-- Risk (why HIGH): touches confirmation polling + settlement-adjacent flows that CANNOT be fully e2e-tested in
-  preview (needs real on-chain confirmations); a subtle polling/timing regression = missed/duplicated payment
-  states. Zero user-visible upside. Recommendation: only attempt alongside a broader checkout change, behind a
-  flag, with real-network QA.
+## Phase C — Single server-state (SWR) data layer — ✅ IMPLEMENTED on CleanCheckoutV2, FLAG-GATED (2026-06 fork)
+User steer (ask_human): "a" — complete Phase C properly, flag-gated, then user does a live real-payment test
+before it becomes default.
+
+FINDING ON RESUME: a prior turn had added ONLY the scaffolding to `CleanCheckoutV2.tsx` — `import useSWR` +
+the `SWR_ON` flag resolver — but NO actual `useSWR()` call and NO shared handlers. So the flag did nothing and
+the legacy paths still ran for everything (tsc passed only because unused import/var are tolerated). Completed
+the real wiring this turn.
+
+WHAT SHIPPED (Components/Page/Pay3Components/CleanCheckoutV2.tsx — flag default OFF):
+- Extracted TWO shared result handlers so BOTH paths process identically:
+  - `applyMeta(r)` — the /pay/getData meta normalisation + setMeta + setPhase (currency_select | error).
+  - `applyVerifyResult(r)` — the /pay/verifyCryptoPayment status machine (remaining_seconds, detected/pending,
+    underpaid+partial, confirmed/overpaid → confirmedAmount + onSuccess, expired). Clears pollRef/timerRef on
+    terminal states exactly as before.
+- Legacy path (flag OFF): the original meta useEffect and the setInterval(10s) verify poll, each now guarded
+  with `if (SWR_ON) return` and calling the shared handler. Byte-for-byte the old behaviour.
+- SWR path (flag ON): `metaSwr = useSWR(SWR_ON ? ['checkout/getData', d] : null, …getData, {no focus/reconnect/
+  stale revalidate, no retry})` and `verifySwr = useSWR(active ? ['checkout/verify', address, token] : null,
+  …verify, { refreshInterval: 10_000, refreshWhenHidden: true, revalidateOnFocus: false, shouldRetryOnError:
+  false })`. The verify key nulls out the moment phase leaves awaiting/underpaid (or address/token missing) so
+  SWR stops automatically on confirmed/expired — no manual clearInterval. `refreshWhenHidden:true` matches the
+  legacy setInterval (which polled even on a hidden tab — needed for the "switch tabs + notify" UX). The
+  checkoutApi fetcher never throws (returns {ok:false} on network error) so SWR only ever sees resolved values
+  → steady interval-driven polling, error branches handled inside applyVerifyResult.
+- FLAG: `SWR_ON` = `NEXT_PUBLIC_CHECKOUT_SWR===true` OR `?swr=1` in the URL. Default OFF (env not set).
+- SCOPE: only the meta load + verify polling migrated (as agreed). `reservePayment` (the multi-step address
+  reservation) stays imperative — it's a one-shot user-triggered mutation, not a good SWR fit and out of scope.
+
+VERIFIED (testing_agent iteration_95 = 100% frontend, on a FRESH live link created in-pod
+d=6dd51132387bb90115c71f895b66f19a734e625c54b433ca so its Redis session exists here):
+- Legacy vs SWR render BYTE-IDENTICAL: clean-checkout-h1='Pay The Dev Store', clean-checkout-amount='$20.00 USD',
+  network-select='Litecoin', currency-select='LTC', instruction='Pay 0.4078054 LTC on Litecoin', pay-status-strip
+  WAITING. Only the reserved address differs (expected — a fresh pool address per load, not a code diff).
+- SWR verify-poll cadence: 3 POSTs to /api/pay/verifyCryptoPayment in a 25s window, intervals [10.0s, 10.28s] —
+  exactly refreshInterval=10000. No double-fetch/poll when flag on (legacy effects correctly short-circuit).
+- ZERO console errors, no error boundary, no clean-checkout-error on either path. frontend tsc EXIT 0.
+
+⚠️ NOT YET DEFAULT: confirmed/underpaid/expired STATE TRANSITIONS need a REAL on-chain confirmation, which
+cannot be exercised in preview. The flag stays OFF until the user runs a live real-payment test on the flagged
+URL: PREVIEW_URL/pay?d=6dd51132387bb90115c71f895b66f19a734e625c54b433ca&swr=1 (link_id 277, $20, no expiry —
+left LIVE on the prod DB specifically for this test).
+
+REMAINING (Phase C extension): ✅ InlineTipCheckout DONE (same flag-gated SWR migration — testing_agent
+iteration_96 = 100%: legacy vs ?swr=1 byte-identical status pill, 3 verify POSTs at [10.00s, 10.26s],
+zero console errors). Only the DORMANT cryptoTransfer (redux-saga, flag-off, can't be e2e'd in preview)
+is left — low priority.
+
+## Phase C extension — SWR on InlineTipCheckout — ✅ DONE (2026-06 fork) — testing_agent iteration_96 = 100%
+Applied the EXACT same flag-gated pattern to Components/Page/Creator/InlineTipCheckout.tsx (creator tips +
+store checkout): extracted `applyMeta`/`applyVerifyResult` shared handlers; legacy meta useEffect + setInterval
+poll each guarded `if (SWR_ON) return`; added `metaSwr=useSWR(['checkout/getData', d])` and
+`verifySwr=useSWR(['checkout/verify', address, token], { refreshInterval:10_000, refreshWhenHidden:true,
+revalidateOnFocus:false, shouldRetryOnError:false })`. Same `?swr=1` / NEXT_PUBLIC_CHECKOUT_SWR flag, default OFF.
+Verified on the /devhub support widget (POST /api/pay/tip → live contribution session): legacy vs SWR render
+identically (inline-tip-status-pill byte-identical; only reserved inline-tip-address differs per load — expected),
+SWR poll fired 3 verify POSTs at [10.00s, 10.26s] = refreshInterval, zero console errors, no error boundary,
+frontend tsc EXIT 0.
+
+# ============================================================================
+# 2026-06 — TATUM INTEGRATION BOUNDARY (P1) — controllers off apis/tatumApi — DONE
+# ============================================================================
+User steer (ask_human): "yes" to option (a) — the SAFE seam swap (not the high-risk full domain-verb rewrite).
+GOAL (from handoff P1): "20+ controllers still directly import tatumApi instead of routing through proper
+integration boundaries (BlockchainService/PaymentService)."
+
+FINDING: `integrations/tatum/TatumClient.ts` (`export const tatumClient = tatumApi`) and
+`services/blockchain/blockchainService.ts` (exposes `tatumClient` via `.client`) are PASS-THROUGH re-export seams
+with no domain verbs — so option (a) = repoint controller imports at the seam (runtime-identical, same object).
+Also discovered 13 of the 24 controllers had DEAD tatumApi imports (imported, never called).
+
+WHAT SHIPPED (24 controllers, ZERO logic change):
+- 11 files that USE it → `import { tatumClient } from "<rel>/integrations/tatum/TatumClient"` + call sites
+  `tatumApi.*` → `tatumClient.*` (replace_all): adminController, paymentController,
+  payment/settlement/{settleTransaction,chainVerification}, wallet/{cryptoVerify,tempAddress,feesEstimates,
+  withdrawals,walletOtp,walletMutations,walletDeleteFlow}.
+- 13 files with DEAD imports → import line REMOVED entirely (also resolves the direct import for them):
+  payment/settlement/{receipt,verifyPayment}, wallet/{addressBook,analytics,exchange,exchangeConfirm,funding,
+  fundingMethods,reusableWallets,transactionsDetail,transactionsList,walletShared,walletRead}.
+- RESULT: `grep apis/tatumApi backend/controller/` = NONE; `grep tatumApi. backend/controller/` = NONE. The only
+  remaining raw `apis/tatumApi` importers are the integration/infra layer (services/chains/*, services/blockchain,
+  services/merchantPool/*, services/keyCustody, utils/tatumAuth, webhooks, apis) — the boundary's implementation,
+  correctly left as-is — plus one-off backend/scripts/* + tests (out of scope).
+
+VERIFIED: backend tsc EXIT 0; backend restarted (ts-node, no hot reload) → /health healthy (db+redis connected,
+tatum_api operational CLOSED — proves TatumClient resolves at runtime); live curl on 3 migrated endpoints:
+POST /api/pay/getData (paymentController) → full meta; GET /api/wallet/network-fees (feesEstimates →
+tatumClient.batchFeeEstimation) → live fees; GET /api/wallet/reusable-wallets (dead import removed) → 200.
+Behaviour-preserving by construction (tatumClient === default tatumApi). NOT DONE (deferred, high risk):
+real domain verbs on BlockchainService + call-site rewrites — money-path, not preview-testable.
 
 ## Files touched
 - Phase A: `Components/Page/Creator/InlineTipCheckout.tsx` (constants/types de-dup).

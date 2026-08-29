@@ -15,6 +15,7 @@
  * Spec: /app/memory/INLINE_TIP_CHECKOUT_SPEC.md
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import useSWR from 'swr'
 import { useTranslation } from 'react-i18next'
 import { Box, Button, CircularProgress, Collapse, TextField, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
@@ -240,39 +241,75 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
     }
   }, [])
 
+  // ─── Phase C: single server-state (SWR) data layer — flag-gated ───────
+  // Same flag as CleanCheckoutV2: default OFF (the legacy manual fetch +
+  // setInterval below run UNCHANGED). Opt in per-visit with ?swr=1 or globally
+  // via NEXT_PUBLIC_CHECKOUT_SWR=true. Both paths share the SAME result handlers
+  // (applyMeta / applyVerifyResult) so behaviour is identical either way.
+  const SWR_ON = useMemo(() => {
+    const envOn = String(process.env.NEXT_PUBLIC_CHECKOUT_SWR || '').toLowerCase() === 'true'
+    let queryOn = false
+    if (typeof window !== 'undefined') {
+      try { queryOn = new URLSearchParams(window.location.search).get('swr') === '1' } catch { /* ignore */ }
+    }
+    return envOn || queryOn
+  }, [])
+
   // ─── Step 1: fetch meta via /pay/getData ─────────────────────────────
+  // Shared result handler — BOTH the legacy manual fetch AND the SWR path
+  // funnel through this, so meta processing is byte-identical either way.
+  const applyMeta = useCallback((r: Awaited<ReturnType<typeof api>>) => {
+    if (!mountedRef.current) return
+    if (!r.ok || !r.data) {
+      setErrorMsg(r.message || 'Failed to load payment.')
+      setPhase('error')
+      return
+    }
+    const raw = r.data
+    const available: string[] = Array.isArray(raw.available_currencies)
+      ? raw.available_currencies
+      : Array.isArray(raw.allowedModes)
+        ? String(raw.allowedModes).split(',')
+        : []
+    setMeta({
+      amount: Number(raw.amount) || 0,
+      base_currency: raw.base_currency || 'USD',
+      available_currencies: available,
+      token: String(raw.token || ''),
+      contribution: raw.contribution || null,
+      merchant: raw.merchant || null,
+    })
+    setPhase('currency_select')
+  }, [])
+
+  // Legacy path (flag OFF): manual fetch on mount / when `d` changes.
   useEffect(() => {
+    if (SWR_ON) return // SWR drives the meta load — see metaSwr below.
     let cancelled = false
     ;(async () => {
       setPhase('loading_meta')
       setErrorMsg('')
       const r = await api('/pay/getData', { data: d, language: 'en' }, undefined)
       if (cancelled || !mountedRef.current) return
-      if (!r.ok || !r.data) {
-        setErrorMsg(r.message || 'Failed to load payment.')
-        setPhase('error')
-        return
-      }
-      const raw = r.data
-      const available: string[] = Array.isArray(raw.available_currencies)
-        ? raw.available_currencies
-        : Array.isArray(raw.allowedModes)
-          ? String(raw.allowedModes).split(',')
-          : []
-      setMeta({
-        amount: Number(raw.amount) || 0,
-        base_currency: raw.base_currency || 'USD',
-        available_currencies: available,
-        token: String(raw.token || ''),
-        contribution: raw.contribution || null,
-        merchant: raw.merchant || null,
-      })
-      setPhase('currency_select')
+      applyMeta(r)
     })()
     return () => {
       cancelled = true
     }
-  }, [d])
+  }, [d, SWR_ON, applyMeta])
+
+  // Phase C (flag ON): single server-state layer for the meta load. The key is
+  // null when the flag is off, so the fetcher never runs on the legacy path.
+  const metaSwr = useSWR(
+    SWR_ON ? ['checkout/getData', d] : null,
+    async () => api('/pay/getData', { data: d, language: 'en' }, undefined),
+    { revalidateOnFocus: false, revalidateOnReconnect: false, revalidateIfStale: false, shouldRetryOnError: false },
+  )
+  useEffect(() => {
+    if (!SWR_ON) return
+    if (metaSwr.data) applyMeta(metaSwr.data)
+    else if (metaSwr.error) { setErrorMsg('Failed to load payment.'); setPhase('error') }
+  }, [SWR_ON, metaSwr.data, metaSwr.error, applyMeta])
 
   // ─── Step 2: user picks a crypto → addPayment ────────────────────────
   const pickCurrency = useCallback(
@@ -373,66 +410,76 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
     }
   }, [phase])
 
+  // ─── Step 3: poll verifyCryptoPayment ────────────────────────────────
+  // Shared status handler — BOTH the legacy setInterval poll AND the SWR poll
+  // funnel through this, so settlement processing is byte-identical either way.
+  const applyVerifyResult = useCallback((r: Awaited<ReturnType<typeof api>>) => {
+    if (!mountedRef.current) return
+    if (!r.ok || !r.data) return // silent — try again next tick
+    if (!cryptoInfo || !meta_) return
+
+    const s = String(r.data.status || 'waiting')
+    const d_: any = r.data
+
+    // Update remaining timer from backend if provided
+    if (d_.remaining_seconds !== undefined && d_.remaining_seconds > 0) {
+      setTimeLeft(Number(d_.remaining_seconds))
+    }
+
+    if (s === 'confirmed' || s === 'overpaid') {
+      // Q2b user decision: overpaid → treat as success, no refund message.
+      // Use paidAmount when we have it; else fall back to expected.
+      setConfirmedAmount({
+        crypto: Number(d_.paidAmount || d_.expectedAmount || cryptoInfo.expected_amount),
+        cryptoLabel: cryptoInfo.crypto_display,
+        fiat: Number(d_.paidAmountUsd || meta_.amount),
+        fiatCurrency: String(d_.baseCurrency || meta_.base_currency),
+      })
+      setPhase('confirmed')
+      if (pollRef.current) clearInterval(pollRef.current)
+      if (timerRef.current) clearInterval(timerRef.current)
+      return
+    }
+    if (s === 'underpaid') {
+      setPartial({
+        paidAmount: Number(d_.paidAmount || 0),
+        expectedAmount: Number(d_.expectedAmount || cryptoInfo.expected_amount),
+        remainingAmount: Number(d_.remainingAmount || 0),
+        currency: String(d_.currency || cryptoInfo.crypto_display),
+        paidAmountUsd: Number(d_.paidAmountUsd || 0),
+        expectedAmountUsd: Number(d_.expectedAmountUsd || meta_.amount),
+        remainingAmountUsd: Number(d_.remainingAmountUsd || 0),
+        baseCurrency: String(d_.baseCurrency || meta_.base_currency),
+        graceMinutes: Number(d_.grace_period_minutes || d_.merchant_settings?.grace_period_minutes || 30),
+      })
+      setPhase('underpaid')
+      // Keep polling — user might send the remainder to the same address
+      return
+    }
+    if (s === 'expired') {
+      setPhase('expired')
+      if (pollRef.current) clearInterval(pollRef.current)
+      if (timerRef.current) clearInterval(timerRef.current)
+      return
+    }
+    if (s === 'failed') {
+      setPhase('failed')
+      if (pollRef.current) clearInterval(pollRef.current)
+      if (timerRef.current) clearInterval(timerRef.current)
+      return
+    }
+    // waiting / pending → keep polling silently
+  }, [cryptoInfo, meta_])
+
+  // Legacy path (flag OFF): setInterval polling every 10s.
   useEffect(() => {
+    if (SWR_ON) return // SWR drives the verify poll — see verifySwr below.
     if (phase !== 'awaiting_payment' && phase !== 'underpaid') return
     if (!cryptoInfo?.address || !meta_?.token) return
 
     const poll = async () => {
       const r = await api('/pay/verifyCryptoPayment', { address: cryptoInfo.address }, meta_.token)
-      if (!mountedRef.current) return
-      if (!r.ok || !r.data) return // silent — try again next tick
-
-      const s = String(r.data.status || 'waiting')
-      const d_: any = r.data
-
-      // Update remaining timer from backend if provided
-      if (d_.remaining_seconds !== undefined && d_.remaining_seconds > 0) {
-        setTimeLeft(Number(d_.remaining_seconds))
-      }
-
-      if (s === 'confirmed' || s === 'overpaid') {
-        // Q2b user decision: overpaid → treat as success, no refund message.
-        // Use paidAmount when we have it; else fall back to expected.
-        setConfirmedAmount({
-          crypto: Number(d_.paidAmount || d_.expectedAmount || cryptoInfo.expected_amount),
-          cryptoLabel: cryptoInfo.crypto_display,
-          fiat: Number(d_.paidAmountUsd || meta_.amount),
-          fiatCurrency: String(d_.baseCurrency || meta_.base_currency),
-        })
-        setPhase('confirmed')
-        if (pollRef.current) clearInterval(pollRef.current)
-        if (timerRef.current) clearInterval(timerRef.current)
-        return
-      }
-      if (s === 'underpaid') {
-        setPartial({
-          paidAmount: Number(d_.paidAmount || 0),
-          expectedAmount: Number(d_.expectedAmount || cryptoInfo.expected_amount),
-          remainingAmount: Number(d_.remainingAmount || 0),
-          currency: String(d_.currency || cryptoInfo.crypto_display),
-          paidAmountUsd: Number(d_.paidAmountUsd || 0),
-          expectedAmountUsd: Number(d_.expectedAmountUsd || meta_.amount),
-          remainingAmountUsd: Number(d_.remainingAmountUsd || 0),
-          baseCurrency: String(d_.baseCurrency || meta_.base_currency),
-          graceMinutes: Number(d_.grace_period_minutes || d_.merchant_settings?.grace_period_minutes || 30),
-        })
-        setPhase('underpaid')
-        // Keep polling — user might send the remainder to the same address
-        return
-      }
-      if (s === 'expired') {
-        setPhase('expired')
-        if (pollRef.current) clearInterval(pollRef.current)
-        if (timerRef.current) clearInterval(timerRef.current)
-        return
-      }
-      if (s === 'failed') {
-        setPhase('failed')
-        if (pollRef.current) clearInterval(pollRef.current)
-        if (timerRef.current) clearInterval(timerRef.current)
-        return
-      }
-      // waiting / pending → keep polling silently
+      applyVerifyResult(r)
     }
 
     // Kick off first poll immediately then every 10s
@@ -441,7 +488,28 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
     return () => {
       if (pollRef.current) clearInterval(pollRef.current)
     }
-  }, [phase, cryptoInfo?.address, meta_?.token, cryptoInfo, meta_])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, cryptoInfo?.address, meta_?.token, cryptoInfo, meta_, SWR_ON])
+
+  // Phase C (flag ON): SWR drives the verify polling with the SAME 10s cadence.
+  // The key nulls out the moment we leave awaiting/underpaid (or lose the
+  // address/token) so SWR stops automatically on confirmed / expired / failed —
+  // no manual clearInterval needed. refreshWhenHidden keeps polling while the
+  // supporter is on another tab (matching the legacy setInterval + notify UX).
+  const verifyActive =
+    SWR_ON &&
+    (phase === 'awaiting_payment' || phase === 'underpaid') &&
+    !!cryptoInfo?.address &&
+    !!meta_?.token
+  const verifySwr = useSWR(
+    verifyActive ? ['checkout/verify', cryptoInfo!.address, meta_!.token] : null,
+    async () => api('/pay/verifyCryptoPayment', { address: cryptoInfo!.address }, meta_!.token),
+    { refreshInterval: 10000, refreshWhenHidden: true, revalidateOnFocus: false, shouldRetryOnError: false },
+  )
+  useEffect(() => {
+    if (!SWR_ON) return
+    if (verifySwr.data) applyVerifyResult(verifySwr.data)
+  }, [SWR_ON, verifySwr.data, applyVerifyResult])
 
   // ─── Countdown timer ──────────────────────────────────────────────────
   useEffect(() => {

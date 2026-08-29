@@ -38,7 +38,7 @@
     },
     {
       "question": "What fees does Dynopay charge for gaming transactions?",
-      "answer": "Dynopay charges 1.5% per successful transaction plus a small fixed fee: $1 for orders under $100, scaling to $1 for orders under $1,000. No monthly fees, no setup fees, no withdrawal fees, no hidden costs."
+      "answer": "Dynopay charges 1.5% per successful transaction, dropping to as low as 0.5% as your volume grows. No monthly fees, no setup fees, no withdrawal fees, no hidden costs — see the Fees page for full pricing."
     },
     {
       "question": "Can I accept crypto payments from players in any country?",

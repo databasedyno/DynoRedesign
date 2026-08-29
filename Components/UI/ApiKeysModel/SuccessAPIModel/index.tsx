@@ -183,67 +183,6 @@ const SuccessAPIModel: React.FC<SuccessAPIModelProps> = ({
               }
             />
 
-            <InputField
-              fullWidth
-              label={t("generate.adminToken")}
-              placeholder={t("generate.keyNamePlaceholder")}
-              name="key_name"
-              readOnly
-              inputHeight="40px"
-              value="dpk_live_x04exyjb946e9lwclqhqvqzrgu3k0v24"
-              inputBgColor={theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#FCFBF8"}
-              sx={{
-                "& .MuiInputBase-root input": {
-                  fontSize: "13px !important",
-                  fontFamily: "var(--font-sans) !important",
-                  fontWeight: 500,
-                  padding: "12px 8px !important",
-                  color: theme.palette.text.primary,
-                  [theme.breakpoints.down("sm")]: {
-                    fontSize: "10px !important",
-                  },
-                },
-              }}
-              endAdornment={
-                <IconButton
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "6px",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: theme.palette.primary.light,
-                    },
-                    "&:active": {
-                      transform: "scale(0.95)",
-                    },
-                    [theme.breakpoints.down("md")]: {
-                      width: "32px",
-                      height: "32px",
-                      padding: "6px",
-                    },
-                    width: 26,
-                    height: 26,
-                    borderRadius: "4px",
-                    border: `1px solid ${theme.palette.primary.main}`,
-                    backgroundColor: theme.palette.background.paper,
-                  }}
-                  onClick={() => handleCopy("dpk_live_x04exyjb946e9lwclqhqvqzrgu3k0v24")}
-                >
-                  <Image
-                    src={CopyIcon.src}
-                    alt="copy-icon"
-                    width={10}
-                    height={10}
-                    draggable={false}
-                    className="themed-icon-primary"
-                  />
-                </IconButton>
-              }
-            />
-
             <SecurityNoticeContainer>
               <IconContainer>
                 <Image

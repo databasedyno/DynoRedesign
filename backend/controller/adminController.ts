@@ -22,7 +22,7 @@ import {
   adminWalletModel,
   feesModel,
 } from "../models";
-import tatumApi from "../apis/tatumApi";
+import { tatumClient } from "../integrations/tatum/TatumClient";
 import { getAdminWalletAddress } from "../utils/adminUtils";
 import sequelize from "../utils/dbInstance";
 import { IAdminWallet } from "../utils/types";
@@ -195,7 +195,7 @@ const createWallets = async (_req: express.Request, res: express.Response) => {
       }
 
       for (let i = 0; i < cryptoData.length; i++) {
-        const wallet = await tatumApi.generateWallet(cryptoData[i]);
+        const wallet = await tatumClient.generateWallet(cryptoData[i]);
 
         await adminWalletModel.create(
           {
@@ -391,7 +391,7 @@ const withdrawAssets = async (req: express.Request, res: express.Response) => {
       sendAmount: string | number = amount;
     if (["BTC", "LTC", "DOGE"].indexOf(adminWallet.wallet_type) !== -1) {
       fees = (
-        await tatumApi.feeEstimation(
+        await tatumClient.feeEstimation(
           adminWallet.wallet_type,
           adminWallet.wallet_address,
           address,
@@ -403,7 +403,7 @@ const withdrawAssets = async (req: express.Request, res: express.Response) => {
     }
 
     if (["ETH", "BSC", "USDT-ERC20"].indexOf(adminWallet.wallet_type) !== -1) {
-      fees = await tatumApi.feeEstimation(
+      fees = await tatumClient.feeEstimation(
         adminWallet.wallet_type,
         adminWallet.wallet_address,
         address,
@@ -418,7 +418,7 @@ const withdrawAssets = async (req: express.Request, res: express.Response) => {
 
     adminLogger.info(fees);
 
-    const transactionDetails = await tatumApi.assetToOtherAddress({
+    const transactionDetails = await tatumClient.assetToOtherAddress({
       currency: currency,
       fromAddress: adminWallet.wallet_address,
       toAddress: address,
@@ -457,7 +457,7 @@ const getFeeWalletBalance = async (
       // by checkFeeBalance in paymentController.ts (skipCache + try/catch + NaN guard).
       let currentBalance;
       try {
-        currentBalance = await tatumApi.getAddressBalance(
+        currentBalance = await tatumClient.getAddressBalance(
           adminFeesWallets[i]?.dataValues.wallet_address,
           adminFeesWallets[i]?.dataValues.wallet_type,
           true // skipCache — admin UI must always see real-time data

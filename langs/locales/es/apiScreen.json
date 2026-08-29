@@ -77,6 +77,8 @@
     "enable": "Activar"
   },
   "apiKeyTitle": "Clave API {{currency}}",
+  "apiKeyTitleLive": "Clave API en vivo",
+  "apiKeyTitleTest": "Clave API de prueba",
   "keys": {
     "liveUnlockHint": "Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera billetera en esta empresa.",
     "testAutoCreatedBadge": "Creada automáticamente · Sandbox",

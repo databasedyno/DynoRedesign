@@ -77,6 +77,8 @@
     "enable": "Aktivieren"
   },
   "apiKeyTitle": "{{currency}} API-Schlüssel",
+  "apiKeyTitleLive": "Live-API-Schlüssel",
+  "apiKeyTitleTest": "Test-API-Schlüssel",
   "keys": {
     "liveUnlockHint": "Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Wallet für dieses Unternehmen hinzufügen (oder wiederverwenden).",
     "testAutoCreatedBadge": "Automatisch erstellt · Sandbox",

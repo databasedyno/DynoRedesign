@@ -14,6 +14,9 @@ import {
   NON_HD_CHAINS,
 } from "../../models";
 import tatumApi from "../../apis/tatumApi";
+// All private-key/mnemonic decryption goes through the audited custody boundary
+// (writes tbl_key_access_audit). Do NOT call tatumApi.decryptSymmetric directly.
+import * as keyCustody from "../keyCustody/keyCustodyService";
 import sequelize from "../../utils/dbInstance";
 import { getErrorMessage } from "../../helper";
 import { POOL_CONFIG, RLUSD_CONFIG, isTagBasedChain, XRP_MASTER_ADDRESS, getCryptoRedisKey } from "./merchantPoolConfig";
@@ -92,9 +95,10 @@ export const getOrCreateMerchantWallet = async (
     if (NON_HD_CHAINS.includes(baseChain)) {
       return { xpub: merchantWallet.dataValues.xpub, mnemonic: "NON_HD" };
     }
-    const decryptedData = await tatumApi.decryptSymmetric(
+    const decryptedData = await keyCustody.decryptPrivateKey(
       merchantWallet.dataValues.mnemonic,
-      envRaw("XPUB_KEY_ID")
+      envRaw("XPUB_KEY_ID"),
+      { purpose: "merchant_wallet_mnemonic", actor: "worker", walletType: baseChain }
     );
     const walletData = JSON.parse(decryptedData);
     return {
@@ -547,19 +551,20 @@ export const retryPendingTrustLines = async (): Promise<{
           }
 
           try {
-            const xrpFeePrivateKey = await tatumApi.decryptSymmetric(
+            // MEMORY HARDENING: fee-wallet key scoped to the signing call.
+            await keyCustody.withPrivateKey(
               xrpFeeWalletRecord.dataValues.privateKey,
-              envRaw("TEMP_KEY_ID")
+              envRaw("TEMP_KEY_ID"),
+              { purpose: "trustline_gas_funding", actor: "worker", walletType: "XRP", walletAddress: xrpFeeWallet },
+              (xrpFeePrivateKey) => tatumApi.assetToOtherAddress({
+                currency: "XRP",
+                fromAddress: xrpFeeWallet,
+                toAddress: walletAddress,
+                privateKey: xrpFeePrivateKey,
+                amount: 2,
+                fee: null,
+              })
             );
-
-            await tatumApi.assetToOtherAddress({
-              currency: "XRP",
-              fromAddress: xrpFeeWallet,
-              toAddress: walletAddress,
-              privateKey: xrpFeePrivateKey,
-              amount: 2,
-              fee: null,
-            });
             cronLogger.info(`[TrustLineRetry] Funded ${walletAddress} with 2 XRP`);
           } catch (fundErr: unknown) {
             const fundMsg = (fundErr as { message?: string })?.message || '';
@@ -587,18 +592,18 @@ export const retryPendingTrustLines = async (): Promise<{
           continue;
         }
 
-        // Decrypt the private key for trust line creation
-        const privateKey = await tatumApi.decryptSymmetric(
+        // Trust line creation — key scoped to the signing call.
+        await keyCustody.withPrivateKey(
           addr.dataValues.private_key,
-          envRaw("TEMP_KEY_ID")
-        );
-
-        await tatumApi.setupXrpTrustLine(
-          walletAddress,
-          privateKey,
-          rlusdIssuer,
-          rlusdCurrencyHex,
-          "999999999"
+          envRaw("TEMP_KEY_ID"),
+          { purpose: "trustline_setup", actor: "worker", walletType: "XRP", walletAddress },
+          (privateKey) => tatumApi.setupXrpTrustLine(
+            walletAddress,
+            privateKey,
+            rlusdIssuer,
+            rlusdCurrencyHex,
+            "999999999"
+          )
         );
         
         cronLogger.info(`[TrustLineRetry] ✅ Trust line established for ${walletAddress}`);

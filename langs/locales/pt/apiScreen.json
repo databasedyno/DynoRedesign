@@ -77,6 +77,8 @@
     "enable": "Ativar"
   },
   "apiKeyTitle": "Chave de API {{currency}}",
+  "apiKeyTitleLive": "Chave de API em produção",
+  "apiKeyTitleTest": "Chave de API de teste",
   "keys": {
     "liveUnlockHint": "Sua chave em produção é ativada automaticamente assim que você adiciona (ou reutiliza) a primeira carteira nesta empresa.",
     "testAutoCreatedBadge": "Criada automaticamente · Sandbox",

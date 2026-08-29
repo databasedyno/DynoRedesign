@@ -1,3 +1,216 @@
+# KEY MEMORY HARDENING (2026-06 fork) — P0 sweep-path key custody — DONE (tsc + 31 tests + health verified)
+
+PROBLEM: plaintext private keys lingered in Node memory during sweeps. Worst: sweepPoolAddress decrypted the pool
+key at the top and the variable stayed alive through ~400 lines of DB/email bookkeeping. merchantPoolWallet.ts and
+paymentController.ts sweep crons called tatumApi/tatumClient.decryptSymmetric DIRECTLY (no audit, no scoping).
+
+FIX — every sweep-path key access now goes through the audited custody boundary (services/keyCustody/keyCustodyService.ts):
+- merchantPoolSweep.ts (3 sites → keyCustody.withPrivateKey, key exists only inside signing callback):
+  fundGasIfNeeded (purpose gas_funding), reclaimExcessGas (gas_reclaim), sweepPoolAddress (pool_sweep — broadcast
+  branch wrapped; loadtest branch now touches NO key at all, "LOADTEST-PRIVATE-KEY" placeholder removed)
+- merchantPoolWallet.ts (3 sites, + keyCustody import): mnemonic decrypt → keyCustody.decryptPrivateKey audited
+  (purpose merchant_wallet_mnemonic — must return plaintext by contract, audit-only is the win); XRP trust-line
+  funding + setup → withPrivateKey (trustline_gas_funding / trustline_setup)
+- paymentController.ts (2 sites, + keyCustody import): checkingUSDT sweep (usdt_admin_fee_sweep) and
+  sweepNativeAdminFees (native_admin_fee_sweep) → withPrivateKey
+- Remaining raw decrypt OUT OF SCOPE (flagged follow-up): controller/payment/settlement/settleTransaction.ts:221
+  (settlement forward, not a sweep)
+
+TESTS: new backend/__tests__/keyCustodyBoundary.test.ts (7 tests: plaintext only inside callback, 1 audit row per
+access w/ purpose, audit never contains plaintext/ciphertext, key_ref_hash sha256, callback error propagates,
+decrypt failure audited success:false, audit write failure never breaks caller). 31/31 pass incl merchantPoolConfig.
+tsc EXIT 0; backend restarted (ts-node NO hot reload); /health healthy db+redis connected; /api/pay/getData responds.
+ALSO FIXED: pre-commit file-size blocker — monitoringService.ts 501→500 lines (removed blank line).
+NOTE: check-file-size warns webhooks/index.ts grew 717→736 (legacy warning only, verdict OK).
+
+---
+
+
+# LANDING FEE-COPY PASS (2026-06 fork) — "$1" scrubbed from landing marketing, fee story unified to 1.5%→0.5% — DONE (SSR + screenshot verified)
+
+USER decisions: recommendation (e) full landing copy pass accepted; all 6 locales; "no mention of the extra $1";
+$1 policy = option (a) "we still charge it, but don't market it" — $1 disclosure stays ONLY on /fees.
+VERIFIED FIRST (user asked "verify if we charge in the code base"): YES — backend/.env FEE_TIER_1..4_FIXED=1.00 +
+TRANSACTION_FEE_PERCENT=1.5; feeService.calculateTransactionFees adds fixed_fee on the real settlement path
+(settlement/chainVerification.ts:478, paymentController.ts:345, cryptoCheckout.ts:1556). $100 → merchant nets $97.50.
+
+CHANGED (langs/locales/{en,es,pt,fr,de,nl}/landing.json ONLY — no component/code change, via
+scripts/inject_fee_copy_2026.py, format-preserving, exact-substring asserts):
+- v3.hero.body: fee sentence → "Fees from 1.5% per payment, dropping to as low as 0.5% as your volume grows."
+- v3.hero.metaSettle → "fees from 1.5%, down to 0.5% at scale"
+- v3.story.step3.body: "1.5% + $1 to start" → "1.5% to start"
+- v3.faq.a3: "percentage plus a flat $1" → "simple percentage — from 1.5% down to 0.5% … See the Fees page"
+- v3.learn.fees.desc → "From 1.5% per payment down to 0.5% as you grow…"
+- v3.whopays.merchantNote → "You cover the fee…"; feeFootnote → "Starter rate with all per-payment fees included —
+  see the Fees page for full pricing" (keeps $97.50/$102.50 example honest without naming $1)
+- v3.audience realigned to hero voice (the "disconnected" fix): "One wallet. / Every audience." →
+  "One crypto checkout. / Every kind of business." + body now echoes hosted checkout/links + wallet you control + simple fee
+- press.boilerplateBody + press.facts.pricing.value: "1.5% + $1" → "From/start at 1.5% …"
+UNCHANGED (intentional): fees.json — /fees keeps headTitle "1.5% + $1…", plusFixed "+ $1 per payment",
+wp*Desc worked-example math (full-disclosure page per user choice a).
+
+VERIFIED: all 6 landing.json parse-valid; SSR curl on / — all 8 new strings PRESENT, "1.5% + $1"/"+ $1"/"flat $1"
+ABSENT; /fees still shows "+ $1 per payment" + $97.50; hero screenshot renders clean.
+NOTE: /for/* SEO vertical JSONs (data/seo-pages) not scanned for $1 this pass — flagged as follow-up.
+
+---
+
+
+# CORRECTION (2026-06 fork) — product paragraph belongs to LANDING hero, NOT developer page
+
+User clarified the product paragraph ("Take Bitcoin, Ethereum and stablecoins…No chargebacks. 1.5% + $1…") was
+their LANDING-PAGE copy, quoted as a reference — it is ALREADY the landing hero body (langs/locales/*/landing.json
+v3.hero.body, verbatim). I had wrongly duplicated it as a Developers→Keys page intro. REVERTED: removed the
+keys-product-intro Box from Components/Page/API/ApiKeysPage.tsx and the keysIntro key from en/apiScreen.json.
+
+FINAL STATE of the "USD API Key" UX fix (developer page only, the changes that actually address the original issue):
+  - Card titles: "Live API Key" / "Test API Key" (was "{{currency}} API Key" → "USD API Key").
+  - Short Base Currency helper: "The currency you price in — buyers still pay in Bitcoin, Ethereum or stablecoins."
+    (t=currency.baseCurrencyHelper, EN only; non-EN falls back to English defaultValue).
+  - NO product paragraph on the developer page. Landing hero UNCHANGED.
+VERIFIED: tsc EXIT 0, en/apiScreen.json valid, live screenshot — intro absent, titles + short helper present,
+"USD API Key" string absent.
+
+---
+
+
+
+# API-KEY copy REVISION (follow-up, 2026-06 fork) — product intro + short helper, English-only — screenshot-verified, tsc EXIT 0
+
+USER rejected the first helper copy ("...funds settle to your wallet either way") — "don't show backend payment
+logic re: the $ / USD normalization; make it resonate with the product." User gave an exact product paragraph and
+steered (ask_human): (1a) use it as a page-level intro at the TOP of the Keys section, once — NOT per card;
+(2a) short per-card helper with no backend mechanics; (3b) English only.
+
+DONE (Components/Page/API/ApiKeysPage.tsx, copy only):
+  - NEW page intro at top of Keys tab [data-testid=keys-product-intro], gated on showKeys, t("keysIntro"):
+    "Take Bitcoin, Ethereum and stablecoins on a hosted checkout or payment link. Keep the original coin or
+     auto-convert to USDC or USDT — your choice — and settle to a wallet you control. No chargebacks.
+     1.5% + $1 per payment, dropping to as low as 0.5% as your volume grows."
+  - Per-card Base Currency helper [api-base-currency-helper] shortened to t("currency.baseCurrencyHelper"):
+    "The currency you price in — buyers still pay in Bitcoin, Ethereum or stablecoins."
+  - i18n (English only per user): keysIntro + new baseCurrencyHelper live in en/apiScreen.json only; the earlier
+    es/pt/fr/de/nl baseCurrencyHelper translations were REMOVED so non-English falls back to the English
+    defaultValue (both strings carry a defaultValue in the t() call → renders English everywhere).
+
+VERIFIED: tsc EXIT 0; all 6 apiScreen.json parse-valid; live screenshot on /developer-keys (onarrival21@gmail.com)
+— intro paragraph renders once at top, both cards show "Live/Test API Key" + short helper, the old
+"funds settle to your wallet either way" string is ABSENT.
+
+FILES: Components/Page/API/ApiKeysPage.tsx; langs/locales/en/apiScreen.json (+ es/pt/fr/de/nl helper removed).
+
+---
+
+
+
+# API-KEY "Base currency" UX confusion — "USD API Key" label fixed (2026-06 fork) — screenshot-verified EN, tsc EXIT 0
+
+USER (msg #10): "How does Base currency connect to the currency selection under Settings? Why does it say USD API
+Key for copies? I thought we allow more than USD as base currency — inspect + fix the UX." User steer (ask_human):
+apply all fixes, SKIP the display-currency relationship note, full translation to all 6 locales.
+
+DIAGNOSIS — three independent "currency" concepts the UI blurred together:
+  1) API key `base_currency` (the card title "{{currency}} API Key" → rendered "USD API Key") = the DEFAULT
+     pricing/settlement denomination for payments created with that key (backend normalizes it to USD internally,
+     buyer then pays in whatever coin they pick). Supports 20+ fiats (SUPPORTED_BASE_CURRENCIES in apiController.ts).
+  2) "Display currency" (Settings → Payments, UserDisplayCurrencySelector/DisplayCurrencySelector) = PURELY cosmetic
+     dashboard/wallet display; code comment: "NEVER affects pricing, invoices, exports…".
+  3) Accepted cryptos (company crypto settings) = which coins buyers may pay with.
+The "USD API Key" title read like a lock to USD-only → the confusion.
+
+FIX (frontend copy/labels only, ZERO logic change — Components/Page/API/ApiKeysPage.tsx):
+  - Card title no longer "{{currency}} API Key". Now environment-based NEUTRAL title:
+      production/legacy key → t("apiKeyTitleLive")  = "Live API Key"
+      development key       → t("apiKeyTitleTest")  = "Test API Key"
+    (title computed at the map site ~L1491 from (api).environment). The base-currency selector chip stays below it.
+  - Added helper line under the Base Currency selector [data-testid=api-base-currency-helper]:
+    t("currency.baseCurrencyHelper") = "Default pricing currency for payments created with this key. Buyers can pay
+    in any supported coin — funds settle to your wallet either way."
+  - i18n: added apiKeyTitleLive, apiKeyTitleTest, currency.baseCurrencyHelper to ALL 6 apiScreen.json
+    (en/es/pt/fr/de/nl). Old unused key "apiKeyTitle" left in place (harmless). NO display-currency note (skipped per user).
+
+VERIFIED: frontend tsc EXIT 0; all 6 apiScreen.json parse-valid; grep shows ZERO remaining apiKeyTitle usages in
+Components/pages. Live screenshot on /developer-keys (logged in onarrival21@gmail.com) — cards now read "Live API
+Key" + "Test API Key" (Auto-Created·Sandbox badge), "USD API Key" string ABSENT, helper text renders on both cards,
+Base Currency selector still editable (USD). NOTE: German render not switchable for this account — logged-in
+merchants render in their ACCOUNT language (English here) via reconcileLanguageOnAuth, not localStorage/?lang; the
+DE/es/pt/fr/nl strings are present + valid and use the identical proven t() pipeline (verified in prior forks).
+
+FILES: Components/Page/API/ApiKeysPage.tsx; langs/locales/{en,es,pt,fr,de,nl}/apiScreen.json.
+
+STILL PENDING (backlog): P2 merchantPoolSweep.ts plaintext-key-in-memory hardening; P1 Referral Earnings dashboard
+card; P1 route all payment-state transitions through persistTransition().
+
+---
+
+
+
+# SWR on InlineTipCheckout (Phase C ext) + TATUM BOUNDARY seam swap — DONE (2026-06 fork) — testing_agent iteration_96 = 100%
+
+Two next-action items the user picked ("yes" to both):
+
+## 1) SWR on InlineTipCheckout (creator tips + store checkout) — DONE (iteration_96 = 100% frontend)
+Same flag-gated pattern as CleanCheckoutV2 Phase C, on Components/Page/Creator/InlineTipCheckout.tsx: extracted
+applyMeta/applyVerifyResult shared handlers; legacy meta useEffect + setInterval poll guarded `if (SWR_ON) return`;
+added metaSwr + verifySwr (refreshInterval 10_000, refreshWhenHidden true). Same `?swr=1` / NEXT_PUBLIC_CHECKOUT_SWR
+flag, DEFAULT OFF. VERIFIED on /devhub support widget (POST /api/pay/tip → live contribution session):
+legacy vs ?swr=1 byte-identical (inline-tip-status-pill same; only reserved inline-tip-address differs per load —
+expected), SWR poll fired 3 verify POSTs at [10.00s, 10.26s], zero console errors, frontend tsc EXIT 0.
+Both checkout surfaces (CleanCheckoutV2 + InlineTipCheckout) now share one SWR server-state model behind the flag.
+Flag STILL OFF sitewide until the user's live real-payment test passes (then set NEXT_PUBLIC_CHECKOUT_SWR=true).
+
+## 2) Tatum integration boundary (P1) — 24 controllers off apis/tatumApi — DONE (safe seam swap)
+User picked option (a) = safe seam swap (TatumClient/BlockchainService are pass-through re-exports, so runtime-
+identical). 11 controllers that USE it now `import { tatumClient } from integrations/tatum/TatumClient` + call
+sites renamed tatumApi.*→tatumClient.*; 13 controllers had DEAD tatumApi imports → removed entirely.
+grep apis/tatumApi + grep "tatumApi." in backend/controller = NONE. Only the integration/infra layer
+(services/chains, services/blockchain, services/merchantPool, keyCustody, utils/tatumAuth, webhooks) still imports
+apis/tatumApi raw — the boundary's implementation, correctly untouched. VERIFIED: backend tsc EXIT 0; restart →
+/health healthy (tatum operational); live curl getData (paymentController) + wallet/network-fees (feesEstimates →
+tatumClient.batchFeeEstimation) + wallet/reusable-wallets all OK. Behaviour-preserving by construction.
+Full domain-verb abstraction on BlockchainService deferred (high risk, money-path, not preview-testable).
+Full detail in memory/REFACTOR_STATUS.md.
+
+---
+
+
+# CHECKOUT REFACTOR PHASE C — SWR data layer on CleanCheckoutV2, FLAG-GATED — DONE (2026-06 fork) — testing_agent iteration_95 = 100% frontend
+
+User steer (ask_human): "a" — complete Phase C properly (flag-gated), then user runs a live real-payment test
+before it becomes default. RESUME FINDING: a prior turn had added ONLY dead scaffolding (`import useSWR` +
+`SWR_ON` flag) to CleanCheckoutV2.tsx — no `useSWR()` call, no handlers — so the flag did nothing and legacy
+paths still ran everything. Completed the real wiring this turn.
+
+WHAT SHIPPED (Components/Page/Pay3Components/CleanCheckoutV2.tsx, flag default OFF):
+- Extracted shared handlers `applyMeta(r)` (/pay/getData → setMeta + phase) and `applyVerifyResult(r)`
+  (/pay/verifyCryptoPayment status machine: detected/pending, underpaid+partial, confirmed/overpaid→onSuccess,
+  expired). BOTH legacy and SWR paths funnel through them → identical processing.
+- Legacy path (flag OFF): original meta useEffect + setInterval(10s) verify poll, each guarded `if (SWR_ON) return`.
+- SWR path (flag ON): metaSwr=useSWR(['checkout/getData', d]) (no focus/reconnect/stale revalidate, no retry);
+  verifySwr=useSWR(['checkout/verify', address, token], { refreshInterval:10_000, refreshWhenHidden:true,
+  revalidateOnFocus:false, shouldRetryOnError:false }). Verify key nulls out on leaving awaiting/underpaid so SWR
+  stops automatically on confirmed/expired. refreshWhenHidden:true matches legacy (polls on hidden tab for the
+  switch-tab+notify UX). checkoutApi never throws (returns {ok:false}) so SWR only sees resolved values.
+- FLAG SWR_ON = NEXT_PUBLIC_CHECKOUT_SWR===true OR ?swr=1 in URL. SCOPE = meta load + verify poll only;
+  reservePayment (imperative multi-step reservation) intentionally left as-is.
+
+VERIFIED (testing_agent iteration_95 = 100%, on FRESH in-pod link d=6dd51132387bb90115c71f895b66f19a734e625c54b433ca
+so its Redis session lives here — the old handoff/DB links read 'expired' because their sessions aren't in this
+pod's isolated Redis /1): legacy vs SWR render BYTE-IDENTICAL (h1 'Pay The Dev Store', amount '$20.00 USD',
+network 'Litecoin', currency 'LTC', instruction 'Pay 0.4078054 LTC on Litecoin', WAITING strip — only the
+reserved address differs, expected); SWR poll fired 3 verify POSTs in 25s at intervals [10.0s, 10.28s] =
+refreshInterval 10000; no double-fetch; ZERO console errors; no error boundary; frontend tsc EXIT 0.
+
+⚠️ FLAG STAYS OFF until the USER runs a live real-payment test (confirmed/underpaid/expired transitions need a
+real on-chain confirmation — not exercisable in preview). Test URL:
+https://93a6ba2d-1fd6-4d17-b93a-74d1b9eeeab4.preview.emergentagent.com/pay?d=6dd51132387bb90115c71f895b66f19a734e625c54b433ca&swr=1
+(link_id 277, $20, no expiry — left LIVE on prod DB for this test). To make default after passing: set
+NEXT_PUBLIC_CHECKOUT_SWR=true. REMAINING (Phase C extension, not started): same SWR layer on InlineTipCheckout
+(easy) + dormant cryptoTransfer (low priority). Full detail in memory/REFACTOR_STATUS.md.
+
+---
+
+
 # PERF — status-page "wallet" probe 600ms → ~42ms — DONE (2026-06 fork) — testing_agent iteration_93 = 100% backend
 
 User: "wallet is over 600ms on status page, want it under 300ms." ROOT CAUSE: backend/services/monitoringService.ts

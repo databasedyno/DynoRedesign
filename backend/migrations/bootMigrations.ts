@@ -258,6 +258,36 @@ const createKeyAccessAuditTable = async (): Promise<void> => {
   if (isSyncable(keyAccessAuditModel)) await keyAccessAuditModel.sync();
 };
 
+/**
+ * 0010 — Tier-1 money invariants on tbl_ledger_entries.
+ * DB-level backstop so a bad ledger row can NEVER be written:
+ *   - amount must be strictly positive (direction decides sign at aggregation).
+ *   - direction must be exactly 'DR' or 'CR'.
+ * Idempotent (guarded by pg_constraint existence). Verified safe on live prod
+ * (1,676 rows, 0 violations at authoring time). The ADD CONSTRAINT scans the
+ * table once under a brief lock — negligible at this size.
+ */
+const addLedgerMoneyInvariants = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'ledger_entries_amount_positive'
+      ) THEN
+        ALTER TABLE "tbl_ledger_entries"
+          ADD CONSTRAINT ledger_entries_amount_positive CHECK (amount > 0);
+      END IF;
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'ledger_entries_direction_valid'
+      ) THEN
+        ALTER TABLE "tbl_ledger_entries"
+          ADD CONSTRAINT ledger_entries_direction_valid CHECK (direction IN ('DR','CR'));
+      END IF;
+    END $$;
+  `);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -270,5 +300,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0007_inbound_events", up: createInboundEventsTable },
     { version: "0008_outbox", up: createOutboxTable },
     { version: "0009_key_access_audit", up: createKeyAccessAuditTable },
+    { version: "0010_ledger_money_invariants", up: addLedgerMoneyInvariants },
   ];
 }

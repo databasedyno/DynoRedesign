@@ -109,7 +109,7 @@
       "headline1": "Acepta pagos en cripto.",
       "headlineHighlight": "Cobra",
       "headline2": "a tu manera.",
-      "body": "Acepta Bitcoin, Ethereum y stablecoins en un checkout alojado o enlace de pago. Conserva la moneda original o <b>convierte automáticamente a USDC o USDT</b> —tú eliges— y liquida en una wallet que tú controlas. Sin contracargos. <b>1,5 % + 1 $ por pago, bajando hasta el 0,5 % a medida que crece tu volumen.</b>",
+      "body": "Acepta Bitcoin, Ethereum y stablecoins en un checkout alojado o enlace de pago. Conserva la moneda original o <b>convierte automáticamente a USDC o USDT</b> —tú eliges— y liquida en una wallet que tú controlas. Sin contracargos. <b>Comisiones desde el 1,5 % por pago, bajando hasta el 0,5 % a medida que crece tu volumen.</b>",
       "claimBtn": "Reservar",
       "chooseHandle": "Elige tu nombre de creador",
       "rewardBadge": "¿Eres nuevo? Eximimos nuestra <b>comisión de plataforma</b> en tu primer pago.",
@@ -118,7 +118,7 @@
       "livePill": "EN VIVO",
       "sendTipLabel": "Enviar propina",
       "sendTipBtn": "Enviar propina",
-      "metaSettle": "Se liquida en la moneda que elijas · <b>1,5 % + 1 $, hasta 0,5 % a escala</b>",
+      "metaSettle": "Se liquida en la moneda que elijas · <b>comisiones desde el 1,5 %, hasta el 0,5 % a escala</b>",
       "handleAvailable": "está disponible",
       "handleTaken": "Ese identificador no está disponible — prueba con otro.",
       "primaryCta": "Empieza a aceptar pagos",
@@ -144,7 +144,7 @@
       },
       "step3": {
         "title": "Llega a tu cartera.",
-        "body": "El pago va directo a la dirección de wallet que tú controlas, nunca la custodiamos. 1,5 % + 1 $ para empezar, hasta 0,5 % a escala. Sin cuota mensual, sin contracargos."
+        "body": "El pago va directo a la dirección de wallet que tú controlas, nunca la custodiamos. 1,5 % para empezar, hasta 0,5 % a escala. Sin cuota mensual, sin contracargos."
       },
       "mock": {
         "awaitingPayment": "Esperando pago",
@@ -223,9 +223,9 @@
     },
     "audience": {
       "eyebrow": "[ ¿Para quién es esto? ]",
-      "headline1": "Una cartera.",
-      "headline2": "Todas las audiencias.",
-      "body": "Elige tu puerta: comercios, creadores, recaudadores, desarrolladores. Los mismos rieles cripto, la misma billetera, las mismas tarifas.",
+      "headline1": "Un checkout cripto.",
+      "headline2": "Todo tipo de negocio.",
+      "body": "Comercios, creadores, recaudadores, desarrolladores: elige tu puerta. El mismo checkout alojado y enlaces de pago, la misma wallet que tú controlas, la misma comisión simple.",
       "merchants": {
         "tag": "01 · Comercios",
         "title": "Vende productos en cripto.",
@@ -271,7 +271,7 @@
       "q2": "¿Dónde llegan los fondos?",
       "a2": "Directamente a una dirección de cartera que tú controlas — no la guardamos nosotros. Dynopay es sin custodia. Cada liquidación es una transferencia on-chain real a tu dirección.",
       "q3": "¿Cuánto cuesta?",
-      "a3": "Cada pago es un porcentaje más 1 $ fijo. El porcentaje va del 1,5 % (Starter) al 0,5 % (Enterprise), según tu volumen liquidado histórico, y tu primer pago es sin comisión. Sin cuota mensual, sin coste de alta, sin contracargos. Consulta la página de Comisiones para ver la tabla completa.",
+      "a3": "Cada pago cuesta un porcentaje simple: del 1,5 % (Starter) al 0,5 % (Enterprise), según tu volumen liquidado histórico, y tu primer pago es sin comisión. Sin cuota mensual, sin coste de alta, sin contracargos. Consulta la página de Comisiones para ver el detalle completo.",
       "q4": "¿Cómo de rápida es la liquidación?",
       "a4": "Depende de la red. Las redes de stablecoins y las cadenas rápidas (TRC-20, Polygon, L2) suelen confirmar en uno o dos minutos; Bitcoin y Ethereum en mainnet pueden tardar más cuando hay congestión. Tu panel muestra el estado de la transacción en tiempo real y, si activaste la conversión automática, los fondos llegan en la stablecoin que elijas en cuanto se confirma el pago; si no, te quedas con la moneda que envió el comprador.",
       "q5": "¿Soportáis fiat, reembolsos o suscripciones?",
@@ -297,7 +297,7 @@
       "fees": {
         "tag": "Precios",
         "title": "Ver las comisiones",
-        "desc": "1,5 % + 1 $ por pago, hasta 0,5 % a medida que creces. Sin cuota mensual, sin coste de alta, sin contracargos, nunca."
+        "desc": "Desde el 1,5 % por pago hasta el 0,5 % a medida que creces. Sin cuota mensual, sin coste de alta, sin contracargos, nunca."
       },
       "exploreBtn": "Explorar"
     },
@@ -371,9 +371,9 @@
       "exampleLabel": "En un pago de $100",
       "customerPaysLabel": "El cliente paga",
       "youReceiveLabel": "Tú recibes",
-      "merchantNote": "Tú cubres la comisión del 1,5% + $1, así que el precio que ve tu cliente sigue siendo exactamente $100.",
+      "merchantNote": "Tú cubres la comisión, así que el precio que ve tu cliente sigue siendo exactamente $100.",
       "customerNote": "La comisión se añade encima: la paga el cliente y tú te quedas con tus $100 completos.",
-      "feeFootnote": "Ejemplo con la tarifa Starter del 1,5% + $1 por pago. Tu tarifa baja al 0,5% a medida que creces."
+      "feeFootnote": "Ejemplo con la tarifa Starter, con todas las comisiones por pago incluidas — consulta la página de Comisiones para el detalle completo. Tu tarifa baja al 0,5 % a medida que crece tu volumen."
     },
     "coins": {
       "eyebrow": "[ Monedas y tokens ]",
@@ -843,7 +843,7 @@
     "heroTitle": "Todo lo que necesitas para escribir sobre Dynopay.",
     "heroBody": "Logos, datos de la empresa y una descripción lista para usar — libres para republicar en artículos, reseñas y directorios. Si necesitas algo más, nuestro equipo está a un correo de distancia.",
     "boilerplateTitle": "Descripción estándar",
-    "boilerplateBody": "Dynopay es una pasarela de pago de criptomonedas sin custodia fundada en 2024. Los comercios la usan para vender productos, recibir propinas y realizar campañas de recaudación —o para integrar pagos vía API— aceptando Bitcoin, Ethereum, stablecoins y 15 monedas y tokens en 9 blockchains. Los pagos se liquidan directamente en una wallet que controla el comercio, con conversión automática opcional a USDT/USDC. Las comisiones son del 1,5 % + 1 $ por pago, hasta el 0,5 % a escala, sin contracargos.",
+    "boilerplateBody": "Dynopay es una pasarela de pago de criptomonedas sin custodia fundada en 2024. Los comercios la usan para vender productos, recibir propinas y realizar campañas de recaudación —o para integrar pagos vía API— aceptando Bitcoin, Ethereum, stablecoins y 15 monedas y tokens en 9 blockchains. Los pagos se liquidan directamente en una wallet que controla el comercio, con conversión automática opcional a USDT/USDC. Las comisiones parten del 1,5 % por pago, hasta el 0,5 % a escala, sin contracargos.",
     "factsTitle": "Datos clave",
     "facts": {
       "founded": {
@@ -856,7 +856,7 @@
       },
       "pricing": {
         "label": "Precios",
-        "value": "1,5 % + 1 $ por transacción, hasta 0,5 % a escala — sin cuotas mensuales"
+        "value": "Desde el 1,5 % por transacción, hasta el 0,5 % a escala — sin cuotas mensuales"
       },
       "networks": {
         "label": "Redes",

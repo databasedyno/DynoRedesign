@@ -27,6 +27,7 @@
   },
   "currency": {
     "baseCurrency": "Base Currency",
+    "baseCurrencyHelper": "The currency you price in — buyers still pay in Bitcoin, Ethereum or stablecoins.",
     "updateFailed": "Failed to update currency"
   },
   "toast": {
@@ -77,6 +78,8 @@
     "enable": "Enable"
   },
   "apiKeyTitle": "{{currency}} API Key",
+  "apiKeyTitleLive": "Live API Key",
+  "apiKeyTitleTest": "Test API Key",
   "keys": {
     "liveUnlockHint": "Your live key activates automatically once you add (or reuse) your first wallet on this company.",
     "testAutoCreatedBadge": "Auto-created · Sandbox",

@@ -236,40 +236,39 @@ export const fundGasIfNeeded = async (
       throw new Error(`Fee wallet not found for ${gasToken}`);
     }
 
-    const feeWalletPrivateKey = await keyCustody.decryptPrivateKey(
-      feeWallet.dataValues.privateKey,
-      envRaw("TEMP_KEY_ID"),
-      { purpose: "gas_funding", actor: "worker", walletType: gasToken, walletAddress: feeWalletAddress }
-    );
-
     cronLogger.info(`[SmartGas] 🔥 Funding ${fundAmount.toFixed(6)} ${gasToken} to ${tempAddress}`);
 
-    let txId: string | undefined;
-
-    if (isDirectEvmSupported(gasToken)) {
-      // EVM gas funding: use directEvmSweep (ethers.js) to avoid Tatum SDK ghost TX issue
-      cronLogger.info(`[SmartGas] Using direct EVM transfer for ${gasToken} gas funding`);
-      const evmResult = await directEvmSweep({
-        fromAddress: feeWalletAddress,
-        toAddress: tempAddress,
-        privateKey: feeWalletPrivateKey,
-        walletType: gasToken,
-        amount: fundAmount,
-      });
-      txId = evmResult.txHash;
-      cronLogger.info(`[SmartGas] ✅ Direct EVM gas funding: ${txId} (gas: ${evmResult.gasPriceGwei} Gwei)`);
-    } else {
-      // Non-EVM gas funding (TRX, XRP): continue using Tatum SDK
-      const txResult = await tatumApi.assetToOtherAddress({
-        currency: gasToken,
-        fromAddress: feeWalletAddress,
-        toAddress: tempAddress,
-        privateKey: feeWalletPrivateKey,
-        amount: fundAmount,
-        fee: null,
-      });
-      txId = txResult?.txId;
-    }
+    // MEMORY HARDENING: plaintext fee-wallet key exists only inside this callback.
+    const txId: string | undefined = await keyCustody.withPrivateKey(
+      feeWallet.dataValues.privateKey,
+      envRaw("TEMP_KEY_ID"),
+      { purpose: "gas_funding", actor: "worker", walletType: gasToken, walletAddress: feeWalletAddress },
+      async (feeWalletPrivateKey) => {
+        if (isDirectEvmSupported(gasToken)) {
+          // EVM gas funding: use directEvmSweep (ethers.js) to avoid Tatum SDK ghost TX issue
+          cronLogger.info(`[SmartGas] Using direct EVM transfer for ${gasToken} gas funding`);
+          const evmResult = await directEvmSweep({
+            fromAddress: feeWalletAddress,
+            toAddress: tempAddress,
+            privateKey: feeWalletPrivateKey,
+            walletType: gasToken,
+            amount: fundAmount,
+          });
+          cronLogger.info(`[SmartGas] ✅ Direct EVM gas funding: ${evmResult.txHash} (gas: ${evmResult.gasPriceGwei} Gwei)`);
+          return evmResult.txHash;
+        }
+        // Non-EVM gas funding (TRX, XRP): continue using Tatum SDK
+        const txResult = await tatumApi.assetToOtherAddress({
+          currency: gasToken,
+          fromAddress: feeWalletAddress,
+          toAddress: tempAddress,
+          privateKey: feeWalletPrivateKey,
+          amount: fundAmount,
+          fee: null,
+        });
+        return txResult?.txId;
+      }
+    );
 
     const newBalance = currentBalance + fundAmount;
     await poolAddress.update({ gas_balance: newBalance });
@@ -341,36 +340,35 @@ export const reclaimExcessGas = async (
       return { reclaimed: false, amount: 0 };
     }
 
-    const privateKey = await keyCustody.decryptPrivateKey(
-      poolRecord.dataValues.privateKey,
-      envRaw("TEMP_KEY_ID"),
-      { purpose: "gas_reclaim", actor: "worker", walletType: gasToken, walletAddress: poolAddress }
-    );
-
     cronLogger.info(`[GasReclaim] ♻️ Reclaiming ${reclaimAmount.toFixed(4)} ${gasToken} from ${poolAddress.substring(0, 12)}... → fee wallet`);
 
-    let txId: string | undefined;
-
-    if (isDirectEvmSupported(gasToken)) {
-      const evmResult = await directEvmSweep({
-        fromAddress: poolAddress,
-        toAddress: feeWalletAddress,
-        privateKey,
-        walletType: gasToken,
-        amount: reclaimAmount,
-      });
-      txId = evmResult.txHash;
-    } else {
-      const txResult = await tatumApi.assetToOtherAddress({
-        currency: gasToken,
-        fromAddress: poolAddress,
-        toAddress: feeWalletAddress,
-        privateKey,
-        amount: reclaimAmount,
-        fee: null,
-      });
-      txId = txResult?.txId;
-    }
+    // MEMORY HARDENING: plaintext pool key exists only inside this callback.
+    const txId: string | undefined = await keyCustody.withPrivateKey(
+      poolRecord.dataValues.privateKey,
+      envRaw("TEMP_KEY_ID"),
+      { purpose: "gas_reclaim", actor: "worker", walletType: gasToken, walletAddress: poolAddress },
+      async (privateKey) => {
+        if (isDirectEvmSupported(gasToken)) {
+          const evmResult = await directEvmSweep({
+            fromAddress: poolAddress,
+            toAddress: feeWalletAddress,
+            privateKey,
+            walletType: gasToken,
+            amount: reclaimAmount,
+          });
+          return evmResult.txHash;
+        }
+        const txResult = await tatumApi.assetToOtherAddress({
+          currency: gasToken,
+          fromAddress: poolAddress,
+          toAddress: feeWalletAddress,
+          privateKey,
+          amount: reclaimAmount,
+          fee: null,
+        });
+        return txResult?.txId;
+      }
+    );
 
     cronLogger.info(`[GasReclaim] ✅ Reclaimed ${reclaimAmount.toFixed(4)} ${gasToken} (TX: ${txId})`);
     return { reclaimed: true, amount: reclaimAmount, txId };
@@ -745,14 +743,6 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       cronLogger.info(`[MerchantPool] Native ${walletType} - gas comes from remaining balance, no external funding needed`);
     }
 
-    const privateKey = __loadtest.isLoadtestNoBroadcast()
-      ? "LOADTEST-PRIVATE-KEY"
-      : await keyCustody.decryptPrivateKey(
-          poolAddress.dataValues.private_key,
-          envRaw("TEMP_KEY_ID"),
-          { purpose: "pool_sweep", actor: "worker", walletType, walletAddress: poolAddress.dataValues.wallet_address }
-        );
-
     const isAccountChain = ACCOUNT_CHAINS.includes(walletType);
     const isUTXOChain = ["BTC", "LTC", "DOGE", "BCH"].includes(walletType);
     let amountToSend = actualBalance;
@@ -851,50 +841,61 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       // (outgoing-tx marker, balance updates, status transitions) still runs.
       sweepTxId = __loadtest.syntheticTxId("LOADTEST-SWEEP");
       cronLogger.warn(`[MerchantPool] 🧪 LOADTEST_NO_BROADCAST — synthetic sweep tx ${sweepTxId} for ${poolAddress.dataValues.wallet_address}`);
-    } else if (isDirectEvmSupported(walletType)) {
-      // DIRECT EVM SWEEP: ethers.js signs locally + broadcasts via eth_sendRawTransaction
-      // The TX hash is real — sendTransaction() throws if the RPC node rejects the TX
-      cronLogger.info(`[MerchantPool] Using direct EVM sweep for ${walletType}`);
-      const evmResult = await withRetry(
-        async () => {
-          return await directEvmSweep({
-            fromAddress: poolAddress.dataValues.wallet_address,
-            toAddress: adminWallet,
-            privateKey,
-            walletType,
-            amount: amountToSend,
-          });
-        },
-        `Direct EVM sweep for ${poolAddress.dataValues.wallet_address}`,
-        POOL_CONFIG.MAX_RETRIES,
-        POOL_CONFIG.SWEEP_RETRY_DELAY_MS
-      );
-      sweepTxId = evmResult?.txHash;
-      cronLogger.info(`[MerchantPool] ✅ Direct EVM sweep broadcast: ${sweepTxId} (nonce: ${evmResult?.nonce}, gas: ${evmResult?.gasPriceGwei} Gwei)`);
     } else {
-      // NON-EVM CHAINS: Use Tatum SDK (proven reliable for TRX, XRP, BTC, LTC, DOGE, etc.)
-      cronLogger.info(`[MerchantPool] Using Tatum SDK sweep for ${walletType}`);
-      const sweepResult = await withRetry(
-        async () => {
-          const result = await tatumApi.assetToOtherAddress({
-            currency: walletType,
-            fromAddress: poolAddress.dataValues.wallet_address,
-            toAddress: adminWallet,
-            privateKey,
-            amount: amountToSend.toString(),
-            fee: feeData,
-          });
-          if (!result?.txId) {
-            throw new Error("Sweep transaction failed - no txId returned");
+      // MEMORY HARDENING: the plaintext pool key exists ONLY inside this callback —
+      // decrypted immediately before signing and dropped the moment the broadcast
+      // returns. It never survives into the DB/email bookkeeping below.
+      sweepTxId = await keyCustody.withPrivateKey(
+        poolAddress.dataValues.private_key,
+        envRaw("TEMP_KEY_ID"),
+        { purpose: "pool_sweep", actor: "worker", walletType, walletAddress: poolAddress.dataValues.wallet_address },
+        async (privateKey) => {
+          if (isDirectEvmSupported(walletType)) {
+            // DIRECT EVM SWEEP: ethers.js signs locally + broadcasts via eth_sendRawTransaction
+            // The TX hash is real — sendTransaction() throws if the RPC node rejects the TX
+            cronLogger.info(`[MerchantPool] Using direct EVM sweep for ${walletType}`);
+            const evmResult = await withRetry(
+              async () => {
+                return await directEvmSweep({
+                  fromAddress: poolAddress.dataValues.wallet_address,
+                  toAddress: adminWallet,
+                  privateKey,
+                  walletType,
+                  amount: amountToSend,
+                });
+              },
+              `Direct EVM sweep for ${poolAddress.dataValues.wallet_address}`,
+              POOL_CONFIG.MAX_RETRIES,
+              POOL_CONFIG.SWEEP_RETRY_DELAY_MS
+            );
+            cronLogger.info(`[MerchantPool] ✅ Direct EVM sweep broadcast: ${evmResult?.txHash} (nonce: ${evmResult?.nonce}, gas: ${evmResult?.gasPriceGwei} Gwei)`);
+            return evmResult?.txHash;
           }
-          return result;
-        },
-        `Sweep transfer for ${poolAddress.dataValues.wallet_address}`,
-        POOL_CONFIG.MAX_RETRIES,
-        POOL_CONFIG.SWEEP_RETRY_DELAY_MS
+          // NON-EVM CHAINS: Use Tatum SDK (proven reliable for TRX, XRP, BTC, LTC, DOGE, etc.)
+          cronLogger.info(`[MerchantPool] Using Tatum SDK sweep for ${walletType}`);
+          const sweepResult = await withRetry(
+            async () => {
+              const result = await tatumApi.assetToOtherAddress({
+                currency: walletType,
+                fromAddress: poolAddress.dataValues.wallet_address,
+                toAddress: adminWallet,
+                privateKey,
+                amount: amountToSend.toString(),
+                fee: feeData,
+              });
+              if (!result?.txId) {
+                throw new Error("Sweep transaction failed - no txId returned");
+              }
+              return result;
+            },
+            `Sweep transfer for ${poolAddress.dataValues.wallet_address}`,
+            POOL_CONFIG.MAX_RETRIES,
+            POOL_CONFIG.SWEEP_RETRY_DELAY_MS
+          );
+          cronLogger.info(`[MerchantPool] ✅ Tatum SDK sweep broadcast: ${sweepResult?.txId}`);
+          return sweepResult?.txId;
+        }
       );
-      sweepTxId = sweepResult?.txId;
-      cronLogger.info(`[MerchantPool] ✅ Tatum SDK sweep broadcast: ${sweepTxId}`);
     }
 
     if (!sweepTxId) {

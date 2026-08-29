@@ -15,7 +15,7 @@
     },
     {
       "title": "Flat 1.5% fee, no monthly charges",
-      "description": "Pay 1.5% per successful transaction plus a small fixed component ($1 for orders under $100). No setup fees, no monthly minimums, no surprise costs for international customers."
+      "description": "Pay 1.5% per successful transaction, as low as 0.5% at scale. No setup fees, no monthly minimums, no surprise costs for international customers."
     }
   ],
   "how_it_works": [
@@ -38,7 +38,7 @@
     },
     {
       "question": "What are the fees for accepting crypto payments?",
-      "answer": "Dynopay charges 1.5% per successful transaction, plus a tiered fixed fee: $1 for orders under $100, up to $1 for orders under $1,000. No setup fees, no monthly fees, no hidden charges."
+      "answer": "Dynopay charges 1.5% per successful transaction, dropping to 0.5% as your volume grows. No setup fees, no monthly fees, no hidden charges — full pricing on the Fees page."
     },
     {
       "question": "How long does it take to start accepting cryptocurrency payments?",

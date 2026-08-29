@@ -109,7 +109,7 @@
       "headline1": "Krypto-Zahlungen annehmen.",
       "headlineHighlight": "Auszahlung",
       "headline2": "nach deiner Wahl.",
-      "body": "Akzeptiere Bitcoin, Ethereum und Stablecoins über einen gehosteten Checkout oder Zahlungslink. Behalte die ursprüngliche Coin oder <b>wandle automatisch in USDC oder USDT um</b> – deine Wahl – und lass die Auszahlung in eine Wallet fließen, die du kontrollierst. Keine Rückbuchungen. <b>1,5 % + 1 $ pro Zahlung, sinkt auf bis zu 0,5 %, wenn dein Volumen wächst.</b>",
+      "body": "Akzeptiere Bitcoin, Ethereum und Stablecoins über einen gehosteten Checkout oder Zahlungslink. Behalte die ursprüngliche Coin oder <b>wandle automatisch in USDC oder USDT um</b> – deine Wahl – und lass die Auszahlung in eine Wallet fließen, die du kontrollierst. Keine Rückbuchungen. <b>Gebühren ab 1,5 % pro Zahlung, sinkend auf bis zu 0,5 %, wenn dein Volumen wächst.</b>",
       "claimBtn": "Sichern",
       "chooseHandle": "Wähle deinen Creator-Handle",
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
@@ -118,7 +118,7 @@
       "livePill": "LIVE",
       "sendTipLabel": "Tip senden",
       "sendTipBtn": "Tip senden",
-      "metaSettle": "Auszahlung in der Coin deiner Wahl · <b>1,5 % + 1 $, bis zu 0,5 % bei Skalierung</b>",
+      "metaSettle": "Auszahlung in der Coin deiner Wahl · <b>Gebühren ab 1,5 %, bis zu 0,5 % bei Skalierung</b>",
       "handleAvailable": "ist verfügbar",
       "handleTaken": "Dieser Handle ist nicht verfügbar — versuchen Sie einen anderen.",
       "primaryCta": "Zahlungen annehmen",
@@ -144,7 +144,7 @@
       },
       "step3": {
         "title": "Es landet in deinem Wallet.",
-        "body": "Die Auszahlung geht direkt an die Wallet-Adresse, die du kontrollierst – nicht von uns verwahrt. 1,5 % + 1 $ zum Start, bis zu 0,5 % bei Skalierung. Keine monatliche Gebühr, keine Rückbuchungen."
+        "body": "Die Auszahlung geht direkt an die Wallet-Adresse, die du kontrollierst – nicht von uns verwahrt. 1,5 % zum Start, bis zu 0,5 % bei Skalierung. Keine monatliche Gebühr, keine Rückbuchungen."
       },
       "mock": {
         "awaitingPayment": "Warte auf Zahlung",
@@ -223,9 +223,9 @@
     },
     "audience": {
       "eyebrow": "[ Für wen ist das? ]",
-      "headline1": "Ein Wallet.",
-      "headline2": "Jedes Publikum.",
-      "body": "Wähle deine Tür – Händler, Creator, Fundraiser, Entwickler. Dieselben Krypto-Rails, dieselbe Wallet, dieselben Gebühren.",
+      "headline1": "Ein Krypto-Checkout.",
+      "headline2": "Jede Art von Business.",
+      "body": "Händler, Creator, Fundraiser, Entwickler – wähle deine Tür. Derselbe gehostete Checkout und dieselben Zahlungslinks, dieselbe Wallet, die du kontrollierst, dieselbe einfache Gebühr.",
       "merchants": {
         "tag": "01 · Händler",
         "title": "Verkaufe Produkte in Krypto.",
@@ -271,7 +271,7 @@
       "q2": "Wo landen die Mittel?",
       "a2": "Direkt an einer Wallet-Adresse, die du kontrollierst — nicht von uns verwahrt. Dynopay ist non-custodial. Jede Abwicklung ist ein echter on-chain-Transfer an deine Adresse.",
       "q3": "Was kostet es?",
-      "a3": "Jede Zahlung besteht aus einem Prozentsatz plus pauschal 1 $. Der Prozentsatz reicht von 1,5 % (Starter) bis 0,5 % (Enterprise), basierend auf deinem gesamten abgewickelten Volumen, und deine erste Zahlung ist gebührenfrei. Keine monatliche Gebühr, keine Einrichtungsgebühr, keine Rückbuchungen. Die vollständige Tabelle findest du auf der Gebührenseite.",
+      "a3": "Jede Zahlung kostet einen einfachen Prozentsatz — von 1,5 % (Starter) bis 0,5 % (Enterprise), basierend auf deinem gesamten abgewickelten Volumen — und deine erste Zahlung ist gebührenfrei. Keine monatliche Gebühr, keine Einrichtungsgebühr, keine Rückbuchungen. Alle Details findest du auf der Gebührenseite.",
       "q4": "Wie schnell ist die Abwicklung?",
       "a4": "Das hängt vom Netzwerk ab. Stablecoin-Rails und schnelle Chains (TRC-20, Polygon, L2s) bestätigen meist in ein bis zwei Minuten; Bitcoin und Ethereum im Mainnet können bei hoher Auslastung länger dauern. Dein Dashboard zeigt den Status live an — und wenn du Auto-Convert aktiviert hast, landen die Mittel in der gewählten Stablecoin, sobald die Zahlung bestätigt ist; andernfalls behältst du die vom Käufer gesendete Coin.",
       "q5": "Unterstützt ihr Fiat, Rückerstattungen oder Abos?",
@@ -297,7 +297,7 @@
       "fees": {
         "tag": "Preise",
         "title": "Gebühren ansehen",
-        "desc": "1,5 % + 1 $ pro Zahlung, bis auf 0,5 %, wenn du wächst. Keine monatliche Gebühr, keine Einrichtungsgebühr, keine Rückbuchungen – niemals."
+        "desc": "Ab 1,5 % pro Zahlung, bis auf 0,5 %, wenn du wächst. Keine monatliche Gebühr, keine Einrichtungsgebühr, keine Rückbuchungen – niemals."
       },
       "exploreBtn": "Entdecken"
     },
@@ -371,9 +371,9 @@
       "exampleLabel": "Bei einer Zahlung von $100",
       "customerPaysLabel": "Kunde zahlt",
       "youReceiveLabel": "Sie erhalten",
-      "merchantNote": "Sie tragen die Gebühr von 1,5 % + $1, sodass der Preis für Ihren Kunden exakt $100 bleibt.",
+      "merchantNote": "Sie tragen die Gebühr, sodass der Preis für Ihren Kunden exakt $100 bleibt.",
       "customerNote": "Die Gebühr kommt oben drauf – der Kunde trägt sie und Sie behalten Ihre vollen $100.",
-      "feeFootnote": "Beispiel zum Starter-Satz von 1,5 % + $1 pro Zahlung. Ihr Satz sinkt mit dem Volumen auf 0,5 %."
+      "feeFootnote": "Beispiel zum Starter-Satz, alle Gebühren pro Zahlung inklusive — alle Details auf der Gebührenseite. Ihr Satz sinkt mit dem Volumen auf 0,5 %."
     },
     "coins": {
       "eyebrow": "[ Coins & Tokens ]",
@@ -843,7 +843,7 @@
     "heroTitle": "Alles, was Sie brauchen, um über Dynopay zu schreiben.",
     "heroBody": "Logos, Unternehmensfakten und eine fertige Boilerplate — frei verwendbar in Artikeln, Tests und Verzeichnissen. Wenn Sie mehr brauchen, ist unser Team nur eine E-Mail entfernt.",
     "boilerplateTitle": "Boilerplate",
-    "boilerplateBody": "Dynopay ist ein nicht verwahrendes Krypto-Zahlungs-Gateway, gegründet 2024. Händler nutzen es, um Produkte zu verkaufen, Trinkgelder zu sammeln und Spendenkampagnen durchzuführen – oder um Zahlungen per API zu integrieren – und akzeptieren Bitcoin, Ethereum, Stablecoins und 15 Coins & Tokens über 9 Blockchains. Zahlungen gehen direkt an eine Wallet, die der Händler kontrolliert, mit optionaler automatischer Umwandlung in USDT/USDC. Die Gebühren betragen 1,5 % + 1 $ pro Zahlung, bis zu 0,5 % bei Skalierung, ohne Rückbuchungen.",
+    "boilerplateBody": "Dynopay ist ein nicht verwahrendes Krypto-Zahlungs-Gateway, gegründet 2024. Händler nutzen es, um Produkte zu verkaufen, Trinkgelder zu sammeln und Spendenkampagnen durchzuführen – oder um Zahlungen per API zu integrieren – und akzeptieren Bitcoin, Ethereum, Stablecoins und 15 Coins & Tokens über 9 Blockchains. Zahlungen gehen direkt an eine Wallet, die der Händler kontrolliert, mit optionaler automatischer Umwandlung in USDT/USDC. Die Gebühren beginnen bei 1,5 % pro Zahlung, bis zu 0,5 % bei Skalierung, ohne Rückbuchungen.",
     "factsTitle": "Fakten im Überblick",
     "facts": {
       "founded": {
@@ -856,7 +856,7 @@
       },
       "pricing": {
         "label": "Preise",
-        "value": "1,5 % + 1 $ pro Transaktion, bis zu 0,5 % bei Skalierung – keine monatlichen Gebühren"
+        "value": "Ab 1,5 % pro Transaktion, bis zu 0,5 % bei Skalierung – keine monatlichen Gebühren"
       },
       "networks": {
         "label": "Netzwerke",

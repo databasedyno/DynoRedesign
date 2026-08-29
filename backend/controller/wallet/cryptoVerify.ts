@@ -60,7 +60,7 @@ import {
   userWalletAddressModel,
   userTempAddressModel,
 } from "../../models/userModels";
-import tatumApi from "../../apis/tatumApi";
+import { tatumClient } from "../../integrations/tatum/TatumClient";
 import blockchairApi from "../../apis/blockchairApi";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import mailTransporter from "../../utils/mailTransporter";
@@ -127,7 +127,7 @@ export const verifyCryptoPayment = async (
         walletData.dataValues.wallet_account_id,
         platformCharge + blockchainCharge
       );
-      // const ref = await tatumApi.sendFeeToAdmin(
+      // const ref = await tatumClient.sendFeeToAdmin(
       //   walletData.dataValues.wallet_account_id,
       //   admin_wallet_id,
       //   platformCharge
@@ -147,7 +147,7 @@ export const verifyCryptoPayment = async (
       if (["USDT-TRC20", "USDT-ERC20"].indexOf(tempData.currency) === -1) {
         if (["BTC", "LTC", "DOGE"].indexOf(tempData.currency) !== -1) {
           fees = (
-            await tatumApi.feeEstimation(
+            await tatumClient.feeEstimation(
               tempData.currency,
               address,
               adminWalletAddress,
@@ -161,7 +161,7 @@ export const verifyCryptoPayment = async (
         }
 
         if (["ETH", "BSC", "USDT-ERC20"].indexOf(tempData.currency) !== -1) {
-          fees = await tatumApi.feeEstimation(
+          fees = await tatumClient.feeEstimation(
             tempData.currency,
             address,
             adminWalletAddress,
@@ -174,7 +174,7 @@ export const verifyCryptoPayment = async (
         }
 
         if (tempData.currency === "BCH") {
-          fees = await tatumApi.feeEstimation(
+          fees = await tatumClient.feeEstimation(
             tempData.currency,
             "bitcoincash" + address,
             adminWalletAddress,
@@ -215,7 +215,7 @@ export const verifyCryptoPayment = async (
               ? fees
               : (fees as { slow?: string | number })?.slow;
 
-          transactionDetails = await tatumApi.assetToOtherAddress({
+          transactionDetails = await tatumClient.assetToOtherAddress({
             currency: tempData.currency,
             fromAddress: address,
             toAddress: adminWalletAddress,

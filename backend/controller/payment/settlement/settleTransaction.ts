@@ -55,7 +55,7 @@ import {
   merchantTempAddressModel,
   paymentLinkModel,
 } from "../../../models";
-import tatumApi from "../../../apis/tatumApi";
+import { tatumClient } from "../../../integrations/tatum/TatumClient";
 import { generateQRCodeWithLogo } from "../../../utils/qrCodeWithLogo";
 import { getAdminWalletAddress } from "../../../utils/adminUtils";
 import {
@@ -218,7 +218,7 @@ export const settleCryptoTransaction = async ({
 
     // Get private key - merchant pool addresses use different field names
     const privateKeyField = isMerchantPool ? tempAddressData.private_key : tempAddressData.privateKey;
-    const privateKey = await tatumApi.decryptSymmetric(
+    const privateKey = await tatumClient.decryptSymmetric(
       privateKeyField,
       envRaw("TEMP_KEY_ID")
     );
@@ -244,7 +244,7 @@ export const settleCryptoTransaction = async ({
       if (isUTXODirect && receivedAmount > 0 && adminWalletAddress) {
         cronLogger.info(`[settleCryptoTransaction] UTXO auto-convert: Sending ${receivedAmount} ${currency} directly to admin wallet ${adminWalletAddress.substring(0, 12)}...`);
         
-        const utxoFees = await tatumApi.feeEstimation(
+        const utxoFees = await tatumClient.feeEstimation(
           currency,
           fromAddress,
           adminWalletAddress,
@@ -281,7 +281,7 @@ export const settleCryptoTransaction = async ({
         }
         
         // Lookup the correct UTXO output index for this address
-        const utxoIndex = await tatumApi.findUtxoOutputIndex(transactionId, fromAddress, currency);
+        const utxoIndex = await tatumClient.findUtxoOutputIndex(transactionId, fromAddress, currency);
         // FIX BUG-2/9: If output index not found (-1), log error and fall back to index 0 with fee tolerance
         const resolvedUtxoIndex = utxoIndex >= 0 ? utxoIndex : 0;
         let resolvedFeeSats = actualFeeSats;
@@ -299,7 +299,7 @@ export const settleCryptoTransaction = async ({
         cronLogger.info(`[settleCryptoTransaction] UTXO math (satoshi): input=${inputSats}, output=${resolvedOutputSats}, fee=${resolvedFeeSats}, change=${inputSats - resolvedOutputSats - resolvedFeeSats}, utxoAmountToSend=${resolvedUtxoAmount}, exactFee=${resolvedExactFee}, utxoIndex=${resolvedUtxoIndex}`);
         
         const adminTransferDetails = await withRetry(
-          () => tatumApi.assetToOtherAddress({
+          () => tatumClient.assetToOtherAddress({
             currency,
             fromAddress: fromAddress,
             toAddress: adminWalletAddress,
@@ -397,7 +397,7 @@ export const settleCryptoTransaction = async ({
         contractAddress = envRaw("TRX_CONTRACT");
       }
 
-      fees = await tatumApi.feeEstimation(
+      fees = await tatumClient.feeEstimation(
         currency,
         fromAddress,
         userAddress,
@@ -503,7 +503,7 @@ export const settleCryptoTransaction = async ({
           const chainKey = wallet_type.toUpperCase().replace(/-.*$/, '');
           const gasTimeout = gasTimeouts[chainKey] || 60000; // Default 60s for unknown chains
           cronLogger.info(`[settleCryptoTransaction] ⏳ Waiting for gas funding TX ${gasFundingResult.txId} confirmation (${wallet_type}, timeout=${gasTimeout / 1000}s)...`);
-          const gasConfirmation = await tatumApi.waitForTransactionConfirmation(
+          const gasConfirmation = await tatumClient.waitForTransactionConfirmation(
             gasFundingResult.txId,
             wallet_type,
             gasTimeout
@@ -535,7 +535,7 @@ export const settleCryptoTransaction = async ({
       for (let transferAttempt = 1; transferAttempt <= MAX_TRANSFER_ATTEMPTS; transferAttempt++) {
         try {
           merchantTransactionDetails = await withRetry(
-            () => tatumApi.assetToOtherAddress({
+            () => tatumClient.assetToOtherAddress({
               currency,
               fromAddress: fromAddress,
               toAddress: userAddress,
@@ -620,7 +620,7 @@ export const settleCryptoTransaction = async ({
         // UTXO chains: Create transaction to settle merchant + admin amounts
         // Use SATOSHI-LEVEL integer arithmetic to avoid floating-point precision issues
         // that cause Tatum API rejection ("decimal places not more than 8")
-        fees = await tatumApi.feeEstimation(
+        fees = await tatumClient.feeEstimation(
           currency,
           fromAddress,
           userAddress,
@@ -653,7 +653,7 @@ export const settleCryptoTransaction = async ({
         cronLogger.info(`[settleCryptoTransaction] UTXO multi-output math (satoshi): totalInput=${totalInputSats}, admin=${actualAdminSats}, merchant=${actualMerchantSats}, fee=${actualFeeSats}, change=${totalInputSats - actualAdminSats - actualMerchantSats - actualFeeSats}`);
 
         // Lookup the correct UTXO output index for this address (instead of assuming index 0)
-        const utxoIndex = await tatumApi.findUtxoOutputIndex(transactionId, fromAddress, currency);
+        const utxoIndex = await tatumClient.findUtxoOutputIndex(transactionId, fromAddress, currency);
         // FIX BUG-2/9: Handle unresolved output index with fee tolerance
         const resolvedUtxoIndex = utxoIndex >= 0 ? utxoIndex : 0;
         let finalFeeSats = actualFeeSats;
@@ -681,7 +681,7 @@ export const settleCryptoTransaction = async ({
           cronLogger.info(`[settleCryptoTransaction] UTXO same-wallet mode: Single output ${combinedAmount} ${currency} → ${userAddress} (fee: ${sameWalletFee}, utxoIndex: ${resolvedUtxoIndex})`);
 
           merchantTransactionDetails = await withRetry(
-            () => tatumApi.assetToOtherAddress({
+            () => tatumClient.assetToOtherAddress({
               currency,
               fromAddress: fromAddress,
               toAddress: userAddress,
@@ -717,7 +717,7 @@ export const settleCryptoTransaction = async ({
           const feeFreeSendAmount = Number((feeFreeAmount / 1e8).toFixed(8));
 
           merchantTransactionDetails = await withRetry(
-            () => tatumApi.assetToOtherAddress({
+            () => tatumClient.assetToOtherAddress({
               currency,
               fromAddress: fromAddress,
               toAddress: userAddress,
@@ -748,7 +748,7 @@ export const settleCryptoTransaction = async ({
         } else {
           // Normal mode: Two outputs (merchant + admin) to different addresses
           merchantTransactionDetails = await withRetry(
-            () => tatumApi.assetToOtherAddress({
+            () => tatumClient.assetToOtherAddress({
               currency,
               fromAddress: fromAddress,
               toAddress: userAddress,  // Primary recipient is merchant
@@ -801,7 +801,7 @@ export const settleCryptoTransaction = async ({
           effectiveNativeBase = Number(userAmount);
         }
 
-        fees = await tatumApi.feeEstimation(
+        fees = await tatumClient.feeEstimation(
           currency,
           fromAddress,
           userAddress,
@@ -828,7 +828,7 @@ export const settleCryptoTransaction = async ({
 
         // Retry merchant transfer for account chains (ETH, TRX, SOL, XRP, POLYGON)
         merchantTransactionDetails = await withRetry(
-          () => tatumApi.assetToOtherAddress({
+          () => tatumClient.assetToOtherAddress({
             currency,
             fromAddress: fromAddress,
             toAddress: userAddress,
@@ -901,7 +901,7 @@ export const settleCryptoTransaction = async ({
       const txHash = merchantTransactionDetails?.txId;
       if (txHash) {
         cronLogger.info(`[settleCryptoTransaction] Waiting for TX confirmation: ${txHash}`);
-        const confirmResult = await tatumApi.waitForTransactionConfirmation(txHash, currency, PAYMENT_TIMING.TRANSACTION_CONFIRMATION_TIMEOUT_MS);
+        const confirmResult = await tatumClient.waitForTransactionConfirmation(txHash, currency, PAYMENT_TIMING.TRANSACTION_CONFIRMATION_TIMEOUT_MS);
         
         if (confirmResult.confirmed) {
           cronLogger.info(`[settleCryptoTransaction] TX ${txHash} confirmed in block ${confirmResult.blockNumber}`);
@@ -963,7 +963,7 @@ export const settleCryptoTransaction = async ({
               }
               
               // Retry the merchant transfer
-              const retryResult = await tatumApi.assetToOtherAddress({
+              const retryResult = await tatumClient.assetToOtherAddress({
                 currency,
                 fromAddress: fromAddress,
                 toAddress: userAddress,
@@ -990,7 +990,7 @@ export const settleCryptoTransaction = async ({
                 await setRedisTTL(`outgoing-tx-${retryResult.txId}`, 7200);
                 
                 // Wait and verify the recovery TX
-                const recoveryConfirm = await tatumApi.waitForTransactionConfirmation(retryResult.txId, currency, PAYMENT_TIMING.TRANSACTION_CONFIRMATION_TIMEOUT_MS);
+                const recoveryConfirm = await tatumClient.waitForTransactionConfirmation(retryResult.txId, currency, PAYMENT_TIMING.TRANSACTION_CONFIRMATION_TIMEOUT_MS);
                 
                 if (recoveryConfirm.confirmed) {
                   cronLogger.info(`[settleCryptoTransaction] ✅ RECOVERY SUCCESSFUL: TX ${retryResult.txId} confirmed in block ${recoveryConfirm.blockNumber}. Merchant transfer completed.`);
