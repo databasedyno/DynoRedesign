@@ -53,7 +53,7 @@ const SolutionsGridV3: React.FC = () => {
         <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 6, md: 9 } }}>
           <Box sx={{ maxWidth: 620 }}>
             <Eyebrow sx={{ mb: 2 }}>{t("v3.solutions.eyebrow")}</Eyebrow>
-            <HeadlineL sx={{ color: s.ink }}>
+            <HeadlineL component="h2" sx={{ color: s.ink }}>
               {t("v3.solutions.headline1")}
               <br />
               {t("v3.solutions.headline2")}

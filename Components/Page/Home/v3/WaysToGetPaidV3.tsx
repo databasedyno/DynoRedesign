@@ -64,7 +64,7 @@ const WaysToGetPaidV3: React.FC = () => {
         >
           <Box sx={{ maxWidth: 620 }}>
             <Eyebrow sx={{ mb: 2 }}>{t("v3.ways.eyebrow")}</Eyebrow>
-            <HeadlineL sx={{ color: s.ink }}>
+            <HeadlineL component="h2" sx={{ color: s.ink }}>
               {t("v3.ways.headline1")}
               <br />
               {t("v3.ways.headline2")}

@@ -37,7 +37,7 @@ const RefundsTrustV3: React.FC = () => {
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 640, mb: { xs: 6, md: 9 } }}>
           <Eyebrow sx={{ mb: 2 }}>{t("v3.refunds.eyebrow")}</Eyebrow>
-          <HeadlineL sx={{ color: s.ink, mb: 2.5 }}>{t("v3.refunds.headline")}</HeadlineL>
+          <HeadlineL component="h2" sx={{ color: s.ink, mb: 2.5 }}>{t("v3.refunds.headline")}</HeadlineL>
           <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, fontSize: 16, lineHeight: 1.6 }}>
             {t("v3.refunds.body")}
           </Typography>

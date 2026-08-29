@@ -34,10 +34,11 @@ const BlogPage = () => {
       <Head>
         <title>{t('blogIndex.metaTitle')}</title>
         <meta name="description" content={t('blogIndex.metaDescription')} />
-        <meta property="og:title" content={t('blogIndex.metaTitle')} />
-        <meta property="og:description" content={t('blogIndex.ogDescription')} />
-        <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://dynopay.com/blog" />
+        <meta key="og:title" property="og:title" content={t('blogIndex.metaTitle')} />
+        <meta key="og:description" property="og:description" content={t('blogIndex.ogDescription')} />
+        <meta key="og:type" property="og:type" content="website" />
+        <meta key="og:url" property="og:url" content="https://dynopay.com/blog" />
+        <link key="canonical" rel="canonical" href="https://dynopay.com/blog" />
       </Head>
 
       {/* HomeHeader is rendered by HomeLayout */}
@@ -53,7 +54,7 @@ const BlogPage = () => {
         {/* Header — v3 typography sweep */}
         <Box sx={{ textAlign: "center", mb: isMobile ? 5 : 8 }}>
           <Eyebrow sx={{ mb: 2, display: "inline-block" }}>{t('blogIndex.eyebrow')}</Eyebrow>
-          <HeadlineL sx={{ mb: 2 }}>
+          <HeadlineL component="h1" sx={{ mb: 2 }}>
             {t('blogIndex.heroTitleLead')} <AuroraInk>{t('blogIndex.heroTitleAccent')}</AuroraInk>
           </HeadlineL>
           <Body sx={{ maxWidth: 600, mx: "auto" }}>

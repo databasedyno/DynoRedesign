@@ -31,7 +31,7 @@ const AudienceDoorsV3: React.FC = () => {
         <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 7, md: 11 } }}>
           <Box sx={{ maxWidth: 620 }}>
             <Eyebrow sx={{ mb: 2 }}>{t("v3.audience.eyebrow")}</Eyebrow>
-            <HeadlineL sx={{ color: s.ink }}>
+            <HeadlineL component="h2" sx={{ color: s.ink }}>
               {t("v3.audience.headline1")}
               <br />
               {t("v3.audience.headline2")}

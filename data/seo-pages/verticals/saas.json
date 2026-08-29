@@ -1,53 +1,53 @@
 {
-  "meta_title": "Crypto Payments for SaaS & Subscription Products | Dynopay",
-  "meta_description": "Accept Bitcoin, Ethereum, USDT, and 10+ cryptocurrencies for your SaaS. Non-custodial, 1.5% fee, no chargebacks. Start in 10 minutes with Dynopay.",
+  "meta_title": "Crypto Payments for SaaS & Subscription Products | DynoPay",
+  "meta_description": "Accept crypto payments for SaaS & subscription products with DynoPay. No chargebacks, global reach, 15+ cryptocurrencies. Fees from 1.5%. Start today.",
   "h1": "Accept crypto payments for SaaS & subscription products without chargebacks",
-  "subheading": "Dynopay lets you charge subscribers in Bitcoin, Ethereum, stablecoins, and 10+ cryptocurrencies. Funds go directly to your wallet—no custodian, no involuntary churn from failed cards.",
-  "intro_paragraph": "SaaS companies lose 9% of monthly recurring revenue to involuntary churn when credit cards expire or hit spending limits. Crypto subscriptions eliminate failed payments and chargebacks entirely. Dynopay is a non-custodial gateway: your customers pay in BTC, ETH, USDT, or 10+ assets, and funds arrive directly in your wallet. You stay in control. No monthly fees, just 1.5% per transaction. Go live in under 10 minutes with a payment link or checkout widget.",
+  "subheading": "DynoPay helps subscription businesses eliminate involuntary churn, expand to restricted markets, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet.",
+  "intro_paragraph": "Subscription businesses lose 9-15% of revenue to failed card payments and involuntary churn. International customers face currency conversion fees and payment method restrictions. DynoPay is a non-custodial platform that deposits crypto payments directly into your wallet—no middleman holding your funds. You get payment links, hosted checkout, and a REST API to bill subscribers in 15+ cryptocurrencies with fees starting at 1.5% and dropping to 0.5% at scale. No chargebacks. No monthly fees. First payment is free.",
   "features": [
     {
-      "title": "Zero involuntary churn from payments",
-      "description": "Crypto wallets don't expire like credit cards. Subscribers who pay in stablecoins or Bitcoin stay active as long as they choose, eliminating the 20-40% of churn caused by payment failures."
+      "title": "Non-custodial settlement to your wallet",
+      "description": "Funds go directly to your Ethereum, Bitcoin, or Solana wallet. DynoPay never holds your money, so you maintain full custody and can convert to fiat on your own schedule."
     },
     {
-      "title": "Non-custodial: you control your funds",
-      "description": "Dynopay never holds your money. Payments from customers go directly to your Ethereum, Bitcoin, or Tron wallet. You maintain custody from the first transaction to withdrawal."
+      "title": "Zero involuntary churn from crypto subscribers",
+      "description": "Crypto payments don't expire or decline. Customers who prefer stablecoins or Bitcoin stay subscribed longer because there are no failed card transactions or outdated billing details."
     },
     {
-      "title": "Flat 1.5% fee, no monthly charges",
-      "description": "Pay 1.5% per successful transaction, as low as 0.5% at scale. No setup fees, no monthly minimums, no surprise costs for international customers."
+      "title": "Reach customers in restricted markets",
+      "description": "Accept payment from regions where card networks won't operate or where your payment processor blocks transactions. Crypto has no geographic restrictions on who can pay you."
     }
   ],
   "how_it_works": [
-    "Sign up with your email, verify, and create your company profile in Dynopay's dashboard.",
-    "Add one payout wallet address for Bitcoin, Ethereum, Polygon, Tron, Solana, or XRP Ledger assets.",
-    "Generate a payment link or embed the checkout widget on your site to start accepting crypto."
+    "Sign up, verify your email, create a company profile, and add one payout wallet address for settlement.",
+    "Generate a payment link or embed the checkout widget on your SaaS signup or account page.",
+    "Customer pays in their preferred cryptocurrency. Funds arrive in your wallet within minutes, and you're live."
   ],
   "faqs": [
     {
-      "question": "Which cryptocurrencies can I accept for SaaS subscriptions?",
-      "answer": "Dynopay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, Polygon, Tron, Solana, and XRP Ledger. You can accept stablecoins like USDT and USDC on Ethereum, Polygon, and Tron, plus RLUSD on Ethereum and XRP Ledger for price stability."
+      "question": "How do crypto payments reduce involuntary churn for subscription businesses?",
+      "answer": "Crypto wallets don't expire and transactions don't fail due to insufficient funds in the same way cards do. Subscribers who hold stablecoins or Bitcoin can pay reliably without the card decline issues that cause 20-40% of involuntary churn in traditional SaaS billing."
     },
     {
-      "question": "Do I need to hold crypto or can customers pay while I receive stablecoins?",
-      "answer": "Customers pay in any supported crypto. You choose which wallet receives funds, so you can direct payments to a USDT or USDC address if you prefer stablecoins over volatile assets like Bitcoin or Ethereum."
+      "question": "What cryptocurrencies can my SaaS customers use to pay?",
+      "answer": "DynoPay supports 15+ cryptocurrencies: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX, and stablecoins including USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD on Ethereum and XRP Ledger."
     },
     {
-      "question": "How does Dynopay handle recurring subscription billing?",
-      "answer": "You generate a payment link or widget for each billing cycle. Customers send crypto directly to your wallet when invoices are due. Because wallets don't expire, you avoid involuntary churn from outdated card details."
+      "question": "What are DynoPay's fees for subscription payments?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop automatically to 0.5% as your settled volume grows. No setup fees, no monthly fees, no hidden costs, and your first payment is completely free."
     },
     {
-      "question": "What are the fees for accepting crypto payments?",
-      "answer": "Dynopay charges 1.5% per successful transaction, dropping to 0.5% as your volume grows. No setup fees, no monthly fees, no hidden charges — full pricing on the Fees page."
+      "question": "Do I need to hold crypto or set up a merchant account?",
+      "answer": "You only need a wallet address for the cryptocurrency you want to receive. DynoPay is non-custodial, so payments go straight to your Coinbase, Ledger, MetaMask, or any wallet you control. No merchant account required."
     },
     {
-      "question": "How long does it take to start accepting cryptocurrency payments?",
-      "answer": "Onboarding takes under 10 minutes. Sign up, verify your email, create a company profile, add one payout wallet address, then generate a payment link or drop the checkout widget on your site to go live."
+      "question": "Can I bill recurring subscriptions in cryptocurrency using DynoPay?",
+      "answer": "Yes. Use the REST API and webhooks to create payment links for each billing cycle, or build a recurring flow where subscribers approve payments from their wallet. DynoPay handles one-time and subscription use cases for SaaS products."
     }
   ],
   "cta_headline": "Start accepting crypto payments in 10 minutes",
-  "cta_body": "No setup fees, no monthly charges, and funds go directly to your wallet. Sign up now and charge your first subscriber today.",
-  "_generated_at": "2026-07-05T09:24:29.994776Z",
+  "cta_body": "Sign up now and your first transaction is fee-free. No monthly costs, no setup fees, and funds go directly to your wallet.",
+  "_generated_at": "2026-08-29T14:53:11.839432Z",
   "_model": "anthropic/claude-sonnet-4-5-20250929",
   "_kind": "vertical",
   "_slug": "saas",

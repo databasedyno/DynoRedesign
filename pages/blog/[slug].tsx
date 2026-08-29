@@ -407,11 +407,35 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
       <Head>
         <title>{post.title} · Dynopay Blog</title>
         <meta name="description" content={post.excerpt} />
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.excerpt} />
-        <meta property="og:type" content="article" />
+        <meta key="og:title" property="og:title" content={post.title} />
+        <meta key="og:description" property="og:description" content={post.excerpt} />
+        <meta key="og:type" property="og:type" content="article" />
+        <meta key="og:url" property="og:url" content={`https://dynopay.com/blog/${post.slug}`} />
+        <meta key="twitter:title" name="twitter:title" content={post.title} />
+        <meta key="twitter:description" name="twitter:description" content={post.excerpt} />
         <meta property="article:published_time" content={post.publishedAt} />
-        <link rel="canonical" href={`https://dynopay.com/blog/${post.slug}`} />
+        <link key="canonical" rel="canonical" href={`https://dynopay.com/blog/${post.slug}`} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: post.title,
+              description: post.excerpt,
+              datePublished: post.publishedAt,
+              dateModified: post.publishedAt,
+              author: { "@type": "Organization", name: post.author?.name || "Dynopay", url: "https://dynopay.com" },
+              publisher: {
+                "@type": "Organization",
+                name: "Dynopay",
+                logo: { "@type": "ImageObject", url: "https://dynopay.com/favicon-512.png" },
+              },
+              image: ["https://dynopay.com/og/dynopay-og.png"],
+              mainEntityOfPage: `https://dynopay.com/blog/${post.slug}`,
+            }),
+          }}
+        />
       </Head>
 
       {/* HomeHeader is rendered by HomeLayout */}

@@ -21,12 +21,24 @@ const FAQCompact: React.FC = () => {
     { q: t("v3.faq.q6"), a: t("v3.faq.a6") },
   ];
 
+  // FAQPage rich-result schema — mirrors the visible Q&A exactly (SSR renders EN).
+  const faqJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  });
+
   return (
     <Box component="section" sx={{ background: s.bgAlt, py: { xs: 14, md: 24 } }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqJsonLd }} />
       <Box sx={{ maxWidth: 960, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ mb: { xs: 7, md: 11 }, textAlign: "center" }}>
           <Eyebrow tone="coral" sx={{ mb: 2 }}>{t("v3.faq.eyebrow")}</Eyebrow>
-          <HeadlineL sx={{ color: s.ink }}>{t("v3.faq.headline")}</HeadlineL>
+          <HeadlineL component="h2" sx={{ color: s.ink }}>{t("v3.faq.headline")}</HeadlineL>
         </Box>
 
         <Box sx={{ border: `1px solid ${s.line}`, borderRadius: "20px", background: s.surface, overflow: "hidden" }}>

@@ -1,3 +1,48 @@
+# SEO OVERHAUL + "PAGE APPEARS SMALL" RCA (2026-08-29 fork, pod 202ba772) — DONE (tsc FE+BE 0 errors, lint 0 errors, SSR-verified)
+
+## 1. "Landing appears small then normal" — ROOT CAUSE: prod was on the PRE-FIX build
+- Verified prod dynopay.com build last-modified = 2026-08-29 14:11 GMT (deployed ~30 min before this session).
+  Until then prod served the old commit WITHOUT the font-FOUT fixes (deploys had been failing) — that's why the
+  user kept seeing it. Evidence the fix is now live + effective: (a) blocked ALL woff2 in headless → fallback
+  render is pixel-near-identical (metric-matched "Manrope Fallback" size-adjust 103.69%); (b) viewport meta at
+  1.9 KB into HTML; (c) SSR (JS-disabled) render == hydrated render at 1920px; (d) mobile 390px cold-cache 3G:
+  heroW/fontSize identical from first observable frame, visualViewport scale constant 1. NO CODE CHANGE NEEDED.
+  → User should re-test dynopay.com fresh; if still visible, get a screen recording (nothing in code produces it).
+
+## 2. SEO audit findings FIXED (all verified in SSR)
+- CRITICAL: default OG image /og/dynopay-og.png was 404 (every social share broken). Built pixel-perfect PIL-rendered
+  1200x630 card w/ real Manrope (scripts/seo/build-og-images.py) + cards for 5 new verticals.
+- Landing had NO <h1> → HeroPlayground HeadlineXL component="h1"; 11 landing section HeadlineL → component="h2"
+  (blog index HeadlineL → h1). Verified: 1×h1, 11×h2 in SSR HTML, zero visual change.
+- hreflang in _app was INVALID (all 6 langs pointed at the same URL) → now ?lang=xx variants matching sitemap.
+- og:type was "article" for every non-home page → "website" except /blog/* (article).
+- Sitemap was missing /blog, 4 blog posts (now w/ lastmod + hreflang:false since EN-only), /about, /press → 44 URLs.
+- Blog posts: added Article JSON-LD, keyed og/twitter/canonical metas (were DUPLICATING _app's keyed tags).
+- Landing FAQ: added FAQPage JSON-LD in FAQCompact (SEOLandingPage already had it).
+- robots.txt: removed stale /accept-crypto-payments-in/ allow (country pages deleted 2026-07-11 for REGULATORY
+  reasons — COUNTRIES list in generator now intentionally EMPTY with warning comment. NEVER re-add w/o user OK).
+
+## 3. Content refresh + 5 NEW SEO verticals (Claude Sonnet 4.5 via generator, 15/15 OK)
+- Fixed stale DYNOPAY_FACTS in scripts/generate-seo-pages.py ("flat 1.5%" → "starts at 1.5% + $1, drops to 0.5%
+  at scale, first payment free") and force-regenerated ALL 10 existing vertical/audience pages + generated NEW:
+  /for/hosting, /for/vpn, /for/marketplaces, /for/agencies, /for/nonprofits (all 200, h1+FAQPage schema verified).
+- HomeFooter Solutions column now links all 11 industries.
+
+## 4. Traffic automation BUILT
+- IndexNow (Bing/DuckDuckGo/Yahoo/Yandex): key file /public/9753d386db50a90331109c30a3d9dbb0.txt;
+  backend/utils/indexNowSubmitter.ts fetches live sitemap 2 min after boot, sha256-hashes URL set, re-submits to
+  api.indexnow.org only when changed (hash in Redis seo:indexnow:sitemap_hash). Hooked in server.ts inside
+  isCronEnabled block → INERT in SAFE-MODE previews, auto-runs on prod deploys. Manual:
+  node scripts/seo/submit-indexnow.mjs (run AFTER deploy — key file must be live or submission is rejected).
+- RSS feed /blog/rss.xml (+ <link rel=alternate> in _document).
+- NOT automatable: Google ignores IndexNow + ping endpoint is dead → user must add sitemap.xml once in
+  Google Search Console. Recommended next: AI blog-content pipeline (backlog).
+
+## VERIFIED: FE tsc 0, BE tsc 0, next lint 0 errors, backend restart healthy (SAFE MODE intact), landing
+  screenshot identical, /blog /about /press /for/vpn /for/nonprofits all 200. Prod deploy required to ship.
+
+---
+
 # FRONTEND PERF PASS (2026-06 fork) — bundle −288 kB/page, checkout single-fetch, build unblocked — DONE (build + testing_agent + e2e verified)
 
 ## 1. Bundle analysis + i18n fix (THE win — every page −288 kB gzipped, −46-49%)

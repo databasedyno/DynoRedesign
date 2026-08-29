@@ -44,7 +44,7 @@ const LearnDocsCards: React.FC = () => {
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 620, mb: { xs: 7, md: 11 } }}>
           <Eyebrow sx={{ mb: 2 }}>{t("v3.learn.eyebrow")}</Eyebrow>
-          <HeadlineL sx={{ color: s.ink }}>{t("v3.learn.headline")}</HeadlineL>
+          <HeadlineL component="h2" sx={{ color: s.ink }}>{t("v3.learn.headline")}</HeadlineL>
         </Box>
 
         <Box

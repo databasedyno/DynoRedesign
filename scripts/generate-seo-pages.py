@@ -61,14 +61,10 @@ VERTICALS_DIR = OUTPUT_ROOT / "verticals"
 # else needs to change — the Next.js pages pick them up automatically via
 # getStaticPaths reading the JSON files in this directory.
 COUNTRIES = [
-    {"slug": "united-states", "name": "the United States", "currency": "USD", "flag": "🇺🇸"},
-    {"slug": "united-kingdom", "name": "the United Kingdom", "currency": "GBP", "flag": "🇬🇧"},
-    {"slug": "nigeria", "name": "Nigeria", "currency": "NGN", "flag": "🇳🇬"},
-    {"slug": "india", "name": "India", "currency": "INR", "flag": "🇮🇳"},
-    {"slug": "brazil", "name": "Brazil", "currency": "BRL", "flag": "🇧🇷"},
-    {"slug": "vietnam", "name": "Vietnam", "currency": "VND", "flag": "🇻🇳"},
-    {"slug": "germany", "name": "Germany", "currency": "EUR", "flag": "🇩🇪"},
-    {"slug": "turkey", "name": "Türkiye", "currency": "TRY", "flag": "🇹🇷"},
+    # INTENTIONALLY EMPTY — per-country pages were removed 2026-07-11 (user
+    # decision, session 27g): promoting crypto payments per-jurisdiction creates
+    # regulatory exposure that outweighs the SEO value. Do NOT re-add without
+    # explicit user sign-off.
 ]
 
 VERTICALS = [
@@ -78,6 +74,11 @@ VERTICALS = [
     {"slug": "gaming", "name": "Gaming & iGaming"},
     {"slug": "remittance", "name": "Remittance & Cross-Border Payouts"},
     {"slug": "digital-downloads", "name": "Digital Downloads & Course Sellers"},
+    {"slug": "hosting", "name": "Web Hosting & Domain Providers"},
+    {"slug": "vpn", "name": "VPN & Privacy Software"},
+    {"slug": "marketplaces", "name": "Online Marketplaces & Platforms"},
+    {"slug": "agencies", "name": "Agencies & Consultants"},
+    {"slug": "nonprofits", "name": "Nonprofits & Charities"},
 ]
 
 # Audience pages — the 4 first-class DynoPay audiences. These render at
@@ -136,9 +137,13 @@ Supported chains and assets (verified):
 - Solana (SOL)
 - XRP Ledger (XRP, RLUSD on XRPL)
 
-Fees: flat platform fee of 1.5% per successful transaction, plus a small tiered
-fixed component ($1 for orders under $100, up to $1 for orders under $1000).
-No monthly fees. No setup fees. No hidden fees.
+Fees: volume-tiered platform fee — starts at 1.5% + $1 per successful payment
+(Starter tier) and falls automatically to as low as 0.5% at scale, based on
+settled volume. Every merchant's FIRST payment is completely fee-free.
+No monthly fees. No setup fees. No hidden fees. No chargebacks.
+IMPORTANT: never describe the fee as a "flat 1.5%" — always phrase it as
+"from 1.5%" or "starts at 1.5% and drops to 0.5% at scale".
+When counting supported assets, say "15+ cryptocurrencies".
 
 Onboarding: sign up → verify email → create company → add ONE payout wallet →
 generate a payment link or drop the checkout widget on your site. Live in

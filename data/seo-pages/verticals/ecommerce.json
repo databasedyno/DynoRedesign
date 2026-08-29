@@ -1,53 +1,53 @@
 {
-  "meta_title": "Crypto Payments for E-commerce Stores | Dynopay",
-  "meta_description": "Accept Bitcoin, Ethereum, USDT, and 12+ cryptocurrencies with crypto payments for e-commerce stores. 1.5% flat fee, zero chargebacks. Start in 10 minutes.",
-  "h1": "Accept crypto payments for e-commerce stores without chargebacks or fraud",
-  "subheading": "Dynopay lets you receive Bitcoin, Ethereum, stablecoins, and 12+ cryptocurrencies directly to your wallet. No chargebacks, no dispute fees, no funds held.",
-  "intro_paragraph": "E-commerce stores lose 0.47% of revenue to chargebacks, plus $15-100 in dispute fees per incident. Fraud and friendly fraud drain margins while payment processors hold your funds for days. Dynopay is a non-custodial gateway that sends crypto payments directly to your wallet—you control funds from the moment a customer pays. Flat 1.5% fee per transaction, no monthly costs, no chargeback risk.",
+  "meta_title": "Crypto Payments for E-commerce Stores | DynoPay",
+  "meta_description": "Accept crypto payments for e-commerce stores. Bitcoin, Ethereum, USDT, Solana + 15 cryptos. No chargebacks. Funds go direct to your wallet. Start free.",
+  "h1": "Accept crypto payments for e-commerce stores without chargebacks",
+  "subheading": "Receive Bitcoin, Ethereum, stablecoins, and 15+ cryptocurrencies directly to your wallet. No payment holds, no fraud disputes, no 2-4% processor fees.",
+  "intro_paragraph": "E-commerce merchants lose 0.47% of revenue to chargebacks and another 2.9% + $0.30 per card transaction. DynoPay is a non-custodial crypto commerce platform built for online stores: you receive funds directly in your own wallet the moment a customer pays, eliminating chargeback risk entirely. Pricing starts at 1.5% and drops to 0.5% at scale based on volume, with no monthly fees, no setup costs, and your first payment is completely free.",
   "features": [
     {
-      "title": "Zero Chargeback Risk, Ever",
-      "description": "Crypto transactions are final. No customer disputes, no friendly fraud, no $20 dispute fees eating into thin margins. You keep what customers pay, immediately."
+      "title": "Zero chargeback risk, ever",
+      "description": "Crypto transactions are final. No fraud disputes, no friendly fraud, no representment fees. Once a customer pays Bitcoin, USDT, or ETH, the funds are yours and cannot be reversed by a bank."
     },
     {
-      "title": "You Control Funds Immediately",
-      "description": "Non-custodial architecture sends Bitcoin, USDT, Ethereum, and other coins straight to your wallet. Dynopay never holds your money or freezes payouts during disputes."
+      "title": "Funds arrive in your wallet",
+      "description": "DynoPay never holds your money. Payments settle directly to your Ethereum address, Bitcoin wallet, or Solana account within minutes. You control the private keys and custody at all times."
     },
     {
-      "title": "1.5% Flat Fee, Fully Transparent",
-      "description": "One platform fee of 1.5% plus a small fixed component based on order size. No monthly fees, no setup costs, no surprise reserve holds or rolling holds."
+      "title": "Lower fees than card processors",
+      "description": "Pay from 1.5% and watch fees drop automatically to 0.5% as your volume grows. No interchange, no basis points on refunds, no monthly gateway charges. First payment is free."
     }
   ],
   "how_it_works": [
-    "Sign up, verify your email, and create your company profile in under three minutes.",
-    "Add one payout wallet address for your preferred cryptocurrency—Bitcoin, Ethereum, USDT, or any supported chain.",
-    "Generate a payment link or embed the checkout widget on your store. Go live in under 10 minutes."
+    "Sign up, verify your email, and create a company profile in under three minutes.",
+    "Add one payout wallet address for Bitcoin, Ethereum, USDT, or any supported crypto you want to accept.",
+    "Generate a payment link or embed the checkout widget on your Shopify, WooCommerce, or custom store. Go live."
   ],
   "faqs": [
     {
-      "question": "Do I need a business bank account to accept crypto payments on my e-commerce store?",
-      "answer": "No. Dynopay sends funds directly to your cryptocurrency wallet. You control the wallet, and you decide when to convert to fiat through your own exchange or keep it in crypto. No bank account required to start accepting payments."
+      "question": "What cryptocurrencies can my e-commerce store accept with DynoPay?",
+      "answer": "DynoPay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, and stablecoins like USDT on Ethereum, Tron, and Polygon, USDC on Ethereum, and RLUSD on Ethereum and XRP Ledger. You choose which to enable."
     },
     {
-      "question": "Which cryptocurrencies can my e-commerce store accept with Dynopay?",
-      "answer": "You can accept Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on Ethereum, Polygon, and Tron, USDC and RLUSD on Ethereum, MATIC, TRX, Solana, and XRP. Customers pay in any supported coin; you receive it in your wallet."
+      "question": "Do I need a crypto wallet to accept payments?",
+      "answer": "Yes. DynoPay is non-custodial, so you provide one wallet address per cryptocurrency you want to accept. Payments go directly there. You control the private keys. DynoPay never holds customer funds or requires you to withdraw."
     },
     {
-      "question": "How does Dynopay prevent chargebacks for online stores?",
-      "answer": "Cryptocurrency transactions are irreversible by design. Once a customer sends payment and the blockchain confirms it, the transaction cannot be disputed or reversed. You receive funds in your wallet with zero chargeback risk, eliminating dispute fees and fraud losses."
+      "question": "How much does DynoPay charge per transaction?",
+      "answer": "Pricing starts at 1.5% plus one dollar per successful payment and drops automatically to 0.5% as your settled volume increases. No monthly fees, no setup costs, no hidden charges. Your first payment is completely fee-free."
     },
     {
-      "question": "What are the fees for accepting crypto payments on my e-commerce site?",
-      "answer": "Dynopay charges a flat 1.5% platform fee per successful transaction, plus a small fixed component: one dollar for orders under 100 dollars, scaling to one dollar for orders under 1,000 dollars. No monthly fees, no setup fees, no hidden costs."
+      "question": "Can customers dispute or reverse a crypto payment?",
+      "answer": "No. Cryptocurrency transactions are irreversible by design. Once a customer sends Bitcoin or USDT and the blockchain confirms it, the payment cannot be charged back, disputed, or clawed back by a bank or card network."
     },
     {
-      "question": "How long does it take to start accepting cryptocurrency on my online store?",
-      "answer": "Most merchants go live in under 10 minutes. Sign up, verify your email, add your company details, provide one payout wallet address, then generate a payment link or add the checkout widget to your site. No lengthy underwriting or approval process."
+      "question": "How long does it take to start accepting crypto on my online store?",
+      "answer": "Most merchants go live in under 10 minutes. Sign up, verify your email, add a company profile, connect one wallet address, then generate a payment link or drop the widget into your storefront. No underwriting or waiting period."
     }
   ],
-  "cta_headline": "Start accepting crypto payments in 10 minutes",
-  "cta_body": "No chargebacks, no held funds, no monthly fees. Sign up now and add your wallet to start receiving payments today.",
-  "_generated_at": "2026-07-05T09:24:07.850266Z",
+  "cta_headline": "Start accepting crypto payments today",
+  "cta_body": "Your first payment is free and setup takes less than 10 minutes. No monthly fees, no chargebacks, funds direct to your wallet.",
+  "_generated_at": "2026-08-29T14:52:47.910056Z",
   "_model": "anthropic/claude-sonnet-4-5-20250929",
   "_kind": "vertical",
   "_slug": "ecommerce",

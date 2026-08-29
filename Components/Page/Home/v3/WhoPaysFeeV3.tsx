@@ -38,7 +38,7 @@ const WhoPaysFeeV3: React.FC = () => {
       <Box sx={{ maxWidth: 1080, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ textAlign: "center", maxWidth: 680, mx: "auto", mb: { xs: 5, md: 7 } }}>
           <Eyebrow sx={{ mb: 2 }}>{t("v3.whopays.eyebrow")}</Eyebrow>
-          <HeadlineL sx={{ color: s.ink, mb: 2.5 }}>{t("v3.whopays.headline")}</HeadlineL>
+          <HeadlineL component="h2" sx={{ color: s.ink, mb: 2.5 }}>{t("v3.whopays.headline")}</HeadlineL>
           <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, fontSize: 16, lineHeight: 1.6 }}>
             {t("v3.whopays.body")}
           </Typography>

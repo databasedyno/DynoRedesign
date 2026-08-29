@@ -546,7 +546,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         {isPrivatePage && <meta name="robots" content="noindex, nofollow" />}
 
         {/* ─── Open Graph ─── */}
-        <meta key="og:type" property="og:type" content={pathname === "/" ? "website" : "article"} />
+        <meta key="og:type" property="og:type" content={pathname.startsWith("/blog/") ? "article" : "website"} />
         <meta key="og:title" property="og:title" content={pageTitle} />
         <meta key="og:description" property="og:description" content={metaDescription} />
         <meta key="og:url" property="og:url" content={canonicalUrl} />
@@ -563,9 +563,15 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta key="twitter:image" name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:site" content="@Dynopaycom" />
 
-        {/* ─── hreflang tags for i18n ─── */}
+        {/* ─── hreflang tags for i18n — each language points at its REAL ?lang=
+             variant (matches the sitemap's alternates); EN + x-default = bare URL ─── */}
         {SUPPORTED_LANGS.map((lang) => (
-          <link key={lang} rel="alternate" hrefLang={lang} href={canonicalUrl} />
+          <link
+            key={`alt-${lang}`}
+            rel="alternate"
+            hrefLang={lang}
+            href={lang === "en" ? canonicalUrl : `${canonicalUrl}?lang=${lang}`}
+          />
         ))}
         <link key="x-default" rel="alternate" hrefLang="x-default" href={canonicalUrl} />
 

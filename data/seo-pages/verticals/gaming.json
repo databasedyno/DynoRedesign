@@ -1,53 +1,53 @@
 {
-  "meta_title": "Crypto Payments for Gaming & iGaming | Dynopay",
-  "meta_description": "Accept Bitcoin, ETH, USDT and 12+ cryptocurrencies. Zero chargebacks, no KYC friction for players. 1.5% flat fee. Start accepting crypto payments for gaming & iGaming today.",
-  "h1": "Crypto payments for gaming & iGaming that skip KYC friction and chargebacks",
-  "subheading": "Let players deposit with Bitcoin, Ethereum, USDT, and 12+ cryptocurrencies while you receive funds directly in your wallet—no middleman holding your money.",
-  "intro_paragraph": "Gaming and iGaming operators face two costly problems: players abandon sign-up when asked for bank details and ID documents, and traditional payment processors freeze accounts without warning. Dynopay is a non-custodial gateway that lets players pay with crypto in under 60 seconds while you maintain full custody—funds land directly in your wallet, not ours. You're live in under 10 minutes with support for Bitcoin, Ethereum, USDT across four networks, Solana, and 12 total assets.",
+  "meta_title": "Crypto Payments for Gaming & iGaming | DynoPay",
+  "meta_description": "Accept crypto payments for gaming & iGaming with no chargebacks, global reach, and instant settlements. Start in 10 minutes. First payment free.",
+  "h1": "Crypto payments for gaming & iGaming platforms with zero chargeback risk",
+  "subheading": "Accept 15+ cryptocurrencies from players worldwide, eliminate payment friction, and receive funds directly to your wallet—no intermediaries.",
+  "intro_paragraph": "Gaming and iGaming operators face constant payment challenges: card processors block or restrict accounts, chargebacks drain revenue, and players in restricted regions cannot deposit. DynoPay is a non-custodial platform that lets you accept Bitcoin, Ethereum, USDT, and 12+ other cryptocurrencies. You receive funds directly in your wallet—DynoPay never holds your money—and payments settle instantly with fees starting at 1.5% that drop to 0.5% at scale. No chargebacks. No blocks. No monthly fees.",
   "features": [
     {
-      "title": "Zero chargeback risk, ever",
-      "description": "Crypto transactions are final. No player can dispute a deposit 90 days later, and no processor can claw back settled funds from your account."
+      "title": "Zero chargeback exposure",
+      "description": "Crypto transactions are final. Players cannot reverse deposits after losing, protecting your revenue from fraudulent disputes that cost traditional processors 0.5–2% of volume annually."
     },
     {
-      "title": "Players skip KYC at checkout",
-      "description": "Accept deposits globally without collecting bank details or identity documents upfront. Players pay with a wallet address—you decide your own compliance requirements."
+      "title": "Serve players in any country",
+      "description": "Accept payments globally without geographic restrictions. No need to maintain multiple processor relationships or navigate country-specific banking regulations—crypto works everywhere by default."
     },
     {
-      "title": "You control the funds always",
-      "description": "Every payment lands directly in your own wallet within minutes. Dynopay never holds, touches, or has access to your customer funds at any point."
+      "title": "Direct wallet settlements",
+      "description": "Receive funds straight to your Ethereum, Bitcoin, or USDT wallet within minutes. DynoPay never holds your money, so you maintain full custody and can access capital immediately."
     }
   ],
   "how_it_works": [
-    "Sign up, verify your email, and create your company profile in Dynopay's dashboard in under three minutes.",
-    "Add the cryptocurrency wallet address where you want to receive payments—one address per asset you want to accept.",
-    "Drop the checkout widget on your site or share a payment link. Start accepting deposits immediately with no further setup."
+    "Sign up, verify your email, and create your company profile in under three minutes.",
+    "Add your Bitcoin, Ethereum, or stablecoin wallet address where you want to receive player deposits.",
+    "Generate payment links or embed the checkout widget on your platform and start accepting crypto."
   ],
   "faqs": [
     {
-      "question": "Do I need a crypto license to accept cryptocurrency payments for gaming?",
-      "answer": "Dynopay provides payment infrastructure only. You remain responsible for compliance with gaming and gambling regulations in your jurisdiction. Because you receive funds directly and Dynopay does not custody assets, we operate as a non-custodial technology provider. Consult your legal counsel for licensing requirements."
+      "question": "Do crypto payments for gaming have chargebacks?",
+      "answer": "No. Cryptocurrency transactions are irreversible by design. Once a player sends a deposit, they cannot dispute or reverse it, eliminating chargeback fraud and the 0.5–2% loss traditional gaming operators face from card disputes."
     },
     {
-      "question": "Which cryptocurrencies can gaming players use to deposit?",
-      "answer": "Players can deposit using Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on Ethereum, USDC, RLUSD on Ethereum, Polygon MATIC, USDT on Polygon, Tron, USDT on Tron, Solana, XRP, and RLUSD on XRP Ledger. You choose which assets to accept."
+      "question": "What cryptocurrencies can gaming platforms accept with DynoPay?",
+      "answer": "DynoPay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, USDT on Ethereum, Polygon and Tron, USDC, SOL, XRP, RLUSD, and others. Players choose their preferred coin at checkout."
     },
     {
-      "question": "How long does it take for crypto deposits to reach my wallet?",
-      "answer": "Deposits arrive in your wallet as soon as the blockchain confirms the transaction. Bitcoin typically takes 10-30 minutes, Ethereum 2-5 minutes, and Tron or Solana under one minute. Dynopay does not add processing delays because we never custody funds."
+      "question": "How much does DynoPay charge for gaming crypto payments?",
+      "answer": "Fees start at 1.5% plus one dollar per transaction and automatically drop to 0.5% as your settled volume grows. No monthly fees, no setup costs, and your first payment is completely free. No chargebacks mean no dispute fees."
     },
     {
-      "question": "What fees does Dynopay charge for gaming transactions?",
-      "answer": "Dynopay charges 1.5% per successful transaction, dropping to as low as 0.5% as your volume grows. No monthly fees, no setup fees, no withdrawal fees, no hidden costs — see the Fees page for full pricing."
+      "question": "Can I accept crypto from players in restricted countries?",
+      "answer": "Yes. DynoPay has no geographic restrictions for receiving cryptocurrency payments. Players anywhere can deposit without country blocks. KYC requirements apply only if you convert crypto to fiat through an off-ramp partner in certain jurisdictions."
     },
     {
-      "question": "Can I accept crypto payments from players in any country?",
-      "answer": "Yes. Crypto payments have no geographic restrictions at the gateway level. You receive payments globally by default. However, you remain responsible for verifying that you are legally permitted to offer gaming services to players in their specific jurisdictions."
+      "question": "How quickly can a gaming site start accepting crypto with DynoPay?",
+      "answer": "Most operators go live in under 10 minutes. Sign up, verify your email, add your payout wallet address, and generate a payment link or embed the checkout widget. No lengthy approvals or compliance holds."
     }
   ],
-  "cta_headline": "Start accepting crypto deposits in 10 minutes",
-  "cta_body": "No setup fees, no monthly costs, and you keep full custody of every deposit. Create your account and go live today.",
-  "_generated_at": "2026-07-05T09:25:16.426465Z",
+  "cta_headline": "Start accepting crypto payments today",
+  "cta_body": "Your first payment is free. No monthly fees, no setup costs, and live in under 10 minutes with zero chargeback risk.",
+  "_generated_at": "2026-08-29T14:53:56.868307Z",
   "_model": "anthropic/claude-sonnet-4-5-20250929",
   "_kind": "vertical",
   "_slug": "gaming",

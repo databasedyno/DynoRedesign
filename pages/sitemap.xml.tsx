@@ -1,5 +1,6 @@
 import { GetServerSideProps } from "next";
 import { getAllSEOPagesIndex } from "@/utils/seoContent";
+import { blogPosts } from "@/utils/blogData";
 
 const SITE_URL = "https://dynopay.com";
 const SUPPORTED_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
@@ -9,6 +10,8 @@ interface SitemapEntry {
   changefreq: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority: number;
   lastmod?: string;
+  /** Blog content is EN-only — skip the ?lang= hreflang alternates for it. */
+  hreflang?: boolean;
 }
 
 /**
@@ -21,6 +24,9 @@ const PUBLIC_PAGES: SitemapEntry[] = [
   { path: "/",                  changefreq: "weekly",   priority: 1.0 },
   { path: "/fees",              changefreq: "monthly",  priority: 0.8 },
   { path: "/documentation",     changefreq: "monthly",  priority: 0.8 },
+  { path: "/blog",              changefreq: "weekly",   priority: 0.7 },
+  { path: "/about",             changefreq: "monthly",  priority: 0.6 },
+  { path: "/press",             changefreq: "yearly",   priority: 0.4 },
   { path: "/system-status",     changefreq: "daily",    priority: 0.6 },
   { path: "/terms-conditions",  changefreq: "yearly",   priority: 0.4 },
   { path: "/privacy-policy",    changefreq: "yearly",   priority: 0.4 },
@@ -38,7 +44,14 @@ function staticEntries(): SitemapEntry[] {
     changefreq: "monthly",
     priority: 0.7,
   }));
-  return [...PUBLIC_PAGES, ...seoEntries];
+  const blogEntries: SitemapEntry[] = blogPosts.map((p) => ({
+    path: `/blog/${p.slug}`,
+    changefreq: "monthly",
+    priority: 0.6,
+    lastmod: p.publishedAt,
+    hreflang: false,
+  }));
+  return [...PUBLIC_PAGES, ...seoEntries, ...blogEntries];
 }
 
 /**
@@ -49,17 +62,20 @@ function staticEntries(): SitemapEntry[] {
 function renderUrl(entry: SitemapEntry, today: string): string {
   const loc = `${SITE_URL}${entry.path}`;
   const lastmod = entry.lastmod || today;
-  const hreflangs = SUPPORTED_LANGS.map(
-    (lang) =>
-      `    <xhtml:link rel="alternate" hreflang="${lang}" href="${altHref(loc, lang)}" />`
-  ).join("\n");
+  const includeHreflang = entry.hreflang !== false;
+  const hreflangs = includeHreflang
+    ? SUPPORTED_LANGS.map(
+        (lang) =>
+          `    <xhtml:link rel="alternate" hreflang="${lang}" href="${altHref(loc, lang)}" />`
+      ).join("\n")
+    : "";
   return `  <url>
     <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority}</priority>
+    <priority>${entry.priority}</priority>${includeHreflang ? `
 ${hreflangs}
-    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />` : ""}
   </url>`;
 }
 

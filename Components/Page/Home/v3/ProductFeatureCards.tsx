@@ -86,7 +86,7 @@ const ProductFeatureCards: React.FC = () => {
         >
           <Box sx={{ maxWidth: 620 }}>
             <Eyebrow sx={{ mb: 2 }}>{t("v3.features.eyebrow")}</Eyebrow>
-            <HeadlineL sx={{ color: s.ink }}>
+            <HeadlineL component="h2" sx={{ color: s.ink }}>
               {t("v3.features.headline1")}
               <br />
               {t("v3.features.headline2")}

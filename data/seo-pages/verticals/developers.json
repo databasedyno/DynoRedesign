@@ -1,53 +1,53 @@
 {
-  "meta_title": "Crypto Payments API for Developers | Dynopay",
-  "meta_description": "Integrate Bitcoin, Ethereum, Solana, and 15+ chains with one REST API. Non-custodial, webhooks, SDKs, and sandbox included. Start building in minutes.",
-  "h1": "Crypto Payments API: Accept BTC, ETH, SOL, and 15+ chains",
-  "subheading": "One REST API to integrate non-custodial crypto payments. No smart contracts to write, no custody headaches—funds go directly to your wallet.",
-  "intro_paragraph": "Most crypto payment integrations force you to write and audit smart contracts, manage multiple chain connections, or trust a third party with custody. Dynopay gives you a single REST API covering Bitcoin, Ethereum, Solana, Polygon, Tron, XRP Ledger, and more—with webhooks, official SDKs, and a sandbox for testing. Your customers pay in crypto, and funds arrive directly in your wallet. You stay non-custodial, and your integration stays simple.",
+  "meta_title": "Crypto Payments API for Developers | DynoPay",
+  "meta_description": "Integrate Bitcoin, Ethereum, Solana, and 15+ cryptocurrencies with one REST API. Non-custodial, webhook-driven, live in 10 minutes. Start building now.",
+  "h1": "Crypto Payments API: One Endpoint, 15+ Chains, Zero Custody Risk",
+  "subheading": "Build checkout flows, payment links, or crowdfunding into your app with a REST API, webhooks, and SDKs—funds settle directly to your wallet.",
+  "intro_paragraph": "Most crypto payment integrations force you to write smart contracts, manage multiple chain clients, or trust a third party with custody. DynoPay gives developers a single REST API that covers Bitcoin, Ethereum, Solana, Tron, Polygon, and XRP Ledger—15+ assets total—while every payment settles non-custodially to the wallet you control. No monthly fees, no setup costs, and your first transaction is completely free.",
   "features": [
     {
-      "title": "One API, 15+ chains",
-      "description": "Support Bitcoin, Ethereum, USDT, USDC, Solana, XRP, and more without managing separate nodes or writing contracts. Add new chains as Dynopay ships them—no code changes required on your end."
+      "title": "One API, 15+ Cryptocurrencies",
+      "description": "Accept Bitcoin, ETH, USDT (three networks), USDC, SOL, XRP, RLUSD, and more through a single REST interface. No need to run nodes or write chain-specific logic."
     },
     {
-      "title": "Non-custodial by design",
-      "description": "Payments settle directly to your wallet address. Dynopay never holds, freezes, or controls your funds. You own the keys, you own the money—no withdrawal delays or account limits."
+      "title": "Non-Custodial by Design",
+      "description": "Payments flow directly to the wallet address you provide during setup. DynoPay never holds, freezes, or controls your funds—you retain custody from checkout to settlement."
     },
     {
-      "title": "Webhooks and sandbox environment",
-      "description": "Listen for payment confirmations, refunds, and status changes via webhooks. Test every integration scenario with sandbox mode and test API keys before you go live."
+      "title": "Webhooks and Real-Time Events",
+      "description": "Listen for payment confirmations, refunds, and status changes via HTTP callbacks. Build dynamic order fulfillment, subscription logic, or conditional workflows without polling."
     }
   ],
   "how_it_works": [
-    "Sign up, verify your email, and add your payout wallet address—takes under five minutes.",
-    "Grab your API key from the dashboard and call the payments endpoint to create a charge.",
-    "Listen for webhook events when payments confirm, then fulfill the order or unlock content programmatically."
+    "Sign up, verify your email, create a company profile, and register one payout wallet address.",
+    "Grab your API key from the dashboard and call the payments endpoint or drop the checkout widget into your frontend.",
+    "Receive webhook events as payments confirm on-chain; funds appear in your wallet within minutes."
   ],
   "faqs": [
     {
-      "question": "Which cryptocurrencies does the Dynopay API support?",
-      "answer": "Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (plus USDT, USDC, and RLUSD on ERC-20), Polygon (MATIC and USDT), Tron (TRX and USDT-TRC20), Solana, and XRP Ledger (XRP and RLUSD). All chains accessible through one API endpoint."
+      "question": "What cryptocurrencies does the DynoPay API support?",
+      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (including USDT, USDC, and RLUSD on ERC-20), Polygon (MATIC and USDT), Tron (TRX and USDT-TRC20), Solana, and XRP Ledger (XRP and RLUSD)—15+ assets in total behind one REST API."
     },
     {
-      "question": "Do I need to write smart contracts to accept payments?",
-      "answer": "No. Dynopay monitors on-chain transactions for you. You create a charge via API, display the payment address to your user, and receive a webhook when funds confirm. No Solidity, no audits, no gas optimization required."
+      "question": "How much does DynoPay charge per transaction?",
+      "answer": "DynoPay charges a volume-tiered platform fee that starts at 1.5 percent plus one dollar per successful payment and drops automatically to 0.5 percent at scale based on settled volume. Your first payment is completely free, and there are no monthly or setup fees."
     },
     {
-      "question": "What are the API fees and transaction costs?",
-      "answer": "Dynopay charges 1.5% per successful transaction plus a small fixed fee: one dollar for orders under one hundred dollars, scaling to one dollar for orders under one thousand. No monthly fees, no setup costs, no hidden charges."
+      "question": "Do I need to deploy smart contracts to accept payments?",
+      "answer": "No. DynoPay handles chain interaction, address generation, and confirmation monitoring for you. You call a REST endpoint, receive a payment address, and listen for webhook events—no Solidity, no audits, no gas management."
     },
     {
-      "question": "How long does API integration take?",
-      "answer": "Most developers create a test charge in under ten minutes. The REST API uses standard JSON, webhooks follow a predictable schema, and official SDKs are available for Node.js, Python, and PHP. Sandbox mode lets you test end-to-end before going live."
+      "question": "Is DynoPay custodial or do I control the funds?",
+      "answer": "DynoPay is entirely non-custodial. Every payment settles directly to the wallet address you specify during onboarding. DynoPay never holds, moves, or controls your cryptocurrency at any point in the transaction lifecycle."
     },
     {
-      "question": "Do you hold funds or require KYC for API users?",
-      "answer": "Dynopay is non-custodial—payments go directly to the wallet address you specify. No KYC is required to receive crypto. KYC applies only if you choose to use a fiat off-ramp in certain jurisdictions, which is optional."
+      "question": "Can I test the API before going live?",
+      "answer": "Yes. DynoPay provides a sandbox environment with test API keys so you can simulate payments, trigger webhooks, and validate your integration logic before processing real transactions on mainnet."
     }
   ],
-  "cta_headline": "Start building with the Dynopay API",
-  "cta_body": "Generate your API keys and create a test charge in under ten minutes. No monthly fees, no custody, no contracts to write.",
-  "_generated_at": "2026-07-15T09:13:53.319910Z",
+  "cta_headline": "Start Building with DynoPay Today",
+  "cta_body": "Your first payment is free and you can go live in under 10 minutes. No monthly fees, no custody risk.",
+  "_generated_at": "2026-08-29T14:58:16.495546Z",
   "_model": "anthropic/claude-sonnet-4-5-20250929",
   "_kind": "vertical",
   "_slug": "developers",

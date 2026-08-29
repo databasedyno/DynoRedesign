@@ -1581,6 +1581,16 @@ const startServer = async () => {
           pauseLeaderCronJobs();
         },
       });
+
+      // ── SEO: IndexNow auto-submit (Bing/DuckDuckGo/Yandex instant indexing) ──
+      // Fetches the public sitemap ~2 min after boot and re-submits whenever the
+      // URL set changes (hash tracked in Redis). No-op in SAFE-MODE previews
+      // (gated by isCronEnabled) and fails soft on any network error.
+      setTimeout(() => {
+        import("./utils/indexNowSubmitter")
+          .then(({ submitSitemapToIndexNow }) => submitSitemapToIndexNow())
+          .catch((e: Error) => log(`IndexNow submitter failed to load: ${e.message}`, "warn"));
+      }, 120_000);
     } else {
       log('⚠️  Skipping error digest monitoring (background jobs disabled)', 'warn');
       log('⚠️  Skipping webhook URL migration (background jobs disabled)', 'warn');

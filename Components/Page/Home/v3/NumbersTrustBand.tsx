@@ -83,7 +83,7 @@ const NumbersTrustBand: React.FC = () => {
         <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 5, md: 8 } }}>
           <Box sx={{ maxWidth: 620 }}>
             <Eyebrow sx={{ mb: 2 }}>{t("v3.numbers.eyebrow")}</Eyebrow>
-            <HeadlineL sx={{ color: s.ink }}>
+            <HeadlineL component="h2" sx={{ color: s.ink }}>
               {t("v3.numbers.headline")}
             </HeadlineL>
           </Box>

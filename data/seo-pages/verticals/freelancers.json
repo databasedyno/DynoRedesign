@@ -1,53 +1,53 @@
 {
-  "meta_title": "Crypto Payments for Freelancers & Creators | Dynopay",
-  "meta_description": "Accept Bitcoin, Ethereum, USDT, and 10+ cryptocurrencies. No chargebacks, no platform holds. 1.5% flat fee. Start accepting crypto payments in 10 minutes.",
-  "h1": "Accept crypto payments for freelancers & creators without chargebacks",
-  "subheading": "Get paid in Bitcoin, stablecoins, and 10+ cryptocurrencies directly to your wallet. No middleman holds your funds, no disputed payments.",
-  "intro_paragraph": "Freelancers and creators lose income to chargebacks, refund abuse, and payment holds on traditional platforms. Dynopay is a non-custodial gateway that sends crypto payments directly to your wallet—you control your funds from the moment a client pays. Support Bitcoin, Ethereum, USDT on three chains, Solana, XRP, and stablecoins. Live in under 10 minutes with a 1.5% flat fee and no monthly costs.",
+  "meta_title": "Crypto Payments for Freelancers & Creators | DynoPay",
+  "meta_description": "Accept crypto payments for freelancers & creators with DynoPay. No chargebacks, global clients, 15+ cryptocurrencies. Start receiving payments in 10 minutes.",
+  "h1": "Accept crypto payments for freelancers & creators without chargebacks or borders",
+  "subheading": "Get paid in Bitcoin, Ethereum, USDT, and 12+ other cryptocurrencies. Funds arrive directly in your wallet—never locked by a platform.",
+  "intro_paragraph": "When you sell digital services, templates, or coaching across borders, PayPal holds your funds for 180 days and clients reverse charges months later. DynoPay is a non-custodial crypto commerce platform built for freelancers and creators who want global payments without chargebacks. You receive funds directly in your own wallet, and fees start at 1.5% then drop to 0.5% at scale. No monthly fees, no account freezes, no refund fraud.",
   "features": [
     {
       "title": "Your wallet, your custody always",
-      "description": "Payments arrive directly in your own Bitcoin, Ethereum, or stablecoin wallet. Dynopay never holds your funds, so you have full control and instant access to every payment you receive."
+      "description": "DynoPay never holds your funds. Every payment lands directly in the wallet you control, so no platform can freeze your earnings or delay withdrawals."
     },
     {
-      "title": "No chargebacks, ever",
-      "description": "Cryptocurrency transactions are final. Clients can't dispute payments 60 days later, so you keep what you earn from digital products, consulting, memberships, and commissions without refund abuse."
+      "title": "Zero chargeback risk on services",
+      "description": "Crypto payments are final. Clients can't reverse a payment 90 days after you delivered a logo, website, or coaching call—eliminating refund abuse."
     },
     {
-      "title": "Flat 1.5% fee, no surprises",
-      "description": "Pay 1.5% per transaction plus a small fixed component based on order size. No monthly fees, no setup costs, no hidden charges for withdrawals or currency conversion."
+      "title": "Tips, products, and payment links",
+      "description": "Collect tips at dynopay.com/@yourhandle, sell digital products with hosted checkout, or share payment links for invoices. One platform handles all three."
     }
   ],
   "how_it_works": [
-    "Sign up with your email, verify, and create your company profile in Dynopay's dashboard.",
-    "Add one payout wallet address for Bitcoin, Ethereum, USDT, or any supported cryptocurrency.",
-    "Generate a payment link or embed the checkout widget on your site and start accepting payments."
+    "Sign up with your email, verify it, and create your company profile in under three minutes.",
+    "Add your Bitcoin, Ethereum, or stablecoin wallet address—just one payout destination to start receiving payments.",
+    "Generate a payment link, embed checkout on your site, or share your personal tip page and go live."
   ],
   "faqs": [
     {
-      "question": "Which cryptocurrencies can I accept as a freelancer?",
-      "answer": "Dynopay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on Ethereum/Polygon/Tron, USDC and RLUSD on Ethereum, MATIC, Solana, TRX, XRP, and RLUSD on XRP Ledger. Clients pay in any supported asset, and you receive funds in your chosen wallet."
+      "question": "Do I need to hold cryptocurrency to accept crypto payments as a freelancer?",
+      "answer": "No. You only need a wallet address where payments arrive. You can create a free wallet in minutes with Exodus, MetaMask, or Coinbase Wallet, then convert crypto to your local currency on an exchange whenever you choose."
     },
     {
-      "question": "Do I need a business bank account to accept crypto payments?",
-      "answer": "No. Dynopay sends payments directly to your personal or business crypto wallet. You control the private keys, and funds never pass through a custodial account. No bank account required to receive cryptocurrency."
+      "question": "Which cryptocurrencies can freelancers and creators accept with DynoPay?",
+      "answer": "DynoPay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX, and stablecoins like USDT (ERC20, TRC20, Polygon) and USDC. You choose which assets to accept per product or link."
     },
     {
-      "question": "Can international clients pay me without currency conversion fees?",
-      "answer": "Yes. Clients anywhere in the world can pay in cryptocurrency without forex markups or cross-border fees. You receive the crypto directly, and Dynopay charges a flat 1.5% platform fee regardless of sender location."
+      "question": "What fees does DynoPay charge for crypto payments?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop automatically to 0.5% as your settled volume grows. Your first payment is completely free. No monthly fees, setup costs, or hidden charges."
     },
     {
-      "question": "What happens if a client tries to dispute a crypto payment?",
-      "answer": "Cryptocurrency transactions are irreversible by design. Once a client sends payment and it confirms on the blockchain, they cannot initiate a chargeback. You keep the full amount minus the 1.5% Dynopay fee."
+      "question": "Can clients dispute or reverse a crypto payment after I deliver work?",
+      "answer": "No. Cryptocurrency transactions are final and irreversible. Once a client pays, they cannot file a chargeback or payment dispute—protecting you from refund fraud common with credit cards and PayPal."
     },
     {
-      "question": "How long does it take to start accepting crypto as a freelancer?",
-      "answer": "Under 10 minutes. Sign up, verify your email, create a company profile, add one wallet address for payouts, and generate a payment link or embed the checkout widget on your portfolio or invoice."
+      "question": "How quickly can I start accepting crypto payments as a creator?",
+      "answer": "You can go live in under 10 minutes. Sign up, verify your email, add your wallet address, and generate a payment link or personal tip page. No lengthy application, credit checks, or business documentation required."
     }
   ],
-  "cta_headline": "Start accepting crypto payments in 10 minutes",
-  "cta_body": "No monthly fees, no chargebacks, no platform holds your funds. Sign up and add your wallet to go live today.",
-  "_generated_at": "2026-07-05T09:24:51.846074Z",
+  "cta_headline": "Start accepting crypto payments today",
+  "cta_body": "Your first payment is fee-free. Go live in 10 minutes with no monthly costs and funds sent directly to your wallet.",
+  "_generated_at": "2026-08-29T14:53:34.729935Z",
   "_model": "anthropic/claude-sonnet-4-5-20250929",
   "_kind": "vertical",
   "_slug": "freelancers",

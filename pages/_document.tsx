@@ -32,6 +32,7 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="theme-color" content="#0A0A0A" />
+        <link rel="alternate" type="application/rss+xml" title="Dynopay Blog" href="https://dynopay.com/blog/rss.xml" />
 
         {/* Preload core Manrope weights (incl. ExtraBold for the boldest hero
             headings) — paired with font-display:swap + the metric-matched

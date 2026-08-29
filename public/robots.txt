@@ -5,7 +5,9 @@ Allow: /
 Allow: /fees
 Allow: /documentation
 Allow: /system-status
-Allow: /accept-crypto-payments-in/
+Allow: /blog
+Allow: /about
+Allow: /press
 Allow: /for/
 
 # Private / Authenticated Pages

@@ -100,7 +100,7 @@ const HeroPlayground: React.FC = () => {
             {t("v3.hero.eyebrow")}
           </Eyebrow>
 
-          <HeadlineXL sx={{ color: s.ink, mb: 3 }}>
+          <HeadlineXL component="h1" sx={{ color: s.ink, mb: 3 }}>
             {t("v3.hero.headline1")}
             <br />
             <AuroraInk>{t("v3.hero.headlineHighlight")}</AuroraInk> {t("v3.hero.headline2")}

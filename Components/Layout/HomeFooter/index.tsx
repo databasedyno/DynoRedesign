@@ -93,6 +93,11 @@ const HomeFooter: FC = () => {
           { label: "Freelancers", link: "/for/freelancers" },
           { label: "Remittance", link: "/for/remittance" },
           { label: "Digital Downloads", link: "/for/digital-downloads" },
+          { label: "Hosting & Domains", link: "/for/hosting" },
+          { label: "VPN & Privacy", link: "/for/vpn" },
+          { label: "Marketplaces", link: "/for/marketplaces" },
+          { label: "Agencies & Consultants", link: "/for/agencies" },
+          { label: "Nonprofits", link: "/for/nonprofits" },
         ],
       },
       {
