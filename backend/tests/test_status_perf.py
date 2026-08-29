@@ -4,7 +4,7 @@ import time
 import requests
 import pytest
 
-BASE_URL = "https://crypto-payment-init-1.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-14.preview.emergentagent.com"
 
 
 def _csrf_session():

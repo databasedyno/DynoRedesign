@@ -7,7 +7,7 @@ Tests the /api/notifications/payout-digest/preview endpoint
 import requests
 import json
 
-BASE_URL = "https://crypto-payment-init-1.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-14.preview.emergentagent.com"
 
 def test_payout_digest_preview():
     print("=== Test 5: Runtime Endpoint Verification ===\n")

@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://crypto-payment-init-1.preview.emergentagent.com"
+BACKEND_URL = "https://dynopay-preview-14.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

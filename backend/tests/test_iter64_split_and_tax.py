@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://crypto-payment-init-1.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-14.preview.emergentagent.com"
 LOGIN = {"email": "hostbay@moxx.co", "password": "Katiekendra123@"}
 
 
