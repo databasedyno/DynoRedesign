@@ -518,3 +518,17 @@
 # - API notes: POST /api/user/login (exempt from CSRF) -> data.accessToken;
 #   POST /api/pay/createPaymentLink needs Authorization Bearer + company_id in body.
 # ============================================================================
+
+# ---------------------------------------------------------------------------
+# 2026-08-29 — Fresh pod setup (env hand-split from user-pasted creds)
+# - env.vault.enc passphrase is UNKNOWN. Tried: Katiekendra123@, Godisgood123@,
+#   Nomadly123@ (+ variations) -> all "bad decrypt". `Katiekendra123@` is the
+#   MERCHANT LOGIN password, NOT the vault passphrase. Do not retry the vault
+#   with it; hand-split /app/.env + /app/backend/.env from pasted creds instead.
+# - SAFE MODE enforced: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary,
+#   DISABLE_OUTBOUND_EMAIL=true (preview points at LIVE Railway DB).
+# - Verified: /health -> db=connected, redis=connected, tatum operational.
+#   Frontend 200 on :3000. Preview URL 200.
+# - Binance WS geo-blocked (no SSH tunnel) -> REST fallback prices only; fine in SAFE MODE.
+# - CURRENT MERCHANT LOGIN FOR TESTING: moxxcompany@gmail.com / Katiekendra123@ (user_id=1, "Hostbay")
+# ---------------------------------------------------------------------------
