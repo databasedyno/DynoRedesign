@@ -10,7 +10,7 @@ import redis
 import sys
 import time
 
-BASE_URL = "https://dynopay-setup-10.preview.emergentagent.com/api"
+BASE_URL = "https://gateway-config-1.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:REDACTED_REDIS_PASSWORD@nozomi.proxy.rlwy.net:15794"
 
 HEADERS = {
