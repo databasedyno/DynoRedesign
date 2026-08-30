@@ -128,6 +128,22 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "When the referral payout address was verified (saved-wallet reuse or OTP)",
     },
+    referral_payout_auto: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+      comment: "Auto cash-out: when true, payouts are created automatically once balance ≥ auto-min",
+    },
+    referral_payout_auto_min_usd: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: true,
+      comment: "Auto cash-out trigger threshold in USD (null → global MIN_PAYOUT_USDT)",
+    },
+    referral_payout_nudged_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "When the 'you can cash out' nudge was last sent; reset after a payout completes",
+    },
     // Fee Discount fields
     fee_discount_percent: {
       type: DataTypes.DECIMAL(5, 2),

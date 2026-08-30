@@ -21,6 +21,7 @@ import sequelize from "../utils/dbInstance";
 import userModel from "../models/userModels/userModel";
 import companyModel from "../models/companyModels/companyModel";
 import { sendAutoConversionPayoutEmail, sendWeeklyConversionSummaryEmail } from "../helper/sendEmail";
+import { alertTreasuryLow } from "../utils/treasuryAlert";
 
 const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours of patience for slow chains (BTC)
 
@@ -433,12 +434,14 @@ const processWithdrawals = async (): Promise<number> => {
       // Verify we have enough balance
       const balance = await binanceService.getAssetBalance(coin);
       if (balance.free < withdrawalAmount * 0.99) {
-        log(`⚠️ Insufficient ${coin} for withdrawal #${data.conversion_id}: have ${balance.free}, need ${withdrawalAmount}`);
+        // Treasury shortfall is NOT the payout's fault — wait for a top-up instead of
+        // burning retries / marking it FAILED. Alert admin (throttled) so ops can refill.
+        log(`⚠️ Insufficient ${coin} for withdrawal #${data.conversion_id}: have ${balance.free}, need ${withdrawalAmount} — waiting for treasury top-up (no retry burn)`);
         await record.update({
-          retry_count: data.retry_count + 1,
           last_retry_at: new Date(),
-          error_message: `Insufficient ${coin} balance for withdrawal`,
+          error_message: `Insufficient ${coin} balance for withdrawal (have ${balance.free}, need ${withdrawalAmount}) — awaiting treasury top-up`,
         });
+        await alertTreasuryLow({ asset: coin, have: balance.free, need: withdrawalAmount, context: `Conversion withdrawal #${data.conversion_id}` });
         continue;
       }
 

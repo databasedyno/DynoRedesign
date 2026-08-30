@@ -7,9 +7,9 @@ import {
   sendPayoutOtp,
   optInPayout,
   requestPayout,
-  getPayoutHistory,
-  getPayoutHistoryCsv,
+  setAutoPayout,
 } from "../services/referralPayoutService";
+import { getPayoutHistory, getPayoutHistoryCsv } from "../services/referralPayoutHistory";
 
 const getUserId = (res: Response): number | null => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -76,6 +76,21 @@ export const payoutRequest = async (req: Request, res: Response) => {
   }
 };
 
+/** POST /api/referral/payout/auto — turn auto cash-out on (OTP-gated once) or off. */
+export const payoutAuto = async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(res);
+    if (!userId) return res.status(401).json({ message: "Unauthorized. Please login." });
+    const { enabled, auto_min_usd, otp } = req.body || {};
+    const result = await setAutoPayout({ userId, enabled: !!enabled, autoMinUsd: auto_min_usd, otp });
+    const { statusCode, ...body } = result;
+    return res.status(statusCode || 200).json(body);
+  } catch (error) {
+    apiLogger.error("Error in payoutAuto:", error);
+    return res.status(500).json({ success: false, message: "Internal server error", error: (error as Error).message });
+  }
+};
+
 /** GET /api/referral/payout/history — recent cash-outs for the referrer. */
 export const payoutHistory = async (_req: Request, res: Response) => {
   try {
@@ -104,4 +119,4 @@ export const payoutHistoryExport = async (_req: Request, res: Response) => {
   }
 };
 
-export default { payoutOverview, payoutOtp, payoutOptIn, payoutRequest, payoutHistory, payoutHistoryExport };
+export default { payoutOverview, payoutOtp, payoutOptIn, payoutRequest, payoutAuto, payoutHistory, payoutHistoryExport };

@@ -112,5 +112,15 @@
   "payoutStatus_processing": "Wordt verwerkt",
   "payoutStatus_completed": "Voltooid",
   "payoutStatus_failed": "Mislukt",
+  "payoutAutoOnTitle": "Automatische uitbetaling staat aan",
+  "payoutAutoOnDesc": "Wordt automatisch verstuurd zodra je ${{min}} bereikt",
+  "payoutAutoTurnOff": "Auto uitschakelen",
+  "payoutAutoEnableCta": "Automatische uitbetaling inschakelen",
+  "payoutAutoSetupTitle": "Automatische uitbetaling",
+  "payoutAutoSetupDesc": "We sturen je beloningen automatisch zodra ze dit bedrag bereiken.",
+  "payoutAutoEnableConfirm": "Inschakelen",
+  "payoutAutoMinHint": "Minimaal ${{min}}. Hogere bedragen bundelen uitbetalingen en besparen netwerkkosten.",
+  "payoutAutoEnabled": "Automatische uitbetaling aan",
+  "payoutAutoDisabled": "Automatische uitbetaling uit",
   "payoutErrorGeneric": "Er ging iets mis. Probeer het opnieuw."
 }

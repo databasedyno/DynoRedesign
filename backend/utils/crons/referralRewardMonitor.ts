@@ -42,6 +42,19 @@ export const setupReferralRewardCron = () => {
       captureError(e, "cron", { extraContext: "referralRewardMonitor:accrual" });
     }
     try {
+      // Revenue-share: threshold nudge + auto cash-out. Nudge emails referrers once
+      // their balance crosses the minimum; auto creates 'pending' payout rows for
+      // opted-in referrers (the payouts block below then sends them). Leader/prod only.
+      const { processReferralNudges, processAutoPayouts } = await import(
+        "../../services/referralPayoutAutomation"
+      );
+      await processReferralNudges();
+      await processAutoPayouts();
+    } catch (e) {
+      log(`Referral Reward Monitor (nudge/auto) error: ${e}`, "error");
+      captureError(e, "cron", { extraContext: "referralRewardMonitor:nudgeAuto" });
+    }
+    try {
       // Revenue-share CASH-OUT (Phase 2): submit any 'pending' USDT-TRC20 payouts
       // to Binance (treasury-guarded) and poll 'processing' ones to completion.
       // Leader/prod only; NEVER runs in SAFE-MODE preview (Binance geo-blocked there).

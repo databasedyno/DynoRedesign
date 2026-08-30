@@ -5,8 +5,9 @@ import Referral from "../models/referralModels/referralModel";
 import ReferralReward from "../models/referralModels/referralRewardModel";
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { acquireLock, releaseLock } from "../utils/redisInstance";
-import { sendWithdrawalSuccessEmail } from "./emailService";
+import { sendWithdrawalSuccessEmail, sendReferralPayoutFailedEmail } from "./emailService";
 import binanceService from "./binanceService";
+import { alertTreasuryLow } from "../utils/treasuryAlert";
 
 /**
  * Referral revenue-share PAYOUT EXECUTION (Phase 3). LEADER/PROD cron ONLY —
@@ -76,9 +77,10 @@ export const processReferralPayouts = async (): Promise<number> => {
       const balance = await binanceService.getAssetBalance("USDT");
       if (balance.free < amount * 0.99) {
         cronLogger.warn(
-          `[ReferralPayout] Insufficient USDT treasury for payout ${payout.payout_id}: have ${balance.free}, need ${amount}`
+          `[ReferralPayout] Insufficient USDT treasury for payout ${payout.payout_id}: have ${balance.free}, need ${amount} — waiting for top-up`
         );
-        await payout.update({ error_message: `Insufficient USDT treasury (${balance.free.toFixed(2)})` });
+        await payout.update({ error_message: `Insufficient USDT treasury (have ${balance.free.toFixed(2)}, need ${amount.toFixed(2)}) — awaiting top-up` });
+        await alertTreasuryLow({ asset: "USDT", have: balance.free, need: amount, context: `Referral payout #${payout.payout_id}` });
         continue;
       }
       await payout.update({ status: "processing" });
@@ -125,6 +127,8 @@ export const monitorReferralPayouts = async (): Promise<number> => {
           completed_at: new Date(),
         });
         await applyPayoutToReferrals(payout.user_id, Number(payout.amount_usd), match.txId);
+        // Reset the nudge flag so a future balance can trigger a fresh "you can cash out" email.
+        await User.update({ referral_payout_nudged_at: null } as never, { where: { user_id: payout.user_id } });
         try {
           const user = await User.findByPk(payout.user_id, { attributes: ["email", "name", "language"] });
           const u = user as unknown as Record<string, string> | null;
@@ -150,6 +154,22 @@ export const monitorReferralPayouts = async (): Promise<number> => {
           error_message: `Binance withdrawal status ${match.status}`,
           completed_at: new Date(),
         });
+        try {
+          const user = await User.findByPk(payout.user_id, { attributes: ["email", "name", "language"] });
+          const u = user as unknown as Record<string, string> | null;
+          if (u?.email) {
+            await sendReferralPayoutFailedEmail(
+              u.email,
+              u.name || "there",
+              Number(payout.amount_usd),
+              payout.trc20_address.length > 14 ? `${payout.trc20_address.slice(0, 8)}…${payout.trc20_address.slice(-6)}` : payout.trc20_address,
+              `Binance withdrawal status ${match.status}`,
+              u.language
+            );
+          }
+        } catch {
+          /* email is non-fatal */
+        }
         cronLogger.warn(`[ReferralPayout] Payout ${payout.payout_id} FAILED (Binance status ${match.status})`);
       }
     } catch (e) {

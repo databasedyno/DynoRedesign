@@ -25,6 +25,8 @@ type PayoutOverview = {
   min_payout_usd: number;
   unpaid_balance_usd: number;
   has_verified_address: boolean;
+  auto: boolean;
+  auto_min_usd: number;
   can_withdraw: boolean;
   pending_payout: { payout_id: number; amount_usd: number; status: string; requested_at: string } | null;
   wallets: PayoutWallet[];
@@ -68,6 +70,10 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
   const [newOtp, setNewOtp] = useState("");
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [withdrawOtp, setWithdrawOtp] = useState("");
+  const [showAutoSetup, setShowAutoSetup] = useState(false);
+  const [autoMin, setAutoMin] = useState("");
+  const [autoOtpSent, setAutoOtpSent] = useState(false);
+  const [autoOtp, setAutoOtp] = useState("");
 
   const post = useCallback(async (url: string, body: Record<string, unknown>) => {
     try {
@@ -88,6 +94,10 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
     setNewOtp("");
     setShowWithdraw(false);
     setWithdrawOtp("");
+    setShowAutoSetup(false);
+    setAutoMin("");
+    setAutoOtpSent(false);
+    setAutoOtp("");
   };
 
   // ── Actions ───────────────────────────────────────────────────────────
@@ -156,6 +166,31 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
       onToast(t("payoutErrorGeneric", { defaultValue: "Something went wrong. Please try again." }), "error");
     }
   }, [onToast, t]);
+
+  const sendAutoOtp = useCallback(async () => {
+    setBusy("auto-otp");
+    const r = await post(API_ENDPOINTS.referral.payoutOtp, {});
+    setBusy(null);
+    if (r.ok) { setAutoOtpSent(true); onToast(r.data?.message || t("payoutCodeSent", { defaultValue: "Code sent", email: "" }), "success"); }
+    else onToast(r.message, "error");
+  }, [post, onToast, t]);
+
+  const enableAuto = useCallback(async () => {
+    setBusy("enable-auto");
+    const amt = parseFloat(autoMin) || (data?.min_payout_usd ?? 25);
+    const r = await post(API_ENDPOINTS.referral.payoutAuto, { enabled: true, auto_min_usd: amt, otp: autoOtp.trim() });
+    setBusy(null);
+    if (r.ok) { onToast(r.data?.message || t("payoutAutoEnabled", { defaultValue: "Auto cash-out on" }), "success"); resetForms(); mutate(); }
+    else onToast(r.message, "error");
+  }, [autoMin, autoOtp, data, post, onToast, t, mutate]);
+
+  const disableAuto = useCallback(async () => {
+    setBusy("disable-auto");
+    const r = await post(API_ENDPOINTS.referral.payoutAuto, { enabled: false });
+    setBusy(null);
+    if (r.ok) { onToast(r.data?.message || t("payoutAutoDisabled", { defaultValue: "Auto cash-out off" }), "success"); resetForms(); mutate(); }
+    else onToast(r.message, "error");
+  }, [post, onToast, t, mutate]);
 
   // ── Style helpers ─────────────────────────────────────────────────────
   const pillBtn = (variant: "primary" | "ghost") => ({
@@ -308,6 +343,76 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   </Box>
                 </Box>
               )}
+
+              {/* Auto cash-out */}
+              <Box sx={{ mt: 2, pt: 1.75, borderTop: `1px dashed ${theme.palette.border.main}` }}>
+                {data?.auto ? (
+                  <Box data-testid="payout-auto-on" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, flexWrap: "wrap" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Icon name="zap" size={16} color={brandFg(dark)} />
+                      <Box>
+                        <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
+                          {t("payoutAutoOnTitle", { defaultValue: "Auto cash-out is on" })}
+                        </Typography>
+                        <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                          {t("payoutAutoOnDesc", { defaultValue: "Sends automatically once you reach ${{min}}", min: Number(data.auto_min_usd ?? min).toFixed(0) })}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box data-testid="payout-auto-off-btn" onClick={disableAuto} sx={pillBtn("ghost")}>
+                      {busy === "disable-auto" ? <CircularProgress size={16} /> : null}
+                      {t("payoutAutoTurnOff", { defaultValue: "Turn off auto" })}
+                    </Box>
+                  </Box>
+                ) : !showAutoSetup ? (
+                  <Box data-testid="payout-auto-setup-btn" onClick={() => { setShowAutoSetup(true); setAutoMin(String(min)); }} sx={{ display: "inline-flex", alignItems: "center", gap: 1, cursor: "pointer", color: theme.palette.text.secondary, "&:hover": { color: theme.palette.text.primary } }}>
+                    <Icon name="zap" size={16} />
+                    <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
+                      {t("payoutAutoEnableCta", { defaultValue: "Turn on auto cash-out" })}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ p: 1.5, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}` }}>
+                    <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
+                      {t("payoutAutoSetupTitle", { defaultValue: "Auto cash-out" })}
+                    </Typography>
+                    <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mb: 1.25 }}>
+                      {t("payoutAutoSetupDesc", { defaultValue: "We'll send your rewards automatically once they reach this amount." })}
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
+                      <TextField
+                        value={autoMin}
+                        onChange={(e) => setAutoMin(e.target.value.replace(/[^\d.]/g, ""))}
+                        size="small"
+                        disabled={autoOtpSent}
+                        inputProps={{ "data-testid": "payout-auto-min-input", inputMode: "decimal", style: { fontFamily: MONO, width: 80 } }}
+                        InputProps={{ startAdornment: <span style={{ color: theme.palette.text.secondary, marginRight: 4 }}>$</span> }}
+                      />
+                      {!autoOtpSent && (
+                        <Box data-testid="payout-auto-send-otp-btn" onClick={() => sendAutoOtp()} sx={pillBtn("primary")}>
+                          {busy === "auto-otp" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
+                          {t("payoutSendCode", { defaultValue: "Send code" })}
+                        </Box>
+                      )}
+                      <Box data-testid="payout-auto-cancel-btn" onClick={resetForms} sx={pillBtn("ghost")}>
+                        {t("payoutCancel", { defaultValue: "Cancel" })}
+                      </Box>
+                    </Box>
+                    {autoOtpSent && (
+                      <Box sx={{ mt: 1.25, display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
+                        {otpField(autoOtp, setAutoOtp, "payout-auto-otp-input")}
+                        <Box data-testid="payout-auto-enable-btn" onClick={() => autoOtp.length === 6 && enableAuto()} sx={{ ...pillBtn("primary"), opacity: autoOtp.length === 6 && !busy ? 1 : 0.6, pointerEvents: autoOtp.length === 6 && !busy ? "auto" : "none" }}>
+                          {busy === "enable-auto" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
+                          {t("payoutAutoEnableConfirm", { defaultValue: "Turn on" })}
+                        </Box>
+                      </Box>
+                    )}
+                    <Typography sx={{ mt: 1, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
+                      {t("payoutAutoMinHint", { defaultValue: "Minimum ${{min}}. Higher amounts batch payouts and save on network fees.", min: min.toFixed(0) })}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </Box>
           ) : (
             /* Not yet on cash → re-enable saved / wallet picker / add new */

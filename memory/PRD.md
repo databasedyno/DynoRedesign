@@ -1,5 +1,15 @@
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
+# REFERRAL PAYOUT — TREASURY SAFETY + THRESHOLD NUDGE + AUTO-PAYOUT (2026-06 fork) — session ended after build
+
+- **Phase A (treasury safety) — DONE + verified.** Low Binance balance now alerts ADMIN_EMAIL (throttled 3h/asset via `utils/treasuryAlert.ts` + `sendTreasuryLowAlertEmail`). Referral payouts already wait+retry (added alert); merchant conversion **withdrawals** (Phase 3) no longer burn retries / mark FAILED on a temporary shortfall — they WAIT for top-up (mirrors referral) + alert. Phase 2 (deposit/sweep) left as-is. Unit-verified (compose + Redis throttle).
+- **Phase B (threshold nudge) — BUILT.** Migration 0013 applied (auto flag, configurable auto-min, nudged_at). `referralEmails.ts` (ready/auto-enabled/requested/failed). `processReferralNudges` in accrual cron; flag resets after payout. Email happy-path not E2E'd (leader-only).
+- **Phase C (auto-payout) — BUILT.** OTP-gated enable / no-OTP disable, configurable min (≥$25). `POST /referral/payout/auto` + `processAutoPayouts` cron (creates pending row, no per-payout OTP → Phase-3 sends). Frontend auto toggle in PayoutCard + i18n ×6. Verified via curl (overview auto fields; enable-while-credit→400; disable→200). Happy-path write E2E NOT run (session ended); account left credit/no-address/auto-off.
+- Gates: backend tsc 0, frontend tsc 0, file-size PASS, check-i18n clean. Idempotent `withdrawOrderId` on the Binance send.
+- **Next session:** run the reversible auto-pay + nudge E2E on user_id 1 (read OTP from Redis), then the real Binance send validation on production.
+
+
+
 # REFERRAL PHASE 3 + OPT-OUT + PAYOUT HISTORY (2026-06 fork) — DONE (E2E'd on live DB, restored)
 
 - **Phase 3 execution**: idempotent `withdrawOrderId` added to `binanceService.submitWithdrawal`; execution moved to `services/referralPayoutCron.ts` (submit passes withdrawOrderId + adopts any existing Binance withdrawal for that order id before re-sending). Leader/prod cron only, OFF in preview.

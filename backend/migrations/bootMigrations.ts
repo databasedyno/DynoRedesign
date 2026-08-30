@@ -323,6 +323,20 @@ const addReferralPayoutSupport = async (): Promise<void> => {
   if (isSyncable(referralPayoutModel)) await referralPayoutModel.sync();
 };
 
+/**
+ * Migration 0013: referral payout automation — auto cash-out flag + configurable
+ * trigger threshold + "you can cash out" nudge tracking. Idempotent; safe on live prod.
+ */
+const addReferralPayoutAutomation = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_user"
+       ADD COLUMN IF NOT EXISTS "referral_payout_auto" BOOLEAN DEFAULT false,
+       ADD COLUMN IF NOT EXISTS "referral_payout_auto_min_usd" DECIMAL(12,2) NULL,
+       ADD COLUMN IF NOT EXISTS "referral_payout_nudged_at" TIMESTAMP NULL`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -338,5 +352,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0010_ledger_money_invariants", up: addLedgerMoneyInvariants },
     { version: "0011_referral_commission", up: addReferralCommissionColumns },
     { version: "0012_referral_payout", up: addReferralPayoutSupport },
+    { version: "0013_referral_payout_automation", up: addReferralPayoutAutomation },
   ];
 }

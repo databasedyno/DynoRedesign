@@ -112,5 +112,15 @@
   "payoutStatus_processing": "En cours",
   "payoutStatus_completed": "Terminé",
   "payoutStatus_failed": "Échoué",
+  "payoutAutoOnTitle": "Le retrait automatique est activé",
+  "payoutAutoOnDesc": "Envoyé automatiquement dès que vous atteignez {{min}} $",
+  "payoutAutoTurnOff": "Désactiver l'auto",
+  "payoutAutoEnableCta": "Activer le retrait automatique",
+  "payoutAutoSetupTitle": "Retrait automatique",
+  "payoutAutoSetupDesc": "Nous enverrons vos récompenses automatiquement dès qu'elles atteignent ce montant.",
+  "payoutAutoEnableConfirm": "Activer",
+  "payoutAutoMinHint": "Minimum {{min}} $. Des montants plus élevés regroupent les paiements et réduisent les frais de réseau.",
+  "payoutAutoEnabled": "Retrait automatique activé",
+  "payoutAutoDisabled": "Retrait automatique désactivé",
   "payoutErrorGeneric": "Une erreur s'est produite. Veuillez réessayer."
 }

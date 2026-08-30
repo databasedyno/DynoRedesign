@@ -112,5 +112,15 @@
   "payoutStatus_processing": "Procesando",
   "payoutStatus_completed": "Completado",
   "payoutStatus_failed": "Fallido",
+  "payoutAutoOnTitle": "El retiro automático está activo",
+  "payoutAutoOnDesc": "Se envía automáticamente cuando alcanzas ${{min}}",
+  "payoutAutoTurnOff": "Desactivar automático",
+  "payoutAutoEnableCta": "Activar retiro automático",
+  "payoutAutoSetupTitle": "Retiro automático",
+  "payoutAutoSetupDesc": "Enviaremos tus recompensas automáticamente cuando alcancen este importe.",
+  "payoutAutoEnableConfirm": "Activar",
+  "payoutAutoMinHint": "Mínimo ${{min}}. Importes más altos agrupan los pagos y ahorran comisiones de red.",
+  "payoutAutoEnabled": "Retiro automático activado",
+  "payoutAutoDisabled": "Retiro automático desactivado",
   "payoutErrorGeneric": "Algo salió mal. Inténtalo de nuevo."
 }

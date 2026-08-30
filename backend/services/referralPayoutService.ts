@@ -7,7 +7,7 @@ import User from "../models/userModels/userModel";
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { tatumClient } from "../integrations/tatum/TatumClient";
 import { redis } from "../utils/redisInstance";
-import { sendWithdrawalOTPEmail } from "./emailService";
+import { sendWithdrawalOTPEmail, sendReferralPayoutRequestedEmail, sendReferralAutoPayEnabledEmail } from "./emailService";
 import { getReferrerCommissionSummary } from "./referralService";
 
 /**
@@ -104,6 +104,8 @@ export const getPayoutOverview = async (userId: number) => {
       "referral_payout_mode",
       "referral_payout_trc20_address",
       "referral_payout_address_verified_at",
+      "referral_payout_auto",
+      "referral_payout_auto_min_usd",
     ],
   });
   if (!user) throw new Error("User not found");
@@ -132,6 +134,8 @@ export const getPayoutOverview = async (userId: number) => {
     min_payout_usd: MIN_PAYOUT_USDT,
     unpaid_balance_usd: unpaid,
     has_verified_address: hasVerifiedAddress,
+    auto: !!u.referral_payout_auto,
+    auto_min_usd: u.referral_payout_auto_min_usd != null ? Number(u.referral_payout_auto_min_usd) : MIN_PAYOUT_USDT,
     can_withdraw: mode === "cash" && hasVerifiedAddress && unpaid >= MIN_PAYOUT_USDT && !pending,
     pending_payout: pending
       ? {
@@ -348,6 +352,19 @@ export const requestPayout = async (params: {
     `[ReferralPayout] user ${userId} requested $${unpaid.toFixed(2)} → ${maskAddress(address)} (payout ${payout.payout_id})`
   );
 
+  try {
+    await sendReferralPayoutRequestedEmail(
+      u.email as string,
+      (u.name as string) || "there",
+      unpaid,
+      maskAddress(address),
+      false,
+      u.language as string | undefined
+    );
+  } catch {
+    /* email non-fatal */
+  }
+
   return {
     success: true,
     message: "Payout requested — we'll send your USDT (TRC-20) shortly.",
@@ -361,83 +378,68 @@ export const requestPayout = async (params: {
   };
 };
 
-// Payout history + CSV export (read-only)
+// Auto cash-out (opt-in standing authorization)
 
-const txUrl = (h: string | null): string | null => (h ? `https://tronscan.org/#/transaction/${h}` : null);
+export const setAutoPayout = async (params: {
+  userId: number;
+  enabled: boolean;
+  autoMinUsd?: number;
+  otp?: string;
+}): Promise<{ success: boolean; statusCode?: number; code?: string; message: string; auto?: boolean; auto_min_usd?: number }> => {
+  const { userId, enabled } = params;
+  const user = await User.findByPk(userId);
+  if (!user) return { success: false, statusCode: 404, message: "User not found" };
+  const u = user as unknown as Record<string, unknown>;
 
-export interface PayoutHistoryItem {
-  payout_id: number;
-  amount_usd: number;
-  status: string;
-  trc20_address_masked: string;
-  tx_hash: string | null;
-  tx_url: string | null;
-  withdrawal_fee_usdt: number | null;
-  requested_at: Date | null;
-  completed_at: Date | null;
-  error_message: string | null;
-}
-
-export const getPayoutHistory = async (userId: number): Promise<PayoutHistoryItem[]> => {
-  const rows = await ReferralPayout.findAll({
-    where: { user_id: userId },
-    order: [["payout_id", "DESC"]],
-    limit: 100,
-  });
-  return rows.map((p) => ({
-    payout_id: p.payout_id,
-    amount_usd: Number(p.amount_usd),
-    status: p.status,
-    trc20_address_masked: maskAddress(p.trc20_address),
-    tx_hash: p.tx_hash || null,
-    tx_url: txUrl(p.tx_hash || null),
-    withdrawal_fee_usdt: p.withdrawal_fee_usdt != null ? Number(p.withdrawal_fee_usdt) : null,
-    requested_at: p.requested_at || null,
-    completed_at: p.completed_at || null,
-    error_message: p.error_message || null,
-  }));
-};
-
-export const getPayoutHistoryCsv = async (userId: number): Promise<string> => {
-  const rows = await ReferralPayout.findAll({
-    where: { user_id: userId },
-    order: [["payout_id", "DESC"]],
-    limit: 1000,
-  });
-  const esc = (v: unknown): string => {
-    const s = v == null ? "" : String(v);
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
-  const header = [
-    "Payout ID",
-    "Amount (USD)",
-    "Status",
-    "USDT-TRC20 Address",
-    "Tx Hash",
-    "Network Fee (USDT)",
-    "Requested (UTC)",
-    "Completed (UTC)",
-    "Note",
-  ];
-  const lines = [header.join(",")];
-  for (const p of rows) {
-    lines.push(
-      [
-        p.payout_id,
-        Number(p.amount_usd).toFixed(2),
-        p.status,
-        p.trc20_address,
-        p.tx_hash || "",
-        p.withdrawal_fee_usdt != null ? Number(p.withdrawal_fee_usdt).toFixed(6) : "",
-        p.requested_at ? new Date(p.requested_at).toISOString() : "",
-        p.completed_at ? new Date(p.completed_at).toISOString() : "",
-        p.error_message || "",
-      ]
-        .map(esc)
-        .join(",")
-    );
+  if (!enabled) {
+    await User.update({ referral_payout_auto: false } as never, { where: { user_id: userId } });
+    return { success: true, auto: false, message: "Auto cash-out turned off." };
   }
-  return lines.join("\n");
+
+  if (
+    ((u.referral_payout_mode as string) || "credit") !== "cash" ||
+    !u.referral_payout_trc20_address ||
+    !u.referral_payout_address_verified_at
+  ) {
+    return { success: false, statusCode: 400, message: "Set up USDT (TRC-20) cash-out first, then enable auto." };
+  }
+  if (!params.otp) {
+    return {
+      success: false,
+      statusCode: 400,
+      code: "OTP_REQUIRED",
+      message: "Confirm with the code we email you to turn on auto cash-out.",
+    };
+  }
+  const v = await consumeOtp(userId, params.otp);
+  if (!v.ok) return { success: false, statusCode: 400, message: v.message || "Invalid code" };
+
+  const requested = Number(params.autoMinUsd);
+  const min = Number.isFinite(requested) && requested > MIN_PAYOUT_USDT ? round2(requested) : MIN_PAYOUT_USDT;
+  await User.update(
+    { referral_payout_auto: true, referral_payout_auto_min_usd: min } as never,
+    { where: { user_id: userId } }
+  );
+
+  try {
+    await sendReferralAutoPayEnabledEmail(
+      u.email as string,
+      (u.name as string) || "there",
+      min,
+      maskAddress(u.referral_payout_trc20_address as string),
+      u.language as string | undefined
+    );
+  } catch {
+    /* email non-fatal */
+  }
+
+  apiLogger.info(`[ReferralPayout] user ${userId} enabled AUTO cash-out at $${min.toFixed(2)}`);
+  return {
+    success: true,
+    auto: true,
+    auto_min_usd: min,
+    message: `Auto cash-out is on. We'll send your rewards automatically once they reach $${min.toFixed(2)}.`,
+  };
 };
 
 export default {
@@ -447,6 +449,5 @@ export default {
   sendPayoutOtp,
   optInPayout,
   requestPayout,
-  getPayoutHistory,
-  getPayoutHistoryCsv,
+  setAutoPayout,
 };

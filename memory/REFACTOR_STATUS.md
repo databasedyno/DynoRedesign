@@ -333,6 +333,64 @@ User-approved this round: implement Phase 3 execution finish, opt-out (keep wall
   rows + reset user. backend+frontend tsc=0, file-size PASS, /referrals compiles+200.
   NOT E2E'd here: the REAL Binance send (geo-blocked in preview) — the withdrawOrderId path is code-verified, runs on prod.
 
+---
+
+## 11. REFERRAL PAYOUT — THRESHOLD NUDGE + AUTO-PAYOUT + TREASURY SAFETY (2026-06 fork) — phased plan
+User confirmed (yes-to-all + configurable min). Build phase by phase.
+
+### Phase A — Money-path safety: insufficient-treasury handling + admin alert  [PRIORITY]
+- NEW `utils/treasuryAlert.ts` → `alertTreasuryLow({asset,have,need,context})`: Redis-throttled (once per asset per 3h,
+  key `treasury-alert:<ASSET>`) → emails `config.adminEmail` via NEW `sendTreasuryLowAlertEmail` (adminOpsEmails.ts).
+- Referral payout cron (referralPayoutCron.ts): on low USDT treasury → keep pending (already) + alertTreasuryLow.
+- Conversion PHASE 3 `processWithdrawals` (USDT/USDC send-out = the real "treasury" path): STOP burning retry_count /
+  no longer marks a merchant payout FAILED for a temporary shortfall — it WAITS for top-up (mirrors referral) + alerts admin.
+  NOTE: Phase 2 `processConversions` "insufficient source asset" is a DEPOSIT/SWEEP condition (not treasury) — left as-is.
+
+### Phase B — Threshold nudge (referrer email when balance crosses the minimum)
+- Migration 0013: tbl_user += `referral_payout_auto` BOOL default false, `referral_payout_auto_min_usd` DECIMAL null,
+  `referral_payout_nudged_at` TIMESTAMP null.
+- Accrual cron: after accrual, for referrers whose unpaid ≥ effective-min and `nudged_at` null → send NEW
+  `sendReferralPayoutReadyEmail` ("you can cash out $X") + set nudged_at. Reset nudged_at on payout completion so it re-nudges.
+
+### Phase C — Auto-payout (opt-in, standing authorization)
+- Enable = OTP-gated ONE-TIME (`POST /referral/payout/auto` {enabled, auto_min_usd, otp}); disable = no OTP.
+  Requires mode=cash + verified address. `auto_min_usd` configurable (default = MIN_PAYOUT_USDT $25).
+- Cron `processAutoPayouts`: users with auto on + cash + verified + no pending + unpaid ≥ effective-min → create payout row
+  (NO per-payout OTP; pre-authorized) → Phase-3 cron sends it.
+- Emails: auto-enabled confirmation, payout requested (referrer), payout failed (referrer); success reuses existing template.
+- Frontend PayoutCard: "Auto cash-out" toggle (amount + OTP on enable), current auto status. i18n ×6.
+
+Testing: reversible writes on user_id 1 (fully reverted); accrual/auto crons are leader/prod-only so real send can't run in preview.
+
+### 11.4 BUILD STATUS (2026-06 fork, session ended by user after Phase C build)
+- **Phase A (treasury safety) — ✅ DONE + verified.** `utils/treasuryAlert.ts` (Redis-throttled 3h/asset) + `sendTreasuryLowAlertEmail`
+  (adminOpsEmails). Wired: referralPayoutCron (low USDT → keep pending + alert) and conversionService PHASE 3
+  `processWithdrawals` (low USDT/USDC → NO retry-burn/FAIL, waits for top-up + alert). Phase 2 `processConversions`
+  left as-is (deposit/sweep, not treasury). Verified: unit test — call 1 composed admin email (SUPPRESSED in preview),
+  call 2 throttled via Redis. tsc 0, file-size PASS.
+- **Phase B (threshold nudge) — ✅ BUILT, backend-verified (schema/SQL); happy-path email not E2E'd.** Migration 0013
+  applied on live DB (referral_payout_auto, referral_payout_auto_min_usd, referral_payout_nudged_at). userModel updated.
+  `referralEmails.ts` (4 emails: ready-nudge, auto-enabled, requested, failed) exported via emailService.
+  `referralPayoutAutomation.processReferralNudges()` wired into accrual cron. Nudge flag reset on payout completion
+  (referralPayoutCron). NOT run: the leader-only nudge email itself (needs a referrer with balance ≥ min).
+- **Phase C (auto-payout) — ✅ BUILT, backend-verified (endpoint negatives + overview); happy-path write E2E NOT run
+  (session ended).** `setAutoPayout` (OTP-gated enable / no-OTP disable, configurable min ≥ $25) + `POST /referral/payout/auto`
+  + `processAutoPayouts()` cron (creates pending row, no per-payout OTP → Phase-3 sends). Idempotent `withdrawOrderId`
+  already added (§10.2). Payout history split to `referralPayoutHistory.ts` (R2 file-size). Frontend PayoutCard:
+  auto-cash-out toggle (amount + OTP on enable, current status, turn-off) + 10 i18n keys ×6 locales. FE+BE tsc 0,
+  file-size PASS, check-i18n clean, /referrals compiles+200.
+  Verified via curl: overview exposes auto/auto_min_usd/min; enable-auto while credit → 400; disable-auto → 200.
+  Account left UNTOUCHED (mode=credit, no address, auto=false).
+- **E2E'd this session (reversible, account restored):** enable-auto happy path (OTP read from Redis → auto=true/min=$50),
+  automation nudge+auto queries run clean against the live schema (0 actions — user 1 has $0 referral balance), account fully
+  reset to credit/no-address/auto-off. **Still NOT run:** nudge/auto CREATE with real balance (won't fabricate referral
+  relationships on prod) + real Binance send (geo-blocked in preview). Both are code+compile verified.
+- New/changed backend files: utils/treasuryAlert.ts, services/email/referralEmails.ts, services/referralPayoutAutomation.ts,
+  services/referralPayoutHistory.ts, services/referralPayoutService.ts, services/referralPayoutCron.ts,
+  services/conversionService.ts, services/binanceService.ts, controller/referralPayoutController.ts, routes/referralRouter.ts,
+  migrations/bootMigrations.ts (0013), models/userModels/userModel.ts, utils/crons/referralRewardMonitor.ts.
+  Frontend: Components/Page/Referrals/PayoutCard.tsx, api/endpoints.ts, langs/locales/*/referrals.json.
+
 
 ---
 

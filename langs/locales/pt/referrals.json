@@ -112,5 +112,15 @@
   "payoutStatus_processing": "Em processamento",
   "payoutStatus_completed": "Concluído",
   "payoutStatus_failed": "Falhou",
+  "payoutAutoOnTitle": "O saque automático está ativo",
+  "payoutAutoOnDesc": "Enviado automaticamente quando você alcança ${{min}}",
+  "payoutAutoTurnOff": "Desativar automático",
+  "payoutAutoEnableCta": "Ativar saque automático",
+  "payoutAutoSetupTitle": "Saque automático",
+  "payoutAutoSetupDesc": "Enviaremos suas recompensas automaticamente quando alcançarem este valor.",
+  "payoutAutoEnableConfirm": "Ativar",
+  "payoutAutoMinHint": "Mínimo ${{min}}. Valores maiores agrupam os saques e economizam nas taxas de rede.",
+  "payoutAutoEnabled": "Saque automático ativado",
+  "payoutAutoDisabled": "Saque automático desativado",
   "payoutErrorGeneric": "Algo deu errado. Tente novamente."
 }

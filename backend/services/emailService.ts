@@ -34,6 +34,7 @@ export * from "./email/kycEmails";
 export * from "./email/billingReportEmails";
 export * from "./email/adminNotificationEmails";
 export * from "./email/orderEmails";
+export * from "./email/referralEmails";
 
 import {
   dynoPayEmailTemplate,

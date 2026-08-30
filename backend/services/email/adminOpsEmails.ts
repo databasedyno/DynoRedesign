@@ -220,7 +220,45 @@ export const sendAdminFeeSweepEmail = async (
   }
 };
 
+/**
+ * Treasury-Low Alert (admin/ops) — a payout/withdrawal could not be sent because
+ * the Binance balance for the asset is too low. The payout WAITS for a top-up
+ * (never failed). Throttled by utils/treasuryAlert.ts (once per asset per 3h).
+ */
+export const sendTreasuryLowAlertEmail = async (
+  recipientEmail: string,
+  asset: string,
+  have: number,
+  need: number,
+  context: string
+) => {
+  try {
+    const subject = `⚠️ Low ${asset} treasury — top up Binance`;
+    const shortfall = Math.max(0, need - have);
+    const content = `
+      ${p(`A payout could not be sent because the Binance <strong>${escapeHtml(asset)}</strong> balance is too low to cover it.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Asset', `<strong>${escapeHtml(asset)}</strong>`)}
+          ${dataRow('Available', `${have.toFixed(2)} ${escapeHtml(asset)}`)}
+          ${dataRow('Required', `${need.toFixed(2)} ${escapeHtml(asset)}`)}
+          ${dataRow('Shortfall', `<strong style="color:#b91c1c;">${shortfall.toFixed(2)} ${escapeHtml(asset)}</strong>`)}
+          ${dataRow('Context', escapeHtml(context), true)}
+        </table>
+      `, '#f59e0b')}
+      ${p(`The affected payout is <strong>safely waiting</strong> and will retry automatically once the Binance ${escapeHtml(asset)} balance is topped up. No funds were lost and nothing was marked failed.`)}
+      ${p(`<strong>Action:</strong> top up the Binance ${escapeHtml(asset)} balance to at least ${need.toFixed(2)} ${escapeHtml(asset)}.`)}`;
+
+    const html = dynoPayEmailTemplate(`Low ${asset} treasury`, `${p(`Hey Dynopay Admin,`)}\n${content}`);
+    await mailTransporter({ to: recipientEmail, name: "Dynopay Admin", subject, body: html });
+    apiLogger.info(`[Email] Treasury-low alert sent to ${recipientEmail} (${asset}: have ${have}, need ${need}, ${context})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendTreasuryLowAlertEmail' });
+  }
+};
+
 // ============================================================
 // SECTION 8: AUTO-CONVERSION EMAILS
 // ============================================================
+
 

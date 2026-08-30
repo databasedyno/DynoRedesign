@@ -112,5 +112,15 @@
   "payoutStatus_processing": "Processing",
   "payoutStatus_completed": "Completed",
   "payoutStatus_failed": "Failed",
+  "payoutAutoOnTitle": "Auto cash-out is on",
+  "payoutAutoOnDesc": "Sends automatically once you reach ${{min}}",
+  "payoutAutoTurnOff": "Turn off auto",
+  "payoutAutoEnableCta": "Turn on auto cash-out",
+  "payoutAutoSetupTitle": "Auto cash-out",
+  "payoutAutoSetupDesc": "We'll send your rewards automatically once they reach this amount.",
+  "payoutAutoEnableConfirm": "Turn on",
+  "payoutAutoMinHint": "Minimum ${{min}}. Higher amounts batch payouts and save on network fees.",
+  "payoutAutoEnabled": "Auto cash-out on",
+  "payoutAutoDisabled": "Auto cash-out off",
   "payoutErrorGeneric": "Something went wrong. Please try again."
 }

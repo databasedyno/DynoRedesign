@@ -112,5 +112,15 @@
   "payoutStatus_processing": "In Bearbeitung",
   "payoutStatus_completed": "Abgeschlossen",
   "payoutStatus_failed": "Fehlgeschlagen",
+  "payoutAutoOnTitle": "Auto-Cash-out ist aktiv",
+  "payoutAutoOnDesc": "Wird automatisch gesendet, sobald du ${{min}} erreichst",
+  "payoutAutoTurnOff": "Auto deaktivieren",
+  "payoutAutoEnableCta": "Auto-Cash-out aktivieren",
+  "payoutAutoSetupTitle": "Auto-Cash-out",
+  "payoutAutoSetupDesc": "Wir senden deine Prämien automatisch, sobald sie diesen Betrag erreichen.",
+  "payoutAutoEnableConfirm": "Aktivieren",
+  "payoutAutoMinHint": "Mindestens ${{min}}. Höhere Beträge bündeln Auszahlungen und sparen Netzwerkgebühren.",
+  "payoutAutoEnabled": "Auto-Cash-out aktiv",
+  "payoutAutoDisabled": "Auto-Cash-out aus",
   "payoutErrorGeneric": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
 }

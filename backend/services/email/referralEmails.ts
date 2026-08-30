@@ -1,0 +1,141 @@
+import mailTransporter from "../../utils/mailTransporter";
+import { apiLogger } from "../../utils/loggers";
+import { captureError } from "../errorMonitoringService";
+import { p, infoBox, dataRow } from "../../utils/emailTemplate";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate } from "./emailShared";
+
+/**
+ * Referral revenue-share payout emails (merchant-facing).
+ * Plain-English (like the webhook-disabled alert); Provider: Brevo.
+ */
+
+const REFERRALS_URL = `${FRONTEND_BASE_URL}/referrals`;
+
+/** Balance crossed the cash-out minimum — nudge the referrer. */
+export const sendReferralPayoutReadyEmail = async (
+  email: string,
+  name: string,
+  unpaidUsd: number,
+  mode: string,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const amount = `$${Number(unpaidUsd).toFixed(2)}`;
+    const isCash = mode === "cash";
+    const subject = `You can cash out ${amount} in referral rewards 🎉`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Nice work — you've earned <strong>${amount}</strong> in Dynopay referral rewards from the merchants you referred.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Available to cash out', `<strong style="color:#166534;">${amount}</strong>`, true)}
+        </table>
+      `, '#12B76A')}
+      ${isCash
+        ? p(`Your payout method is set to <strong>USDT (TRC-20) cash-out</strong> — head to your referrals page to withdraw it to your wallet.`)
+        : p(`It's currently reducing your own Dynopay fees automatically. Prefer cash? Switch to <strong>USDT (TRC-20) cash-out</strong> on your referrals page and withdraw it to your wallet.`)}`;
+
+    const html = dynoPayEmailTemplate(`Referral rewards ready`, content, true, isCash ? `Cash out now` : `View rewards`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral payout-ready nudge sent to ${email} (${amount}, mode=${mode})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralPayoutReadyEmail' });
+  }
+};
+
+/** Confirmation that auto cash-out was turned on. */
+export const sendReferralAutoPayEnabledEmail = async (
+  email: string,
+  name: string,
+  autoMinUsd: number,
+  addressMasked: string,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const min = `$${Number(autoMinUsd).toFixed(2)}`;
+    const subject = `Auto cash-out is on for your referral rewards`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Automatic cash-out is now <strong>ON</strong>. Whenever your referral balance reaches <strong>${min}</strong>, we'll send it to your USDT (TRC-20) wallet automatically — no action needed.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Auto-pay at', `<strong>${min}</strong>`)}
+          ${dataRow('Wallet', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
+        </table>
+      `, '#05936A')}
+      ${p(`You can turn this off or change the amount anytime on your referrals page.`)}`;
+
+    const html = dynoPayEmailTemplate(`Auto cash-out enabled`, content, true, `Manage payouts`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral auto-pay enabled confirmation sent to ${email} (min=${min})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralAutoPayEnabledEmail' });
+  }
+};
+
+/** A payout has been requested/queued (manual or auto). */
+export const sendReferralPayoutRequestedEmail = async (
+  email: string,
+  name: string,
+  amountUsd: number,
+  addressMasked: string,
+  viaAuto: boolean,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const amount = `$${Number(amountUsd).toFixed(2)}`;
+    const subject = `Your ${amount} referral cash-out is on the way`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`${viaAuto ? `Auto cash-out triggered — we're` : `We're`} sending <strong>${amount}</strong> in referral rewards to your USDT (TRC-20) wallet.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Amount', `<strong>${amount}</strong>`)}
+          ${dataRow('Wallet', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
+        </table>
+      `, '#05936A')}
+      ${p(`You'll get another email with the transaction link once it lands on-chain. This usually takes a few minutes.`)}`;
+
+    const html = dynoPayEmailTemplate(`Cash-out requested`, content, true, `View history`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral payout-requested sent to ${email} (${amount}, auto=${viaAuto})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralPayoutRequestedEmail' });
+  }
+};
+
+/** A payout failed at the provider — reassure + let them retry. */
+export const sendReferralPayoutFailedEmail = async (
+  email: string,
+  name: string,
+  amountUsd: number,
+  addressMasked: string,
+  reason: string,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const amount = `$${Number(amountUsd).toFixed(2)}`;
+    const subject = `Your ${amount} referral cash-out couldn't be sent`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`We tried to send <strong>${amount}</strong> in referral rewards to your USDT (TRC-20) wallet, but the transfer didn't go through.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Amount', `<strong>${amount}</strong>`)}
+          ${dataRow('Wallet', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`)}
+          ${dataRow('Reason', `<span style="font-family:monospace;font-size:12px;">${escapeHtml(reason)}</span>`, true)}
+        </table>
+      `, '#f59e0b')}
+      ${p(`Your rewards are safe and still in your balance. Please double-check your payout wallet on your referrals page and try again — if it keeps failing, just reply to this email and we'll help.`)}`;
+
+    const html = dynoPayEmailTemplate(`Cash-out failed`, content, true, `Review payout`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral payout-failed sent to ${email} (${amount}, reason="${reason}")`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralPayoutFailedEmail' });
+  }
+};
