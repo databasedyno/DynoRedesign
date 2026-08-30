@@ -122,5 +122,42 @@
   "payoutAutoMinHint": "Minimum ${{min}}. Higher amounts batch payouts and save on network fees.",
   "payoutAutoEnabled": "Auto cash-out on",
   "payoutAutoDisabled": "Auto cash-out off",
-  "payoutErrorGeneric": "Something went wrong. Please try again."
+  "payoutErrorGeneric": "Something went wrong. Please try again.",
+  "public": {
+    "eyebrow": "Referral program",
+    "heroTitle": "Get paid to spread the word",
+    "heroSubtitle": "Earn 25% of the fees from every merchant you refer — for a full 12 months. Take it as fee credit or cash out in USDT (TRC-20).",
+    "heroCtaPrimary": "Start earning — it's free",
+    "heroCtaSecondary": "Get your referral link",
+    "noCap": "No cap on referrals. The more businesses you bring, the more you earn.",
+    "exampleTitle": "A quick example",
+    "exampleBody": "Refer a store doing $50,000/month. At ~1.5% in fees that's about $750/month — you earn 25% ≈ $187 every month, for a year.",
+    "exampleNote": "Illustrative only — your earnings depend on your referrals' real volume and fees.",
+    "faqTitle": "Common questions",
+    "faq": [
+      {
+        "q": "How much can I earn?",
+        "a": "25% of the platform fees each merchant you refer generates, for 12 months. There's no limit on how many people you refer."
+      },
+      {
+        "q": "When does it start?",
+        "a": "When a merchant you referred takes their first $100+ payment within 90 days of signing up — that opens your 12-month window."
+      },
+      {
+        "q": "How do I get paid?",
+        "a": "Automatically as fee credit on your own Dynopay fees, or cash out to a USDT (TRC-20) wallet you choose."
+      }
+    ],
+    "bandEyebrow": "Refer & earn",
+    "bandTitle": "Know a business that should take crypto?",
+    "bandBody": "Refer them to Dynopay and earn 25% of their fees for 12 months — as fee credit or USDT cash-out.",
+    "bandCta": "Explore the referral program",
+    "stepsTitle": "How it works",
+    "step1Title": "Share your link",
+    "step1Desc": "Send your referral link to any business that accepts payments online.",
+    "step2Title": "They sign up",
+    "step2Desc": "They open a Dynopay account and start taking crypto payments.",
+    "step3Title": "You get paid",
+    "step3Desc": "Earn 25% of their fees for 12 months — as fee credit or USDT (TRC-20) cash-out."
+  }
 }

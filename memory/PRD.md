@@ -2,6 +2,25 @@
 
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
+
+# PUBLIC REFERRAL MARKETING PAGE (2026-06 fork) — DONE (testing_agent iteration_100 = 100% frontend + SSR/tsc verified)
+
+Preview: https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+User approved defaults: mega-menu link under Resources · landing CTA band just before the final register CTA · sitemap+hreflang.
+
+BUILT (frontend-only, no backend/money-path change):
+- NEW pages/referral-program.tsx — Aurora design (mirrors /fees): hero (crawlable <a> CTAs → /auth/register?ref=referral_program + /auth/login), 3-step "How it works", earnings example, FAQ (Array.isArray guarded), closing <FinalCTAAurora/>. testids: referral-program-page, referral-hero-primary/secondary-cta, referral-step-1..3, referral-example, referral-faq-1..3.
+- NEW Components/Page/Home/v3/ReferralCtaBandV3.tsx — landing CTA band (testids referral-cta-band / referral-cta-band-link → /referral-program), wired in Home/index.tsx between FAQCompact and FinalCTAAurora.
+- ROUTING: /referral-program added to homePaths + routeKeyMap('referralProgram') in pages/_app.tsx (verified NOT caught by the /referrals private-noindex prefix).
+- NAV: menuData.tsx Resources section gets a referral MegaItem (CardGiftcardRounded); HomeFooter Company column gets a "Referral program" link.
+- SEO: sitemap.xml.tsx PUBLIC_PAGES + /referral-program (6 hreflang alternates + x-default confirmed).
+- i18n: referrals.json `public.*` marketing block (eyebrow/hero/example/faq[] + sentence-case step1-3 marketing copy + landing band* keys) ×6 locales; pageTitles referralProgram_title(<=53c)/desc ×6; landing referralProgram label + nav.mega.referral ×6. Injector: /tmp/inject_referral_i18n.py (NON-persistent — copy re-derivable from JSONs). check-i18n clean for all new keys (only pre-existing intentional EN-only apiScreen currency.baseCurrencyHelper remains, unrelated).
+
+VERIFIED: tsc EXIT 0; SSR curl (title "Referral Program — earn 25% revenue share · Dynopay", hero+steps+example+FAQ present, marketing step copy replaced old dashboard "Share Your Code" copy, $187 appears once, CTAs are real anchors); testing_agent iteration_100 = 100% (8/8): page in public layout, both hero CTAs, landing band placement+nav, header mega + footer nav, mobile 390x844 no overflow, light+dark, sitemap. NOTE: automated pixel screenshots blank on external preview (known Cloudflare→headless) — verified via DOM/testids + SSR.
+
+FILES: pages/referral-program.tsx (new), Components/Page/Home/v3/ReferralCtaBandV3.tsx (new), Components/Page/Home/index.tsx, pages/_app.tsx, Components/Layout/HomeHeader/menuData.tsx, Components/Layout/HomeFooter/index.tsx, pages/sitemap.xml.tsx, langs/locales/*/{referrals,pageTitles,landing}.json.
+
+
 # REFERRAL PAYOUT — TREASURY SAFETY + THRESHOLD NUDGE + AUTO-PAYOUT (2026-06 fork) — session ended after build
 
 - **Phase A (treasury safety) — DONE + verified.** Low Binance balance now alerts ADMIN_EMAIL (throttled 3h/asset via `utils/treasuryAlert.ts` + `sendTreasuryLowAlertEmail`). Referral payouts already wait+retry (added alert); merchant conversion **withdrawals** (Phase 3) no longer burn retries / mark FAILED on a temporary shortfall — they WAIT for top-up (mirrors referral) + alert. Phase 2 (deposit/sweep) left as-is. Unit-verified (compose + Redis throttle).

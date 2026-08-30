@@ -108,6 +108,7 @@ const HomeFooter: FC = () => {
         heading: "Company",
         links: [
           { label: t("blog"), link: "/blog" },
+          { label: t("referralProgram"), link: "/referral-program" },
           { label: t("footerSupport"), link: "/help-support" },
           { label: t("footerTerms"), link: "/terms-conditions" },
           { label: t("footerPrivacy"), link: "/privacy-policy" },

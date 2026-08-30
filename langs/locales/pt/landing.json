@@ -74,6 +74,10 @@
       "press": {
         "title": "Kit de imprensa",
         "desc": "Logos, fatos e recursos para a mídia"
+      },
+      "referral": {
+        "title": "Programa de indicações",
+        "desc": "Ganhe 25% das taxas deles por 12 meses"
       }
     }
   },
@@ -881,5 +885,6 @@
     "contactTitle": "Contato para imprensa",
     "contactBody": "Para entrevistas, comentários ou algo que falte nesta página, escreva para nós — lemos todas as mensagens.",
     "storyCta": "Leia nossa história"
-  }
+  },
+  "referralProgram": "Programa de indicações"
 }

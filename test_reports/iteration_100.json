@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only verification of the new public /referral-program marketing page and its navigation wiring on the external preview URL. Verified: page renders inside the public marketing layout (public header + footer, hero, 3 steps, earnings example, 3 FAQs, correct <title>), no leaked i18n keys, both hero CTAs navigate correctly (/auth/register?ref=referral_program and /auth/login, no forms submitted), landing-page referral CTA band renders after the FAQ section and before the final register CTA and navigates to /referral-program, header mega-menu 'Resources' item (mega-item-nav.mega.referral.title) and footer 'Referral program' link both navigate correctly, sitemap.xml contains the /referral-program entry with 6 hreflang alternates + x-default, zero horizontal overflow at 390x844 in both light and dark mode, dark mode tokens applied correctly (page bg #0B0B0F, card #15151B, body text #C9C9D1). No backend testing (out of scope). No accounts created, no forms submitted.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/referral-program hero", "issues": ["Large dead vertical space (~150px at desktop, ~130px at mobile) between the 'No cap on referrals...' line and the 'How It Works' section — hero has both inner pb {xs:6,md:9} and outer pb {xs:8,md:12}; consider collapsing one."]},
+      {"screen": "/referral-program earnings example", "issues": ["Copy reads awkwardly: the injected '≈ $187' prefix is immediately followed by exampleBody which itself ends with '...you earn 25% ≈ $187 every month' — the figure appears twice in one sentence."]},
+      {"screen": "/referral-program How it works", "issues": ["Steps reuse the logged-in dashboard keys (howItWorks / step1Title..step3Desc: 'Share Your Code', 'Send your referral code or link to friends and colleagues') instead of public.* marketing copy — Title Case heading is inconsistent with the sentence-case marketing headings ('Common questions'), and copy assumes the visitor already has a code."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional polish: reduce the hero bottom padding on /referral-program to remove the dead space before 'How It Works'.",
+    "Optional copy fix: remove the duplicated '≈ $187' in the earnings example block.",
+    "Optional copy fix: add public.step*Title/Desc + public.howItWorks marketing keys instead of reusing the dashboard referral keys."
+  ],
+  "critical_code_review_comments": [
+    "pages/referral-program.tsx uses t('public.faq', { returnObjects: true }) with a `|| []` fallback; if a locale ships faq as a string this renders nothing silently — consider Array.isArray() guard.",
+    "Hero CTAs use router.push inside MUI Button (no <a href>), so the primary/secondary CTAs are not crawlable links and only work after hydration (observed a no-op click when clicked immediately after domcontentloaded). Consider next/link anchors for SEO on a marketing page."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested", "frontend": "100% (8/8 requested checks passed)"},
+  "seed_data_creation": "none",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "External preview page loads are slow; do NOT use wait_until='networkidle' on / (times out at 30s) — use domcontentloaded + explicit testid waits. The landing page lazy-renders sections, so scroll to the bottom (mouse.wheel loop) before asserting referral-cta-band. Theme is toggled via the header [data-testid='theme-toggle-button'] (setting localStorage 'theme' does NOT apply). A bottom language banner and a chat FAB overlay the viewport but did not block any clicks. Hero CTAs need ~2-3s hydration before clicks register.",
+  "rca_of_the_issue": "No functional defects found. The one transient failure (primary CTA click not navigating) reproduced only when clicking immediately after domcontentloaded, i.e. before React hydration attached the onClick handler — an inherent limitation of using router.push on a button instead of an anchor href."
+}

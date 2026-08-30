@@ -122,5 +122,42 @@
   "payoutAutoMinHint": "Mindestens ${{min}}. Höhere Beträge bündeln Auszahlungen und sparen Netzwerkgebühren.",
   "payoutAutoEnabled": "Auto-Cash-out aktiv",
   "payoutAutoDisabled": "Auto-Cash-out aus",
-  "payoutErrorGeneric": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+  "payoutErrorGeneric": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+  "public": {
+    "eyebrow": "Empfehlungsprogramm",
+    "heroTitle": "Verdiene, indem du uns weiterempfiehlst",
+    "heroSubtitle": "Verdiene 25% der Gebühren jedes Händlers, den du empfiehlst – volle 12 Monate lang. Als Gebührenguthaben oder Auszahlung in USDT (TRC-20).",
+    "heroCtaPrimary": "Jetzt kostenlos starten",
+    "heroCtaSecondary": "Empfehlungslink holen",
+    "noCap": "Kein Limit für Empfehlungen. Je mehr Unternehmen du bringst, desto mehr verdienst du.",
+    "exampleTitle": "Ein kurzes Beispiel",
+    "exampleBody": "Empfiehl einen Shop mit 50.000 $/Monat. Bei ~1,5% Gebühren sind das rund 750 $/Monat – du erhältst 25% ≈ 187 $ pro Monat, ein Jahr lang.",
+    "exampleNote": "Nur ein Beispiel – dein Verdienst hängt vom tatsächlichen Umsatz und den Gebühren deiner Empfehlungen ab.",
+    "faqTitle": "Häufige Fragen",
+    "faq": [
+      {
+        "q": "Wie viel kann ich verdienen?",
+        "a": "25% der Plattformgebühren jedes empfohlenen Händlers, 12 Monate lang. Es gibt kein Limit, wie viele Personen du empfiehlst."
+      },
+      {
+        "q": "Wann geht es los?",
+        "a": "Sobald ein empfohlener Händler innerhalb von 90 Tagen seine erste Zahlung über 100 $ erhält – das öffnet dein 12-Monats-Fenster."
+      },
+      {
+        "q": "Wie werde ich bezahlt?",
+        "a": "Automatisch als Gebührenguthaben auf deine eigenen Dynopay-Gebühren oder als Auszahlung an eine USDT-Wallet (TRC-20) deiner Wahl."
+      }
+    ],
+    "bandEyebrow": "Empfehlen & verdienen",
+    "bandTitle": "Kennst du ein Unternehmen, das Krypto akzeptieren sollte?",
+    "bandBody": "Empfiehl es Dynopay und verdiene 12 Monate lang 25% seiner Gebühren – als Guthaben oder USDT-Auszahlung.",
+    "bandCta": "Empfehlungsprogramm entdecken",
+    "stepsTitle": "So funktioniert's",
+    "step1Title": "Teile deinen Link",
+    "step1Desc": "Sende deinen Empfehlungslink an jedes Unternehmen, das online Zahlungen annimmt.",
+    "step2Title": "Sie melden sich an",
+    "step2Desc": "Sie eröffnen ein Dynopay-Konto und akzeptieren Krypto-Zahlungen.",
+    "step3Title": "Du wirst bezahlt",
+    "step3Desc": "Verdiene 12 Monate lang 25% ihrer Gebühren – als Guthaben oder USDT-Auszahlung (TRC-20)."
+  }
 }

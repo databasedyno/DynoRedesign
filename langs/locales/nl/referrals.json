@@ -122,5 +122,42 @@
   "payoutAutoMinHint": "Minimaal ${{min}}. Hogere bedragen bundelen uitbetalingen en besparen netwerkkosten.",
   "payoutAutoEnabled": "Automatische uitbetaling aan",
   "payoutAutoDisabled": "Automatische uitbetaling uit",
-  "payoutErrorGeneric": "Er ging iets mis. Probeer het opnieuw."
+  "payoutErrorGeneric": "Er ging iets mis. Probeer het opnieuw.",
+  "public": {
+    "eyebrow": "Referral-programma",
+    "heroTitle": "Verdien door ons aan te bevelen",
+    "heroSubtitle": "Verdien 25% van de kosten van elke handelaar die je aanbrengt — 12 maanden lang. Als tegoed op je kosten of uitbetaling in USDT (TRC-20).",
+    "heroCtaPrimary": "Gratis beginnen met verdienen",
+    "heroCtaSecondary": "Mijn referral-link ophalen",
+    "noCap": "Geen limiet op referrals. Hoe meer bedrijven je aanbrengt, hoe meer je verdient.",
+    "exampleTitle": "Een kort voorbeeld",
+    "exampleBody": "Breng een winkel aan met $50.000/maand. Bij ~1,5% kosten is dat zo'n $750/maand — jij verdient 25% ≈ $187 per maand, een jaar lang.",
+    "exampleNote": "Alleen ter illustratie — je verdiensten hangen af van het echte volume en de kosten van je referrals.",
+    "faqTitle": "Veelgestelde vragen",
+    "faq": [
+      {
+        "q": "Hoeveel kan ik verdienen?",
+        "a": "25% van de platformkosten die elke aangebrachte handelaar genereert, 12 maanden lang. Er is geen limiet op het aantal mensen dat je aanbrengt."
+      },
+      {
+        "q": "Wanneer begint het?",
+        "a": "Zodra een aangebrachte handelaar binnen 90 dagen zijn eerste betaling van meer dan $100 ontvangt — dat opent je venster van 12 maanden."
+      },
+      {
+        "q": "Hoe word ik betaald?",
+        "a": "Automatisch als tegoed op je eigen Dynopay-kosten, of uitbetaald naar een USDT-wallet (TRC-20) die jij kiest."
+      }
+    ],
+    "bandEyebrow": "Aanbrengen & verdienen",
+    "bandTitle": "Ken je een bedrijf dat crypto zou moeten accepteren?",
+    "bandBody": "Breng het aan bij Dynopay en verdien 12 maanden lang 25% van hun kosten — als tegoed of USDT-uitbetaling.",
+    "bandCta": "Ontdek het referral-programma",
+    "stepsTitle": "Zo werkt het",
+    "step1Title": "Deel je link",
+    "step1Desc": "Stuur je referral-link naar elk bedrijf dat online betalingen accepteert.",
+    "step2Title": "Zij registreren zich",
+    "step2Desc": "Ze openen een Dynopay-account en gaan crypto accepteren.",
+    "step3Title": "Jij wordt betaald",
+    "step3Desc": "Verdien 12 maanden lang 25% van hun kosten — als tegoed of USDT-uitbetaling (TRC-20)."
+  }
 }

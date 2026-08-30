@@ -74,6 +74,10 @@
       "press": {
         "title": "Perskit",
         "desc": "Logo's, feiten en persmateriaal"
+      },
+      "referral": {
+        "title": "Referral-programma",
+        "desc": "Verdien 25% van hun kosten, 12 maanden lang"
       }
     }
   },
@@ -881,5 +885,6 @@
     "contactTitle": "Mediacontact",
     "contactBody": "Voor interviews, reacties of iets dat op deze pagina ontbreekt: schrijf ons — we lezen elk bericht.",
     "storyCta": "Lees ons verhaal"
-  }
+  },
+  "referralProgram": "Referral-programma"
 }

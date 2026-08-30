@@ -24,6 +24,7 @@ const RefundsTrustV3 = dynamic(() => import("./v3/RefundsTrustV3"));
 const NumbersTrustBand = dynamic(() => import("./v3/NumbersTrustBand"));
 const LearnDocsCards = dynamic(() => import("./v3/LearnDocsCards"));
 const FAQCompact = dynamic(() => import("./v3/FAQCompact"));
+const ReferralCtaBandV3 = dynamic(() => import("./v3/ReferralCtaBandV3"));
 const FinalCTAAurora = dynamic(() => import("./v3/FinalCTAAurora"));
 
 /**
@@ -83,6 +84,7 @@ const HomePage: FC = () => {
       <NumbersTrustBand />
       <LearnDocsCards />
       <FAQCompact />
+      <ReferralCtaBandV3 />
       <FinalCTAAurora />
     </HomeWrapper>
   );

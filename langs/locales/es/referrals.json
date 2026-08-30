@@ -122,5 +122,42 @@
   "payoutAutoMinHint": "Mínimo ${{min}}. Importes más altos agrupan los pagos y ahorran comisiones de red.",
   "payoutAutoEnabled": "Retiro automático activado",
   "payoutAutoDisabled": "Retiro automático desactivado",
-  "payoutErrorGeneric": "Algo salió mal. Inténtalo de nuevo."
+  "payoutErrorGeneric": "Algo salió mal. Inténtalo de nuevo.",
+  "public": {
+    "eyebrow": "Programa de referidos",
+    "heroTitle": "Gana por recomendarnos",
+    "heroSubtitle": "Gana el 25% de las comisiones de cada comercio que refieras, durante 12 meses completos. Como crédito de comisiones o retiro en USDT (TRC-20).",
+    "heroCtaPrimary": "Empieza gratis a ganar",
+    "heroCtaSecondary": "Obtener mi enlace",
+    "noCap": "Sin límite de referidos. Cuantos más negocios traigas, más ganas.",
+    "exampleTitle": "Un ejemplo rápido",
+    "exampleBody": "Refiere una tienda con 50.000 $/mes. Con ~1,5% de comisiones son unos 750 $/mes — ganas el 25% ≈ 187 $ cada mes, durante un año.",
+    "exampleNote": "Solo ilustrativo: tus ganancias dependen del volumen y las comisiones reales de tus referidos.",
+    "faqTitle": "Preguntas frecuentes",
+    "faq": [
+      {
+        "q": "¿Cuánto puedo ganar?",
+        "a": "El 25% de las comisiones que genere cada comercio que refieras, durante 12 meses. No hay límite de personas que puedas referir."
+      },
+      {
+        "q": "¿Cuándo empieza?",
+        "a": "Cuando un comercio que referiste recibe su primer pago de más de 100 $ en los primeros 90 días — eso abre tu ventana de 12 meses."
+      },
+      {
+        "q": "¿Cómo cobro?",
+        "a": "Automáticamente como crédito sobre tus propias comisiones de Dynopay, o retirando a una wallet USDT (TRC-20) que elijas."
+      }
+    ],
+    "bandEyebrow": "Refiere y gana",
+    "bandTitle": "¿Conoces un negocio que debería aceptar cripto?",
+    "bandBody": "Refiérelo a Dynopay y gana el 25% de sus comisiones durante 12 meses, como crédito o retiro en USDT.",
+    "bandCta": "Descubre el programa de referidos",
+    "stepsTitle": "Cómo funciona",
+    "step1Title": "Comparte tu enlace",
+    "step1Desc": "Envía tu enlace de referido a cualquier negocio que acepte pagos en línea.",
+    "step2Title": "Se registran",
+    "step2Desc": "Abren una cuenta de Dynopay y empiezan a aceptar pagos en cripto.",
+    "step3Title": "Cobras",
+    "step3Desc": "Gana el 25% de sus comisiones durante 12 meses, como crédito o retiro en USDT (TRC-20)."
+  }
 }

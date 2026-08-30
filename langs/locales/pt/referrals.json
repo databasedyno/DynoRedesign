@@ -122,5 +122,42 @@
   "payoutAutoMinHint": "Mínimo ${{min}}. Valores maiores agrupam os saques e economizam nas taxas de rede.",
   "payoutAutoEnabled": "Saque automático ativado",
   "payoutAutoDisabled": "Saque automático desativado",
-  "payoutErrorGeneric": "Algo deu errado. Tente novamente."
+  "payoutErrorGeneric": "Algo deu errado. Tente novamente.",
+  "public": {
+    "eyebrow": "Programa de indicações",
+    "heroTitle": "Ganhe indicando a Dynopay",
+    "heroSubtitle": "Ganhe 25% das taxas de cada comerciante que indicar — por 12 meses completos. Como crédito de taxas ou saque em USDT (TRC-20).",
+    "heroCtaPrimary": "Comece a ganhar de graça",
+    "heroCtaSecondary": "Obter meu link",
+    "noCap": "Sem limite de indicações. Quanto mais negócios você trouxer, mais você ganha.",
+    "exampleTitle": "Um exemplo rápido",
+    "exampleBody": "Indique uma loja com US$ 50.000/mês. Com ~1,5% de taxas são cerca de US$ 750/mês — você ganha 25% ≈ US$ 187 por mês, durante um ano.",
+    "exampleNote": "Apenas ilustrativo — seus ganhos dependem do volume e das taxas reais das suas indicações.",
+    "faqTitle": "Perguntas frequentes",
+    "faq": [
+      {
+        "q": "Quanto posso ganhar?",
+        "a": "25% das taxas da plataforma que cada comerciante indicado gerar, por 12 meses. Não há limite de pessoas que você pode indicar."
+      },
+      {
+        "q": "Quando começa?",
+        "a": "Quando um comerciante indicado recebe o primeiro pagamento acima de US$ 100 em até 90 dias — isso abre sua janela de 12 meses."
+      },
+      {
+        "q": "Como recebo?",
+        "a": "Automaticamente como crédito nas suas próprias taxas da Dynopay, ou por saque para uma carteira USDT (TRC-20) que você escolher."
+      }
+    ],
+    "bandEyebrow": "Indique e ganhe",
+    "bandTitle": "Conhece um negócio que deveria aceitar cripto?",
+    "bandBody": "Indique-o à Dynopay e ganhe 25% das taxas dele por 12 meses, como crédito ou saque em USDT.",
+    "bandCta": "Conheça o programa de indicações",
+    "stepsTitle": "Como funciona",
+    "step1Title": "Compartilhe seu link",
+    "step1Desc": "Envie seu link de indicação para qualquer negócio que aceite pagamentos online.",
+    "step2Title": "Eles se cadastram",
+    "step2Desc": "Eles abrem uma conta Dynopay e começam a aceitar pagamentos em cripto.",
+    "step3Title": "Você recebe",
+    "step3Desc": "Ganhe 25% das taxas deles por 12 meses, como crédito ou saque em USDT (TRC-20)."
+  }
 }

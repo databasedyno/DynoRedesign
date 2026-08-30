@@ -74,6 +74,10 @@
       "press": {
         "title": "Kit de prensa",
         "desc": "Logos, datos y recursos para medios"
+      },
+      "referral": {
+        "title": "Programa de referidos",
+        "desc": "Gana el 25% de sus comisiones durante 12 meses"
       }
     }
   },
@@ -881,5 +885,6 @@
     "contactTitle": "Contacto para medios",
     "contactBody": "Para entrevistas, declaraciones o cualquier cosa que falte en esta página, escríbenos — leemos todos los mensajes.",
     "storyCta": "Lee nuestra historia"
-  }
+  },
+  "referralProgram": "Programa de referidos"
 }

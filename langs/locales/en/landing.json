@@ -74,6 +74,10 @@
       "press": {
         "title": "Press kit",
         "desc": "Logos, facts and media resources"
+      },
+      "referral": {
+        "title": "Referral program",
+        "desc": "Earn 25% of their fees for 12 months"
       }
     }
   },
@@ -881,5 +885,6 @@
     "contactTitle": "Media contact",
     "contactBody": "For interviews, comments or anything missing from this page, write to us — we read every message.",
     "storyCta": "Read our story"
-  }
+  },
+  "referralProgram": "Referral program"
 }

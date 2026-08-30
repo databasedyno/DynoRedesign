@@ -6,6 +6,7 @@ import type { SvgIconComponent } from "@mui/icons-material";
 import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
 import CalculateRoundedIcon from "@mui/icons-material/CalculateRounded";
+import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
@@ -126,6 +127,12 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
         descKey: "nav.mega.status.desc",
         href: "/system-status",
         Icon: MonitorHeartRoundedIcon,
+      },
+      {
+        titleKey: "nav.mega.referral.title",
+        descKey: "nav.mega.referral.desc",
+        href: "/referral-program",
+        Icon: CardGiftcardRoundedIcon,
       },
     ],
   },

@@ -27,6 +27,7 @@ const PUBLIC_PAGES: SitemapEntry[] = [
   { path: "/blog",              changefreq: "weekly",   priority: 0.7 },
   { path: "/about",             changefreq: "monthly",  priority: 0.6 },
   { path: "/press",             changefreq: "yearly",   priority: 0.4 },
+  { path: "/referral-program",  changefreq: "monthly",  priority: 0.7 },
   { path: "/system-status",     changefreq: "daily",    priority: 0.6 },
   { path: "/terms-conditions",  changefreq: "yearly",   priority: 0.4 },
   { path: "/privacy-policy",    changefreq: "yearly",   priority: 0.4 },

@@ -122,5 +122,42 @@
   "payoutAutoMinHint": "Minimum {{min}} $. Des montants plus élevés regroupent les paiements et réduisent les frais de réseau.",
   "payoutAutoEnabled": "Retrait automatique activé",
   "payoutAutoDisabled": "Retrait automatique désactivé",
-  "payoutErrorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+  "payoutErrorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
+  "public": {
+    "eyebrow": "Programme de parrainage",
+    "heroTitle": "Gagnez en nous recommandant",
+    "heroSubtitle": "Gagnez 25% des frais de chaque marchand que vous parrainez, pendant 12 mois entiers. En crédit de frais ou en retrait USDT (TRC-20).",
+    "heroCtaPrimary": "Commencer gratuitement",
+    "heroCtaSecondary": "Obtenir mon lien",
+    "noCap": "Aucune limite de parrainages. Plus vous amenez d'entreprises, plus vous gagnez.",
+    "exampleTitle": "Un exemple rapide",
+    "exampleBody": "Parrainez une boutique à 50 000 $/mois. À ~1,5% de frais, cela fait environ 750 $/mois — vous gagnez 25% ≈ 187 $ chaque mois, pendant un an.",
+    "exampleNote": "À titre indicatif — vos gains dépendent du volume et des frais réels de vos parrainages.",
+    "faqTitle": "Questions fréquentes",
+    "faq": [
+      {
+        "q": "Combien puis-je gagner ?",
+        "a": "25% des frais de plateforme générés par chaque marchand parrainé, pendant 12 mois. Aucune limite au nombre de personnes parrainées."
+      },
+      {
+        "q": "Quand est-ce que ça commence ?",
+        "a": "Dès qu'un marchand parrainé reçoit son premier paiement de plus de 100 $ dans les 90 jours — cela ouvre votre fenêtre de 12 mois."
+      },
+      {
+        "q": "Comment suis-je payé ?",
+        "a": "Automatiquement en crédit sur vos propres frais Dynopay, ou par retrait vers un portefeuille USDT (TRC-20) de votre choix."
+      }
+    ],
+    "bandEyebrow": "Parrainez et gagnez",
+    "bandTitle": "Vous connaissez une entreprise qui devrait accepter la crypto ?",
+    "bandBody": "Parrainez-la sur Dynopay et gagnez 25% de ses frais pendant 12 mois, en crédit ou retrait USDT.",
+    "bandCta": "Découvrir le programme de parrainage",
+    "stepsTitle": "Comment ça marche",
+    "step1Title": "Partagez votre lien",
+    "step1Desc": "Envoyez votre lien de parrainage à toute entreprise qui accepte des paiements en ligne.",
+    "step2Title": "Ils s'inscrivent",
+    "step2Desc": "Ils ouvrent un compte Dynopay et commencent à accepter les paiements en crypto.",
+    "step3Title": "Vous êtes payé",
+    "step3Desc": "Gagnez 25% de leurs frais pendant 12 mois, en crédit ou retrait USDT (TRC-20)."
+  }
 }

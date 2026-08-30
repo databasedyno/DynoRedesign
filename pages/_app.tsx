@@ -225,6 +225,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/blog",
       "/about",
       "/press",
+      "/referral-program",
     ]);
 
     if (
@@ -313,6 +314,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/about":                    "about",
       "/press":                    "press",
       "/fees":                     "fees",
+      "/referral-program":         "referralProgram",
       "/documentation":            "documentation",
       "/blog":                     "blog",
       "/system-status":            "systemStatus",

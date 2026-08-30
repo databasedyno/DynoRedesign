@@ -74,6 +74,10 @@
       "press": {
         "title": "Pressekit",
         "desc": "Logos, Fakten und Presse-Material"
+      },
+      "referral": {
+        "title": "Empfehlungsprogramm",
+        "desc": "Verdiene 25% ihrer Gebühren für 12 Monate"
       }
     }
   },
@@ -881,5 +885,6 @@
     "contactTitle": "Pressekontakt",
     "contactBody": "Für Interviews, Statements oder alles, was auf dieser Seite fehlt, schreiben Sie uns — wir lesen jede Nachricht.",
     "storyCta": "Unsere Geschichte lesen"
-  }
+  },
+  "referralProgram": "Empfehlungsprogramm"
 }

@@ -74,6 +74,10 @@
       "press": {
         "title": "Kit presse",
         "desc": "Logos, chiffres et ressources presse"
+      },
+      "referral": {
+        "title": "Programme de parrainage",
+        "desc": "Gagnez 25% de leurs frais pendant 12 mois"
       }
     }
   },
@@ -881,5 +885,6 @@
     "contactTitle": "Contact média",
     "contactBody": "Pour une interview, un commentaire ou tout élément manquant sur cette page, écrivez-nous — nous lisons chaque message.",
     "storyCta": "Découvrir notre histoire"
-  }
+  },
+  "referralProgram": "Programme de parrainage"
 }
