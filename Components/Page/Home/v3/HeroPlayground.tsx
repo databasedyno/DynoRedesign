@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
-import { motion, useReducedMotion } from "framer-motion";
+import { keyframes } from "@mui/system";
 import { useRouter } from "next/router";
 import { useTranslation, Trans } from "react-i18next";
 import ArrowForward from "@mui/icons-material/ArrowForward";
@@ -19,14 +19,35 @@ const AMOUNTS = [12, 29, 49, 84, 120, 250];
 const STORES = ["Acme Store", "Nova Goods", "Bean & Co.", "Studio Ky", "Lumen Shop", "Peak Gear"];
 const SETTLE_COINS = ["USDC", "USDT", "USDT", "USDC", "USDT", "USDC"];
 
+// Lightweight CSS entrances (replaces framer-motion — keeps it out of the
+// landing's initial JS bundle). Disabled under prefers-reduced-motion at the
+// call site via a CSS media query.
+const heroCardIn = keyframes`
+  from { opacity: 0; transform: translateY(30px) rotate(-2deg); }
+  to   { opacity: 1; transform: translateY(0) rotate(-2deg); }
+`;
+const heroAmountIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
 const HeroPlayground: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
   const { t } = useTranslation("landing");
   // Country-aware ceremonial prices (PT → EUR, etc.).
   const { fmt, code } = useLocalPrice();
-  const reduced = useReducedMotion();
+  // Respect prefers-reduced-motion without framer-motion (gates the cycling timer).
+  const [reduced, setReduced] = useState(false);
   const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
 
   useEffect(() => {
     if (reduced) return;
@@ -210,11 +231,14 @@ const HeroPlayground: React.FC = () => {
 
         {/* RIGHT — checkout demo card (supporting visual, clearly a demo) */}
         <Box sx={{ position: "relative", display: "flex", justifyContent: "center", perspective: "1200px" }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30, rotate: -2 }}
-            animate={{ opacity: 1, y: 0, rotate: -2 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            style={{ width: "100%", maxWidth: 420 }}
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: 420,
+              transform: "rotate(-2deg)",
+              animation: `${heroCardIn} 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both`,
+              "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+            }}
           >
             <Box
               data-testid="hero-checkout-demo"
@@ -295,11 +319,17 @@ const HeroPlayground: React.FC = () => {
                   {t("v3.hero.amountDueLabel")}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 2.5 }}>
-                  <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
+                  <Box
+                    key={idx}
+                    sx={{
+                      animation: `${heroAmountIn} 0.4s cubic-bezier(0.16,1,0.3,1) both`,
+                      "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+                    }}
+                  >
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 44, color: "#0A0A0A", letterSpacing: "-0.03em", lineHeight: 1 }}>
                       {fmt(AMOUNTS[idx])}
                     </Typography>
-                  </motion.div>
+                  </Box>
                   <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#71717A", fontWeight: 500 }} data-testid="hero-settle-path">
                     {code} → {coin}
                   </Typography>
@@ -361,7 +391,7 @@ const HeroPlayground: React.FC = () => {
                 </Box>
               </Box>
             </Box>
-          </motion.div>
+          </Box>
         </Box>
       </Box>
     </Box>

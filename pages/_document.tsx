@@ -55,8 +55,9 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
             in 2 lines instead of 3. "swap" guarantees the brand font always
             applies once loaded; preload keeps the swap window tiny). */}
 
-        {/* Google Identity Services for client-side OAuth (bypasses NextAuth /api/auth/* K8s conflict) */}
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        {/* Google Identity Services script moved to the auth pages (login/register)
+             that actually use it — keeps this third-party connection off every
+             marketing/landing page. See pages/auth/login.tsx & register.tsx. */}
 
         {/* MUI/emotion critical CSS extracted during SSR (prevents FOUC) */}
         <meta name="emotion-insertion-point" content="" />

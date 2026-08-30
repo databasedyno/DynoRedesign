@@ -1,3 +1,4 @@
+import Script from "next/script";
 import { brandFg } from "@/constants/theme";
 import EditIcon from "@/assets/Icons/editicon.png";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
@@ -1030,6 +1031,9 @@ export default function Login() {
 
   return (
     <AuthPageBackground>
+    {/* Google Identity Services — loaded only on this auth page (moved off _document
+        so marketing pages don't pay for it). Handlers below poll for readiness. */}
+    <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
     <SplitLayoutWrapper>
       {/* Form Panel (centered) */}
       <FormPanel>

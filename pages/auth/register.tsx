@@ -34,6 +34,7 @@ import {
 } from "@mui/material";
 import { ArrowBack, CheckCircleOutline, MailOutline, SmartphoneOutlined } from "@mui/icons-material";
 import Head from "next/head";
+import Script from "next/script";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import Spinner from "@/Components/UI/Spinner";
@@ -503,6 +504,9 @@ const Register = () => {
       <Head>
         <title>Create your free account · Dynopay</title>
       </Head>
+      {/* Google Identity Services — loaded only on this auth page (moved off _document
+          so marketing pages don't pay for it). Handler polls for readiness. */}
+      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
       <AuthPageBackground>
         <SplitLayoutWrapper>
           {/* Form Panel (centered — brand panel dropped in 2025-07 pass) */}
