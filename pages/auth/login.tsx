@@ -529,7 +529,7 @@ export default function Login() {
     setEmailCheckLoading(true);
     try {
       const response = await axiosBaseApi.get(
-        API_ENDPOINTS.user.checkEmail + emailInput,
+        API_ENDPOINTS.user.checkEmail + encodeURIComponent(emailInput),
       );
 
       if (!response || !response.data) {
@@ -1001,7 +1001,7 @@ export default function Login() {
     try {
       const {
         data: { data },
-      } = await axiosBaseApi.get(API_ENDPOINTS.user.checkEmail + email);
+      } = await axiosBaseApi.get(API_ENDPOINTS.user.checkEmail + encodeURIComponent(email));
 
       if (data.validEmail) {
         dispatch(

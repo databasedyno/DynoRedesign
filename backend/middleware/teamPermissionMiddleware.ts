@@ -120,3 +120,33 @@ export const requireCompanyOwner = async (
     return errorResponseHelper(res, 500, "Owner check failed.");
   }
 };
+
+/**
+ * Owner-only gate for OWNER_ONLY_ACTIONS on routes that are NOT company-scoped in
+ * their URL (wallet / API-key routes key off wallet_id / api_id, not company_id).
+ * The resolver maps the request to the owning company_id; when it can't be
+ * resolved the guard is a NO-OP (the controller's own user-scoping still applies)
+ * so there is zero regression for existing owner flows.
+ */
+export const requireCompanyOwnerBy =
+  (resolveCompanyId: (req: express.Request, res: express.Response) => Promise<number | null>) =>
+  async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const user = res.locals.user as IUserType | undefined;
+      const uid = Number((user as unknown as { user_id?: number })?.user_id);
+      if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+
+      const companyId = await resolveCompanyId(req, res);
+      // Unresolved (resource missing / no company link) -> defer to the controller.
+      if (!companyId) return next();
+
+      const membership = await resolveMembership(uid, companyId);
+      if (!membership || !membership.isOwner) {
+        return errorResponseHelper(res, 403, "Only the account owner can perform this action.");
+      }
+      next();
+    } catch (e) {
+      apiLogger.error("[teamPermission] requireCompanyOwnerBy error:", e);
+      return errorResponseHelper(res, 500, "Owner check failed.");
+    }
+  };

@@ -90,6 +90,10 @@ const AcceptInvitePage = () => {
         // Log the new teammate in (mirror the login/register reducer + token store).
         try {
           localStorage.setItem("token", d.accessToken);
+          // Team members are joining an EXISTING business, not creating one —
+          // suppress the merchant onboarding wizard on their first dashboard load
+          // so it can't race an empty company list and auto-create a personal company.
+          sessionStorage.setItem("dyno_suppress_onboarding", "1");
         } catch {
           /* ignore */
         }

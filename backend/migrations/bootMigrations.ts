@@ -88,6 +88,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { default: outboxEventModel } = await import("../models/outboxEventModel");
   const { default: keyAccessAuditModel } = await import("../models/keyAccessAuditModel");
   const { teamMemberModel } = await import("../models"); // Team Members / RBAC (0015)
+  const { teamActivityModel } = await import("../models"); // Team Activity Log (0016)
   return [
     ...v1,
     ...extra,
@@ -97,6 +98,7 @@ export async function getBootModels(): Promise<unknown[]> {
     outboxEventModel,
     keyAccessAuditModel,
     teamMemberModel,
+    teamActivityModel,
   ];
 }
 
@@ -370,6 +372,16 @@ const createTeamMemberTable = async (): Promise<void> => {
   if (isSyncable(teamMemberModel)) await teamMemberModel.sync();
 };
 
+/**
+ * Migration 0016: Team Activity Log. Create-only sync of tbl_team_activity
+ * (append-only audit trail; additive, idempotent — a no-op when the table
+ * already exists). Brand-new table, safe on live prod.
+ */
+const createTeamActivityTable = async (): Promise<void> => {
+  const { teamActivityModel } = await import("../models");
+  if (isSyncable(teamActivityModel)) await teamActivityModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -388,5 +400,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0013_referral_payout_automation", up: addReferralPayoutAutomation },
     { version: "0014_referral_fee_credit", up: addReferralFeeCreditColumns },
     { version: "0015_team_members", up: createTeamMemberTable },
+    { version: "0016_team_activity", up: createTeamActivityTable },
   ];
 }

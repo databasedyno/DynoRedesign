@@ -96,10 +96,16 @@ const OnboardingFlow: React.FC = () => {
   }, [companyState, walletState]);
 
   // Restore the per-session auto-open guard (survives reloads within a session
-  // so the wizard doesn't re-pop on every dashboard visit).
+  // so the wizard doesn't re-pop on every dashboard visit). Also honour the
+  // team-member suppression flag set by the invite-accept flow: an invitee is
+  // joining an existing business, so the merchant onboarding must never auto-open
+  // (and must never auto-create a personal company) for them.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.sessionStorage.getItem(AUTO_OPEN_SESSION_KEY) === "1") {
+    if (
+      window.sessionStorage.getItem(AUTO_OPEN_SESSION_KEY) === "1" ||
+      window.sessionStorage.getItem("dyno_suppress_onboarding") === "1"
+    ) {
       autoOpened.current = true;
     }
   }, []);

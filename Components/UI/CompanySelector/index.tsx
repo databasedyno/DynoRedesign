@@ -1,4 +1,4 @@
-import { brandFg } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
@@ -371,6 +371,32 @@ export default function CompanySelector() {
                         </Box>
                       );
                     })()}
+                    {c.is_member && (
+                      <Box
+                        data-testid={`company-role-${c.company_id}`}
+                        sx={{
+                          px: "6px",
+                          py: "1px",
+                          borderRadius: "999px",
+                          fontFamily: "var(--font-sans)",
+                          fontSize: isMobile ? "9px" : "10px",
+                          fontWeight: 700,
+                          letterSpacing: "0.04em",
+                          textTransform: "uppercase",
+                          whiteSpace: "nowrap",
+                          color: BRAND_ACCENT,
+                          backgroundColor:
+                            theme.palette.mode === "dark"
+                              ? "rgba(120,200,160,0.12)"
+                              : "rgba(20,140,90,0.10)",
+                          border: `1px solid ${BRAND_ACCENT}`,
+                        }}
+                      >
+                        {String(c.member_role || "member") === "admin"
+                          ? t("teamRoleAdmin", { defaultValue: "Admin" })
+                          : t("teamRoleMember", { defaultValue: "Member" })}
+                      </Box>
+                    )}
                   </Box>
                   <Typography
                     sx={{
@@ -384,23 +410,28 @@ export default function CompanySelector() {
                   </Typography>
                 </ItemLeft>
 
-                <ItemRight
-                  active={active === c.company_id}
-                  data-testid={`company-edit-${c.company_id}`}
-                  onClick={(e: any) => {
-                    e.stopPropagation();
-                    handleClose();
-                    openCompanySettings(c);
-                  }}
-                >
-                  <Image
-                    src={EditIcon}
-                    width={isMobile ? 12 : 16}
-                    height={isMobile ? 13 : 17}
-                    alt="edit"
-                    draggable={false}
-                  />
-                </ItemRight>
+                {/* Owned companies get the quick-edit pencil; a company you only
+                    have MEMBER access to is edited from Settings (permission-gated),
+                    so the pencil is hidden here. */}
+                {!c.is_member && (
+                  <ItemRight
+                    active={active === c.company_id}
+                    data-testid={`company-edit-${c.company_id}`}
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      handleClose();
+                      openCompanySettings(c);
+                    }}
+                  >
+                    <Image
+                      src={EditIcon}
+                      width={isMobile ? 12 : 16}
+                      height={isMobile ? 13 : 17}
+                      alt="edit"
+                      draggable={false}
+                    />
+                  </ItemRight>
+                )}
               </CompanyItem>
             ))}
 

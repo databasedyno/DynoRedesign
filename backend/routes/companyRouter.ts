@@ -3,7 +3,14 @@ import { companyController } from "../controller";
 import { companyMiddleware, uploadImage, authMiddleware } from "../middleware";
 import { companyOwnershipMiddleware } from "../middleware/authMiddleware";
 import { requirePermission, requireCompanyOwner } from "../middleware/teamPermissionMiddleware";
+import { auditMutations } from "../utils/activityLog";
 const companyRouter = express.Router();
+
+// Audit every successful mutation on a business to the Team Activity Log. The
+// finish-hook reads res.locals.validatedCompany (set by companyOwnershipMiddleware)
+// so it attributes to the right company; non-mutations and unattributable
+// requests (e.g. addCompany, which has no company yet) are skipped.
+companyRouter.use(auditMutations("company"));
 
 companyRouter.post(
   "/addCompany",

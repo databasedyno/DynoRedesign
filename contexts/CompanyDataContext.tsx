@@ -62,6 +62,10 @@ export interface CompanyStore {
   fetchError: boolean;
   taxValidation: any;
   selectedCompanyId: number | null;
+  selectedCompany: any | null;
+  isMember: boolean;
+  memberRole: string;
+  can: (key: string) => boolean;
   createError: string | null;
   createErrorField: string | null;
   createErrorNonce: number;
@@ -314,6 +318,23 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
     [dispatch]
   );
 
+  // RBAC Phase 4b: derive the selected company's membership so consumers can
+  // gate controls. Owner (is_member falsy) -> can() is always true; an active
+  // team member -> can() reflects their granted per-permission map.
+  const selectedCompany = useMemo(
+    () => companyList.find((c: any) => c.company_id === selectedCompanyId) ?? null,
+    [companyList, selectedCompanyId]
+  );
+  const isMember = !!selectedCompany?.is_member;
+  const memberRole: string =
+    selectedCompany?.member_role ?? (isMember ? "member" : "owner");
+  const memberPermissions =
+    (selectedCompany?.member_permissions ?? null) as Record<string, boolean> | null;
+  const can = useCallback(
+    (key: string) => (!isMember ? true : !!memberPermissions?.[key]),
+    [isMember, memberPermissions]
+  );
+
   const value = useMemo<CompanyStore>(
     () => ({
       companyList,
@@ -322,6 +343,10 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
       fetchError,
       taxValidation,
       selectedCompanyId,
+      selectedCompany,
+      isMember,
+      memberRole,
+      can,
       createError,
       createErrorField,
       createErrorNonce,
@@ -340,6 +365,10 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
       fetchError,
       taxValidation,
       selectedCompanyId,
+      selectedCompany,
+      isMember,
+      memberRole,
+      can,
       createError,
       createErrorField,
       createErrorNonce,

@@ -128,8 +128,28 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
             fontFamily: "var(--font-sans)",
           }}
         >
-          {t("settingsPage.displayCurrency", { defaultValue: "Dashboard display currency" })}
+          {t("settingsPage.displayCurrency", { defaultValue: "Display currency" })}
         </Typography>
+        <Box
+          component="span"
+          data-testid="display-currency-viewonly-chip"
+          sx={{
+            px: "8px",
+            py: "2px",
+            borderRadius: "999px",
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            fontFamily: "var(--font-sans)",
+            color: isDark ? "#A5B4FC" : "#4B5563",
+            bgcolor: isDark ? "rgba(129,140,248,0.14)" : "#EEF0F4",
+            border: `1px solid ${isDark ? "rgba(129,140,248,0.3)" : "#D8DCE4"}`,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {t("settingsPage.viewOnly", { defaultValue: "View only" })}
+        </Box>
       </Box>
 
       <Typography

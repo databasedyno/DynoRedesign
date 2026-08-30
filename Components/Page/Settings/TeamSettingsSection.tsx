@@ -34,6 +34,7 @@ import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
+import TeamActivityPanel from "./TeamActivityPanel";
 
 type Role = "admin" | "member";
 type Status = "invited" | "active" | "revoked";
@@ -340,6 +341,8 @@ const TeamSettingsSection: React.FC = () => {
           })}
         </Stack>
       )}
+
+      <TeamActivityPanel />
 
       <Dialog open={dialogOpen} onClose={() => !saving && setDialogOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle sx={{ fontWeight: 700 }}>

@@ -58,6 +58,7 @@ import onboardingEventModel from "./onboardingEventModel";
 // Login Activity
 import loginActivityModel from "./loginActivityModel";
 import teamMemberModel from "./teamMemberModel"; // Team Members / RBAC
+import teamActivityModel from "./teamActivityModel"; // Team Activity Log (audit trail)
 
 // Publishable Keys (Phase 2 — Buy Button)
 import publishableKeyModel from "./publishableKeyModel";
@@ -148,6 +149,7 @@ export {
   // Login Activity
   loginActivityModel,
   teamMemberModel,
+  teamActivityModel,
   // Publishable Keys (Phase 2 — Buy Button)
   publishableKeyModel,
   // Buy Buttons (Phase 2D)

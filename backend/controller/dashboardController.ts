@@ -121,12 +121,15 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
   
   try {
     const { company_id } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
     
     // Validate company ownership if company_id is provided
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id as string, userId);
       if (!companyData) return;
+      // RBAC: a team member reads the OWNER's data for a granted company, so scope
+      // every query below to the company owner's user_id (no-op when caller is owner).
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
     }
     
     // Get company's preferred currency
@@ -346,7 +349,15 @@ const getChartData = async (req: express.Request, res: express.Response) => {
   
   try {
     const { period = '30d', company_id, startDate: startDateParam, endDate: endDateParam } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
+
+    // RBAC: validate access + scope to the company OWNER so a granted team member
+    // sees the owner's chart (no-op for owners); also enforces access (403 otherwise).
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userId);
+      if (!companyData) return;
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
 
     // Get company preferred currency
     let preferredCurrency = "USD";
@@ -689,7 +700,7 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
   
   try {
     const { company_id } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
 
     // Check Redis cache first (5 min TTL — tiers change infrequently)
     const cacheKey = `feeTiers:${userId}:${company_id || 'all'}:v2settled`;
@@ -797,7 +808,7 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
   
   try {
     const { limit = 10, company_id } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
 
     // Validate company ownership if company_id is provided. Recent transactions
     // MUST be scoped to the selected company for data isolation — matching
@@ -807,6 +818,9 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id as string, userId);
       if (!companyData) return;
+      // RBAC: a team member reads the OWNER's data for a granted company, so scope
+      // every query below to the company owner's user_id (no-op when caller is owner).
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
     }
 
     // Check Redis cache first (60s TTL — prevent duplicate calls on page load)
@@ -925,12 +939,15 @@ const getConversions = async (req: express.Request, res: express.Response) => {
   
   try {
     const { status, company_id, limit = 20 } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
 
     // Validate company ownership when company_id is provided
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id as string, userId);
       if (!companyData) return;
+      // RBAC: a team member reads the OWNER's data for a granted company, so scope
+      // every query below to the company owner's user_id (no-op when caller is owner).
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
     }
 
     let whereClause = `sc.user_id = :userId`;
@@ -1050,12 +1067,15 @@ const getConversionDetail = async (req: express.Request, res: express.Response) 
   try {
     const { id } = req.params;
     const { company_id } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
 
     // Validate company ownership when company_id is provided
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id as string, userId);
       if (!companyData) return;
+      // RBAC: a team member reads the OWNER's data for a granted company, so scope
+      // every query below to the company owner's user_id (no-op when caller is owner).
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
     }
 
     let detailWhere = `sc.conversion_id = :id AND sc.user_id = :userId`;
@@ -1174,12 +1194,15 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
 
   try {
     const { company_id } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
 
     // Validate company ownership if company_id is provided
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id as string, userId);
       if (!companyData) return;
+      // RBAC: a team member reads the OWNER's data for a granted company, so scope
+      // every query below to the company owner's user_id (no-op when caller is owner).
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
     }
 
     // v3: added the `nav_reveal` block (F13/N1 reveal-on-relevance signals), so
@@ -1344,11 +1367,14 @@ const getPendingSummary = async (req: express.Request, res: express.Response) =>
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     const { company_id } = req.query;
-    const userId = userData.user_id;
+    let userId = userData.user_id;
 
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id as string, userId);
       if (!companyData) return;
+      // RBAC: a team member reads the OWNER's data for a granted company, so scope
+      // every query below to the company owner's user_id (no-op when caller is owner).
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
     }
 
     const rows = await sequelize.query(

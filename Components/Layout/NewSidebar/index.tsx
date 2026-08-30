@@ -28,6 +28,7 @@ interface SidebarItem {
   icon: string;
   path: string;
   isNew?: boolean;
+  permission?: string;
 }
 
 interface SidebarSection {
@@ -55,6 +56,7 @@ const NewSidebar = ({
   const theme = useTheme();
   const dispatch = useDispatch();
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const { isMember, can } = useCompanyStore();
   const txLoadedCompany = useSelector(
     (s: rootReducer) => s.transactionReducer?.loaded_company_id,
   );
@@ -155,8 +157,8 @@ const NewSidebar = ({
   const { isIndividual, reveal } = useAccountProfile();
 
   const sections: SidebarSection[] = useMemo(() => {
-    const dashboard: SidebarItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard" };
-    const payLinks: SidebarItem = { label: t("payLinks"), icon: "payment-links", path: "/pay-links" };
+    const dashboard: SidebarItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard", permission: "view_dashboard" };
+    const payLinks: SidebarItem = { label: t("payLinks"), icon: "payment-links", path: "/pay-links", permission: "manage_payment_links" };
     // Storefront = the merchant's ONE public page: look & bio, products and the
     // share tools. Same object, two names: it is the PRODUCT for a creator and
     // the CHECKOUT PAGE for a business (audit Q1).
@@ -167,32 +169,37 @@ const NewSidebar = ({
       icon: "creator",
       path: "/storefront",
       isNew: !hasClaimedCreator,
+      permission: "manage_products",
     };
-    const transactions: SidebarItem = { label: t("transactions"), icon: "transactions", path: "/transactions" };
+    const transactions: SidebarItem = { label: t("transactions"), icon: "transactions", path: "/transactions", permission: "view_transactions" };
     // F4: honest naming — every row in tbl_invoice is a RECEIPT for money already
     // received, never a receivable.
     const receipts: SidebarItem = {
       label: t("receiptsTax", { defaultValue: "Receipts & Tax" }),
       icon: "invoices",
       path: "/invoices",
+      permission: "manage_invoices",
     };
     const wallets: SidebarItem = {
       label: t("payoutWallets", { defaultValue: "Payout wallets" }),
       icon: "wallets",
       path: "/wallet",
+      permission: "view_wallets",
     };
     const balances: SidebarItem = {
       label: t("balancesPayouts", { defaultValue: "Balances" }),
       icon: "balances",
       path: "/payouts",
       isNew: true,
+      permission: "view_wallets",
     };
-    const customers: SidebarItem = { label: t("customers"), icon: "customers", path: "/customers" };
-    const settings: SidebarItem = { label: t("settings"), icon: "settings", path: "/settings" };
+    const customers: SidebarItem = { label: t("customers"), icon: "customers", path: "/customers", permission: "manage_customers" };
+    const settings: SidebarItem = { label: t("settings"), icon: "settings", path: "/settings", permission: "manage_company_settings" };
     const developers: SidebarItem = {
       label: t("developers", { defaultValue: "Developers" }),
       icon: "api",
       path: "/developer-keys",
+      permission: "manage_api_keys",
     };
 
     const grow: SidebarSection[] = [];
@@ -302,14 +309,18 @@ const NewSidebar = ({
 
               {section.items.map((item) => {
                 const isActive = isActiveRoute(item.path);
+                const denied = !!(isMember && item.permission && !can(item.permission));
 
                 const menuItemNode = (
                   <MenuItem
                     active={isActive}
-                    onMouseEnter={() => prefetchNav(item)}
+                    onMouseEnter={() => { if (!denied) prefetchNav(item); }}
                     onClick={() => {
+                      if (denied) return;
                       router.push(item.path);
                     }}
+                    aria-disabled={denied}
+                    data-denied={denied ? "true" : "false"}
                     sx={{
                       ...(isCollapsed
                         ? {
@@ -317,6 +328,9 @@ const NewSidebar = ({
                             padding: "10px 0",
                             gap: 0,
                           }
+                        : {}),
+                      ...(denied
+                        ? { opacity: 0.45, cursor: "not-allowed" }
                         : {}),
                     }}
                     data-testid={`sidebar-item-${item.icon}`}
@@ -364,10 +378,20 @@ const NewSidebar = ({
                   </MenuItem>
                 );
 
-                return isCollapsed ? (
+                // A denied item always gets the "no permission" tooltip (both
+                // rail + expanded); otherwise the rail keeps its label tooltip.
+                const tooltipTitle = denied
+                  ? t("noPermissionTooltip", {
+                      defaultValue: "You don't have permission for this",
+                    })
+                  : isCollapsed
+                    ? item.label
+                    : "";
+
+                return tooltipTitle ? (
                   <Tooltip
                     key={item.path}
-                    title={item.label}
+                    title={tooltipTitle}
                     placement="right"
                     arrow
                     enterDelay={200}

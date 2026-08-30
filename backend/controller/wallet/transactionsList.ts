@@ -98,8 +98,18 @@ export const getAllTransactions = async (
     };
     const sort = parseSortAndPagination(ALLOWED_COLUMNS, filters, rowsPerPage, page);
 
+    // RBAC: a team member reads the OWNER's transactions for a granted company.
+    // Resolve the effective data-owner (the company's owner) and scope to it; for
+    // an owner this is unchanged. The transactions page always sends company_id.
+    let effectiveUserId = userData.user_id;
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, String(company_id), userData.user_id);
+      if (!companyData) return; // 403 already sent (not owner and not an active member)
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
+
     // Build WHERE conditions with parameterized replacements
-    const { whereConditions, replacements } = buildTransactionFilters(userData.user_id, {
+    const { whereConditions, replacements } = buildTransactionFilters(effectiveUserId, {
       date_from, date_to, status, currency, search, company_id
     });
     let txQuery = `
@@ -271,9 +281,9 @@ export const getAllTransactions = async (
       };
     }));
 
-    // Get self transactions with same filters
+    // Get self transactions with same filters (scoped to the effective owner too)
     let selfWhereClause: Record<string, unknown> = {
-      user_id: userData.user_id,
+      user_id: effectiveUserId,
     };
     
     if (date_from || date_to) {

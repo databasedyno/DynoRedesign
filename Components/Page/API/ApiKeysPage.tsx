@@ -1,6 +1,6 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl } from "@mui/material";
+import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -144,6 +144,9 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
   const [baseCurrency, setBaseCurrency] = useState<string>(apiRow?.base_currency || "USD");
   const [savingCurrency, setSavingCurrency] = useState(false);
   const [currencySaved, setCurrencySaved] = useState(false);
+  // Settlement-currency change is money-affecting (it re-prices new payments and
+  // syncs to the paired dev key), so it goes through a confirm modal.
+  const [pendingCurrency, setPendingCurrency] = useState<string | null>(null);
   useEffect(() => {
     setBaseCurrency(apiRow?.base_currency || "USD");
   }, [apiRow?.base_currency]);
@@ -189,9 +192,22 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
     }
   };
 
+  // Production key currency is locked once set; a change re-denominates NEW
+  // payments and cascades to the paired development key — so confirm first.
+  const requestCurrencyChange = (next: string) => {
+    const upper = String(next || "").toUpperCase();
+    if (!upper || upper === baseCurrency) return;
+    setPendingCurrency(upper);
+  };
+  const confirmCurrencyChange = async () => {
+    const next = pendingCurrency;
+    setPendingCurrency(null);
+    if (next) await handleCurrencyChange(next);
+  };
+
+
   const createdAt =
     apiRow?.created_at || apiRow?.createdAt || apiRow?.createdOn || "";
-
   // Derive sandbox metadata for auto-created development keys.
   // test_mode_restrictions may arrive as a JSON string (raw DB value) or an object (parsed by getApi).
   const isDev =
@@ -301,13 +317,14 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
         </Typography>
       )}
       <ApiKeyCardSubTitle component="div">
-        {t("currency.baseCurrency")}
+        {t("currency.settlementCurrency", { defaultValue: "Settlement currency" })}
         <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, ml: 0.5 }}>
           <FormControl size="small" sx={{ minWidth: 90 }}>
             <Select
               value={baseCurrency}
-              onChange={(e) => handleCurrencyChange(String(e.target.value))}
+              onChange={(e) => requestCurrencyChange(String(e.target.value))}
               disabled={savingCurrency}
+              data-testid="settlement-currency-select"
               displayEmpty
               variant="outlined"
               inputProps={{ "aria-label": "Settlement currency" }}
@@ -360,9 +377,41 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
       >
         {t("currency.baseCurrencyHelper", {
           defaultValue:
-            "The currency you price in — buyers still pay in Bitcoin, Ethereum or stablecoins.",
+            "The currency your payments settle in — it prices new payments and is the amount on receipts. Buyers still pay in Bitcoin, Ethereum or stablecoins. Changing it also updates your paired test key.",
         })}
       </Typography>
+
+      <Dialog
+        open={!!pendingCurrency}
+        onClose={() => setPendingCurrency(null)}
+        maxWidth="xs"
+        fullWidth
+        data-testid="settlement-currency-confirm-dialog"
+      >
+        <DialogTitle sx={{ fontFamily: "var(--font-sans), sans-serif", fontWeight: 700 }}>
+          {t("currency.confirmTitle", { defaultValue: "Change settlement currency?" })}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontFamily: "var(--font-sans), sans-serif", fontSize: 14 }}>
+            {t("currency.confirmBody", {
+              defaultValue: `Setting the settlement currency to ${pendingCurrency || ""} affects real settlement: new payments will be priced and receipted in ${pendingCurrency || ""}. It does not change past payments. Your paired development (test) key will be updated to match.`,
+            })}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <CustomButton
+            variant="secondary"
+            onClick={() => setPendingCurrency(null)}
+            label={t("common.cancel", { defaultValue: "Cancel" })}
+            data-testid="settlement-currency-cancel-btn"
+          />
+          <CustomButton
+            onClick={confirmCurrencyChange}
+            label={t("currency.confirmCta", { defaultValue: `Change to ${pendingCurrency || ""}` })}
+            data-testid="settlement-currency-confirm-btn"
+          />
+        </DialogActions>
+      </Dialog>
 
       <ApiKeyCardBody sx={{ pt: isMobile ? "16px" : "18px" }}>
         <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
