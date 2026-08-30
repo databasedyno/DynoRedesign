@@ -1,4 +1,55 @@
 # ============================================================================
+# RBAC PHASE 3 — MEMBER ACCESS ENFORCEMENT — DONE (2026-06 fork) — harness 12/12
+# ============================================================================
+# Completes the Team Members/RBAC feature: invited+accepted teammates can now
+# actually VIEW and OPERATE the owner's business per their granted permissions,
+# while sensitive actions stay OWNER-ONLY. LIVE prod Railway DB, SAFE MODE.
+#
+# CHANGES (backend only):
+#  1. controller/companyController.ts::getCompany — was findAll({user_id}). Now
+#     returns OWNED companies + companies the user is an ACTIVE tbl_team_member of.
+#     Each row carries additive flags: is_member (bool), member_role ('owner' for
+#     owned | the member's role), and member_permissions (granted map) for granted
+#     ones. Owner-only accounts see is_member=false everywhere (backward compatible).
+#     (Added teamMemberModel to the models import.)
+#  2. middleware/authMiddleware.ts::companyOwnershipMiddleware — was owner-only
+#     (findOne{company_id,user_id}). Now: fetch company by id; if caller is the
+#     OWNER -> identical behaviour (validatedCompany set, membership={isOwner:true,
+#     allTrue}); else resolveMembership() -> active member ALLOWED (attaches
+#     res.locals.membership + validatedCompany); otherwise 403. Pure ACCESS gate;
+#     what a member may DO is enforced by the per-route middleware below.
+#  3. routes/companyRouter.ts — every company-scoped route now gated after
+#     companyOwnershipMiddleware:
+#       GET getCompany/:id, auto-convert, conversion-savings, display-currency  -> requirePermission('view_dashboard')
+#       GET getTransactions/:id, conversion-history                             -> requirePermission('view_transactions')
+#       PUT updateCompany, all webhook-* (get/put/post), PUT auto-convert,
+#         PATCH display-currency                                                -> requirePermission('manage_company_settings')
+#       DELETE deleteCompany/:id                                                -> requireCompanyOwner  (OWNER-ONLY)
+#     (requirePermission/requireCompanyOwner reuse res.locals.membership set by the
+#      ownership middleware -> no extra DB round-trip for owners.)
+#
+# OWNER-ONLY (unchanged, hard-gated to role=owner via requireCompanyOwner /
+#   OWNER_ONLY_ACTIONS): delete company. Payout-wallet change + delete-API-key live
+#   on OTHER routers (walletRouter/apiRouter) and were already owner-scoped; extend
+#   them with requireCompanyOwner if/when they gain team exposure (follow-up).
+#
+# VERIFIED — scripts/verify_rbac_phase3.ts (REVERSIBLE, sentinel dyno-rbac-p3+<ts>
+#   @example.com, self-cleaning): creates 1 scratch user + ACTIVE membership on
+#   company 1 with view_dashboard ONLY, drives the REAL middleware chain + getCompany:
+#     member view_dashboard ALLOWED; view_transactions/manage_company_settings/
+#     requireCompanyOwner all BLOCKED 403; no access to un-granted company 71 (403);
+#     owner passes every gate; getCompany(member) returns company 1 is_member=true
+#     role=member and EXCLUDES company 71; getCompany(owner) 2 cos all is_member=false.
+#   RESULT 12/12; CLEANUP scratch_membership_left=0 scratch_user_left=0.
+#   Gates: backend tsc 0, file-size 0, secrets 0; /health healthy (SAFE MODE).
+#
+# NOT DONE (frontend, follow-up): company-switcher / permission-aware UI hiding for
+#   members is a Phase 4b item — backend now returns the flags the UI needs.
+# ============================================================================
+
+
+
+# ============================================================================
 # TEAM MEMBERS & PERMISSIONS (RBAC) — PLAN + STATUS   (started 2026-08-30)
 # ============================================================================
 # Requested by the product owner. Decisions locked in this session:
@@ -67,19 +118,14 @@
 #           + public /auth/accept-invite page + settings wiring. Frontend verified:
 #           invite POST 200 + link shown (earlier "no POST" was a MUI-Select-backdrop
 #           test artifact, not a bug).
-#   [PENDING] RBAC P3: member access enforcement. RESUME HERE:
-#           (a) backend/controller/companyController.ts getCompany (~line 693): currently
-#               findAll({where:{user_id}}). Extend to also return companies where an ACTIVE
-#               tbl_team_member row exists for this user (owned + granted). Consider a
-#               is_member/role flag per company in the response for the UI.
-#           (b) backend/middleware/authMiddleware.ts companyOwnershipMiddleware (~line 160):
-#               currently owner-only (companyModel.findOne{company_id,user_id}). Extend: if
-#               not owner, resolveMembership(); active member -> attach res.locals.membership
-#               and ALLOW, but gate writes: GET allowed for members with a view perm; non-GET
-#               gated by a route->permission map; payout-wallet / delete-api-key -> OWNER-ONLY
-#               (fail-closed). Owner path stays identical (no regression).
-#           (c) Then backend-test with a throwaway member on company 1 (invite->accept->login
-#               as member->verify read access + write gating + owner-only blocks), cleanup.
+#   [DONE]  RBAC P3 (2026-06 fork): MEMBER ACCESS ENFORCEMENT — see the dated
+#           "RBAC PHASE 3" section prepended at the very TOP of this file.
+#           (a) getCompany now returns owned + active-member companies w/ is_member
+#               + member_role (+ member_permissions) flags. (b) companyOwnershipMiddleware
+#               now allows owner OR active member (attaches res.locals.membership; owner
+#               path byte-identical). (c) each companyRouter route gated with
+#               requirePermission(key); deleteCompany -> requireCompanyOwner. Verified via
+#               reversible harness scripts/verify_rbac_phase3.ts = 12/12, cleanup 0 rows.
 #   NOTE: preview shares the LIVE prod Railway DB. Migration 0015 created tbl_team_member in
 #         prod (additive/empty). QA test rows (%@example.com) were cleaned up. One harmless
 #         orphan test user may remain in tbl_user (no memberships -> no access).

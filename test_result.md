@@ -14,6 +14,30 @@
 # ############################################################################
 
 # ============================================================================
+# SESSION — 2026-06 (fork, pod 10424307) : RBAC PHASE 3 — MEMBER ACCESS ENFORCEMENT
+#   Backend-only. Self-verified via REVERSIBLE harness (NOT the testing_agent — a
+#   direct middleware-chain harness was the precise, low-risk choice on the LIVE
+#   prod DB). Also unblocked Save-to-GitHub (referralService.ts 501->499 lines).
+# ============================================================================
+# backend:
+#   - task: "RBAC Phase 3 — member access enforcement (getCompany owned+granted;
+#            companyOwnershipMiddleware owner-or-member; per-route requirePermission
+#            + requireCompanyOwner on companyRouter)"
+#     implemented: true
+#     working: true
+#     files: "backend/controller/companyController.ts (getCompany + teamMemberModel import),
+#             backend/middleware/authMiddleware.ts (companyOwnershipMiddleware),
+#             backend/routes/companyRouter.ts (per-route gating),
+#             backend/scripts/verify_rbac_phase3.ts (reversible harness)"
+#     verification: "scripts/verify_rbac_phase3.ts = 12/12 PASS, CLEANUP 0 rows
+#             (member: view_dashboard ALLOWED; view_transactions/manage_company_settings/
+#             requireCompanyOwner BLOCKED 403; no-access company 71 BLOCKED 403; owner
+#             passes all; getCompany member->company1 is_member=true, excludes 71; owner
+#             ->2 cos all is_member=false). Gates: tsc 0, file-size 0, secrets 0; /health healthy."
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-30 (pod 10424307) : TEAM MEMBERS / RBAC
 #   App wired to LIVE Railway PG/Redis. SAFE MODE: background jobs OFF, Redis
 #   isolated to DB /1, outbound email OFF. (Also this session: login reload-loop

@@ -168,26 +168,50 @@ const companyOwnershipMiddleware = async (
       return errorResponseHelper(res, 400, "Invalid company_id format");
     }
     
-    // Import companyModel here to avoid circular dependency
+    // Import here to avoid circular dependency
     const { companyModel } = require("../models");
+    const { resolveMembership, defaultPermissionsForRole } = require("../utils/permissions");
     
-    // Verify the user owns this company
     const company = await companyModel.findOne({
       where: {
         company_id: parsedCompanyId,
-        user_id: userData.user_id,
       },
     });
     
+    // No such company -> no access (preserves the prior 403 semantics).
     if (!company) {
-      apiLogger.info(`[CompanyOwnership] ❌ User ${userData.user_id} does not own company ${parsedCompanyId}`);
+      apiLogger.info(`[CompanyOwnership] ❌ User ${userData.user_id} does not have access to company ${parsedCompanyId}`);
       return errorResponseHelper(res, 403, "You do not have access to this company");
     }
     
-    // Store validated company in res.locals for use in controllers
-    res.locals.validatedCompany = company.dataValues;
+    const uid = Number(userData.user_id);
+    const ownerId = Number(company.dataValues.user_id);
     
-    next();
+    // Owner fast-path — behaviour identical to before (full access, no gating).
+    if (ownerId === uid) {
+      res.locals.validatedCompany = company.dataValues;
+      res.locals.membership = {
+        isOwner: true,
+        role: "owner",
+        permissions: defaultPermissionsForRole("owner"),
+        companyId: parsedCompanyId,
+        userId: uid,
+      };
+      return next();
+    }
+    
+    // RBAC Phase 3: active team members get company ACCESS here; what they may
+    // actually DO is enforced downstream by requirePermission / requireCompanyOwner.
+    const membership = await resolveMembership(uid, parsedCompanyId);
+    if (membership) {
+      res.locals.validatedCompany = company.dataValues;
+      res.locals.membership = membership;
+      return next();
+    }
+    
+    apiLogger.info(`[CompanyOwnership] ❌ User ${uid} does not have access to company ${parsedCompanyId}`);
+    return errorResponseHelper(res, 403, "You do not have access to this company");
+    
   } catch (e: unknown) {
     apiLogger.info("Company Ownership Middleware Error:", e);
     const message = getErrorMessage(e);

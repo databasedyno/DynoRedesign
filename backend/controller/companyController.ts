@@ -13,7 +13,7 @@ import { resolveTransactionSource } from "../utils/transactionSource";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
-import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
+import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel, teamMemberModel } from "../models";
 import { companyLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
@@ -693,12 +693,46 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
 const getCompany = async (_req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const resData = await companyModel.findAll({
+    // Companies the user OWNS (ownership is implicit via tbl_company.user_id).
+    const owned = await companyModel.findAll({
       where: {
         user_id: userData.user_id,
       },
     });
-    
+    const ownedIds = new Set(owned.map((c) => c.dataValues.company_id));
+
+    // RBAC Phase 3: companies the user is an ACTIVE team member of (granted access).
+    const memberships = await teamMemberModel.findAll({
+      where: { member_user_id: userData.user_id, status: "active" },
+    });
+    const membershipByCompany = new Map<number, { role?: string; permissions?: unknown }>();
+    memberships.forEach((m) =>
+      membershipByCompany.set(Number(m.dataValues.company_id), m.dataValues)
+    );
+
+    const grantedIds = [...membershipByCompany.keys()].filter((id) => !ownedIds.has(id));
+    let granted: Awaited<ReturnType<typeof companyModel.findAll>> = [];
+    if (grantedIds.length) {
+      granted = await companyModel.findAll({
+        where: { company_id: { [Op.in]: grantedIds } },
+      });
+    }
+
+    // Owned companies carry an owner flag; granted companies carry their member role
+    // + permission map so the UI can gate controls without a second round-trip.
+    const resData = [
+      ...owned.map((c) => ({ ...c.dataValues, is_member: false, member_role: "owner" })),
+      ...granted.map((c) => {
+        const m = membershipByCompany.get(Number(c.dataValues.company_id));
+        return {
+          ...c.dataValues,
+          is_member: true,
+          member_role: (m && m.role) || "member",
+          member_permissions: (m && m.permissions) || {},
+        };
+      }),
+    ];
+
     // Provide helpful message based on results
     let message = "";
     if (resData.length === 0) {
