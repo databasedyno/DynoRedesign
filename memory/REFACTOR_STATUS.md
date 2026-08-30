@@ -98,12 +98,14 @@ persist `referral_credit_applied_usd`; post-commit idempotent `consumeReferralCr
 `models/userModels/userTransactionModel.ts` (+`referral_credit_applied_usd` DECIMAL(14,2)).
 - Persisted/consumed USD = `min(applyUsd, actual-crypto-shifted→USD)` so a belt-and-suspenders admin clamp can
   never over-consume the balance vs the on-chain benefit.
-- **SCOPE DECISION (deviation from the 2026-06 "all 3 paths"):** only the PRIMARY path `chainVerification.ts` is
-  instrumented. The spec's other two "settlement paths" were stale: `cryptoCheckout.ts:1556` is payment CREATION
-  (a quote — consuming there would be a bug), and `controller/paymentController.ts` L347 is also creation. The only
-  OTHER real split+settle is `paymentController.ts::processIncompletePayments` (recovery) which works in raw crypto
-  units with NO clean USD basis/rate → applying credit there risks underpaying admin. Left UNCHANGED because credit
-  is never lost (stays in the balance for the next normal settlement) and consume is idempotent (no double-spend).
+- **RECOVERY PATH — ✅ now covered (2026-08-30, follow-up):** `controller/paymentController.ts::processIncompletePayments`
+  (both the completed-partial and incomplete-expired branches) now also apply the fee-credit via a new reusable
+  helper `computeReferralFeeCreditShift` (referralCreditService.ts). Because this flow works in crypto units with no
+  pre-computed fee-USD, the helper derives the platform-fee USD cap from the admin crypto portion at the payment's
+  realized rate using a PROPER `convertToUSD()` conversion (injected to avoid a circular import), shifts admin→merchant
+  (admin never negative), persists `referral_credit_applied_usd`, and consumes idempotently after the tx write. Any
+  failure returns the unmodified split. Verified: recovery-math harness 17/17 + backend tsc 0 + healthy boot. (Still
+  not on-chain-testable in SAFE MODE.)
 - Gates: backend tsc 0, frontend tsc 0, settlement-math harness 19/19 (cap, admin-never-negative, clamp, skip gates),
   backend boots healthy SAFE MODE, deep_testing_backend_v2 5/5 (health SAFE MODE, login, payout/overview now exposes
   credited_balance_usd+available_credit_usd, earnings+my-code regression). Real on-chain fee-shift verified on PROD

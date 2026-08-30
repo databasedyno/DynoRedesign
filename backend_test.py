@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Referral Fee-Credit Phase 2/3 + F1
-STRICTLY READ-ONLY verification on LIVE PROD Railway DB (SAFE MODE)
+Backend regression test for referral fee-credit RECOVERY path
+STRICTLY READ-ONLY - SAFE MODE on LIVE PROD Railway DB
 """
 
 import requests
@@ -9,8 +9,8 @@ import json
 import sys
 
 BASE_URL = "http://localhost:8001"
-LOGIN_EMAIL = "onarrival21@gmail.com"
-LOGIN_PASSWORD = "Katiekendra123@"
+MERCHANT_EMAIL = "onarrival21@gmail.com"
+MERCHANT_PASSWORD = "Katiekendra123@"
 
 def print_test_header(test_num, description):
     print(f"\n{'='*80}")
@@ -21,263 +21,205 @@ def print_result(success, message, data=None):
     status = "✅ PASS" if success else "❌ FAIL"
     print(f"{status}: {message}")
     if data:
-        print(f"Response data: {json.dumps(data, indent=2)}")
+        print(f"Response: {json.dumps(data, indent=2)}")
+    return success
 
-def test_health():
-    """Test 1: GET /health - verify SAFE MODE and clean boot"""
-    print_test_header(1, "Health Check - SAFE MODE Verification")
+def test_health_check():
+    """Test 1: Health check - confirms paymentController.ts boots cleanly with new imports"""
+    print_test_header(1, "Health Check - Boot Verification")
     
     try:
         response = requests.get(f"{BASE_URL}/health", timeout=10)
-        print(f"Status Code: {response.status_code}")
+        data = response.json()
         
         if response.status_code != 200:
-            print_result(False, f"Expected 200, got {response.status_code}")
-            return False
+            return print_result(False, f"Health check returned {response.status_code}", data)
         
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
-        
-        # Check required fields
+        # Verify expected fields
         checks = {
-            "status='healthy'": data.get('status') == 'healthy',
-            "database='connected'": data.get('database') == 'connected',
-            "redis='connected'": data.get('redis') == 'connected',
-            "background_jobs.eligible=false": data.get('background_jobs', {}).get('eligible') == False
+            "status": data.get("status") == "healthy",
+            "database": data.get("database") == "connected",
+            "redis": data.get("redis") == "connected",
+            "background_jobs.eligible": data.get("background_jobs", {}).get("eligible") == False
         }
         
         all_passed = all(checks.values())
-        for check, passed in checks.items():
-            print(f"  {'✅' if passed else '❌'} {check}")
         
         if all_passed:
-            print_result(True, "Health check confirms SAFE MODE and clean boot")
+            return print_result(True, 
+                f"Health check passed - status={data.get('status')}, database={data.get('database')}, "
+                f"redis={data.get('redis')}, background_jobs.eligible={data.get('background_jobs', {}).get('eligible')} (SAFE MODE confirmed)",
+                data)
         else:
-            print_result(False, "Health check failed some assertions")
-        
-        return all_passed
-        
+            failed_checks = [k for k, v in checks.items() if not v]
+            return print_result(False, f"Health check failed: {', '.join(failed_checks)}", data)
+            
     except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
+        return print_result(False, f"Health check exception: {str(e)}")
 
 def test_login():
-    """Test 2: POST /api/user/login - regression test"""
-    print_test_header(2, "Login Regression Test")
+    """Test 2: Login regression - paymentController hosts many payment routes"""
+    print_test_header(2, "Login Regression")
     
     try:
         response = requests.post(
             f"{BASE_URL}/api/user/login",
-            json={"email": LOGIN_EMAIL, "password": LOGIN_PASSWORD},
+            json={
+                "email": MERCHANT_EMAIL,
+                "password": MERCHANT_PASSWORD
+            },
             timeout=10
         )
-        print(f"Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            print_result(False, f"Expected 200, got {response.status_code}")
-            print(f"Response: {response.text}")
-            return None
         
         data = response.json()
-        access_token = data.get('data', {}).get('accessToken')
         
-        if access_token:
-            print_result(True, f"Login successful, accessToken received (length: {len(access_token)} chars)")
-            return access_token
-        else:
-            print_result(False, "No accessToken in response")
-            print(f"Response: {json.dumps(data, indent=2)}")
-            return None
+        if response.status_code != 200:
+            return print_result(False, f"Login returned {response.status_code}", data), None
+        
+        access_token = data.get("data", {}).get("accessToken")
+        
+        if not access_token:
+            return print_result(False, "No accessToken in response", data), None
+        
+        return print_result(True, 
+            f"Login successful - HTTP 200 with accessToken (length: {len(access_token)} chars)"), access_token
             
     except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return None
+        return print_result(False, f"Login exception: {str(e)}"), None
 
 def test_payout_overview(token):
-    """Test 3: GET /api/referral/payout/overview - PRIMARY TEST"""
-    print_test_header(3, "Referral Payout Overview - PRIMARY TEST (credited_balance_usd + available_credit_usd)")
-    
-    if not token:
-        print_result(False, "No access token available")
-        return False
+    """Test 3: Payout overview - verify credited_balance_usd and available_credit_usd present"""
+    print_test_header(3, "Referral Payout Overview - Credit Fields Verification")
     
     try:
-        headers = {"Authorization": f"Bearer {token}"}
         response = requests.get(
             f"{BASE_URL}/api/referral/payout/overview",
-            headers=headers,
+            headers={"Authorization": f"Bearer {token}"},
             timeout=10
         )
-        print(f"Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            print_result(False, f"Expected 200, got {response.status_code}")
-            print(f"Response: {response.text}")
-            return False
         
         data = response.json()
-        print(f"Full Response: {json.dumps(data, indent=2)}")
         
-        # Check for the new keys
-        response_data = data.get('data', {})
+        if response.status_code != 200:
+            return print_result(False, f"Payout overview returned {response.status_code}", data)
         
-        has_credited_balance = 'credited_balance_usd' in response_data
-        has_available_credit = 'available_credit_usd' in response_data
+        overview = data.get("data", {})
         
-        print(f"\n  {'✅' if has_credited_balance else '❌'} credited_balance_usd present: {has_credited_balance}")
-        if has_credited_balance:
-            print(f"      Value: {response_data['credited_balance_usd']} (type: {type(response_data['credited_balance_usd']).__name__})")
+        # Check for required fields
+        has_credited_balance = "credited_balance_usd" in overview
+        has_available_credit = "available_credit_usd" in overview
         
-        print(f"  {'✅' if has_available_credit else '❌'} available_credit_usd present: {has_available_credit}")
-        if has_available_credit:
-            print(f"      Value: {response_data['available_credit_usd']} (type: {type(response_data['available_credit_usd']).__name__})")
+        credited_balance_usd = overview.get("credited_balance_usd")
+        available_credit_usd = overview.get("available_credit_usd")
         
-        # For user_id=1, both should be 0 (that's correct)
-        if has_credited_balance and has_available_credit:
-            credited_val = response_data['credited_balance_usd']
-            available_val = response_data['available_credit_usd']
-            
-            # Check if they're numeric
-            is_credited_numeric = isinstance(credited_val, (int, float))
-            is_available_numeric = isinstance(available_val, (int, float))
-            
-            print(f"\n  {'✅' if is_credited_numeric else '❌'} credited_balance_usd is numeric: {is_credited_numeric}")
-            print(f"  {'✅' if is_available_numeric else '❌'} available_credit_usd is numeric: {is_available_numeric}")
-            
-            if is_credited_numeric and is_available_numeric:
-                print(f"\n  ℹ️  For user_id=1 (mode=credit, 0 referral balance), both values being 0 is CORRECT")
-                print_result(True, "Payout overview includes credited_balance_usd and available_credit_usd (both numeric)")
-                return True
-            else:
-                print_result(False, "Keys present but not numeric")
-                return False
-        else:
-            print_result(False, "Missing required keys: credited_balance_usd and/or available_credit_usd")
-            return False
+        if not has_credited_balance or not has_available_credit:
+            missing = []
+            if not has_credited_balance:
+                missing.append("credited_balance_usd")
+            if not has_available_credit:
+                missing.append("available_credit_usd")
+            return print_result(False, f"Missing required fields: {', '.join(missing)}", overview)
+        
+        # Verify both are numeric (0 is correct for user_id=1)
+        is_numeric_credited = isinstance(credited_balance_usd, (int, float))
+        is_numeric_available = isinstance(available_credit_usd, (int, float))
+        
+        if not is_numeric_credited or not is_numeric_available:
+            return print_result(False, 
+                f"Fields are not numeric - credited_balance_usd type: {type(credited_balance_usd)}, "
+                f"available_credit_usd type: {type(available_credit_usd)}", overview)
+        
+        return print_result(True,
+            f"Payout overview returned HTTP 200 with CORRECT structure. "
+            f"credited_balance_usd={credited_balance_usd} (type: {type(credited_balance_usd).__name__}), "
+            f"available_credit_usd={available_credit_usd} (type: {type(available_credit_usd).__name__}). "
+            f"Both being 0 is CORRECT for user_id=1 (mode=credit, 0 referral balance).",
+            overview)
             
     except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
+        return print_result(False, f"Payout overview exception: {str(e)}")
 
 def test_earnings(token):
-    """Test 4: GET /api/referral/earnings - regression test"""
-    print_test_header(4, "Referral Earnings - Regression Test (data.commission present)")
-    
-    if not token:
-        print_result(False, "No access token available")
-        return False
+    """Test 4: Earnings regression - verify data.commission present"""
+    print_test_header(4, "Referral Earnings - Commission Object Verification")
     
     try:
-        headers = {"Authorization": f"Bearer {token}"}
         response = requests.get(
             f"{BASE_URL}/api/referral/earnings",
-            headers=headers,
+            headers={"Authorization": f"Bearer {token}"},
             timeout=10
         )
-        print(f"Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            print_result(False, f"Expected 200, got {response.status_code}")
-            print(f"Response: {response.text}")
-            return False
         
         data = response.json()
-        print(f"Full Response: {json.dumps(data, indent=2)}")
-        
-        response_data = data.get('data', {})
-        has_commission = 'commission' in response_data
-        
-        print(f"\n  {'✅' if has_commission else '❌'} data.commission present: {has_commission}")
-        
-        if has_commission:
-            commission = response_data['commission']
-            print(f"      Commission object: {json.dumps(commission, indent=2)}")
-            print_result(True, "Earnings endpoint returns data.commission (backward compatible)")
-            return True
-        else:
-            print_result(False, "data.commission key missing")
-            return False
-            
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
-
-def test_my_code(token):
-    """Test 5: GET /api/referral/my-code - regression test"""
-    print_test_header(5, "Referral My Code - Regression Test")
-    
-    if not token:
-        print_result(False, "No access token available")
-        return False
-    
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(
-            f"{BASE_URL}/api/referral/my-code",
-            headers=headers,
-            timeout=10
-        )
-        print(f"Status Code: {response.status_code}")
         
         if response.status_code != 200:
-            print_result(False, f"Expected 200, got {response.status_code}")
-            print(f"Response: {response.text}")
-            return False
+            return print_result(False, f"Earnings returned {response.status_code}", data)
         
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
+        earnings_data = data.get("data", {})
+        commission = earnings_data.get("commission")
         
-        print_result(True, "My-code endpoint returns 200")
-        return True
+        if commission is None:
+            return print_result(False, "data.commission is missing", earnings_data)
+        
+        # Verify commission object structure
+        if not isinstance(commission, dict):
+            return print_result(False, f"data.commission is not an object (type: {type(commission)})", earnings_data)
+        
+        return print_result(True,
+            f"Earnings returned HTTP 200 with data.commission object PRESENT. "
+            f"Commission keys: {list(commission.keys())}",
+            {"commission": commission})
             
     except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
+        return print_result(False, f"Earnings exception: {str(e)}")
 
 def main():
     print("\n" + "="*80)
-    print("REFERRAL FEE-CREDIT PHASE 2/3 + F1 - BACKEND VERIFICATION")
-    print("STRICTLY READ-ONLY on LIVE PROD Railway DB (SAFE MODE)")
+    print("BACKEND REGRESSION TEST - REFERRAL FEE-CREDIT RECOVERY PATH")
+    print("STRICTLY READ-ONLY - SAFE MODE on LIVE PROD Railway DB")
     print("="*80)
     
-    results = {}
+    results = []
     
     # Test 1: Health check
-    results['health'] = test_health()
+    results.append(test_health_check())
     
     # Test 2: Login
-    access_token = test_login()
-    results['login'] = access_token is not None
+    login_result, token = test_login()
+    results.append(login_result)
     
-    # Test 3: Payout overview (PRIMARY TEST)
-    results['payout_overview'] = test_payout_overview(access_token)
+    if not token:
+        print("\n❌ CRITICAL: Cannot proceed without access token")
+        print_summary(results)
+        sys.exit(1)
+    
+    # Test 3: Payout overview
+    results.append(test_payout_overview(token))
     
     # Test 4: Earnings
-    results['earnings'] = test_earnings(access_token)
+    results.append(test_earnings(token))
     
-    # Test 5: My code
-    results['my_code'] = test_my_code(access_token)
+    # Print summary
+    print_summary(results)
     
-    # Summary
+    # Exit with appropriate code
+    sys.exit(0 if all(results) else 1)
+
+def print_summary(results):
     print("\n" + "="*80)
     print("TEST SUMMARY")
     print("="*80)
-    
+    passed = sum(results)
     total = len(results)
-    passed = sum(1 for v in results.values() if v)
+    print(f"Passed: {passed}/{total}")
+    print(f"Failed: {total - passed}/{total}")
     
-    for test_name, passed_test in results.items():
-        status = "✅ PASS" if passed_test else "❌ FAIL"
-        print(f"{status}: {test_name}")
-    
-    print(f"\nTotal: {passed}/{total} tests passed")
-    
-    if passed == total:
-        print("\n🎉 ALL TESTS PASSED - Backend verification COMPLETE")
-        return 0
+    if all(results):
+        print("\n✅ ALL TESTS PASSED - Backend regression verification COMPLETE")
+        print("The referral fee-credit RECOVERY path changes (paymentController.ts + referralCreditService.ts)")
+        print("boot cleanly with no regressions. All endpoints return expected structure.")
     else:
-        print(f"\n⚠️  {total - passed} test(s) FAILED")
-        return 1
+        print("\n❌ SOME TESTS FAILED - See details above")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

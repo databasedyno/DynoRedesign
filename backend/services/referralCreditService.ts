@@ -119,4 +119,65 @@ export const consumeReferralCreditForTransaction = async (params: {
   return consumed;
 };
 
-export default { getAvailableCreditForFees, consumeReferralCreditForTransaction };
+/**
+ * Fee-credit shift for settlement paths that work in CRYPTO units and DON'T already
+ * have a pre-computed platform-fee USD (e.g. the incomplete-payment RECOVERY flow in
+ * paymentController.ts). Given the admin/merchant crypto split for a payment, this:
+ *   • reads the account's available fee-credit (0 unless 'credit' payout mode),
+ *   • derives the platform-fee cap in USD from the admin crypto portion at the payment's
+ *     realized rate (receivedUSD / baseCryptoAmount) — a PROPER USD conversion, not a guess,
+ *   • shifts crypto admin→merchant, capped so the admin fee never goes negative,
+ *   • returns the shifted amounts + the USD actually applied (= min(cap, crypto-shifted→USD)).
+ * It does NOT mutate the DB balance. The caller persists `referral_credit_applied_usd`
+ * on the tx row and then calls consumeReferralCreditForTransaction (idempotent) AFTER the
+ * settlement write. `toUsd` is injected (paymentHelpers.convertToUSD) to avoid a circular
+ * import; any failure returns the UNMODIFIED split (never blocks a settlement).
+ */
+export const computeReferralFeeCreditShift = async (params: {
+  userId?: number | null;
+  currency: string;
+  baseCryptoAmount: number;
+  adminAmountToSend: number;
+  userAmountToSend: number;
+  toUsd: (amount: number, currency: string) => Promise<number>;
+}): Promise<{ adminAmountToSend: number; userAmountToSend: number; appliedUsd: number }> => {
+  const origAdmin = Number(params.adminAmountToSend) || 0;
+  const origUser = Number(params.userAmountToSend) || 0;
+  let admin = origAdmin;
+  let user = origUser;
+  let appliedUsd = 0;
+  try {
+    const userId = Number(params.userId) || 0;
+    const baseCrypto = Number(params.baseCryptoAmount) || 0;
+    if (userId && user > 0 && admin > 0 && baseCrypto > 0) {
+      const availableCredit = await getAvailableCreditForFees(userId);
+      if (availableCredit > 0) {
+        const receivedUSD = Number(await params.toUsd(baseCrypto, params.currency)) || 0;
+        if (receivedUSD > 0) {
+          const rate = receivedUSD / baseCrypto; // USD per unit of this crypto
+          const platformFeeUsd = admin * rate;   // the fee portion, in USD → the cap
+          const applyUsd = Math.min(availableCredit, platformFeeUsd);
+          if (applyUsd > 0) {
+            let creditCrypto = applyUsd / rate;
+            if (creditCrypto > admin) creditCrypto = admin; // never drive admin negative
+            if (creditCrypto > 0) {
+              admin = admin - creditCrypto;
+              user = user + creditCrypto;
+              if (user > baseCrypto) user = baseCrypto;
+              const actualUsd = creditCrypto * rate;
+              appliedUsd = Math.min(applyUsd, round2(actualUsd)); // never over-consume vs shift
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    apiLogger.warn(
+      `[ReferralCredit] computeReferralFeeCreditShift skipped (non-fatal): ${(err as Error)?.message || err}`
+    );
+    return { adminAmountToSend: origAdmin, userAmountToSend: origUser, appliedUsd: 0 };
+  }
+  return { adminAmountToSend: admin, userAmountToSend: user, appliedUsd };
+};
+
+export default { getAvailableCreditForFees, consumeReferralCreditForTransaction, computeReferralFeeCreditShift };

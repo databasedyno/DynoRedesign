@@ -102,6 +102,8 @@ import { PaymentState, toRedisStatus } from "../services/paymentStateMachine";
 
 import { calculateTaxForCheckout } from "./payment/taxService";
 import { settleCryptoTransaction, verifyCryptoPayment, cryptoVerification, downloadReceipt } from "./payment/cryptoSettlement";
+import { convertToUSD } from "./payment/paymentHelpers";
+import { computeReferralFeeCreditShift, consumeReferralCreditForTransaction } from "../services/referralCreditService";
 import { getData, getPaymentMeta, Crypto, createCryptoPayment, confirmPayment } from "./payment/cryptoCheckout";
 
 
@@ -1723,6 +1725,30 @@ const processIncompletePayments = async () => {
               }
             }
 
+            // ── Referral fee-credit (Option 1.a) — RECOVERY settlement path ──
+            // Mirrors the primary path (chainVerification.ts) but derives the platform-fee
+            // USD cap from the admin crypto portion via a proper convertToUSD() rate, since
+            // this flow works in crypto units and has no pre-computed fee-USD. Any failure
+            // returns the UNMODIFIED split (never blocks recovery). Consumed idempotently
+            // AFTER the tx write below.
+            let referralCreditAppliedUsd = 0;
+            {
+              const creditShift = await computeReferralFeeCreditShift({
+                userId: tempTx.user_id,
+                currency: tempTx.wallet_type,
+                baseCryptoAmount: Number(totalReceived),
+                adminAmountToSend: Number(adminAmountToSend),
+                userAmountToSend: Number(userAmountToSend),
+                toUsd: (amt, cur) => convertToUSD(amt, cur),
+              });
+              adminAmountToSend = creditShift.adminAmountToSend;
+              userAmountToSend = creditShift.userAmountToSend;
+              referralCreditAppliedUsd = creditShift.appliedUsd;
+              if (referralCreditAppliedUsd > 0) {
+                cronLogger.info(`[ReferralCredit][recovery] Applying $${referralCreditAppliedUsd.toFixed(2)} fee-credit for user ${tempTx.user_id}: admin=${Number(adminAmountToSend).toFixed(8)} merchant=${Number(userAmountToSend).toFixed(8)} ${tempTx.wallet_type}`);
+              }
+            }
+
             const result = await settleCryptoTransaction({
               tempAddressData: {
                 address: tempTx.wallet_address,
@@ -1792,8 +1818,24 @@ const processIncompletePayments = async () => {
                 base_currency: tempTx.wallet_type,
                 transaction_reference: tempTx.txId,
                 transaction_type: "CREDIT",
+                referral_credit_applied_usd: referralCreditAppliedUsd,
                 status: "completed_partial",
               });
+            }
+
+            // Consume the referral credit that funded the fee reduction above —
+            // idempotent (keyed by tx ref) + credit-mode gated, so a recovery re-run
+            // can never double-spend. Non-fatal (credit stays available on failure).
+            if (referralCreditAppliedUsd > 0 && tempTx.user_id) {
+              try {
+                await consumeReferralCreditForTransaction({
+                  userId: Number(tempTx.user_id),
+                  maxUsd: referralCreditAppliedUsd,
+                  transactionRef: String(tempTx.txId || tempTx.temp_id),
+                });
+              } catch (consumeErr: any) {
+                cronLogger.error(`[ReferralCredit][recovery] consume failed (non-fatal): ${consumeErr?.message || consumeErr}`);
+              }
             }
 
             await safeDeleteSubscription(tempTx.subscription_id, 'partial payment completed');
@@ -1865,6 +1907,26 @@ const processIncompletePayments = async () => {
               }
             }
 
+            // ── Referral fee-credit (Option 1.a) — RECOVERY settlement path (expired branch) ──
+            // Same treatment as the completed-partial branch above; base = the received amount.
+            let referralCreditAppliedUsd = 0;
+            {
+              const creditShift = await computeReferralFeeCreditShift({
+                userId: tempTx.user_id,
+                currency: tempTx.wallet_type,
+                baseCryptoAmount: Number(tempTx.amount),
+                adminAmountToSend: Number(adminAmountToSend),
+                userAmountToSend: Number(userAmountToSend),
+                toUsd: (amt, cur) => convertToUSD(amt, cur),
+              });
+              adminAmountToSend = creditShift.adminAmountToSend;
+              userAmountToSend = creditShift.userAmountToSend;
+              referralCreditAppliedUsd = creditShift.appliedUsd;
+              if (referralCreditAppliedUsd > 0) {
+                cronLogger.info(`[ReferralCredit][recovery] Applying $${referralCreditAppliedUsd.toFixed(2)} fee-credit for user ${tempTx.user_id}: admin=${Number(adminAmountToSend).toFixed(8)} merchant=${Number(userAmountToSend).toFixed(8)} ${tempTx.wallet_type}`);
+              }
+            }
+
             const result = await settleCryptoTransaction({
               tempAddressData: {
                 address: tempTx.wallet_address,
@@ -1933,8 +1995,23 @@ const processIncompletePayments = async () => {
                 base_currency: tempTx.wallet_type,
                 transaction_reference: tempTx.txId,
                 transaction_type: "CREDIT",
+                referral_credit_applied_usd: referralCreditAppliedUsd,
                 status: "incomplete_expired",
               });
+            }
+
+            // Consume the referral credit that funded the fee reduction above (idempotent,
+            // credit-mode gated) — recovery re-run safe. Non-fatal.
+            if (referralCreditAppliedUsd > 0 && tempTx.user_id) {
+              try {
+                await consumeReferralCreditForTransaction({
+                  userId: Number(tempTx.user_id),
+                  maxUsd: referralCreditAppliedUsd,
+                  transactionRef: String(tempTx.txId || tempTx.temp_id),
+                });
+              } catch (consumeErr: any) {
+                cronLogger.error(`[ReferralCredit][recovery] consume failed (non-fatal): ${consumeErr?.message || consumeErr}`);
+              }
             }
 
             await safeDeleteSubscription(tempTx.subscription_id, 'partial payment expired');
