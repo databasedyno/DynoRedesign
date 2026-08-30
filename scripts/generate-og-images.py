@@ -103,18 +103,23 @@ def fit_title(d, text, max_w, start_y, max_bottom, max_lines=2, start=92, floor=
     return font, wrap_title(d, text, font, max_w)[:max_lines]
 
 
+def paste_logo(im, left, top, height=58):
+    """Composite the real Dynopay white logo lockup (icon + wordmark) with its alpha."""
+    logo = Image.open(
+        os.path.join(ROOT, "assets", "Images", "auth", "dynopay-white-logo.png")
+    ).convert("RGBA")
+    w = round(logo.width * height / logo.height)
+    logo = logo.resize((w, height), Image.LANCZOS)
+    im.paste(logo, (left, top), logo)
+
+
 def render(kind: str, display_name: str, slug: str):
     im = background()
     d = ImageDraw.Draw(im, "RGBA")
     left = 84
 
-    # logo tile + wordmark
-    tile = 58
-    d.rounded_rectangle([left, 66, left + tile, 66 + tile], radius=16, fill=BLUE)
-    mark_font = load_font("Urbanist-ExtraBold", 38)
-    mw = d.textlength("D", font=mark_font)
-    d.text((left + (tile - mw) / 2, 66 + 7), "D", font=mark_font, fill=WHITE)
-    d.text((left + tile + 18, 66 + 8), "DynoPay", font=load_font("Urbanist-ExtraBold", 40), fill=WHITE)
+    # real Dynopay white logo lockup (icon + wordmark)
+    paste_logo(im, left, 66)
 
     # eyebrow
     eyebrow = "ACCEPT CRYPTO PAYMENTS IN" if kind == "country" else "CRYPTO PAYMENTS FOR"
@@ -157,8 +162,54 @@ def render(kind: str, display_name: str, slug: str):
     print(f"wrote {out} ({os.path.getsize(out) // 1024} KB)")
 
 
+def render_press():
+    """Branded 1200x630 OpenGraph card for the /press media-kit page."""
+    im = background()
+    d = ImageDraw.Draw(im, "RGBA")
+    left = 84
+
+    # real Dynopay white logo lockup (icon + wordmark)
+    paste_logo(im, left, 66)
+
+    # eyebrow
+    tracked_text(d, (left, 208), "PRESS & MEDIA KIT", load_font("Outfit-SemiBold", 27), LAVENDER, tracking=5)
+
+    # hero title
+    font, lines = fit_title(d, "Logos, brand assets & company facts", W - left - 90, 258, 448)
+    y = 258
+    for line in lines:
+        d.text((left, y), line, font=font, fill=WHITE)
+        y += int(font.size * 1.12)
+
+    # green feature pill
+    pill_y = y + 26
+    pill_text = "Logos  •  Brand colours  •  Fast facts"
+    pill_font = load_font("Outfit-SemiBold", 25)
+    tw = d.textlength(pill_text, font=pill_font)
+    pad_x, dot_r = 26, 6
+    pill_w = pad_x * 2 + dot_r * 2 + 14 + tw
+    d.rounded_rectangle(
+        [left, pill_y, left + pill_w, pill_y + 56],
+        radius=28,
+        fill=(GREEN[0], GREEN[1], GREEN[2], 36),
+        outline=(GREEN[0], GREEN[1], GREEN[2], 130),
+        width=2,
+    )
+    cy = pill_y + 28
+    d.ellipse([left + pad_x, cy - dot_r, left + pad_x + dot_r * 2, cy + dot_r], fill=GREEN)
+    d.text((left + pad_x + dot_r * 2 + 14, pill_y + 12), pill_text, font=pill_font, fill=MINT)
+
+    # footer
+    d.text((left, H - 78), "dynopay.com/press", font=load_font("Outfit-SemiBold", 27), fill=PALE)
+
+    out = os.path.join(OUT_DIR, "press.png")
+    im.save(out, "PNG", optimize=True)
+    print(f"wrote {out} ({os.path.getsize(out) // 1024} KB)")
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
+    render_press()
     for p in sorted(glob.glob(os.path.join(ROOT, "data", "seo-pages", "*", "*.json"))):
         c = json.load(open(p))
         render(c["_kind"], c["_display_name"], c["_slug"])

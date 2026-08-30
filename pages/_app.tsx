@@ -386,7 +386,11 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "description": "Dynopay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Payments are forwarded directly to the merchant's own wallet — as the original crypto, or auto-converted to USDT or USDC if enabled.",
       "foundingDate": "2024",
       "sameAs": [
-        "https://x.com/Dynopaycom"
+        "https://x.com/Dynopaycom",
+        "https://www.instagram.com/dynopay",
+        "https://www.linkedin.com/company/dynopay/",
+        "https://www.facebook.com/dynopay",
+        "https://t.me/Dynopay_Announcements"
       ],
       "contactPoint": {
         "@type": "ContactPoint",

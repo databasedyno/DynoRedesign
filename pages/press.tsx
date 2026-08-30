@@ -94,6 +94,13 @@ const PressPage: React.FC = () => {
       <Head>
         <title>{t("press.metaTitle")}</title>
         <meta name="description" content={t("press.metaDescription")} />
+        {/* Branded press OG card (public/og/press.png via scripts/generate-og-images.py).
+             key="og:image"/"twitter:image" dedupe & override the global default in _app.tsx. */}
+        <meta key="og:image" property="og:image" content="https://dynopay.com/og/press.png" />
+        <meta key="og:image:width" property="og:image:width" content="1200" />
+        <meta key="og:image:height" property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Dynopay press &amp; media kit" />
+        <meta key="twitter:image" name="twitter:image" content="https://dynopay.com/og/press.png" />
       </Head>
 
       <Box component="main" sx={{ bgcolor: "background.default", color: "text.primary" }}>

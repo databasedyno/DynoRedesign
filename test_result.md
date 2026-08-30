@@ -14,6 +14,42 @@
 # ############################################################################
 
 # ============================================================================
+# CURRENT SESSION (frontend bug) — 2026-08-30 : PRESS OG IMAGE USED WRONG LOGO
+#   User: "that's not our logo" — the OG image generator drew a placeholder
+#   "D-in-a-box + DynoPay" mark instead of the real Dynopay brand logo.
+#   FIX: scripts/generate-og-images.py now composites the REAL white logo lockup
+#   (assets/Images/auth/dynopay-white-logo.png) via a shared paste_logo() helper
+#   used by BOTH render() and render_press(); regenerated all 23 OG cards incl.
+#   public/og/press.png (1200x630). Wired press.png as the /press OG image in
+#   pages/press.tsx (<meta key="og:image"> override of the global default).
+#   Preview: https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com
+# ============================================================================
+
+### frontend
+  - task: "Press OG image uses the real Dynopay logo (was a placeholder D-in-a-box); wired press.png as /press OpenGraph image"
+    implemented: true
+    working: true
+    file: "scripts/generate-og-images.py, public/og/press.png, pages/press.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Regenerated OG cards with the real white logo lockup and wired press.png into /press <Head>. Lint clean, image verified 1200x630 with real brand mark. Needs frontend testing agent to verify wiring + served asset."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 3 TESTS PASSED (2026-08-30 12:56 UTC) — Press OG image fix VERIFIED and WORKING CORRECTLY. TEST 1 - OG Meta Wiring: ✅ Exactly ONE og:image tag found with content='https://dynopay.com/og/press.png' (ends with /og/press.png, NOT /og/dynopay-og.png - per-page override worked). ✅ twitter:image also points to 'https://dynopay.com/og/press.png'. ✅ og:image:width='1200' and og:image:height='630' (both correct). TEST 2 - Served Image Asset: ✅ GET /og/press.png returns HTTP 200 with content-type image/png. ✅ Natural dimensions 1200x630 confirmed. ✅ Screenshot captured showing the REAL Dynopay logo (stacked-ovals mark + lowercase 'dynopay' wordmark, white on navy/indigo gradient) in top-left. ✅ Image shows headline 'Logos, brand assets & company facts', green pill 'Logos • Brand colours • Fast facts', and footer 'dynopay.com/press'. ✅ NOT the placeholder blue rounded square with capital 'D' - bug is FIXED. TEST 3 - Page Health: ✅ Zero console errors detected on /press page. The OpenGraph image fix is PRODUCTION-READY. User's bug report 'that's not our logo' is RESOLVED."
+
+### What to verify (FRONTEND — auto_frontend_testing_agent)
+Preview base: https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com (READ-ONLY; no auth needed for /press).
+1. Load /press. Parse the document <head>: there must be EXACTLY ONE `meta[property="og:image"]`, and its content must end with `/og/press.png` (NOT `/og/dynopay-og.png` — proves the per-page key override worked). Also confirm `meta[name="twitter:image"]` ends with `/og/press.png`, and og:image:width=1200 / og:image:height=630.
+2. Directly load the preview-hosted asset `https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com/og/press.png` → expect HTTP 200, content-type image/png, natural size 1200x630. Screenshot it. It must show the REAL Dynopay logo (a stacked-ovals brand mark + lowercase "dynopay" wordmark, white on a navy/indigo background) — NOT a blue rounded square containing a capital "D".
+3. Confirm /press renders with no NEW console errors (the pre-existing next-auth CLIENT_FETCH_ERROR preview OAuth warning is known/harmless — ignore it).
+Return pass/fail per item + the screenshot of the served press.png.
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-30 (pod dynopay-setup) : REFERRAL FINDINGS F2–F6 FIX
 #   Fixed 5 referral-system findings from memory/REFACTOR_STATUS.md (all backend,
 #   leader-cron logic; NO fund movement):
@@ -76,6 +112,10 @@ SAFETY: LIVE prod Railway DB, SAFE MODE. HTTP checks must be READ-ONLY. The harn
     message: "Fixed referral findings F2–F6 (backend cron/service logic only, no fund movement). Please verify by (1) running the reversible self-cleaning harness scripts/verify_ff_fixes.ts with the exact command in 'What to verify' item 1 and reporting its 11 PASS/FAIL lines + the RESULT + CLEANUP lines (both scratch counts must be 0), and (2) a read-only HTTP regression (health + login + referral earnings/overview). The harness uses year-2000/2001 windows so it cannot touch real merchant data; it deletes all scratch rows and restores user 1 in a finally block."
   - agent: "testing"
     message: "✅ VERIFICATION COMPLETE (2026-08-30 12:14 UTC) — ALL TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ REVERSIBLE HARNESS (PRIMARY): Executed with exact command, RESULT: 11/11 checks passed covering all F2–F6 fixes (clawback $50→$0 + idempotent + floor at paid+credited $50→$30; credit-mode NOT nudged / cash-mode IS nudged; expiry sweep stale→expired + in-window untouched; convertToUSD sanity 100 USD==$100 / 100 JPY<$100; non-USD gate 100 JPY does NOT activate / USD gate 100 USD ACTIVATES; window enforcement payment after expires_at does NOT activate; single-referral guard blocks 2nd referral from ANY referrer). CLEANUP VERIFIED: scratch_referrals_left=0 AND scratch_txns_left=0 (BOTH counts are 0, proving full reversibility on live DB). User1 restored. (2) ✅ HTTP REGRESSION (Read-only): Health endpoint confirms SAFE MODE (background_jobs.eligible=false, database+redis connected). Login returns HTTP 200 with accessToken. Referral earnings endpoint returns HTTP 200 with data.commission object (rate_percent=25, window_months=12, all required keys present). Payout overview returns HTTP 200 with credited_balance_usd=0, available_credit_usd=0 (correct for user_id=1). STRICT COMPLIANCE: Read-only testing only, NO real data mutations, harness performed all writes and cleaned up correctly. The referral findings F2–F6 fixes are WORKING CORRECTLY and PRODUCTION-READY. Main agent should summarize and finish."
+  - agent: "main"
+    message: "Press OG image fix implemented: regenerated public/og/press.png with the real Dynopay logo (stacked-ovals mark + lowercase wordmark, white on navy gradient) and wired it into pages/press.tsx <Head> with key='og:image' override. Please verify: (1) /press <head> has exactly ONE og:image ending with /og/press.png (NOT /og/dynopay-og.png), twitter:image also /og/press.png, og:image:width=1200, og:image:height=630. (2) GET /og/press.png returns HTTP 200 image/png 1200x630 showing the REAL logo (NOT the blue D-in-a-box placeholder). (3) No new console errors on /press."
+  - agent: "testing"
+    message: "✅ PRESS OG IMAGE FIX VERIFIED (2026-08-30 12:56 UTC) — ALL 3 TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ OG Meta Wiring: Exactly ONE og:image tag with content='https://dynopay.com/og/press.png' (ends with /og/press.png, NOT /og/dynopay-og.png - per-page override worked correctly). twitter:image also points to /og/press.png. og:image:width='1200' and og:image:height='630' both correct. (2) ✅ Served Image Asset: GET /og/press.png returns HTTP 200 with content-type image/png, natural dimensions 1200x630 confirmed. Screenshot captured showing the REAL Dynopay logo (stacked-ovals mark + lowercase 'dynopay' wordmark, white on navy/indigo gradient) in top-left, headline 'Logos, brand assets & company facts', green pill 'Logos • Brand colours • Fast facts', footer 'dynopay.com/press'. NOT the placeholder blue rounded square with capital 'D' - bug is FIXED. (3) ✅ Page Health: Zero console errors detected on /press page. The OpenGraph image fix is PRODUCTION-READY. User's bug report 'that's not our logo' is RESOLVED. Main agent should summarize and finish."
 
 
 # ============================================================================
