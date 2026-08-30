@@ -1,3 +1,5 @@
+<!-- 2026-06 (fork): FULL PLATFORM FEATURE-COMPLETENESS AUDIT written to memory/FEATURE_COMPLETENESS_AUDIT.md — read-only runtime sweep (40 pages / 30 routers / ~374 routes) + flag/dormant-path map. Verdict: production-shaped, no significant half-built features; launch checklist = (a) prod-leader money-path validation, (b) flag decisions (Crypto Refunds dark in prod, Ledger shadow-mode), (c) confirm Flutterwave for subscriptions. No writes made to the live account. -->
+
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
 # REFERRAL PAYOUT — TREASURY SAFETY + THRESHOLD NUDGE + AUTO-PAYOUT (2026-06 fork) — session ended after build
