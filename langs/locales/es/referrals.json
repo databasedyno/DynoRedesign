@@ -103,5 +103,14 @@
   "payoutEnabledCash": "Retiro activado",
   "payoutEnabledCredit": "Cambiado a crédito de comisiones",
   "payoutRequested": "Retiro solicitado",
+  "payoutTurnOff": "Desactivar retiro",
+  "payoutSavedWallet": "Tu wallet de pago guardada",
+  "payoutReEnable": "Reactivar retiro",
+  "payoutHistoryTitle": "Historial de retiros",
+  "payoutDownloadCsv": "Descargar CSV",
+  "payoutStatus_pending": "Pendiente",
+  "payoutStatus_processing": "Procesando",
+  "payoutStatus_completed": "Completado",
+  "payoutStatus_failed": "Fallido",
   "payoutErrorGeneric": "Algo salió mal. Inténtalo de nuevo."
 }

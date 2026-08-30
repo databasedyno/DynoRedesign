@@ -7,6 +7,8 @@ import {
   sendPayoutOtp,
   optInPayout,
   requestPayout,
+  getPayoutHistory,
+  getPayoutHistoryCsv,
 } from "../services/referralPayoutService";
 
 const getUserId = (res: Response): number | null => {
@@ -74,4 +76,32 @@ export const payoutRequest = async (req: Request, res: Response) => {
   }
 };
 
-export default { payoutOverview, payoutOtp, payoutOptIn, payoutRequest };
+/** GET /api/referral/payout/history — recent cash-outs for the referrer. */
+export const payoutHistory = async (_req: Request, res: Response) => {
+  try {
+    const userId = getUserId(res);
+    if (!userId) return res.status(401).json({ message: "Unauthorized. Please login." });
+    const data = await getPayoutHistory(userId);
+    return res.status(200).json({ message: "Payout history retrieved", data });
+  } catch (error) {
+    apiLogger.error("Error in payoutHistory:", error);
+    return res.status(500).json({ message: "Internal server error", error: (error as Error).message });
+  }
+};
+
+/** GET /api/referral/payout/history/export — CSV download of cash-outs. */
+export const payoutHistoryExport = async (_req: Request, res: Response) => {
+  try {
+    const userId = getUserId(res);
+    if (!userId) return res.status(401).json({ message: "Unauthorized. Please login." });
+    const csv = await getPayoutHistoryCsv(userId);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="dynopay-referral-payouts.csv"');
+    return res.status(200).send(csv);
+  } catch (error) {
+    apiLogger.error("Error in payoutHistoryExport:", error);
+    return res.status(500).json({ message: "Internal server error", error: (error as Error).message });
+  }
+};
+
+export default { payoutOverview, payoutOtp, payoutOptIn, payoutRequest, payoutHistory, payoutHistoryExport };

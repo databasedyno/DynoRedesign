@@ -103,5 +103,14 @@
   "payoutEnabledCash": "Cash-out enabled",
   "payoutEnabledCredit": "Switched to fee credit",
   "payoutRequested": "Payout requested",
+  "payoutTurnOff": "Turn off cash-out",
+  "payoutSavedWallet": "Your saved payout wallet",
+  "payoutReEnable": "Re-enable cash-out",
+  "payoutHistoryTitle": "Cash-out history",
+  "payoutDownloadCsv": "Download CSV",
+  "payoutStatus_pending": "Pending",
+  "payoutStatus_processing": "Processing",
+  "payoutStatus_completed": "Completed",
+  "payoutStatus_failed": "Failed",
   "payoutErrorGeneric": "Something went wrong. Please try again."
 }

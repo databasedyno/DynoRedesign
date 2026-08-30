@@ -1,5 +1,14 @@
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
+# REFERRAL PHASE 3 + OPT-OUT + PAYOUT HISTORY (2026-06 fork) — DONE (E2E'd on live DB, restored)
+
+- **Phase 3 execution**: idempotent `withdrawOrderId` added to `binanceService.submitWithdrawal`; execution moved to `services/referralPayoutCron.ts` (submit passes withdrawOrderId + adopts any existing Binance withdrawal for that order id before re-sending). Leader/prod cron only, OFF in preview.
+- **Opt-out**: turning cash off keeps the USDT-TRC20 wallet + verification on file; re-enabling the same/saved address needs NO OTP.
+- **Payout history + CSV**: `GET /referral/payout/history` + `/history/export` (text/csv), tronscan tx links; `PayoutCard` shows a "Cash-out history" list + "Download CSV", "Turn off cash-out", and a "Re-enable cash-out" block. 9 i18n keys ×6 locales.
+- **Verified E2E on live prod DB** (reversible, then fully restored to credit/NULL/NULL/0 rows): opt-in saved (no OTP), opt-out (addr retained), re-enable (no OTP), seeded payouts → history + CSV correct, cleanup. tsc 0, file-size PASS, /referrals 200. REAL Binance send not run in preview (geo-blocked) — runs on prod.
+
+
+
 # REFERRAL REVENUE-SHARE — PHASE 2 CASH-OUT (2026-06 fork) — DONE (backend verified read-only)
 
 Preview: https://86622934-ca16-4cf6-b326-eedf49aa6ae1.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF).

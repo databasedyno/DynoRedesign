@@ -103,5 +103,14 @@
   "payoutEnabledCash": "Retrait activé",
   "payoutEnabledCredit": "Passé au crédit de frais",
   "payoutRequested": "Retrait demandé",
+  "payoutTurnOff": "Désactiver le retrait",
+  "payoutSavedWallet": "Votre portefeuille de versement enregistré",
+  "payoutReEnable": "Réactiver le retrait",
+  "payoutHistoryTitle": "Historique des retraits",
+  "payoutDownloadCsv": "Télécharger le CSV",
+  "payoutStatus_pending": "En attente",
+  "payoutStatus_processing": "En cours",
+  "payoutStatus_completed": "Terminé",
+  "payoutStatus_failed": "Échoué",
   "payoutErrorGeneric": "Une erreur s'est produite. Veuillez réessayer."
 }

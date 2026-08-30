@@ -30,6 +30,19 @@ type PayoutOverview = {
   wallets: PayoutWallet[];
 };
 
+type PayoutHistoryItem = {
+  payout_id: number;
+  amount_usd: number;
+  status: string;
+  trc20_address_masked: string;
+  tx_hash: string | null;
+  tx_url: string | null;
+  withdrawal_fee_usdt: number | null;
+  requested_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+};
+
 type Props = {
   isMobile: boolean;
   onToast: (message: string, severity: "success" | "error") => void;
@@ -43,6 +56,10 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
   const { data, isLoading, mutate } = useApiSWR<PayoutOverview>(API_ENDPOINTS.referral.payoutOverview, {
     unwrap: true,
   });
+  const { data: history, mutate: mutateHistory } = useApiSWR<PayoutHistoryItem[]>(
+    API_ENDPOINTS.referral.payoutHistory,
+    { unwrap: true }
+  );
 
   const [busy, setBusy] = useState<string | null>(null); // action id currently in-flight
   const [showAddNew, setShowAddNew] = useState(false);
@@ -120,9 +137,25 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
     const idem = (typeof crypto !== "undefined" && "randomUUID" in crypto) ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
     const r = await post(API_ENDPOINTS.referral.payoutRequest, { otp: withdrawOtp.trim(), idempotency_key: idem });
     setBusy(null);
-    if (r.ok) { onToast(r.data?.message || t("payoutRequested", { defaultValue: "Payout requested" }), "success"); resetForms(); mutate(); }
+    if (r.ok) { onToast(r.data?.message || t("payoutRequested", { defaultValue: "Payout requested" }), "success"); resetForms(); mutate(); mutateHistory(); }
     else onToast(r.message, "error");
-  }, [withdrawOtp, post, onToast, t, mutate]);
+  }, [withdrawOtp, post, onToast, t, mutate, mutateHistory]);
+
+  const downloadCsv = useCallback(async () => {
+    try {
+      const res = await axiosBaseApi.get(API_ENDPOINTS.referral.payoutHistoryExport, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "dynopay-referral-payouts.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      onToast(t("payoutErrorGeneric", { defaultValue: "Something went wrong. Please try again." }), "error");
+    }
+  }, [onToast, t]);
 
   // ── Style helpers ─────────────────────────────────────────────────────
   const pillBtn = (variant: "primary" | "ghost") => ({
@@ -228,7 +261,8 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   </Typography>
                 </Box>
                 <Box data-testid="payout-switch-to-credit-btn" onClick={switchToCredit} sx={pillBtn("ghost")}>
-                  {t("payoutSwitchToCredit", { defaultValue: "Switch to fee credit" })}
+                  {busy === "credit" ? <CircularProgress size={16} /> : null}
+                  {t("payoutTurnOff", { defaultValue: "Turn off cash-out" })}
                 </Box>
               </Box>
 
@@ -276,8 +310,25 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
               )}
             </Box>
           ) : (
-            /* Not yet on cash → wallet picker + add new */
+            /* Not yet on cash → re-enable saved / wallet picker / add new */
             <Box>
+              {data?.has_verified_address && data?.trc20_address && (
+                <Box data-testid="payout-reenable-block" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, p: 1.5, borderRadius: "10px", border: `1.5px solid ${theme.palette.primary.main}`, bgcolor: `${theme.palette.primary.main}0A`, mb: 1.5 }}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
+                      {t("payoutSavedWallet", { defaultValue: "Your saved payout wallet" })}
+                    </Typography>
+                    <Typography sx={{ fontSize: "13px", fontFamily: MONO, color: theme.palette.text.secondary }}>
+                      {data.trc20_address_masked}
+                    </Typography>
+                  </Box>
+                  <Box data-testid="payout-reenable-btn" onClick={() => data.trc20_address && useSavedWallet(data.trc20_address)} sx={pillBtn("primary")}>
+                    {busy === `save-${data.trc20_address}` ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
+                    {t("payoutReEnable", { defaultValue: "Re-enable cash-out" })}
+                  </Box>
+                </Box>
+              )}
+
               {(data?.wallets?.length ?? 0) > 0 && (
                 <Box sx={{ mb: 1.5 }}>
                   <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.secondary, mb: 1 }}>
@@ -347,6 +398,56 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   </Box>
                 </Box>
               )}
+            </Box>
+          )}
+
+          {/* Cash-out history */}
+          {(history?.length ?? 0) > 0 && (
+            <Box data-testid="payout-history" sx={{ mt: 2.5, pt: 2, borderTop: `1px solid ${theme.palette.border.main}` }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.25 }}>
+                <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
+                  {t("payoutHistoryTitle", { defaultValue: "Cash-out history" })}
+                </Typography>
+                <Box data-testid="payout-history-csv-btn" onClick={downloadCsv} sx={{ ...pillBtn("ghost"), px: 1.5, py: 0.5, fontSize: "12px" }}>
+                  <Icon name="download" size={14} />
+                  {t("payoutDownloadCsv", { defaultValue: "Download CSV" })}
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+                {(history ?? []).map((h) => {
+                  const color =
+                    h.status === "completed" ? theme.palette.success?.main || "#16A34A"
+                    : h.status === "failed" ? theme.palette.error?.main || "#DC2626"
+                    : "#F59E0B";
+                  return (
+                    <Box key={h.payout_id} data-testid={`payout-history-row-${h.payout_id}`} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, p: 1.25, borderRadius: "8px", bgcolor: theme.palette.secondary.main }}>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontWeight: 700, color: theme.palette.text.primary }}>
+                          {`$${Number(h.amount_usd).toFixed(2)}`}
+                        </Typography>
+                        <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                          {h.completed_at
+                            ? new Date(h.completed_at).toLocaleDateString()
+                            : h.requested_at
+                              ? new Date(h.requested_at).toLocaleDateString()
+                              : ""}
+                          {" · "}{h.trc20_address_masked}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {h.tx_url && (
+                          <a href={h.tx_url} target="_blank" rel="noopener noreferrer" data-testid={`payout-history-tx-${h.payout_id}`} style={{ display: "inline-flex" }}>
+                            <Icon name="external-link" size={14} color={theme.palette.text.secondary} />
+                          </a>
+                        )}
+                        <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", fontWeight: 600, color, textTransform: "capitalize", px: 1, py: 0.25, borderRadius: "6px", bgcolor: `${color}18` }}>
+                          {t(`payoutStatus_${h.status}`, { defaultValue: h.status })}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
             </Box>
           )}
         </>

@@ -103,5 +103,14 @@
   "payoutEnabledCash": "Saque ativado",
   "payoutEnabledCredit": "Alterado para crédito de taxas",
   "payoutRequested": "Saque solicitado",
+  "payoutTurnOff": "Desativar saque",
+  "payoutSavedWallet": "Sua carteira de pagamento salva",
+  "payoutReEnable": "Reativar saque",
+  "payoutHistoryTitle": "Histórico de saques",
+  "payoutDownloadCsv": "Baixar CSV",
+  "payoutStatus_pending": "Pendente",
+  "payoutStatus_processing": "Em processamento",
+  "payoutStatus_completed": "Concluído",
+  "payoutStatus_failed": "Falhou",
   "payoutErrorGeneric": "Algo deu errado. Tente novamente."
 }

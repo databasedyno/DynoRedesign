@@ -46,7 +46,7 @@ export const setupReferralRewardCron = () => {
       // to Binance (treasury-guarded) and poll 'processing' ones to completion.
       // Leader/prod only; NEVER runs in SAFE-MODE preview (Binance geo-blocked there).
       const { processReferralPayouts, monitorReferralPayouts } = await import(
-        "../../services/referralPayoutService"
+        "../../services/referralPayoutCron"
       );
       await processReferralPayouts();
       await monitorReferralPayouts();

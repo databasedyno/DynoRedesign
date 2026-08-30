@@ -103,5 +103,14 @@
   "payoutEnabledCash": "Auszahlung aktiviert",
   "payoutEnabledCredit": "Zu Gebührenguthaben gewechselt",
   "payoutRequested": "Auszahlung angefordert",
+  "payoutTurnOff": "Cash-out ausschalten",
+  "payoutSavedWallet": "Deine gespeicherte Auszahlungs-Wallet",
+  "payoutReEnable": "Cash-out wieder aktivieren",
+  "payoutHistoryTitle": "Auszahlungsverlauf",
+  "payoutDownloadCsv": "CSV herunterladen",
+  "payoutStatus_pending": "Ausstehend",
+  "payoutStatus_processing": "In Bearbeitung",
+  "payoutStatus_completed": "Abgeschlossen",
+  "payoutStatus_failed": "Fehlgeschlagen",
   "payoutErrorGeneric": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
 }

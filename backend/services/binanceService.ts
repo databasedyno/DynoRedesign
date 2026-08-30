@@ -711,12 +711,14 @@ export const submitWithdrawal = async ({
   amount,
   network,
   addressTag,
+  withdrawOrderId,
 }: {
   coin: string; // e.g., "USDT", "USDC"
   address: string;
   amount: number;
   network: string; // e.g., "ERC20", "TRC20"
   addressTag?: string; // For XRP memo, etc.
+  withdrawOrderId?: string; // client-side unique id — Binance rejects duplicates (idempotency)
 }): Promise<{ id: string }> => {
   const params: Record<string, string | number | boolean | undefined> = {
     coin: coin.toUpperCase(),
@@ -726,6 +728,9 @@ export const submitWithdrawal = async ({
   };
   if (addressTag) {
     params.addressTag = addressTag;
+  }
+  if (withdrawOrderId) {
+    params.withdrawOrderId = withdrawOrderId;
   }
 
   const data = (await makeSignedRequest("POST", "/sapi/v1/capital/withdraw/apply", params)) as { id: string };

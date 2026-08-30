@@ -109,6 +109,8 @@ export const API_ENDPOINTS = {
     payoutOtp: "/referral/payout/otp",
     payoutOptIn: "/referral/payout/opt-in",
     payoutRequest: "/referral/payout/request",
+    payoutHistory: "/referral/payout/history",
+    payoutHistoryExport: "/referral/payout/history/export",
   },
 
   status: {

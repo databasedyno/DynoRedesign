@@ -25,5 +25,7 @@ referralRouter.get('/payout/overview', authMiddleware, referralPayoutController.
 referralRouter.post('/payout/otp', authMiddleware, referralPayoutController.payoutOtp);
 referralRouter.post('/payout/opt-in', authMiddleware, referralPayoutController.payoutOptIn);
 referralRouter.post('/payout/request', authMiddleware, referralPayoutController.payoutRequest);
+referralRouter.get('/payout/history', authMiddleware, referralPayoutController.payoutHistory);
+referralRouter.get('/payout/history/export', authMiddleware, referralPayoutController.payoutHistoryExport);
 
 export default referralRouter;

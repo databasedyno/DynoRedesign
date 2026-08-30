@@ -103,5 +103,14 @@
   "payoutEnabledCash": "Uitbetaling ingeschakeld",
   "payoutEnabledCredit": "Overgeschakeld naar kostentegoed",
   "payoutRequested": "Uitbetaling aangevraagd",
+  "payoutTurnOff": "Uitbetaling uitschakelen",
+  "payoutSavedWallet": "Je opgeslagen uitbetalingswallet",
+  "payoutReEnable": "Uitbetaling opnieuw inschakelen",
+  "payoutHistoryTitle": "Uitbetalingsgeschiedenis",
+  "payoutDownloadCsv": "CSV downloaden",
+  "payoutStatus_pending": "In afwachting",
+  "payoutStatus_processing": "Wordt verwerkt",
+  "payoutStatus_completed": "Voltooid",
+  "payoutStatus_failed": "Mislukt",
   "payoutErrorGeneric": "Er ging iets mis. Probeer het opnieuw."
 }

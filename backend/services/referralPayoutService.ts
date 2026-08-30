@@ -1,17 +1,14 @@
 import { raw as envRaw } from "../utils/config";
-import { apiLogger, cronLogger } from "../utils/loggers";
+import { apiLogger } from "../utils/loggers";
 import { QueryTypes, Op } from "sequelize";
 import crypto from "crypto";
 import sequelize from "../utils/dbInstance";
 import User from "../models/userModels/userModel";
-import Referral from "../models/referralModels/referralModel";
-import ReferralReward from "../models/referralModels/referralRewardModel";
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { tatumClient } from "../integrations/tatum/TatumClient";
-import { redis, acquireLock, releaseLock } from "../utils/redisInstance";
-import { sendWithdrawalOTPEmail, sendWithdrawalSuccessEmail } from "./emailService";
+import { redis } from "../utils/redisInstance";
+import { sendWithdrawalOTPEmail } from "./emailService";
 import { getReferrerCommissionSummary } from "./referralService";
-import binanceService from "./binanceService";
 
 /**
  * Referral revenue-share CASH-OUT (Phase 2). Reward accrues at the ACCOUNT level
@@ -221,13 +218,15 @@ export const optInPayout = async (params: {
   const { userId, mode } = params;
   const user = await User.findByPk(userId);
   if (!user) return { success: false, statusCode: 404, message: "User not found" };
+  const u = user as unknown as Record<string, unknown>;
 
   if (mode === "credit") {
+    // Opt-out: turn cash off but KEEP the saved wallet + verification on file for later.
     await User.update({ referral_payout_mode: "credit" } as never, { where: { user_id: userId } });
     return {
       success: true,
       mode: "credit",
-      message: "Switched to fee credit — your earnings now reduce your own Dynopay fees.",
+      message: "Cash-out turned off — your earnings now reduce your own Dynopay fees. Your wallet stays saved.",
     };
   }
 
@@ -238,8 +237,11 @@ export const optInPayout = async (params: {
 
   const saved = await getReusableTrc20Wallets(userId);
   const isSaved = saved.some((w) => w.address === address);
+  // Re-enabling the exact address already verified on file (after an opt-out) needs no new OTP.
+  const isVerifiedOnFile =
+    address === (u.referral_payout_trc20_address as string) && !!u.referral_payout_address_verified_at;
 
-  if (!isSaved) {
+  if (!isSaved && !isVerifiedOnFile) {
     // Brand-new address → require a fresh OTP.
     if (!params.otp) {
       return {
@@ -263,7 +265,7 @@ export const optInPayout = async (params: {
   );
 
   apiLogger.info(
-    `[ReferralPayout] user ${userId} opted into CASH → ${maskAddress(address)} (${isSaved ? "saved wallet" : "new+OTP"})`
+    `[ReferralPayout] user ${userId} opted into CASH → ${maskAddress(address)} (${isSaved ? "saved wallet" : isVerifiedOnFile ? "re-enable on-file" : "new+OTP"})`
   );
 
   return {
@@ -273,7 +275,9 @@ export const optInPayout = async (params: {
     trc20_address_masked: maskAddress(address),
     message: isSaved
       ? "Cash-out enabled with your saved USDT (TRC-20) wallet."
-      : "Address verified — cash-out enabled.",
+      : isVerifiedOnFile
+        ? "Cash-out re-enabled to your saved address."
+        : "Address verified — cash-out enabled.",
   };
 };
 
@@ -357,132 +361,83 @@ export const requestPayout = async (params: {
   };
 };
 
-// LEADER/PROD cron only — execute + monitor payouts
-// (submitWithdrawal is NEVER called from an API request)
+// Payout history + CSV export (read-only)
 
-const applyPayoutToReferrals = async (userId: number, amountUsd: number, txHash: string): Promise<void> => {
-  let remaining = round2(amountUsd);
-  const referrals = await Referral.findAll({
-    where: { referrer_user_id: userId, status: { [Op.in]: ["active", "rewarded"] } },
-    order: [["activated_at", "ASC"]],
+const txUrl = (h: string | null): string | null => (h ? `https://tronscan.org/#/transaction/${h}` : null);
+
+export interface PayoutHistoryItem {
+  payout_id: number;
+  amount_usd: number;
+  status: string;
+  trc20_address_masked: string;
+  tx_hash: string | null;
+  tx_url: string | null;
+  withdrawal_fee_usdt: number | null;
+  requested_at: Date | null;
+  completed_at: Date | null;
+  error_message: string | null;
+}
+
+export const getPayoutHistory = async (userId: number): Promise<PayoutHistoryItem[]> => {
+  const rows = await ReferralPayout.findAll({
+    where: { user_id: userId },
+    order: [["payout_id", "DESC"]],
+    limit: 100,
   });
-  for (const r of referrals) {
-    if (remaining <= 0.001) break;
-    const accrued = Number(r.commission_accrued_usd || 0);
-    const paid = Number(r.commission_paid_usd || 0);
-    const unpaid = round2(accrued - paid);
-    if (unpaid <= 0) continue;
-    const applied = Math.min(unpaid, remaining);
-    const newPaid = round2(paid + applied);
-    await r.update({ commission_paid_usd: newPaid });
-    remaining = round2(remaining - applied);
-    if (newPaid >= accrued - 0.001) {
-      const reward = await ReferralReward.findOne({
-        where: { referral_id: r.referral_id, reward_type: "commission" },
-      });
-      if (reward) await reward.update({ status: "withdrawn", withdrawn_at: new Date(), transaction_id: txHash });
-    }
-  }
+  return rows.map((p) => ({
+    payout_id: p.payout_id,
+    amount_usd: Number(p.amount_usd),
+    status: p.status,
+    trc20_address_masked: maskAddress(p.trc20_address),
+    tx_hash: p.tx_hash || null,
+    tx_url: txUrl(p.tx_hash || null),
+    withdrawal_fee_usdt: p.withdrawal_fee_usdt != null ? Number(p.withdrawal_fee_usdt) : null,
+    requested_at: p.requested_at || null,
+    completed_at: p.completed_at || null,
+    error_message: p.error_message || null,
+  }));
 };
 
-export const processReferralPayouts = async (): Promise<number> => {
-  const pending = await ReferralPayout.findAll({
-    where: { status: "pending" },
-    order: [["payout_id", "ASC"]],
-    limit: 20,
+export const getPayoutHistoryCsv = async (userId: number): Promise<string> => {
+  const rows = await ReferralPayout.findAll({
+    where: { user_id: userId },
+    order: [["payout_id", "DESC"]],
+    limit: 1000,
   });
-  let submitted = 0;
-  for (const payout of pending) {
-    const lockKey = `cron:referralPayout:${payout.payout_id}`;
-    const locked = await acquireLock(lockKey, 120, 1, 100, true);
-    if (!locked) continue;
-    try {
-      const amount = Number(payout.amount_usd);
-      const balance = await binanceService.getAssetBalance("USDT");
-      if (balance.free < amount * 0.99) {
-        cronLogger.warn(
-          `[ReferralPayout] Insufficient USDT treasury for payout ${payout.payout_id}: have ${balance.free}, need ${amount}`
-        );
-        await payout.update({ error_message: `Insufficient USDT treasury (${balance.free.toFixed(2)})` });
-        continue;
-      }
-      await payout.update({ status: "processing" });
-      const wd = await binanceService.submitWithdrawal({
-        coin: "USDT",
-        address: payout.trc20_address,
-        amount,
-        network: "TRC20",
-      });
-      await payout.update({ binance_withdrawal_id: wd.id, error_message: null });
-      cronLogger.info(`[ReferralPayout] Submitted payout ${payout.payout_id} ($${amount}) → Binance wd ${wd.id}`);
-      submitted++;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      cronLogger.error(`[ReferralPayout] submit error for ${payout.payout_id}: ${msg}`);
-      // Reset to 'pending' so it can retry next cycle (idempotency_key prevents double-send).
-      await payout.update({ status: "pending", error_message: msg });
-    } finally {
-      await releaseLock(lockKey);
-    }
+  const esc = (v: unknown): string => {
+    const s = v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const header = [
+    "Payout ID",
+    "Amount (USD)",
+    "Status",
+    "USDT-TRC20 Address",
+    "Tx Hash",
+    "Network Fee (USDT)",
+    "Requested (UTC)",
+    "Completed (UTC)",
+    "Note",
+  ];
+  const lines = [header.join(",")];
+  for (const p of rows) {
+    lines.push(
+      [
+        p.payout_id,
+        Number(p.amount_usd).toFixed(2),
+        p.status,
+        p.trc20_address,
+        p.tx_hash || "",
+        p.withdrawal_fee_usdt != null ? Number(p.withdrawal_fee_usdt).toFixed(6) : "",
+        p.requested_at ? new Date(p.requested_at).toISOString() : "",
+        p.completed_at ? new Date(p.completed_at).toISOString() : "",
+        p.error_message || "",
+      ]
+        .map(esc)
+        .join(",")
+    );
   }
-  return submitted;
-};
-
-/** Poll 'processing' payouts → complete/fail; reconcile referral totals on success. */
-export const monitorReferralPayouts = async (): Promise<number> => {
-  const processing = await ReferralPayout.findAll({
-    where: { status: "processing", binance_withdrawal_id: { [Op.not]: null } },
-    limit: 20,
-  });
-  let completed = 0;
-  for (const payout of processing) {
-    try {
-      const history = await binanceService.getWithdrawalHistory({ coin: "USDT", limit: 50 });
-      const match = history.find((w) => w.id === payout.binance_withdrawal_id);
-      if (!match) continue;
-      if (match.status === 6) {
-        const fee = parseFloat(match.transactionFee || "0");
-        await payout.update({
-          status: "completed",
-          tx_hash: match.txId,
-          withdrawal_fee_usdt: fee,
-          completed_at: new Date(),
-        });
-        await applyPayoutToReferrals(payout.user_id, Number(payout.amount_usd), match.txId);
-        try {
-          const user = await User.findByPk(payout.user_id, { attributes: ["email", "name", "language"] });
-          const u = user as unknown as Record<string, string> | null;
-          if (u?.email) {
-            await sendWithdrawalSuccessEmail(
-              u.email,
-              u.name || "there",
-              Number(payout.amount_usd).toFixed(2),
-              "USDT-TRC20",
-              payout.trc20_address,
-              match.txId,
-              u.language
-            );
-          }
-        } catch {
-          /* email is non-fatal */
-        }
-        cronLogger.info(`[ReferralPayout] Completed payout ${payout.payout_id}: tx ${match.txId}`);
-        completed++;
-      } else if (match.status === 1 || match.status === 3 || match.status === 5) {
-        await payout.update({
-          status: "failed",
-          error_message: `Binance withdrawal status ${match.status}`,
-          completed_at: new Date(),
-        });
-        cronLogger.warn(`[ReferralPayout] Payout ${payout.payout_id} FAILED (Binance status ${match.status})`);
-      }
-    } catch (e) {
-      cronLogger.error(
-        `[ReferralPayout] monitor error for ${payout.payout_id}: ${e instanceof Error ? e.message : String(e)}`
-      );
-    }
-  }
-  return completed;
+  return lines.join("\n");
 };
 
 export default {
@@ -492,6 +447,6 @@ export default {
   sendPayoutOtp,
   optInPayout,
   requestPayout,
-  processReferralPayouts,
-  monitorReferralPayouts,
+  getPayoutHistory,
+  getPayoutHistoryCsv,
 };

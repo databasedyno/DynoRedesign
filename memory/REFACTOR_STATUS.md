@@ -313,6 +313,26 @@ Built exactly to §9/§10. Files:
   backend tsc = 0 errors; /referrals compiles+200. NOT E2E'd: the happy-path opt-in/withdraw WRITE paths + real
   Binance send (user chose read-only; Binance geo-blocked + email off in preview) — code+compile verified, run on prod.
 
+### 10.2 PHASE 3 + OPT-OUT + PAYOUT HISTORY: ✅ DONE (2026-06 fork) — E2E'd on live DB (reversible, restored)
+User-approved this round: implement Phase 3 execution finish, opt-out (keep wallet on file), payout history + CSV.
+- Phase 3 idempotency: `binanceService.submitWithdrawal` now accepts `withdrawOrderId` (Binance rejects dup order ids).
+  Execution moved to NEW `services/referralPayoutCron.ts` (processReferralPayouts passes withdrawOrderId=idempotency_key
+  + pre-submit guard: getWithdrawalHistory({withdrawOrderId}) adopts an existing withdrawal instead of re-sending;
+  monitorReferralPayouts unchanged). referralRewardMonitor cron import repointed to referralPayoutCron. Still leader/prod
+  only, OFF in preview. (Split also kept referralPayoutService.ts=452 under the 500 hook.)
+- OPT-OUT: optInPayout mode='credit' keeps referral_payout_trc20_address + verified_at on file (wallet stays saved).
+  Re-enable: optInPayout mode='cash' with the SAME on-file verified address (or any saved company wallet) needs NO OTP.
+- HISTORY: getPayoutHistory + getPayoutHistoryCsv in referralPayoutService; controller payoutHistory/payoutHistoryExport;
+  routes GET /payout/history + GET /payout/history/export (text/csv attachment). tronscan tx links.
+- FRONTEND PayoutCard: "Turn off cash-out" (opt-out), "Re-enable cash-out" block (shows saved wallet when mode=credit),
+  "Cash-out history" list (amount/date/status badge/tronscan link) + "Download CSV" (authenticated blob). 9 new i18n keys
+  ×6 locales (check-i18n referrals CLEAN).
+- VERIFIED E2E on live prod DB (user approved reversible writes, then FULLY restored — final state = credit/NULL/NULL/0 rows):
+  opt-in saved wallet→200 no-OTP; opt-out→200 (verified addr retained); re-enable→200 no-OTP; seeded 2 payout rows →
+  GET /payout/history returned both (completed w/ tronscan tx_url + failed); CSV export correct header+rows; cleanup deleted
+  rows + reset user. backend+frontend tsc=0, file-size PASS, /referrals compiles+200.
+  NOT E2E'd here: the REAL Binance send (geo-blocked in preview) — the withdrawOrderId path is code-verified, runs on prod.
+
 
 ---
 
