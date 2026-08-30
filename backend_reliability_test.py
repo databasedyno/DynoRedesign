@@ -11,7 +11,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://gateway-config-1.preview.emergentagent.com"
+BASE_URL = "https://blockchain-pay-30.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials from test_result.md

@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://gateway-config-1.preview.emergentagent.com"
+BASE = "https://blockchain-pay-30.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://gateway-config-1.preview.emergentagent.com"
+BASE = "https://blockchain-pay-30.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]
