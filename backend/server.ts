@@ -1188,8 +1188,9 @@ setupOnboardingMonitorCron();
 // First payment monitor — detects merchants' first successful payment, emails admin (C)
 setupFirstPaymentMonitorCron();
 
-// Referral reward monitor — unlocks referrer 50%/30d reward after the invited
-// merchant's first $100+ payment + sends post-payment "become a merchant" invites
+// Referral reward monitor — unlocks the referrer's revenue-share credit (25% of
+// the invited merchant's fees for 12 months) after that merchant's first $100+
+// payment + sends post-payment "become a merchant" invites
 setupReferralRewardCron();
 
 // ═══════════════════════════════════════════════════════════════════════

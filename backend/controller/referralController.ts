@@ -205,7 +205,7 @@ export const applyReferralCode = async (req: Request, res: Response) => {
           code_type: "referral",
           status: "pending",
           bonus_info: {
-            referrer_bonus: "50% off fees for 30 days (unlocked after the invitee's first $100 payment)",
+            referrer_bonus: "Earn 25% of the referred merchant's fees as credit for 12 months (unlocked after their first $100+ payment)",
             referee_discount: `${r.discountPercent}% off fees for ${r.discountDays} days`,
           },
         },
@@ -272,7 +272,7 @@ export const validateReferralCode = async (req: Request, res: Response) => {
           code_type: "referral",
           referrer_name: (referrer as unknown as Record<string, unknown>).name,
           bonus_info: {
-            referrer_bonus: "50% off fees for 30 days",
+            referrer_bonus: "Earn 25% of the referred merchant's fees as credit for 12 months",
             referee_discount: "50% off fees for 30 days",
           },
         },
@@ -430,10 +430,10 @@ export const processReferralReward = async (userId: number, transactionAmount: n
       rewarded_at: new Date(),
     });
 
-    // Referral reward = Transaction fee discount for both parties
-    // The discount is applied during fee calculation in paymentController
-    // based on user's referral_discount_percent in tbl_user
-    apiLogger.info(`[Referral] Reward processed for user ${referral.referrer_user_id} - Fee discount will apply on future transactions`);
+    // Referral reward = revenue-share fee CREDIT for the referrer (25% of the
+    // referred merchant's platform fees, accruing over a 12-month window). The
+    // referee's 50%-off-30-days fee discount is applied separately at signup.
+    apiLogger.info(`[Referral] Reward activated for referrer ${referral.referrer_user_id} - 25% revenue-share credit will accrue from the referred merchant's fees`);
 
     return {
       referral_id: referral.referral_id,

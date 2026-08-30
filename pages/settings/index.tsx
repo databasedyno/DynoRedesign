@@ -63,6 +63,10 @@ const TaxSettingsSection = dynamic(() => import("@/Components/Page/Settings/TaxS
   ssr: false,
   loading: () => <SectionLoading />,
 });
+const TeamSettingsSection = dynamic(() => import("@/Components/Page/Settings/TeamSettingsSection"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
 const CompanySettingsDialog = dynamic(() => import("@/Components/UI/CompanySettingsDialog"), {
   ssr: false,
   loading: () => <SectionLoading />,
@@ -79,7 +83,8 @@ type SectionKey =
   | "company"
   | "payments"
   | "tax"
-  | "notifications";
+  | "notifications"
+  | "team";
 
 const SECTION_KEYS: SectionKey[] = [
   "profile",
@@ -87,6 +92,7 @@ const SECTION_KEYS: SectionKey[] = [
   "payments",
   "tax",
   "notifications",
+  "team",
 ];
 
 /** Legacy ?tab= values (pre-redesign launcher) → new sections.
@@ -369,6 +375,15 @@ const SettingsPage = ({
         icon: <NotificationsRounded sx={{ fontSize: 19 }} />,
         scope: "account" as const,
       },
+      {
+        key: "team" as SectionKey,
+        label: t("settingsPage.team", { defaultValue: "Team" }),
+        description: t("settingsPage.teamDesc", {
+          defaultValue: "Invite teammates and control what each can access.",
+        }),
+        icon: <GroupAddRounded sx={{ fontSize: 19 }} />,
+        scope: "company" as const,
+      },
     ],
     [t, isIndividual],
   );
@@ -388,7 +403,7 @@ const SettingsPage = ({
       {
         id: "business",
         label: t("settingsPage.groupBusiness", { defaultValue: "Business" }),
-        keys: ["company", "tax"] as SectionKey[],
+        keys: ["company", "tax", "team"] as SectionKey[],
       },
       {
         id: "payments",
@@ -747,6 +762,7 @@ const SettingsPage = ({
             <CompanyConfigSection visibleSections={["crypto", "payment"]} showDisplayCurrency />
           )}
           {active === "tax" && <TaxSettingsSection />}
+          {active === "team" && <TeamSettingsSection />}
           {active === "notifications" && <NotificationPage />}
 
           {/* Session 74 P0-1: mobile-only bottom spacer so Save/Update buttons

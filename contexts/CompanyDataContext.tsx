@@ -127,8 +127,21 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
     );
   })();
 
+  // Auth surfaces (login / register / reset / admin-login) never need merchant
+  // company data. A stale/expired token in localStorage here would otherwise
+  // fire /company/getCompany -> 401 -> redirect to /auth/login = a reload loop
+  // (esp. Firefox mobile). Skip the fetch entirely on these routes.
+  const isAuthRoute = (() => {
+    const p = router.pathname;
+    return (
+      p.startsWith("/auth") ||
+      p === "/reset-password" ||
+      p === "/admin/login"
+    );
+  })();
+
   const { data, error, isLoading, mutate } = useSWR(
-    hasToken && !isBuyerRoute ? COMPANIES_KEY : null,
+    hasToken && !isBuyerRoute && !isAuthRoute ? COMPANIES_KEY : null,
     companyFetcher
   );
 

@@ -1853,7 +1853,7 @@ This endpoint uses multi-tenant routing for payment processing. When a crypto ad
 **Discount Sources:**
 - \`referee_code\` - From payment link email (50% off for 90 days)
 - \`user_referral_referee\` - From user referral code (50% off for 30 days)
-- \`user_referral_referrer\` - Reward for successful referral (50% off for 30 days)
+- \`user_referral_referrer\` - Reward for a successful referral (25% of the referred merchant's fees as credit for 12 months)
 - \`referrer_reward\` - Reward when customer signs up (10% off for 30 days)`,
       security: [{ BearerAuth: [] }],
       parameters: [

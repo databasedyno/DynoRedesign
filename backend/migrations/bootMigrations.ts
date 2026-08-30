@@ -87,6 +87,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { default: inboundEventModel } = await import("../models/inboundEventModel");
   const { default: outboxEventModel } = await import("../models/outboxEventModel");
   const { default: keyAccessAuditModel } = await import("../models/keyAccessAuditModel");
+  const { teamMemberModel } = await import("../models"); // Team Members / RBAC (0015)
   return [
     ...v1,
     ...extra,
@@ -95,6 +96,7 @@ export async function getBootModels(): Promise<unknown[]> {
     inboundEventModel,
     outboxEventModel,
     keyAccessAuditModel,
+    teamMemberModel,
   ];
 }
 
@@ -358,6 +360,16 @@ const addReferralFeeCreditColumns = async (): Promise<void> => {
   );
 };
 
+/**
+ * Migration 0015: Team Members / RBAC. Create-only sync of tbl_team_member
+ * (additive, idempotent — a no-op when the table already exists). Safe on live
+ * prod: a brand-new table, unused until the Team Members feature ships.
+ */
+const createTeamMemberTable = async (): Promise<void> => {
+  const { teamMemberModel } = await import("../models");
+  if (isSyncable(teamMemberModel)) await teamMemberModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -375,5 +387,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0012_referral_payout", up: addReferralPayoutSupport },
     { version: "0013_referral_payout_automation", up: addReferralPayoutAutomation },
     { version: "0014_referral_fee_credit", up: addReferralFeeCreditColumns },
+    { version: "0015_team_members", up: createTeamMemberTable },
   ];
 }

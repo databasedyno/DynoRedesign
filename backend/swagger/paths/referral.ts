@@ -183,7 +183,7 @@ export const referralPaths = {
                       bonus_info: {
                         type: 'object',
                         properties: {
-                          referrer_bonus: { type: 'string', example: '$10 USD' },
+                          referrer_bonus: { type: 'string', example: "Earn 25% of the referred merchant's fees as credit for 12 months" },
                           referee_discount: { type: 'string', example: '50% off fees for 30 days' },
                         },
                       },
@@ -203,7 +203,7 @@ export const referralPaths = {
     post: {
       tags: ['Referral - User Code'],
       summary: 'Apply user referral code',
-      description: 'Apply a user referral code during signup. The new user gets 50% off fees for 30 days. The referrer gets 50% off fees for 30 days after the referee completes their first $100+ transaction.',
+      description: "Apply a user referral code during signup. The new user gets 50% off fees for 30 days. The referrer earns 25% of the referred merchant's fees as credit for 12 months, starting after the referee completes their first $100+ transaction.",
       requestBody: {
         required: true,
         content: {

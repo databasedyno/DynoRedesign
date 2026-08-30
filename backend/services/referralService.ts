@@ -4,7 +4,6 @@ import { Op } from 'sequelize';
 import User from '../models/userModels/userModel';
 import RefereeCode from '../models/referralModels/refereeCodeModel';
 import Referral from '../models/referralModels/referralModel';
-// companyModel import removed - not used
 
 // ============================================
 // REFEREE CODE SERVICE (Type 2 - Payment Link)
@@ -171,11 +170,12 @@ export const redeemRefereeCode = async (params: {
     { where: { user_id: userId } }
   );
 
-  // UNIFIED referral program (Option A): the referrer's 50%/30d reward is now
-  // DEFERRED — it unlocks only after this invited user takes their first
+  // UNIFIED referral program (revenue-share): the referrer's reward — 25% of
+  // this invited merchant's platform fees as CREDIT over a 12-month window — is
+  // DEFERRED. It unlocks only after this invited user takes their first
   // qualifying ($100+) payment, exactly like the organic user-referral program.
   // We record a pending referral so the reward monitor can process it later
-  // (utils/crons/referralRewardMonitor.ts). No immediate referrer discount.
+  // (utils/crons/referralRewardMonitor.ts). The referrer gets NO fee discount.
   if (refereeCode.referrer_user_id !== userId) {
     const existingReferral = await Referral.findOne({
       where: {
@@ -235,8 +235,10 @@ export const generateUserReferralCode = (_userId: number, userName: string): str
 };
 
 /**
- * Redeem user referral code during signup
- * Both referrer and referee get 50% off for 30 days
+ * Redeem user referral code during signup.
+ * Referee (new user): 50% off fees for 30 days (applied immediately).
+ * Referrer: earns 25% of the referred merchant's fees as credit for 12 months,
+ * unlocked after the referee's first $100+ payment (revenue-share, deferred).
  */
 export const redeemUserReferralCode = async (params: {
   referralCode: string;

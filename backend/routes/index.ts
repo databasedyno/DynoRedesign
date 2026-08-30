@@ -39,6 +39,7 @@ import {
 } from "../webhooks";
 import adminRouter from "./adminRouter";
 import publicSandboxRouter from "./publicSandboxRouter";
+import teamRouter from "./teamRouter"; // Team Members / RBAC
 import { logWebhookValidationFailure } from "../utils/securityLogger";
 import { verifyTatumSignature } from "../utils/webhookSignature";
 
@@ -355,6 +356,7 @@ router.use("/notifications", notificationRouter);
 router.use("/kyc", kycRouter);
 router.use("/status", statusRouter); // Public status page endpoints
 router.use("/subscriptions", subscriptionRouter); // Subscription management
+router.use("/team", teamRouter); // Team Members / RBAC (invite/accept/manage)
 // ─────────────────────────────────────────────────────────────────────────────
 // /api/test/* — NOT mounted in production unless explicitly re-enabled.
 //

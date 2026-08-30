@@ -103,6 +103,16 @@ axiosBaseApi.interceptors.response.use(
       pathname.startsWith("/pay/") ||
       pathname.startsWith("/pay-links/") ||
       pathname.startsWith("/payment");
+    // Already ON an auth page? Redirecting to /auth/login would just reload the
+    // SAME page. If an incidental authed call (e.g. CompanyDataProvider firing
+    // /company/getCompany with a stale token) 401s here, that reload re-fires
+    // the call and reloads again — an infinite, millisecond-fast refresh loop
+    // (reported on Firefox mobile, where the token/removal doesn't persist
+    // across reloads). Never navigate to login from a login/auth surface.
+    const isAuthPage =
+      pathname.startsWith("/auth") ||
+      pathname === "/reset-password" ||
+      pathname === "/admin/login";
     const isPublicPage = typeof window !== "undefined" && (
       ["/", "/fees", "/terms-conditions", "/privacy-policy", "/aml-policy", "/system-status", "/documentation", "/blog"].includes(pathname) ||
       ["/help-support", "/blog/", "/for/", "/accept-crypto-payments-in/"].some((p) => pathname.startsWith(p))
@@ -126,7 +136,7 @@ axiosBaseApi.interceptors.response.use(
         localStorage.removeItem("refreshToken");
         delete axiosBaseApi.defaults.headers.common.Authorization;
         setAuthNotice("session_expired");
-        window.location.href = "/auth/login";
+        if (!isAuthPage) window.location.href = "/auth/login";
         return Promise.reject(error);
       }
 
@@ -158,7 +168,7 @@ axiosBaseApi.interceptors.response.use(
         localStorage.removeItem("token");
         delete axiosBaseApi.defaults.headers.common.Authorization;
         setAuthNotice("session_expired");
-        window.location.href = "/auth/login";
+        if (!isAuthPage) window.location.href = "/auth/login";
         return Promise.reject(error);
       }
 
@@ -191,7 +201,7 @@ axiosBaseApi.interceptors.response.use(
         localStorage.removeItem("refreshToken");
         delete axiosBaseApi.defaults.headers.common.Authorization;
         setAuthNotice("session_expired");
-        window.location.href = "/auth/login";
+        if (!isAuthPage) window.location.href = "/auth/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

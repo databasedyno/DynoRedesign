@@ -1,4 +1,22 @@
 # ============================================================================
+# 2026-08-30 (pod 10424307) RE-SETUP + TEAM MEMBERS/RBAC — prod-connected, SAFE MODE
+# ----------------------------------------------------------------------------
+# - Preview URL: https://10424307-97df-4c37-b0e5-f220fc44f85b.preview.emergentagent.com
+# - OWNER LOGIN (unchanged): onarrival21@gmail.com / Katiekendra123@  (2-step:
+#     /auth/login -> email -> Continue -> password -> Sign in). user_id=1, company_id=1.
+# - Env rebuilt by hand from user's cred paste. SAFE MODE overrides:
+#     ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true,
+#     REDIS_PUBLIC_URL .../1 (isolated from prod DB 0), BINANCE_PROXY_URL & SSH_TUNNEL_HOST blanked.
+#     /app/.env.local  -> NEXT_PUBLIC_BASE_URL = full preview URL (frontend axios base).
+#     /app/backend/.env -> full backend key set.
+# - Login page reload-loop FIXED (axiosConfig/CompanyDataContext/unAutorizedHelper/ErrorBoundary
+#     no longer redirect-to-login or storage-guard-loop when already on /auth/*).
+# - NEW TABLE (migration 0015, APPLIED to prod DB): tbl_team_member (Team Members/RBAC).
+#   A harmless ORPHAN test user (dyno-rbac-test+...@example.com) may exist in tbl_user from
+#   backend testing (all its memberships were revoked -> no access, no wallets, no company).
+# ============================================================================
+
+# ============================================================================
 # 2026-08-30 (pod f4fac0c7) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - Preview URL: https://dynopay-setup-11.preview.emergentagent.com

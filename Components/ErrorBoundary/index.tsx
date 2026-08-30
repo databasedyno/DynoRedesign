@@ -43,6 +43,68 @@ class ErrorBoundary extends Component<Props, State> {
     }
   }
 
+  // ─── Reload-loop guard (storage-independent) ───
+  // The old guard stored the last-reload timestamp ONLY in sessionStorage. On
+  // Firefox mobile (Enhanced Tracking Protection / private mode) that write can
+  // be silently discarded across reloads, so the "one reload per 2 min" throttle
+  // never engaged and the auto-recovery reload became an infinite, millisecond-
+  // fast refresh loop. The URL marker below ALWAYS survives a reload, so the
+  // throttle can never fail open.
+  static RELOAD_PARAM = "_ebr";
+
+  static isAuthRoute(): boolean {
+    if (typeof window === "undefined") return false;
+    const p = window.location.pathname || "";
+    return (
+      p.startsWith("/auth") || p === "/reset-password" || p === "/admin/login"
+    );
+  }
+
+  static recentlyAutoReloaded(): boolean {
+    if (typeof window === "undefined") return true;
+    const WINDOW_MS = 2 * 60 * 1000;
+    // 1) URL marker — survives a reload even when storage is blocked.
+    try {
+      const v = Number(
+        new URLSearchParams(window.location.search).get(
+          ErrorBoundary.RELOAD_PARAM,
+        ) || 0,
+      );
+      if (v && Date.now() - v < WINDOW_MS) return true;
+    } catch {
+      /* ignore */
+    }
+    // 2) sessionStorage — best-effort secondary check.
+    try {
+      const last = Number(
+        sessionStorage.getItem("chunk_error_reloaded_at") || 0,
+      );
+      if (last && Date.now() - last < WINDOW_MS) return true;
+    } catch {
+      /* ignore */
+    }
+    return false;
+  }
+
+  static autoReloadOnce() {
+    if (typeof window === "undefined") return;
+    const now = Date.now();
+    try {
+      sessionStorage.setItem("chunk_error_reloaded_at", String(now));
+    } catch {
+      /* ignore */
+    }
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set(ErrorBoundary.RELOAD_PARAM, String(now));
+      // Marker lives in the URL, then load it — location.replace keeps history
+      // clean and guarantees the guard marker is present on the next load.
+      window.location.replace(url.toString());
+    } catch {
+      window.location.reload();
+    }
+  }
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("[ErrorBoundary] Uncaught error:", error, errorInfo);
 
@@ -67,17 +129,19 @@ class ErrorBoundary extends Component<Props, State> {
     const isCheckoutRoute =
       typeof window !== "undefined" &&
       window.location.pathname.startsWith("/pay");
-    if ((isChunkError || isCheckoutRoute) && typeof window !== "undefined") {
-      try {
-        const KEY = "chunk_error_reloaded_at";
-        const last = Number(sessionStorage.getItem(KEY) || 0);
-        // Allow one auto-reload per 2 minutes
-        if (Date.now() - last > 2 * 60 * 1000) {
-          sessionStorage.setItem(KEY, String(Date.now()));
-          window.location.reload();
-        }
-      } catch {
-        /* storage unavailable — show the fallback instead */
+    // NEVER auto-reload on auth surfaces (login/register/reset). A login page has
+    // no dynamic-import chunks that justify an aggressive self-reload, and an
+    // auto-reload here is exactly what produced the millisecond-fast refresh loop
+    // reported on Firefox mobile. Render the recoverable fallback instead.
+    if (
+      (isChunkError || isCheckoutRoute) &&
+      !ErrorBoundary.isAuthRoute() &&
+      typeof window !== "undefined"
+    ) {
+      // One-shot auto-reload, throttled by a storage-independent URL marker so
+      // it can NEVER become an infinite loop (see recentlyAutoReloaded above).
+      if (!ErrorBoundary.recentlyAutoReloaded()) {
+        ErrorBoundary.autoReloadOnce();
       }
     }
   }

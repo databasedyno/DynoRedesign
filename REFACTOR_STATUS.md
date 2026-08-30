@@ -1,4 +1,92 @@
 # ============================================================================
+# TEAM MEMBERS & PERMISSIONS (RBAC) — PLAN + STATUS   (started 2026-08-30)
+# ============================================================================
+# Requested by the product owner. Decisions locked in this session:
+#   - Roles: OWNER / ADMIN / MEMBER  +  granular per-permission toggles.
+#       * NO "withdraw funds" toggle (Dynopay auto-settles; no manual withdraw).
+#   - Scope: PER-BUSINESS. Owner invites a teammate to specific companies and
+#       assigns a role + permission toggles for each (one tbl_team_member row per
+#       company). "Whole account" = owner simply selects all their companies.
+#   - OWNER-ONLY actions (never grantable; hard-gated to role=owner):
+#       change payout/settlement wallet address, delete API key, billing,
+#       delete company, transfer/remove ownership.
+#   - Invite flow: EMAIL INVITE -> invitee sets a password (new login).
+#   - Build order this batch: (1) Team Members  (2) Currency UX clarity (#3)
+#       (3) Email copy matrix + rewrites (#2).
+#
+# GRANULAR PERMISSION KEYS (backend/utils/permissions.ts = single source of truth):
+#   view_dashboard, view_transactions, manage_payment_links, manage_customers,
+#   manage_invoices, view_wallets, manage_products, manage_api_keys,
+#   manage_company_settings, manage_team
+#   OWNER = all keys + owner-only actions. ADMIN default = all keys (owner-only
+#   still blocked). MEMBER default = view_dashboard + view_transactions.
+#
+# DATA MODEL — tbl_team_member (NEW, additive; owners NOT stored here — ownership
+#   stays implicit via tbl_company.user_id):
+#     id, company_id, member_user_id (NULL until accept), invited_email, role,
+#     permissions JSONB, status(invited|active|revoked), invited_by_user_id,
+#     invite_token, invite_expires_at, accepted_at, created_at, updated_at.
+#     UNIQUE(company_id, invited_email).
+#
+# PHASES:
+#   [P1] Backend foundation (THIS COMMIT):
+#         - tbl_team_member model + models/index registration
+#         - versioned migration 0015_team_members (create-only, idempotent —
+#           additive table, safe on the live Railway DB, unused until wired)
+#         - utils/permissions.ts: keys, role presets, resolveMembership(), can()
+#         - middleware/teamPermissionMiddleware.ts: resolveCompanyMembership,
+#           requirePermission(key), requireCompanyOwner (NOT yet mounted on any
+#           existing route — additive, zero behavior change).
+#   [P2] Invite/accept/manage APIs (/api/team/*): invite, list, update
+#         role+permissions+companies, revoke, validate-token, accept(set pw).
+#         Invite email gated by DISABLE_OUTBOUND_EMAIL (preview: link logged).
+#   [P3] Enforcement: extend companyOwnershipMiddleware to also allow active
+#         members with the required permission; owner-only gate on sensitive
+#         routes; company list returns owned + granted companies.
+#   [P4] Frontend: Settings -> Team (list/invite/edit/revoke), accept-invite
+#         page, permission-aware UI gating + company switcher shows granted cos.
+#
+# STATUS (2026-08-30, pod 10424307):
+#   [DONE]  App re-setup on LIVE Railway PG/Redis in SAFE MODE (jobs off, Redis /1,
+#           email off, Binance/SSH proxy blanked). backend :8001 proxy -> ts-node
+#           Express :3300 ; Next.js dev :3000.
+#   [DONE]  BUGFIX: /auth/login millisecond reload-loop (Firefox mobile). Root cause:
+#           CompanyDataProvider fired /company/getCompany with a stale token while on
+#           /auth/login -> 401 -> axios redirected to /auth/login (reload) -> loop (token
+#           removal didn't persist on FF mobile). Fixes: axiosConfig (never redirect to
+#           login when already on /auth/*), CompanyDataContext (skip fetch on auth routes),
+#           unAutorizedHelper (same guard), ErrorBoundary (storage-independent URL reload
+#           guard, never auto-reload on auth routes).
+#   [DONE]  Copy sweep: stale referrer "50% off 30 days" -> "25% of referred merchant's
+#           fees as credit for 12 months" in backend API strings + Swagger + comments.
+#   [DONE]  RBAC P1: tbl_team_member model + migration 0015 (APPLIED) + utils/permissions.ts
+#           + middleware/teamPermissionMiddleware.ts.
+#   [DONE]  RBAC P2: /api/team/* APIs (invite/list/update/revoke/catalogue + public
+#           invite/:token + accept). Backend tested — 14/14 PASS.
+#   [DONE]  RBAC P4: Settings -> Team UI (Components/Page/Settings/TeamSettingsSection.tsx)
+#           + public /auth/accept-invite page + settings wiring. Frontend verified:
+#           invite POST 200 + link shown (earlier "no POST" was a MUI-Select-backdrop
+#           test artifact, not a bug).
+#   [PENDING] RBAC P3: member access enforcement. RESUME HERE:
+#           (a) backend/controller/companyController.ts getCompany (~line 693): currently
+#               findAll({where:{user_id}}). Extend to also return companies where an ACTIVE
+#               tbl_team_member row exists for this user (owned + granted). Consider a
+#               is_member/role flag per company in the response for the UI.
+#           (b) backend/middleware/authMiddleware.ts companyOwnershipMiddleware (~line 160):
+#               currently owner-only (companyModel.findOne{company_id,user_id}). Extend: if
+#               not owner, resolveMembership(); active member -> attach res.locals.membership
+#               and ALLOW, but gate writes: GET allowed for members with a view perm; non-GET
+#               gated by a route->permission map; payout-wallet / delete-api-key -> OWNER-ONLY
+#               (fail-closed). Owner path stays identical (no regression).
+#           (c) Then backend-test with a throwaway member on company 1 (invite->accept->login
+#               as member->verify read access + write gating + owner-only blocks), cleanup.
+#   NOTE: preview shares the LIVE prod Railway DB. Migration 0015 created tbl_team_member in
+#         prod (additive/empty). QA test rows (%@example.com) were cleaned up. One harmless
+#         orphan test user may remain in tbl_user (no memberships -> no access).
+# ============================================================================
+
+
+# ============================================================================
 # ▶ NEXT ACTIONS — 2026-06 (fork dynopay-setup-5)  ·  READ THIS FIRST
 # Recommended order. Detailed specs live in the dated sections below.
 # Legend: [ ] todo  [~] in progress  [x] done  ·  P0 now / P1 soon / P2 later
