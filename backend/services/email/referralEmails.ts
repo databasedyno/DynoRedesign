@@ -139,3 +139,38 @@ export const sendReferralPayoutFailedEmail = async (
     captureError(e, 'email', { extraContext: 'sendReferralPayoutFailedEmail' });
   }
 };
+
+/** New commission accrued this cycle from a referred merchant's payment(s). */
+export const sendReferralAccrualEmail = async (
+  email: string,
+  name: string,
+  newCommissionUsd: number,
+  merchantName: string,
+  unpaidBalanceUsd: number,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const earned = `$${Number(newCommissionUsd).toFixed(2)}`;
+    const balance = `$${Number(unpaidBalanceUsd).toFixed(2)}`;
+    const merchant = escapeHtml(merchantName || 'a merchant you referred');
+    const subject = `You just earned ${earned} in referral rewards 🎉`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Good news — <strong>${merchant}</strong> just processed a payment, so you earned <strong>${earned}</strong> in Dynopay referral rewards (25% of their fees).`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Just earned', `<strong style="color:#166534;">${earned}</strong>`)}
+          ${dataRow('From', `<strong>${merchant}</strong>`)}
+          ${dataRow('Available balance', `<strong>${balance}</strong>`, true)}
+        </table>
+      `, '#12B76A')}
+      ${p(`Your rewards keep building for the full 12-month window. Take them as automatic fee credit, or switch to USDT (TRC-20) cash-out anytime on your referrals page.`)}`;
+
+    const html = dynoPayEmailTemplate(`You earned ${earned}`, content, true, `View referral rewards`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral accrual alert sent to ${email} (+${earned} from ${merchantName}, bal=${balance})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralAccrualEmail' });
+  }
+};

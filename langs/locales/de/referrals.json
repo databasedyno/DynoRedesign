@@ -163,6 +163,12 @@
     "calcVolumeLabel": "Monatlicher Umsatz deiner Empfehlung",
     "calcTheirFee": "Ihre monatlichen Gebühren",
     "calcYouEarnMonthly": "Du verdienst / Monat",
-    "calcYouEarn12mo": "Gesamt über 12 Monate"
+    "calcYouEarn12mo": "Gesamt über 12 Monate",
+    "shareEyebrow": "Weitersagen",
+    "shareTitle": "Kennst du jemanden, der Dynopay nutzen sollte?",
+    "shareBody": "Teile das Empfehlungsprogramm – sie erhalten 50% Rabatt auf Gebühren, du verdienst 12 Monate lang 25% ihrer Gebühren.",
+    "shareMsg": "Akzeptiere Krypto-Zahlungen mit Dynopay und erhalte 50% Rabatt auf Gebühren über das Empfehlungsprogramm:",
+    "shareCopy": "Link kopieren",
+    "shareCopied": "Link kopiert"
   }
 }

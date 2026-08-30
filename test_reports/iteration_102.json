@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only DOM-based verification of the new public 'Share the program' band on /referral-program (preview URL, SAFE MODE — no forms, no accounts, no navigation to wa.me/t.me/twitter; hrefs only read). All 5 requested checks PASS. Band renders with data-testid='referral-share-program', eyebrow 'SPREAD THE WORD' (uppercase via CSS text-transform), heading 'Know someone who should try Dynopay?', body copy, and 4 buttons. Logged-out: WhatsApp/Telegram/X are real <a> tags with target=_blank rel='noopener noreferrer'; hrefs = https://wa.me/?text=... , https://t.me/share/url?url=...&text=... , https://twitter.com/intent/tweet?text=...&url=... each containing the URL-encoded program URL ending in %2Freferral-program (the preview origin), and the shareMsg text correctly encoded. Copy button flips 'Copy link' -> 'Link copied' on click and reverts after ~1.8s (verified revert at 2.4s); clipboard actually contained https://<origin>/referral-program. No console errors, no page errors. Mobile 390x844: documentElement.scrollWidth == clientWidth == 390 (no horizontal overflow), buttons wrap cleanly into 2 rows (WhatsApp+Telegram, then X+Copy), all within viewport. Light mode copy label rgb(10,10,10) on rgb(238,241,246); dark mode (theme-toggle-button) title rgb(245,245,245) / eyebrow rgb(129,140,248) / copy label rgb(245,245,245) with border rgba(255,255,255,0.18) on rgb(6,6,6) — readable in both. Sanity: referral-program-page hero, referral-calc-slider and FAQ ('Common questions') all still render — new band did not break the page.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ShareProgramV3.tsx: hrefs are computed client-side from window.location.origin, so the SSR/first paint href is the relative '/referral-program' until the effect runs. Harmless in practice (hydration fills it in within a frame) but a user clicking within that window would share a relative path; consider seeding origin from a public site-URL env/config for SSR correctness.",
+    "X share still uses twitter.com/intent/tweet (works via redirect to x.com) — fine, matches spec.",
+    "Component is small, memoized, all interactive elements carry data-testid; useApiSWR for /referral/my-code is correctly gated behind enabled:loggedIn so no unauthenticated call is fired (no console/network errors observed)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (all share-band checks pass, no defects found)"},
+  "seed_data_creation": "None — read-only interaction with the public marketing page.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Share band on /referral-program fully verified logged-out. Validate via DOM (inner_text / get_attribute('href')) — full-page pixel screenshots on this preview are unreliable. Theme can be flipped via [data-testid='theme-toggle-button']. Clipboard assertions work after page.context.grant_permissions(['clipboard-read','clipboard-write']). Logged-in variant (shares referral_link from /referral/my-code) was NOT tested — SAFE MODE, no account use permitted.",
+  "rca_of_the_issue": "N/A — no issues reproduced."
+}

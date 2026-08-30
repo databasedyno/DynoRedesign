@@ -5,6 +5,7 @@ import User from '../models/userModels/userModel';
 import Referral from '../models/referralModels/referralModel';
 import ReferralReward from '../models/referralModels/referralRewardModel';
 import { PROCESSED_STATUS_SQL } from '../utils/processedVolume';
+import { sendReferralAccrualEmail } from './email/referralEmails';
 
 // ============================================
 // REVENUE-SHARE COMMISSION ACCRUAL (2026-08)
@@ -123,7 +124,34 @@ export const accrueActiveReferralCommissions = async (): Promise<number> => {
   let total = 0;
   for (const referral of referrals) {
     try {
-      total += await accrueReferralCommission(referral);
+      const delta = await accrueReferralCommission(referral);
+      total += delta;
+      // Accrual alert (leader/prod only; suppressed in preview via DISABLE_OUTBOUND_EMAIL).
+      if (delta > 0) {
+        try {
+          const [referrer, merchant] = await Promise.all([
+            User.findByPk(referral.referrer_user_id, { attributes: ['email', 'name'] }),
+            User.findByPk(referral.referred_user_id, { attributes: ['name', 'email'] }),
+          ]);
+          const to = (referrer as unknown as { email?: string })?.email;
+          if (to) {
+            const unpaid = Math.max(
+              0,
+              Math.round(
+                (Number(referral.commission_accrued_usd || 0) -
+                  Number(referral.commission_paid_usd || 0) -
+                  Number(referral.commission_credited_usd || 0)) * 100
+              ) / 100
+            );
+            const m = merchant as unknown as { name?: string; email?: string };
+            const merchantName = m?.name || m?.email || 'a referred merchant';
+            const referrerName = (referrer as unknown as { name?: string })?.name || to;
+            await sendReferralAccrualEmail(to, referrerName, delta, merchantName, unpaid);
+          }
+        } catch (mailErr) {
+          apiLogger.error(`[Referral] accrual email failed for referral ${referral.referral_id}: ${mailErr}`);
+        }
+      }
     } catch (e) {
       apiLogger.error(`[Referral] accrual error for referral ${referral.referral_id}: ${e}`);
     }
@@ -149,6 +177,8 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
   referrals: Array<{
     referral_id: number;
     referred_user_id: number;
+    referred_name: string | null;
+    referred_email: string | null;
     status: string;
     accrued_usd: number;
     paid_usd: number;
@@ -164,6 +194,7 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
       referrer_user_id: userId,
       status: { [Op.in]: ['active', 'rewarded'] },
     },
+    include: [{ model: User, as: 'referred_user', attributes: ['name', 'email'] }],
     order: [['activated_at', 'DESC']],
   });
 
@@ -191,6 +222,8 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
     return {
       referral_id: r.referral_id,
       referred_user_id: r.referred_user_id,
+      referred_name: (r as unknown as { referred_user?: { name?: string } }).referred_user?.name ?? null,
+      referred_email: (r as unknown as { referred_user?: { email?: string } }).referred_user?.email ?? null,
       status: r.status,
       accrued_usd: accrued,
       paid_usd: paid,

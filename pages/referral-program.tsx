@@ -11,6 +11,7 @@ import { AURORA_GRADIENT, FONT_BODY, FONT_TECH, useAurora } from "@/Components/P
 import { Eyebrow, HeadlineL, HeadlineXL } from "@/Components/Page/Home/v3/styled.v3";
 import FinalCTAAurora from "@/Components/Page/Home/v3/FinalCTAAurora";
 import ReferralEarningsCalculator from "@/Components/Page/Referrals/ReferralEarningsCalculator";
+import ShareProgramV3 from "@/Components/Page/Referrals/ShareProgramV3";
 
 /* Public marketing page for the Dynopay Referral Program (/referral-program).
  * Aurora design system, mirrors /fees. Copy resolves from the "referrals"
@@ -217,6 +218,9 @@ const ReferralProgramPage = () => {
             </Box>
           </Container>
         </Box>
+
+        {/* ===== SHARE THE PROGRAM ===== */}
+        <ShareProgramV3 />
 
         {/* ===== CLOSING CTA (shared register band) ===== */}
         <FinalCTAAurora />

@@ -163,6 +163,12 @@
     "calcVolumeLabel": "Maandelijkse omzet van je referral",
     "calcTheirFee": "Hun maandelijkse kosten",
     "calcYouEarnMonthly": "Jij verdient / maand",
-    "calcYouEarn12mo": "Totaal over 12 maanden"
+    "calcYouEarn12mo": "Totaal over 12 maanden",
+    "shareEyebrow": "Vertel het door",
+    "shareTitle": "Ken je iemand die Dynopay zou moeten proberen?",
+    "shareBody": "Deel het referral-programma: zij krijgen 50% korting op kosten, jij verdient 12 maanden lang 25% van hun kosten.",
+    "shareMsg": "Accepteer cryptobetalingen met Dynopay en krijg 50% korting op kosten via het referral-programma:",
+    "shareCopy": "Link kopiëren",
+    "shareCopied": "Link gekopieerd"
   }
 }

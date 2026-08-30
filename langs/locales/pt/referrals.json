@@ -163,6 +163,12 @@
     "calcVolumeLabel": "Volume mensal da sua indicação",
     "calcTheirFee": "As taxas mensais dele",
     "calcYouEarnMonthly": "Você ganha / mês",
-    "calcYouEarn12mo": "Total em 12 meses"
+    "calcYouEarn12mo": "Total em 12 meses",
+    "shareEyebrow": "Espalhe a palavra",
+    "shareTitle": "Conhece alguém que deveria experimentar a Dynopay?",
+    "shareBody": "Compartilhe o programa de indicações: eles ganham 50% de desconto nas taxas e você ganha 25% das taxas deles por 12 meses.",
+    "shareMsg": "Aceite pagamentos em cripto com a Dynopay e ganhe 50% de desconto nas taxas pelo programa de indicações:",
+    "shareCopy": "Copiar link",
+    "shareCopied": "Link copiado"
   }
 }

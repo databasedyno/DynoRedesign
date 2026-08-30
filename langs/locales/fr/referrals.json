@@ -163,6 +163,12 @@
     "calcVolumeLabel": "Volume mensuel de votre filleul",
     "calcTheirFee": "Leurs frais mensuels",
     "calcYouEarnMonthly": "Vous gagnez / mois",
-    "calcYouEarn12mo": "Total sur 12 mois"
+    "calcYouEarn12mo": "Total sur 12 mois",
+    "shareEyebrow": "Faites passer le mot",
+    "shareTitle": "Vous connaissez quelqu'un qui devrait essayer Dynopay ?",
+    "shareBody": "Partagez le programme de parrainage : ils obtiennent 50% de réduction sur les frais, vous gagnez 25% de leurs frais pendant 12 mois.",
+    "shareMsg": "Acceptez les paiements en crypto avec Dynopay et obtenez 50% de réduction sur les frais via le programme de parrainage :",
+    "shareCopy": "Copier le lien",
+    "shareCopied": "Lien copié"
   }
 }

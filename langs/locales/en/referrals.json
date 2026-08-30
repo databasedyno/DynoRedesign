@@ -163,6 +163,12 @@
     "calcVolumeLabel": "Your referral's monthly volume",
     "calcTheirFee": "Their monthly fees",
     "calcYouEarnMonthly": "You earn / month",
-    "calcYouEarn12mo": "Total over 12 months"
+    "calcYouEarn12mo": "Total over 12 months",
+    "shareEyebrow": "Spread the word",
+    "shareTitle": "Know someone who should try Dynopay?",
+    "shareBody": "Share the referral program — they get 50% off fees, you earn 25% of their fees for 12 months.",
+    "shareMsg": "Accept crypto payments with Dynopay and get 50% off fees through the referral program:",
+    "shareCopy": "Copy link",
+    "shareCopied": "Link copied"
   }
 }

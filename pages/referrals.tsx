@@ -58,6 +58,8 @@ type Earnings = {
     referrals: Array<{
       referral_id: number;
       referred_user_id: number;
+      referred_name?: string | null;
+      referred_email?: string | null;
       status: string;
       accrued_usd: number;
       paid_usd: number;
@@ -771,7 +773,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                       <Box key={r.referral_id} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: `1px solid ${theme.palette.border.main}`, pt: 1 }}>
                         <Box>
                           <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
-                            {t("referredMerchant", { defaultValue: "Referred merchant" })} #{r.referred_user_id}
+                            {r.referred_name || r.referred_email || `${t("referredMerchant", { defaultValue: "Referred merchant" })} #${r.referred_user_id}`}
                           </Typography>
                           <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                             {r.days_remaining != null

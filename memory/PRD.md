@@ -3,6 +3,21 @@
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
 
+# REFERRAL: ACCRUAL EMAIL + EARNINGS-CARD NAME + PUBLIC SHARE BAND (2026-06 fork) — DONE (FE+BE tsc 0; testing_agent iter_102 100%; reversible harnesses pass)
+
+Three user-picked referral features:
+
+1) ACCRUAL ALERT EMAIL (new). backend/services/email/referralEmails.ts → `sendReferralAccrualEmail(email,name,newCommissionUsd,merchantName,unpaidBalanceUsd)`. Hooked in referralCommissionService.ts `accrueActiveReferralCommissions` batch loop: after per-referral delta = accrueReferralCommission(referral), if delta>0 → look up referrer email/name + referred merchant name → send. Kept OUT of accrueReferralCommission so the accrual harness stays side-effect-free. Fires on the leader/prod cron only (OFF here in SAFE MODE). VERIFIED: scripts/verify_accrual_email.ts → mailTransporter SUPPRESSED it (DISABLE_OUTBOUND_EMAIL=true) with subject "You just earned $1.23 in referral rewards" — no real Brevo send; BE tsc 0.
+
+2) EARNINGS CARD → MERCHANT NAME (was "#id"). referralCommissionService.getReferrerCommissionSummary now includes `{ model User as 'referred_user' }` and returns referred_name/referred_email per referral. Frontend pages/referrals.tsx breakdown row (~L774) shows referred_name || referred_email || "Referred merchant #id". VERIFIED: scripts/verify_referred_name_reversible.ts (imports models/associations) → summary row referred_name="Hostbay", email present; cleanup 0 rows. FE tsc 0.
+
+3) PUBLIC SHARE BAND on /referral-program (new). Components/Page/Referrals/ShareProgramV3.tsx — WhatsApp/Telegram/X one-tap + copy-link. Logged-out shares `${origin}/referral-program`; logged-in (localStorage token) lazy-fetches /referral/my-code and shares THEIR referral_link. testids: referral-share-program / -whatsapp / -telegram / -x / -copy. i18n public.share* ×6 (injector /tmp/inject_share_i18n.py, non-persistent). VERIFIED: testing_agent iteration_102 = 100% (correct wa.me/t.me/twitter hrefs w/ encoded program URL, copy→"Link copied", no overflow, dark mode, page unbroken).
+
+NOTE (existing, not rebuilt): the logged-in /referrals dashboard ALREADY had WhatsApp/Telegram/X share (shareTo) + a per-merchant commission breakdown — so this batch only added the NEW email, the name polish, and the PUBLIC-page share band.
+Audit/harness scripts kept in backend/scripts/: verify_referral_accrual_basis.ts, verify_autoconvert_accrual.ts, verify_accrual_email.ts, verify_referred_name(_reversible).ts.
+
+
+
 # REFERRAL MATH END-TO-END AUDIT + AUTO-CONVERT ACCRUAL FIX (2026-06 fork) — DONE (backend tsc 0; reversible harness 5/5; live read-only audit)
 
 User asked to ensure ALL referral math is correct end-to-end, incl. auto-converted payments crediting the referrer.
