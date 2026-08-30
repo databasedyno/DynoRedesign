@@ -158,6 +158,11 @@
     "step2Title": "They sign up",
     "step2Desc": "They open a Dynopay account and start taking crypto payments.",
     "step3Title": "You get paid",
-    "step3Desc": "Earn 25% of their fees for 12 months — as fee credit or USDT (TRC-20) cash-out."
+    "step3Desc": "Earn 25% of their fees for 12 months — as fee credit or USDT (TRC-20) cash-out.",
+    "calcEyebrow": "Estimate your earnings",
+    "calcVolumeLabel": "Your referral's monthly volume",
+    "calcTheirFee": "Their monthly fees",
+    "calcYouEarnMonthly": "You earn / month",
+    "calcYouEarn12mo": "Total over 12 months"
   }
 }

@@ -158,6 +158,11 @@
     "step2Title": "Sie melden sich an",
     "step2Desc": "Sie eröffnen ein Dynopay-Konto und akzeptieren Krypto-Zahlungen.",
     "step3Title": "Du wirst bezahlt",
-    "step3Desc": "Verdiene 12 Monate lang 25% ihrer Gebühren – als Guthaben oder USDT-Auszahlung (TRC-20)."
+    "step3Desc": "Verdiene 12 Monate lang 25% ihrer Gebühren – als Guthaben oder USDT-Auszahlung (TRC-20).",
+    "calcEyebrow": "Schätze deinen Verdienst",
+    "calcVolumeLabel": "Monatlicher Umsatz deiner Empfehlung",
+    "calcTheirFee": "Ihre monatlichen Gebühren",
+    "calcYouEarnMonthly": "Du verdienst / Monat",
+    "calcYouEarn12mo": "Gesamt über 12 Monate"
   }
 }

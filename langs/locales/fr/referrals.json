@@ -158,6 +158,11 @@
     "step2Title": "Ils s'inscrivent",
     "step2Desc": "Ils ouvrent un compte Dynopay et commencent à accepter les paiements en crypto.",
     "step3Title": "Vous êtes payé",
-    "step3Desc": "Gagnez 25% de leurs frais pendant 12 mois, en crédit ou retrait USDT (TRC-20)."
+    "step3Desc": "Gagnez 25% de leurs frais pendant 12 mois, en crédit ou retrait USDT (TRC-20).",
+    "calcEyebrow": "Estimez vos gains",
+    "calcVolumeLabel": "Volume mensuel de votre filleul",
+    "calcTheirFee": "Leurs frais mensuels",
+    "calcYouEarnMonthly": "Vous gagnez / mois",
+    "calcYouEarn12mo": "Total sur 12 mois"
   }
 }

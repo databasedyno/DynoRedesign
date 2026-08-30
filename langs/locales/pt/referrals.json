@@ -158,6 +158,11 @@
     "step2Title": "Eles se cadastram",
     "step2Desc": "Eles abrem uma conta Dynopay e começam a aceitar pagamentos em cripto.",
     "step3Title": "Você recebe",
-    "step3Desc": "Ganhe 25% das taxas deles por 12 meses, como crédito ou saque em USDT (TRC-20)."
+    "step3Desc": "Ganhe 25% das taxas deles por 12 meses, como crédito ou saque em USDT (TRC-20).",
+    "calcEyebrow": "Estime seus ganhos",
+    "calcVolumeLabel": "Volume mensal da sua indicação",
+    "calcTheirFee": "As taxas mensais dele",
+    "calcYouEarnMonthly": "Você ganha / mês",
+    "calcYouEarn12mo": "Total em 12 meses"
   }
 }

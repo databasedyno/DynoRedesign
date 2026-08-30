@@ -3,6 +3,17 @@
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
 
+# REFERRAL EARNINGS CALCULATOR (2026-06 fork) — DONE (testing_agent iteration_101 = pass, tsc EXIT 0)
+
+Interactive earnings estimator added to /referral-program (user picked this next-action item).
+- NEW Components/Page/Referrals/ReferralEarningsCalculator.tsx — MUI Slider (min $1k / max $500k / step $1k, default $50k) → live stat cards: their monthly fees, you earn/month, total over 12 months. Fee tiers MIRROR pages/fees.tsx exactly (flat by tier: <10k 1.5% · <100k 1.0% · <500k 0.7% · else 0.5%); referrer earns 25% for 12mo. Replaces the old static "$50k → ~$187" example block in pages/referral-program.tsx.
+- testids: referral-example (container), referral-calc-slider, referral-calc-volume, referral-calc-their-fee, referral-calc-monthly, referral-calc-total.
+- i18n: public.calc* labels (calcEyebrow/calcVolumeLabel/calcTheirFee/calcYouEarnMonthly/calcYouEarn12mo) ×6 locales (reuses public.exampleNote disclaimer). Injector /tmp/inject_calc_i18n.py (non-persistent).
+- ROUNDING FIX (tester LOW): you12mo now = Math.round(youMonthly)*12 so the 12-month total is always exactly 12× the displayed monthly (was rounding independently → $1k/mo showed $4/mo but $45/yr).
+- VERIFIED: testing_agent iteration_101 — default $50k→fees $500/you $125/yr $1,500; all 4 tiers correct across 5 slider positions (keyboard + drag), reactive, 12× relation holds, no console errors, mobile 390x844 no overflow, dark-mode OK. tsc EXIT 0; SSR renders.
+
+
+
 # PUBLIC REFERRAL MARKETING PAGE (2026-06 fork) — DONE (testing_agent iteration_100 = 100% frontend + SSR/tsc verified)
 
 Preview: https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.

@@ -158,6 +158,11 @@
     "step2Title": "Zij registreren zich",
     "step2Desc": "Ze openen een Dynopay-account en gaan crypto accepteren.",
     "step3Title": "Jij wordt betaald",
-    "step3Desc": "Verdien 12 maanden lang 25% van hun kosten — als tegoed of USDT-uitbetaling (TRC-20)."
+    "step3Desc": "Verdien 12 maanden lang 25% van hun kosten — als tegoed of USDT-uitbetaling (TRC-20).",
+    "calcEyebrow": "Schat je verdiensten",
+    "calcVolumeLabel": "Maandelijkse omzet van je referral",
+    "calcTheirFee": "Hun maandelijkse kosten",
+    "calcYouEarnMonthly": "Jij verdient / maand",
+    "calcYouEarn12mo": "Totaal over 12 maanden"
   }
 }

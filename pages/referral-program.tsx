@@ -10,6 +10,7 @@ import SavingsRoundedIcon from "@mui/icons-material/SavingsRounded";
 import { AURORA_GRADIENT, FONT_BODY, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
 import { Eyebrow, HeadlineL, HeadlineXL } from "@/Components/Page/Home/v3/styled.v3";
 import FinalCTAAurora from "@/Components/Page/Home/v3/FinalCTAAurora";
+import ReferralEarningsCalculator from "@/Components/Page/Referrals/ReferralEarningsCalculator";
 
 /* Public marketing page for the Dynopay Referral Program (/referral-program).
  * Aurora design system, mirrors /fees. Copy resolves from the "referrals"
@@ -180,29 +181,10 @@ const ReferralProgramPage = () => {
           </Container>
         </Box>
 
-        {/* ===== EARNINGS EXAMPLE ===== */}
+        {/* ===== EARNINGS CALCULATOR ===== */}
         <Box sx={{ py: { xs: 9, md: 14 } }}>
           <Container>
-            <Box
-              data-testid="referral-example"
-              sx={{
-                maxWidth: 820,
-                mx: "auto",
-                borderRadius: "24px",
-                border: `1px solid ${s.line}`,
-                background: s.surface,
-                p: { xs: 4, md: 6 },
-                textAlign: "center",
-              }}
-            >
-              <Eyebrow tone="coral" sx={{ mb: 2 }}>{t("public.exampleTitle")}</Eyebrow>
-              <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 20, md: 26 }, fontWeight: 600, color: s.ink, lineHeight: 1.4, mb: 2 }}>
-                {t("public.exampleBody")}
-              </Typography>
-              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13, color: s.ink3, maxWidth: 560, mx: "auto" }}>
-                {t("public.exampleNote")}
-              </Typography>
-            </Box>
+            <ReferralEarningsCalculator />
           </Container>
         </Box>
 

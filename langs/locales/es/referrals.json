@@ -158,6 +158,11 @@
     "step2Title": "Se registran",
     "step2Desc": "Abren una cuenta de Dynopay y empiezan a aceptar pagos en cripto.",
     "step3Title": "Cobras",
-    "step3Desc": "Gana el 25% de sus comisiones durante 12 meses, como crédito o retiro en USDT (TRC-20)."
+    "step3Desc": "Gana el 25% de sus comisiones durante 12 meses, como crédito o retiro en USDT (TRC-20).",
+    "calcEyebrow": "Estima tus ganancias",
+    "calcVolumeLabel": "Volumen mensual de tu referido",
+    "calcTheirFee": "Sus comisiones mensuales",
+    "calcYouEarnMonthly": "Ganas / mes",
+    "calcYouEarn12mo": "Total en 12 meses"
   }
 }
