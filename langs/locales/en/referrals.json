@@ -169,6 +169,11 @@
     "shareBody": "Share the referral program — they get 50% off fees, you earn 25% of their fees for 12 months.",
     "shareMsg": "Accept crypto payments with Dynopay and get 50% off fees through the referral program:",
     "shareCopy": "Copy link",
-    "shareCopied": "Link copied"
+    "shareCopied": "Link copied",
+    "calcModeLabel": "Get paid as",
+    "calcModeCredit": "Fee credit",
+    "calcModeCashout": "USDT cash-out",
+    "calcModeCreditNote": "Applied automatically to lower your own Dynopay fees — no action needed.",
+    "calcModeCashoutNote": "Cashed out to your USDT (TRC-20) wallet, on your schedule."
   }
 }

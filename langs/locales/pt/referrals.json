@@ -169,6 +169,11 @@
     "shareBody": "Compartilhe o programa de indicações: eles ganham 50% de desconto nas taxas e você ganha 25% das taxas deles por 12 meses.",
     "shareMsg": "Aceite pagamentos em cripto com a Dynopay e ganhe 50% de desconto nas taxas pelo programa de indicações:",
     "shareCopy": "Copiar link",
-    "shareCopied": "Link copiado"
+    "shareCopied": "Link copiado",
+    "calcModeLabel": "Receber como",
+    "calcModeCredit": "Crédito de taxas",
+    "calcModeCashout": "Saque em USDT",
+    "calcModeCreditNote": "Aplicado automaticamente para reduzir suas próprias taxas na Dynopay — sem esforço.",
+    "calcModeCashoutNote": "Sacado para sua carteira USDT (TRC-20), quando quiser."
   }
 }

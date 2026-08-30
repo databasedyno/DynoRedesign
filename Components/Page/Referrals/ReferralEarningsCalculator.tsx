@@ -20,6 +20,7 @@ const ReferralEarningsCalculator: React.FC = () => {
   const s = useAurora();
   const { t } = useTranslation("referrals");
   const [volume, setVolume] = useState(50000);
+  const [mode, setMode] = useState<"credit" | "cashout">("credit");
 
   const pct = tierPct(volume);
   const monthlyFee = (volume * pct) / 100;
@@ -64,6 +65,46 @@ const ReferralEarningsCalculator: React.FC = () => {
     >
       <Eyebrow tone="coral" sx={{ mb: 3 }}>{t("public.calcEyebrow")}</Eyebrow>
 
+      {/* Payout mode toggle — same amount, different delivery */}
+      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+        <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1.5 }}>
+          {t("public.calcModeLabel")}
+        </Typography>
+        <Box sx={{ display: "inline-flex", p: "4px", gap: "4px", borderRadius: "999px", background: s.bgAlt, border: `1px solid ${s.line}` }}>
+          {([
+            { key: "credit" as const, label: t("public.calcModeCredit") },
+            { key: "cashout" as const, label: t("public.calcModeCashout") },
+          ]).map((m) => {
+            const active = mode === m.key;
+            return (
+              <Box
+                key={m.key}
+                component="button"
+                type="button"
+                data-testid={`referral-calc-mode-${m.key}`}
+                aria-pressed={active}
+                onClick={() => setMode(m.key)}
+                sx={{
+                  cursor: "pointer",
+                  border: "none",
+                  borderRadius: "999px",
+                  px: { xs: 2.5, md: 3.5 },
+                  py: 1,
+                  fontFamily: FONT_BODY,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  transition: "background-color .2s ease, color .2s ease",
+                  color: active ? "#FFFFFF" : s.ink2,
+                  background: active ? s.indigo : "transparent",
+                }}
+              >
+                {m.label}
+              </Box>
+            );
+          })}
+        </Box>
+      </Box>
+
       {/* Volume slider */}
       <Box sx={{ maxWidth: 620, mx: "auto", mb: { xs: 4, md: 5 } }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1 }}>
@@ -97,6 +138,13 @@ const ReferralEarningsCalculator: React.FC = () => {
         {stat(t("public.calcYouEarnMonthly"), fmtUSD(youMonthly), "referral-calc-monthly", true)}
         {stat(t("public.calcYouEarn12mo"), fmtUSD(you12mo), "referral-calc-total", true)}
       </Box>
+
+      <Typography
+        data-testid="referral-calc-mode-note"
+        sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 500, color: s.ink2, mb: 2, maxWidth: 560, mx: "auto" }}
+      >
+        {mode === "credit" ? t("public.calcModeCreditNote") : t("public.calcModeCashoutNote")}
+      </Typography>
 
       <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13, color: s.ink3, maxWidth: 560, mx: "auto" }}>
         {t("public.exampleNote")}

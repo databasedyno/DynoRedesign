@@ -169,6 +169,11 @@
     "shareBody": "Teile das Empfehlungsprogramm – sie erhalten 50% Rabatt auf Gebühren, du verdienst 12 Monate lang 25% ihrer Gebühren.",
     "shareMsg": "Akzeptiere Krypto-Zahlungen mit Dynopay und erhalte 50% Rabatt auf Gebühren über das Empfehlungsprogramm:",
     "shareCopy": "Link kopieren",
-    "shareCopied": "Link kopiert"
+    "shareCopied": "Link kopiert",
+    "calcModeLabel": "Auszahlung als",
+    "calcModeCredit": "Gebührenguthaben",
+    "calcModeCashout": "USDT-Auszahlung",
+    "calcModeCreditNote": "Wird automatisch mit deinen eigenen Dynopay-Gebühren verrechnet – ohne Aufwand.",
+    "calcModeCashoutNote": "Auszahlung an dein USDT-Wallet (TRC-20), wann du willst."
   }
 }

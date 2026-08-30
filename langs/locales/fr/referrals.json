@@ -169,6 +169,11 @@
     "shareBody": "Partagez le programme de parrainage : ils obtiennent 50% de réduction sur les frais, vous gagnez 25% de leurs frais pendant 12 mois.",
     "shareMsg": "Acceptez les paiements en crypto avec Dynopay et obtenez 50% de réduction sur les frais via le programme de parrainage :",
     "shareCopy": "Copier le lien",
-    "shareCopied": "Lien copié"
+    "shareCopied": "Lien copié",
+    "calcModeLabel": "Payé en",
+    "calcModeCredit": "Crédit de frais",
+    "calcModeCashout": "Retrait USDT",
+    "calcModeCreditNote": "Appliqué automatiquement pour réduire vos propres frais Dynopay, sans rien faire.",
+    "calcModeCashoutNote": "Retiré vers votre portefeuille USDT (TRC-20), quand vous voulez."
   }
 }

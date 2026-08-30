@@ -3,6 +3,17 @@
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
 
+# EARNINGS CALCULATOR — PAYOUT MODE TOGGLE (2026-06 fork) — DONE (FE tsc 0; SSR verified)
+
+Added a "Get paid as" segmented toggle to Components/Page/Referrals/ReferralEarningsCalculator.tsx (/referral-program): Fee credit ↔ USDT cash-out. Amounts stay IDENTICAL (same 25% of fees — honest); only the delivery note swaps:
+- credit → "Applied automatically to lower your own Dynopay fees — no action needed."
+- cashout → "Cashed out to your USDT (TRC-20) wallet, on your schedule."
+testids: referral-calc-mode-credit, referral-calc-mode-cashout, referral-calc-mode-note. Default = credit.
+i18n: public.calcMode* ×6 (injector /tmp/inject_calc_mode_i18n.py, non-persistent). check-i18n clean (only pre-existing EN-only currency.baseCurrencyHelper).
+VERIFIED: FE tsc EXIT 0; SSR renders both toggle buttons + label + default note. Trivial useState swap mirroring the already-100%-verified copy-toggle pattern (iteration_102) → self-tested (no separate testing_agent run).
+
+
+
 # REFERRAL: ACCRUAL EMAIL + EARNINGS-CARD NAME + PUBLIC SHARE BAND (2026-06 fork) — DONE (FE+BE tsc 0; testing_agent iter_102 100%; reversible harnesses pass)
 
 Three user-picked referral features:

@@ -169,6 +169,11 @@
     "shareBody": "Deel het referral-programma: zij krijgen 50% korting op kosten, jij verdient 12 maanden lang 25% van hun kosten.",
     "shareMsg": "Accepteer cryptobetalingen met Dynopay en krijg 50% korting op kosten via het referral-programma:",
     "shareCopy": "Link kopiëren",
-    "shareCopied": "Link gekopieerd"
+    "shareCopied": "Link gekopieerd",
+    "calcModeLabel": "Uitbetaling als",
+    "calcModeCredit": "Kostentegoed",
+    "calcModeCashout": "USDT-uitbetaling",
+    "calcModeCreditNote": "Wordt automatisch verrekend met je eigen Dynopay-kosten — geen actie nodig.",
+    "calcModeCashoutNote": "Uitbetaald naar je USDT-wallet (TRC-20), wanneer jij wilt."
   }
 }

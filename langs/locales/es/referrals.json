@@ -169,6 +169,11 @@
     "shareBody": "Comparte el programa de referidos: obtienen 50% de descuento en comisiones y tú ganas el 25% de sus comisiones durante 12 meses.",
     "shareMsg": "Acepta pagos en cripto con Dynopay y obtén 50% de descuento en comisiones con el programa de referidos:",
     "shareCopy": "Copiar enlace",
-    "shareCopied": "Enlace copiado"
+    "shareCopied": "Enlace copiado",
+    "calcModeLabel": "Cobra como",
+    "calcModeCredit": "Crédito de comisiones",
+    "calcModeCashout": "Retiro en USDT",
+    "calcModeCreditNote": "Se aplica automáticamente para reducir tus propias comisiones de Dynopay, sin hacer nada.",
+    "calcModeCashoutNote": "Retirado a tu billetera USDT (TRC-20), cuando quieras."
   }
 }
