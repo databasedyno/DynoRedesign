@@ -15,7 +15,7 @@ import requests
 
 BASE_URL = os.environ.get(
     "PREVIEW_BASE_URL",
-    "https://dynopay-preview-14.preview.emergentagent.com",
+    "https://dynopay-setup-10.preview.emergentagent.com",
 ).rstrip("/")
 
 # A realistic-looking payload; must NOT be processed because the signature is invalid.
