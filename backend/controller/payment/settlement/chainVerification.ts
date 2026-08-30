@@ -1238,12 +1238,30 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const transactionRecordId = tempData.user_tx_id || tempData.unique_tx_id || tempData.payment_id;
           if (transactionRecordId) {
             const zeroPayoutPayload = {
-              status: autoConvertEnabled ? "successful" : "successful",
+              status: "successful",
               crypto_amount: Number(totalAmountReceived),
               crypto_currency: tempCurrency,
               transaction_fee: Number(adminAmountToSend),
               transaction_reference: allTxIds,
               usd_value: (await convertToUSD(Number(totalAmountReceived), tempCurrency)) || 0,
+              // AUTO-CONVERT FIX (referral accrual + merchant fee display): on
+              // auto-convert the merchant portion was merged into adminAmountToSend
+              // and userAmountToSend zeroed (for the Binance sweep), which left this
+              // row's bookkeeping fields wrong — transaction_fee would read as
+              // fee+merchant and base_amount stayed the fiat creation value. Record
+              // it EXACTLY like the normal keep-crypto path (see the userPayload
+              // above) using the pre-merge captures so downstream consumers see the
+              // TRUE platform fee: transaction_fee = fee only, base_amount = the
+              // merchant's net crypto, usd_value = USD of that net. adminFeeForConversion
+              // (== adminAmountToSend − originalUserAmount) and originalUserAmount were
+              // both captured BEFORE the merge. NO on-chain routing changes here.
+              ...(autoConvertEnabled
+                ? {
+                    transaction_fee: Number(adminFeeForConversion),
+                    base_amount: Number(originalUserAmount).toFixed(8),
+                    usd_value: (await convertToUSD(Number(originalUserAmount), tempCurrency)) || 0,
+                  }
+                : {}),
             };
             const updateResult = await userTransactionModel.update(
               zeroPayoutPayload,

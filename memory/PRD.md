@@ -3,6 +3,24 @@
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
 
+# REFERRAL MATH END-TO-END AUDIT + AUTO-CONVERT ACCRUAL FIX (2026-06 fork) — DONE (backend tsc 0; reversible harness 5/5; live read-only audit)
+
+User asked to ensure ALL referral math is correct end-to-end, incl. auto-converted payments crediting the referrer.
+
+AUDIT (read-only vs LIVE prod DB — new probe scripts/verify_referral_accrual_basis.ts):
+- ✅ NORMAL (keep-crypto) settlements: accrual formula `(transaction_fee+fixed_fee)×usd_value/base_amount ×rate` is CORRECT — verified on all 428 real settled rows. transaction_fee stores the FULL platform fee (%+$1 fixed) in crypto; base_amount = net crypto; usd_value = USD of net → ratio is the exchange rate → referrer accrues exactly 25% of the real fee.
+- ✅ Credit/payout accounting (accrued/paid/credited, oldest-first, double-spend guard, refund clawback): correct (existing verify_referral_scenarios.ts).
+- NOTE: `fixed_fee` column is always 0 on real rows — harmless, because transaction_fee already includes the fixed component (formula's +fixed_fee is dead/defensive).
+
+BUG FOUND + FIXED — auto-convert settlements (backend/controller/payment/settlement/chainVerification.ts):
+- ROOT CAUSE: when auto-convert is on, code merges the merchant payout INTO adminAmountToSend and zeroes userAmountToSend (for the Binance sweep, lines ~627-628). The zero-payout settlement write (`else` branch ~1240) then stored transaction_fee = adminAmountToSend (= fee + WHOLE merchant payout) and never rewrote base_amount (kept the fiat creation value). So the referral accrual basis for auto-converted payments was garbage (coin-price-dependent over/under-count).
+- IMPACT WHEN FOUND: ZERO — 2 companies have auto_convert_enabled but NO auto-converted payment has ever settled (0 rows in the by-flag aggregate).
+- FIX: in the `else`/auto-convert write, record the row like the normal path using pre-merge captures — `transaction_fee = adminFeeForConversion` (fee only), `base_amount = originalUserAmount` (merchant NET crypto), `usd_value = convertToUSD(originalUserAmount)`. Under-threshold case (also hits this branch) left UNCHANGED. NO on-chain fund routing changed — only the persisted bookkeeping fields (also fixes the merchant's own fee display/invoices for auto-convert).
+- VERIFIED: backend tsc EXIT 0; new REVERSIBLE harness scripts/verify_autoconvert_accrual.ts feeds a simulated auto-convert DOGE row (net 1000 / fee 15 / USD(net) $100) through the REAL accrueReferralCommission → credits $0.38 (25% of true $1.50 fee), NOT the old-broken $253.75; reward row + referrer referral_bonus_earned synced; full cleanup (scratch user 70, ref_left 0, tx_left 0, bonus restored). Backend restarted clean (listening 3300, SAFE MODE).
+- SHIP: settlement code only runs on real on-chain payments (leader/prod, off in preview) → needs prod deploy to take effect; real on-chain auto-convert validation happens in prod.
+
+
+
 # REFERRAL EARNINGS CALCULATOR (2026-06 fork) — DONE (testing_agent iteration_101 = pass, tsc EXIT 0)
 
 Interactive earnings estimator added to /referral-program (user picked this next-action item).
