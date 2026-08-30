@@ -64,7 +64,7 @@ payments/emails, DO NOT mutate any rows. This is a boot-health + endpoint-shape 
 
 ### test_plan
   current_focus:
-    - "Referral fee-credit Phase 2/3 + F1: settlement injection, merchant email, automation SQL subtracts credited"
+    - "Referral fee-credit Phase 4 UI: PayoutCard credit stats + Transactions credit-applied row"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -74,6 +74,38 @@ payments/emails, DO NOT mutate any rows. This is a boot-health + endpoint-shape 
     message: "Phase 2 (settlement fee-credit, Option 1.a) + Phase 3 (email) + Phase 4 (UI) + F1 fix implemented. The money-path shift/consume is NOT exercisable in SAFE MODE (no real payments, cron OFF) — I verified it with a pure 19/19 settlement-math harness + backend/frontend tsc 0 + healthy boot. Please backend-test STRICTLY READ-ONLY: (1) /health SAFE MODE + confirms new settlement code boots clean, (2) login regression, (3) GET /api/referral/payout/overview returns credited_balance_usd + available_credit_usd (both 0 for user_id=1 is correct), (4) /api/referral/earnings + /api/referral/my-code regression. Do NOT create referrals, trigger payments, or mutate any data."
   - agent: "testing"
     message: "✅ BACKEND VERIFICATION COMPLETE (2026-08-30 10:36 UTC) — ALL 5 TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ Health check confirms SAFE MODE (background_jobs.eligible=false, database+redis connected, new settlement code boots cleanly). (2) ✅ Login regression passed (HTTP 200 with accessToken). (3) ✅ PRIMARY TEST - Payout overview endpoint returns CORRECT structure with BOTH required numeric keys: credited_balance_usd=0 and available_credit_usd=0 (both int type). For user_id=1 (mode=credit, 0 referral balance) both being 0 is CORRECT as expected. (4) ✅ Earnings regression passed (data.commission object present with rate_percent=25, window_months=12, backward compatible). (5) ✅ My-code regression passed (HTTP 200 with referral_code). STRICT COMPLIANCE: Read-only testing only, NO data mutations. The referral fee-credit Phase 2/3 + F1 backend is WORKING CORRECTLY and PRODUCTION-READY. The actual settlement fee-shift + consume logic cannot be exercised in SAFE MODE (requires real on-chain payments + leader cron), but all endpoint shapes and boot health are verified. Main agent should summarize and finish."
+  - agent: "testing"
+    message: "✅ FRONTEND VERIFICATION COMPLETE (2026-08-30 10:52 UTC) — ALL 3 TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ Login flow works (2-step: email → Continue → password → Sign in). (2) ✅ /referrals page: Payout card renders with credit stats panel (data-testid='payout-credit-stats') showing 'Available fee credit' = $0.00 and 'Credited to date' = $0.00 (BOTH CORRECT for user_id=1). (3) ✅ /transactions page: Transaction list loads (658 transactions), transaction detail drawer opens successfully for TX 741, modal renders WITHOUT errors, 'Referral credit applied' row is CORRECTLY ABSENT (expected state - no transactions have credit applied yet). ZERO console errors, ZERO network errors. STRICT COMPLIANCE: Read-only testing only, NO data mutations. The referral fee-credit Phase 4 UI is WORKING CORRECTLY and PRODUCTION-READY. Main agent should summarize and finish."
+
+### frontend
+  - task: "Referral fee-credit Phase 4 UI: PayoutCard credit-mode stats + Transactions 'credit applied' row"
+    implemented: true
+    working: true
+    file: "Components/Page/Referrals/PayoutCard.tsx, Components/Page/Transactions/TransactionDetailsModal.tsx, Components/Page/Transactions/index.tsx, utils/types/transaction.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "PHASE 4 UI. (1) PayoutCard.tsx: in 'credit' payout mode, a stats panel (data-testid=payout-credit-stats) shows 'Available fee credit' (data-testid=payout-credit-available) from overview.available_credit_usd and 'Credited to date' (data-testid=payout-credited-todate) from overview.credited_balance_usd. For user_id=1 (mode=credit, $0 balance) BOTH read $0.00 — that is the CORRECT expected state. (2) TransactionDetailsModal.tsx: adds a 'Referral credit applied' row (−$X) ONLY when the tx has referral_credit_applied_usd>0. user_id=1 has NO such transactions yet (feature just shipped, no real credit consumed in SAFE MODE), so the row is CORRECTLY ABSENT — the test only needs to confirm the tx detail modal still opens/renders without error. FE tsc 0."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL TESTS PASSED (2026-08-30 10:52 UTC) — Referral fee-credit Phase 4 UI verification COMPLETE. TEST 1 - Login: ✅ 2-step login flow works correctly (email onarrival21@gmail.com → Continue → password → Sign in) with successful redirect to dashboard. TEST 2 - Referrals Page Payout Card: ✅ Navigated to /referrals, payout card renders correctly with data-testid='payout-card'. ✅ Credit stats panel visible with data-testid='payout-credit-stats'. ✅ 'Available fee credit' (data-testid='payout-credit-available') shows CORRECT value: $0.00. ✅ 'Credited to date' (data-testid='payout-credited-todate') shows CORRECT value: $0.00. Both values being $0.00 is CORRECT for user_id=1 (mode=credit, zero referral balance). Screenshot captured showing the payout card with both credit stats clearly visible. TEST 3 - Transactions Page & Modal: ✅ Navigated to /transactions, page loads with 658 transactions visible (BTC, ETH, USDT-ERC20, USDT-TRC20, LTC with various statuses: settled, unpaid). ✅ Clicked transaction 741 (BTC, settled), transaction detail drawer opened successfully on right side. ✅ Modal renders WITHOUT errors showing: Transaction ID 741, Date & Time (Aug 29, 2026, 18:30), Status (Settled), Amount Details (Cryptocurrency: BTC, Amount: 0.00034579 BTC, USD Value: $25.74, Fee: $1.21, Amount Received: $24.53, Confirmations: 6/6, Settled To address), Transaction Hashes (Incoming & Outgoing IDs), action buttons (Close, Invoice, View on Explorer). ✅ 'Referral credit applied' row is CORRECTLY ABSENT (expected state - no transactions have credit>0 yet, feature just shipped). The conditional row (lines 413-420 in TransactionDetailsModal.tsx) correctly does NOT render when referralCreditUsd is 0. ZERO console errors detected. ZERO network errors detected. STRICT COMPLIANCE: Read-only testing only, NO payout mode changes, NO wallet additions, NO OTP requests, NO referral creation/redemption, NO checkout submissions, NO data mutations. The referral fee-credit Phase 4 UI is WORKING CORRECTLY and PRODUCTION-READY. Screenshots: 03_referrals_payout_card_scrolled.png (shows payout card with credit stats), 05_transactions_page.png (shows transaction list), 09_modal_verified.png (shows transaction detail drawer without referral credit row)."
+
+### What to verify (FRONTEND) — auto_frontend_testing_agent  [STRICTLY READ-ONLY, LIVE PROD DB, SAFE MODE]
+Login (2-step): /auth/login -> email onarrival21@gmail.com -> Continue -> password Katiekendra123@ -> Sign in.
+1. Go to /referrals. Confirm the page loads and the Payout/Revenue-share card renders. In 'credit' mode,
+   confirm the credit-stats panel (data-testid=payout-credit-stats) is visible with 'Available fee credit'
+   (data-testid=payout-credit-available) = $0.00 and 'Credited to date' (data-testid=payout-credited-todate) = $0.00.
+   (Both $0.00 is CORRECT for user_id=1.) No console errors, no crash.
+2. Go to /transactions. Confirm the list renders. Open ANY transaction's detail modal and confirm it renders
+   fully WITHOUT error. The 'Referral credit applied' row is EXPECTED TO BE ABSENT (no tx has credit>0 yet) —
+   that is correct; just confirm the modal is not broken by the new conditional row.
+3. Capture screenshots of /referrals (card visible) and one open transaction detail modal.
+STRICT COMPLIANCE: READ-ONLY. Login is allowed. DO NOT change payout mode, DO NOT add/verify wallets, DO NOT
+request OTP/withdraw, DO NOT create/redeem referrals, DO NOT submit any checkout/payment, DO NOT mutate any data.
+
 
 # ============================================================================
 
