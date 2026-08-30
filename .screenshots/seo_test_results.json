@@ -1,0 +1,130 @@
+{
+  "task1_localized_titles": [
+    {
+      "url": "/fees",
+      "lang": "de",
+      "expected_title": "Preise & Geb\u00fchren \u2014 transparent, ohne Abo \u00b7 Dynopay",
+      "expected_length": 51,
+      "actual_title": "Geb\u00fchren \u00b7 Dynopay \u2014 1,5 % + 1 $ pro Zahlung, bis zu 0,5 % bei Skalierung. Keine monatlichen Geb\u00fchren. Keine R\u00fcckbuchungen.",
+      "actual_length": 123,
+      "matches": false,
+      "length_ok": false,
+      "pass": false
+    },
+    {
+      "url": "/documentation",
+      "lang": "pt",
+      "expected_title": "Docs & API para devs \u2014 pagamentos cripto \u00b7 Dynopay",
+      "expected_length": 50,
+      "actual_title": "Entwickler-Docs & API \u2014 Krypto akzeptieren \u00b7 Dynopay",
+      "actual_length": 52,
+      "matches": false,
+      "length_ok": true,
+      "pass": false
+    },
+    {
+      "url": "/",
+      "lang": "fr",
+      "error": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com/\", waiting until \"networkidle\"\n",
+      "pass": false
+    },
+    {
+      "url": "/documentation",
+      "lang": "es",
+      "expected_title": "Docs para desarrolladores y API \u2014 pagos cripto \u00b7 Dynopay",
+      "expected_length": 56,
+      "actual_title": "Entwickler-Docs & API \u2014 Krypto akzeptieren \u00b7 Dynopay",
+      "actual_length": 52,
+      "matches": false,
+      "length_ok": true,
+      "pass": false
+    },
+    {
+      "url": "/system-status",
+      "lang": "pt",
+      "expected_title": "Status do sistema \u2014 API e pagamentos \u00b7 Dynopay",
+      "expected_length": 46,
+      "actual_title": "Systemstatus \u2014 API- & Zahlungsverf\u00fcgbarkeit \u00b7 Dynopay",
+      "actual_length": 53,
+      "matches": false,
+      "length_ok": true,
+      "pass": false
+    }
+  ],
+  "task2_blog_og_images": [
+    {
+      "slug": "how-to-accept-crypto-payments-on-your-website",
+      "og_image_meta": "https://dynopay.com/og/blog-how-to-accept-crypto-payments-on-your-website.png",
+      "twitter_image_meta": "https://dynopay.com/og/blog-how-to-accept-crypto-payments-on-your-website.png",
+      "og_image_count": 1,
+      "og_image_correct": true,
+      "twitter_image_correct": true,
+      "image_http_status": 200,
+      "image_content_type": "image/png",
+      "image_dimensions": {
+        "width": 1200,
+        "height": 630
+      },
+      "console_errors": [
+        "error: Warning: Prop `%s` did not match. Server: %s Client: %s%s href \"https://twitter.com/intent/tweet?text=How%20to%20Accept%20Crypto%20Payments%20on%20Your%20Website%20in%202026%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2Fdynopay.com%2Fblog%2Fhow-to-accept-crypto-payments-on-your-website\" \"https://twitter.com/intent/tweet?text=How%20to%20Accept%20Crypto%20Payments%20on%20Your%20Website%20in%202026%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2F4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com%2Fblog%2Fhow-to-accept-crypto-payments-on-your-website\" \n    at a\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at ButtonBase (webpack-internal:///./node_modules/@mui/material/ButtonBase/ButtonBase.js:138:89)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at IconButton (webpack-internal:///./node_modules/@mui/material/IconButton/IconButton.js:130:90)\n    at Tooltip (webpack-internal:///./node_modules/@mui/material/Tooltip/Tooltip.js:294:90)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at ShareButtons\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at BlogPostPage (webpack-internal:///./pages/blog/[slug].tsx:39:11)\n    at main\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at HomeLayout (webpack-internal:///./Containers/Home/index.tsx:17:11)\n    at LoadableComponent (webpack-internal:///./node_modules/next/dist/shared/lib/loadable.shared-runtime.js:113:9)\n    at DefaultPropsProvider (webpack-internal:///./node_modules/@mui/system/esm/DefaultPropsProvider/DefaultPropsProvider.js:20:3)\n    at RtlProvider (webpack-internal:///./node_modules/@mui/system/esm/RtlProvider/index.js:22:7)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/private-theming/ThemeProvider/ThemeProvider.js:43:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/system/esm/ThemeProvider/ThemeProvider.js:61:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/material/styles/ThemeProvider.js:26:18)\n    at AppInner (webpack-internal:///./pages/_app.tsx:170:11)\n    at WalletDataProvider (webpack-internal:///./contexts/WalletDataContext.tsx:85:11)\n    at CompanyDataProvider (webpack-internal:///./contexts/CompanyDataContext.tsx:66:11)\n    at SWRConfig (webpack-internal:///./node_modules/swr/dist/config-context-ext53wcz.mjs:658:13)\n    at CartProvider (webpack-internal:///./contexts/CartContext.tsx:85:11)\n    at ThemeProvider (webpack-internal:///./contexts/ThemeContext.tsx:109:11)\n    at SessionProvider (webpack-internal:///./node_modules/next-auth/react/index.js:365:24)\n    at Provider (webpack-internal:///./node_modules/react-redux/dist/react-redux.mjs:891:11)\n    at ErrorBoundary (webpack-internal:///./Components/ErrorBoundary/index.tsx:165:9)\n    at App (webpack-internal:///./pages/_app.tsx:849:11)\n    at PathnameContextProviderAdapter (webpack-internal:///./node_modules/next/dist/shared/lib/router/adapters.js:81:11)\n    at ErrorBoundary (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ErrorBoundary.js:41:9)\n    at ReactDevOverlay (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ReactDevOverlay.js:33:11)\n    at Container (webpack-internal:///./node_modules/next/dist/client/index.js:81:1)\n    at AppContainer (webpack-internal:///./node_modules/next/dist/client/index.js:189:11)\n    at Root (webpack-internal:///./node_modules/next/dist/client/index.js:413:11) \nSee more info here: https://nextjs.org/docs/messages/react-hydration-error"
+      ],
+      "pass": false
+    },
+    {
+      "slug": "stablecoin-settlement-protects-revenue",
+      "og_image_meta": "https://dynopay.com/og/blog-stablecoin-settlement-protects-revenue.png",
+      "twitter_image_meta": "https://dynopay.com/og/blog-stablecoin-settlement-protects-revenue.png",
+      "og_image_count": 1,
+      "og_image_correct": true,
+      "twitter_image_correct": true,
+      "image_http_status": 200,
+      "image_content_type": "image/png",
+      "image_dimensions": {
+        "width": 1200,
+        "height": 630
+      },
+      "console_errors": [
+        "error: Warning: Prop `%s` did not match. Server: %s Client: %s%s href \"https://twitter.com/intent/tweet?text=Why%20Stablecoin%20Settlement%20Protects%20Your%20Revenue%20from%20Crypto%20Volatility%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2Fdynopay.com%2Fblog%2Fstablecoin-settlement-protects-revenue\" \"https://twitter.com/intent/tweet?text=Why%20Stablecoin%20Settlement%20Protects%20Your%20Revenue%20from%20Crypto%20Volatility%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2F4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com%2Fblog%2Fstablecoin-settlement-protects-revenue\" \n    at a\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at ButtonBase (webpack-internal:///./node_modules/@mui/material/ButtonBase/ButtonBase.js:138:89)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at IconButton (webpack-internal:///./node_modules/@mui/material/IconButton/IconButton.js:130:90)\n    at Tooltip (webpack-internal:///./node_modules/@mui/material/Tooltip/Tooltip.js:294:90)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at ShareButtons\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at BlogPostPage (webpack-internal:///./pages/blog/[slug].tsx:39:11)\n    at main\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at HomeLayout (webpack-internal:///./Containers/Home/index.tsx:17:11)\n    at LoadableComponent (webpack-internal:///./node_modules/next/dist/shared/lib/loadable.shared-runtime.js:113:9)\n    at DefaultPropsProvider (webpack-internal:///./node_modules/@mui/system/esm/DefaultPropsProvider/DefaultPropsProvider.js:20:3)\n    at RtlProvider (webpack-internal:///./node_modules/@mui/system/esm/RtlProvider/index.js:22:7)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/private-theming/ThemeProvider/ThemeProvider.js:43:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/system/esm/ThemeProvider/ThemeProvider.js:61:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/material/styles/ThemeProvider.js:26:18)\n    at AppInner (webpack-internal:///./pages/_app.tsx:170:11)\n    at WalletDataProvider (webpack-internal:///./contexts/WalletDataContext.tsx:85:11)\n    at CompanyDataProvider (webpack-internal:///./contexts/CompanyDataContext.tsx:66:11)\n    at SWRConfig (webpack-internal:///./node_modules/swr/dist/config-context-ext53wcz.mjs:658:13)\n    at CartProvider (webpack-internal:///./contexts/CartContext.tsx:85:11)\n    at ThemeProvider (webpack-internal:///./contexts/ThemeContext.tsx:109:11)\n    at SessionProvider (webpack-internal:///./node_modules/next-auth/react/index.js:365:24)\n    at Provider (webpack-internal:///./node_modules/react-redux/dist/react-redux.mjs:891:11)\n    at ErrorBoundary (webpack-internal:///./Components/ErrorBoundary/index.tsx:165:9)\n    at App (webpack-internal:///./pages/_app.tsx:849:11)\n    at PathnameContextProviderAdapter (webpack-internal:///./node_modules/next/dist/shared/lib/router/adapters.js:81:11)\n    at ErrorBoundary (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ErrorBoundary.js:41:9)\n    at ReactDevOverlay (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ReactDevOverlay.js:33:11)\n    at Container (webpack-internal:///./node_modules/next/dist/client/index.js:81:1)\n    at AppContainer (webpack-internal:///./node_modules/next/dist/client/index.js:189:11)\n    at Root (webpack-internal:///./node_modules/next/dist/client/index.js:413:11) \nSee more info here: https://nextjs.org/docs/messages/react-hydration-error"
+      ],
+      "pass": false
+    },
+    {
+      "slug": "bitcoin-vs-credit-card-fees-comparison",
+      "og_image_meta": "https://dynopay.com/og/blog-bitcoin-vs-credit-card-fees-comparison.png",
+      "twitter_image_meta": "https://dynopay.com/og/blog-bitcoin-vs-credit-card-fees-comparison.png",
+      "og_image_count": 1,
+      "og_image_correct": true,
+      "twitter_image_correct": true,
+      "image_http_status": 200,
+      "image_content_type": "image/png",
+      "image_dimensions": {
+        "width": 1200,
+        "height": 630
+      },
+      "console_errors": [
+        "error: Warning: Prop `%s` did not match. Server: %s Client: %s%s href \"https://twitter.com/intent/tweet?text=Bitcoin%20vs%20Credit%20Card%20Fees%3A%20A%202026%20Cost%20Comparison%20for%20Merchants%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2Fdynopay.com%2Fblog%2Fbitcoin-vs-credit-card-fees-comparison\" \"https://twitter.com/intent/tweet?text=Bitcoin%20vs%20Credit%20Card%20Fees%3A%20A%202026%20Cost%20Comparison%20for%20Merchants%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2F4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com%2Fblog%2Fbitcoin-vs-credit-card-fees-comparison\" \n    at a\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at ButtonBase (webpack-internal:///./node_modules/@mui/material/ButtonBase/ButtonBase.js:138:89)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at IconButton (webpack-internal:///./node_modules/@mui/material/IconButton/IconButton.js:130:90)\n    at Tooltip (webpack-internal:///./node_modules/@mui/material/Tooltip/Tooltip.js:294:90)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at ShareButtons\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at BlogPostPage (webpack-internal:///./pages/blog/[slug].tsx:39:11)\n    at main\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at HomeLayout (webpack-internal:///./Containers/Home/index.tsx:17:11)\n    at LoadableComponent (webpack-internal:///./node_modules/next/dist/shared/lib/loadable.shared-runtime.js:113:9)\n    at DefaultPropsProvider (webpack-internal:///./node_modules/@mui/system/esm/DefaultPropsProvider/DefaultPropsProvider.js:20:3)\n    at RtlProvider (webpack-internal:///./node_modules/@mui/system/esm/RtlProvider/index.js:22:7)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/private-theming/ThemeProvider/ThemeProvider.js:43:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/system/esm/ThemeProvider/ThemeProvider.js:61:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/material/styles/ThemeProvider.js:26:18)\n    at AppInner (webpack-internal:///./pages/_app.tsx:170:11)\n    at WalletDataProvider (webpack-internal:///./contexts/WalletDataContext.tsx:85:11)\n    at CompanyDataProvider (webpack-internal:///./contexts/CompanyDataContext.tsx:66:11)\n    at SWRConfig (webpack-internal:///./node_modules/swr/dist/config-context-ext53wcz.mjs:658:13)\n    at CartProvider (webpack-internal:///./contexts/CartContext.tsx:85:11)\n    at ThemeProvider (webpack-internal:///./contexts/ThemeContext.tsx:109:11)\n    at SessionProvider (webpack-internal:///./node_modules/next-auth/react/index.js:365:24)\n    at Provider (webpack-internal:///./node_modules/react-redux/dist/react-redux.mjs:891:11)\n    at ErrorBoundary (webpack-internal:///./Components/ErrorBoundary/index.tsx:165:9)\n    at App (webpack-internal:///./pages/_app.tsx:849:11)\n    at PathnameContextProviderAdapter (webpack-internal:///./node_modules/next/dist/shared/lib/router/adapters.js:81:11)\n    at ErrorBoundary (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ErrorBoundary.js:41:9)\n    at ReactDevOverlay (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ReactDevOverlay.js:33:11)\n    at Container (webpack-internal:///./node_modules/next/dist/client/index.js:81:1)\n    at AppContainer (webpack-internal:///./node_modules/next/dist/client/index.js:189:11)\n    at Root (webpack-internal:///./node_modules/next/dist/client/index.js:413:11) \nSee more info here: https://nextjs.org/docs/messages/react-hydration-error"
+      ],
+      "pass": false
+    },
+    {
+      "slug": "userless-payment-api-simplest-crypto-integration",
+      "og_image_meta": "https://dynopay.com/og/blog-userless-payment-api-simplest-crypto-integration.png",
+      "twitter_image_meta": "https://dynopay.com/og/blog-userless-payment-api-simplest-crypto-integration.png",
+      "og_image_count": 1,
+      "og_image_correct": true,
+      "twitter_image_correct": true,
+      "image_http_status": 200,
+      "image_content_type": "image/png",
+      "image_dimensions": {
+        "width": 1200,
+        "height": 630
+      },
+      "console_errors": [
+        "error: Warning: Prop `%s` did not match. Server: %s Client: %s%s href \"https://twitter.com/intent/tweet?text=Userless%20Payment%20API%3A%20The%20Simplest%20Way%20to%20Accept%20Crypto%20in%20Your%20App%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2Fdynopay.com%2Fblog%2Fuserless-payment-api-simplest-crypto-integration\" \"https://twitter.com/intent/tweet?text=Userless%20Payment%20API%3A%20The%20Simplest%20Way%20to%20Accept%20Crypto%20in%20Your%20App%20%E2%80%94%20Dynopay%20Blog&url=https%3A%2F%2F4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com%2Fblog%2Fuserless-payment-api-simplest-crypto-integration\" \n    at a\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at ButtonBase (webpack-internal:///./node_modules/@mui/material/ButtonBase/ButtonBase.js:138:89)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at IconButton (webpack-internal:///./node_modules/@mui/material/IconButton/IconButton.js:130:90)\n    at Tooltip (webpack-internal:///./node_modules/@mui/material/Tooltip/Tooltip.js:294:90)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at ShareButtons\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at BlogPostPage (webpack-internal:///./pages/blog/[slug].tsx:39:11)\n    at main\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at div\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at Box (webpack-internal:///./node_modules/@mui/system/esm/createBox.js:37:72)\n    at eval (webpack-internal:///./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.development.esm.js:55:66)\n    at HomeLayout (webpack-internal:///./Containers/Home/index.tsx:17:11)\n    at LoadableComponent (webpack-internal:///./node_modules/next/dist/shared/lib/loadable.shared-runtime.js:113:9)\n    at DefaultPropsProvider (webpack-internal:///./node_modules/@mui/system/esm/DefaultPropsProvider/DefaultPropsProvider.js:20:3)\n    at RtlProvider (webpack-internal:///./node_modules/@mui/system/esm/RtlProvider/index.js:22:7)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/private-theming/ThemeProvider/ThemeProvider.js:43:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/system/esm/ThemeProvider/ThemeProvider.js:61:5)\n    at ThemeProvider (webpack-internal:///./node_modules/@mui/material/styles/ThemeProvider.js:26:18)\n    at AppInner (webpack-internal:///./pages/_app.tsx:170:11)\n    at WalletDataProvider (webpack-internal:///./contexts/WalletDataContext.tsx:85:11)\n    at CompanyDataProvider (webpack-internal:///./contexts/CompanyDataContext.tsx:66:11)\n    at SWRConfig (webpack-internal:///./node_modules/swr/dist/config-context-ext53wcz.mjs:658:13)\n    at CartProvider (webpack-internal:///./contexts/CartContext.tsx:85:11)\n    at ThemeProvider (webpack-internal:///./contexts/ThemeContext.tsx:109:11)\n    at SessionProvider (webpack-internal:///./node_modules/next-auth/react/index.js:365:24)\n    at Provider (webpack-internal:///./node_modules/react-redux/dist/react-redux.mjs:891:11)\n    at ErrorBoundary (webpack-internal:///./Components/ErrorBoundary/index.tsx:165:9)\n    at App (webpack-internal:///./pages/_app.tsx:849:11)\n    at PathnameContextProviderAdapter (webpack-internal:///./node_modules/next/dist/shared/lib/router/adapters.js:81:11)\n    at ErrorBoundary (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ErrorBoundary.js:41:9)\n    at ReactDevOverlay (webpack-internal:///./node_modules/next/dist/client/components/react-dev-overlay/pages/ReactDevOverlay.js:33:11)\n    at Container (webpack-internal:///./node_modules/next/dist/client/index.js:81:1)\n    at AppContainer (webpack-internal:///./node_modules/next/dist/client/index.js:189:11)\n    at Root (webpack-internal:///./node_modules/next/dist/client/index.js:413:11) \nSee more info here: https://nextjs.org/docs/messages/react-hydration-error"
+      ],
+      "pass": false
+    }
+  ],
+  "language_switch_method": "footer_picker",
+  "console_errors": []
+}

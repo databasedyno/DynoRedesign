@@ -14,6 +14,71 @@
 # ############################################################################
 
 # ============================================================================
+# CURRENT SESSION — 2026-08-30 : SEO POLISH (localized titles + blog OG cards)
+#   1) Trimmed 10 over-60-char localized page titles (de/es/fr/nl/pt) in
+#      langs/locales/*/pageTitles.json so they don't truncate in SERPs (now ≤57).
+#   2) Blog share cards: scripts/generate-og-images.py now renders a branded OG
+#      card per blog post (public/og/blog-{slug}.png, 4 posts) using the REAL
+#      Dynopay logo; wired per-post og:image + twitter:image + JSON-LD image in
+#      pages/blog/[slug].tsx (key="og:image" override of the global default).
+#   Lint clean. Preview: https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com
+# ============================================================================
+
+### frontend
+  - task: "Trim over-60-char localized page titles (de/es/fr/nl/pt) so they don't truncate in search results"
+    implemented: true
+    working: true
+    file: "langs/locales/de|es|fr|nl/pt/pageTitles.json, pages/fees.tsx, pages/documentation.tsx, pages/system-status.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Trimmed 10 titles to ≤57 chars (fees/documentation/default/home/systemStatus across the 5 locales), JSON re-validated. Needs verification that localized <title> renders correctly per language."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE (2026-08-30 13:15 UTC) — Localized page titles NOT WORKING. The pageTitles.json files are NOT being used by the pages. FINDINGS: (1) ❌ /fees page uses t('v3.headTitle') from fees.json namespace, NOT pageTitles.json. Actual title: 'Fees · Dynopay — 1.5% + $1 per payment, as low as 0.5% at scale. No monthly. No chargebacks.' (92 chars, exceeds 60). Expected from pageTitles.json: 'Preise & Gebühren — transparent, ohne Abo · Dynopay' (51 chars). (2) ❌ /documentation page does NOT set any <title> tag at all (no Head component with title). (3) ❌ /system-status page does NOT set any <title> tag at all. (4) ✓ Language switching WORKS via footer picker (i18n changes language correctly). (5) ❌ The ?lang query parameter does NOT work (titles remain in English). ROOT CAUSE: Pages are using their own translation keys (e.g., t('v3.headTitle') from fees.json) instead of the centralized pageTitles.json. The trimmed pageTitles.json files exist but are never referenced. FIX REQUIRED: Each page needs to import useTranslation('pageTitles') and use the correct keys (fees_title, documentation_title, systemStatus_title) in their <Head><title> tags."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL TESTS PASSED (2026-08-30 13:22 UTC) — Localized page titles SEO fix VERIFIED and WORKING CORRECTLY. TASK 1a - English SSR Titles (PRIMARY, what Google indexes): ALL 7/7 PASSED. (1) ✅ /fees: 'Pricing & Fees — transparent, no monthly cost · Dynopay' (55 chars) - EXACT MATCH to new title, NOT the old 92-char version. (2) ✅ /documentation: 'Developer Docs & API — accept crypto payments · Dynopay' (55 chars). (3) ✅ /system-status: 'System Status — API & payment uptime · Dynopay' (46 chars). (4) ✅ /about: 'About Dynopay — our mission & company' (37 chars). (5) ✅ /press: 'Dynopay press kit — logos, facts & boilerplate' (46 chars). (6) ✅ /blog: 'Blog — Crypto commerce insights · Dynopay' (41 chars). (7) ✅ / (home): 'Sell, tip, fundraise — in crypto · Dynopay' (42 chars). ALL titles ≤60 chars. TASK 1b - Localized Titles (localStorage method): ALL 3/3 PASSED. (1) ✅ /fees (lang=de): 'Preise & Gebühren — transparent, ohne Abo · Dynopay' (51 chars) - EXACT MATCH. (2) ✅ /documentation (lang=pt): 'Docs & API para devs — pagamentos cripto · Dynopay' (50 chars) - EXACT MATCH. (3) ✅ / (lang=fr): 'Vendez, pourboires, cagnottes — en crypto · Dynopay' (51 chars) - EXACT MATCH. Language switching via localStorage.setItem('lang','xx') + reload + 2s wait works correctly. TASK 2 - Blog OG Image (re-confirm): ✅ PASSED. Exactly ONE og:image tag found ending with '/og/blog-bitcoin-vs-credit-card-fees-comparison.png'. The previous critical issue where pageTitles.json files were not being used has been FIXED. All page titles now render correctly in both English (SSR) and localized languages (client-side hydration). The SEO fix is PRODUCTION-READY."
+
+  - task: "Per-blog-post branded OG share images (was generic dynopay-og.png)"
+    implemented: true
+    working: true
+    file: "scripts/generate-og-images.py, public/og/blog-*.png, pages/blog/[slug].tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Generated 4 blog-{slug}.png cards with the real logo + post title; wired per-post og:image/twitter:image + JSON-LD image. Lint clean. Needs verification of meta wiring + served assets."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL CHECKS PASSED (2026-08-30 13:15 UTC) — Per-blog-post OG images WORKING CORRECTLY. VERIFIED FOR ALL 4 BLOG POSTS: (1) ✅ how-to-accept-crypto-payments-on-your-website: og:image ends with /og/blog-how-to-accept-crypto-payments-on-your-website.png, twitter:image correct, HTTP 200, image/png, 1200x630. (2) ✅ stablecoin-settlement-protects-revenue: og:image ends with /og/blog-stablecoin-settlement-protects-revenue.png, twitter:image correct, HTTP 200, image/png, 1200x630. (3) ✅ bitcoin-vs-credit-card-fees-comparison: og:image ends with /og/blog-bitcoin-vs-credit-card-fees-comparison.png, twitter:image correct, HTTP 200, image/png, 1200x630. (4) ✅ userless-payment-api-simplest-crypto-integration: og:image ends with /og/blog-userless-payment-api-simplest-crypto-integration.png, twitter:image correct, HTTP 200, image/png, 1200x630. SCREENSHOT VERIFIED: /og/blog-stablecoin-settlement-protects-revenue.png shows REAL Dynopay logo (stacked-ovals mark + lowercase 'dynopay' wordmark, white on navy), 'DYNOPAY BLOG' eyebrow, post title, green 'Crypto commerce insights' pill, and footer 'dynopay.com/blog'. NOT the placeholder blue D-in-a-box. Minor: All 4 blog pages have React hydration warnings about share button URLs (server renders dynopay.com, client renders preview domain) - this is a known Next.js SSR issue and does NOT affect functionality or OG meta tags. The per-post OG images are PRODUCTION-READY."
+
+### What to verify (FRONTEND — auto_frontend_testing_agent)
+Preview base: https://4429c6bf-0c65-4fad-8b66-f9303de41aa6.preview.emergentagent.com (READ-ONLY, no auth needed).
+
+TASK 1 — Localized titles (switch language via `?lang=xx` query param, or the footer "Choose your language" picker if ?lang doesn't drive it):
+  - {preview}/fees?lang=de → document.title == "Preise & Gebühren — transparent, ohne Abo · Dynopay" (len 51)
+  - {preview}/documentation?lang=pt → document.title == "Docs & API para devs — pagamentos cripto · Dynopay" (len 50)
+  - {preview}/?lang=fr → document.title == "Vendez, pourboires, cagnottes — en crypto · Dynopay" (len 51)
+  - {preview}/documentation?lang=es → document.title == "Docs para desarrolladores y API — pagos cripto · Dynopay" (len 56)
+  - {preview}/system-status?lang=pt → document.title == "Status do sistema — API e pagamentos · Dynopay" (len 46)
+  Report each observed document.title + its length. PASS = matches and length ≤ 60. If ?lang doesn't change the title, note it and use the footer language selector instead.
+
+TASK 2 — Blog OG cards (4 posts):
+  For each slug in [how-to-accept-crypto-payments-on-your-website, stablecoin-settlement-protects-revenue, bitcoin-vs-credit-card-fees-comparison, userless-payment-api-simplest-crypto-integration]:
+  - Load {preview}/blog/{slug}; in <head> confirm EXACTLY ONE meta[property="og:image"] whose content ENDS WITH `/og/blog-{slug}.png` (NOT /og/dynopay-og.png), and meta[name="twitter:image"] also ends with `/og/blog-{slug}.png`.
+  - Directly open {preview}/og/blog-{slug}.png → HTTP 200, image/png, 1200x630.
+  - Take ONE screenshot of {preview}/og/blog-stablecoin-settlement-protects-revenue.png — it must show the real Dynopay logo (stacked-ovals mark + lowercase "dynopay" wordmark), the eyebrow "DYNOPAY BLOG", the post title, a green "Crypto commerce insights" pill, and footer "dynopay.com/blog".
+  - Confirm the blog page renders with no NEW console errors (ignore known next-auth CLIENT_FETCH_ERROR preview warning).
+Return pass/fail per item with observed values + the one screenshot.
+
+
+# ============================================================================
 # CURRENT SESSION (frontend bug) — 2026-08-30 : PRESS OG IMAGE USED WRONG LOGO
 #   User: "that's not our logo" — the OG image generator drew a placeholder
 #   "D-in-a-box + DynoPay" mark instead of the real Dynopay brand logo.
@@ -108,6 +173,12 @@ SAFETY: LIVE prod Railway DB, SAFE MODE. HTTP checks must be READ-ONLY. The harn
   test_priority: "high_first"
 
 ### agent_communication
+  - agent: "main"
+    message: "SEO enhancements implemented: (1) Trimmed 10 localized page titles in pageTitles.json to ≤57 chars across de/es/fr/nl/pt. (2) Generated 4 per-blog-post OG images (blog-{slug}.png) with real Dynopay logo and wired per-post og:image/twitter:image meta tags in pages/blog/[slug].tsx. Please verify: (1) Localized titles render correctly per language (test with ?lang=xx or footer picker). (2) Blog OG meta tags end with /og/blog-{slug}.png (NOT /og/dynopay-og.png). (3) OG images are HTTP 200, image/png, 1200x630. (4) Screenshot one OG image to verify real logo."
+  - agent: "testing"
+    message: "❌ TASK 1 FAILED, ✅ TASK 2 PASSED (2026-08-30 13:15 UTC). TASK 1 - Localized Page Titles: ❌ CRITICAL ISSUE - The trimmed pageTitles.json files are NOT being used. Pages use their own translation keys instead: /fees uses t('v3.headTitle') from fees.json (92 chars, exceeds 60), /documentation and /system-status have NO <title> tags at all. The pageTitles.json files exist but are never referenced. FIX REQUIRED: Each page needs <Head><title>{tTitle('fees_title')}</title></Head> using useTranslation('pageTitles'). TASK 2 - Blog OG Images: ✅ ALL 4 BLOG POSTS WORKING CORRECTLY. All og:image and twitter:image meta tags end with /og/blog-{slug}.png, all images return HTTP 200 image/png 1200x630, screenshot verified real Dynopay logo (stacked-ovals + lowercase wordmark, white on navy), eyebrow, title, green pill, footer. Minor hydration warnings (known Next.js SSR issue) do NOT affect functionality. Blog OG images are PRODUCTION-READY."
+  - agent: "testing"
+    message: "✅ RE-VERIFICATION COMPLETE (2026-08-30 13:22 UTC) — ALL TESTS PASSED (100% pass rate). The localized page titles SEO fix has been SUCCESSFULLY IMPLEMENTED and is now WORKING CORRECTLY. TASK 1a - English SSR Titles (PRIMARY, what Google indexes): ALL 7/7 PASSED with all titles ≤60 chars. Most importantly, /fees now shows the NEW 55-char title 'Pricing & Fees — transparent, no monthly cost · Dynopay' (EXACT MATCH), NOT the old 92-char version. All other pages (/documentation, /system-status, /about, /press, /blog, home) also have correct SEO-optimized titles. TASK 1b - Localized Titles: ALL 3/3 PASSED with EXACT MATCHES. Language switching via localStorage.setItem('lang','xx') + reload + 2s wait works correctly for German (/fees: 51 chars), Portuguese (/documentation: 50 chars), and French (home: 51 chars). TASK 2 - Blog OG Image: ✅ PASSED (re-confirmed). The previous critical issue where pageTitles.json files were not being used has been FIXED by the main agent. All page titles now render correctly in both English (SSR) and localized languages (client-side hydration). The SEO fix is PRODUCTION-READY. Main agent should summarize and finish."
   - agent: "main"
     message: "Fixed referral findings F2–F6 (backend cron/service logic only, no fund movement). Please verify by (1) running the reversible self-cleaning harness scripts/verify_ff_fixes.ts with the exact command in 'What to verify' item 1 and reporting its 11 PASS/FAIL lines + the RESULT + CLEANUP lines (both scratch counts must be 0), and (2) a read-only HTTP regression (health + login + referral earnings/overview). The harness uses year-2000/2001 windows so it cannot touch real merchant data; it deletes all scratch rows and restores user 1 in a finally block."
   - agent: "testing"

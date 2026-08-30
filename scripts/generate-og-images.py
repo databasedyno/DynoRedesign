@@ -12,6 +12,7 @@ import io
 import json
 import math
 import os
+import re
 
 from fontTools.ttLib import TTFont, woff2
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -207,9 +208,70 @@ def render_press():
     print(f"wrote {out} ({os.path.getsize(out) // 1024} KB)")
 
 
+def blog_posts():
+    """Parse (slug, title) pairs from utils/blogData.ts (title is the field
+    immediately after slug in each post object)."""
+    src = open(os.path.join(ROOT, "utils", "blogData.ts"), encoding="utf-8").read()
+    pairs = re.findall(r'slug:\s*"([^"]+)",\s*title:\s*"([^"]*)"', src)
+    seen, out = set(), []
+    for slug, title in pairs:
+        if slug in seen:
+            continue
+        seen.add(slug)
+        out.append((slug, title))
+    return out
+
+
+def render_blog(slug, title):
+    """Branded 1200x630 OpenGraph card for a single blog post."""
+    im = background()
+    d = ImageDraw.Draw(im, "RGBA")
+    left = 84
+
+    # real Dynopay white logo lockup
+    paste_logo(im, left, 66)
+
+    # eyebrow
+    tracked_text(d, (left, 200), "DYNOPAY BLOG", load_font("Outfit-SemiBold", 27), LAVENDER, tracking=5)
+
+    # post title — allow up to 3 lines since blog headlines run long
+    font, lines = fit_title(d, title, W - left - 90, 250, 470, max_lines=3, start=74, floor=40)
+    y = 250
+    for line in lines:
+        d.text((left, y), line, font=font, fill=WHITE)
+        y += int(font.size * 1.12)
+
+    # green pill
+    pill_y = y + 22
+    pill_text = "Crypto commerce insights"
+    pill_font = load_font("Outfit-SemiBold", 25)
+    tw = d.textlength(pill_text, font=pill_font)
+    pad_x, dot_r = 26, 6
+    pill_w = pad_x * 2 + dot_r * 2 + 14 + tw
+    d.rounded_rectangle(
+        [left, pill_y, left + pill_w, pill_y + 56],
+        radius=28,
+        fill=(GREEN[0], GREEN[1], GREEN[2], 36),
+        outline=(GREEN[0], GREEN[1], GREEN[2], 130),
+        width=2,
+    )
+    cy = pill_y + 28
+    d.ellipse([left + pad_x, cy - dot_r, left + pad_x + dot_r * 2, cy + dot_r], fill=GREEN)
+    d.text((left + pad_x + dot_r * 2 + 14, pill_y + 12), pill_text, font=pill_font, fill=MINT)
+
+    # footer
+    d.text((left, H - 78), "dynopay.com/blog", font=load_font("Outfit-SemiBold", 27), fill=PALE)
+
+    out = os.path.join(OUT_DIR, f"blog-{slug}.png")
+    im.save(out, "PNG", optimize=True)
+    print(f"wrote {out} ({os.path.getsize(out) // 1024} KB)")
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     render_press()
+    for slug, title in blog_posts():
+        render_blog(slug, title)
     for p in sorted(glob.glob(os.path.join(ROOT, "data", "seo-pages", "*", "*.json"))):
         c = json.load(open(p))
         render(c["_kind"], c["_display_name"], c["_slug"])

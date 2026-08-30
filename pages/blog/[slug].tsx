@@ -411,6 +411,11 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
         <meta key="og:description" property="og:description" content={post.excerpt} />
         <meta key="og:type" property="og:type" content="article" />
         <meta key="og:url" property="og:url" content={`https://dynopay.com/blog/${post.slug}`} />
+        <meta key="og:image" property="og:image" content={`https://dynopay.com/og/blog-${post.slug}.png`} />
+        <meta key="og:image:width" property="og:image:width" content="1200" />
+        <meta key="og:image:height" property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={post.title} />
+        <meta key="twitter:image" name="twitter:image" content={`https://dynopay.com/og/blog-${post.slug}.png`} />
         <meta key="twitter:title" name="twitter:title" content={post.title} />
         <meta key="twitter:description" name="twitter:description" content={post.excerpt} />
         <meta property="article:published_time" content={post.publishedAt} />
@@ -431,7 +436,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
                 name: "Dynopay",
                 logo: { "@type": "ImageObject", url: "https://dynopay.com/favicon-512.png" },
               },
-              image: ["https://dynopay.com/og/dynopay-og.png"],
+              image: [`https://dynopay.com/og/blog-${post.slug}.png`],
               mainEntityOfPage: `https://dynopay.com/blog/${post.slug}`,
             }),
           }}

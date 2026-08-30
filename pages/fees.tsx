@@ -52,6 +52,7 @@ const formatUSD = (n: number) =>
 
 const FeesPage = () => {
   const { t } = useTranslation("fees");
+  const { t: tTitle } = useTranslation("pageTitles");
   const s = useAurora();
   const router = useRouter();
   const [volume, setVolume] = useState(5000);
@@ -82,7 +83,7 @@ const FeesPage = () => {
   return (
     <>
       <Head>
-        <title>{t("v3.headTitle")}</title>
+        <title>{tTitle("fees_title")}</title>
       </Head>
 
       <PageWrapper sx={{ background: s.bg }}>
