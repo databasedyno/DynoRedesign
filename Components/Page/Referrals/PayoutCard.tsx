@@ -24,6 +24,8 @@ type PayoutOverview = {
   address_verified_at: string | null;
   min_payout_usd: number;
   unpaid_balance_usd: number;
+  credited_balance_usd: number;
+  available_credit_usd: number;
   has_verified_address: boolean;
   auto: boolean;
   auto_min_usd: number;
@@ -269,6 +271,34 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
               );
             })}
           </Box>
+
+          {/* Fee-credit stats (credit mode) — available credit + credited-to-date */}
+          {data?.mode === "credit" && (
+            <Box data-testid="payout-credit-stats" sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
+              <Box sx={{ flex: 1, minWidth: isMobile ? "100%" : 200, p: 1.5, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}`, bgcolor: `${theme.palette.primary.main}08` }}>
+                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {t("payoutAvailableCredit", { defaultValue: "Available fee credit" })}
+                </Typography>
+                <Typography data-testid="payout-credit-available" sx={{ fontSize: "22px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
+                  {`$${Number(data?.available_credit_usd ?? 0).toFixed(2)}`}
+                </Typography>
+                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.25 }}>
+                  {t("payoutAvailableCreditDesc", { defaultValue: "Automatically lowers your DynoPay fee on your next payments." })}
+                </Typography>
+              </Box>
+              <Box sx={{ flex: 1, minWidth: isMobile ? "100%" : 200, p: 1.5, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}`, bgcolor: theme.palette.secondary.main }}>
+                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {t("payoutCreditedToDate", { defaultValue: "Credited to date" })}
+                </Typography>
+                <Typography data-testid="payout-credited-todate" sx={{ fontSize: "22px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
+                  {`$${Number(data?.credited_balance_usd ?? 0).toFixed(2)}`}
+                </Typography>
+                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.25 }}>
+                  {t("payoutCreditedToDateDesc", { defaultValue: "Total fees already covered by your referral rewards." })}
+                </Typography>
+              </Box>
+            </Box>
+          )}
 
           {/* Pending payout */}
           {data?.pending_payout ? (

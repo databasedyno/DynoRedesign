@@ -36,7 +36,8 @@
     "heading": "Paiement reçu",
     "intro": "Bonne nouvelle ! Votre entreprise <strong>{{companyName}}</strong> a reçu un paiement.",
     "outro": "Les fonds ont été transférés vers votre portefeuille de paiement. Vous pouvez consulter tous les détails de la transaction dans votre tableau de bord.",
-    "cta": "Voir la transaction"
+    "cta": "Voir la transaction",
+    "referralCredit": "Le crédit de parrainage a couvert {{amount}} de vos frais de plateforme DynoPay sur ce paiement — vous en avez conservé davantage."
   },
   "paymentPending": {
     "subject": "Votre paiement est en attente de confirmation",

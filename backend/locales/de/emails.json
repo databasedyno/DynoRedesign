@@ -36,7 +36,8 @@
     "heading": "Zahlung erhalten",
     "intro": "Gute Nachrichten! Ihr Unternehmen <strong>{{companyName}}</strong> hat eine Zahlung erhalten.",
     "outro": "Die Mittel wurden an Ihr Auszahlungs-Wallet weitergeleitet. Alle Transaktionsdetails finden Sie in Ihrem Dashboard.",
-    "cta": "Transaktion ansehen"
+    "cta": "Transaktion ansehen",
+    "referralCredit": "Empfehlungsguthaben hat {{amount}} Ihrer DynoPay-Plattformgebühr für diese Zahlung abgedeckt – Sie haben mehr davon behalten."
   },
   "paymentPending": {
     "subject": "Ihre Zahlung wartet auf Bestätigung",

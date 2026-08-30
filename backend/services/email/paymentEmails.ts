@@ -25,7 +25,8 @@ export const sendPaymentReceivedEmail = async (
   lang: string = 'en',
   cryptoAmount?: string,
   cryptoCurrency?: string,
-  campaignName?: string
+  campaignName?: string,
+  referralCreditAppliedUsd: number = 0
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -50,6 +51,9 @@ export const sendPaymentReceivedEmail = async (
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
       </table>
     `, '#12B76A')}
+    ${Number(referralCreditAppliedUsd) > 0
+        ? p(t('paymentReceived.referralCredit', L, { amount: `$${Number(referralCreditAppliedUsd).toFixed(2)}` }))
+        : ''}
     ${p(
       isContribution
         ? t('contributionReceived.outro', L)

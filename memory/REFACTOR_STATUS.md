@@ -36,7 +36,7 @@ delivery ever built.
 - `referralPayoutService.getPayoutOverview`: surfaces `credited_balance_usd` + `available_credit_usd`.
 - Gates: backend `tsc` EXIT 0. Verified via reversible live-DB script (see below).
 
-## Phase 2 — Settlement integration (Option 1.a) — ✅ DECISIONS LOCKED (2026-06 fork), build NOT yet started (user paused execution)
+## Phase 2 — Settlement integration (Option 1.a) — ✅ DONE + verified (2026-08-30, pod dynopay-setup)
 
 ### 2.0 USER-CONFIRMED DECISIONS (ask_human, 2026-06 — build to exactly this)
 - **Injection approach = (a) DIRECT settlement-split** (literal Option 1.a). At settlement, move crypto from the
@@ -92,7 +92,24 @@ Steps:
 - Credit consumption MUST be post-success + idempotent (already is) so a settlement retry can't double-spend.
 - Do NOT touch the auto-convert path, under-threshold path, or gas/buffer.
 
-## Phase 3 — Merchant payout-confirmation email (Option 1.a) — ⏳ build with Phase 2
+### 2.4 BUILD STATUS — ✅ DONE (2026-08-30, pod dynopay-setup)
+Built to §2.0–§2.3. Files: `chainVerification.ts` (injection after auto-convert / before settleCryptoTransaction;
+persist `referral_credit_applied_usd`; post-commit idempotent `consumeReferralCreditForTransaction`),
+`models/userModels/userTransactionModel.ts` (+`referral_credit_applied_usd` DECIMAL(14,2)).
+- Persisted/consumed USD = `min(applyUsd, actual-crypto-shifted→USD)` so a belt-and-suspenders admin clamp can
+  never over-consume the balance vs the on-chain benefit.
+- **SCOPE DECISION (deviation from the 2026-06 "all 3 paths"):** only the PRIMARY path `chainVerification.ts` is
+  instrumented. The spec's other two "settlement paths" were stale: `cryptoCheckout.ts:1556` is payment CREATION
+  (a quote — consuming there would be a bug), and `controller/paymentController.ts` L347 is also creation. The only
+  OTHER real split+settle is `paymentController.ts::processIncompletePayments` (recovery) which works in raw crypto
+  units with NO clean USD basis/rate → applying credit there risks underpaying admin. Left UNCHANGED because credit
+  is never lost (stays in the balance for the next normal settlement) and consume is idempotent (no double-spend).
+- Gates: backend tsc 0, frontend tsc 0, settlement-math harness 19/19 (cap, admin-never-negative, clamp, skip gates),
+  backend boots healthy SAFE MODE, deep_testing_backend_v2 5/5 (health SAFE MODE, login, payout/overview now exposes
+  credited_balance_usd+available_credit_usd, earnings+my-code regression). Real on-chain fee-shift verified on PROD
+  after Save to GitHub (cannot run in SAFE-MODE preview).
+
+## Phase 3 — Merchant payout-confirmation email (Option 1.a) — ✅ DONE (2026-08-30)
 Add a conditional line to the merchant payment-received / payout-confirmation email:
 - credit applied (>0): "Referral credit covered $X.XX of your DynoPay platform fee on this payment."
 - not applied (cash mode, $0 balance, or under-threshold): normal platform-fee line (unchanged).
@@ -104,8 +121,13 @@ Pass `appliedCreditUsd` through to the template; add i18n keys ×6 locales (chec
 `sendPaymentReceivedEmail` (merchant) gets a conditional line: credit applied → "Referral credit covered $X of
 your platform fee"; not applied (cash mode / no balance) → normal fee line.
 
-## Phase 4 — UI/overview — ⏳ after Phase 2
-PayoutCard: show credited-to-date + available credit; per-payment "fee covered by credit" in transactions.
+## Phase 4 — UI/overview — ✅ DONE (2026-08-30)
+PayoutCard: credit-mode stats panel (available fee credit + credited-to-date; data-testids
+payout-credit-available / payout-credited-todate) reading overview.available_credit_usd /
+credited_balance_usd. Transactions: TransactionDetailsModal shows a "Referral credit applied"
+row (−$X) when tx.referralCreditUsd>0 (mapped from referral_credit_applied_usd via getAllTransactions
+`ut.*`→`...rest`). Types + mapping in utils/types/transaction.ts + Components/Page/Transactions/index.tsx.
+FE tsc 0. (Frontend testing agent NOT yet run — awaiting user OK; read-only screens on live prod DB.)
 
 ---
 
@@ -139,7 +161,7 @@ everything + restores user 1; verified DB returned to 0 referrals / 0 rewards / 
 
 ## 🐞 FINDINGS (prioritised)
 
-### F1 — [P1, MONEY-PATH DOUBLE-SPEND] Automation SQL ignores `commission_credited_usd` — CONFIRMED via harness
+### F1 — [P1, MONEY-PATH DOUBLE-SPEND] Automation SQL ignores `commission_credited_usd` — ✅ FIXED (2026-08-30)
 `services/referralPayoutAutomation.ts` computes the payable balance as `SUM(commission_accrued_usd −
 commission_paid_usd)` in BOTH `processReferralNudges` (SELECT + HAVING) and `processAutoPayouts` (SELECT +
 HAVING). It does NOT subtract `commission_credited_usd`. Every OTHER path (getReferrerCommissionSummary,

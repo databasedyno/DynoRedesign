@@ -162,6 +162,15 @@ const userTransactionModel = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    // ── Referral fee-credit (Option 1.a) ──
+    // USD amount of THIS payment's platform fee that was covered by the
+    // merchant's own referral revenue-share balance (0 when none applied).
+    referral_credit_applied_usd: {
+      type: DataTypes.DECIMAL(14, 2),
+      allowNull: true,
+      defaultValue: 0,
+      comment: "USD of platform fee covered by the merchant's referral credit on this payment",
+    },
   },
   {
     tableName: "tbl_user_transaction",

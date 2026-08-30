@@ -36,7 +36,8 @@
     "heading": "Betaling ontvangen",
     "intro": "Goed nieuws! Uw bedrijf <strong>{{companyName}}</strong> heeft een betaling ontvangen.",
     "outro": "De middelen zijn doorgestuurd naar uw uitbetaalwallet. U kunt alle transactiedetails bekijken in uw dashboard.",
-    "cta": "Transactie bekijken"
+    "cta": "Transactie bekijken",
+    "referralCredit": "Referral-tegoed dekte {{amount}} van uw DynoPay-platformkosten voor deze betaling — u hield er meer aan over."
   },
   "paymentPending": {
     "subject": "Uw betaling wacht op bevestiging",

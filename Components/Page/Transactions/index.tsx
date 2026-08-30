@@ -350,6 +350,8 @@ const TransactionPage = () => {
           taxCountryCode: (item as any).tax_country_code || undefined,
           customerVatId: (item as any).customer_vat_id || undefined,
           reverseCharge: (item as any).reverse_charge === true || (item as any).reverse_charge === "true",
+          // Referral fee-credit (Option 1.a): platform fee covered by the merchant's referral balance
+          referralCreditUsd: Number((item as any).referral_credit_applied_usd) || 0,
         };
       });
   }, [

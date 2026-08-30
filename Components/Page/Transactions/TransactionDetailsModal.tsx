@@ -410,6 +410,14 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   </DetailRow>
                 </>
               )}
+              {Number(transaction.referralCreditUsd) > 0 && (
+                <DetailRow>
+                  <TitleLabel>{tTransactions("feeCoveredByCredit", { defaultValue: "Referral credit applied" })}</TitleLabel>
+                  <TitleValue sx={{ color: "#10B981", fontWeight: 600 }}>
+                    {`\u2212 ${fx.formatFromUsd(Number(transaction.referralCreditUsd)) ?? `$${Number(transaction.referralCreditUsd).toFixed(2)}`}`}
+                  </TitleValue>
+                </DetailRow>
+              )}
               {transaction.confirmations && (
                 <DetailRow>
                   <TitleLabel>{tTransactions("confirmations")}</TitleLabel>

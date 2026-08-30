@@ -14,6 +14,70 @@
 # ############################################################################
 
 # ============================================================================
+# CURRENT SESSION — 2026-08-30 (pod dynopay-setup) : REFERRAL FEE-CREDIT — PHASE 2/3/4 + F1
+#   Option 1.a — at settlement, reduce the referrer-merchant's OWN platform fee using
+#   their accrued referral revenue-share balance (shift crypto admin→merchant, capped at
+#   the payment's platform fee; credit-mode only; consumed idempotently post-commit).
+#   Plus Phase 3 (merchant email line) + Phase 4 (PayoutCard credit stats + tx "credit
+#   applied" row) + F1 fix (automation balance queries now subtract commission_credited_usd).
+#   ⚠️ LIVE prod Railway DB — SAFE MODE (bg jobs OFF, worker=secondary, email OFF). The
+#   settlement fee-shift + consume CANNOT be exercised in preview (no real on-chain payments,
+#   no cron). Verified: backend tsc 0, frontend tsc 0, pure settlement-math harness 19/19,
+#   backend boots healthy. Real on-chain behavior is confirmed on prod after Save to GitHub.
+#   Merchant login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1).
+# ============================================================================
+
+## User problem statement (this session)
+Continue Phase 2 of the referral revenue-share: consume the accrued fee-credit at settlement
+(Option 1.a) so a referrer in 'credit' mode keeps more of their own payment, plus Phase 3
+(merchant email), Phase 4 (UI), and the required F1 double-spend fix.
+
+### backend
+  - task: "Referral fee-credit Phase 2/3 + F1: settlement injection (chainVerification.ts), merchant email line, automation SQL subtracts credited"
+    implemented: true
+    working: true
+    file: "backend/controller/payment/settlement/chainVerification.ts, backend/services/referralPayoutAutomation.ts, backend/services/email/paymentEmails.ts, backend/models/userModels/userTransactionModel.ts, backend/locales/*/emails.json"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "PHASE 2 (Option 1.a, money-path — NOT E2E-testable in SAFE MODE preview). (1) chainVerification.ts: after the auto-convert block and before settleCryptoTransaction, when userAmountToSend>0 && adminAmountToSend>0 && !autoConvertEnabled && verifyUserId, read getAvailableCreditForFees(verifyUserId) (0 unless credit mode), applyUsd=min(credit,totalDeduction) (CAP at this payment's platform fee), convert to crypto at the payment rate, clamp so admin fee never goes negative, shift adminAmountToSend-=c / userAmountToSend+=c; persist referral_credit_applied_usd on the tx row; AFTER transaction.commit() call consumeReferralCreditForTransaction (idempotent by tx ref, credit-mode gated) — the whole block in try/catch that falls back to the UNMODIFIED split on any error. Persisted USD = min(applyUsd, actual crypto shifted back to USD) so a clamp can't over-consume. (2) userTransactionModel: added referral_credit_applied_usd DECIMAL(14,2) (DB column already exists via migration 0014). (3) F1 FIX: referralPayoutAutomation.ts processReferralNudges + processAutoPayouts balance SELECT+HAVING now subtract COALESCE(commission_credited_usd,0) so automation can't pay out already-credited funds. (4) PHASE 3: sendPaymentReceivedEmail gained optional referralCreditAppliedUsd; when >0 renders paymentReceived.referralCredit line ('Referral credit covered $X of your DynoPay platform fee...') added to all 6 backend locales. SCOPE NOTE: the recovery path paymentController.ts::processIncompletePayments was DELIBERATELY left unchanged — it works in raw crypto units with no clean USD basis/rate, so applying credit there risks underpaying admin; credit is never lost (stays in balance for the next normal settlement) and consume is idempotent (no double-spend). Gates: backend tsc 0 errors; settlement-math harness 19/19; backend boots healthy SAFE MODE."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 5 TESTS PASSED (2026-08-30 10:36 UTC) — Referral fee-credit Phase 2/3 + F1 backend verification COMPLETE. TEST 1 - Health Check: ✅ GET /health (localhost:8001) returns status='healthy', database='connected', redis='connected', background_jobs.eligible=false (SAFE MODE confirmed, new settlement code boots cleanly). TEST 2 - Login Regression: ✅ POST /api/user/login (onarrival21@gmail.com / Katiekendra123@) returns HTTP 200 with accessToken (length 2735 chars). TEST 3 - Payout Overview (PRIMARY TEST): ✅ GET /api/referral/payout/overview returns HTTP 200 with CORRECT response structure. CONFIRMED: Response includes BOTH required numeric keys: credited_balance_usd=0 (int) ✓ and available_credit_usd=0 (int) ✓. For user_id=1 (mode=credit, 0 referral balance) both being 0 is CORRECT as expected. Full response also includes mode='credit', min_payout_usd=25, unpaid_balance_usd=0, has_verified_address=false, auto=false, can_withdraw=false, pending_payout=null, wallets array with 1 TRX wallet. TEST 4 - Earnings Regression: ✅ GET /api/referral/earnings returns HTTP 200 with data.commission object PRESENT (backward compatible). Commission object includes rate_percent=25, window_months=12, total_accrued_usd=0, total_paid_usd=0, total_credited_usd=0, unpaid_balance_usd=0, active_windows=0, referrals=[]. Existing summary and rewards objects also present. TEST 5 - My Code Regression: ✅ GET /api/referral/my-code returns HTTP 200 with referral_code='DYNO-9XVPUY' and stats object present. STRICT COMPLIANCE: Read-only testing only, NO referral creation/redemption, NO payments, NO emails, NO data mutations. The referral fee-credit Phase 2/3 + F1 backend is WORKING CORRECTLY and PRODUCTION-READY. The settlement fee-shift + consume logic itself cannot be exercised in SAFE MODE (requires real on-chain payments + leader cron), but all endpoint shapes and boot health are verified."
+
+### What to verify (BACKEND) — deep_testing_backend_v2  [STRICTLY READ-ONLY]
+Login: onarrival21@gmail.com / Katiekendra123@ (POST /api/user/login).
+1. GET /health (localhost:8001) -> status healthy, database connected, redis connected,
+   background_jobs.eligible=false (SAFE MODE). Confirms the new settlement code boots cleanly.
+2. POST /api/user/login -> 200 with accessToken (regression).
+3. GET /api/referral/payout/overview (Bearer) -> 200. Assert it still returns the object and
+   INCLUDES keys credited_balance_usd (number) and available_credit_usd (number). For user_id=1
+   (mode=credit, 0 referral balance) both are expected to be 0 — that is CORRECT.
+4. GET /api/referral/earnings (Bearer) -> 200, data.commission still present (regression).
+5. GET /api/referral/my-code (Bearer) -> 200 (regression).
+NOTE: The settlement fee-shift + consume itself CANNOT be tested here (needs a real on-chain
+payment + leader cron, both OFF in SAFE MODE). DO NOT create/redeem referrals, DO NOT trigger
+payments/emails, DO NOT mutate any rows. This is a boot-health + endpoint-shape regression check.
+
+### test_plan
+  current_focus:
+    - "Referral fee-credit Phase 2/3 + F1: settlement injection, merchant email, automation SQL subtracts credited"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Phase 2 (settlement fee-credit, Option 1.a) + Phase 3 (email) + Phase 4 (UI) + F1 fix implemented. The money-path shift/consume is NOT exercisable in SAFE MODE (no real payments, cron OFF) — I verified it with a pure 19/19 settlement-math harness + backend/frontend tsc 0 + healthy boot. Please backend-test STRICTLY READ-ONLY: (1) /health SAFE MODE + confirms new settlement code boots clean, (2) login regression, (3) GET /api/referral/payout/overview returns credited_balance_usd + available_credit_usd (both 0 for user_id=1 is correct), (4) /api/referral/earnings + /api/referral/my-code regression. Do NOT create referrals, trigger payments, or mutate any data."
+  - agent: "testing"
+    message: "✅ BACKEND VERIFICATION COMPLETE (2026-08-30 10:36 UTC) — ALL 5 TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ Health check confirms SAFE MODE (background_jobs.eligible=false, database+redis connected, new settlement code boots cleanly). (2) ✅ Login regression passed (HTTP 200 with accessToken). (3) ✅ PRIMARY TEST - Payout overview endpoint returns CORRECT structure with BOTH required numeric keys: credited_balance_usd=0 and available_credit_usd=0 (both int type). For user_id=1 (mode=credit, 0 referral balance) both being 0 is CORRECT as expected. (4) ✅ Earnings regression passed (data.commission object present with rate_percent=25, window_months=12, backward compatible). (5) ✅ My-code regression passed (HTTP 200 with referral_code). STRICT COMPLIANCE: Read-only testing only, NO data mutations. The referral fee-credit Phase 2/3 + F1 backend is WORKING CORRECTLY and PRODUCTION-READY. The actual settlement fee-shift + consume logic cannot be exercised in SAFE MODE (requires real on-chain payments + leader cron), but all endpoint shapes and boot health are verified. Main agent should summarize and finish."
+
+# ============================================================================
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-29 (pod dynopay-setup) : REFERRAL REVENUE-SHARE — PHASE 1
 #   Backend accrual + earnings visibility for the 25%/12-month referral revenue-share.
 #   ⚠️ LIVE prod Railway DB — SAFE MODE (bg jobs OFF, worker=secondary). STRICTLY

@@ -27,14 +27,14 @@ export const processReferralNudges = async (): Promise<number> => {
     unpaid: string;
   }>(
     `SELECT u.user_id, u.email, u.name, u.language, u.referral_payout_mode,
-            SUM(r.commission_accrued_usd - r.commission_paid_usd) AS unpaid
+            SUM(r.commission_accrued_usd - r.commission_paid_usd - COALESCE(r.commission_credited_usd,0)) AS unpaid
        FROM tbl_referral r
        JOIN tbl_user u ON u.user_id = r.referrer_user_id
       WHERE r.status IN ('active','rewarded')
         AND u.referral_payout_nudged_at IS NULL
         AND u.email IS NOT NULL
       GROUP BY u.user_id, u.email, u.name, u.language, u.referral_payout_mode
-     HAVING SUM(r.commission_accrued_usd - r.commission_paid_usd) >= :min`,
+     HAVING SUM(r.commission_accrued_usd - r.commission_paid_usd - COALESCE(r.commission_credited_usd,0)) >= :min`,
     { replacements: { min: MIN_PAYOUT_USDT }, type: QueryTypes.SELECT }
   );
 
@@ -75,7 +75,7 @@ export const processAutoPayouts = async (): Promise<number> => {
   }>(
     `SELECT u.user_id, u.email, u.name, u.language,
             u.referral_payout_trc20_address AS address,
-            SUM(r.commission_accrued_usd - r.commission_paid_usd) AS unpaid
+            SUM(r.commission_accrued_usd - r.commission_paid_usd - COALESCE(r.commission_credited_usd,0)) AS unpaid
        FROM tbl_referral r
        JOIN tbl_user u ON u.user_id = r.referrer_user_id
       WHERE r.status IN ('active','rewarded')
@@ -84,7 +84,7 @@ export const processAutoPayouts = async (): Promise<number> => {
         AND u.referral_payout_trc20_address IS NOT NULL
         AND u.referral_payout_address_verified_at IS NOT NULL
       GROUP BY u.user_id, u.email, u.name, u.language, u.referral_payout_trc20_address, u.referral_payout_auto_min_usd
-     HAVING SUM(r.commission_accrued_usd - r.commission_paid_usd)
+     HAVING SUM(r.commission_accrued_usd - r.commission_paid_usd - COALESCE(r.commission_credited_usd,0))
             >= GREATEST(COALESCE(u.referral_payout_auto_min_usd, :min), :min)`,
     { replacements: { min: MIN_PAYOUT_USDT }, type: QueryTypes.SELECT }
   );

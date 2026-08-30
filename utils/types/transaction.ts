@@ -59,6 +59,9 @@ export interface ExtendedTransaction {
   taxCountryCode?: string;
   customerVatId?: string;
   reverseCharge?: boolean;
+  // Referral fee-credit (Option 1.a): USD of the platform fee covered by the
+  // merchant's own referral revenue-share balance on this payment (0 if none).
+  referralCreditUsd?: number;
 }
 
 export interface ICustomerTransactions {

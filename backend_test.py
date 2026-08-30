@@ -1,381 +1,283 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for DynoPay - Confirm Receipt Email Hardening + Test Hook
-Environment: LIVE PROD Railway DB in SAFE MODE
-Base URL: http://localhost:8001
+Backend API Testing for Referral Fee-Credit Phase 2/3 + F1
+STRICTLY READ-ONLY verification on LIVE PROD Railway DB (SAFE MODE)
 """
 
 import requests
 import json
 import sys
-from typing import Dict, Any, Tuple
 
-# Configuration
 BASE_URL = "http://localhost:8001"
-TEST_SECRET = "e3df97e7a8d2d87802bd43f5db4584a6abf91096ab1956a0"
-ALLOWLISTED_EMAIL = "gidineter@gmail.com"
-NON_ALLOWLISTED_EMAIL = "someone-else@example.com"
 LOGIN_EMAIL = "onarrival21@gmail.com"
 LOGIN_PASSWORD = "Katiekendra123@"
 
-# Test results storage
-test_results = []
-
-def log_test(test_num: int, test_name: str, passed: bool, details: str):
-    """Log test result"""
-    status = "✅ PASS" if passed else "❌ FAIL"
-    result = {
-        "test_num": test_num,
-        "test_name": test_name,
-        "passed": passed,
-        "details": details
-    }
-    test_results.append(result)
+def print_test_header(test_num, description):
     print(f"\n{'='*80}")
-    print(f"TEST {test_num}: {test_name}")
-    print(f"Status: {status}")
-    print(f"Details: {details}")
-    print(f"{'='*80}")
+    print(f"TEST {test_num}: {description}")
+    print('='*80)
 
-def test_1_health_check() -> bool:
-    """Test 1: GET /health - expect healthy status with SAFE MODE"""
+def print_result(success, message, data=None):
+    status = "✅ PASS" if success else "❌ FAIL"
+    print(f"{status}: {message}")
+    if data:
+        print(f"Response data: {json.dumps(data, indent=2)}")
+
+def test_health():
+    """Test 1: GET /health - verify SAFE MODE and clean boot"""
+    print_test_header(1, "Health Check - SAFE MODE Verification")
+    
     try:
         response = requests.get(f"{BASE_URL}/health", timeout=10)
-        data = response.json()
+        print(f"Status Code: {response.status_code}")
         
-        # Check status code
         if response.status_code != 200:
-            log_test(1, "Health Check", False, 
-                    f"Expected HTTP 200, got {response.status_code}. Response: {json.dumps(data, indent=2)}")
+            print_result(False, f"Expected 200, got {response.status_code}")
             return False
         
+        data = response.json()
+        print(f"Response: {json.dumps(data, indent=2)}")
+        
         # Check required fields
-        checks = []
-        checks.append(("status", data.get("status") == "healthy"))
-        checks.append(("database", data.get("database") == "connected"))
-        checks.append(("redis", data.get("redis") == "connected"))
-        checks.append(("background_jobs.eligible", data.get("background_jobs", {}).get("eligible") == False))
+        checks = {
+            "status='healthy'": data.get('status') == 'healthy',
+            "database='connected'": data.get('database') == 'connected',
+            "redis='connected'": data.get('redis') == 'connected',
+            "background_jobs.eligible=false": data.get('background_jobs', {}).get('eligible') == False
+        }
         
-        all_passed = all(check[1] for check in checks)
+        all_passed = all(checks.values())
+        for check, passed in checks.items():
+            print(f"  {'✅' if passed else '❌'} {check}")
         
-        details = f"HTTP {response.status_code}\n"
-        details += f"Response: {json.dumps(data, indent=2)}\n"
-        details += "Checks:\n"
-        for check_name, check_result in checks:
-            details += f"  - {check_name}: {'✓' if check_result else '✗'}\n"
+        if all_passed:
+            print_result(True, "Health check confirms SAFE MODE and clean boot")
+        else:
+            print_result(False, "Health check failed some assertions")
         
-        log_test(1, "Health Check", all_passed, details)
         return all_passed
         
     except Exception as e:
-        log_test(1, "Health Check", False, f"Exception: {str(e)}")
+        print_result(False, f"Exception: {str(e)}")
         return False
 
-def test_2_guard_missing_secret() -> bool:
-    """Test 2: POST /api/__paytest/confirm-email with NO x-test-secret header - expect 403"""
+def test_login():
+    """Test 2: POST /api/user/login - regression test"""
+    print_test_header(2, "Login Regression Test")
+    
     try:
-        headers = {"Content-Type": "application/json"}
-        body = {"email": ALLOWLISTED_EMAIL}
-        
-        response = requests.post(
-            f"{BASE_URL}/api/__paytest/confirm-email",
-            headers=headers,
-            json=body,
-            timeout=10
-        )
-        
-        passed = response.status_code == 403
-        
-        details = f"HTTP {response.status_code}\n"
-        details += f"Request: POST /api/__paytest/confirm-email\n"
-        details += f"Headers: {json.dumps(headers, indent=2)}\n"
-        details += f"Body: {json.dumps(body, indent=2)}\n"
-        details += f"Response: {response.text}\n"
-        details += f"Expected: HTTP 403 (Forbidden)\n"
-        details += f"Result: {'✓ Correct' if passed else '✗ Wrong status code'}"
-        
-        log_test(2, "Guard - Missing Secret", passed, details)
-        return passed
-        
-    except Exception as e:
-        log_test(2, "Guard - Missing Secret", False, f"Exception: {str(e)}")
-        return False
-
-def test_3_guard_wrong_secret() -> bool:
-    """Test 3: POST /api/__paytest/confirm-email with WRONG x-test-secret - expect 403"""
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "x-test-secret": "WRONGSECRET"
-        }
-        body = {"email": ALLOWLISTED_EMAIL}
-        
-        response = requests.post(
-            f"{BASE_URL}/api/__paytest/confirm-email",
-            headers=headers,
-            json=body,
-            timeout=10
-        )
-        
-        passed = response.status_code == 403
-        
-        details = f"HTTP {response.status_code}\n"
-        details += f"Request: POST /api/__paytest/confirm-email\n"
-        details += f"Headers: x-test-secret=WRONGSECRET\n"
-        details += f"Body: {json.dumps(body, indent=2)}\n"
-        details += f"Response: {response.text}\n"
-        details += f"Expected: HTTP 403 (Forbidden)\n"
-        details += f"Result: {'✓ Correct' if passed else '✗ Wrong status code'}"
-        
-        log_test(3, "Guard - Wrong Secret", passed, details)
-        return passed
-        
-    except Exception as e:
-        log_test(3, "Guard - Wrong Secret", False, f"Exception: {str(e)}")
-        return False
-
-def test_4_validation_invalid_email() -> bool:
-    """Test 4: POST with correct secret but invalid email - expect 400"""
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "x-test-secret": TEST_SECRET
-        }
-        body = {"email": "not-an-email"}
-        
-        response = requests.post(
-            f"{BASE_URL}/api/__paytest/confirm-email",
-            headers=headers,
-            json=body,
-            timeout=10
-        )
-        
-        passed = response.status_code == 400
-        
-        try:
-            response_data = response.json()
-            message = response_data.get("message", "")
-            has_valid_message = "valid" in message.lower() and "email" in message.lower()
-        except:
-            has_valid_message = False
-        
-        details = f"HTTP {response.status_code}\n"
-        details += f"Request: POST /api/__paytest/confirm-email\n"
-        details += f"Headers: x-test-secret=<correct>\n"
-        details += f"Body: {json.dumps(body, indent=2)}\n"
-        details += f"Response: {response.text}\n"
-        details += f"Expected: HTTP 400 with message about valid email required\n"
-        details += f"Result: {'✓ Correct status' if passed else '✗ Wrong status code'}\n"
-        details += f"Message check: {'✓ Contains valid email message' if has_valid_message else '✗ Missing expected message'}"
-        
-        log_test(4, "Validation - Invalid Email", passed and has_valid_message, details)
-        return passed and has_valid_message
-        
-    except Exception as e:
-        log_test(4, "Validation - Invalid Email", False, f"Exception: {str(e)}")
-        return False
-
-def test_5_happy_path_allowlisted() -> bool:
-    """Test 5: POST with correct secret + allowlisted email - expect 200, dispatched=true, check logs"""
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "x-test-secret": TEST_SECRET
-        }
-        body = {"email": ALLOWLISTED_EMAIL}
-        
-        response = requests.post(
-            f"{BASE_URL}/api/__paytest/confirm-email",
-            headers=headers,
-            json=body,
-            timeout=15
-        )
-        
-        # Check status code
-        status_ok = response.status_code == 200
-        
-        # Check response body
-        try:
-            response_data = response.json()
-            dispatched = response_data.get("data", {}).get("dispatched", False)
-            transaction_id = response_data.get("data", {}).get("transactionId", "")
-            has_test_prefix = transaction_id.startswith("TEST-")
-        except:
-            dispatched = False
-            transaction_id = ""
-            has_test_prefix = False
-        
-        passed = status_ok and dispatched and has_test_prefix
-        
-        details = f"HTTP {response.status_code}\n"
-        details += f"Request: POST /api/__paytest/confirm-email\n"
-        details += f"Headers: x-test-secret=<correct>\n"
-        details += f"Body: {json.dumps(body, indent=2)}\n"
-        details += f"Response: {json.dumps(response_data if 'response_data' in locals() else {}, indent=2)}\n"
-        details += f"\nChecks:\n"
-        details += f"  - HTTP 200: {'✓' if status_ok else '✗'}\n"
-        details += f"  - dispatched=true: {'✓' if dispatched else '✗'}\n"
-        details += f"  - transactionId starts with TEST-: {'✓' if has_test_prefix else '✗'}\n"
-        details += f"  - transactionId: {transaction_id}\n"
-        details += f"\n⚠️ IMPORTANT: This test SENDS A REAL EMAIL to {ALLOWLISTED_EMAIL}"
-        
-        log_test(5, "Happy Path - Allowlisted Email (REAL EMAIL SENT)", passed, details)
-        return passed
-        
-    except Exception as e:
-        log_test(5, "Happy Path - Allowlisted Email", False, f"Exception: {str(e)}")
-        return False
-
-def test_6_allowlist_negative() -> bool:
-    """Test 6: POST with correct secret + non-allowlisted email - expect 200 but dispatched=false"""
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "x-test-secret": TEST_SECRET
-        }
-        body = {"email": NON_ALLOWLISTED_EMAIL}
-        
-        response = requests.post(
-            f"{BASE_URL}/api/__paytest/confirm-email",
-            headers=headers,
-            json=body,
-            timeout=15
-        )
-        
-        # Check status code
-        status_ok = response.status_code == 200
-        
-        # Check response body
-        try:
-            response_data = response.json()
-            dispatched = response_data.get("data", {}).get("dispatched", True)  # Default True to fail if missing
-            transaction_id = response_data.get("data", {}).get("transactionId", "")
-        except:
-            dispatched = True  # Default True to fail
-            transaction_id = ""
-        
-        passed = status_ok and not dispatched
-        
-        details = f"HTTP {response.status_code}\n"
-        details += f"Request: POST /api/__paytest/confirm-email\n"
-        details += f"Headers: x-test-secret=<correct>\n"
-        details += f"Body: {json.dumps(body, indent=2)}\n"
-        details += f"Response: {json.dumps(response_data if 'response_data' in locals() else {}, indent=2)}\n"
-        details += f"\nChecks:\n"
-        details += f"  - HTTP 200: {'✓' if status_ok else '✗'}\n"
-        details += f"  - dispatched=false: {'✓' if not dispatched else '✗'}\n"
-        details += f"  - transactionId: {transaction_id}\n"
-        details += f"\n✓ Email was SUPPRESSED (not sent) as expected"
-        
-        log_test(6, "Allowlist Negative - Suppressed Email", passed, details)
-        return passed
-        
-    except Exception as e:
-        log_test(6, "Allowlist Negative - Suppressed Email", False, f"Exception: {str(e)}")
-        return False
-
-def test_7_login_regression() -> bool:
-    """Test 7: POST /api/user/login - expect 200 with accessToken"""
-    try:
-        headers = {"Content-Type": "application/json"}
-        body = {
-            "email": LOGIN_EMAIL,
-            "password": LOGIN_PASSWORD
-        }
-        
         response = requests.post(
             f"{BASE_URL}/api/user/login",
-            headers=headers,
-            json=body,
+            json={"email": LOGIN_EMAIL, "password": LOGIN_PASSWORD},
             timeout=10
         )
+        print(f"Status Code: {response.status_code}")
         
-        # Check status code
-        status_ok = response.status_code == 200
+        if response.status_code != 200:
+            print_result(False, f"Expected 200, got {response.status_code}")
+            print(f"Response: {response.text}")
+            return None
         
-        # Check response body
-        try:
-            response_data = response.json()
-            message = response_data.get("message", "")
-            access_token = response_data.get("data", {}).get("accessToken", "")
-            has_token = len(access_token) > 0
-            login_successful = "login successful" in message.lower()
-        except:
-            has_token = False
-            login_successful = False
-            access_token = ""
+        data = response.json()
+        access_token = data.get('data', {}).get('accessToken')
         
-        passed = status_ok and has_token and login_successful
-        
-        details = f"HTTP {response.status_code}\n"
-        details += f"Request: POST /api/user/login\n"
-        details += f"Body: {json.dumps({'email': LOGIN_EMAIL, 'password': '***'}, indent=2)}\n"
-        details += f"Response message: {message if 'message' in locals() else 'N/A'}\n"
-        details += f"\nChecks:\n"
-        details += f"  - HTTP 200: {'✓' if status_ok else '✗'}\n"
-        details += f"  - Message contains 'Login Successful!': {'✓' if login_successful else '✗'}\n"
-        details += f"  - accessToken present: {'✓' if has_token else '✗'}\n"
-        details += f"  - accessToken length: {len(access_token)} chars"
-        
-        log_test(7, "Login Regression", passed, details)
-        return passed
-        
+        if access_token:
+            print_result(True, f"Login successful, accessToken received (length: {len(access_token)} chars)")
+            return access_token
+        else:
+            print_result(False, "No accessToken in response")
+            print(f"Response: {json.dumps(data, indent=2)}")
+            return None
+            
     except Exception as e:
-        log_test(7, "Login Regression", False, f"Exception: {str(e)}")
+        print_result(False, f"Exception: {str(e)}")
+        return None
+
+def test_payout_overview(token):
+    """Test 3: GET /api/referral/payout/overview - PRIMARY TEST"""
+    print_test_header(3, "Referral Payout Overview - PRIMARY TEST (credited_balance_usd + available_credit_usd)")
+    
+    if not token:
+        print_result(False, "No access token available")
+        return False
+    
+    try:
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.get(
+            f"{BASE_URL}/api/referral/payout/overview",
+            headers=headers,
+            timeout=10
+        )
+        print(f"Status Code: {response.status_code}")
+        
+        if response.status_code != 200:
+            print_result(False, f"Expected 200, got {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
+        
+        data = response.json()
+        print(f"Full Response: {json.dumps(data, indent=2)}")
+        
+        # Check for the new keys
+        response_data = data.get('data', {})
+        
+        has_credited_balance = 'credited_balance_usd' in response_data
+        has_available_credit = 'available_credit_usd' in response_data
+        
+        print(f"\n  {'✅' if has_credited_balance else '❌'} credited_balance_usd present: {has_credited_balance}")
+        if has_credited_balance:
+            print(f"      Value: {response_data['credited_balance_usd']} (type: {type(response_data['credited_balance_usd']).__name__})")
+        
+        print(f"  {'✅' if has_available_credit else '❌'} available_credit_usd present: {has_available_credit}")
+        if has_available_credit:
+            print(f"      Value: {response_data['available_credit_usd']} (type: {type(response_data['available_credit_usd']).__name__})")
+        
+        # For user_id=1, both should be 0 (that's correct)
+        if has_credited_balance and has_available_credit:
+            credited_val = response_data['credited_balance_usd']
+            available_val = response_data['available_credit_usd']
+            
+            # Check if they're numeric
+            is_credited_numeric = isinstance(credited_val, (int, float))
+            is_available_numeric = isinstance(available_val, (int, float))
+            
+            print(f"\n  {'✅' if is_credited_numeric else '❌'} credited_balance_usd is numeric: {is_credited_numeric}")
+            print(f"  {'✅' if is_available_numeric else '❌'} available_credit_usd is numeric: {is_available_numeric}")
+            
+            if is_credited_numeric and is_available_numeric:
+                print(f"\n  ℹ️  For user_id=1 (mode=credit, 0 referral balance), both values being 0 is CORRECT")
+                print_result(True, "Payout overview includes credited_balance_usd and available_credit_usd (both numeric)")
+                return True
+            else:
+                print_result(False, "Keys present but not numeric")
+                return False
+        else:
+            print_result(False, "Missing required keys: credited_balance_usd and/or available_credit_usd")
+            return False
+            
+    except Exception as e:
+        print_result(False, f"Exception: {str(e)}")
         return False
 
-def check_backend_logs_for_test_5_and_6():
-    """Check backend logs for TEST-ALLOWLISTED and SUPPRESSED messages"""
-    print(f"\n{'='*80}")
-    print("BACKEND LOG INSPECTION (Tests 5 & 6)")
-    print(f"{'='*80}")
-    print("\nChecking backend logs for email delivery status...")
-    print("Looking for:")
-    print(f"  - [Email] TEST-ALLOWLISTED for {ALLOWLISTED_EMAIL}")
-    print(f"  - [Email] SUPPRESSED for {NON_ALLOWLISTED_EMAIL}")
-    print(f"  - [Email] Generated PDF receipt")
-    print("\nLog output will be shown below:")
-    print(f"{'='*80}\n")
+def test_earnings(token):
+    """Test 4: GET /api/referral/earnings - regression test"""
+    print_test_header(4, "Referral Earnings - Regression Test (data.commission present)")
+    
+    if not token:
+        print_result(False, "No access token available")
+        return False
+    
+    try:
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.get(
+            f"{BASE_URL}/api/referral/earnings",
+            headers=headers,
+            timeout=10
+        )
+        print(f"Status Code: {response.status_code}")
+        
+        if response.status_code != 200:
+            print_result(False, f"Expected 200, got {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
+        
+        data = response.json()
+        print(f"Full Response: {json.dumps(data, indent=2)}")
+        
+        response_data = data.get('data', {})
+        has_commission = 'commission' in response_data
+        
+        print(f"\n  {'✅' if has_commission else '❌'} data.commission present: {has_commission}")
+        
+        if has_commission:
+            commission = response_data['commission']
+            print(f"      Commission object: {json.dumps(commission, indent=2)}")
+            print_result(True, "Earnings endpoint returns data.commission (backward compatible)")
+            return True
+        else:
+            print_result(False, "data.commission key missing")
+            return False
+            
+    except Exception as e:
+        print_result(False, f"Exception: {str(e)}")
+        return False
+
+def test_my_code(token):
+    """Test 5: GET /api/referral/my-code - regression test"""
+    print_test_header(5, "Referral My Code - Regression Test")
+    
+    if not token:
+        print_result(False, "No access token available")
+        return False
+    
+    try:
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.get(
+            f"{BASE_URL}/api/referral/my-code",
+            headers=headers,
+            timeout=10
+        )
+        print(f"Status Code: {response.status_code}")
+        
+        if response.status_code != 200:
+            print_result(False, f"Expected 200, got {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
+        
+        data = response.json()
+        print(f"Response: {json.dumps(data, indent=2)}")
+        
+        print_result(True, "My-code endpoint returns 200")
+        return True
+            
+    except Exception as e:
+        print_result(False, f"Exception: {str(e)}")
+        return False
 
 def main():
-    """Run all tests in sequence"""
     print("\n" + "="*80)
-    print("DYNOPAY BACKEND TESTING - CONFIRM RECEIPT EMAIL HARDENING + TEST HOOK")
-    print("Environment: LIVE PROD Railway DB in SAFE MODE")
-    print("Base URL: http://localhost:8001")
-    print("="*80 + "\n")
+    print("REFERRAL FEE-CREDIT PHASE 2/3 + F1 - BACKEND VERIFICATION")
+    print("STRICTLY READ-ONLY on LIVE PROD Railway DB (SAFE MODE)")
+    print("="*80)
     
-    # Run tests in order
-    results = []
-    results.append(test_1_health_check())
-    results.append(test_2_guard_missing_secret())
-    results.append(test_3_guard_wrong_secret())
-    results.append(test_4_validation_invalid_email())
-    results.append(test_5_happy_path_allowlisted())
-    results.append(test_6_allowlist_negative())
-    results.append(test_7_login_regression())
+    results = {}
+    
+    # Test 1: Health check
+    results['health'] = test_health()
+    
+    # Test 2: Login
+    access_token = test_login()
+    results['login'] = access_token is not None
+    
+    # Test 3: Payout overview (PRIMARY TEST)
+    results['payout_overview'] = test_payout_overview(access_token)
+    
+    # Test 4: Earnings
+    results['earnings'] = test_earnings(access_token)
+    
+    # Test 5: My code
+    results['my_code'] = test_my_code(access_token)
     
     # Summary
     print("\n" + "="*80)
     print("TEST SUMMARY")
     print("="*80)
     
-    passed_count = sum(1 for r in results if r)
-    total_count = len(results)
+    total = len(results)
+    passed = sum(1 for v in results.values() if v)
     
-    for result in test_results:
-        status = "✅ PASS" if result["passed"] else "❌ FAIL"
-        print(f"{status} - Test {result['test_num']}: {result['test_name']}")
+    for test_name, passed_test in results.items():
+        status = "✅ PASS" if passed_test else "❌ FAIL"
+        print(f"{status}: {test_name}")
     
-    print(f"\n{'='*80}")
-    print(f"TOTAL: {passed_count}/{total_count} tests passed ({passed_count/total_count*100:.1f}%)")
-    print(f"{'='*80}\n")
+    print(f"\nTotal: {passed}/{total} tests passed")
     
-    # Note about log inspection
-    check_backend_logs_for_test_5_and_6()
-    
-    # Exit code
-    sys.exit(0 if passed_count == total_count else 1)
+    if passed == total:
+        print("\n🎉 ALL TESTS PASSED - Backend verification COMPLETE")
+        return 0
+    else:
+        print(f"\n⚠️  {total - passed} test(s) FAILED")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -72,6 +72,7 @@ import { isVolatileCrypto } from "../../../services/binanceService";
 import { createConversionRecord } from "../../../services/conversionService";
 import { PaymentState, parseState, toRedisStatus, persistTransition } from "../../../services/paymentStateMachine";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
+import { getAvailableCreditForFees, consumeReferralCreditForTransaction } from "../../../services/referralCreditService";
 
 import { settleCryptoTransaction } from "./settleTransaction";
 
@@ -635,6 +636,51 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           }
         }
 
+        // ============================================================
+        // REFERRAL FEE-CREDIT (Option 1.a) — reduce THIS merchant's platform fee
+        // using their own accrued referral revenue-share balance, by shifting
+        // crypto from the admin fee to the merchant payout for exactly this payment.
+        //   • Only in 'credit' payout mode (getAvailableCreditForFees returns 0 otherwise).
+        //   • Capped at this payment's platform-fee USD (totalDeduction) → admin fee
+        //     can never go negative; gas/network buffer is NEVER touched.
+        //   • Skipped on auto-convert (userAmountToSend=0) and under-threshold (userAmountToSend=0).
+        //   • Consumed AFTER the settlement commits (idempotent) — see below.
+        // Wrapped so ANY failure falls back to the UNMODIFIED split (never blocks a settlement).
+        // NOTE: not E2E-testable in SAFE-MODE preview (no real payments) — verified on prod.
+        // ============================================================
+        let referralCreditAppliedUsd = 0;
+        try {
+          if (userAmountToSend > 0 && adminAmountToSend > 0 && !autoConvertEnabled && verifyUserId) {
+            const availableCredit = await getAvailableCreditForFees(verifyUserId);
+            if (availableCredit > 0 && receivedUSD > 0) {
+              const applyUsd = Math.min(availableCredit, Number(totalDeduction) || 0);
+              if (applyUsd > 0) {
+                // Convert the USD credit to crypto at THIS payment's realized rate.
+                let creditCrypto = applyUsd * (Number(totalAmountReceived) / receivedUSD);
+                // Belt-and-suspenders: never drive the admin fee negative.
+                if (creditCrypto > adminAmountToSend) creditCrypto = adminAmountToSend;
+                if (creditCrypto > 0) {
+                  adminAmountToSend = adminAmountToSend - creditCrypto;
+                  userAmountToSend = userAmountToSend + creditCrypto;
+                  if (userAmountToSend > Number(totalAmountReceived)) {
+                    userAmountToSend = Number(totalAmountReceived);
+                  }
+                  // Persist/consume the USD actually shifted on-chain (creditCrypto back
+                  // to USD), never more than the fee cap — so a clamp can't over-consume
+                  // the balance relative to the merchant's realized benefit. In the normal
+                  // (no-clamp) case this equals applyUsd exactly.
+                  const actualUsd = creditCrypto * (receivedUSD / Number(totalAmountReceived));
+                  referralCreditAppliedUsd = Math.min(applyUsd, Math.round(actualUsd * 100) / 100);
+                  cronLogger.info(`[ReferralCredit] Applying $${referralCreditAppliedUsd.toFixed(2)} fee-credit for user ${verifyUserId}: admin=${adminAmountToSend.toFixed(8)} merchant=${userAmountToSend.toFixed(8)} ${tempCurrency} (shifted ${creditCrypto.toFixed(8)})`);
+                }
+              }
+            }
+          }
+        } catch (creditErr: any) {
+          referralCreditAppliedUsd = 0;
+          cronLogger.warn(`[ReferralCredit] fee-credit skipped (non-fatal): ${creditErr?.message || creditErr}`);
+        }
+
         // ── FIX: Advisory pre-check only - Let SmartGas attempt funding ──
         // SmartGas will automatically fund TRX from fee wallet if needed
         const isTRC20Currency = tempCurrency.includes("TRC20");
@@ -1138,6 +1184,10 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             crypto_amount: Number(totalAmountReceived),
             crypto_currency: tempCurrency,
             transaction_fee: Number(adminAmountToSend),
+            // Referral fee-credit (Option 1.a): USD of the platform fee that was
+            // covered by the merchant's own referral revenue-share balance on THIS
+            // payment (0 when not applicable). Powers the merchant email + UI badge.
+            referral_credit_applied_usd: referralCreditAppliedUsd,
             // Session 49 fix: persist actual confirmation count so merchants can
             // see the real number in the dashboard (was stuck at 0 previously).
             ...(finalConfirmations !== null ? { confirmations: finalConfirmations } : {}),
@@ -1370,6 +1420,28 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         
         transactionFinished = true;
         await transaction.commit();
+
+        // ── Referral fee-credit consumption (Option 1.a) ──
+        // Only now that the settlement is durably committed do we spend the
+        // referral balance that funded the fee reduction above. The service is
+        // idempotent (keyed by the tx ref) and credit-mode-gated, so a settlement
+        // retry can NEVER double-spend. Non-fatal: a failure here leaves the credit
+        // available for a later retry and never affects the (already committed) payout.
+        if (referralCreditAppliedUsd > 0 && verifyUserId) {
+          try {
+            const referralTxRef = String(
+              tempData.user_tx_id || tempData.unique_tx_id || tempData.payment_id || transactionId
+            );
+            const consumed = await consumeReferralCreditForTransaction({
+              userId: verifyUserId,
+              maxUsd: referralCreditAppliedUsd,
+              transactionRef: referralTxRef,
+            });
+            cronLogger.info(`[ReferralCredit] Consumed $${consumed.toFixed(2)} referral credit for user ${verifyUserId} (tx ${referralTxRef})`);
+          } catch (consumeErr: any) {
+            cronLogger.error(`[ReferralCredit] consume failed (non-fatal, credit stays available): ${consumeErr?.message || consumeErr}`);
+          }
+        }
 
         // Product Catalog (Phase 1) — trigger cart fulfillment after commit
         if (__cartOrderIdForFanout) {
@@ -1650,7 +1722,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             normalizeLang((userData as { language?: string })?.language), // merchant language
             mrCryptoAmount,          // crypto amount received (secondary)
             mrCryptoCurrency,        // crypto currency (secondary, e.g. "ETH → USDT")
-            campaignName             // Phase 3.3 P1: when set, sends contribution-flavored copy
+            campaignName,            // Phase 3.3 P1: when set, sends contribution-flavored copy
+            referralCreditAppliedUsd // Referral fee-credit (Option 1.a): >0 adds the "credit covered $X" line
           );
         }
 

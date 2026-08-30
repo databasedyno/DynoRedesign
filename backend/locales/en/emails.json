@@ -36,7 +36,8 @@
     "heading": "Payment Received",
     "intro": "Great news! Your company <strong>{{companyName}}</strong> has received a payment.",
     "outro": "The funds have been forwarded to your payout wallet. You can view the full transaction details in your dashboard.",
-    "cta": "View Transaction"
+    "cta": "View Transaction",
+    "referralCredit": "Referral credit covered {{amount}} of your DynoPay platform fee on this payment — you kept more of it."
   },
   "paymentPending": {
     "subject": "Your payment is pending confirmation",
