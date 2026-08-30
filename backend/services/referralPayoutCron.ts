@@ -28,13 +28,14 @@ const applyPayoutToReferrals = async (userId: number, amountUsd: number, txHash:
     if (remaining <= 0.001) break;
     const accrued = Number(r.commission_accrued_usd || 0);
     const paid = Number(r.commission_paid_usd || 0);
-    const unpaid = round2(accrued - paid);
+    const credited = Number(r.commission_credited_usd || 0);
+    const unpaid = round2(accrued - paid - credited);
     if (unpaid <= 0) continue;
     const applied = Math.min(unpaid, remaining);
     const newPaid = round2(paid + applied);
     await r.update({ commission_paid_usd: newPaid });
     remaining = round2(remaining - applied);
-    if (newPaid >= accrued - 0.001) {
+    if (newPaid + credited >= accrued - 0.001) {
       const reward = await ReferralReward.findOne({
         where: { referral_id: r.referral_id, reward_type: "commission" },
       });

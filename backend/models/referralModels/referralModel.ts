@@ -21,12 +21,13 @@ interface ReferralAttributes {
   commission_window_ends_at?: Date | null;
   commission_accrued_usd?: number;
   commission_paid_usd?: number;
+  commission_credited_usd?: number;
   last_accrual_at?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface ReferralCreationAttributes extends Optional<ReferralAttributes, 'referral_id' | 'status' | 'activation_requirement' | 'bonus_amount' | 'bonus_currency' | 'referee_discount_percent' | 'referee_discount_duration_days' | 'referred_at' | 'commission_rate' | 'commission_window_ends_at' | 'commission_accrued_usd' | 'commission_paid_usd' | 'last_accrual_at' | 'createdAt' | 'updatedAt'> {}
+interface ReferralCreationAttributes extends Optional<ReferralAttributes, 'referral_id' | 'status' | 'activation_requirement' | 'bonus_amount' | 'bonus_currency' | 'referee_discount_percent' | 'referee_discount_duration_days' | 'referred_at' | 'commission_rate' | 'commission_window_ends_at' | 'commission_accrued_usd' | 'commission_paid_usd' | 'commission_credited_usd' | 'last_accrual_at' | 'createdAt' | 'updatedAt'> {}
 
 class Referral extends Model<ReferralAttributes, ReferralCreationAttributes> implements ReferralAttributes {
   public referral_id!: number;
@@ -48,6 +49,7 @@ class Referral extends Model<ReferralAttributes, ReferralCreationAttributes> imp
   public commission_window_ends_at?: Date | null;
   public commission_accrued_usd?: number;
   public commission_paid_usd?: number;
+  public commission_credited_usd?: number;
   public last_accrual_at?: Date | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -137,6 +139,10 @@ Referral.init(
       defaultValue: 0,
     },
     commission_paid_usd: {
+      type: DataTypes.DECIMAL(14, 2),
+      defaultValue: 0,
+    },
+    commission_credited_usd: {
       type: DataTypes.DECIMAL(14, 2),
       defaultValue: 0,
     },

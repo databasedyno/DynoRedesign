@@ -2,6 +2,116 @@
 
 ---
 
+# 🏗️ REFERRAL FEE-CREDIT CONSUMPTION (BLENDED default path) — 2026-06 fork — PHASED BUILD
+
+## Problem verified (this session)
+The referral revenue-share `credit` mode (default / opt-out of cash) was a **NO-OP**. Accrual worked and
+the UI/email promised "Automatically reduces your own Dynopay fees", but NOTHING consumed the accrued
+balance at settlement. Every settlement path (`chainVerification.ts:493`, `cryptoCheckout.ts:1556`,
+`paymentController.ts:347`) calls `calculateTransactionFees` (trial fee-free only); the referral balance
+and `referral_payout_mode` were never read in the fee path. Cash-out (Binance USDT-TRC20) was the only
+delivery ever built.
+
+## Decisions (user)
+- **Option 1.a**: reduce the ACTUAL platform fee at settlement so the merchant keeps more of THAT payment.
+- Blockchain/gas fee ALWAYS deducted (never touched by credit).
+- Only in `credit` mode (opt-out of cash). In `cash` mode the balance is reserved for cash-out (credit = 0).
+- Credit **decreases when used**, **increases when earned** — ONE shared pool:
+  `unpaid = accrued − cash_paid − credited` (a $ can never be both cashed out AND credited).
+- Merchant **payout confirmation email** must reflect when referral credit paid the platform fee (and when it didn't).
+
+## Phase 1 — Accounting core (SAFE, no settlement math change) — ✅ DONE + columns live on prod DB
+- Migration **0014** (`bootMigrations.ts`): `tbl_referral += commission_credited_usd DECIMAL(14,2) DEFAULT 0`;
+  `tbl_user_transaction += referral_credit_applied_usd DECIMAL(14,2) DEFAULT 0`. Additive/idempotent — applied to live DB.
+- `referralModel.ts` + `referralRewardModel.ts` (reward_type union += `commission_credit`; STRING cols, no DB enum).
+- `referralCommissionService.getReferrerCommissionSummary`: `unpaid = accrued − paid − credited`; adds
+  `total_credited_usd` + per-referral `credited_usd` (backward-compatible).
+- NEW `services/referralCreditService.ts`:
+  - `getAvailableCreditForFees(userId)` → account unpaid balance usable as fee credit; **0 if mode≠credit**.
+  - `consumeReferralCreditForTransaction({userId,maxUsd,transactionRef})` → idempotent (keyed by transactionRef,
+    returns prior total on retry), atomic (row-locked txn), distributes oldest-first, bumps `commission_credited_usd`,
+    writes per-referral audit rows (`reward_type='commission_credit', status='credited', transaction_id=ref`).
+- `referralPayoutCron.applyPayoutToReferrals`: cash unpaid now subtracts `credited` too (no double-spend);
+  reward row marked withdrawn when `paid + credited >= accrued`.
+- `referralPayoutService.getPayoutOverview`: surfaces `credited_balance_usd` + `available_credit_usd`.
+- Gates: backend `tsc` EXIT 0. Verified via reversible live-DB script (see below).
+
+## Phase 2 — Settlement integration (Option 1.a) — ✅ DECISIONS LOCKED (2026-06 fork), build NOT yet started (user paused execution)
+
+### 2.0 USER-CONFIRMED DECISIONS (ask_human, 2026-06 — build to exactly this)
+- **Injection approach = (a) DIRECT settlement-split** (literal Option 1.a). At settlement, move crypto from the
+  admin fee to the merchant: `adminAmountToSend -= c; userAmountToSend += c` (c = usable referral credit USD
+  converted to crypto at the payment rate). Merchant receives MORE crypto on-chain in that exact payout.
+  User explicitly rejected the safer internal-`incrementUserWallet` top-up alt. ⚠️ This edits the on-chain
+  money-path split and is NOT E2E-testable in SAFE-MODE preview (no real payments) — verify on prod.
+- **Scope = ALL 3 settlement entry paths in this pass**: `controller/payment/settlement/chainVerification.ts`,
+  `controller/payment/cryptoCheckout.ts` (~L1556), `controller/payment/paymentController.ts` (~L347).
+- **Guardrail = (a) CAP at that payment's platform-fee portion.** Never make the admin fee negative; if available
+  credit > this payment's platform fee, apply only up to the fee and leave the leftover credit for the next payment.
+  Blockchain/gas/buffer is NEVER touched (admin never underpaid below the gas/network floor).
+- **Testing (SAFE MODE)** = reversible TS-node scripts on the live DB (accounting: credit ↓ on use, ↑ on earn,
+  idempotency) + a READ-ONLY settlement-math harness proving the fee reduction + email copy + `testing_agent` for
+  overview/email. User ALSO approved **seeding a scratch referral to exercise the full path reversibly** (clean up
+  after). Real on-chain send is confirmed on prod only.
+
+### 2.1 EXACT INJECTION MECHANICS (verified against current chainVerification.ts line numbers)
+Injection point in `chainVerification.ts`: AFTER the auto-convert block ends (currently ~L636) and BEFORE
+`settleCryptoTransaction` (currently L719). Placing it after auto-convert means the `!autoConvertEnabled` gate is
+automatic (auto-convert sets `userAmountToSend = 0`, so the `userAmountToSend > 0` guard skips it).
+Apply ONLY when: `userAmountToSend > 0 && adminAmountToSend > 0 && !autoConvertEnabled` (i.e. the standard
+above-threshold merchant-payout path; under-threshold has `userAmountToSend = 0` → skip).
+Steps:
+1. `const credit = await getAvailableCreditForFees(verifyUserId)` — `verifyUserId = customerData?.adm_id`
+   (the merchant receiving THIS payment == the referrer whose credit we spend). Returns 0 unless mode='credit'.
+2. Platform-fee portion in USD for this payment = `totalDeduction` (USD, from `calculateTransactionFees` at L493).
+   `applyUsd = min(credit, totalDeduction)` — the CAP (guardrail a).
+3. Convert `applyUsd` → crypto at the payment rate: `creditCrypto = applyUsd * (totalAmountReceived / receivedUSD)`
+   (receivedUSD is the USD value of totalAmountReceived, computed at L485). Cap `creditCrypto` at `adminAmountToSend`
+   (belt-and-suspenders so admin never goes negative).
+4. `adminAmountToSend -= creditCrypto; userAmountToSend += creditCrypto;` (re-clamp `userAmountToSend <=
+   totalAmountReceived`). Remember `appliedCreditUsd = round2(applyUsd)` for persistence + email.
+5. Persist on the tx row: at the tx-record write (currently ~L1126-1140, where `base_amount = userAmountToSend`,
+   `transaction_fee = adminAmountToSend`), also set `referral_credit_applied_usd: appliedCreditUsd`. Also set it on
+   the zero-merchant-payout UPDATE branch (~L1186-1202) — though that branch has userAmountToSend=0 so credit=0.
+6. AFTER the settlement DB write commits (so we don't consume on a failed/deferred settlement), call
+   `consumeReferralCreditForTransaction({ userId: verifyUserId, maxUsd: appliedCreditUsd, transactionRef })`.
+   It is idempotent by `transactionRef` (returns prior total on retry — no double-spend) and only consumes in
+   'credit' mode. Use the SAME `transactionRef` used elsewhere in settlement so retries dedupe.
+   ► IMPORTANT ORDERING: capture `appliedCreditUsd` at step 4, but only call `consume...` on the SUCCESS path
+     (after `settleCryptoTransaction` succeeded + tx row written). If settlement throws/defers, do NOT consume.
+
+### 2.2 OTHER 2 ENTRY PATHS
+- `cryptoCheckout.ts` (~L1556) and `paymentController.ts` (~L347) call `calculateTransactionFees` on their own
+  fee-split. Mirror the SAME 6 steps: gate on standard merchant-payout path, cap at that path's platform-fee USD,
+  shift admin→merchant, persist `referral_credit_applied_usd`, consume idempotently on success. Verify each file's
+  local variable names for the admin/merchant split + the USD basis before editing (do NOT assume identical names).
+
+### 2.3 RISK / SAFETY NOTES
+- Modifies on-chain settlement amounts → highest blast radius. Keep the whole block inside a `try/catch` that, on
+  ANY error, logs + falls back to the UNMODIFIED split (never block a settlement because credit logic failed).
+- Credit consumption MUST be post-success + idempotent (already is) so a settlement retry can't double-spend.
+- Do NOT touch the auto-convert path, under-threshold path, or gas/buffer.
+
+## Phase 3 — Merchant payout-confirmation email (Option 1.a) — ⏳ build with Phase 2
+Add a conditional line to the merchant payment-received / payout-confirmation email:
+- credit applied (>0): "Referral credit covered $X.XX of your DynoPay platform fee on this payment."
+- not applied (cash mode, $0 balance, or under-threshold): normal platform-fee line (unchanged).
+Locate the merchant-facing settlement email (admin-fee/payment-received notification fired in chainVerification.ts
+~L933-975 and/or `services/email/*` — confirm the exact sender used for the MERCHANT, not the admin-ops email).
+Pass `appliedCreditUsd` through to the template; add i18n keys ×6 locales (check-i18n must stay CLEAN).
+
+## Phase 3 — Email — ⏳ after Phase 2
+`sendPaymentReceivedEmail` (merchant) gets a conditional line: credit applied → "Referral credit covered $X of
+your platform fee"; not applied (cash mode / no balance) → normal fee line.
+
+## Phase 4 — UI/overview — ⏳ after Phase 2
+PayoutCard: show credited-to-date + available credit; per-payment "fee covered by credit" in transactions.
+
+---
+
+
+---
+
 # 📋 IMPLEMENTATION PLAN — Referral Revenue-Share Rewards (added 2026-06, pod eddcc06a)
 
 > STATUS: PLAN ONLY — not yet built. Awaiting go-ahead. Money-path feature; prod Railway DB in SAFE MODE

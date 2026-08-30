@@ -5,7 +5,7 @@ interface ReferralRewardAttributes {
   reward_id: number;
   referral_id: number;
   user_id: number;
-  reward_type: 'bonus_credit' | 'discount' | 'commission';
+  reward_type: 'bonus_credit' | 'discount' | 'commission' | 'commission_credit';
   amount: number;
   currency: string;
   status: 'pending' | 'credited' | 'withdrawn';
@@ -22,7 +22,7 @@ class ReferralReward extends Model<ReferralRewardAttributes, ReferralRewardCreat
   public reward_id!: number;
   public referral_id!: number;
   public user_id!: number;
-  public reward_type!: 'bonus_credit' | 'discount' | 'commission';
+  public reward_type!: 'bonus_credit' | 'discount' | 'commission' | 'commission_credit';
   public amount!: number;
   public currency!: string;
   public status!: 'pending' | 'credited' | 'withdrawn';

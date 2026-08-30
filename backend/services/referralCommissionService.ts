@@ -143,6 +143,7 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
   window_months: number;
   total_accrued_usd: number;
   total_paid_usd: number;
+  total_credited_usd: number;
   unpaid_balance_usd: number;
   active_windows: number;
   referrals: Array<{
@@ -151,6 +152,7 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
     status: string;
     accrued_usd: number;
     paid_usd: number;
+    credited_usd: number;
     unpaid_usd: number;
     commission_rate: number;
     window_ends_at: Date | null;
@@ -168,13 +170,15 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
   const now = Date.now();
   let totalAccrued = 0;
   let totalPaid = 0;
+  let totalCredited = 0;
   let activeWindows = 0;
   let rate = 0.25;
 
   const list = referrals.map((r) => {
     const accrued = Number(r.commission_accrued_usd || 0);
     const paid = Number(r.commission_paid_usd || 0);
-    const unpaid = Math.max(0, Math.round((accrued - paid) * 100) / 100);
+    const credited = Number(r.commission_credited_usd || 0);
+    const unpaid = Math.max(0, Math.round((accrued - paid - credited) * 100) / 100);
     const windowEnds = r.commission_window_ends_at ? new Date(r.commission_window_ends_at) : null;
     const daysRemaining = windowEnds
       ? Math.max(0, Math.ceil((windowEnds.getTime() - now) / (24 * 60 * 60 * 1000)))
@@ -183,12 +187,14 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
     rate = Number(r.commission_rate ?? 0.25) || rate;
     totalAccrued += accrued;
     totalPaid += paid;
+    totalCredited += credited;
     return {
       referral_id: r.referral_id,
       referred_user_id: r.referred_user_id,
       status: r.status,
       accrued_usd: accrued,
       paid_usd: paid,
+      credited_usd: credited,
       unpaid_usd: unpaid,
       commission_rate: Number(r.commission_rate ?? 0.25),
       window_ends_at: windowEnds,
@@ -201,7 +207,8 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
     window_months: 12,
     total_accrued_usd: Math.round(totalAccrued * 100) / 100,
     total_paid_usd: Math.round(totalPaid * 100) / 100,
-    unpaid_balance_usd: Math.round((totalAccrued - totalPaid) * 100) / 100,
+    total_credited_usd: Math.round(totalCredited * 100) / 100,
+    unpaid_balance_usd: Math.round((totalAccrued - totalPaid - totalCredited) * 100) / 100,
     active_windows: activeWindows,
     referrals: list,
   };

@@ -337,6 +337,27 @@ const addReferralPayoutAutomation = async (): Promise<void> => {
   );
 };
 
+/**
+ * Migration 0014: referral revenue-share FEE-CREDIT consumption.
+ * - tbl_referral += "commission_credited_usd" (running total spent as fee credit;
+ *   unpaid = accrued − cash_paid − credited, so a dollar can never be both cashed
+ *   out AND credited).
+ * - tbl_user_transaction += "referral_credit_applied_usd" (per-settlement audit of
+ *   how much referral credit reduced the platform fee on that payment).
+ * Additive, constant-default => metadata-only, idempotent. Safe on live prod.
+ */
+const addReferralFeeCreditColumns = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_referral"
+       ADD COLUMN IF NOT EXISTS "commission_credited_usd" DECIMAL(14,2) DEFAULT 0`
+  );
+  await sequelize.query(
+    `ALTER TABLE "tbl_user_transaction"
+       ADD COLUMN IF NOT EXISTS "referral_credit_applied_usd" DECIMAL(14,2) DEFAULT 0`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -353,5 +374,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0011_referral_commission", up: addReferralCommissionColumns },
     { version: "0012_referral_payout", up: addReferralPayoutSupport },
     { version: "0013_referral_payout_automation", up: addReferralPayoutAutomation },
+    { version: "0014_referral_fee_credit", up: addReferralFeeCreditColumns },
   ];
 }

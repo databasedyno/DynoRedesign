@@ -113,6 +113,7 @@ export const getPayoutOverview = async (userId: number) => {
 
   const commission = await getReferrerCommissionSummary(userId);
   const unpaid = round2(commission.unpaid_balance_usd || 0);
+  const creditedBalance = round2(commission.total_credited_usd || 0);
 
   const wallets = await getReusableTrc20Wallets(userId);
 
@@ -133,6 +134,10 @@ export const getPayoutOverview = async (userId: number) => {
     address_verified_at: verifiedAt,
     min_payout_usd: MIN_PAYOUT_USDT,
     unpaid_balance_usd: unpaid,
+    // Lifetime referral credit already spent reducing this account's own fees.
+    credited_balance_usd: creditedBalance,
+    // Balance usable as fee credit right now (0 while in cash mode — reserved for cash-out).
+    available_credit_usd: mode === "credit" ? unpaid : 0,
     has_verified_address: hasVerifiedAddress,
     auto: !!u.referral_payout_auto,
     auto_min_usd: u.referral_payout_auto_min_usd != null ? Number(u.referral_payout_auto_min_usd) : MIN_PAYOUT_USDT,
