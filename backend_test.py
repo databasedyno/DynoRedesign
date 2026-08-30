@@ -9,7 +9,7 @@ import json
 import sys
 
 # Base URL from the review request
-BASE_URL = "https://f4fac0c7-89cb-481b-b75e-9154e7929f58.preview.emergentagent.com"
+BASE_URL = "https://dynopay-setup-11.preview.emergentagent.com"
 
 def print_section(title):
     """Print a formatted section header"""

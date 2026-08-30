@@ -25,7 +25,7 @@
     {
       "url": "/",
       "lang": "fr",
-      "error": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://blockchain-pay-30.preview.emergentagent.com/\", waiting until \"networkidle\"\n",
+      "error": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://dynopay-setup-11.preview.emergentagent.com/\", waiting until \"networkidle\"\n",
       "pass": false
     },
     {
