@@ -2,10 +2,13 @@
  * Referral Reward Monitor Cron
  * Schedule: every 15 minutes at :10 / :25 / :40 / :55
  *
- * Unified referral program (Option A — "give 50% off, get 50% off"):
- *   A) REFERRER REWARD — when a REFERRED merchant takes their first qualifying
- *      ($100+) payment, unlock the referrer's 50%/30d fee discount. Idempotent
- *      via referralService.processReferrerReward (only acts on pending referrals).
+ * Unified referral program (revenue-share, 2026-08):
+ *   A) ACTIVATION + ACCRUAL — when a REFERRED merchant takes their first qualifying
+ *      ($100+) payment, the referral is ACTIVATED (opens a 12-month window) via
+ *      referralService.processReferrerReward. Then, every cycle, we accrue 25% of
+ *      that merchant's platform fees into the referrer's running balance
+ *      (referralService.accrueActiveReferralCommissions — idempotent, window-capped).
+ *      Delivered as fee-credit by default; opt-in USDT-TRC20 cash-out is Phase 2.
  *   B) POST-PAYMENT CUSTOMER INVITE — when a CUSTOMER (payer) with no Dynopay
  *      account completes a payment, email them a one-time 50%/30d invite to open
  *      their own merchant account. This REPLACES the old invite-at-link-creation
@@ -28,6 +31,28 @@ export const setupReferralRewardCron = () => {
     } catch (e) {
       log(`Referral Reward Monitor (rewards) error: ${e}`, "error");
       captureError(e, "cron", { extraContext: "referralRewardMonitor:rewards" });
+    }
+    try {
+      // Revenue-share: accrue 25% of each referred merchant's platform fees into
+      // the referrer's running balance (idempotent watermark; window-capped).
+      const { accrueActiveReferralCommissions } = await import("../../services/referralService");
+      await accrueActiveReferralCommissions();
+    } catch (e) {
+      log(`Referral Reward Monitor (accrual) error: ${e}`, "error");
+      captureError(e, "cron", { extraContext: "referralRewardMonitor:accrual" });
+    }
+    try {
+      // Revenue-share CASH-OUT (Phase 2): submit any 'pending' USDT-TRC20 payouts
+      // to Binance (treasury-guarded) and poll 'processing' ones to completion.
+      // Leader/prod only; NEVER runs in SAFE-MODE preview (Binance geo-blocked there).
+      const { processReferralPayouts, monitorReferralPayouts } = await import(
+        "../../services/referralPayoutService"
+      );
+      await processReferralPayouts();
+      await monitorReferralPayouts();
+    } catch (e) {
+      log(`Referral Reward Monitor (payouts) error: ${e}`, "error");
+      captureError(e, "cron", { extraContext: "referralRewardMonitor:payouts" });
     }
     try {
       await sendPostPaymentInvites();

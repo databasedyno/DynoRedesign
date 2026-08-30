@@ -19,6 +19,7 @@ import Toast from "@/Components/UI/Toast";
 import { pageProps } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import PayoutCard from "@/Components/Page/Referrals/PayoutCard";
 
 type ReferralStats = {
   referral_code: string;
@@ -46,6 +47,25 @@ type Earnings = {
     pending_earnings: number;
     credited_earnings: number;
     withdrawn_earnings: number;
+  };
+  commission?: {
+    rate_percent: number;
+    window_months: number;
+    total_accrued_usd: number;
+    total_paid_usd: number;
+    unpaid_balance_usd: number;
+    active_windows: number;
+    referrals: Array<{
+      referral_id: number;
+      referred_user_id: number;
+      status: string;
+      accrued_usd: number;
+      paid_usd: number;
+      unpaid_usd: number;
+      commission_rate: number;
+      window_ends_at: string | null;
+      days_remaining: number | null;
+    }>;
   };
   rewards: Array<{
     id: number;
@@ -117,6 +137,11 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
     setToast({ open: true, message: label === "Referral code" ? t("referralCodeCopied") : t("referralLinkCopied"), severity: "success" });
     setTimeout(() => setToast((p) => ({ ...p, open: false })), 2000);
   }, [t]);
+
+  const showToast = useCallback((message: string, severity: "success" | "error") => {
+    setToast({ open: true, message, severity });
+    setTimeout(() => setToast((p) => ({ ...p, open: false })), 3500);
+  }, []);
 
   const handleShare = useCallback(async () => {
     const referralLink = codeData?.referral_link;
@@ -655,7 +680,127 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               </Box>
             )}
           </Box>
+
+          {/* Revenue Share — 25% of referred merchants' fees, 12-month window (Phase 1: visibility) */}
+          <Box
+            data-testid="referral-revenue-share-card"
+            sx={{
+              p: isMobile ? 2 : 2.5,
+              borderRadius: "12px",
+              border: `1px solid ${theme.palette.border.main}`,
+              bgcolor: theme.palette.background.paper,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+              <Icon name="trending-up" size={20} color={brandFg(theme.palette.mode === "dark")} />
+              <Typography
+                sx={{
+                  fontSize: isMobile ? "14px" : "16px",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                }}
+              >
+                {t("revenueShareTitle", { defaultValue: "Revenue share" })}
+              </Typography>
+              <Box
+                sx={{
+                  ml: "auto",
+                  px: 1,
+                  py: 0.25,
+                  borderRadius: "999px",
+                  bgcolor: theme.palette.action.hover,
+                  fontSize: "11px",
+                  fontFamily: MONO,
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                {`${earnings?.commission?.rate_percent ?? 25}% · ${earnings?.commission?.window_months ?? 12}mo`}
+              </Box>
+            </Box>
+            <Typography
+              sx={{
+                fontSize: "12px",
+                fontFamily: "var(--font-sans)",
+                color: theme.palette.text.secondary,
+                mb: 2,
+              }}
+            >
+              {t("revenueShareSubtitle", { defaultValue: "Earn a share of the fees from every merchant you refer, for 12 months. Paid as fee credit by default." })}
+            </Typography>
+            {loading ? (
+              <Skeleton width="100%" height={80} />
+            ) : (
+              <>
+                <Box sx={{ mb: 2 }}>
+                  <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.text.secondary }}>
+                    {t("availableBalance", { defaultValue: "Available balance" })}
+                  </Typography>
+                  <Typography sx={{ fontSize: isMobile ? "24px" : "28px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary, lineHeight: 1.2 }}>
+                    {`$${(earnings?.commission?.unpaid_balance_usd ?? 0).toFixed(2)}`}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  {[
+                    { label: t("totalAccrued", { defaultValue: "Total accrued" }), value: earnings?.commission?.total_accrued_usd ?? 0 },
+                    { label: t("paidOut", { defaultValue: "Paid out" }), value: earnings?.commission?.total_paid_usd ?? 0 },
+                  ].map((row) => (
+                    <Box key={row.label} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.text.secondary }}>
+                        {row.label}
+                      </Typography>
+                      <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: theme.palette.text.primary }}>
+                        {`$${row.value.toFixed(2)}`}
+                      </Typography>
+                    </Box>
+                  ))}
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.text.secondary }}>
+                      {t("activeWindows", { defaultValue: "Active windows" })}
+                    </Typography>
+                    <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: theme.palette.text.primary }}>
+                      {earnings?.commission?.active_windows ?? 0}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {(earnings?.commission?.referrals ?? []).length > 0 ? (
+                  <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1 }} data-testid="referral-revenue-share-breakdown">
+                    {(earnings?.commission?.referrals ?? []).map((r) => (
+                      <Box key={r.referral_id} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: `1px solid ${theme.palette.border.main}`, pt: 1 }}>
+                        <Box>
+                          <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
+                            {t("referredMerchant", { defaultValue: "Referred merchant" })} #{r.referred_user_id}
+                          </Typography>
+                          <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                            {r.days_remaining != null
+                              ? t("daysLeftInWindow", { defaultValue: "{{days}} days left", days: r.days_remaining })
+                              : t("windowClosed", { defaultValue: "Window closed" })}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: theme.palette.text.primary }}>
+                          {`$${(r.accrued_usd ?? 0).toFixed(2)}`}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography sx={{ mt: 2, fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                    {t("noRevenueShareYet", { defaultValue: "No revenue share yet — it starts when a merchant you referred takes their first $100+ payment." })}
+                  </Typography>
+                )}
+
+                <Typography sx={{ mt: 2, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
+                  {t("cashOutBelowNote", { defaultValue: "Paid as fee credit by default. Switch to USDT (TRC-20) cash-out below." })}
+                </Typography>
+              </>
+            )}
+          </Box>
         </Box>
+
+        {/* Cash-out — opt-in USDT (TRC-20) payout (Phase 2) */}
+        <PayoutCard isMobile={isMobile} onToast={showToast} />
 
         {/* Referral List */}
         <Box

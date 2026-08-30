@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import Referral from '../models/referralModels/referralModel';
 import ReferralReward from '../models/referralModels/referralRewardModel';
 import User from '../models/userModels/userModel';
-import { redeemUserReferralCode as svcRedeemUserReferral, redeemRefereeCode as svcRedeemReferee } from '../services/referralService';
+import { redeemUserReferralCode as svcRedeemUserReferral, redeemRefereeCode as svcRedeemReferee, getReferrerCommissionSummary } from '../services/referralService';
 import { Op } from 'sequelize';
 import { IUserType } from '../utils/types';
 
@@ -353,10 +353,14 @@ export const getReferralEarnings = async (_req: Request, res: Response) => {
         .reduce((sum, r) => sum + Number(r.amount), 0),
     };
 
+    // Revenue-share commission summary (25% of referred merchants' fees, 12-mo window).
+    const commission = await getReferrerCommissionSummary(userId);
+
     return res.status(200).json({
       message: "Earnings retrieved successfully",
       data: {
         summary,
+        commission,
         rewards,
       },
     });

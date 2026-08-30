@@ -1,5 +1,18 @@
 <!-- 2026-06 (pod eddcc06a): Performance pass SHIPPED — 10 approved fixes B1-B4 (login defer, email-verified via Redis cache, single-round-trip fire-and-forget cache writes, walletRead Promise.all) + F1-F6 (dashboard waterfall collapse, SWR localStorage persistence, bundle-analyzer wired, useUsdRates dedupe, /dashboard route prefetch, Unbounded font diet). SAFE MODE + money-math untouched. Validated: testing_agent 100% (7/7), /app/test_reports/iteration_99.json. Details: memory/CHANGELOG.md (top). -->
 
+# REFERRAL REVENUE-SHARE — PHASE 2 CASH-OUT (2026-06 fork) — DONE (backend verified read-only)
+
+Preview: https://86622934-ca16-4cf6-b326-eedf49aa6ae1.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF).
+
+Opt-in USDT-TRC20 cash-out for referral revenue-share (25%/12mo). BLENDED model: fee-credit default, cash opt-in.
+- Backend NEW: `services/referralPayoutService.ts` (cross-company TRON wallet reuse, OTP opt-in, OTP-gated payout request → 'pending' row [NO funds move], leader/prod Binance send+monitor), `controller/referralPayoutController.ts`, 4 routes (GET /payout/overview, POST /payout/otp|opt-in|request). MIN=env REFERRAL_MIN_PAYOUT_USDT (default $25). Reuses sendWithdrawalOTPEmail. submitWithdrawal is CRON-ONLY (OFF in SAFE-MODE preview).
+- R2 fix: split Phase-1-bloated `referralService.ts` (661→465) → new `referralCommissionService.ts` (209). Save-to-GitHub unblocked.
+- Frontend NEW: `Components/Page/Referrals/PayoutCard.tsx` on `pages/referrals.tsx` — Credit/Cash toggle, saved-wallet reuse picker + add-new-address OTP flow, "Cash out $X" (mode=cash+verified+≥MIN), pending status. data-testids throughout.
+- Copy updated (user request): referrer reward 50%/30d → "25% revenue share, 12mo" + 42 payout keys in ALL 6 locales (check-i18n referrals clean); landing FAQ a6 rewritten ×6.
+- VERIFIED (read-only per user, NO live-account writes): overview (cross-company wallet aggregated+tron-validated), all negative validations (invalid addr/no-OTP/wrong-mode→400), OTP send 200 (Redis+suppressed email), account left UNCHANGED (mode=credit). earnings regression PASS. FE+BE tsc 0; /referrals 200. NOT E2E'd: happy-path opt-in/withdraw WRITE paths + real Binance send (Binance geo-blocked + email off in preview) — code+compile verified, run on prod.
+
+
+
 
 # i18n POLISH SWEEP (2026-08-29 fork, pod 202ba772) — Invoice PDF locale + Relative-time + Email subjects — DONE (verified)
 

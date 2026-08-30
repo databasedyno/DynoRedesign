@@ -111,6 +111,23 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Referee code from payment link email",
     },
+    // Referral revenue-share cash-out (ACCOUNT-level; Phase 2)
+    referral_payout_mode: {
+      type: DataTypes.STRING(10),
+      defaultValue: "credit",
+      allowNull: true,
+      comment: "Referral reward delivery: 'credit' (default, reduces own fees) or 'cash' (USDT-TRC20 payout)",
+    },
+    referral_payout_trc20_address: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
+      comment: "Account-level USDT-TRC20 (Tron) address for referral cash-out payouts",
+    },
+    referral_payout_address_verified_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "When the referral payout address was verified (saved-wallet reuse or OTP)",
+    },
     // Fee Discount fields
     fee_discount_percent: {
       type: DataTypes.DECIMAL(5, 2),

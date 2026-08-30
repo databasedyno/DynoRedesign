@@ -288,6 +288,41 @@ const addLedgerMoneyInvariants = async (): Promise<void> => {
   `);
 };
 
+/**
+ * 0011 — Referral revenue-share accrual columns on tbl_referral.
+ * Backs the "earn 25% of a referred merchant's platform fees for 12 months" model.
+ * Additive, nullable / constant-default => metadata-only in Postgres (no table
+ * rewrite), fully idempotent (ADD COLUMN IF NOT EXISTS). Verified safe on live prod.
+ */
+const addReferralCommissionColumns = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_referral"
+       ADD COLUMN IF NOT EXISTS "commission_rate" DECIMAL(5,4) DEFAULT 0.2500,
+       ADD COLUMN IF NOT EXISTS "commission_window_ends_at" TIMESTAMP NULL,
+       ADD COLUMN IF NOT EXISTS "commission_accrued_usd" DECIMAL(14,2) DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "commission_paid_usd" DECIMAL(14,2) DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "last_accrual_at" TIMESTAMP NULL`
+  );
+};
+
+/**
+ * 0012 — Referral revenue-share CASH-OUT (Phase 2). ACCOUNT-level payout prefs on
+ * tbl_user (additive, constant-default / nullable => metadata-only, idempotent) +
+ * a new tbl_referral_payout table (create-only sync). Safe on live prod.
+ */
+const addReferralPayoutSupport = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_user"
+       ADD COLUMN IF NOT EXISTS "referral_payout_mode" VARCHAR(10) DEFAULT 'credit',
+       ADD COLUMN IF NOT EXISTS "referral_payout_trc20_address" VARCHAR(64),
+       ADD COLUMN IF NOT EXISTS "referral_payout_address_verified_at" TIMESTAMP NULL`
+  );
+  const { default: referralPayoutModel } = await import("../models/referralModels/referralPayoutModel");
+  if (isSyncable(referralPayoutModel)) await referralPayoutModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -301,5 +336,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0008_outbox", up: createOutboxTable },
     { version: "0009_key_access_audit", up: createKeyAccessAuditTable },
     { version: "0010_ledger_money_invariants", up: addLedgerMoneyInvariants },
+    { version: "0011_referral_commission", up: addReferralCommissionColumns },
+    { version: "0012_referral_payout", up: addReferralPayoutSupport },
   ];
 }

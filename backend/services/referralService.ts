@@ -323,8 +323,17 @@ export const redeemUserReferralCode = async (params: {
 };
 
 /**
- * Process referrer reward when referee completes qualifying transaction ($100+)
- * Called from payment completion flow
+ * Activate a referral when the referred merchant completes their first qualifying
+ * ($100+) transaction. Opens the 12-month REVENUE-SHARE commission window.
+ *
+ * REVENUE-SHARE MODEL (2026-08): the referrer no longer gets a 50%/30d fee
+ * discount here. Instead the referral becomes 'active' and starts accruing 25%
+ * of the platform fees the referred merchant generates, for 12 months
+ * (see accrueReferralCommission + the referralRewardMonitor cron).
+ *
+ * Idempotent: only acts on a 'pending' referral; re-runs are no-ops once active.
+ * (Name kept as processReferrerReward — the cron imports it; activateReferral is
+ * an alias below.)
  */
 export const processReferrerReward = async (params: {
   refereeUserId: number;
@@ -332,12 +341,12 @@ export const processReferrerReward = async (params: {
 }): Promise<boolean> => {
   const { refereeUserId, transactionAmount } = params;
 
-  // Check minimum transaction amount
+  // Activation gate: referred merchant's first $100+ successful payment.
   if (transactionAmount < 100) {
     return false;
   }
 
-  // Find pending referral for this user
+  // Find pending referral for this referred merchant.
   const referral = await Referral.findOne({
     where: {
       referred_user_id: refereeUserId,
@@ -346,46 +355,43 @@ export const processReferrerReward = async (params: {
   });
 
   if (!referral) {
-    return false; // No pending referral
+    return false; // No pending referral (already active/rewarded, or none)
   }
 
-  // Activate referral
+  // Open the 12-month commission window from activation. NO fee discount granted.
+  const activatedAt = new Date();
+  const windowEndsAt = new Date(activatedAt);
+  windowEndsAt.setMonth(windowEndsAt.getMonth() + 12);
+
+  const currentRate = Number(referral.commission_rate ?? 0.25) || 0.25;
+
   await referral.update({
     status: 'active',
-    activated_at: new Date(),
+    activated_at: activatedAt,
+    commission_rate: currentRate,
+    commission_window_ends_at: windowEndsAt,
+    last_accrual_at: activatedAt,
   });
 
-  // Apply discount to referrer (50% for 30 days)
-  const referrerDiscountExpiry = new Date();
-  referrerDiscountExpiry.setDate(referrerDiscountExpiry.getDate() + 30);
-
-  // Check if referrer has existing discount
-  const referrer = await User.findByPk(referral.referrer_user_id);
-  const referrerData = referrer as unknown as Record<string, unknown> | null;
-  const currentExpiry = referrerData?.fee_discount_expires_at as Date | null;
-
-  // Only apply if no current discount or current discount expired
-  if (!currentExpiry || new Date() > currentExpiry) {
-    await User.update(
-      {
-        fee_discount_percent: 50,
-        fee_discount_expires_at: referrerDiscountExpiry,
-        fee_discount_reason: 'user_referral_referrer',
-      },
-      { where: { user_id: referral.referrer_user_id } }
-    );
-  }
-
-  // Mark referral as rewarded
-  await referral.update({
-    status: 'rewarded',
-    rewarded_at: new Date(),
-  });
-
-  apiLogger.info(`[UserReferral] Referrer ${referral.referrer_user_id} rewarded - 50% off for 30 days`);
+  apiLogger.info(
+    `[Referral] Activated referral ${referral.referral_id} (referrer ${referral.referrer_user_id}); ` +
+    `${(currentRate * 100).toFixed(0)}% revenue-share window open until ${windowEndsAt.toISOString()}`
+  );
 
   return true;
 };
+
+/** Explicit alias — "activate" is the accurate verb for the revenue-share model. */
+export const activateReferral = processReferrerReward;
+
+// Revenue-share commission accrual lives in referralCommissionService.ts
+// (R2 file-size split — pure move, no logic change). Re-exported for callers.
+import {
+  accrueReferralCommission,
+  accrueActiveReferralCommissions,
+  getReferrerCommissionSummary,
+} from './referralCommissionService';
+export { accrueReferralCommission, accrueActiveReferralCommissions, getReferrerCommissionSummary };
 
 // ============================================
 // FEE DISCOUNT CALCULATION
@@ -449,6 +455,10 @@ export default {
   generateUserReferralCode,
   redeemUserReferralCode,
   processReferrerReward,
+  activateReferral,
+  accrueReferralCommission,
+  accrueActiveReferralCommissions,
+  getReferrerCommissionSummary,
   // Fee Discount
   getUserFeeDiscount,
   calculateDiscountedFee,

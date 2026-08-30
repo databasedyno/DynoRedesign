@@ -189,6 +189,131 @@ Phase 1 is safe regardless of the payout decision because it moves NO funds:
 DEFER to Phase 2 (needs Q1–Q4): the actual cash-out endpoint, treasury send, OTP payout, admin approval,
 liquidity/conversion.
 
+### 9. DECISIONS LOCKED (2026-08-29, pod dynopay-setup) + PHASE 1 KICKOFF
+User answered the open questions and refined the cash-out. FINAL, build to this:
+- Q1 delivery = **BLENDED**. DEFAULT = fee-credit (accrued USD auto-reduces the referrer's OWN Dynopay fees);
+  OPT-IN = cash-out. A referrer only cashes out if they explicitly switch to cash AND have a saved payout address.
+- Q2 payout rail = **BINANCE API** (user overrode the §8.4 "Tatum on-chain recommended" default). Reuse the
+  EXISTING conversion payout rail: `services/binanceService.ts::submitWithdrawal({ coin, address, amount, network })`
+  → POST `/sapi/v1/capital/withdraw/apply`; `getWithdrawalHistory()` to poll; `getAssetBalance("USDT")` treasury
+  guard. `services/conversionService.ts::processWithdrawals()` (Phase 3) is the working reference implementation.
+- PAYOUT ASSET/CHAIN = **ALWAYS USDT-TRC20** (no user choice). `binanceService.toBinanceNetwork` maps TRC20→"TRX".
+  Amount = accrued-unpaid USD (USDT 1:1). Binance auto-deducts its ~1 USDT network fee from the amount (referrer
+  bears it — identical to merchant conversion payouts).
+- ADDRESS RULE = the referrer MUST have a saved USDT-TRC20 address to opt into cash; no address ⇒ stays on credit.
+  ► PHASE 2 UX NOTE (remember): if the referrer ALREADY has a USDT-TRC20 address on file (e.g. an existing
+    settlement/reusable wallet), let them SELECT it at opt-in instead of re-typing — only prompt for a new address
+    if none exists. Good UX. New/changed address ⇒ OTP-verify (reuse withdrawal OTP `<email>-withdrawal-otp`).
+- Q3 cash-out trigger = user-initiated `POST /api/referral/payout/request`, OTP-gated, idempotency key (DEFAULT;
+  can add auto-pay later). Q4 liquidity = via Binance (convert-on-demand path already exists). MIN_PAYOUT_USDT
+  default **$25** (env-configurable). Q5 ship order = Phase 1 now.
+
+BACKEND UI/API surface (final):
+- Phase 1 (THIS SESSION): migration 0011 (tbl_referral commission cols); repurpose processReferrerReward →
+  activation (open 12-mo window, NO discount grant); accrueReferralCommission (idempotent watermark) + cron
+  accrueActiveReferralCommissions; getReferrerCommissionSummary; extend GET /api/referral/earnings (adds
+  `commission` block, backward-compatible).
+- Phase 2: add tbl_user cols `referral_payout_mode ENUM('credit','cash') DEFAULT 'credit'`,
+  `referral_payout_trc20_address`, `referral_payout_address_verified_at`; endpoints
+  `POST /api/referral/payout/opt-in` (validate TRC20 via wallet-address-validator + OTP; or SELECT existing saved
+  wallet) and `POST /api/referral/payout/request` (Binance submitWithdrawal, treasury guard, idempotency, tx_hash
+  audit on tbl_referral_reward). Leader-cron/prod only; OFF in SAFE-MODE preview.
+
+FRONTEND UI (final):
+- Phase 1: Dashboard "Referral Earnings" card + `pages/referrals.tsx` breakdown → REAL accrued commission (USD),
+  per-referred-merchant (accrued / this-period / 12-mo window days left). Copy: "Earn 25% of the fees from every
+  merchant you refer, for 12 months — as fee credit, or cash out in USDT (TRC-20)." data-testids on all.
+- Phase 2: "Payout method" control — Credit (default) vs Cash (USDT-TRC20). Choosing Cash → wallet picker
+  (SELECT an existing saved TRC20 address, or add a new one) + OTP modal; "Withdraw to wallet" button appears only
+  when mode=cash + verified address + balance ≥ MIN_PAYOUT_USDT.
+
+PHASE 1 STATUS: ✅ DONE (2026-08-29). Backend verified by deep_testing_backend_v2 (5/5 read-only tests
+pass: /health SAFE MODE, login regression, GET /api/referral/earnings now returns data.commission
+{rate_percent:25, window_months:12, total_accrued_usd, total_paid_usd, unpaid_balance_usd, active_windows,
+referrals[]} with data.summary/data.rewards unchanged). Migration 0011 applied on live prod (5 cols on
+tbl_referral). Accrual math validated by READ-ONLY dry-run (user_id=1: $814.36 fees → $203.59 @25%).
+Frontend: pages/referrals.tsx "Revenue share" card (data-testid=referral-revenue-share-card) shows available
+balance / total accrued / paid out / active windows + per-merchant breakdown; en/referrals.json keys added;
+/referrals compiles ✓ 200. Cron accrual stays OFF in SAFE-MODE preview (leader/prod only).
+NOT yet run through the frontend testing agent (awaiting user OK — LIVE prod DB, read-only screen).
+NEXT: Phase 2 (opt-in USDT-TRC20 address — reuse existing saved wallet if present — + Binance payout).
+
+### 10. PHASE 2 — CASH-OUT UX: ACCOUNT-LEVEL PAYOUT, CROSS-COMPANY WALLET REUSE (2026-08-29)
+KEY CONSTRAINT (user): the referral reward accrues at the ACCOUNT (tbl_user.user_id) level, but saved
+wallets (tbl_user_wallet) are PER-COMPANY (columns: user_id, company_id, wallet_name, wallet_type,
+wallet_address, destination_tag). An account can have several companies (e.g. user_id=1 → companies 1, 71),
+each with its own settlement wallets. TRON-capable wallet_types present: 'USDT-TRC20' and 'TRX' (same TRON
+address format; either can receive USDT-TRC20).
+
+RESOLUTION:
+- Payout address is stored ON THE ACCOUNT: tbl_user.referral_payout_trc20_address (+ _mode, _verified_at).
+  Decoupled from any company so it survives company/wallet edits.
+- Opt-in aggregates EVERY TRON address the account already has across ALL its companies:
+  SELECT ... FROM tbl_user_wallet WHERE user_id=:uid AND wallet_type IN ('USDT-TRC20','TRX'); validate each
+  with tronweb.utils.address.isAddress; DE-DUPE by address; label = wallet_name + company name + masked addr.
+  Selecting an ALREADY-SAVED (already OTP-verified when added) address needs NO fresh OTP. A brand-NEW address
+  requires OTP (Redis referral-payout-otp:<userId>, reuse the wallet OTP email). No TRON address anywhere ⇒
+  prompt to add one (validate + OTP).
+- Each cash-out REQUEST is OTP-gated (recommended). MIN_PAYOUT_USDT default $25 (env REFERRAL_MIN_PAYOUT_USDT).
+
+COPY (account-vs-company explicit):
+- Heading: "Cash out — USDT (TRC-20)".
+- Explainer: "Referral earnings belong to your account, not a single business. Choose one USDT (TRC-20)
+  wallet for all your referral payouts."
+- Picker: "Use a wallet you've already saved" (aggregated list) vs "Add a new USDT (TRC-20) address".
+- Warning: "Sent on Tron (TRC-20). Double-check it — crypto sent to a wrong address can't be recovered."
+
+BACKEND (Phase 2, this session):
+- Migration 0012: tbl_user cols (referral_payout_mode 'credit'|'cash' DEFAULT 'credit',
+  referral_payout_trc20_address, referral_payout_address_verified_at) + CREATE tbl_referral_payout
+  (payout_id, user_id, amount_usd, trc20_address, status pending|processing|completed|failed,
+  idempotency_key UNIQUE, binance_withdrawal_id, tx_hash, withdrawal_fee_usdt, error_message,
+  requested_at, completed_at).
+- referralPayoutService: getReusableTrc20Wallets(userId) [cross-company, tron-validated, deduped],
+  getPayoutOverview, sendPayoutOtp/verify, setPayoutMode (select-saved = no OTP; new = OTP),
+  requestPayout (validate mode=cash + verified addr + unpaid ≥ MIN + OTP + idempotency → 'pending' row;
+  NO Binance call here), processReferralPayouts (LEADER/PROD cron only: treasury guard getAssetBalance('USDT')
+  → binanceService.submitWithdrawal({coin:'USDT', network:'TRC20', address, amount}) → poll
+  getWithdrawalHistory(status 6=complete) → bump commission_paid_usd across referrals + mark reward rows
+  withdrawn + tx_hash). submitWithdrawal is NEVER called from an API request — cron only.
+- Endpoints (authMiddleware): GET /api/referral/payout/overview, POST /api/referral/payout/otp,
+  POST /api/referral/payout/opt-in, POST /api/referral/payout/request.
+SAFE MODE: cron OFF + Binance geo-blocked + outbound email OFF in preview ⇒ the SEND path and new-address OTP
+cannot be E2E-tested here; verified read-only (overview + validation negatives) in preview, real send on prod.
+
+### 10.1 PHASE 2 STATUS: ✅ DONE (2026-06, pod fork) — backend verified read-only on live prod DB
+Built exactly to §9/§10. Files:
+- `services/referralPayoutService.ts` (NEW, 497 lines — under the R2 500-line hook): getReusableTrc20Wallets
+  (cross-company USDT-TRC20/TRX aggregation, tronweb-validated via tatumClient.validateTronAddress, deduped),
+  getPayoutOverview, sendPayoutOtp/consumeOtp (Redis `referral-payout-otp:<userId>`, TTL 300s, reuses
+  sendWithdrawalOTPEmail), optInPayout (saved address = NO OTP; new address = OTP), requestPayout (OTP-gated +
+  idempotency + MIN guard ⇒ 'pending' row, NO Binance call), processReferralPayouts + monitorReferralPayouts
+  (LEADER/PROD cron only: treasury guard getAssetBalance('USDT') → submitWithdrawal{coin:USDT,network:TRC20} →
+  poll status===6 → applyPayoutToReferrals reconciles commission_paid_usd + marks reward rows 'withdrawn'+tx_hash).
+- `controller/referralPayoutController.ts` (NEW) + 4 routes on referralRouter (authMiddleware):
+  GET /payout/overview, POST /payout/otp, POST /payout/opt-in, POST /payout/request.
+- `referralRewardMonitor.ts` cron: added processReferralPayouts()+monitorReferralPayouts() (leader/prod only,
+  OFF in SAFE-MODE preview — setupReferralRewardCron is inside registerLeaderCronJobs).
+- MIN_PAYOUT_USDT = env REFERRAL_MIN_PAYOUT_USDT (default $25).
+- FILE-SIZE FIX (R2): Phase 1 had grown `services/referralService.ts` to 661 lines (NEW-file blocker). Pure-move
+  split → `services/referralCommissionService.ts` (accrueReferralCommission / accrueActiveReferralCommissions /
+  getReferrerCommissionSummary), re-exported from referralService for callers. referralService=465, commission=209.
+  tsc clean, file-size gate EXIT 0 (Save-to-GitHub unblocked).
+- FRONTEND: `Components/Page/Referrals/PayoutCard.tsx` (NEW) mounted on `pages/referrals.tsx` — payout-method
+  toggle (Credit default / Cash), saved-wallet picker (reuse) + "add new address" (OTP) flow, "Cash out $X" button
+  (only when mode=cash + verified addr + balance ≥ MIN), pending-payout status. data-testids throughout.
+  api/endpoints.ts: payoutOverview/Otp/OptIn/Request. Copy: referrals.json referrer reward changed 50%/30d →
+  "25% revenue share, 12mo" + 42 payout/revenue-share keys ADDED to ALL 6 locales (check-i18n referrals CLEAN);
+  landing.json FAQ a6 rewritten (6 locales).
+- VERIFIED (read-only, per user — NO writes to live account): login 200; GET /payout/overview 200 (mode=credit,
+  min=25, cross-company wallet aggregated: TRX "The Dev Store" TTve8v6Y…4mAkxR tron-validated); opt-in invalid
+  addr→400, opt-in new addr no-otp→400 OTP_REQUIRED, request while credit→400; POST /payout/otp valid new addr→200
+  (Redis-only, email SUPPRESSED, log "[ReferralPayout] OTP sent"), invalid addr→400; overview re-checked ⇒ live
+  account UNCHANGED (mode still credit). earnings endpoint regression PASS (commission block intact). frontend +
+  backend tsc = 0 errors; /referrals compiles+200. NOT E2E'd: the happy-path opt-in/withdraw WRITE paths + real
+  Binance send (user chose read-only; Binance geo-blocked + email off in preview) — code+compile verified, run on prod.
+
+
 ---
 
 

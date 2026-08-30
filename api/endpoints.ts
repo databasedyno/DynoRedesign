@@ -105,6 +105,10 @@ export const API_ENDPOINTS = {
     leaderboard: "/referral/leaderboard",
     list: "/referral/list",
     myCode: "/referral/my-code",
+    payoutOverview: "/referral/payout/overview",
+    payoutOtp: "/referral/payout/otp",
+    payoutOptIn: "/referral/payout/opt-in",
+    payoutRequest: "/referral/payout/request",
   },
 
   status: {

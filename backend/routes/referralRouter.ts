@@ -1,5 +1,6 @@
 import express from 'express';
 import referralController from '../controller/referralController';
+import referralPayoutController from '../controller/referralPayoutController';
 import { authMiddleware } from '../middleware';
 
 const referralRouter = express.Router();
@@ -18,5 +19,11 @@ referralRouter.get('/my-code', authMiddleware, referralController.getMyReferralC
 referralRouter.get('/list', authMiddleware, referralController.listMyReferrals);
 referralRouter.get('/earnings', authMiddleware, referralController.getReferralEarnings);
 referralRouter.get('/discount-status', authMiddleware, referralController.getDiscountStatus);
+
+// Revenue-share CASH-OUT (Phase 2 — opt-in USDT-TRC20 via Binance)
+referralRouter.get('/payout/overview', authMiddleware, referralPayoutController.payoutOverview);
+referralRouter.post('/payout/otp', authMiddleware, referralPayoutController.payoutOtp);
+referralRouter.post('/payout/opt-in', authMiddleware, referralPayoutController.payoutOptIn);
+referralRouter.post('/payout/request', authMiddleware, referralPayoutController.payoutRequest);
 
 export default referralRouter;
