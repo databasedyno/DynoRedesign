@@ -119,9 +119,10 @@ Locate the merchant-facing settlement email (admin-fee/payment-received notifica
 ~L933-975 and/or `services/email/*` — confirm the exact sender used for the MERCHANT, not the admin-ops email).
 Pass `appliedCreditUsd` through to the template; add i18n keys ×6 locales (check-i18n must stay CLEAN).
 
-## Phase 3 — Email — ⏳ after Phase 2
+## Phase 3 — Email — ✅ DONE (2026-08-30) — superseded by the "Phase 3 — Merchant payout-confirmation email" section above
 `sendPaymentReceivedEmail` (merchant) gets a conditional line: credit applied → "Referral credit covered $X of
-your platform fee"; not applied (cash mode / no balance) → normal fee line.
+your platform fee"; not applied (cash mode / no balance) → normal fee line. [SHIPPED: paymentReceived.referralCredit
+line in all 6 backend locales.]
 
 ## Phase 4 — UI/overview — ✅ DONE (2026-08-30)
 PayoutCard: credit-mode stats panel (available fee credit + credited-to-date; data-testids
@@ -205,12 +206,11 @@ a counted payment is not clawed back from `commission_accrued_usd`. Documented a
 `processPendingReferrerRewards`: `t.base_amount >= 100`. For a non-USD `base_currency` the $100 gate drifts.
 base_currency is USD for essentially all merchants today → low impact. Normalise to USD if multi-currency grows.
 
-### F7 — [BLOCKER FOR THE PROMISED FEATURE] Settlement still does NOT consume credit (Phase 2 not built)
-`consumeReferralCreditForTransaction` works perfectly in isolation, but NOTHING in the money path calls it yet —
-the fee reduction at settlement (Phase 2, decisions locked above) is unbuilt. Until Phase 2 ships, `credited`
-stays 0 in production and the UI/email promise ("reduces your own DynoPay fees") is still not delivered.
-Consequence: F1 is not exploitable in prod TODAY (credited is always 0), but F1 MUST be fixed BEFORE or WITH
-Phase 2, otherwise the first credit-then-switch-to-cash user can double-spend.
+### F7 — [RESOLVED 2026-08-30] Settlement now consumes credit (Phase 2 built) — was: BLOCKER FOR THE PROMISED FEATURE
+RESOLVED: the primary path (chainVerification.ts) AND the recovery path (paymentController.ts::processIncompletePayments)
+now call the fee reduction + `consumeReferralCreditForTransaction` at settlement (see Phase 2 §2.4). F1 was fixed in the
+same pass, so a credit-then-switch-to-cash user can no longer double-spend. `credited` will start moving on prod once
+deployed (Save to GitHub) and real credit-mode referrers take payments.
 
 ## CANNOT be verified in SAFE-MODE preview (environmental, not defects) — verify on prod leader
 - Real accrual/nudge/auto/payout crons (leader-only, ENABLE_BACKGROUND_JOBS off here).
