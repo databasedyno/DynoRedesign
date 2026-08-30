@@ -352,7 +352,11 @@ export const acceptInvite = async (req: express.Request, res: express.Response) 
         email_verified: true, // invite proves email ownership
         referral_code: generateReferralCode(),
         login_type: "EMAIL",
-      });
+      }, {
+        // A teammate joins an EXISTING business — do not auto-create a personal
+        // company for them (see accountProvisioning afterCreate hook).
+        skipAccountProvisioning: true,
+      } as unknown as Parameters<typeof userModel.create>[1]);
       createdNew = true;
     }
 

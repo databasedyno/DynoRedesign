@@ -14,6 +14,29 @@
 # ############################################################################
 
 # ============================================================================
+# SESSION 2026-06 (fork, pod 10424307): Team/RBAC follow-ups + accept-flow fixes
+#   Verified via reversible sentinel harnesses + HTTP + testing_agent (iters 103-105).
+#   All backend harnesses passing: verify_rbac_phase3 (12/12), verify_rbac_owneronly
+#   (7/7), verify_team_activity (8/8), verify_member_data. Gates: tsc(be+fe)/file-size
+#   /secrets all EXIT 0; /health healthy; SAFE MODE on.
+# backend/frontend features:
+#   - owner-only lockdown (wallet + delete/revoke key) — requireCompanyOwnerBy
+#   - member UI gating (sidebar disable+tooltip, switcher Member badge/no-edit)
+#   - currency UX (Settlement currency + confirm modal; Display currency 'View only')
+#   - team activity log (migration 0016 tbl_team_activity + auditMutations + panel)
+#   - CSRF exempt /api/team/accept; login email encodeURIComponent
+#   - MEMBER DATA: validateCompanyOwnership member-aware -> owner-scoped dashboard
+#     + transactions (verified member==owner over HTTP; 403 for non-granted)
+#   - A1: invitees no longer get a stray auto-provisioned company
+#     (accountProvisioning skipAccountProvisioning; acceptInvite passes it) —
+#     verified accept -> OWNED_COMPANIES=0, getCompany=[granted is_member=true].
+#   KNOWN-OPEN (user deferred): A2 getFeeTiers owner-remap (member $0/Starter);
+#     B effective-owner for wallets/keys/customers/invoices/etc.; C1 key-create
+#     owner-only; C2 manage_team escalation guards; C3 revoke UI refresh; D chrome.
+# ============================================================================
+
+
+# ============================================================================
 # SESSION — 2026-06 (fork, pod 10424307) : RBAC PHASE 3 — MEMBER ACCESS ENFORCEMENT
 #   Backend-only. Self-verified via REVERSIBLE harness (NOT the testing_agent — a
 #   direct middleware-chain harness was the precise, low-risk choice on the LIVE

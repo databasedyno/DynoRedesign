@@ -152,6 +152,17 @@ export const ensurePersonalAccount = async (user: {
  */
 export const registerAccountProvisioningHooks = (): void => {
   userModel.addHook("afterCreate", "provisionPersonalAccount", (instance: any, options: any) => {
+    // Opt-out: users created by the team invite-accept flow are joining an
+    // EXISTING business, not starting their own — they must NOT get an
+    // auto-provisioned personal company (that would make a teammate look like a
+    // brand-new merchant and land them on a stray workspace).
+    if (options?.skipAccountProvisioning) {
+      companyLogger.info("Skipped personal-account provisioning (skipAccountProvisioning option)", {
+        user_id: instance?.user_id ?? instance?.dataValues?.user_id,
+      });
+      return;
+    }
+
     const user = {
       user_id: instance?.user_id ?? instance?.dataValues?.user_id,
       name: instance?.name ?? instance?.dataValues?.name,

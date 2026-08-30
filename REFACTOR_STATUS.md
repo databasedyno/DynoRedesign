@@ -1,4 +1,65 @@
 # ============================================================================
+# 2026-06 (fork) SESSION — TEAM/RBAC FOLLOW-UPS (4 features) + accept-flow fixes
+# ============================================================================
+# LIVE prod Railway DB, SAFE MODE (jobs OFF, email OFF, Redis /1). All verified
+# via reversible sentinel harnesses + HTTP + testing_agent (iterations 103-105).
+#
+# 1) OWNER-ONLY LOCKDOWN (wallet + delete/revoke API key):
+#    middleware/teamPermissionMiddleware.ts requireCompanyOwnerBy(resolver) +
+#    resolvers in apiRouter (api_id->company) & walletRouter (wallet_id/body->company).
+#    Owner passes, member (even manage_api_keys) 403, unresolved=no-op. Harness 7/7.
+#
+# 2) MEMBER UI GATING (frontend, Phase 4b):
+#    CompanyDataContext now exposes selectedCompany/isMember/memberRole/can(key).
+#    NewSidebar disables (opacity + data-denied='true' + "no permission" tooltip)
+#    nav items the member lacks; CompanySelector shows a 'Member' role badge +
+#    hides the edit pencil for granted companies.
+#
+# 3) CURRENCY UX: ApiKeysPage relabelled 'Settlement currency' + confirm modal
+#    (settlement-currency-confirm-dialog/-select/-cancel-btn/-confirm-btn) on
+#    change (labels/UX only). DisplayCurrencySelector -> 'Display currency' +
+#    'View only' chip (en locale updated).
+#
+# 4) TEAM ACTIVITY LOG (audit trail):
+#    migration 0016 tbl_team_activity (create-only) + models/teamActivityModel.ts.
+#    utils/activityLog.ts auditMutations(domain,{resolveCompany}) hooks res 'finish'
+#    (2xx, best-effort). Mounted on company (router-level), team (invite/update/
+#    revoke via member->company resolver), api-key & wallet mutations.
+#    GET /api/team/activity (requirePermission manage_team) -> teamActivityController.
+#    Frontend Components/Page/Settings/TeamActivityPanel.tsx in TeamSettingsSection.
+#    Harness 8/8.
+#
+# ── accept-flow / member-data fixes (from testing_agent iterations 103-105) ──
+#  * CSRF: '/api/team/accept' added to EXEMPT_PATHS (POST accept was 403).
+#  * login.tsx: checkEmail now encodeURIComponent(email) (plus-addressed emails).
+#  * MEMBER DATA SCOPING: utils/validateCompanyOwnership.ts now allows active
+#    MEMBERS and returns the company (user_id = OWNER = effective data-owner).
+#    dashboardController (all handlers incl. getChartData + getFeeTiers? see A2) and
+#    wallet getAllTransactions reassign userId->owner so a member sees the OWNER's
+#    dashboard/chart/KPIs/transactions (verified member==owner over HTTP for
+#    /dashboard,/chart,/action-counts,/recent-transactions,/pending-summary
+#    at company 1; 403 for a non-granted company). NOTE: getFeeTiers is still
+#    caller-scoped (member sees $0/Starter) — deferred as A2 (small, same pattern).
+#  * A1 (this turn) — STRAY INVITEE COMPANY KILLED: services/accountProvisioning.ts
+#    afterCreate hook now honours a `skipAccountProvisioning` create-option;
+#    teamController.acceptInvite passes it, so an invitee gets NO auto-provisioned
+#    personal company. Verified: accept -> OWNED_COMPANIES=0, getCompany returns
+#    only the granted business (is_member=true) -> defaults to it, no onboarding.
+#    (Frontend also sets sessionStorage 'dyno_suppress_onboarding' as belt-and-braces.)
+#
+# KNOWN / NOT DONE (user deferred): A2 getFeeTiers owner-remap (member sees
+#   $0/Starter — 4-line fix, same pattern as getChartData); B (effective-owner
+#   across wallets/keys/customers/invoices/payment-links/products for members
+#   holding those perms) — NOT done; C1 API-key CREATION not owner-only; C2
+#   manage_team escalation guards; C3 revoke reflected in member UI on refetch;
+#   D member onboarding banner/chip + revoke native window.confirm. See chat menu.
+# Verify harnesses: backend/scripts/verify_rbac_phase3.ts, verify_rbac_owneronly.ts,
+#   verify_team_activity.ts, verify_member_data.ts.
+# ============================================================================
+
+
+
+# ============================================================================
 # RBAC PHASE 3 — MEMBER ACCESS ENFORCEMENT — DONE (2026-06 fork) — harness 12/12
 # ============================================================================
 # Completes the Team Members/RBAC feature: invited+accepted teammates can now
