@@ -28,15 +28,20 @@ export const setupReferralRewardCron = () => {
   cron.schedule("10,25,40,55 * * * *", async () => {
     try {
       await processPendingReferrerRewards();
+      await expireStalePendingReferrals(); // F3: expire stale pending past 90-day window
     } catch (e) {
       log(`Referral Reward Monitor (rewards) error: ${e}`, "error");
       captureError(e, "cron", { extraContext: "referralRewardMonitor:rewards" });
     }
     try {
       // Revenue-share: accrue 25% of each referred merchant's platform fees into
-      // the referrer's running balance (idempotent watermark; window-capped).
-      const { accrueActiveReferralCommissions } = await import("../../services/referralService");
+      // the referrer's running balance (idempotent watermark; window-capped), then
+      // reconcile refunds/chargebacks by clawing back commission on reversed fees.
+      const { accrueActiveReferralCommissions, clawbackReversedReferralCommissions } = await import(
+        "../../services/referralService"
+      );
       await accrueActiveReferralCommissions();
+      await clawbackReversedReferralCommissions(); // F5: refund/chargeback clawback
     } catch (e) {
       log(`Referral Reward Monitor (accrual) error: ${e}`, "error");
       captureError(e, "cron", { extraContext: "referralRewardMonitor:accrual" });
@@ -79,48 +84,120 @@ export const setupReferralRewardCron = () => {
 };
 
 /**
- * A) Unlock the referrer's reward once the referred merchant has received their
- *    first qualifying ($100+) successful payment since being referred.
+ * USD-pegged currencies whose stored base_amount already IS the USD value, so the
+ * $100 activation gate needs no FX call for them (the overwhelming common case).
  */
-const processPendingReferrerRewards = async () => {
+const USD_PEGGED = new Set([
+  "USD", "USDT", "USDC", "BUSD", "DAI",
+  "USDT-TRC20", "USDT-ERC20", "USDC-ERC20",
+  "USDT_TRC20", "USDT_ERC20", "USDC_ERC20",
+  "USDT-POLYGON", "USDT_POLYGON",
+]);
+
+/**
+ * A) Unlock the referrer's reward once the referred merchant has received their
+ *    first qualifying ($100+ USD) successful payment since being referred, WITHIN
+ *    the 90-day activation window.
+ *
+ * F3: only payments with `t."createdAt" <= r.expires_at` qualify (90-day window).
+ * F6: the $100 gate is evaluated in USD, not the raw base_currency amount. We fetch
+ *     the largest successful in-window payment PER (referred_user, currency) so USD
+ *     normalization needs at most one FX conversion per distinct currency.
+ */
+export const processPendingReferrerRewards = async () => {
   const rows = await sequelize.query<{
     referred_user_id: number;
+    base_currency: string | null;
     max_amount: string | null;
   }>(
     `SELECT r.referred_user_id,
+            UPPER(COALESCE(t.base_currency, 'USD')) AS base_currency,
             MAX(t.base_amount) AS max_amount
        FROM tbl_referral r
        JOIN tbl_company c ON c.user_id = r.referred_user_id
        JOIN tbl_customer_transaction t ON t.company_id = c.company_id
       WHERE r.status = 'pending'
         AND t.status = 'successful'
-        AND t.base_amount >= 100
+        AND t.base_amount > 0
         AND t."createdAt" >= r.referred_at
-      GROUP BY r.referred_user_id`,
+        AND (r.expires_at IS NULL OR t."createdAt" <= r.expires_at)
+      GROUP BY r.referred_user_id, UPPER(COALESCE(t.base_currency, 'USD'))`,
     { type: QueryTypes.SELECT }
   );
 
   if (rows.length === 0) return;
 
+  // Reduce to the max USD-valued SINGLE payment per referred merchant.
+  const { convertToUSD } = await import("../currencyUtils");
+  const maxUsdByUser = new Map<number, number>();
+  for (const row of rows) {
+    const amount = Number(row.max_amount || 0);
+    if (amount <= 0) continue;
+    const currency = (row.base_currency || "USD").toUpperCase();
+    let usd: number;
+    if (USD_PEGGED.has(currency)) {
+      usd = amount;
+    } else {
+      try {
+        const converted = Number(await convertToUSD(currency, amount));
+        // Fallback to the raw amount on FX failure (0) — never worse than the
+        // pre-fix behaviour, and avoids missing a legit activation on an FX hiccup.
+        usd = converted > 0 ? converted : amount;
+        if (converted <= 0) {
+          log(
+            `Referral Reward Monitor: FX for ${currency} failed; using raw amount for the $100 gate (user ${row.referred_user_id})`,
+            "warn"
+          );
+        }
+      } catch {
+        usd = amount;
+      }
+    }
+    const prev = maxUsdByUser.get(row.referred_user_id) || 0;
+    if (usd > prev) maxUsdByUser.set(row.referred_user_id, usd);
+  }
+
   const { processReferrerReward } = await import("../../services/referralService");
 
-  for (const row of rows) {
+  for (const [referredUserId, maxUsd] of maxUsdByUser) {
     try {
-      const amount = Number(row.max_amount || 0);
+      if (maxUsd < 100) continue; // USD-normalized activation gate (F6)
       const rewarded = await processReferrerReward({
-        refereeUserId: row.referred_user_id,
-        transactionAmount: amount,
+        refereeUserId: referredUserId,
+        transactionAmount: maxUsd,
       });
       if (rewarded) {
         log(
-          `Referral Reward Monitor: referrer of merchant ${row.referred_user_id} rewarded (first payment $${amount})`,
+          `Referral Reward Monitor: referrer of merchant ${referredUserId} rewarded (first payment ≈ $${maxUsd.toFixed(2)} USD)`,
           "info"
         );
       }
     } catch (e) {
-      log(`Referral Reward Monitor: reward error for user ${row.referred_user_id}: ${e}`, "error");
+      log(`Referral Reward Monitor: reward error for user ${referredUserId}: ${e}`, "error");
     }
   }
+};
+
+/**
+ * F3: sweep stale PENDING referrals whose 90-day activation window has elapsed with
+ * no qualifying payment → 'expired'. Runs AFTER activation so a within-window payment
+ * processed late still activates first (its createdAt <= expires_at still qualifies).
+ */
+export const expireStalePendingReferrals = async (): Promise<number> => {
+  const expired = await sequelize.query<{ referral_id: number }>(
+    `UPDATE tbl_referral
+        SET status = 'expired'
+      WHERE status = 'pending'
+        AND expires_at IS NOT NULL
+        AND expires_at < NOW()
+    RETURNING referral_id`,
+    { type: QueryTypes.SELECT }
+  );
+  const count = expired.length;
+  if (count > 0) {
+    log(`Referral Reward Monitor: expired ${count} stale pending referral(s) past their 90-day window`, "info");
+  }
+  return count;
 };
 
 /**

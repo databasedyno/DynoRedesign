@@ -265,11 +265,14 @@ export const redeemUserReferralCode = async (params: {
     return { success: false, message: 'You cannot refer yourself' };
   }
 
-  // Check if referral already exists
+  // F4 fix: a referred user may hold only ONE referral across ALL referrers.
+  // Guard on referred_user_id (any pending/active/rewarded) — mirrors the
+  // redeemRefereeCode path — so a second referrer's organic code can't create a
+  // duplicate pending row that lingers forever (activation only picks one).
   const existingReferral = await Referral.findOne({
     where: {
-      referrer_user_id: referrerId,
       referred_user_id: newUserId,
+      status: { [Op.in]: ['pending', 'active', 'rewarded'] },
     },
   });
 
@@ -390,8 +393,16 @@ import {
   accrueReferralCommission,
   accrueActiveReferralCommissions,
   getReferrerCommissionSummary,
+  clawbackReferralCommission,
+  clawbackReversedReferralCommissions,
 } from './referralCommissionService';
-export { accrueReferralCommission, accrueActiveReferralCommissions, getReferrerCommissionSummary };
+export {
+  accrueReferralCommission,
+  accrueActiveReferralCommissions,
+  getReferrerCommissionSummary,
+  clawbackReferralCommission,
+  clawbackReversedReferralCommissions,
+};
 
 // ============================================
 // FEE DISCOUNT CALCULATION
@@ -459,6 +470,8 @@ export default {
   accrueReferralCommission,
   accrueActiveReferralCommissions,
   getReferrerCommissionSummary,
+  clawbackReferralCommission,
+  clawbackReversedReferralCommissions,
   // Fee Discount
   getUserFeeDiscount,
   calculateDiscountedFee,

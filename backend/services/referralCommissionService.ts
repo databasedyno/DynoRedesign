@@ -214,3 +214,116 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
   };
 };
 
+// ============================================
+// F5 — CLAWBACK ON REFUND / CHARGEBACK / REVERSAL (2026-08)
+// Accrual is forward-only (watermark), so a transaction counted while SETTLED that
+// is LATER reversed (its status leaves the PROCESSED set — e.g. 'refunded'/'failed')
+// would otherwise leave its commission accrued forever. This reconciles each
+// referral's running accrued total against the CURRENT settled-fee reality over the
+// slice we have already accrued (activated_at, last_accrual_at] and claws back any
+// excess. Idempotent (after clawback accrued == expected), floored at paid+credited
+// so unpaid_balance can never go negative, moves NO funds.
+// ============================================
+
+/** Reconcile ONE referral's accrued commission against currently-settled fees. */
+export const clawbackReferralCommission = async (referral: Referral): Promise<number> => {
+  const rate = Number(referral.commission_rate ?? 0.25) || 0.25;
+  const accrued = Number(referral.commission_accrued_usd || 0);
+  if (accrued <= 0) return 0;
+
+  const activatedAt = referral.activated_at ? new Date(referral.activated_at) : null;
+  const lastAccrual = referral.last_accrual_at ? new Date(referral.last_accrual_at) : null;
+  // Nothing accrued yet (no slice to reconcile) if the watermark hasn't advanced.
+  if (!activatedAt || !lastAccrual || lastAccrual.getTime() <= activatedAt.getTime()) return 0;
+
+  // Recompute the platform fees for the ALREADY-ACCRUED slice using the SAME
+  // formula + status filter as accrual — reversed rows drop out of PROCESSED_STATUS_SQL.
+  const feeRows = await sequelize.query<{ fees_usd: string | null }>(
+    `SELECT COALESCE(SUM(
+        (COALESCE(ut.transaction_fee, 0) + COALESCE(ut.fixed_fee, 0))
+        * (COALESCE(ut.usd_value, 0) / NULLIF(ut.base_amount, 0))
+      ), 0) AS fees_usd
+       FROM tbl_user_transaction ut
+      WHERE ut.user_id = :referredUserId
+        AND ut.base_amount > 0
+        AND ${PROCESSED_STATUS_SQL}
+        AND ut."createdAt" > :activatedAt
+        AND ut."createdAt" <= :lastAccrual`,
+    {
+      replacements: {
+        referredUserId: referral.referred_user_id,
+        activatedAt,
+        lastAccrual,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
+
+  const currentFeesUsd = Number(feeRows[0]?.fees_usd || 0);
+  const expectedAccrued = Math.round(currentFeesUsd * rate * 100) / 100;
+
+  // Expected still matches (or exceeds) accrued → nothing was reversed.
+  if (expectedAccrued >= accrued - 0.005) return 0;
+
+  // Never claw back value already delivered (paid out or applied as fee-credit),
+  // so unpaid_balance = accrued − paid − credited stays >= 0.
+  const paid = Number(referral.commission_paid_usd || 0);
+  const credited = Number(referral.commission_credited_usd || 0);
+  const floor = Math.round((paid + credited) * 100) / 100;
+
+  const target = Math.max(expectedAccrued, floor);
+  if (target >= accrued - 0.005) return 0;
+
+  const clawback = Math.round((accrued - target) * 100) / 100;
+
+  await referral.update({ commission_accrued_usd: target });
+
+  // Keep the running 'commission' reward row + legacy dashboard total in sync.
+  const existing = await ReferralReward.findOne({
+    where: { referral_id: referral.referral_id, reward_type: 'commission' },
+  });
+  if (existing) {
+    await existing.update({ amount: target });
+  }
+  await User.increment(
+    { referral_bonus_earned: -clawback },
+    { where: { user_id: referral.referrer_user_id } }
+  );
+
+  apiLogger.warn(
+    `[Referral] Clawed back $${clawback.toFixed(2)} from referral ${referral.referral_id} ` +
+    `(accrued $${accrued.toFixed(2)} → $${target.toFixed(2)}; reversed/refunded settled fees; ` +
+    `floor paid+credited=$${floor.toFixed(2)})`
+  );
+
+  return clawback;
+};
+
+/**
+ * Reconcile ALL active/rewarded referrals with commission accrued > 0 for
+ * refund/chargeback clawbacks. Called by referralRewardMonitor AFTER accrual
+ * (leader-only). Returns total USD clawed back.
+ */
+export const clawbackReversedReferralCommissions = async (): Promise<number> => {
+  const referrals = await Referral.findAll({
+    where: {
+      status: { [Op.in]: ['active', 'rewarded'] },
+      commission_accrued_usd: { [Op.gt]: 0 },
+    },
+  });
+  let total = 0;
+  for (const referral of referrals) {
+    try {
+      total += await clawbackReferralCommission(referral);
+    } catch (e) {
+      apiLogger.error(`[Referral] clawback error for referral ${referral.referral_id}: ${e}`);
+    }
+  }
+  if (total > 0) {
+    apiLogger.info(
+      `[Referral] Clawback cycle complete — $${total.toFixed(2)} reversed across ${referrals.length} referral(s)`
+    );
+  }
+  return total;
+};
+

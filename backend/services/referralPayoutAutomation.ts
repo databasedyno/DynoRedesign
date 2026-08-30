@@ -31,6 +31,7 @@ export const processReferralNudges = async (): Promise<number> => {
        FROM tbl_referral r
        JOIN tbl_user u ON u.user_id = r.referrer_user_id
       WHERE r.status IN ('active','rewarded')
+        AND u.referral_payout_mode = 'cash'
         AND u.referral_payout_nudged_at IS NULL
         AND u.email IS NOT NULL
       GROUP BY u.user_id, u.email, u.name, u.language, u.referral_payout_mode

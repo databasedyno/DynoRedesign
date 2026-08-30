@@ -14,6 +14,71 @@
 # ############################################################################
 
 # ============================================================================
+# CURRENT SESSION — 2026-08-30 (pod dynopay-setup) : REFERRAL FINDINGS F2–F6 FIX
+#   Fixed 5 referral-system findings from memory/REFACTOR_STATUS.md (all backend,
+#   leader-cron logic; NO fund movement):
+#     F2 — cash-out nudge no longer fires for credit-mode referrers
+#          (services/referralPayoutAutomation.ts::processReferralNudges: +AND referral_payout_mode='cash')
+#     F3 — 90-day activation window now ENFORCED: activation query gained
+#          (r.expires_at IS NULL OR t."createdAt" <= r.expires_at); new
+#          expireStalePendingReferrals() sweep moves stale pending→expired
+#          (utils/crons/referralRewardMonitor.ts)
+#     F4 — a referred user can hold only ONE referral across ALL referrers
+#          (services/referralService.ts::redeemUserReferralCode guard now keyed on
+#          referred_user_id + status IN pending/active/rewarded — mirrors referee path)
+#     F5 — refund/chargeback CLAWBACK: new clawback{ReferralCommission,ReversedReferralCommissions}
+#          (services/referralCommissionService.ts) recomputes accrued vs currently-settled fees
+#          over (activated_at,last_accrual_at], claws back the excess, floored at paid+credited;
+#          wired into the cron after accrual
+#     F6 — $100 activation gate now USD-NORMALIZED (convertToUSD) instead of raw base_currency
+#          amount (utils/crons/referralRewardMonitor.ts::processPendingReferrerRewards)
+#   ⚠️ LIVE prod Railway DB — SAFE MODE (ENABLE_BACKGROUND_JOBS=false). The referral crons do
+#   NOT run in preview, so these are verified via a REVERSIBLE, self-cleaning ts-node harness
+#   (scripts/verify_ff_fixes.ts) that runs the REAL fixed functions using YEAR-2000/2001 windows
+#   so NONE of the merchant's real data can fall inside them (zero contamination). Backend tsc 0.
+#   Merchant login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1).
+# ============================================================================
+
+### backend
+  - task: "Referral findings F2–F6 fix (nudge cash-mode filter, 90-day window enforce + expiry sweep, single-referral guard, refund clawback, USD-normalized activation gate)"
+    implemented: true
+    working: true
+    file: "backend/services/referralPayoutAutomation.ts, backend/utils/crons/referralRewardMonitor.ts, backend/services/referralService.ts, backend/services/referralCommissionService.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented F2–F6 (see session header). tsc --noEmit = 0 errors; backend restarted and /health healthy (db+redis connected, background_jobs.eligible=false SAFE MODE). Main ran the reversible harness once as a self-check: 11/11 checks passed and CLEANUP reported scratch_referrals_left=0, scratch_txns_left=0, user1 restored. Requesting testing agent to OFFICIALLY verify."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL TESTS PASSED (2026-08-30 12:14 UTC) — Referral findings F2–F6 fix verification COMPLETE. TEST 1 - REVERSIBLE HARNESS (PRIMARY VERIFICATION): ✅ Executed scripts/verify_ff_fixes.ts with exact command. RESULT: 11/11 checks passed. All 11 checks verified: (1) ✅ F5 clawback removes fully-reversed commission ($50→$0) - clawed=50, accrued_after=0.00. (2) ✅ F5 clawback idempotent (re-run claws $0) - re-run=0. (3) ✅ F5 clawback floors at paid+credited ($50→$30, never negative unpaid) - clawed=20, accrued_after=30.00 (floor=paid20+credited10=30). (4) ✅ F2 credit-mode referrer NOT nudged to cash out - sent=0, nudged_at=null. (5) ✅ F2 cash-mode referrer IS nudged (positive control) - sent=1, nudged_at confirmed, email suppressed correctly. (6) ✅ F3 expiry sweep: stale pending→expired, in-window pending untouched - stale=expired, future=pending. (7) ✅ F6 convertToUSD sanity: 100 USD == $100, 100 JPY < $100 - USD=100, JPY=0.62. (8) ✅ F6 non-USD gate: 100 JPY (<$100 USD) does NOT activate - status=pending (was wrongly 'active' pre-fix). (9) ✅ F6 USD gate: 100 USD within window ACTIVATES (positive control) - status=active. (10) ✅ F3 window: qualifying payment AFTER 90-day window does NOT activate - status=pending (was wrongly 'active' pre-fix). (11) ✅ F4 fixed guard blocks a 2nd referral from ANY referrer (old pair-guard would not) - fixedGuardFinds=true, oldPairGuardFinds(diffReferrer)=false. CLEANUP VERIFICATION: ✅ scratch_referrals_left=0 AND scratch_txns_left=0 (BOTH counts are 0, proving full reversibility on live DB). User1 restored correctly. TEST 2 - HTTP REGRESSION (Read-only): ✅ GET /health returns status='healthy', database='connected', redis='connected', background_jobs.eligible=false (SAFE MODE confirmed). ✅ POST /api/user/login (onarrival21@gmail.com / Katiekendra123@) returns HTTP 200 'Login Successful!' with accessToken (2735 chars). ✅ GET /api/referral/earnings (Bearer) returns HTTP 200 with data.commission object present (rate_percent=25, window_months=12, total_accrued_usd=0, total_paid_usd=0, total_credited_usd=0, unpaid_balance_usd=0, active_windows=0, referrals=[]). ✅ GET /api/referral/payout/overview (Bearer) returns HTTP 200 with mode='credit', credited_balance_usd=0, available_credit_usd=0 (both 0 for user_id=1 is CORRECT). STRICT COMPLIANCE: Read-only testing only, NO real referrals/payments created, NO checkout/OTP/email triggered, NO non-scratch data mutations. The reversible harness performed ALL writes and correctly cleaned up (0 scratch rows remaining). The referral findings F2–F6 fixes are WORKING CORRECTLY and PRODUCTION-READY."
+
+### What to verify (BACKEND) — deep_testing_backend_v2
+SAFETY: LIVE prod Railway DB, SAFE MODE. HTTP checks must be READ-ONLY. The harness is REVERSIBLE + self-cleaning (deletes all scratch rows by sentinel + restores user 1 in a finally block; uses year-2000/2001 windows so it never touches real data). Login: onarrival21@gmail.com / Katiekendra123@.
+
+1. RUN THE REVERSIBLE HARNESS and report every "PASS/FAIL" line + the final "=== RESULT: X/Y checks passed ===" line + the "CLEANUP:" line (BOTH scratch counts MUST be 0). Exact command:
+   cd /app/backend && env TS_NODE_TRANSPILE_ONLY=1 DOTENV_CONFIG_PATH=/app/backend/.env node -r dotenv/config -r ts-node/register scripts/verify_ff_fixes.ts
+   Expected: 11/11 checks pass — F5 clawback ($50→$0, idempotent, floor at paid+credited $50→$30), F2 (credit NOT nudged / cash IS nudged), F3 expiry sweep (stale→expired, in-window untouched), F6 (100 JPY does NOT activate, 100 USD DOES), F3 window (payment after expires_at does NOT activate), F4 (single-referral guard). CLEANUP must show scratch_referrals_left=0 and scratch_txns_left=0.
+2. REGRESSION (read-only HTTP): GET /health -> healthy (db+redis connected, background_jobs.eligible=false). POST /api/user/login (onarrival21@gmail.com / Katiekendra123@) -> 200 accessToken. GET /api/referral/earnings (Bearer) -> 200 with data.commission object. GET /api/referral/payout/overview (Bearer) -> 200. Confirms the edited modules still load/boot cleanly.
+3. DO NOT create real referrals/payments, DO NOT trigger checkout/OTP/email, DO NOT mutate any non-scratch rows beyond what the self-cleaning harness does.
+
+### test_plan
+  current_focus:
+    - "Referral findings F2–F6 fix"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Fixed referral findings F2–F6 (backend cron/service logic only, no fund movement). Please verify by (1) running the reversible self-cleaning harness scripts/verify_ff_fixes.ts with the exact command in 'What to verify' item 1 and reporting its 11 PASS/FAIL lines + the RESULT + CLEANUP lines (both scratch counts must be 0), and (2) a read-only HTTP regression (health + login + referral earnings/overview). The harness uses year-2000/2001 windows so it cannot touch real merchant data; it deletes all scratch rows and restores user 1 in a finally block."
+  - agent: "testing"
+    message: "✅ VERIFICATION COMPLETE (2026-08-30 12:14 UTC) — ALL TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ REVERSIBLE HARNESS (PRIMARY): Executed with exact command, RESULT: 11/11 checks passed covering all F2–F6 fixes (clawback $50→$0 + idempotent + floor at paid+credited $50→$30; credit-mode NOT nudged / cash-mode IS nudged; expiry sweep stale→expired + in-window untouched; convertToUSD sanity 100 USD==$100 / 100 JPY<$100; non-USD gate 100 JPY does NOT activate / USD gate 100 USD ACTIVATES; window enforcement payment after expires_at does NOT activate; single-referral guard blocks 2nd referral from ANY referrer). CLEANUP VERIFIED: scratch_referrals_left=0 AND scratch_txns_left=0 (BOTH counts are 0, proving full reversibility on live DB). User1 restored. (2) ✅ HTTP REGRESSION (Read-only): Health endpoint confirms SAFE MODE (background_jobs.eligible=false, database+redis connected). Login returns HTTP 200 with accessToken. Referral earnings endpoint returns HTTP 200 with data.commission object (rate_percent=25, window_months=12, all required keys present). Payout overview returns HTTP 200 with credited_balance_usd=0, available_credit_usd=0 (correct for user_id=1). STRICT COMPLIANCE: Read-only testing only, NO real data mutations, harness performed all writes and cleaned up correctly. The referral findings F2–F6 fixes are WORKING CORRECTLY and PRODUCTION-READY. Main agent should summarize and finish."
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-30 (pod dynopay-setup) : REFERRAL FEE-CREDIT — RECOVERY PATH (follow-up to Phase 2)
 #   Extends Option 1.a fee-credit to controller/paymentController.ts::processIncompletePayments
 #   (both branches: completed-partial + incomplete-expired) via new reusable helper
