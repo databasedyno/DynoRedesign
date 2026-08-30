@@ -48,6 +48,10 @@ const SOCIALS: readonly SocialItemType[] = [
   { label: "Facebook", icon: Facebook, link: "https://www.facebook.com/dynopay" },
 ] as const;
 
+// Social media links can be hidden platform-wide via env.
+// Set NEXT_PUBLIC_SHOW_SOCIAL_LINKS=false to hide them. Default (unset) = shown.
+const SHOW_SOCIAL_LINKS = process.env.NEXT_PUBLIC_SHOW_SOCIAL_LINKS !== "false";
+
 const TRUST = ["Non-custodial", "9 blockchains", "Encrypted", "GDPR / AML aligned", "No chargebacks"] as const;
 
 const HomeFooter: FC = () => {
@@ -162,15 +166,17 @@ const HomeFooter: FC = () => {
             >
               {t("footerDescription1")} {t("footerDescription2")}
             </Typography>
-            <SocialsWrapper sx={{ mt: 3.5 }}>
-              {SOCIALS.map((item) => (
-                <Link key={item.label} href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.label}>
-                  <SocialItem>
-                    <Image src={item.icon} alt={item.label} width={18} height={18} />
-                  </SocialItem>
-                </Link>
-              ))}
-            </SocialsWrapper>
+            {SHOW_SOCIAL_LINKS && (
+              <SocialsWrapper sx={{ mt: 3.5 }}>
+                {SOCIALS.map((item) => (
+                  <Link key={item.label} href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.label}>
+                    <SocialItem>
+                      <Image src={item.icon} alt={item.label} width={18} height={18} />
+                    </SocialItem>
+                  </Link>
+                ))}
+              </SocialsWrapper>
+            )}
           </Box>
 
           {/* Link columns */}

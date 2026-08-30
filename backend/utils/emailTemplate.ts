@@ -72,6 +72,8 @@ export const baseEmailTemplate = (
 
   // Social icons: real PNGs over HTTPS (SVG/data: URIs don't render in email).
   // Falls back to a text label if no server URL is configured — never a broken image.
+  // Can be hidden platform-wide via env: set SHOW_SOCIAL_LINKS=false. Default = shown.
+  const showSocialLinks = (process.env.SHOW_SOCIAL_LINKS ?? 'true').toLowerCase() !== 'false';
   const socials: Array<{ name: string; url: string; label: string }> = [
     { name: 'facebook', url: 'https://www.facebook.com/dynopay', label: 'Facebook' },
     { name: 'instagram', url: 'https://www.instagram.com/dynopay', label: 'Instagram' },
@@ -86,11 +88,11 @@ export const baseEmailTemplate = (
       : `<span style="color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${s.label}</span>`;
     return `<td style="padding: 0 8px;"><a href="${s.url}" target="_blank" style="display: inline-block; text-decoration: none;">${inner}</a></td>`;
   }).join('');
-  const socialIconsBlock = `<tr>
+  const socialIconsBlock = showSocialLinks ? `<tr>
                   <td align="center" style="padding-bottom: 16px;">
                     <table role="presentation" cellpadding="0" cellspacing="0"><tr>${socialCells}</tr></table>
                   </td>
-                </tr>`;
+                </tr>` : '';
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
