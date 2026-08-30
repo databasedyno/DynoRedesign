@@ -14,6 +14,123 @@
 # ############################################################################
 
 # ============================================================================
+# BUGFIX — 2026-08-30 : Misleading referral copy on the dashboard Grow panel
+#   User: "I thought Referral only gets CREDIT now." Confirmed in code
+#   (referralService.ts processReferrerReward, lines ~328-340): 2026-08 REVENUE-SHARE
+#   model — the REFERRER no longer gets a 50%/30d fee discount; they earn 25% of the
+#   referred merchant's fees for 12 months (credit or cash-out). Only the REFEREE gets
+#   50% off for 30 days (redeemUserReferralCode sets fee_discount_percent:50 on the NEW
+#   user only). So "you both get 50% off fees for 30 days" was factually wrong.
+#   FIX: corrected growReferralBody / growTrialCompleteBody / attnReferralBody in ALL 6
+#   locales (langs/locales/{en,es,fr,de,pt,nl}/dashboardLayout.json) to say the referrer
+#   earns 25% fee credit for 12 months + the referred merchant gets 50% off for 30 days.
+#   (No frontend consumes the stale backend referrer_bonus strings — UI copy only.)
+# ============================================================================
+
+frontend:
+  - task: "Fix misleading referral copy on dashboard Grow panel (referrer earns 25% credit for 12mo, NOT '50% off for both')"
+    implemented: true
+    working: true
+    file: "langs/locales/{en,es,fr,de,pt,nl}/dashboardLayout.json (growReferralBody, growTrialCompleteBody, attnReferralBody); consumed by Components/Page/Dashboard/GrowPanel.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Corrected the 3 dashboard Grow-panel strings in all 6 locales. The referral card must now say the referrer earns 25% of the referred merchant's fees as CREDIT for 12 months (revenue share) and the referred merchant gets 50% off for 30 days. The phrase 'you both get 50% off fees for 30 days' must be GONE. Grow panel testid: dashboard-grow-panel. For merchant user_id=1 the active card is likely 'trial complete' (growTrialCompleteBody) or the 'Refer a merchant' card (growReferralBody)."
+      - working: true
+        agent: "testing"
+        comment: "✅ BUGFIX VERIFIED (2026-08-30) — Referral copy fix WORKING CORRECTLY. TEST RESULTS: (1) ✅ Login succeeded: 2-step flow (onarrival21@gmail.com → Continue → password → Sign in) worked correctly, landed on dashboard. (2) ✅ Grow panel found: data-testid='dashboard-grow-panel' present and visible. (3) ✅ VERBATIM TEXT: 'You've used your first fee-free payment. Refer a merchant — you earn 25% of their fees as credit for 12 months, and they get 50% off fees for 30 days.' (4) ✅ CRITICAL PASS: OLD misleading phrase 'you both get 50% off fees for 30 days' is ABSENT (NOT PRESENT anywhere in the Grow panel). (5) ✅ NEW correct copy elements ALL PRESENT: '25%' ✓, 'credit' ✓, '12 months' ✓, '50% off' ✓, '30 days' ✓. The copy now ACCURATELY describes the reward structure: referrer earns 25% of referred merchant's fees as credit for 12 months, referred merchant gets 50% off for 30 days. Screenshot captured showing dashboard with Grow panel. STRICT COMPLIANCE: Read-only testing only, NO data mutations, NO referral actions clicked. The referral copy bugfix is PRODUCTION-READY."
+
+test_plan:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+## ⚠️ LIVE PROD Railway DB — SAFE MODE. READ-ONLY except the LOGIN itself.
+## Login (2-step): onarrival21@gmail.com / Katiekendra123@  (email -> Continue -> password -> Sign in).
+## Verify the dashboard Grow panel referral copy is accurate (see agent_communication).
+
+agent_communication:
+  - agent: "main"
+    message: "BUGFIX VERIFY (frontend copy). Log in (2-step) as onarrival21@gmail.com / Katiekendra123@ and open the dashboard. Find the Grow panel (data-testid='dashboard-grow-panel'). It shows ONE offer card; for this account it should be the celebratory 'trial complete' card or the 'Refer a merchant' card. VERIFY the referral copy is now ACCURATE: it must mention the referrer earns '25%' of the referred merchant's fees as 'credit' for '12 months', and that the referred merchant gets '50% off ... 30 days'. CRITICAL: the OLD misleading phrase 'you both get 50% off fees for 30 days' must NOT appear anywhere in the Grow panel. Report the exact text shown in the Grow panel. READ-ONLY: do not click referral CTAs that submit anything, do not create data, do not log out and back in repeatedly."
+  - agent: "testing"
+    message: "✅ BUGFIX VERIFICATION COMPLETE (2026-08-30) — PASS. The referral copy fix is WORKING CORRECTLY. SUMMARY: (1) ✅ Login succeeded via 2-step flow (email → Continue → password → Sign in), landed on dashboard. (2) ✅ Grow panel located with data-testid='dashboard-grow-panel', showing the 'First payment complete' celebratory card. (3) ✅ EXACT TEXT (verbatim): 'You've used your first fee-free payment. Refer a merchant — you earn 25% of their fees as credit for 12 months, and they get 50% off fees for 30 days.' (4) ✅✅✅ CRITICAL PASS: The OLD misleading phrase 'you both get 50% off fees for 30 days' is ABSENT (NOT PRESENT). (5) ✅ NEW correct copy elements ALL PRESENT: Contains '25%' ✓, 'credit' ✓, '12 months' ✓, '50% off' ✓, '30 days' ✓. The copy now ACCURATELY describes: referrer earns 25% of referred merchant's fees as credit for 12 months, and referred merchant gets 50% off for 30 days. Screenshot captured. STRICT COMPLIANCE: Read-only testing only, NO referral button clicks, NO data mutations. The referral copy bugfix is PRODUCTION-READY. Main agent should summarize and finish."
+
+
+
+# ============================================================================
+# CURRENT SESSION — 2026-08-30 : REFERRAL MILESTONES + DIGEST + PUBLIC LEADERBOARD
+#   New/changed (all verified via reversible harnesses + tsc 0 errors):
+#   1) BACKEND: GET /api/referral/leaderboard/public  (NEW, PUBLIC, count-only —
+#      returns ONLY {rank, referral_count}; NO names / user_id / earnings). Existing
+#      GET /api/referral/leaderboard is UNCHANGED (still used by the dashboard).
+#   2) BACKEND: activation email — referralService.processReferrerReward now emails the
+#      REFERRER when their referred merchant flips to active (best-effort, non-blocking).
+#   3) BACKEND: monthly digest — services/referralDigestService.ts + a cron
+#      (1st @ 09:00 UTC inside setupReferralRewardCron), idempotent per referrer/month.
+#   4) FRONTEND: /referral-program now shows a "Top referrers" leaderboard (count-only)
+#      via the new public endpoint; hidden when empty. i18n added to all 6 locales.
+#   NOTE: emails/crons are OFF in this SAFE-MODE preview (validated by harness, not live
+#   sends). Money-math (customer-pays 25% + credit-runs-out + all-currency credit) was
+#   PROVEN read-only on prod: scripts/verify_referral_moneymath.ts = 19/19.
+# ============================================================================
+
+## User problem statement (this session)
+## Referral milestone nudges (activation email), monthly "$X earned" digest, public
+## top-referrers leaderboard (count only, no earnings), and verify referral money-math
+## edge cases (customer-pays-fee still shares 25%; credit covers fee across all coins;
+## credit runs out -> remainder taken from the amount).
+
+backend:
+  - task: "Public referral leaderboard endpoint (count-only, no PII/earnings): GET /api/referral/leaderboard/public"
+    implemented: true
+    working: true
+    file: "backend/controller/referralController.ts, backend/routes/referralRouter.ts"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW public GET /api/referral/leaderboard/public?limit=N — returns ONLY {rank, referral_count}. No auth required. Curl-verified 200 with correct shape (empty list in prod: 0 referrers with referral_count>0). Existing /leaderboard endpoint left unchanged."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 3 TESTS PASSED (2026-08-30) — Public referral leaderboard endpoint VERIFIED and WORKING CORRECTLY. TEST 1a - GET /api/referral/leaderboard/public (default limit): ✅ HTTP 200, ✅ data.leaderboard is an ARRAY, ✅ Empty array [] (ACCEPTABLE/EXPECTED in prod - no referrers with referral_count>0 currently). TEST 1b - GET /api/referral/leaderboard/public?limit=5: ✅ HTTP 200, ✅ data.leaderboard is an ARRAY, ✅ Limit respected (≤5 items), ✅ Empty array [] (ACCEPTABLE). TEST 2 (REGRESSION) - GET /api/referral/leaderboard?limit=3: ✅ HTTP 200, ✅ data.leaderboard is an ARRAY, ✅ Limit respected (≤3 items), ✅ Empty array [] (ACCEPTABLE). PRIVACY VERIFICATION: Code review confirms the public endpoint (lines 501-524 in referralController.ts) returns ONLY {rank, referral_count} with NO PII (no name, user_id, email, total_earnings, referral_code). The empty array prevented runtime privacy testing, but the implementation is correct. The existing /leaderboard endpoint still works (regression passed). STRICT COMPLIANCE: Read-only testing only, NO data mutations, NO login required (public endpoints). The public referral leaderboard endpoint is PRODUCTION-READY."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+
+test_plan:
+  current_focus:
+    - "Public referral leaderboard endpoint (count-only, no PII/earnings): GET /api/referral/leaderboard/public"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+## ⚠️ LIVE PROD Railway DB — SAFE MODE (bg jobs OFF, email OFF, redis /1, worker=secondary).
+## READ-ONLY verification ONLY. Just GET the two endpoints below. NO writes, NO login-based
+## mutations, NO tx creation, NO payments.
+##   1) GET /api/referral/leaderboard/public  -> 200, body.data.leaderboard is an array; each
+##      item has ONLY {rank:int, referral_count:int}. MUST NOT contain name, user_id, email,
+##      or total_earnings. Try ?limit=5 (limit clamped 1..25). No Authorization header needed.
+##   2) GET /api/referral/leaderboard (existing) -> 200, still returns its usual shape (regression).
+## (In prod both may return an empty leaderboard array — that is EXPECTED right now; the pass
+##  criterion is the 200 + correct/leak-free SHAPE, not non-empty data.)
+
+agent_communication:
+  - agent: "main"
+    message: "Please run a STRICTLY READ-ONLY backend test of the NEW public endpoint GET /api/referral/leaderboard/public (and a quick regression GET on /api/referral/leaderboard). Confirm: 200 status, body.data.leaderboard is an array, and each entry exposes ONLY rank + referral_count (NO name/user_id/email/total_earnings — this is a privacy requirement). ?limit=5 should work. This is wired to the LIVE prod DB in SAFE MODE — do NOT create data, do NOT log in for mutations, do NOT submit payments. An empty leaderboard array is an acceptable/expected result; judge on shape, not data volume."
+  - agent: "testing"
+    message: "✅ BACKEND VERIFICATION COMPLETE (2026-08-30) — ALL 3 TESTS PASSED (100% pass rate). SUMMARY: (1) ✅ TEST 1a - Public leaderboard (default limit): HTTP 200, data.leaderboard is an ARRAY, empty array [] (ACCEPTABLE/EXPECTED - no referrers with count>0 in prod). (2) ✅ TEST 1b - Public leaderboard (limit=5): HTTP 200, data.leaderboard is an ARRAY, limit respected (≤5 items), empty array [] (ACCEPTABLE). (3) ✅ TEST 2 - Existing leaderboard (regression): HTTP 200, data.leaderboard is an ARRAY, limit respected (≤3 items), empty array [] (ACCEPTABLE). PRIVACY VERIFICATION: Code review of referralController.ts lines 501-524 confirms the public endpoint returns ONLY {rank, referral_count} with NO PII (no name, user_id, email, total_earnings, referral_code). The empty array prevented runtime privacy testing of actual items, but the implementation is correct and privacy-safe. The existing /leaderboard endpoint still works (regression passed). STRICT COMPLIANCE: Read-only testing only, NO data mutations, NO login required (public endpoints). The public referral leaderboard endpoint is WORKING CORRECTLY and PRODUCTION-READY. Main agent should summarize and finish."
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-08-30 : SEO POLISH (localized titles + blog OG cards)
 #   1) Trimmed 10 over-60-char localized page titles (de/es/fr/nl/pt) in
 #      langs/locales/*/pageTitles.json so they don't truncate in SERPs (now ≤57).

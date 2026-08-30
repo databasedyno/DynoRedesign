@@ -1,225 +1,340 @@
 #!/usr/bin/env python3
 """
-Backend regression test for referral fee-credit RECOVERY path
-STRICTLY READ-ONLY - SAFE MODE on LIVE PROD Railway DB
+Backend API Test for DynoPay Referral Leaderboard Endpoints
+STRICTLY READ-ONLY - No data mutations, no login required for public endpoints
 """
 
 import requests
 import json
 import sys
 
-BASE_URL = "http://localhost:8001"
-MERCHANT_EMAIL = "onarrival21@gmail.com"
-MERCHANT_PASSWORD = "Katiekendra123@"
+# Base URL from the review request
+BASE_URL = "https://f4fac0c7-89cb-481b-b75e-9154e7929f58.preview.emergentagent.com"
 
-def print_test_header(test_num, description):
+def print_section(title):
+    """Print a formatted section header"""
     print(f"\n{'='*80}")
-    print(f"TEST {test_num}: {description}")
-    print('='*80)
+    print(f"  {title}")
+    print(f"{'='*80}\n")
 
-def print_result(success, message, data=None):
-    status = "✅ PASS" if success else "❌ FAIL"
-    print(f"{status}: {message}")
-    if data:
-        print(f"Response: {json.dumps(data, indent=2)}")
-    return success
-
-def test_health_check():
-    """Test 1: Health check - confirms paymentController.ts boots cleanly with new imports"""
-    print_test_header(1, "Health Check - Boot Verification")
+def test_public_leaderboard():
+    """
+    TEST 1 (PRIMARY): GET /api/referral/leaderboard/public
+    Expected:
+    - HTTP 200
+    - JSON body has data.leaderboard which is an ARRAY
+    - Each item contains ONLY: rank (integer) and referral_count (integer)
+    - CRITICAL PRIVACY CHECK: items must NOT contain: name, user_id, email, total_earnings, referral_code
+    - No Authorization header required
+    - Empty array [] is acceptable/expected
+    """
+    print_section("TEST 1: Public Referral Leaderboard (NEW endpoint)")
+    
+    # Test 1a: Default limit
+    print("TEST 1a: GET /api/referral/leaderboard/public (default limit)")
+    url = f"{BASE_URL}/api/referral/leaderboard/public"
     
     try:
-        response = requests.get(f"{BASE_URL}/health", timeout=10)
-        data = response.json()
+        response = requests.get(url, timeout=10)
+        print(f"Status Code: {response.status_code}")
         
         if response.status_code != 200:
-            return print_result(False, f"Health check returned {response.status_code}", data)
+            print(f"❌ FAILED: Expected status 200, got {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
         
-        # Verify expected fields
-        checks = {
-            "status": data.get("status") == "healthy",
-            "database": data.get("database") == "connected",
-            "redis": data.get("redis") == "connected",
-            "background_jobs.eligible": data.get("background_jobs", {}).get("eligible") == False
-        }
+        print("✅ Status code 200 - PASSED")
         
-        all_passed = all(checks.values())
+        # Parse JSON
+        try:
+            data = response.json()
+            print(f"\nResponse JSON structure:")
+            print(json.dumps(data, indent=2))
+        except json.JSONDecodeError as e:
+            print(f"❌ FAILED: Invalid JSON response: {e}")
+            return False
         
-        if all_passed:
-            return print_result(True, 
-                f"Health check passed - status={data.get('status')}, database={data.get('database')}, "
-                f"redis={data.get('redis')}, background_jobs.eligible={data.get('background_jobs', {}).get('eligible')} (SAFE MODE confirmed)",
-                data)
+        # Check data.leaderboard exists and is an array
+        if 'data' not in data:
+            print("❌ FAILED: Response missing 'data' key")
+            return False
+        
+        if 'leaderboard' not in data['data']:
+            print("❌ FAILED: Response missing 'data.leaderboard' key")
+            return False
+        
+        leaderboard = data['data']['leaderboard']
+        
+        if not isinstance(leaderboard, list):
+            print(f"❌ FAILED: data.leaderboard is not an array, got {type(leaderboard)}")
+            return False
+        
+        print(f"✅ data.leaderboard is an ARRAY - PASSED")
+        print(f"   Array length: {len(leaderboard)}")
+        
+        # If empty, that's acceptable
+        if len(leaderboard) == 0:
+            print("✅ Empty leaderboard array [] - ACCEPTABLE (no referrers with count>0 in prod)")
+            print("\n✅ TEST 1a PASSED (empty array is expected/acceptable)")
+            return True
+        
+        # CRITICAL PRIVACY CHECK: Verify each item has ONLY rank and referral_count
+        print(f"\nCRITICAL PRIVACY CHECK: Verifying items contain ONLY rank and referral_count...")
+        
+        forbidden_keys = ['name', 'user_id', 'email', 'total_earnings', 'referral_code']
+        privacy_passed = True
+        
+        for i, item in enumerate(leaderboard):
+            print(f"\n  Item {i+1}: {json.dumps(item)}")
+            
+            # Check required keys
+            if 'rank' not in item:
+                print(f"    ❌ FAILED: Missing 'rank' key")
+                privacy_passed = False
+            elif not isinstance(item['rank'], int):
+                print(f"    ❌ FAILED: 'rank' is not an integer, got {type(item['rank'])}")
+                privacy_passed = False
+            else:
+                print(f"    ✅ 'rank' present and is integer: {item['rank']}")
+            
+            if 'referral_count' not in item:
+                print(f"    ❌ FAILED: Missing 'referral_count' key")
+                privacy_passed = False
+            elif not isinstance(item['referral_count'], int):
+                print(f"    ❌ FAILED: 'referral_count' is not an integer, got {type(item['referral_count'])}")
+                privacy_passed = False
+            else:
+                print(f"    ✅ 'referral_count' present and is integer: {item['referral_count']}")
+            
+            # Check for forbidden keys (PII/earnings)
+            item_keys = set(item.keys())
+            found_forbidden = item_keys.intersection(forbidden_keys)
+            
+            if found_forbidden:
+                print(f"    ❌ CRITICAL PRIVACY VIOLATION: Found forbidden keys: {found_forbidden}")
+                privacy_passed = False
+            else:
+                print(f"    ✅ No PII/earnings keys found")
+            
+            # Check for extra keys beyond rank and referral_count
+            expected_keys = {'rank', 'referral_count'}
+            extra_keys = item_keys - expected_keys
+            
+            if extra_keys:
+                print(f"    ⚠️  WARNING: Extra keys found: {extra_keys}")
+                privacy_passed = False
+        
+        if privacy_passed:
+            print("\n✅ PRIVACY CHECK PASSED: All items contain ONLY rank and referral_count")
+            print("✅ TEST 1a PASSED")
+            return True
         else:
-            failed_checks = [k for k, v in checks.items() if not v]
-            return print_result(False, f"Health check failed: {', '.join(failed_checks)}", data)
+            print("\n❌ PRIVACY CHECK FAILED: Items contain forbidden or extra keys")
+            print("❌ TEST 1a FAILED")
+            return False
             
-    except Exception as e:
-        return print_result(False, f"Health check exception: {str(e)}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ FAILED: Request error: {e}")
+        return False
 
-def test_login():
-    """Test 2: Login regression - paymentController hosts many payment routes"""
-    print_test_header(2, "Login Regression")
+def test_public_leaderboard_with_limit():
+    """
+    TEST 1b: GET /api/referral/leaderboard/public?limit=5
+    Same checks as TEST 1a but with limit parameter
+    """
+    print_section("TEST 1b: Public Referral Leaderboard with limit=5")
+    
+    url = f"{BASE_URL}/api/referral/leaderboard/public?limit=5"
     
     try:
-        response = requests.post(
-            f"{BASE_URL}/api/user/login",
-            json={
-                "email": MERCHANT_EMAIL,
-                "password": MERCHANT_PASSWORD
-            },
-            timeout=10
-        )
-        
-        data = response.json()
+        response = requests.get(url, timeout=10)
+        print(f"Status Code: {response.status_code}")
         
         if response.status_code != 200:
-            return print_result(False, f"Login returned {response.status_code}", data), None
+            print(f"❌ FAILED: Expected status 200, got {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
         
-        access_token = data.get("data", {}).get("accessToken")
+        print("✅ Status code 200 - PASSED")
         
-        if not access_token:
-            return print_result(False, "No accessToken in response", data), None
+        # Parse JSON
+        try:
+            data = response.json()
+            print(f"\nResponse JSON structure:")
+            print(json.dumps(data, indent=2))
+        except json.JSONDecodeError as e:
+            print(f"❌ FAILED: Invalid JSON response: {e}")
+            return False
         
-        return print_result(True, 
-            f"Login successful - HTTP 200 with accessToken (length: {len(access_token)} chars)"), access_token
-            
-    except Exception as e:
-        return print_result(False, f"Login exception: {str(e)}"), None
+        # Check data.leaderboard exists and is an array
+        if 'data' not in data or 'leaderboard' not in data['data']:
+            print("❌ FAILED: Response missing 'data.leaderboard'")
+            return False
+        
+        leaderboard = data['data']['leaderboard']
+        
+        if not isinstance(leaderboard, list):
+            print(f"❌ FAILED: data.leaderboard is not an array")
+            return False
+        
+        print(f"✅ data.leaderboard is an ARRAY - PASSED")
+        print(f"   Array length: {len(leaderboard)}")
+        
+        # Verify limit is respected (max 5 items)
+        if len(leaderboard) > 5:
+            print(f"❌ FAILED: Limit not respected, got {len(leaderboard)} items (expected max 5)")
+            return False
+        
+        print(f"✅ Limit respected (≤5 items) - PASSED")
+        
+        # If empty, that's acceptable
+        if len(leaderboard) == 0:
+            print("✅ Empty leaderboard array [] - ACCEPTABLE")
+            print("\n✅ TEST 1b PASSED")
+            return True
+        
+        # Quick privacy check on first item
+        print(f"\nQuick privacy check on first item:")
+        item = leaderboard[0]
+        print(f"  Item: {json.dumps(item)}")
+        
+        forbidden_keys = ['name', 'user_id', 'email', 'total_earnings', 'referral_code']
+        item_keys = set(item.keys())
+        found_forbidden = item_keys.intersection(forbidden_keys)
+        
+        if found_forbidden:
+            print(f"  ❌ CRITICAL PRIVACY VIOLATION: Found forbidden keys: {found_forbidden}")
+            print("❌ TEST 1b FAILED")
+            return False
+        
+        expected_keys = {'rank', 'referral_count'}
+        if item_keys != expected_keys:
+            print(f"  ❌ FAILED: Keys mismatch. Expected {expected_keys}, got {item_keys}")
+            print("❌ TEST 1b FAILED")
+            return False
+        
+        print(f"  ✅ Privacy check passed")
+        print("\n✅ TEST 1b PASSED")
+        return True
+        
+    except requests.exceptions.RequestException as e:
+        print(f"❌ FAILED: Request error: {e}")
+        return False
 
-def test_payout_overview(token):
-    """Test 3: Payout overview - verify credited_balance_usd and available_credit_usd present"""
-    print_test_header(3, "Referral Payout Overview - Credit Fields Verification")
+def test_existing_leaderboard():
+    """
+    TEST 2 (REGRESSION): GET /api/referral/leaderboard?limit=3
+    Expected:
+    - HTTP 200
+    - data.leaderboard array (usual shape)
+    - This existing endpoint MAY include name/total_earnings (that's fine)
+    - Just confirms we didn't break the existing endpoint
+    """
+    print_section("TEST 2: Existing Referral Leaderboard (REGRESSION)")
+    
+    url = f"{BASE_URL}/api/referral/leaderboard?limit=3"
     
     try:
-        response = requests.get(
-            f"{BASE_URL}/api/referral/payout/overview",
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=10
-        )
-        
-        data = response.json()
+        response = requests.get(url, timeout=10)
+        print(f"Status Code: {response.status_code}")
         
         if response.status_code != 200:
-            return print_result(False, f"Payout overview returned {response.status_code}", data)
+            print(f"❌ FAILED: Expected status 200, got {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
         
-        overview = data.get("data", {})
+        print("✅ Status code 200 - PASSED")
         
-        # Check for required fields
-        has_credited_balance = "credited_balance_usd" in overview
-        has_available_credit = "available_credit_usd" in overview
+        # Parse JSON
+        try:
+            data = response.json()
+            print(f"\nResponse JSON structure:")
+            print(json.dumps(data, indent=2))
+        except json.JSONDecodeError as e:
+            print(f"❌ FAILED: Invalid JSON response: {e}")
+            return False
         
-        credited_balance_usd = overview.get("credited_balance_usd")
-        available_credit_usd = overview.get("available_credit_usd")
+        # Check data.leaderboard exists and is an array
+        if 'data' not in data or 'leaderboard' not in data['data']:
+            print("❌ FAILED: Response missing 'data.leaderboard'")
+            return False
         
-        if not has_credited_balance or not has_available_credit:
-            missing = []
-            if not has_credited_balance:
-                missing.append("credited_balance_usd")
-            if not has_available_credit:
-                missing.append("available_credit_usd")
-            return print_result(False, f"Missing required fields: {', '.join(missing)}", overview)
+        leaderboard = data['data']['leaderboard']
         
-        # Verify both are numeric (0 is correct for user_id=1)
-        is_numeric_credited = isinstance(credited_balance_usd, (int, float))
-        is_numeric_available = isinstance(available_credit_usd, (int, float))
+        if not isinstance(leaderboard, list):
+            print(f"❌ FAILED: data.leaderboard is not an array")
+            return False
         
-        if not is_numeric_credited or not is_numeric_available:
-            return print_result(False, 
-                f"Fields are not numeric - credited_balance_usd type: {type(credited_balance_usd)}, "
-                f"available_credit_usd type: {type(available_credit_usd)}", overview)
+        print(f"✅ data.leaderboard is an ARRAY - PASSED")
+        print(f"   Array length: {len(leaderboard)}")
         
-        return print_result(True,
-            f"Payout overview returned HTTP 200 with CORRECT structure. "
-            f"credited_balance_usd={credited_balance_usd} (type: {type(credited_balance_usd).__name__}), "
-            f"available_credit_usd={available_credit_usd} (type: {type(available_credit_usd).__name__}). "
-            f"Both being 0 is CORRECT for user_id=1 (mode=credit, 0 referral balance).",
-            overview)
-            
-    except Exception as e:
-        return print_result(False, f"Payout overview exception: {str(e)}")
-
-def test_earnings(token):
-    """Test 4: Earnings regression - verify data.commission present"""
-    print_test_header(4, "Referral Earnings - Commission Object Verification")
-    
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/referral/earnings",
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=10
-        )
+        # Verify limit is respected (max 3 items)
+        if len(leaderboard) > 3:
+            print(f"❌ FAILED: Limit not respected, got {len(leaderboard)} items (expected max 3)")
+            return False
         
-        data = response.json()
+        print(f"✅ Limit respected (≤3 items) - PASSED")
         
-        if response.status_code != 200:
-            return print_result(False, f"Earnings returned {response.status_code}", data)
+        # If empty, that's acceptable
+        if len(leaderboard) == 0:
+            print("✅ Empty leaderboard array [] - ACCEPTABLE")
+            print("\n✅ TEST 2 PASSED (regression check - endpoint still works)")
+            return True
         
-        earnings_data = data.get("data", {})
-        commission = earnings_data.get("commission")
+        # Show structure of first item (this endpoint MAY include name/earnings - that's fine)
+        print(f"\nFirst item structure (this endpoint MAY include name/earnings - that's OK):")
+        item = leaderboard[0]
+        print(f"  Keys: {list(item.keys())}")
+        print(f"  Item: {json.dumps(item)}")
         
-        if commission is None:
-            return print_result(False, "data.commission is missing", earnings_data)
+        # Just verify it has rank and referral_count at minimum
+        if 'rank' not in item or 'referral_count' not in item:
+            print(f"  ❌ FAILED: Missing required keys (rank, referral_count)")
+            print("❌ TEST 2 FAILED")
+            return False
         
-        # Verify commission object structure
-        if not isinstance(commission, dict):
-            return print_result(False, f"data.commission is not an object (type: {type(commission)})", earnings_data)
+        print(f"  ✅ Has required keys (rank, referral_count)")
+        print("\n✅ TEST 2 PASSED (regression check - endpoint still works)")
+        return True
         
-        return print_result(True,
-            f"Earnings returned HTTP 200 with data.commission object PRESENT. "
-            f"Commission keys: {list(commission.keys())}",
-            {"commission": commission})
-            
-    except Exception as e:
-        return print_result(False, f"Earnings exception: {str(e)}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ FAILED: Request error: {e}")
+        return False
 
 def main():
+    """Run all tests"""
     print("\n" + "="*80)
-    print("BACKEND REGRESSION TEST - REFERRAL FEE-CREDIT RECOVERY PATH")
-    print("STRICTLY READ-ONLY - SAFE MODE on LIVE PROD Railway DB")
+    print("  BACKEND API TEST: Referral Leaderboard Endpoints")
+    print("  STRICTLY READ-ONLY - No data mutations")
     print("="*80)
+    print(f"\nBase URL: {BASE_URL}")
+    print(f"Testing endpoints:")
+    print(f"  1. GET /api/referral/leaderboard/public (NEW - privacy-safe)")
+    print(f"  2. GET /api/referral/leaderboard/public?limit=5 (NEW - with limit)")
+    print(f"  3. GET /api/referral/leaderboard?limit=3 (EXISTING - regression)")
     
-    results = []
+    results = {
+        "TEST 1a: Public leaderboard (default)": test_public_leaderboard(),
+        "TEST 1b: Public leaderboard (limit=5)": test_public_leaderboard_with_limit(),
+        "TEST 2: Existing leaderboard (regression)": test_existing_leaderboard(),
+    }
     
-    # Test 1: Health check
-    results.append(test_health_check())
+    # Summary
+    print_section("TEST SUMMARY")
     
-    # Test 2: Login
-    login_result, token = test_login()
-    results.append(login_result)
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
     
-    if not token:
-        print("\n❌ CRITICAL: Cannot proceed without access token")
-        print_summary(results)
-        sys.exit(1)
+    for test_name, result in results.items():
+        status = "✅ PASSED" if result else "❌ FAILED"
+        print(f"{status}: {test_name}")
     
-    # Test 3: Payout overview
-    results.append(test_payout_overview(token))
-    
-    # Test 4: Earnings
-    results.append(test_earnings(token))
-    
-    # Print summary
-    print_summary(results)
+    print(f"\n{'='*80}")
+    print(f"TOTAL: {passed}/{total} tests passed")
+    print(f"{'='*80}\n")
     
     # Exit with appropriate code
-    sys.exit(0 if all(results) else 1)
-
-def print_summary(results):
-    print("\n" + "="*80)
-    print("TEST SUMMARY")
-    print("="*80)
-    passed = sum(results)
-    total = len(results)
-    print(f"Passed: {passed}/{total}")
-    print(f"Failed: {total - passed}/{total}")
-    
-    if all(results):
-        print("\n✅ ALL TESTS PASSED - Backend regression verification COMPLETE")
-        print("The referral fee-credit RECOVERY path changes (paymentController.ts + referralCreditService.ts)")
-        print("boot cleanly with no regressions. All endpoints return expected structure.")
-    else:
-        print("\n❌ SOME TESTS FAILED - See details above")
+    sys.exit(0 if passed == total else 1)
 
 if __name__ == "__main__":
     main()

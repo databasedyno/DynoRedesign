@@ -80,7 +80,24 @@ export const setupReferralRewardCron = () => {
     }
   });
 
-  log("Referral Reward Monitor Cron scheduled for every 15 minutes", "info");
+  // Monthly referral DIGEST — 1st of each month at 09:00 UTC. Emails every referrer
+  // a recap of what they earned LAST month (per-merchant breakdown; skips $0). A Redis
+  // lock + per-referrer/month key make it safe against double-fire / leader re-election.
+  cron.schedule("0 9 1 * *", async () => {
+    try {
+      const { acquireLock } = await import("../redisInstance");
+      const locked = await acquireLock("cron:referralMonthlyDigest", 600, 1, 100, true);
+      if (!locked) return;
+      const { sendMonthlyReferralDigests } = await import("../../services/referralDigestService");
+      const r = await sendMonthlyReferralDigests();
+      log(`Referral monthly digest: ${r.sent} sent / ${r.skipped} skipped ($${r.totalUsd.toFixed(2)} total)`, "info");
+    } catch (e) {
+      log(`Referral Monthly Digest error: ${e}`, "error");
+      captureError(e, "cron", { extraContext: "referralRewardMonitor:monthlyDigest" });
+    }
+  });
+
+  log("Referral Reward Monitor Cron scheduled for every 15 minutes (+ monthly digest 1st @ 09:00 UTC)", "info");
 };
 
 /**

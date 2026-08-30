@@ -493,6 +493,36 @@ export const getReferralLeaderboard = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * PUBLIC referral leaderboard for the /referral-program page.
+ * Privacy-safe: returns ONLY rank + referral_count — no names, IDs, or earnings.
+ * GET /api/referral/leaderboard/public?limit=10
+ */
+export const getPublicReferralLeaderboard = async (req: Request, res: Response) => {
+  try {
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 25);
+    const leaderboard = await User.findAll({
+      attributes: ["referral_count"],
+      where: { referral_count: { [Op.gt]: 0 } },
+      order: [["referral_count", "DESC"]],
+      limit,
+    });
+
+    return res.status(200).json({
+      message: "Public leaderboard retrieved successfully",
+      data: {
+        leaderboard: leaderboard.map((user, index) => ({
+          rank: index + 1,
+          referral_count: Number((user as unknown as Record<string, unknown>).referral_count) || 0,
+        })),
+      },
+    });
+  } catch (error) {
+    apiLogger.error("Error in getPublicReferralLeaderboard:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // ============================================
 // REFEREE CODE ENDPOINTS (Type 2)
 // ============================================
@@ -676,6 +706,7 @@ export default {
   getReferralEarnings,
   processReferralReward,
   getReferralLeaderboard,
+  getPublicReferralLeaderboard,
   generateReferralCode,
   // Referee Code (Type 2)
   validateRefereeCode,

@@ -12,6 +12,8 @@ import { Eyebrow, HeadlineL, HeadlineXL } from "@/Components/Page/Home/v3/styled
 import FinalCTAAurora from "@/Components/Page/Home/v3/FinalCTAAurora";
 import ReferralEarningsCalculator from "@/Components/Page/Referrals/ReferralEarningsCalculator";
 import ShareProgramV3 from "@/Components/Page/Referrals/ShareProgramV3";
+import { useApiSWR } from "@/hooks/useApiSWR";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 /* Public marketing page for the Dynopay Referral Program (/referral-program).
  * Aurora design system, mirrors /fees. Copy resolves from the "referrals"
@@ -44,6 +46,15 @@ const ReferralProgramPage = () => {
 
   const rawFaqs = t("public.faq", { returnObjects: true });
   const faqs: Array<{ q: string; a: string }> = Array.isArray(rawFaqs) ? rawFaqs : [];
+
+  // Public top-referrers leaderboard — privacy-safe (rank + referral COUNT only, no
+  // names or earnings). Hidden until there is at least one ranked referrer.
+  const { data: lbData } = useApiSWR<{ leaderboard?: Array<{ rank: number; referral_count: number }> }>(
+    API_ENDPOINTS.referral.leaderboardPublic,
+    { unwrap: true }
+  );
+  const leaderboard = (lbData?.leaderboard || []).filter((e) => Number(e.referral_count) > 0).slice(0, 10);
+  const medals = ["🥇", "🥈", "🥉"];
 
   return (
     <>
@@ -188,6 +199,61 @@ const ReferralProgramPage = () => {
             <ReferralEarningsCalculator />
           </Container>
         </Box>
+
+        {/* ===== TOP REFERRERS (public, count-only) ===== */}
+        {leaderboard.length > 0 && (
+          <Box sx={{ background: s.bgAlt, py: { xs: 9, md: 14 } }} data-testid="referral-leaderboard-section">
+            <Container>
+              <Box sx={{ textAlign: "center", mb: { xs: 5, md: 8 } }}>
+                <HeadlineL sx={{ color: s.ink }}>{t("public.leaderboardTitle")}</HeadlineL>
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 16 }, color: s.ink2, maxWidth: 560, mx: "auto", mt: 1.5 }}>
+                  {t("public.leaderboardSubtitle")}
+                </Typography>
+              </Box>
+              <Box sx={{ maxWidth: 640, mx: "auto", display: "flex", flexDirection: "column", gap: 1.5 }}>
+                {leaderboard.map((entry, i) => (
+                  <Box
+                    key={entry.rank}
+                    data-testid={`referral-leaderboard-row-${entry.rank}`}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      background: s.surface,
+                      border: `1px solid ${i < 3 ? s.indigo : s.line}`,
+                      borderRadius: "16px",
+                      px: { xs: 2.5, md: 3.5 },
+                      py: { xs: 2, md: 2.25 },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        minWidth: 44,
+                        height: 44,
+                        borderRadius: "12px",
+                        display: "grid",
+                        placeItems: "center",
+                        fontSize: i < 3 ? 22 : 15,
+                        fontFamily: FONT_TECH,
+                        fontWeight: 700,
+                        color: i < 3 ? s.indigo : s.ink2,
+                        background: i < 3 ? "rgba(79,70,229,0.12)" : s.bgAlt,
+                      }}
+                    >
+                      {i < 3 ? medals[i] : `#${entry.rank}`}
+                    </Box>
+                    <Typography sx={{ flex: 1, fontFamily: FONT_BODY, fontSize: { xs: 15, md: 17 }, fontWeight: 600, color: s.ink }}>
+                      {`#${entry.rank}`}
+                    </Typography>
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: { xs: 14, md: 15 }, fontWeight: 700, color: s.indigo }}>
+                      {t("public.leaderboardCount", { count: Number(entry.referral_count) })}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Container>
+          </Box>
+        )}
 
         {/* ===== FAQ ===== */}
         <Box sx={{ background: s.bgAlt, py: { xs: 9, md: 14 } }}>

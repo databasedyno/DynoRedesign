@@ -103,6 +103,7 @@ export const API_ENDPOINTS = {
     discountStatus: "/referral/discount-status",
     earnings: "/referral/earnings",
     leaderboard: "/referral/leaderboard",
+    leaderboardPublic: "/referral/leaderboard/public",
     list: "/referral/list",
     myCode: "/referral/my-code",
     payoutOverview: "/referral/payout/overview",

@@ -174,6 +174,9 @@
     "calcModeCredit": "Kostentegoed",
     "calcModeCashout": "USDT-uitbetaling",
     "calcModeCreditNote": "Wordt automatisch verrekend met je eigen Dynopay-kosten — geen actie nodig.",
-    "calcModeCashoutNote": "Uitbetaald naar je USDT-wallet (TRC-20), wanneer jij wilt."
+    "calcModeCashoutNote": "Uitbetaald naar je USDT-wallet (TRC-20), wanneer jij wilt.",
+    "leaderboardTitle": "Topaanbevelers",
+    "leaderboardSubtitle": "De mensen die Dynopay op dit moment het meest delen.",
+    "leaderboardCount": "{{count}} verwijzingen"
   }
 }

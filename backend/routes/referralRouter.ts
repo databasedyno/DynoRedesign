@@ -9,6 +9,7 @@ const referralRouter = express.Router();
 referralRouter.post('/validate', referralController.validateReferralCode);
 referralRouter.post('/apply', referralController.applyReferralCode);
 referralRouter.get('/leaderboard', referralController.getReferralLeaderboard);
+referralRouter.get('/leaderboard/public', referralController.getPublicReferralLeaderboard);
 
 // Public routes - Referee Code (Type 2 - from payment link email)
 referralRouter.post('/referee/validate', referralController.validateRefereeCode);

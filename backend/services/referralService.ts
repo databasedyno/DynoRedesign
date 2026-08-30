@@ -381,6 +381,25 @@ export const processReferrerReward = async (params: {
     `${(currentRate * 100).toFixed(0)}% revenue-share window open until ${windowEndsAt.toISOString()}`
   );
 
+  // Milestone nudge: tell the REFERRER their merchant just went live. Best-effort —
+  // never blocks activation. Leader/prod only (email suppressed by DISABLE_OUTBOUND_EMAIL).
+  try {
+    const [referrer, merchant] = await Promise.all([
+      User.findByPk(referral.referrer_user_id, { attributes: ['email', 'name'] }),
+      User.findByPk(refereeUserId, { attributes: ['name', 'email'] }),
+    ]);
+    const to = (referrer as unknown as { email?: string })?.email;
+    if (to) {
+      const referrerName = (referrer as unknown as { name?: string })?.name || to;
+      const m = merchant as unknown as { name?: string; email?: string };
+      const merchantName = m?.name || m?.email || 'a merchant you referred';
+      const { sendReferralActivatedEmail } = await import('./email/referralEmails');
+      await sendReferralActivatedEmail(to, referrerName, merchantName);
+    }
+  } catch (mailErr) {
+    apiLogger.error(`[Referral] activation email failed for referral ${referral.referral_id}: ${mailErr}`);
+  }
+
   return true;
 };
 

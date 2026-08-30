@@ -174,3 +174,79 @@ export const sendReferralAccrualEmail = async (
     captureError(e, 'email', { extraContext: 'sendReferralAccrualEmail' });
   }
 };
+
+/** A referred merchant just ACTIVATED (took their first qualifying payment). */
+export const sendReferralActivatedEmail = async (
+  email: string,
+  name: string,
+  merchantName: string,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const merchant = escapeHtml(merchantName || 'a merchant you referred');
+    const subject = `${merchant} just went live — your rewards start now 🚀`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Great news — <strong>${merchant}</strong>, a merchant you referred, just processed their first qualifying payment and is now <strong>active</strong>.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Referred merchant', `<strong>${merchant}</strong>`)}
+          ${dataRow('Your reward', `<strong style="color:#166534;">25% of their Dynopay fees</strong>`, true)}
+        </table>
+      `, '#12B76A')}
+      ${p(`From now on you earn <strong>25% of the platform fees</strong> ${merchant} generates, for a full 12 months. We'll keep you posted as the rewards roll in.`)}`;
+
+    const html = dynoPayEmailTemplate(`${merchant} is now active`, content, true, `View referral rewards`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral activation alert sent to ${email} (merchant=${merchantName})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralActivatedEmail' });
+  }
+};
+
+/** Monthly recap: "your referrals earned you $X in <month>" with a per-merchant breakdown. */
+export const sendReferralMonthlyDigestEmail = async (
+  email: string,
+  name: string,
+  monthLabel: string,
+  totalUsd: number,
+  perMerchant: Array<{ name: string; usd: number }>,
+  mode: string,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const total = `$${Number(totalUsd).toFixed(2)}`;
+    const isCash = mode === 'cash';
+    const top = perMerchant.slice(0, 12);
+    const rowsHtml = top
+      .map((m, i) => dataRow(escapeHtml(m.name), `<strong>$${Number(m.usd).toFixed(2)}</strong>`, i === top.length - 1))
+      .join('');
+    const subject = `Your referrals earned you ${total} in ${monthLabel} 🎉`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Here's your Dynopay referral recap for <strong>${escapeHtml(monthLabel)}</strong> — the merchants you referred generated fees, and you earned 25% of them.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow(`Earned in ${escapeHtml(monthLabel)}`, `<strong style="color:#166534;">${total}</strong>`, true)}
+        </table>
+      `, '#12B76A')}
+      ${top.length
+        ? p(`<strong>Where it came from</strong>`) +
+          infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
+      `, '#05936A')
+        : ''}
+      ${isCash
+        ? p(`Your rewards are set to <strong>USDT (TRC-20) cash-out</strong> — withdraw anytime on your referrals page.`)
+        : p(`These rewards automatically lower your own Dynopay fees. Prefer cash? Switch to <strong>USDT (TRC-20) cash-out</strong> on your referrals page.`)}
+      ${p(`Keep sharing your link to grow next month's total.`)}`;
+
+    const html = dynoPayEmailTemplate(`You earned ${total} in ${monthLabel}`, content, true, `View referral rewards`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral monthly digest sent to ${email} (${total}, ${monthLabel}, ${perMerchant.length} merchant(s))`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralMonthlyDigestEmail' });
+  }
+};

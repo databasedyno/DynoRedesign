@@ -174,6 +174,9 @@
     "calcModeCredit": "Gebührenguthaben",
     "calcModeCashout": "USDT-Auszahlung",
     "calcModeCreditNote": "Wird automatisch mit deinen eigenen Dynopay-Gebühren verrechnet – ohne Aufwand.",
-    "calcModeCashoutNote": "Auszahlung an dein USDT-Wallet (TRC-20), wann du willst."
+    "calcModeCashoutNote": "Auszahlung an dein USDT-Wallet (TRC-20), wann du willst.",
+    "leaderboardTitle": "Top-Empfehler",
+    "leaderboardSubtitle": "Die Menschen, die Dynopay gerade am meisten teilen.",
+    "leaderboardCount": "{{count}} Empfehlungen"
   }
 }
