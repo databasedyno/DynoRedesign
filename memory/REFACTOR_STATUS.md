@@ -109,6 +109,99 @@ PayoutCard: show credited-to-date + available credit; per-payment "fee covered b
 
 ---
 
+# 🔎 REFERRAL — SCENARIO + EDGE-CASE AUDIT (2026-06 fork) — read-only + reversible on LIVE prod DB
+Method: full static read of every referral file (service/cron/automation/model/controller/email) + two probes
+run against the LIVE Railway prod DB with env sourced from the running Node backend (PID on :3300):
+`backend/scripts/verify_referral_audit.ts` (READ-ONLY) and `backend/scripts/verify_referral_scenarios.ts`
+(REVERSIBLE — seeds scratch referrals for referrer=user 1, runs the REAL services, asserts, then deletes
+everything + restores user 1; verified DB returned to 0 referrals / 0 rewards / 0 payouts / user1 mode=credit).
+
+## LIVE DB STATE (important context)
+- All Phase-1 columns EXIST on prod: `tbl_referral.{commission_rate,commission_window_ends_at,
+  commission_accrued_usd,commission_paid_usd,commission_credited_usd,last_accrual_at}`,
+  `tbl_user_transaction.referral_credit_applied_usd`, `tbl_user.{referral_payout_mode,
+  referral_payout_trc20_address,referral_payout_address_verified_at,referral_payout_auto,
+  referral_payout_auto_min_usd,referral_payout_nudged_at}`.
+- **`tbl_referral`, `tbl_referral_reward`, `tbl_referral_payout` are ALL EMPTY on prod.** There are ZERO
+  referrals — the revenue-share feature has NEVER been exercised with real data in production. Every bug below
+  is therefore LATENT today (no data triggers it), but real in code and will fire the moment referrals accrue.
+
+## ✅ VERIFIED WORKING (Phase 1 accounting core — 14/14 reversible checks passed on live DB)
+- S1 accrual visibility: `getReferrerCommissionSummary` unpaid = accrued−paid−credited; `getAvailableCreditForFees`
+  returns unpaid in credit mode.
+- S2 `consumeReferralCreditForTransaction`: partial consume correct; **idempotent** (re-run same transactionRef
+  returns prior total, NO double-spend); credited↑ / unpaid↓.
+- S3 **cap guardrail**: requesting more than remaining consumes only the remaining balance; once fully credited,
+  further consume = 0.
+- S4 **cash-mode gate**: in cash mode `getAvailableCreditForFees`=0 and consume is blocked (balance reserved for
+  cash-out) — the credit/cash mutual-exclusion holds.
+- S6 **oldest-first distribution**: multi-referral consume drains the oldest `activated_at` first.
+
+## 🐞 FINDINGS (prioritised)
+
+### F1 — [P1, MONEY-PATH DOUBLE-SPEND] Automation SQL ignores `commission_credited_usd` — CONFIRMED via harness
+`services/referralPayoutAutomation.ts` computes the payable balance as `SUM(commission_accrued_usd −
+commission_paid_usd)` in BOTH `processReferralNudges` (SELECT + HAVING) and `processAutoPayouts` (SELECT +
+HAVING). It does NOT subtract `commission_credited_usd`. Every OTHER path (getReferrerCommissionSummary,
+requestPayout, referralPayoutCron.applyPayoutToReferrals) correctly uses `accrued − paid − credited`.
+- **Harness proof (S5):** with accrued=100, paid=0, credited=100 → automation sees unpaid=$100 while the true
+  balance is $0. A referrer who spent their balance as fee-credit (credit mode), then switched to cash + enabled
+  auto, would have `processAutoPayouts` create a **$100 payout of already-spent funds** (≥ the $25 min), and the
+  cron would send real USDT for it → the referrer gets paid twice for the same accrual. Reconcile
+  (`applyPayoutToReferrals`) can only apply against `accrued−paid−credited`=0, so the excess is unreconcilable.
+- **FIX (2 queries, both SELECT agg + HAVING):** subtract `COALESCE(commission_credited_usd,0)` in
+  `processReferralNudges` and `processAutoPayouts` so all four aggregates match the shared-pool invariant.
+- Test after fix: reversible harness scenario S5 should then show automation_unpaid==true_unpaid==0.
+
+### F2 — [P2] Threshold nudge fires for credit-mode referrers AND overstates the amount
+`processReferralNudges` has no `referral_payout_mode` filter, so a credit-mode referrer (who cannot cash out) is
+emailed "You can cash out $X". Combined with F1 the $X is also overstated (ignores credited). The email copy does
+branch on mode (credit → "it's reducing your fees; switch to cash to withdraw"), so it's not wrong-headed, but
+the amount is incorrect and arguably a credit-mode user shouldn't be nudged to "cash out" at all. Decide: filter
+to `mode='cash'`, or keep cross-mode but fix the amount (F1) + soften copy.
+
+### F3 — [P2] 90-day activation window is NOT enforced
+`redeem*` sets `referral.expires_at = referred_at + 90d` ("90 days to complete a qualifying transaction"), but
+`processPendingReferrerRewards` activates on ANY $100+ payment regardless of `expires_at`, and no cron ever moves
+a stale `pending` referral → `expired`. So the 90-day rule is cosmetic. Decide: enforce (`AND t."createdAt" <=
+r.expires_at` in the activation query + an expiry sweep) or drop the copy/claim.
+
+### F4 — [P2] A user can hold TWO pending referrals (two different referrers)
+`redeemUserReferralCode` guards only on the (referrer_user_id, referred_user_id) PAIR, whereas
+`redeemRefereeCode` guards on referred_user_id in [pending,active,rewarded]. So redeeming two different *organic*
+referral codes creates two pending rows from two referrers; activation (`findOne pending`) then activates only
+one and the other lingers forever. Rare, but tighten `redeemUserReferralCode` to the same
+"any existing referral for this referred_user_id" guard as the referee path.
+
+### F5 — [P3, KNOWN/DOCUMENTED] No clawback on refund/chargeback
+Accrual only counts terminally-settled txns (PROCESSED_STATUS_SQL), which minimises this, but a later reversal of
+a counted payment is not clawed back from `commission_accrued_usd`. Documented as accepted in §6 of the plan.
+
+### F6 — [P3] Activation threshold compares `base_amount` (base_currency), not USD
+`processPendingReferrerRewards`: `t.base_amount >= 100`. For a non-USD `base_currency` the $100 gate drifts.
+base_currency is USD for essentially all merchants today → low impact. Normalise to USD if multi-currency grows.
+
+### F7 — [BLOCKER FOR THE PROMISED FEATURE] Settlement still does NOT consume credit (Phase 2 not built)
+`consumeReferralCreditForTransaction` works perfectly in isolation, but NOTHING in the money path calls it yet —
+the fee reduction at settlement (Phase 2, decisions locked above) is unbuilt. Until Phase 2 ships, `credited`
+stays 0 in production and the UI/email promise ("reduces your own DynoPay fees") is still not delivered.
+Consequence: F1 is not exploitable in prod TODAY (credited is always 0), but F1 MUST be fixed BEFORE or WITH
+Phase 2, otherwise the first credit-then-switch-to-cash user can double-spend.
+
+## CANNOT be verified in SAFE-MODE preview (environmental, not defects) — verify on prod leader
+- Real accrual/nudge/auto/payout crons (leader-only, ENABLE_BACKGROUND_JOBS off here).
+- Real Binance USDT-TRC20 send (geo-blocked 451 in preview) + outbound emails (DISABLE_OUTBOUND_EMAIL=true).
+- Real on-chain settlement fee-split (needs a live payment) — the Phase 2 target.
+
+## Verification artefacts (kept for re-run)
+- `backend/scripts/verify_referral_audit.ts` — READ-ONLY inventory/columns/invariant probe.
+- `backend/scripts/verify_referral_scenarios.ts` — REVERSIBLE 14-check scenario harness (self-cleaning).
+  Run: `cd /app/backend && set -a; while IFS= read -r -d '' l; do export "$l"; done < /proc/<node-pid>/environ;
+  set +a; node_modules/.bin/ts-node --transpile-only scripts/verify_referral_scenarios.ts` (node-pid = the
+  `ts-node ... server.ts` process listening on :3300, which carries the live DATABASE creds).
+
+---
+
 
 ---
 
