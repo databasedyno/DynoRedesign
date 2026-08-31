@@ -42,6 +42,7 @@ companyRouter.post("/validateTaxId", authMiddleware, companyController.validateT
 companyRouter.put("/webhook-settings/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.updateWebhookSettings);
 companyRouter.get("/webhook-settings/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.getWebhookSettings);
 companyRouter.post("/webhook-reenable/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.reenableWebhook);
+companyRouter.post("/webhook-disable/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.disableWebhook);
 companyRouter.post("/webhook-test/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.testWebhook);
 
 // Webhook history and stats endpoints

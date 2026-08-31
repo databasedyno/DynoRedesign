@@ -91,6 +91,7 @@ export const API_ENDPOINTS = {
     webhookStats: (companyId: PathId) => `/company/webhook-stats/${companyId}?days=30`,
     webhookTest: (companyId: PathId) => `/company/webhook-test/${companyId}`,
     webhookReenable: (companyId: PathId) => `/company/webhook-reenable/${companyId}`,
+    webhookDisable: (companyId: PathId) => `/company/webhook-disable/${companyId}`,
   },
 
   invoices: {

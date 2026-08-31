@@ -382,6 +382,21 @@ const createTeamActivityTable = async (): Promise<void> => {
   if (isSyncable(teamActivityModel)) await teamActivityModel.sync();
 };
 
+/**
+ * Migration 0017: durable per-request webhook routing. Adds the additive,
+ * nullable `webhook_secret` column to tbl_user_transaction (the table already
+ * has webhook_url + callback_url) so a payment's per-request webhook target
+ * survives Redis session expiry — resolveWebhookTargets reads it back as a
+ * fallback. Additive / metadata-only => idempotent, safe on live prod.
+ */
+const addTransactionWebhookSecret = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_user_transaction"
+       ADD COLUMN IF NOT EXISTS "webhook_secret" VARCHAR(255)`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -401,5 +416,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0014_referral_fee_credit", up: addReferralFeeCreditColumns },
     { version: "0015_team_members", up: createTeamMemberTable },
     { version: "0016_team_activity", up: createTeamActivityTable },
+    { version: "0017_txn_webhook_secret", up: addTransactionWebhookSecret },
   ];
 }

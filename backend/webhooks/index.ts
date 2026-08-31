@@ -18,6 +18,7 @@ import { merchantTempAddressModel } from "../models";
 import { enqueueWebhook } from "../services/webhookQueue";
 import { toRedisStatus, PaymentState } from "../services/paymentStateMachine";
 import { isEventSubscribed, isOptInWebhookEvent } from "../services/webhookEvents";
+import { resolveWebhookTargets } from "./webhookTargets";
 
 // Build a set of all admin/fee wallet addresses for fast lookup (lowercase for case-insensitive match)
 const INTERNAL_WALLETS = new Set(
@@ -118,104 +119,47 @@ interface WebhookResult {
 
 const callMerchantWebhook = async (customerData: Record<string, unknown>, eventData: Record<string, unknown>): Promise<WebhookResult> => {
   try {
-    // Get webhook URL, callback URL, and secret from payment link or company settings
     const sequelize = require('../utils/dbInstance').default;
-    
-    let webhookUrl = null;
-    let callbackUrl = null;
-    let webhookSecret = null;
-    let companyId = customerData?.company_id;
-
-    // Session 49: DB-level circuit-breaker guard. If the company's
-    // webhook_disabled flag is set (by the DLQ-driven auto-disable in
-    // utils/webhookRetry.ts or by the 404 threshold below), skip webhook
-    // delivery entirely — merchant must re-enable via dashboard.
+    const companyId = customerData?.company_id;
     const eventName = String(eventData?.event || "");
 
+    // Company webhook state. IMPORTANT: webhook_disabled no longer kills ALL
+    // delivery — it only SUPPRESSES the company-configured URL (manual pause or
+    // circuit breaker). Per-request / payment-link URLs are delivered additively
+    // regardless (the core bug fix: a dead company endpoint no longer silences
+    // valid per-request webhooks).
+    let companyWebhookDisabled = false;
     if (companyId) {
       try {
         const [companyGuard] = await sequelize.query(
-          `SELECT webhook_disabled, webhook_disabled_reason, webhook_events FROM tbl_company WHERE company_id = :cid LIMIT 1`,
+          `SELECT webhook_disabled, webhook_events FROM tbl_company WHERE company_id = :cid LIMIT 1`,
           { replacements: { cid: companyId }, type: QueryTypes.SELECT }
         );
-        if (companyGuard && companyGuard.webhook_disabled === true) {
-          webhookLogs.warn(`[callMerchantWebhook] ⛔ Skipping — webhook_disabled=true on company_id=${companyId} (reason: ${companyGuard.webhook_disabled_reason || 'unknown'})`);
-          return { success: false, error: `Webhook delivery disabled for this company. Re-enable via dashboard settings.` };
-        }
-        // Tier-1 item #2: opt-in events are only delivered to merchants who
-        // subscribed. Legacy events pass through untouched.
+        companyWebhookDisabled = companyGuard?.webhook_disabled === true;
+        // Tier-1 item #2: opt-in events only reach merchants who subscribed.
+        // Legacy (always-on) events pass through untouched.
         if (!isEventSubscribed(companyGuard?.webhook_events, eventName)) {
           webhookLogs.info(`[callMerchantWebhook] ⏭️ Skipping ${eventName} — company_id=${companyId} has not subscribed to it`);
           return { success: true };
         }
       } catch (guardErr) {
-        // Non-fatal — if guard read fails, proceed with delivery attempt
-        webhookLogs.warn(`[callMerchantWebhook] Webhook_disabled guard read failed for company_id=${companyId}: ${(guardErr as Error).message}`);
+        // Non-fatal — if the read fails, proceed with delivery.
+        webhookLogs.warn(`[callMerchantWebhook] company webhook state read failed for company_id=${companyId}: ${(guardErr as Error).message}`);
       }
     } else if (isOptInWebhookEvent(eventName)) {
       // Fail closed: an opt-in event with no company cannot be checked.
       webhookLogs.info(`[callMerchantWebhook] ⏭️ Skipping ${eventName} — no company_id to verify subscription`);
       return { success: true };
     }
-    
-    // First, check if webhook_url was passed directly with the payment (e.g. merchant crypto payment API stores it in Redis)
-    if (customerData?.webhook_url) {
-      webhookUrl = customerData.webhook_url as string;
-      callbackUrl = (customerData?.callback_url as string) || null;
-      webhookSecret = (customerData?.webhook_secret as string) || null;
-      webhookLogs.info(`[callMerchantWebhook] Using webhook URL from payment data: ${webhookUrl}`);
-    }
-    
-    // Then try payment link record (for payment link flow)
-    const linkId = customerData?.link_id || customerData?.payment_link_id;
-    if (linkId && !webhookUrl) {
-      const [linkResult] = await sequelize.query(
-        `SELECT webhook_url, callback_url FROM tbl_payment_link WHERE link_id = :linkId`,
-        { replacements: { linkId }, type: QueryTypes.SELECT }
-      );
-      webhookUrl = linkResult?.webhook_url;
-      callbackUrl = linkResult?.callback_url;
-    }
-    
-    // If no webhook on link, try company settings
-    if (!webhookUrl && companyId) {
-      const [companyResult] = await sequelize.query(
-        `SELECT webhook_url, webhook_secret FROM tbl_company WHERE company_id = :companyId`,
-        { replacements: { companyId }, type: QueryTypes.SELECT }
-      );
-      webhookUrl = companyResult?.webhook_url;
-      webhookSecret = companyResult?.webhook_secret;
-    }
-    
-    // If still no webhook, check the active API key for this company (for API-initiated payments)
-    if (!webhookUrl && !callbackUrl && companyId) {
-      const [apiResult] = await sequelize.query(
-        `SELECT webhook_url, webhook_secret FROM tbl_api WHERE company_id = :companyId AND status = 'active' ORDER BY api_id DESC LIMIT 1`,
-        { replacements: { companyId }, type: QueryTypes.SELECT }
-      );
-      if (apiResult?.webhook_url) {
-        webhookUrl = apiResult.webhook_url;
-        if (!webhookSecret) webhookSecret = apiResult.webhook_secret;
-        webhookLogs.info(`[callMerchantWebhook] Found webhook URL from API key for company ${companyId}: ${webhookUrl}`);
-      }
-    }
-    
-    // If neither webhook_url nor callback_url configured, skip
-    if (!webhookUrl && !callbackUrl) {
-      webhookLogs.info("[callMerchantWebhook] No webhook URL or callback URL configured (checked: payment_link, company, API key), skipping");
+
+    // Resolve the ADDITIVE, de-duplicated list of delivery targets.
+    const targets = await resolveWebhookTargets(customerData, companyId as (number | string | null), companyWebhookDisabled);
+
+    if (targets.length === 0) {
+      webhookLogs.info("[callMerchantWebhook] No webhook/callback URL configured (per-request, payment_link, company or API key), skipping");
       return { success: true }; // No webhook configured is not an error
     }
-    
-    // Validate webhook URL - localhost URLs won't work from cloud server
-    const urlToCheck = webhookUrl || callbackUrl;
-    if (urlToCheck && (urlToCheck.includes('localhost') || urlToCheck.includes('127.0.0.1'))) {
-      const errorMsg = `Webhook URL "${urlToCheck}" uses localhost which is unreachable from Dynopay servers. Please use a public URL.`;
-      webhookLogs.error(`[callMerchantWebhook] ❌ ${errorMsg}`);
-      return { success: false, error: errorMsg, url: urlToCheck };
-    }
-    
-    let lastResult: WebhookResult = { success: true };
-    
+
     // Enrich event data with fiat equivalent in the merchant's preferred currency
     const enrichedEventData = { ...eventData };
     if (eventData.amount && eventData.currency && companyId) {
@@ -238,22 +182,31 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
     // Preserve any base_amount/base_currency already set by the caller
     if (eventData.base_amount) enrichedEventData.base_amount = eventData.base_amount;
     if (eventData.base_currency) enrichedEventData.base_currency = eventData.base_currency;
-    
-    // Call callback_url first (instant notification, synchronous)
-    if (callbackUrl) {
-      lastResult = await callUrlWithPayload(callbackUrl, enrichedEventData, webhookSecret, Number(companyId), 'callback');
+
+    // Deliver to every distinct target. A failure on one URL never blocks the others.
+    const results: WebhookResult[] = [];
+    for (const tgt of targets) {
+      if (tgt.url.includes('localhost') || tgt.url.includes('127.0.0.1')) {
+        const errorMsg = `Webhook URL "${tgt.url}" uses localhost which is unreachable from Dynopay servers. Please use a public URL.`;
+        webhookLogs.error(`[callMerchantWebhook] ❌ Skipping ${tgt.source} ${tgt.type}: ${errorMsg}`);
+        results.push({ success: false, error: errorMsg, url: tgt.url });
+        continue;
+      }
+      webhookLogs.info(`[callMerchantWebhook] → ${tgt.source} ${tgt.type} target: ${tgt.url}`);
+      results.push(
+        await callUrlWithPayload(tgt.url, enrichedEventData, tgt.secret, companyId ? Number(companyId) : null, tgt.type, tgt.isCompanyUrl)
+      );
     }
-    
-    // Then call webhook_url (transaction updates, can be same or different)
-    if (webhookUrl && webhookUrl !== callbackUrl) {
-      lastResult = await callUrlWithPayload(webhookUrl, enrichedEventData, webhookSecret, Number(companyId), 'webhook');
-    } else if (webhookUrl && !callbackUrl) {
-      // If only webhook_url is configured (no callback_url)
-      lastResult = await callUrlWithPayload(webhookUrl, enrichedEventData, webhookSecret, Number(companyId), 'webhook');
-    }
-    
-    return lastResult;
-    
+
+    // Aggregate. Success if ANY target delivered — this stops the outbox relay
+    // from retry-storming (which would double-deliver to the healthy endpoints).
+    // If every target failed, surface the first error: a permanent skip
+    // (disabled/localhost/unreachable) is left alone by the relay; a transient
+    // error triggers a retry of the batch (all failed anyway → no duplicates).
+    if (results.some(r => r.success)) return { success: true };
+    const firstErr = results.find(r => !r.success);
+    return { success: false, error: firstErr?.error || "webhook delivery failed", url: firstErr?.url };
+
   } catch (error: unknown) {
     // Log but don't throw - webhook failure shouldn't block payment processing
     const errorMsg = error instanceof Error ? error.message : String(error);
@@ -270,7 +223,8 @@ const callUrlWithPayload = async (
   eventData: Record<string, unknown>, 
   webhookSecret: string | null, 
   companyId: number | null,
-  urlType: 'webhook' | 'callback'
+  urlType: 'webhook' | 'callback',
+  isCompanyUrl: boolean = false
 ): Promise<WebhookResult> => {
   try {
     if (!url) return { success: true };
@@ -413,7 +367,10 @@ const callUrlWithPayload = async (
                 // Session 49: Persist to DB so the guard at the top of
                 // callMerchantWebhook picks it up (and dashboard can surface it),
                 // then email the merchant so they know their endpoint is broken.
-                if (companyId) {
+                // SCOPED: only the COMPANY-configured URL trips the company-wide
+                // flag. A failing per-request/link URL relies on the per-URL
+                // Redis breaker above and must never disable the whole company.
+                if (companyId && isCompanyUrl) {
                   try {
                     const sequelize = require('../utils/dbInstance').default;
                     const [existing] = await sequelize.query(

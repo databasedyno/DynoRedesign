@@ -32,6 +32,7 @@ import {
   IconButton,
   MenuItem,
   Select,
+  Switch,
   TextField,
   Tooltip,
   Typography,
@@ -142,6 +143,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   const [regenerating, setRegenerating] = useState(false);
   const [sendingTest, setSendingTest] = useState(false);
   const [reenabling, setReenabling] = useState(false);
+  const [disabling, setDisabling] = useState(false);
 
   // Circuit-breaker state: the backend auto-disables webhook delivery after
   // repeated endpoint failures (see utils/webhookRetry.ts). Surface it here so
@@ -276,8 +278,25 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       loadSettings();
     } catch {
       toast("Failed to re-enable webhook delivery", "error");
+      loadSettings();
     } finally {
       setReenabling(false);
+    }
+  };
+
+  const disableWebhook = async () => {
+    if (!companyId) return;
+    setDisabling(true);
+    try {
+      await axiosBaseApi.post(API_ENDPOINTS.company.webhookDisable(companyId));
+      setDisabledInfo({ disabled: true, at: new Date().toISOString(), reason: "Manually paused by merchant" });
+      toast("Webhook delivery paused");
+      loadSettings();
+    } catch {
+      toast("Failed to pause webhook delivery", "error");
+      loadSettings();
+    } finally {
+      setDisabling(false);
     }
   };
 
@@ -425,9 +444,19 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                     Webhook delivery is turned off
                   </Typography>
                   <Typography sx={{ fontSize: 12.5, color: t.primary, mt: 0.5 }}>
-                    We stopped sending events because your endpoint repeatedly failed to respond
-                    {disabledInfo.at ? ` (since ${fmtTime(disabledInfo.at)})` : ""}. Fix or update your
-                    endpoint URL {showSettings ? "above" : "in the Webhooks tab"}, then re-enable delivery.
+                    {(disabledInfo.reason || "").toLowerCase().includes("manual") ? (
+                      <>
+                        You paused webhook deliveries to your company URL
+                        {disabledInfo.at ? ` (since ${fmtTime(disabledInfo.at)})` : ""}. Turn deliveries back
+                        on whenever you&apos;re ready — per-request webhook URLs are unaffected.
+                      </>
+                    ) : (
+                      <>
+                        We stopped sending events because your endpoint repeatedly failed to respond
+                        {disabledInfo.at ? ` (since ${fmtTime(disabledInfo.at)})` : ""}. Fix or update your
+                        endpoint URL {showSettings ? "above" : "in the Webhooks tab"}, then re-enable delivery.
+                      </>
+                    )}
                   </Typography>
                   {disabledInfo.reason && (
                     <Typography
@@ -456,6 +485,33 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             )}
             {showSettings && (
               <>
+            {/* Manual delivery toggle — pause/resume events to the company URL */}
+            <Box
+              data-testid="webhook-delivery-toggle-row"
+              sx={{
+                display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2,
+                mb: 2, p: 1.25, borderRadius: 2, border: `1px solid ${theme.palette.divider}`,
+              }}
+            >
+              <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: t.primary }}>
+                  Deliver webhook events
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: t.secondary }}>
+                  {disabledInfo.disabled
+                    ? "Paused — events are not being sent to your company URL."
+                    : "Active — events are sent to your company URL."}
+                </Typography>
+              </Box>
+              <Switch
+                checked={!disabledInfo.disabled}
+                onChange={(e) => (e.target.checked ? reenableWebhook() : disableWebhook())}
+                disabled={reenabling || disabling}
+                data-testid="webhook-delivery-toggle"
+                inputProps={{ "aria-label": "Toggle webhook delivery" }}
+              />
+            </Box>
+
             {/* Endpoint URL */}
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
               Endpoint URL

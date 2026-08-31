@@ -444,6 +444,20 @@ const addPayment = async (req: express.Request, res: express.Response) => {
             }),
           });
           
+          // Durably persist per-request webhook routing (Scenario A) so it
+          // survives Redis expiry — resolveWebhookTargets reads it back as a
+          // fallback. Fire-and-forget; keyed on the user-transaction string id.
+          if (paymentRes.transaction_id && (items?.webhook_url || items?.callback_url || items?.webhook_secret)) {
+            userTransactionModel.update(
+              {
+                webhook_url: items?.webhook_url || null,
+                callback_url: items?.callback_url || null,
+                webhook_secret: items?.webhook_secret || null,
+              },
+              { where: { id: paymentRes.transaction_id } }
+            ).catch((e: unknown) => cronLogger.warn(`[addPayment] webhook routing persist failed: ${(e as Error).message}`));
+          }
+          
           cronLogger.info(`[addPayment] Crypto payment created:
             - Currency: ${value.currency}
             - Amount: ${crypto_amount}

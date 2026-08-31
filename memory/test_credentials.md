@@ -1,4 +1,28 @@
 # ============================================================================
+# 2026-06 (pod 87e6bc11) FORK — WEBHOOK ADDITIVE REDESIGN + MANUAL TOGGLE — prod-connected, SAFE MODE
+# ----------------------------------------------------------------------------
+# - CURRENT Preview URL (THIS POD): https://87e6bc11-1888-4816-af91-aff395d8e903.preview.emergentagent.com
+#   (⚠️ IGNORE older dynopay-preview-15.preview.emergentagent.com — that was a prior fork's host.)
+# - OWNER LOGIN (unchanged): onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
+#     2-step: data-testid=login-email-input -> Continue (exact) -> password-input -> signin-submit-btn.
+# - ⚠️ FORK-SETUP FIX this session: /app/.env NEXT_PUBLIC_BASE_URL had been set to https://dynopay.com
+#     (would make the preview BROWSER hit PRODUCTION's API and bypass SAFE MODE). Reset to EMPTY so the
+#     browser makes relative /api calls -> preview ingress -> LOCAL backend :8001 (prod DB, jobs OFF).
+#     If a future fork shows NEXT_PUBLIC_BASE_URL=https://dynopay.com again, blank it before testing.
+# - SAFE MODE intact: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true,
+#     Redis isolated on /1, Binance geo-blocked (REST fallback). DB migration 0017 applied to prod
+#     (additive nullable tbl_user_transaction.webhook_secret — safe).
+# - WEBHOOK TESTING NOTE: the manual toggle writes tbl_company.webhook_disabled for company_id=1. It is
+#     reversible; after any toggle test RESTORE company_id=1 to: webhook_url=NULL, webhook_disabled=TRUE,
+#     webhook_disabled_at='2026-08-31T10:26:01.753Z', reason='Auto-disabled: 5 consecutive HTTP 404
+#     responses from https://webhook.site/6669491e-e4f6-4b40-a6be-e4df178765b8' (current restored state).
+# - Reversible backend harness: backend/scripts/verify_additive_webhook.ts (mock server on pod LAN IP,
+#     self-restoring). Frontend testids: webhook-delivery-toggle, webhook-disabled-banner; toast app-toast.
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-08-31 (pod 0e5cc9c0) RE-SETUP from user cred paste — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - CURRENT Preview URL: https://dynopay-preview-15.preview.emergentagent.com

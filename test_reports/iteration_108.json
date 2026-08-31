@@ -1,0 +1,51 @@
+{
+  "summary": "Frontend-only E2E test of the NEW manual webhook enable/disable toggle (Developers > Webhooks) and verification of exact fiat amounts in the dashboard 'Recent payments' widget, against the live preview (prod DB, SAFE MODE). ALL 5 requested scenarios PASS. 2-step merchant login (onarrival21@gmail.com) works; Developers page + Webhooks tab render; toggle starts OFF with the red auto-disabled banner; ON -> POST /api/company/webhook-reenable/1 200 + toast 'Webhook delivery re-enabled' + banner gone + subtext 'Active — events are sent to your company URL.'; OFF -> POST /api/company/webhook-disable/1 200 + toast 'Webhook delivery paused' + banner reappears with MANUAL copy ('You paused webhook deliveries to your company URL (since ...) ... per-request webhook URLs are unaffected.') + reason 'Manually paused by merchant' + subtext 'Paused — events are not being sent to your company URL.'; state persists across a full page reload. Recent payments rows render exact 2-decimal fiat ($24.70, $246.67, $117.80 with data-fiat-exact=1) and correctly prefix estimates with '≈' for rows lacking a stored usd_value.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Developers > Webhooks (toast)",
+        "issues": [
+          "Toast component had NO data-testid and auto-hides after 4s — I added data-testid=\"app-toast\" + data-severity to /app/Components/UI/Toast/index.tsx (testability only, no behaviour change).",
+          "The bottom-right toast overlaps/hides the Help & Support chat FAB while visible (cosmetic).",
+          "'Webhook delivery paused' toast renders with SUCCESS (green) styling; an info/neutral severity would read better for a pause action.",
+          "Redundant controls: while paused, both the banner's red 'Re-enable' button and the new toggle do the same thing. Acceptable, but consider hiding the banner button now that the toggle exists."
+        ]
+      },
+      {
+        "screen": "Dashboard hero total",
+        "issues": [
+          "'This period' hero total renders as $1,105.9 (one decimal) while Recent payments now shows exact 2 decimals — inconsistent money formatting (outside the requested scope, reported for awareness)."
+        ]
+      },
+      {
+        "screen": "Dashboard (console)",
+        "issues": [
+          "React console error on /dashboard: 'validateDOMNesting(...): <div> cannot appear as a descendant of <p>' — a Box/div is rendered inside a Typography (default <p>). Pre-existing, non-blocking; fix by adding component=\"span\" on the offending nested Box or component=\"div\" on the Typography."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "RESTORE PROD STATE for company_id=1: my test left tbl_company.webhook_disabled = TRUE with reason 'Manually paused by merchant' and webhook_disabled_at ~2026-08-31 18:23 UTC. The ORIGINAL state observed at first load was: webhook_disabled = TRUE, webhook_disabled_at = 2026-08-31 10:26 (local render), webhook_disabled_reason = 'Auto-disabled: 5 consecutive HTTP 404 responses from https://webhook.site/6669491e-e4f6-4b40-a6be-e4df178765b8'. Restore those exact values.",
+    "Optional: fix the <div> inside <p> DOM-nesting console error on /dashboard.",
+    "Optional: use info/neutral toast severity for the pause action and align dashboard hero total to 2 decimals."
+  ],
+  "critical_code_review_comments": [
+    "WebhookConsoleSection: reenable/disable handlers optimistically set disabledInfo then re-fetch loadSettings() — good; failure path toasts an error and the subsequent loadSettings() would correct the optimistic state only on success. Consider reverting optimistic state in the catch block so a failed POST doesn't leave the toggle showing the wrong position until the next load.",
+    "The Switch is disabled while reenabling||disabling, preventing double-submit — good.",
+    "Manual-vs-auto banner copy is branched on reason.includes('manual'), i.e. it depends on the backend reason string containing 'Manually'. Brittle coupling — prefer an explicit backend flag (e.g. webhook_disabled_manual: boolean).",
+    "WebhookConsoleSection.tsx is ~790 lines and RecentTransactionsWidget.tsx ~785 lines — both above the 700-line guidance; consider splitting (settings vs events log; row renderer vs container)."
+  ],
+  "updated_files": ["/app/Components/UI/Toast/index.tsx"],
+  "success_rate": { "backend": "skipped (frontend-only request)", "frontend": "100% (5/5 scenarios)" },
+  "seed_data_creation": "None. Only reversible writes to tbl_company.webhook_disabled for company_id=1 (re-enable then pause), as approved. No payments/wallets/users/links/API keys touched.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 'Hostbay'; company selector shows 'The Dev Store' as active company but webhook calls resolved to company_id=1 as expected).",
+  "context_for_next_testing_agent": "Preview URL https://87e6bc11-1888-4816-af91-aff395d8e903.preview.emergentagent.com. Warm routes with curl first (cold Next.js dev route = 6-30s TTFB); never wait_for networkidle. Login: fill data-testid=login-email-input -> get_by_role('button', name='Continue', exact=True) -> data-testid=password-input -> data-testid=signin-submit-btn -> waits for **/dashboard**. Toast now has data-testid='app-toast' (auto-hides in 4s, so wait_for_selector immediately after the action). Webhook toggle: [data-testid=webhook-delivery-toggle] input for is_checked(); banner=[data-testid=webhook-disabled-banner], reason=[data-testid=webhook-disabled-reason]. Recent payments fiat: [data-testid=recent-txn-fiat] with data-fiat-exact=1|0.",
+  "rca_of_the_issue": "No defects found in the tested feature. All webhook toggle network calls returned 200 and UI state (toggle position, banner visibility, banner copy, subtext) matched the backend after both actions and after a reload."
+}

@@ -67,6 +67,8 @@ const Toast = (props: IToastProps) => {
 
   return (
     <Box
+      data-testid="app-toast"
+      data-severity={loading ? "loading" : severity || "success"}
       sx={{
         position: "fixed",
         bottom: isMobile ? "16px" : "24px",

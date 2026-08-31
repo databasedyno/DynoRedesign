@@ -1382,6 +1382,42 @@ const reenableWebhook = async (req: express.Request, res: express.Response) => {
 };
 
 /**
+ * Manually pause webhook delivery to the company's configured URL. Merchant-
+ * initiated equivalent of the circuit-breaker disable. Per-request /
+ * payment-link webhook URLs are NOT affected — only the company URL is paused.
+ * POST /api/company/webhook-disable/:id
+ */
+const disableWebhook = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const company_id = req.params.id;
+
+    const rows = await sequelize.query<{ webhook_disabled?: boolean }>(
+      `SELECT webhook_disabled FROM tbl_company WHERE company_id = :company_id AND user_id = :user_id LIMIT 1`,
+      { replacements: { company_id, user_id: userData.user_id }, type: QueryTypes.SELECT }
+    );
+    const row = (Array.isArray(rows) ? rows[0] : rows) as { webhook_disabled?: boolean } | undefined;
+    if (!row) {
+      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+    }
+
+    await sequelize.query(
+      `UPDATE tbl_company
+          SET webhook_disabled = TRUE,
+              webhook_disabled_at = CURRENT_TIMESTAMP,
+              webhook_disabled_reason = :reason
+        WHERE company_id = :company_id AND user_id = :user_id`,
+      { replacements: { company_id, user_id: userData.user_id, reason: "Manually paused by merchant" } }
+    );
+
+    companyLogger.info(`Webhook manually paused for company_id=${company_id} by user_id=${userData.user_id}`);
+    return successResponseHelper(res, 200, "Webhook delivery paused", { company_id, webhook_disabled: true });
+  } catch (e) {
+    handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
+  }
+};
+
+/**
  * Send a test webhook to verify configuration
  * POST /api/company/webhook-test/:id
  */
@@ -1871,6 +1907,7 @@ export default {
   updateWebhookSettings,
   getWebhookSettings,
   reenableWebhook,
+  disableWebhook,
   testWebhook,
   getWebhookHistory,
   getWebhookDetail,

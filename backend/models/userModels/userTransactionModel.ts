@@ -111,6 +111,10 @@ const userTransactionModel = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    webhook_secret: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     webhook_response: {
       type: DataTypes.TEXT,
       allowNull: true,
