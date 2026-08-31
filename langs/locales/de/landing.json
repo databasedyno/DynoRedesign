@@ -488,7 +488,12 @@
       "cap1": "Gehosteter Checkout",
       "sub1": "Coin wählen, scannen, zahlen — auf jedem Gerät.",
       "cap2": "Sofortige Bestätigung",
-      "sub2": "Der Kunde sieht sofort einen klaren Beleg, sobald abgewickelt wurde."
+      "sub2": "Der Kunde sieht sofort einen klaren Beleg, sobald abgewickelt wurde.",
+      "step0": "Warte auf Zahlung",
+      "step1": "On-chain-Bestätigung…",
+      "step2": "Zahlung bestätigt",
+      "caption": "Vom Checkout zur Bestätigung in Sekunden",
+      "captionSub": "Das echte gehostete Erlebnis — dein Kunde wählt einen Coin, zahlt, und es wird sofort abgewickelt."
     },
     "compare": {
       "eyebrow": "Warum wir statt der Alternativen",
@@ -515,6 +520,9 @@
       "r6f": "Erste Zahlung",
       "r6a": "Kostenlos",
       "r6b": "Ab dem ersten Tag berechnet"
+    },
+    "trust": {
+      "label": "Zahlungen auf 9 Blockchains akzeptieren"
     }
   },
   "checkout": {

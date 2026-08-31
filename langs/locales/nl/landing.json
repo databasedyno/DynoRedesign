@@ -488,7 +488,12 @@
       "cap1": "Gehoste checkout",
       "sub1": "Kies een munt, scan, betaal — op elk apparaat.",
       "cap2": "Directe bevestiging",
-      "sub2": "De klant ziet meteen een duidelijke bon zodra het is afgewikkeld."
+      "sub2": "De klant ziet meteen een duidelijke bon zodra het is afgewikkeld.",
+      "step0": "Wacht op betaling",
+      "step1": "On-chain bevestigen…",
+      "step2": "Betaling bevestigd",
+      "caption": "Van checkout tot bevestigd in seconden",
+      "captionSub": "De echte gehoste ervaring — je klant kiest een munt, betaalt en het wordt direct afgewikkeld."
     },
     "compare": {
       "eyebrow": "Waarom wij vs de alternatieven",
@@ -515,6 +520,9 @@
       "r6f": "Eerste betaling",
       "r6a": "Gratis",
       "r6b": "Vanaf dag één in rekening gebracht"
+    },
+    "trust": {
+      "label": "Accepteer betalingen op 9 blockchains"
     }
   },
   "checkout": {

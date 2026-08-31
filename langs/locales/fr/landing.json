@@ -488,7 +488,12 @@
       "cap1": "Checkout hébergé",
       "sub1": "Choisir une crypto, scanner, payer — sur tout appareil.",
       "cap2": "Confirmation instantanée",
-      "sub2": "Le client voit un reçu clair dès le règlement."
+      "sub2": "Le client voit un reçu clair dès le règlement.",
+      "step0": "En attente de paiement",
+      "step1": "Confirmation on-chain…",
+      "step2": "Paiement confirmé",
+      "caption": "Du checkout à la confirmation en quelques secondes",
+      "captionSub": "L'expérience hébergée réelle — le client choisit une crypto, paie, et c'est réglé instantanément."
     },
     "compare": {
       "eyebrow": "Pourquoi nous plutôt que les autres",
@@ -515,6 +520,9 @@
       "r6f": "Premier paiement",
       "r6a": "Offert",
       "r6b": "Facturé dès le premier jour"
+    },
+    "trust": {
+      "label": "Acceptez les paiements sur 9 blockchains"
     }
   },
   "checkout": {

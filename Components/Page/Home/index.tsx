@@ -31,6 +31,7 @@ const WhyDynoPayV3 = dynamic(() => import("./v3/WhyDynoPayV3"));
 const DeveloperBandV3 = dynamic(() => import("./v3/DeveloperBandV3"));
 const ProductShowcaseV3 = dynamic(() => import("./v3/ProductShowcaseV3"));
 const CompareV3 = dynamic(() => import("./v3/CompareV3"));
+const TrustLogosV3 = dynamic(() => import("./v3/TrustLogosV3"));
 
 /**
  * HomePage v3 — "Creator-first, cut in half" (2026-07-18).
@@ -74,6 +75,7 @@ const HomePage: FC = () => {
   return (
     <HomeWrapper>
       <HeroPlayground />
+      <TrustLogosV3 />
       <HowItWorksV3 />
       <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
         <AudienceDoorsV3 />

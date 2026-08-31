@@ -488,7 +488,12 @@
       "cap1": "Checkout hospedado",
       "sub1": "Escolha uma moeda, escaneie, pague — em qualquer dispositivo.",
       "cap2": "Confirmação instantânea",
-      "sub2": "O cliente vê um recibo claro assim que é liquidado."
+      "sub2": "O cliente vê um recibo claro assim que é liquidado.",
+      "step0": "Aguardando pagamento",
+      "step1": "Confirmando on-chain…",
+      "step2": "Pagamento confirmado",
+      "caption": "Do checkout à confirmação em segundos",
+      "captionSub": "A experiência hospedada real — o cliente escolhe uma moeda, paga e é liquidado na hora."
     },
     "compare": {
       "eyebrow": "Por que nós em vez das alternativas",
@@ -515,6 +520,9 @@
       "r6f": "Primeiro pagamento",
       "r6a": "Grátis",
       "r6b": "Cobrado desde o primeiro dia"
+    },
+    "trust": {
+      "label": "Aceite pagamentos em 9 blockchains"
     }
   },
   "checkout": {

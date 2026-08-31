@@ -152,11 +152,13 @@ const DeveloperBandV3: React.FC = () => {
           >
             <Box
               sx={{
-                background: "#0B0B0F",
-                border: "1px solid rgba(255,255,255,0.10)",
+                background: s.dark ? "#17171F" : "#0B0B0F",
+                border: s.dark ? "1px solid rgba(129,140,248,0.22)" : "1px solid rgba(255,255,255,0.10)",
                 borderRadius: "18px",
                 overflow: "hidden",
-                boxShadow: "0 30px 60px -30px rgba(0,0,0,0.5)",
+                boxShadow: s.dark
+                  ? "0 30px 60px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(129,140,248,0.10)"
+                  : "0 30px 60px -30px rgba(0,0,0,0.5)",
               }}
             >
               {/* terminal chrome */}

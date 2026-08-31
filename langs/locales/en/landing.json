@@ -488,7 +488,12 @@
       "cap1": "Hosted checkout",
       "sub1": "Pick a coin, scan, pay — on any device.",
       "cap2": "Instant confirmation",
-      "sub2": "Customers get a clear receipt the moment it settles."
+      "sub2": "Customers get a clear receipt the moment it settles.",
+      "step0": "Awaiting payment",
+      "step1": "Confirming on-chain…",
+      "step2": "Payment confirmed",
+      "caption": "From checkout to confirmed in seconds",
+      "captionSub": "The real hosted experience — your customer picks a coin, pays, and it settles instantly."
     },
     "compare": {
       "eyebrow": "Why us vs the alternatives",
@@ -515,6 +520,9 @@
       "r6f": "First payment",
       "r6a": "Free",
       "r6b": "Charged from day one"
+    },
+    "trust": {
+      "label": "Accept payments across 9 blockchains"
     }
   },
   "checkout": {
