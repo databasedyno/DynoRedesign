@@ -909,5 +909,41 @@
     "passwordHelper": "At least 8 characters.",
     "acceptJoin": "Accept invite & join",
     "settingUp": "Setting up..."
+  },
+  "activityLog": {
+    "company": {
+      "delete": "Deleted a business",
+      "update": "Updated the business profile",
+      "webhook_settings": "Updated webhook settings",
+      "webhook_reenable": "Re-enabled the webhook",
+      "webhook_test": "Sent a test webhook",
+      "auto_convert": "Updated auto-convert settings",
+      "display_currency": "Changed the display currency",
+      "conversion_retry": "Retried a stablecoin conversion",
+      "create": "Created a business",
+      "change": "Changed business settings"
+    },
+    "team": {
+      "invite": "Invited a team member",
+      "revoke": "Removed a team member",
+      "update": "Updated a member's role or permissions",
+      "accept": "Joined the team",
+      "change": "Changed the team"
+    },
+    "apikey": {
+      "create": "Created an API key",
+      "update": "Updated an API key",
+      "regenerate": "Regenerated an API key",
+      "toggle": "Changed an API key's status",
+      "revoke": "Revoked an API key",
+      "delete": "Deleted an API key",
+      "change": "Changed an API key"
+    },
+    "wallet": {
+      "add": "Added a payout wallet",
+      "delete": "Removed a payout wallet",
+      "update": "Updated the payout wallet",
+      "change": "Changed a payout wallet"
+    }
   }
 }

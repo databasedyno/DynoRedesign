@@ -908,5 +908,41 @@
     "passwordHelper": "Mindestens 8 Zeichen.",
     "acceptJoin": "Einladung annehmen und beitreten",
     "settingUp": "Einrichten..."
+  },
+  "activityLog": {
+    "company": {
+      "delete": "Hat ein Unternehmen gelöscht",
+      "update": "Hat das Unternehmensprofil aktualisiert",
+      "webhook_settings": "Hat die Webhook-Einstellungen aktualisiert",
+      "webhook_reenable": "Hat den Webhook wieder aktiviert",
+      "webhook_test": "Hat einen Test-Webhook gesendet",
+      "auto_convert": "Hat die Auto-Convert-Einstellungen aktualisiert",
+      "display_currency": "Hat die Anzeigewährung geändert",
+      "conversion_retry": "Hat eine Stablecoin-Umwandlung wiederholt",
+      "create": "Hat ein Unternehmen erstellt",
+      "change": "Hat die Unternehmenseinstellungen geändert"
+    },
+    "team": {
+      "invite": "Hat ein Teammitglied eingeladen",
+      "revoke": "Hat ein Teammitglied entfernt",
+      "update": "Hat die Rolle oder Berechtigungen eines Mitglieds aktualisiert",
+      "accept": "Ist dem Team beigetreten",
+      "change": "Hat das Team geändert"
+    },
+    "apikey": {
+      "create": "Hat einen API-Schlüssel erstellt",
+      "update": "Hat einen API-Schlüssel aktualisiert",
+      "regenerate": "Hat einen API-Schlüssel neu generiert",
+      "toggle": "Hat den Status eines API-Schlüssels geändert",
+      "revoke": "Hat einen API-Schlüssel widerrufen",
+      "delete": "Hat einen API-Schlüssel gelöscht",
+      "change": "Hat einen API-Schlüssel geändert"
+    },
+    "wallet": {
+      "add": "Hat ein Auszahlungs-Wallet hinzugefügt",
+      "delete": "Hat ein Auszahlungs-Wallet entfernt",
+      "update": "Hat das Auszahlungs-Wallet aktualisiert",
+      "change": "Hat ein Auszahlungs-Wallet geändert"
+    }
   }
 }

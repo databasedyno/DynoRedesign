@@ -35,6 +35,7 @@ export const NOTIFICATION_TYPES = {
   WALLET_ADDED: "wallet_added",
   API_KEY_CREATED: "api_key_created",
   COMPANY_CREATED: "company_created",
+  TEAM_MEMBER_JOINED: "team_member_joined",
 };
 
 /**

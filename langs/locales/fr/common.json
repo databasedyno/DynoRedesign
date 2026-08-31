@@ -908,5 +908,41 @@
     "passwordHelper": "Au moins 8 caractères.",
     "acceptJoin": "Accepter l'invitation et rejoindre",
     "settingUp": "Configuration..."
+  },
+  "activityLog": {
+    "company": {
+      "delete": "A supprimé une entreprise",
+      "update": "A mis à jour le profil de l'entreprise",
+      "webhook_settings": "A mis à jour les paramètres du webhook",
+      "webhook_reenable": "A réactivé le webhook",
+      "webhook_test": "A envoyé un webhook de test",
+      "auto_convert": "A mis à jour les paramètres de conversion automatique",
+      "display_currency": "A changé la devise d'affichage",
+      "conversion_retry": "A réessayé une conversion de stablecoin",
+      "create": "A créé une entreprise",
+      "change": "A modifié les paramètres de l'entreprise"
+    },
+    "team": {
+      "invite": "A invité un membre de l'équipe",
+      "revoke": "A retiré un membre de l'équipe",
+      "update": "A modifié le rôle ou les autorisations d'un membre",
+      "accept": "A rejoint l'équipe",
+      "change": "A modifié l'équipe"
+    },
+    "apikey": {
+      "create": "A créé une clé API",
+      "update": "A mis à jour une clé API",
+      "regenerate": "A régénéré une clé API",
+      "toggle": "A changé le statut d'une clé API",
+      "revoke": "A révoqué une clé API",
+      "delete": "A supprimé une clé API",
+      "change": "A modifié une clé API"
+    },
+    "wallet": {
+      "add": "A ajouté un portefeuille de paiement",
+      "delete": "A retiré un portefeuille de paiement",
+      "update": "A mis à jour le portefeuille de paiement",
+      "change": "A modifié un portefeuille de paiement"
+    }
   }
 }

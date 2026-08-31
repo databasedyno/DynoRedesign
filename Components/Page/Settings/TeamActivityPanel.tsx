@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import axiosBaseApi from "@/axiosConfig";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
+import useRelativeTime from "@/hooks/useRelativeTime";
 
 interface Activity {
   id: number;
@@ -15,21 +16,6 @@ interface Activity {
   created_at: string;
 }
 
-const relTime = (iso: string): string => {
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return "";
-  const diff = Math.max(0, Date.now() - then);
-  const s = Math.floor(diff / 1000);
-  if (s < 60) return "just now";
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.floor(h / 24);
-  if (d < 7) return `${d}d ago`;
-  return new Date(iso).toLocaleDateString();
-};
-
 /**
  * Team Activity Log — read-only audit trail of write actions on this business
  * (who did what, and when). Owner or a teammate with manage_team; the backend
@@ -38,6 +24,7 @@ const relTime = (iso: string): string => {
 const TeamActivityPanel: React.FC = () => {
   const theme = useTheme();
   const { t } = useTranslation("common");
+  const relTime = useRelativeTime();
   const companyId = useSelectedCompanyId();
 
   const [loading, setLoading] = useState(true);
@@ -111,7 +98,7 @@ const TeamActivityPanel: React.FC = () => {
             >
               <Box sx={{ minWidth: 0 }}>
                 <Typography fontWeight={600} sx={{ fontSize: 14 }} noWrap>
-                  {r.description || r.action}
+                  {t(`activityLog.${r.action}`, { defaultValue: r.description || r.action })}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" noWrap>
                   {r.actor_name}

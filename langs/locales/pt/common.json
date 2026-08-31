@@ -908,5 +908,41 @@
     "passwordHelper": "Pelo menos 8 caracteres.",
     "acceptJoin": "Aceitar convite e entrar",
     "settingUp": "Configurando..."
+  },
+  "activityLog": {
+    "company": {
+      "delete": "Excluiu um negócio",
+      "update": "Atualizou o perfil do negócio",
+      "webhook_settings": "Atualizou as configurações do webhook",
+      "webhook_reenable": "Reativou o webhook",
+      "webhook_test": "Enviou um webhook de teste",
+      "auto_convert": "Atualizou as configurações de conversão automática",
+      "display_currency": "Alterou a moeda de exibição",
+      "conversion_retry": "Repetiu uma conversão de stablecoin",
+      "create": "Criou um negócio",
+      "change": "Alterou as configurações do negócio"
+    },
+    "team": {
+      "invite": "Convidou um membro da equipe",
+      "revoke": "Removeu um membro da equipe",
+      "update": "Atualizou a função ou as permissões de um membro",
+      "accept": "Entrou na equipe",
+      "change": "Alterou a equipe"
+    },
+    "apikey": {
+      "create": "Criou uma chave de API",
+      "update": "Atualizou uma chave de API",
+      "regenerate": "Regenerou uma chave de API",
+      "toggle": "Alterou o status de uma chave de API",
+      "revoke": "Revogou uma chave de API",
+      "delete": "Excluiu uma chave de API",
+      "change": "Alterou uma chave de API"
+    },
+    "wallet": {
+      "add": "Adicionou uma carteira de pagamento",
+      "delete": "Removeu uma carteira de pagamento",
+      "update": "Atualizou a carteira de pagamento",
+      "change": "Alterou uma carteira de pagamento"
+    }
   }
 }

@@ -457,6 +457,141 @@ ACCEPT = {
     },
 }
 
+ACTIVITY = {
+    "en": {
+        "company": {
+            "delete": "Deleted a business", "update": "Updated the business profile",
+            "webhook_settings": "Updated webhook settings", "webhook_reenable": "Re-enabled the webhook",
+            "webhook_test": "Sent a test webhook", "auto_convert": "Updated auto-convert settings",
+            "display_currency": "Changed the display currency", "conversion_retry": "Retried a stablecoin conversion",
+            "create": "Created a business", "change": "Changed business settings",
+        },
+        "team": {
+            "invite": "Invited a team member", "revoke": "Removed a team member",
+            "update": "Updated a member's role or permissions", "accept": "Joined the team", "change": "Changed the team",
+        },
+        "apikey": {
+            "create": "Created an API key", "update": "Updated an API key", "regenerate": "Regenerated an API key",
+            "toggle": "Changed an API key's status", "revoke": "Revoked an API key", "delete": "Deleted an API key",
+            "change": "Changed an API key",
+        },
+        "wallet": {
+            "add": "Added a payout wallet", "delete": "Removed a payout wallet",
+            "update": "Updated the payout wallet", "change": "Changed a payout wallet",
+        },
+    },
+    "es": {
+        "company": {
+            "delete": "Eliminó un negocio", "update": "Actualizó el perfil del negocio",
+            "webhook_settings": "Actualizó los ajustes del webhook", "webhook_reenable": "Reactivó el webhook",
+            "webhook_test": "Envió un webhook de prueba", "auto_convert": "Actualizó los ajustes de conversión automática",
+            "display_currency": "Cambió la moneda de visualización", "conversion_retry": "Reintentó una conversión de stablecoin",
+            "create": "Creó un negocio", "change": "Cambió los ajustes del negocio",
+        },
+        "team": {
+            "invite": "Invitó a un miembro del equipo", "revoke": "Eliminó a un miembro del equipo",
+            "update": "Actualizó el rol o los permisos de un miembro", "accept": "Se unió al equipo", "change": "Cambió el equipo",
+        },
+        "apikey": {
+            "create": "Creó una clave API", "update": "Actualizó una clave API", "regenerate": "Regeneró una clave API",
+            "toggle": "Cambió el estado de una clave API", "revoke": "Revocó una clave API", "delete": "Eliminó una clave API",
+            "change": "Cambió una clave API",
+        },
+        "wallet": {
+            "add": "Añadió una cartera de pago", "delete": "Eliminó una cartera de pago",
+            "update": "Actualizó la cartera de pago", "change": "Cambió una cartera de pago",
+        },
+    },
+    "pt": {
+        "company": {
+            "delete": "Excluiu um negócio", "update": "Atualizou o perfil do negócio",
+            "webhook_settings": "Atualizou as configurações do webhook", "webhook_reenable": "Reativou o webhook",
+            "webhook_test": "Enviou um webhook de teste", "auto_convert": "Atualizou as configurações de conversão automática",
+            "display_currency": "Alterou a moeda de exibição", "conversion_retry": "Repetiu uma conversão de stablecoin",
+            "create": "Criou um negócio", "change": "Alterou as configurações do negócio",
+        },
+        "team": {
+            "invite": "Convidou um membro da equipe", "revoke": "Removeu um membro da equipe",
+            "update": "Atualizou a função ou as permissões de um membro", "accept": "Entrou na equipe", "change": "Alterou a equipe",
+        },
+        "apikey": {
+            "create": "Criou uma chave de API", "update": "Atualizou uma chave de API", "regenerate": "Regenerou uma chave de API",
+            "toggle": "Alterou o status de uma chave de API", "revoke": "Revogou uma chave de API", "delete": "Excluiu uma chave de API",
+            "change": "Alterou uma chave de API",
+        },
+        "wallet": {
+            "add": "Adicionou uma carteira de pagamento", "delete": "Removeu uma carteira de pagamento",
+            "update": "Atualizou a carteira de pagamento", "change": "Alterou uma carteira de pagamento",
+        },
+    },
+    "fr": {
+        "company": {
+            "delete": "A supprimé une entreprise", "update": "A mis à jour le profil de l'entreprise",
+            "webhook_settings": "A mis à jour les paramètres du webhook", "webhook_reenable": "A réactivé le webhook",
+            "webhook_test": "A envoyé un webhook de test", "auto_convert": "A mis à jour les paramètres de conversion automatique",
+            "display_currency": "A changé la devise d'affichage", "conversion_retry": "A réessayé une conversion de stablecoin",
+            "create": "A créé une entreprise", "change": "A modifié les paramètres de l'entreprise",
+        },
+        "team": {
+            "invite": "A invité un membre de l'équipe", "revoke": "A retiré un membre de l'équipe",
+            "update": "A modifié le rôle ou les autorisations d'un membre", "accept": "A rejoint l'équipe", "change": "A modifié l'équipe",
+        },
+        "apikey": {
+            "create": "A créé une clé API", "update": "A mis à jour une clé API", "regenerate": "A régénéré une clé API",
+            "toggle": "A changé le statut d'une clé API", "revoke": "A révoqué une clé API", "delete": "A supprimé une clé API",
+            "change": "A modifié une clé API",
+        },
+        "wallet": {
+            "add": "A ajouté un portefeuille de paiement", "delete": "A retiré un portefeuille de paiement",
+            "update": "A mis à jour le portefeuille de paiement", "change": "A modifié un portefeuille de paiement",
+        },
+    },
+    "de": {
+        "company": {
+            "delete": "Hat ein Unternehmen gelöscht", "update": "Hat das Unternehmensprofil aktualisiert",
+            "webhook_settings": "Hat die Webhook-Einstellungen aktualisiert", "webhook_reenable": "Hat den Webhook wieder aktiviert",
+            "webhook_test": "Hat einen Test-Webhook gesendet", "auto_convert": "Hat die Auto-Convert-Einstellungen aktualisiert",
+            "display_currency": "Hat die Anzeigewährung geändert", "conversion_retry": "Hat eine Stablecoin-Umwandlung wiederholt",
+            "create": "Hat ein Unternehmen erstellt", "change": "Hat die Unternehmenseinstellungen geändert",
+        },
+        "team": {
+            "invite": "Hat ein Teammitglied eingeladen", "revoke": "Hat ein Teammitglied entfernt",
+            "update": "Hat die Rolle oder Berechtigungen eines Mitglieds aktualisiert", "accept": "Ist dem Team beigetreten", "change": "Hat das Team geändert",
+        },
+        "apikey": {
+            "create": "Hat einen API-Schlüssel erstellt", "update": "Hat einen API-Schlüssel aktualisiert", "regenerate": "Hat einen API-Schlüssel neu generiert",
+            "toggle": "Hat den Status eines API-Schlüssels geändert", "revoke": "Hat einen API-Schlüssel widerrufen", "delete": "Hat einen API-Schlüssel gelöscht",
+            "change": "Hat einen API-Schlüssel geändert",
+        },
+        "wallet": {
+            "add": "Hat ein Auszahlungs-Wallet hinzugefügt", "delete": "Hat ein Auszahlungs-Wallet entfernt",
+            "update": "Hat das Auszahlungs-Wallet aktualisiert", "change": "Hat ein Auszahlungs-Wallet geändert",
+        },
+    },
+    "nl": {
+        "company": {
+            "delete": "Heeft een bedrijf verwijderd", "update": "Heeft het bedrijfsprofiel bijgewerkt",
+            "webhook_settings": "Heeft de webhook-instellingen bijgewerkt", "webhook_reenable": "Heeft de webhook opnieuw ingeschakeld",
+            "webhook_test": "Heeft een test-webhook verstuurd", "auto_convert": "Heeft de auto-convert-instellingen bijgewerkt",
+            "display_currency": "Heeft de weergavevaluta gewijzigd", "conversion_retry": "Heeft een stablecoin-conversie opnieuw geprobeerd",
+            "create": "Heeft een bedrijf aangemaakt", "change": "Heeft de bedrijfsinstellingen gewijzigd",
+        },
+        "team": {
+            "invite": "Heeft een teamgenoot uitgenodigd", "revoke": "Heeft een teamgenoot verwijderd",
+            "update": "Heeft de rol of rechten van een lid bijgewerkt", "accept": "Is lid geworden van het team", "change": "Heeft het team gewijzigd",
+        },
+        "apikey": {
+            "create": "Heeft een API-sleutel aangemaakt", "update": "Heeft een API-sleutel bijgewerkt", "regenerate": "Heeft een API-sleutel opnieuw gegenereerd",
+            "toggle": "Heeft de status van een API-sleutel gewijzigd", "revoke": "Heeft een API-sleutel ingetrokken", "delete": "Heeft een API-sleutel verwijderd",
+            "change": "Heeft een API-sleutel gewijzigd",
+        },
+        "wallet": {
+            "add": "Heeft een uitbetalings-wallet toegevoegd", "delete": "Heeft een uitbetalings-wallet verwijderd",
+            "update": "Heeft de uitbetalings-wallet bijgewerkt", "change": "Heeft een uitbetalings-wallet gewijzigd",
+        },
+    },
+}
+
 
 def main():
     for loc in ["en", "es", "pt", "fr", "de", "nl"]:
@@ -465,10 +600,11 @@ def main():
             data = json.load(f)
         data["team"] = TEAM[loc]
         data["acceptInvite"] = ACCEPT[loc]
+        data["activityLog"] = ACTIVITY[loc]
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
             f.write("\n")
-        print(f"updated {path}: team({len(TEAM[loc])}) + acceptInvite({len(ACCEPT[loc])})")
+        print(f"updated {path}: team({len(TEAM[loc])}) + acceptInvite({len(ACCEPT[loc])}) + activityLog")
 
 
 if __name__ == "__main__":

@@ -908,5 +908,41 @@
     "passwordHelper": "Minimaal 8 tekens.",
     "acceptJoin": "Uitnodiging accepteren en deelnemen",
     "settingUp": "Instellen..."
+  },
+  "activityLog": {
+    "company": {
+      "delete": "Heeft een bedrijf verwijderd",
+      "update": "Heeft het bedrijfsprofiel bijgewerkt",
+      "webhook_settings": "Heeft de webhook-instellingen bijgewerkt",
+      "webhook_reenable": "Heeft de webhook opnieuw ingeschakeld",
+      "webhook_test": "Heeft een test-webhook verstuurd",
+      "auto_convert": "Heeft de auto-convert-instellingen bijgewerkt",
+      "display_currency": "Heeft de weergavevaluta gewijzigd",
+      "conversion_retry": "Heeft een stablecoin-conversie opnieuw geprobeerd",
+      "create": "Heeft een bedrijf aangemaakt",
+      "change": "Heeft de bedrijfsinstellingen gewijzigd"
+    },
+    "team": {
+      "invite": "Heeft een teamgenoot uitgenodigd",
+      "revoke": "Heeft een teamgenoot verwijderd",
+      "update": "Heeft de rol of rechten van een lid bijgewerkt",
+      "accept": "Is lid geworden van het team",
+      "change": "Heeft het team gewijzigd"
+    },
+    "apikey": {
+      "create": "Heeft een API-sleutel aangemaakt",
+      "update": "Heeft een API-sleutel bijgewerkt",
+      "regenerate": "Heeft een API-sleutel opnieuw gegenereerd",
+      "toggle": "Heeft de status van een API-sleutel gewijzigd",
+      "revoke": "Heeft een API-sleutel ingetrokken",
+      "delete": "Heeft een API-sleutel verwijderd",
+      "change": "Heeft een API-sleutel gewijzigd"
+    },
+    "wallet": {
+      "add": "Heeft een uitbetalings-wallet toegevoegd",
+      "delete": "Heeft een uitbetalings-wallet verwijderd",
+      "update": "Heeft de uitbetalings-wallet bijgewerkt",
+      "change": "Heeft een uitbetalings-wallet gewijzigd"
+    }
   }
 }

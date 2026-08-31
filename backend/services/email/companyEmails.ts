@@ -104,6 +104,39 @@ export const sendCompanyProfileUpdatedEmail = async (
   }
 };
 
+/**
+ * Template 2d: Teammate joined — notify the OWNER when an invited teammate
+ * accepts and joins the business. Plain-English (mirrors the referral-email
+ * style); outbound is suppressed in preview via DISABLE_OUTBOUND_EMAIL.
+ */
+export const sendTeamMemberJoinedEmail = async (
+  ownerEmail: string,
+  ownerName: string,
+  memberName: string,
+  memberEmail: string,
+  companyName: string
+) => {
+  try {
+    const who = escapeHtml(memberName || memberEmail);
+    const subject = `${memberName || memberEmail} joined ${companyName} on Dynopay`;
+    const content = `${p(ownerName ? `Hi ${escapeHtml(ownerName)},` : `Hi,`)}
+    ${p(`<strong>${who}</strong> just accepted your invite and joined <strong>${escapeHtml(companyName)}</strong>.`)}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow('Teammate', escapeHtml(memberEmail), true)}
+        ${dataRow('Business', escapeHtml(companyName))}
+      </table>
+    `, '#12B76A')}
+    ${p(`They now have the access you granted. You can review or change their permissions anytime from Settings → Team.`)}`;
+
+    const html = dynoPayEmailTemplate(`A teammate joined`, content, true, `Manage your team`, `${FRONTEND_BASE_URL}/settings?section=team`);
+    await mailTransporter({ to: ownerEmail, name: ownerName, subject, body: html });
+    apiLogger.info(`[Email] Teammate-joined notice sent to owner ${ownerEmail} (${memberEmail} -> ${companyName})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendTeamMemberJoinedEmail' });
+  }
+};
+
 // ============================================================
 // SECTION 5: WALLET EMAILS
 // ============================================================

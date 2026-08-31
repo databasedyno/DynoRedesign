@@ -5,6 +5,7 @@ import { apiLogger } from "../utils/loggers";
 import { errorResponseHelper, successResponseHelper } from "../helper";
 import { hashPassword, validatePasswordStrength } from "../helper/passwordHelper";
 import { getAccessToken, generateReferralCode } from "./user/userShared";
+import { notifyInviteAccepted } from "./team/teamNotifications";
 import { config } from "../utils/config";
 import {
   resolveMembership,
@@ -432,6 +433,11 @@ export const acceptInvite = async (req: express.Request, res: express.Response) 
     );
 
     apiLogger.info(`[Team] Invite accepted by ${email} (user_id=${memberUserId}, new=${createdNew}) for ${rows.length} company(ies)`);
+
+    // Alert each business owner that their teammate joined (best-effort).
+    const joinedCompanyIds = rows.map((r) => Number((dv(r) as { company_id: number }).company_id));
+    const memberName = ((dv(user) as { name?: string }).name as string) || null;
+    await notifyInviteAccepted(joinedCompanyIds, memberUserId, email, memberName);
 
     if (createdNew) {
       const resData = await getAccessToken(memberUserId);
