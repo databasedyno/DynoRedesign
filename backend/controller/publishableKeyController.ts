@@ -216,7 +216,7 @@ export const listPublishableKeys = async (req: express.Request, res: express.Res
       errorResponseHelper(res, 400, "company_id must be numeric");
       return;
     }
-    const companyData = await validateCompanyOwnership(res, company_id, userData.user_id);
+    const companyData = await validateCompanyOwnership(res, company_id, userData.user_id, "manage_payment_links");
     if (!companyData) return;
 
     const rows = await publishableKeyModel.findAll({
@@ -258,7 +258,7 @@ export const getPublishableKey = async (req: express.Request, res: express.Respo
     const row = await publishableKeyModel.findOne({ where: { pub_key_id: id } });
     if (!row) { errorResponseHelper(res, 404, "Publishable key not found"); return; }
     const v = row.dataValues as PublishableKeyRow & { usage_count?: number; last_used_at?: string };
-    const companyData = await validateCompanyOwnership(res, v.company_id, userData.user_id);
+    const companyData = await validateCompanyOwnership(res, v.company_id, userData.user_id, "manage_payment_links");
     if (!companyData) return;
     successResponseHelper(res, 200, "Publishable key", {
       pub_key_id: v.pub_key_id,

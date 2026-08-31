@@ -67,15 +67,18 @@ const getSubscriptions = async (req: express.Request, res: express.Response) => 
   try {
     const { company_id, status } = req.query;
 
+    // RBAC: a member with manage_payment_links sees the OWNER's subscriptions.
+    let effectiveUserId = Number(userData.user_id);
     if (company_id) {
-      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id);
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "manage_payment_links");
       if (!companyData) return;
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
     }
 
     // Get user's plans first
     const userPlans = await planModel.findAll({
       attributes: ["plan_id"],
-      where: { user_id: userData.user_id },
+      where: { user_id: effectiveUserId },
     });
     const planIds = userPlans.map((p) => p.dataValues.plan_id);
 
@@ -104,7 +107,7 @@ const getSubscriptions = async (req: express.Request, res: express.Response) => 
        ORDER BY s."createdAt" DESC`,
       {
         replacements: { 
-          user_id: userData.user_id, 
+          user_id: effectiveUserId, 
           company_id: company_id || null,
           status: status || null 
         },

@@ -47,6 +47,49 @@ async function assertCanManageTeam(callerId: number, companyId: number) {
   return { ok: true as const, membership: m };
 }
 
+/**
+ * ESCALATION GUARD (C2): a NON-OWNER manager (a member/admin who holds
+ * manage_team) must not be able to hand out access above their own.
+ *   - only the OWNER may grant the "admin" role (admins get every permission);
+ *   - a manager may only grant permissions they themselves hold (subset rule).
+ * The OWNER is unrestricted. Returns an error string, or null when allowed.
+ */
+function assertGrantAllowed(
+  manager: { isOwner: boolean; permissions: Record<string, boolean> },
+  role: TeamRole,
+  permissions: Record<string, boolean>
+): string | null {
+  if (manager.isOwner) return null;
+  if (role === "admin") return "Only the account owner can grant the Admin role.";
+  for (const k of PERMISSION_KEYS) {
+    if (permissions[k] && !manager.permissions[k]) {
+      return "You can only grant permissions that you hold yourself.";
+    }
+  }
+  return null;
+}
+
+/**
+ * ESCALATION GUARD (C2): which member ROWS a non-owner manager may act on.
+ * They may never modify their OWN row (self-escalation), an ADMIN's row, or the
+ * account OWNER. The OWNER may act on anyone. Returns an error string or null.
+ */
+async function assertCanTargetRow(
+  manager: { isOwner: boolean },
+  targetRow: Record<string, unknown>,
+  callerId: number,
+  companyId: number
+): Promise<string | null> {
+  if (manager.isOwner) return null;
+  const targetUserId = Number(targetRow.member_user_id) || 0;
+  if (targetUserId && targetUserId === callerId) return "You cannot modify your own access.";
+  if (String(targetRow.role) === "admin") return "Only the account owner can manage an Admin.";
+  const company = await companyModel.findOne({ where: { company_id: companyId } });
+  const ownerId = Number((dv(company) as { user_id?: number }).user_id) || 0;
+  if (targetUserId && targetUserId === ownerId) return "You cannot modify the account owner.";
+  return null;
+}
+
 function buildInviteLink(token: string): string {
   const base = (config.frontendUrl || config.serverUrl || "").replace(/\/+$/, "");
   return `${base}/auth/accept-invite?token=${encodeURIComponent(token)}`;
@@ -87,6 +130,11 @@ export const inviteMembers = async (req: express.Request, res: express.Response)
     for (const companyId of companyIds) {
       const perm = await assertCanManageTeam(callerId, companyId);
       if (!perm.ok) { skipped.push({ company_id: companyId, reason: perm.msg }); continue; }
+
+      // C2 escalation guard: a non-owner manager can't invite an Admin or grant
+      // permissions they don't hold themselves.
+      const grantErr = assertGrantAllowed(perm.membership, role, permissions);
+      if (grantErr) { skipped.push({ company_id: companyId, reason: grantErr }); continue; }
 
       // Can't invite the company owner as a teammate.
       const company = await companyModel.findOne({ where: { company_id: companyId } });
@@ -218,6 +266,10 @@ export const updateMember = async (req: express.Request, res: express.Response) 
     const perm = await assertCanManageTeam(callerId, Number(d.company_id));
     if (!perm.ok) return errorResponseHelper(res, perm.code, perm.msg);
 
+    // C2 escalation guard: which rows a non-owner manager may touch.
+    const targetErr = await assertCanTargetRow(perm.membership, d, callerId, Number(d.company_id));
+    if (targetErr) return errorResponseHelper(res, 403, targetErr);
+
     const patch: Record<string, unknown> = {};
     if (req.body?.role !== undefined) {
       const role = String(req.body.role).toLowerCase() as TeamRole;
@@ -228,6 +280,13 @@ export const updateMember = async (req: express.Request, res: express.Response) 
       patch.permissions = sanitizePermissions(req.body.permissions);
     }
     if (Object.keys(patch).length === 0) return errorResponseHelper(res, 400, "Nothing to update.");
+
+    // C2 escalation guard: the RESULTING role/permissions must not exceed the
+    // non-owner manager's own (owner is unrestricted).
+    const finalRole = (patch.role as TeamRole) ?? (String(d.role || "member") as TeamRole);
+    const finalPerms = (patch.permissions as Record<string, boolean>) ?? sanitizePermissions(d.permissions);
+    const grantErr = assertGrantAllowed(perm.membership, finalRole, finalPerms);
+    if (grantErr) return errorResponseHelper(res, 403, grantErr);
 
     await teamMemberModel.update(patch, { where: { id } });
     return successResponseHelper(res, 200, "Team member updated.", { id, ...patch });
@@ -251,6 +310,11 @@ export const revokeMember = async (req: express.Request, res: express.Response) 
 
     const perm = await assertCanManageTeam(callerId, Number(d.company_id));
     if (!perm.ok) return errorResponseHelper(res, perm.code, perm.msg);
+
+    // C2 escalation guard: a non-owner manager can't revoke themselves, an Admin,
+    // or the account owner.
+    const targetErr = await assertCanTargetRow(perm.membership, d, callerId, Number(d.company_id));
+    if (targetErr) return errorResponseHelper(res, 403, targetErr);
 
     await teamMemberModel.update(
       { status: "revoked", invite_token: null, invite_expires_at: null },

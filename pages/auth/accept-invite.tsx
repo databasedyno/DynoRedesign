@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Link as MuiLink,
   Paper,
   Stack,
   TextField,
@@ -188,6 +189,19 @@ const AcceptInvitePage = () => {
                   >
                     {submitting ? "Accepting..." : "Accept & continue to login"}
                   </Button>
+                  <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+                    Forgot your password?{" "}
+                    <MuiLink
+                      component="button"
+                      type="button"
+                      onClick={() => router.push("/auth/login")}
+                      data-testid="accept-invite-forgot-password"
+                      sx={{ fontWeight: 600, cursor: "pointer", verticalAlign: "baseline" }}
+                    >
+                      Reset it on the login page
+                    </MuiLink>
+                    .
+                  </Typography>
                 </>
               ) : (
                 <>

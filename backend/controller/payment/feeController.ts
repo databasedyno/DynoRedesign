@@ -27,6 +27,7 @@ import {
   getDiscountedTransactionFee,
 } from "../../services/feeService";
 import { getFeeTiers } from "../../utils/feeConfigUtils";
+import { resolveMembership, membershipCan } from "../../utils/permissions";
 import { getCryptoPriceForPayment } from "./paymentHelpers";
 import { getPlatformFeePercent } from "../../utils/volumeTierUtils";
 import { paymentLinkModel as _pl, userModel } from "../../models";
@@ -596,8 +597,26 @@ export const getFeePreview = async (req: express.Request, res: express.Response)
     // the full amount); "company" (default) -> fee deducted from the merchant payout.
     const feePayer = (fee_payer as string) === "customer" ? "customer" : "company";
 
-    // Get discounted fee info for user
-    const discountInfo = await getDiscountedTransactionFee(userData.user_id);
+    // Get discounted fee info for user.
+    // A2/RBAC: a granted team member sees the OWNER's fee tier & volume-based
+    // discount, not their own "$0 / Starter". Best-effort remap via the selected
+    // company (X-Company-Id header or ?company_id) — never 403s, and is a no-op
+    // for the owner (m.ownerUserId === self).
+    let feeUserId = Number(userData.user_id);
+    const feeCompanyId = String(
+      (req.query.company_id as string) || (req.headers["x-company-id"] as string) || ""
+    ).trim();
+    if (feeCompanyId) {
+      try {
+        const m = await resolveMembership(feeUserId, Number(feeCompanyId));
+        if (m && (m.isOwner || membershipCan(m, "view_dashboard"))) {
+          feeUserId = Number(m.ownerUserId);
+        }
+      } catch {
+        // best-effort — fall back to the caller's own id
+      }
+    }
+    const discountInfo = await getDiscountedTransactionFee(feeUserId);
 
     // Calculate fees
     const baseFeePercent = Number(discountInfo.base_fee);

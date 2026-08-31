@@ -19,6 +19,7 @@ import {
   userWalletModel,
 } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
+import { resolveMembership, membershipCan } from "../utils/permissions";
 import { apiLogger } from "../utils/loggers";
 import crypto from "crypto";
 import sequelize from "../utils/dbInstance";
@@ -287,8 +288,10 @@ const getApi = async (req: express.Request, res: express.Response) => {
     }
     
     if (company_id) {
-      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id);
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "manage_api_keys");
       if (!companyData) return; // 403 already sent
+      // RBAC: a member with manage_api_keys sees the OWNER's keys for this company.
+      replacements.user_id = Number((companyData as unknown as { user_id: number }).user_id);
       whereClause += ` AND a.company_id = :company_id`;
       replacements.company_id = company_id;
     }
@@ -897,12 +900,20 @@ const updateCustomer = async (req: express.Request, res: express.Response) => {
     const customer_id = req.params.id;
     const { customer_name, email, mobile } = req.body;
 
-    // Get user's companies
+    // Companies the caller may act on: their own, plus a granted company (team
+    // member with manage_customers) selected via X-Company-Id.
     const userCompanies = await companyModel.findAll({
       attributes: ["company_id"],
       where: { user_id: userData.user_id },
     });
-    const companyIds = userCompanies.map((c) => c.dataValues.company_id);
+    let companyIds = userCompanies.map((c) => c.dataValues.company_id);
+    const hdrCompanyId = parseInt(String(req.headers["x-company-id"] ?? ""), 10);
+    if (hdrCompanyId && !companyIds.includes(hdrCompanyId)) {
+      const m = await resolveMembership(Number(userData.user_id), hdrCompanyId);
+      if (m && (m.isOwner || membershipCan(m, "manage_customers"))) {
+        companyIds = [hdrCompanyId];
+      }
+    }
 
     // Check if customer belongs to user's company
     const existingCustomer = await customerModel.findOne({
@@ -949,12 +960,20 @@ const deleteCustomer = async (req: express.Request, res: express.Response) => {
   try {
     const customer_id = req.params.id;
 
-    // Get user's companies
+    // Companies the caller may act on: their own, plus a granted company (team
+    // member with manage_customers) selected via X-Company-Id.
     const userCompanies = await companyModel.findAll({
       attributes: ["company_id"],
       where: { user_id: userData.user_id },
     });
-    const companyIds = userCompanies.map((c) => c.dataValues.company_id);
+    let companyIds = userCompanies.map((c) => c.dataValues.company_id);
+    const hdrCompanyId = parseInt(String(req.headers["x-company-id"] ?? ""), 10);
+    if (hdrCompanyId && !companyIds.includes(hdrCompanyId)) {
+      const m = await resolveMembership(Number(userData.user_id), hdrCompanyId);
+      if (m && (m.isOwner || membershipCan(m, "manage_customers"))) {
+        companyIds = [hdrCompanyId];
+      }
+    }
 
     // Check if customer belongs to user's company
     const existingCustomer = await customerModel.findOne({
@@ -997,14 +1016,22 @@ const getCustomersWithBalances = async (req: express.Request, res: express.Respo
     const { company_id, search, page = 1, limit = 20 } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
-    // Get user's companies
-    const userCompanies = await companyModel.findAll({
-      attributes: ["company_id"],
-      where: { user_id: userData.user_id },
-    });
-    const companyIds = company_id 
-      ? [company_id] 
-      : userCompanies.map((c) => c.dataValues.company_id);
+    // Resolve the companies to scope by. When a company is selected, verify the
+    // caller may access it (owner OR team member with manage_customers) — this
+    // also lets a granted member see the OWNER's customers, and closes a prior
+    // IDOR where any authed user could pass an arbitrary company_id.
+    let companyIds: Array<string | number>;
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "manage_customers");
+      if (!companyData) return; // 403 already sent
+      companyIds = [company_id as string];
+    } else {
+      const userCompanies = await companyModel.findAll({
+        attributes: ["company_id"],
+        where: { user_id: userData.user_id },
+      });
+      companyIds = userCompanies.map((c) => c.dataValues.company_id);
+    }
 
     if (companyIds.length === 0) {
       return successResponseHelper(res, 200, "No companies found", { customers: [], total: 0, aggregates: { total_customers: 0, total_balance: 0 } });
@@ -1086,12 +1113,20 @@ const getCustomerDetail = async (req: express.Request, res: express.Response) =>
     const { page = 1, limit = 20 } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
-    // Get user's companies
+    // Companies the caller may act on: their own, plus a granted company (team
+    // member with manage_customers) selected via X-Company-Id.
     const userCompanies = await companyModel.findAll({
       attributes: ["company_id"],
       where: { user_id: userData.user_id },
     });
-    const companyIds = userCompanies.map((c) => c.dataValues.company_id);
+    let companyIds = userCompanies.map((c) => c.dataValues.company_id);
+    const hdrCompanyId = parseInt(String(req.headers["x-company-id"] ?? ""), 10);
+    if (hdrCompanyId && !companyIds.includes(hdrCompanyId)) {
+      const m = await resolveMembership(Number(userData.user_id), hdrCompanyId);
+      if (m && (m.isOwner || membershipCan(m, "manage_customers"))) {
+        companyIds = [hdrCompanyId];
+      }
+    }
 
     // Get customer data
     const customerData = await sequelize.query(

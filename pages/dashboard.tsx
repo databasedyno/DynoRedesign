@@ -45,9 +45,11 @@ export default function Home({
 
   const companyState = useCompanyStore();
   const walletState = useWalletStore();
+  const isMember = companyState.isMember; // teammate viewing the OWNER's business
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
-  const setupComplete = hasCompany && hasWallet;
+  // A team member never sees merchant onboarding — the business is already set up.
+  const setupComplete = isMember || (hasCompany && hasWallet);
 
   useEffect(() => {
     if (setPageName && setPageDescription) {
@@ -93,9 +95,9 @@ export default function Home({
       </Head>
 
       <main>
-        <OnboardingFlow />
-        <AutoClaimHandle />
-        {setupComplete && <ClaimHandleBanner />}
+        {!isMember && <OnboardingFlow />}
+        {!isMember && <AutoClaimHandle />}
+        {!isMember && setupComplete && <ClaimHandleBanner />}
 
         {/* Coinbase look: scope Inter to the dashboard by redefining --font-sans
             here (every dashboard text uses var(--font-sans)); numbers already

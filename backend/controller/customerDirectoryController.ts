@@ -20,6 +20,7 @@ import { IUserType } from "../utils/types";
 import sequelize from "../utils/dbInstance";
 import { apiLogger } from "../utils/loggers";
 import { resolveTransactionSource } from "../utils/transactionSource";
+import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
 import {
   buildDirectory,
@@ -48,10 +49,21 @@ const getCustomerDirectory = async (req: express.Request, res: express.Response)
       limit = 20,
     } = req.query as Record<string, string>;
 
-    const scope = await resolveCompanyScope(userData.user_id, company_id);
+    // RBAC: a member with manage_customers sees the OWNER's customer directory
+    // for a granted company (no-op for owners). Company comes from ?company_id
+    // or the X-Company-Id header.
+    const companyIdParam = company_id || (req.headers["x-company-id"] as string) || undefined;
+    let effectiveUserId = Number(userData.user_id);
+    if (companyIdParam) {
+      const companyData = await validateCompanyOwnership(res, companyIdParam, userData.user_id, "manage_customers");
+      if (!companyData) return; // 403 already sent
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
+
+    const scope = await resolveCompanyScope(effectiveUserId, companyIdParam);
     if (!scope) return errorResponseHelper(res, 403, "Company does not belong to user");
 
-    const dir = await buildDirectory(userData.user_id, scope);
+    const dir = await buildDirectory(effectiveUserId, scope);
 
     let rows: DirectoryEntry[] = [...dir.persons, ...dir.anonymous];
 
@@ -110,10 +122,19 @@ const getCustomerDirectoryDetail = async (req: express.Request, res: express.Res
     const { key, company_id } = req.query as Record<string, string>;
     if (!key) return errorResponseHelper(res, 400, "key is required");
 
-    const scope = await resolveCompanyScope(userData.user_id, company_id);
+    // RBAC: remap to the OWNER for a granted team member (manage_customers).
+    const companyIdParam = company_id || (req.headers["x-company-id"] as string) || undefined;
+    let effectiveUserId = Number(userData.user_id);
+    if (companyIdParam) {
+      const companyData = await validateCompanyOwnership(res, companyIdParam, userData.user_id, "manage_customers");
+      if (!companyData) return; // 403 already sent
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
+
+    const scope = await resolveCompanyScope(effectiveUserId, companyIdParam);
     if (!scope) return errorResponseHelper(res, 403, "Company does not belong to user");
 
-    const dir = await buildDirectory(userData.user_id, scope);
+    const dir = await buildDirectory(effectiveUserId, scope);
     const wantedKey = String(key).toLowerCase();
     const profile =
       dir.persons.find((p) => p.key === wantedKey) ||
@@ -121,7 +142,7 @@ const getCustomerDirectoryDetail = async (req: express.Request, res: express.Res
     if (!profile) return errorResponseHelper(res, 404, "Customer not found");
 
     const companyScoped = scope.companyId != null;
-    const replacements: Record<string, unknown> = { userId: userData.user_id, companyId: scope.companyId };
+    const replacements: Record<string, unknown> = { userId: effectiveUserId, companyId: scope.companyId };
     const txRows = (await sequelize.query(TX_QUERY(companyScoped), {
       replacements,
       type: QueryTypes.SELECT,

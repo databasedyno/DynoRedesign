@@ -1,3 +1,6 @@
+<!-- 2026-08-31 (fork, pod 9a70e7ed): RBAC Task D MEMBER UX POLISH — DONE + VERIFIED. Backend A2/B/C1/C2 already shipped+verified (invoices 403 gate fix retested 15/15). This session finished the remaining Task D frontend polish: (1) team-member REVOKE now uses a proper MUI confirmation dialog (Components/Page/Settings/TeamSettingsSection.tsx: revokeTarget/revoking state + performRevoke; testids team-revoke-dialog / team-revoke-cancel / team-revoke-confirm) replacing the native window.confirm — testing_agent iter_106 verified BOTH cancel + confirm paths incl. 'Access revoked.' toast. (2) accept-invite existing-account branch (pages/auth/accept-invite.tsx) now shows a 'Forgot your password?' hint -> MuiLink data-testid='accept-invite-forgot-password' -> router.push('/auth/login') — self-verified via direct Playwright against LIVE preview (existing-account email onarrival21+dtest1788137435@gmail.com whose email_has_account=true: link present, text 'Reset it on the login page', click navigates to /auth/login; new-account branch correctly shows NO hint + password field). (3) member dashboard onboarding chrome already hidden (pages/dashboard.tsx isMember gates OnboardingFlow/AutoClaimHandle/ClaimHandleBanner) — testing_agent confirmed no onboarding wizard on member first-load. FE tsc EXIT 0. Full FE E2E testing_agent iter_106 = 7/8 (the 8th, existing-branch hint, was a test-data limitation which I then verified myself). ALL test invites/members revoked (Team panel empty). SAFE MODE intact (bg jobs off, email off). Preview: https://9a70e7ed-acb4-4580-bf84-4e7e80243a2c.preview.emergentagent.com -->
+
+
 <!-- 2026-06 (fork) SESSION: Team/RBAC follow-ups shipped + accept-flow fixes. (1) Owner-only lockdown on payout-wallet + delete/revoke API-key (requireCompanyOwnerBy). (2) Member UI gating: CompanyDataContext exposes can()/isMember/memberRole; NewSidebar disables ungranted nav w/ tooltip; CompanySelector 'Member' badge + hidden edit pencil. (3) Currency UX: 'Settlement currency' + confirm modal; display currency 'View only' chip. (4) Team Activity Log: migration 0016 tbl_team_activity + auditMutations middleware + GET /api/team/activity + TeamActivityPanel. Fixes from testing_agent iters 103-105: CSRF-exempt /api/team/accept; encodeURIComponent login email; MEMBER DATA SCOPING — validateCompanyOwnership now allows active members & returns owner-as-effective-user so members see the OWNER's dashboard/chart/KPIs/transactions (verified member==owner over HTTP; 403 for non-granted). A1 DONE: accountProvisioning afterCreate hook honours skipAccountProvisioning; acceptInvite passes it -> invitees get NO stray personal company (verified OWNED_COMPANIES=0, defaults to granted business, no onboarding). DEFERRED (user chose A1 only): A2 getFeeTiers owner-remap (member sees $0/Starter); B full effective-owner across wallets/keys/customers/invoices/etc.; C1 API-key creation owner-only; C2 manage_team escalation guards; C3 revoke UI refresh; D onboarding chrome for members + revoke MUI confirm. Details: REFACTOR_STATUS.md (top). -->
 
 
@@ -66,7 +69,7 @@ Interactive earnings estimator added to /referral-program (user picked this next
 
 # PUBLIC REFERRAL MARKETING PAGE (2026-06 fork) — DONE (testing_agent iteration_100 = 100% frontend + SSR/tsc verified)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
 User approved defaults: mega-menu link under Resources · landing CTA band just before the final register CTA · sitemap+hreflang.
 
 BUILT (frontend-only, no backend/money-path change):
@@ -103,7 +106,7 @@ FILES: pages/referral-program.tsx (new), Components/Page/Home/v3/ReferralCtaBand
 
 # REFERRAL REVENUE-SHARE — PHASE 2 CASH-OUT (2026-06 fork) — DONE (backend verified read-only)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF).
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF).
 
 Opt-in USDT-TRC20 cash-out for referral revenue-share (25%/12mo). BLENDED model: fee-credit default, cash opt-in.
 - Backend NEW: `services/referralPayoutService.ts` (cross-company TRON wallet reuse, OTP opt-in, OTP-gated payout request → 'pending' row [NO funds move], leader/prod Binance send+monitor), `controller/referralPayoutController.ts`, 4 routes (GET /payout/overview, POST /payout/otp|opt-in|request). MIN=env REFERRAL_MIN_PAYOUT_USDT (default $25). Reuses sendWithdrawalOTPEmail. submitWithdrawal is CRON-ONLY (OFF in SAFE-MODE preview).
@@ -117,7 +120,7 @@ Opt-in USDT-TRC20 cash-out for referral revenue-share (25%/12mo). BLENDED model:
 
 # i18n POLISH SWEEP (2026-08-29 fork, pod 202ba772) — Invoice PDF locale + Relative-time + Email subjects — DONE (verified)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF). FE tsc EXIT 0, BE healthy.
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: onarrival21@gmail.com / Katiekendra123@ (LIVE prod DB, SAFE MODE, EMAIL OFF). FE tsc EXIT 0, BE healthy.
 
 Four user-picked i18n items completed:
 1. **Invoice PDF localization** — `services/pdfService.ts` + `controller/invoiceController.ts`: 21 `invoice.*`
@@ -497,7 +500,7 @@ refreshInterval 10000; no double-fetch; ZERO console errors; no error boundary; 
 
 ⚠️ FLAG STAYS OFF until the USER runs a live real-payment test (confirmed/underpaid/expired transitions need a
 real on-chain confirmation — not exercisable in preview). Test URL:
-https://dynopay-setup-11.preview.emergentagent.com/pay?d=6dd51132387bb90115c71f895b66f19a734e625c54b433ca&swr=1
+https://dynopay-setup-12.preview.emergentagent.com/pay?d=6dd51132387bb90115c71f895b66f19a734e625c54b433ca&swr=1
 (link_id 277, $20, no expiry — left LIVE on prod DB for this test). To make default after passing: set
 NEXT_PUBLIC_CHECKOUT_SWR=true. REMAINING (Phase C extension, not started): same SWR layer on InlineTipCheckout
 (easy) + dormant cryptoTransfer (low priority). Full detail in memory/REFACTOR_STATUS.md.
@@ -548,7 +551,7 @@ key, POST /api/public/sandbox/payment-links returns object=payment_link (13 chai
 
 # CHECKOUT REFACTOR — Phase B (one API client, two auth models) — DONE (2026-06 fork) — verified on both active surfaces
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com (LIVE prod DB, SAFE MODE). tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com (LIVE prod DB, SAFE MODE). tsc EXIT 0.
 User: "Phase B Go — unify all three checkout surfaces onto one API client, preserving each auth model exactly."
 Full detail in memory/REFACTOR_STATUS.md ("Phase B — Unify the API call sites — DONE").
 
@@ -584,7 +587,7 @@ REMAINING: Phase C (single server-state data-layer rewrite) — HIGH risk, not s
 
 # CHECKOUT REFACTOR — Phase A (shared-logic de-dup) — DONE (2026-06 fork) — verified render smoke test
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com (LIVE prod DB, SAFE MODE). tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com (LIVE prod DB, SAFE MODE). tsc EXIT 0.
 User steer (ask_human): "implement Phase A only and document all phases in refactor status doc after." Full phase
 breakdown (A done, B/C scoped + deferred) lives in memory/REFACTOR_STATUS.md (section "2026-06 — CHECKOUT REFACTOR").
 
@@ -613,7 +616,7 @@ FILES: Components/Page/Creator/InlineTipCheckout.tsx; docs memory/REFACTOR_STATU
 
 # FEATURES (2026-06 fork) — Tax discoverability UX + coin brand logos + Solutions grid — DONE (testing_agent iteration_92 = 100% frontend)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
 Follow-up to the landing a–e pass. User picks (ask_human): tax = "controls exist but hard to find → improve discoverability/UX";
 prod-DB writes OK; order = Tax → Coin logos → Solutions → Checkout Refactor (last); coin logos via iconify OK. Checkout
 Refactor NOT done — user asked "what's the benefit?" (left for their decision; explained in finish).
@@ -668,7 +671,7 @@ explanation.
 
 # FEATURE (2026-06 fork) — Landing + Fees enhancements a–e (feature-gap closure) — DONE (testing_agent iteration_91 = 100% frontend, 0 console errors)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
 Fork continued the Checkout-Refactor/Landing-gap plan. User approved proceeding with the highest-value, lowest-risk
 work first ("as long as it works as intended and is beneficial") → shipped the 5 landing/fees enhancements from
 LANDING_FEATURE_GAP_ANALYSIS.md. ALL frontend-only, ZERO money-path change, localized across all 6 locales.
@@ -718,7 +721,7 @@ the deeper refactor is revenue-path-risky — parked per user's "as long as it w
 
 # FEATURE (2026-06 fork) — Honesty copy extended to /about + Auth screens; coin count → "15 coins & tokens" sitewide — DONE (screenshot-verified EN+ES; tsc EXIT 0)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
+Preview: https://dynopay-setup-12.preview.emergentagent.com (LIVE prod DB, SAFE MODE).
 
 USER DECISIONS (ask_human): (1) standardize on **"15 coins & tokens"** everywhere (also update landing + fees);
 (2) fix the AuthBrandPanel fabricated claims too; (3) approved honest set — /about stats "1.5% · 9 blockchains ·
@@ -758,7 +761,7 @@ Components/Page/Pay3Components/CleanCheckoutV2.tsx, langs/locales/{en,es,pt,fr,d
 
 # FEATURE (2026-08-26 fork) — Landing page merchant-first conversion pass — DONE (testing_agent iteration_90 = 100% frontend)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0.
 
 APPROVED PLAN: make the homepage cleaner and steer a first-time MERCHANT toward sign-up. User decisions during
 build: "$42M is not real" → removed; hide the crypto price ticker (option a); reward is already "first payment
@@ -810,7 +813,7 @@ langs/locales/*/landing.json, langs/locales/*/auth.json.
 
 # FEATURE (2026-08-26 fork) — Buyer Payment-Receipt email capture + Confirmation browser alert — DONE (testing_agent iteration_89 = 100%, backend curl-verified)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE, email OFF). Frontend + backend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE, email OFF). Frontend + backend tsc EXIT 0.
 
 USER REQUEST (2 features): (1) buyers get a simple emailed receipt right after payment confirms; (2) a browser
 notification when the payment confirms so buyers can switch tabs. User choices: email field on the currency-
@@ -856,7 +859,7 @@ Components/Page/Creator/InlineTipCheckout.tsx, pages/[handle]/checkout.tsx, lang
 
 # FEATURE (2026-06 fork) — Unified referral program ("give 50% off, get 50% off") — DONE (FE screenshot-verified; cron prod-only)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend + backend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend + backend tsc EXIT 0.
 
 INVESTIGATION FINDING: two overlapping referral systems existed —
   (1) User referral code `DYNO-XXXX` (merchant→merchant): referee got 50%/30d on signup, referrer
@@ -958,7 +961,7 @@ monitor already writes the corrected operational checks).
 
 # FEATURES (2026-06 fork) — Shop SEO meta i18n + Cart empty-state CTA — DONE (tsc + curl + DE screenshot)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0. No DB writes.
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0. No DB writes.
 
 ## 1) Shop / product SEO <Head> localization (SSR, crawler-visible) — DONE
 The app i18n is client-only (SSR always English), so localized search snippets need a server-visible signal.
@@ -994,7 +997,7 @@ VERIFIED (DE screenshot): "Dein Warenkorb ist leer." + "Zum Shop" button → /de
 
 # FEATURES (2026-06 fork) — Store-toggle i18n + preview chip + FULL shop buyer-journey i18n (6 langs) — DONE (tsc + DE screenshots)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Creator handle @devhub (company 1). Frontend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Creator handle @devhub (company 1). Frontend tsc EXIT 0.
 
 Three user-picked follow-ups to the store-visibility feature:
 
@@ -1043,7 +1046,7 @@ creator_page_show_products=true — API-confirmed).
 
 # FEATURE (2026-06 fork) — Creator page Store-visibility UX (turn shop off / hide products from tip page) — DONE (live round-trip verified)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB "roundhouse", SAFE MODE). Creator/company handle under STOREFRONT_PER_COMPANY=true is @devhub (company_id 1).
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB "roundhouse", SAFE MODE). Creator/company handle under STOREFRONT_PER_COMPANY=true is @devhub (company_id 1).
 
 USER PRODUCT REQUIREMENT: "it is unclear how to turn off store product from appearing on creator tip page or turn store off — we need a better UX." Fixed by adding two clearly-labelled toggles to the Storefront > Page settings (Components/Page/Creator/CreatorPageSettings.tsx):
   1. "Online store" (master, store_enabled) — OFF hides the /shop page + every product link everywhere; page becomes tip-only. Products are kept, not deleted.
@@ -1068,7 +1071,7 @@ VERIFIED (LIVE, flip → verify → restore, account left exactly as found):
 
 # FEATURE (2026-06 fork) — S4.3 store-checkout VAT strings localized (6 langs) — DONE
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).
 
 Localized every hardcoded-English VAT string on the STORE payment page (pages/[handle]/checkout.tsx,
 i18n ns "landing"): VAT-input helper (valid EU / invalid / default hint), Subtotal, Total, the
@@ -1091,7 +1094,7 @@ uses NO i18n — the whole cart page is hardcoded English. Left untouched to avo
 
 # BUGFIX (2026-06 fork) — Flutterwave webhook missing-`return` (headers-sent / unsigned-payload processing) — DONE
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE).
 
 Pre-existing bug flagged in REFACTOR_STATUS.md §2 (de-scoped in prior "crypto-only" sessions), now fixed at
 user request. `backend/webhooks/index.ts::flutterwaveWebHook` — on a bad/missing `verif-hash` it sent
@@ -1116,7 +1119,7 @@ place (backend tsc EXIT 0).
 
 # FEATURES (2026-06 fork) — Fees v3 full localization + localized Payouts toast + Dynotech→Dynopay rename — DONE
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, backend tsc EXIT 0.
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE). Frontend tsc EXIT 0, backend tsc EXIT 0.
 
 ## 1) /fees v3 page — FULLY LOCALIZED (was hardcoded English) — DONE (screenshot-verified DE)
 `pages/fees.tsx` used `useTranslation("fees")` as an UNUSED `_t` — every hero/tier/calculator/comparison/
@@ -1159,7 +1162,7 @@ to both the named import + the default object in `backend/services/emailService.
 
 # S3.0 i18n CLOSURE (2026-06 fork) — non-English "$500 free trial" → "first payment is on us" — DONE
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
 
 Completed the S3.0 follow-up: the "$500 free trial" → "first payment is on us" wording was only in the
 English locale. Translated the same keys into es/pt/fr/de/nl (5 languages) so non-English users no longer
@@ -1199,7 +1202,7 @@ the $500 task.
 
 # BUGFIX (2026-06 fork: dynopay-setup-4) — Landing CTA audit final blocker: support-chat FAB — DONE (testing-agent iteration_84 = 100%)
 
-Preview: https://dynopay-setup-11.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
+Preview: https://dynopay-setup-12.preview.emergentagent.com · Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod DB, SAFE MODE)
 
 Closed the last open item from the landing/marketing CTA audit (iter_82 = 60+ CTAs OK; iter_83 flagged one HIGH + one MEDIUM).
 
@@ -1701,7 +1704,7 @@ so the wiring is verified structurally, not by mutating prod data. User can flip
 CONTEXT: continuation of the DynoPay refactor (LOCAL isolated Postgres+Redis, SAFE MODE:
 ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, NODE_ENV=production). User: "fix all except
 flutterwave as we are only focusing on crypto." Preview:
-https://dynopay-setup-11.preview.emergentagent.com
+https://dynopay-setup-12.preview.emergentagent.com
 Login (LOCAL, safe): testmerchant@dynopay.dev / TestMerchant123!
 
 ## P0 — Frontend UI login failure ROOT-CAUSED + FIXED (was the prior fork's blocker)
@@ -2997,7 +3000,7 @@ sequential yarn installs, backend healthy (live Railway DB+Redis, SAFE MODE kept
 WORKER_ROLE=secondary — user's paste said true, kept off per standing rule). Frontend in `next dev` (hot reload)
 via /app/scripts/start-frontend.sh (FRONTEND_MODE=dev in /app/.env). All routes 200, full login verified
 (dashboard live data: 7D $1,235.62 / 21 payments, Growth tier). Preview:
-https://dynopay-setup-11.preview.emergentagent.com
+https://dynopay-setup-12.preview.emergentagent.com
 NEXTAUTH_SECRET this pod: EX/qecGBzz197MRV5Ogjx9FuWwjWvsXqfieb0WdP5L4=
 Gotcha: first SSR hits to /hostbay 404'd transiently while Node backend was still booting — retry fixed, not a bug.
 
@@ -3007,7 +3010,7 @@ user's paste said true — kept off per standing rule). **FRONTEND NOW RUNS `nex
 per user + support decision — supervisor `yarn start` → /app/scripts/start-frontend.sh → FRONTEND_MODE
 (/app/.env: dev). DO NOT run `next build` in the preview anymore. DigitalOcean/Railway prod is untouched
 (Dockerfile.frontend standalone build). NEXT_PUBLIC_BASE_URL is EMPTY (relative /api), INTERNAL_API_URL=
-http://localhost:8001 for SSR. Preview: https://dynopay-setup-11.preview.emergentagent.com
+http://localhost:8001 for SSR. Preview: https://dynopay-setup-12.preview.emergentagent.com
 DONE same session: "restore the auto-converted icon on the transaction history page" — the 2 text-only
 '· Converted' status-chip spans in Components/Page/Transactions/TransactionsTable.tsx (mobile ~358,
 desktop ~612) now render SwapHorizIcon + 'Converted' (themed-icon, inline-flex), consistent with the
@@ -3329,7 +3332,7 @@ Frontend + backend both compile/run clean. Login: `hostbay@moxx.co` / `Katiekend
 
 # CURRENT SESSION (2026-08-06 (a) — preview 3f058365) — env provisioning + 4 fixes, ALL testing_agent VERIFIED
 
-- **Preview URL (THIS container)**: https://dynopay-setup-11.preview.emergentagent.com. Fresh boot: no .env/node_modules → yarn cache clean + installs (/app 82s, /app/backend 35s) → wrote /app/backend/.env (full provided creds + safety overrides + DATABASE_URL + REDIS_URL) + /app/.env + /app/.env.local (NEXT_PUBLIC_* + NextAuth + OAuth → preview URL). NEXTAUTH_SECRET=kktov+We8Bnn19CdZ0AoQxmFsfQ1d9Vxhye0XIzbKHc=. SAFETY: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, NODE_ENV=production. /health green (db+redis connected, tatum operational, jobs disabled). Merchant test acct hostbay@moxx.co / Katiekendra123@ (LIVE Railway PG).
+- **Preview URL (THIS container)**: https://dynopay-setup-12.preview.emergentagent.com. Fresh boot: no .env/node_modules → yarn cache clean + installs (/app 82s, /app/backend 35s) → wrote /app/backend/.env (full provided creds + safety overrides + DATABASE_URL + REDIS_URL) + /app/.env + /app/.env.local (NEXT_PUBLIC_* + NextAuth + OAuth → preview URL). NEXTAUTH_SECRET=kktov+We8Bnn19CdZ0AoQxmFsfQ1d9Vxhye0XIzbKHc=. SAFETY: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, NODE_ENV=production. /health green (db+redis connected, tatum operational, jobs disabled). Merchant test acct hostbay@moxx.co / Katiekendra123@ (LIVE Railway PG).
 - **FIXES THIS SESSION (all verified by testing_agent):**
   1. **PayLink expiry** — old No/Yes(+free-form date) selector sent expire:"yes" which the API rejected (400 "Invalid expire value"); custom date was never even sent (dead path). Replaced with 4-preset dropdown No expiration/24 hours/7 days/30 days → emits No|24h|7d|30d. Files: Components/UI/pay-link/ExpireSelector.tsx, PaymentSettingsBasic.tsx (removed dead ExpirationDateTime picker), Components/Page/CreatePaymentLink/index.tsx (default "No", submit normalises legacy no/yes→No), PaymentLinkSuccessModal.tsx (getExpireText map). i18n expire24h/expire7d/expire30d added to all 6 locales.
   2. **Create-flow redirect** — handleCloseSuccessModal now router.push('/pay-links') on success-modal close (was reset-in-place). Added data-testid="paylink-success-close" to the modal close button (there are 3 keep-mounted 'close icon' imgs on the page → use the testid to click reliably).
@@ -3343,7 +3346,7 @@ Frontend + backend both compile/run clean. Login: `hostbay@moxx.co` / `Katiekend
 
 # CURRENT SESSION (fresh boot — env provisioning "set up using below cred" — preview bf8f68f3) — VERIFIED
 
-- **Preview URL (THIS container, authoritative from env `preview_endpoint`)**: https://dynopay-setup-11.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL (in /app/backend/.env + /app/.env.local + /app/.env) and added FIRST in CORS_ALLOWED_ORIGINS. Verified: `/`=200 (after first-hit compile; first raw hit returned 502 = on-demand compile of the heavy landing page — resolves once warmed via curl to :3000), `/auth/login`=200, `/api/csrf-token`=200, `/api/public/tickers`=200 (live BTC $64,289). CORS also auto-allows *.preview.emergentagent.com via safePatterns in server.ts.
+- **Preview URL (THIS container, authoritative from env `preview_endpoint`)**: https://dynopay-setup-12.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL (in /app/backend/.env + /app/.env.local + /app/.env) and added FIRST in CORS_ALLOWED_ORIGINS. Verified: `/`=200 (after first-hit compile; first raw hit returned 502 = on-demand compile of the heavy landing page — resolves once warmed via curl to :3000), `/auth/login`=200, `/api/csrf-token`=200, `/api/public/tickers`=200 (live BTC $64,289). CORS also auto-allows *.preview.emergentagent.com via safePatterns in server.ts.
 - **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). REAL login VERIFIED this session via preview: POST /api/user/login → HTTP 200 "Login Successful!"; bad creds → HTTP 401 "Invalid email or password".
 - **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
 - **NEXTAUTH_SECRET** (this session): gcUXB77HmgdQ3PkqMmDGuqW3cpRXyogKU23JZUxWTs4=
@@ -3720,7 +3723,7 @@ Artifacts: /tmp/uxaudit/ (screenshots + results.json), /app/test_reports/iterati
 Fresh container: no node_modules, no .env, no build. Re-provisioned per documented procedure:
 - SEQUENTIAL yarn installs — `/app` root (82s, 551+ pkgs) then `/app/backend` (30s, 572+ pkgs)
 - Wrote 3 .env from user continuation env (`/app/backend/.env` + `/app/.env` + `/app/frontend/.env`)
-- All app URLs → preview URL `https://dynopay-setup-11.preview.emergentagent.com`; preview host FIRST in `CORS_ALLOWED_ORIGINS` (+ dynopay.com + checkout.dynopay.com)
+- All app URLs → preview URL `https://dynopay-setup-12.preview.emergentagent.com`; preview host FIRST in `CORS_ALLOWED_ORIGINS` (+ dynopay.com + checkout.dynopay.com)
 - Fresh `NEXTAUTH_SECRET` (openssl rand -base64 32) — user's placeholder was literal `"openssl rand -base64 32"`
 - Fixed typo `EXT_PUBLIC_ENABLE_GITHUB_AUTH` → `NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true`
 - `GOOGLE_CLIENT_KEY` kept `\n`-escaped (single backslash — .env is not JSON)
@@ -3772,7 +3775,7 @@ Previous Session 23 built Elements endpoints + tests, but the container was recr
 - 3E end-to-end payment test on a real merchant page — DEFERRED (would consume real crypto)
 
 ### 2026-07-11 — Session 24: Fresh container re-provisioned ✅
-Fresh container: no node_modules, no .env, no build. Re-provisioned per documented procedure: SEQUENTIAL yarn installs — /app root (79s, 551 pkgs) then /app/backend (29s, 572 pkgs); wrote 3 .env from user continuation env (backend/.env + /app/.env + frontend/.env) with all app URLs → the preview URL `https://dynopay-setup-11.preview.emergentagent.com`, preview host FIRST in CORS_ALLOWED_ORIGINS (+ dynopay.com + checkout.dynopay.com), fresh NEXTAUTH_SECRET, GitHub creds (Ov23liBuaGCFqNpp2QzW), user typo EXT_PUBLIC → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true, GOOGLE_CLIENT_KEY kept \\n-escaped, PORT omitted (server.py injects 3300), OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4 included. SAFETY OVERRIDES: NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false verified in logs (error-digest / webhook-URL-migration / BullMQ webhook worker / startup-reconciliation all skipped). next build standalone OK (18/18 static pages, 429KB shared JS). Health: /health database=connected redis=connected tatum operational (40 rates); internal :8001 /api/ /health /api/csrf-token + :3000 / /auth/login = 200; external / /api/ /api/csrf-token /auth/login = 200 (google-login-btn + github-login-btn + "Continue with Google/GitHub" present); bad-creds POST /api/user/login = 401 "Invalid email or password". Expected quirks: Binance WS geo-blocked (451) → CoinGecko/Tatum fallback; sshpass missing → SSH tunnel disabled.
+Fresh container: no node_modules, no .env, no build. Re-provisioned per documented procedure: SEQUENTIAL yarn installs — /app root (79s, 551 pkgs) then /app/backend (29s, 572 pkgs); wrote 3 .env from user continuation env (backend/.env + /app/.env + frontend/.env) with all app URLs → the preview URL `https://dynopay-setup-12.preview.emergentagent.com`, preview host FIRST in CORS_ALLOWED_ORIGINS (+ dynopay.com + checkout.dynopay.com), fresh NEXTAUTH_SECRET, GitHub creds (Ov23liBuaGCFqNpp2QzW), user typo EXT_PUBLIC → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true, GOOGLE_CLIENT_KEY kept \\n-escaped, PORT omitted (server.py injects 3300), OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4 included. SAFETY OVERRIDES: NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false verified in logs (error-digest / webhook-URL-migration / BullMQ webhook worker / startup-reconciliation all skipped). next build standalone OK (18/18 static pages, 429KB shared JS). Health: /health database=connected redis=connected tatum operational (40 rates); internal :8001 /api/ /health /api/csrf-token + :3000 / /auth/login = 200; external / /api/ /api/csrf-token /auth/login = 200 (google-login-btn + github-login-btn + "Continue with Google/GitHub" present); bad-creds POST /api/user/login = 401 "Invalid email or password". Expected quirks: Binance WS geo-blocked (451) → CoinGecko/Tatum fallback; sshpass missing → SSH tunnel disabled.
 
 ### 2026-07-10 — Embeddable Checkout Phase 1(a) "Embedded Checkout" — BACKEND DONE + VERIFIED (frontend iframe test pending)
 Stripe-style embedded (iframe) crypto checkout, built method-agnostic (see /app/EMBED_INTEGRATION_PLAN.md §5/§12).
@@ -3898,10 +3901,10 @@ Done so far in Phase C:
 - Components/Page/Payment-link/index.tsx mapping: linkType/donation; donation rows show campaign title + RAISED amount as value. PaymentLinksTable.tsx: donationChip + donationProgressBar helpers rendered in desktop description cell + mobile card.
 - tsc baseline check: 94 errors BEFORE and AFTER my changes (all pre-existing; repo builds with ignoreBuildErrors:true). My files contribute 0 errors.
 
-**Gotchas for a continuing agent:** tPaymentLink() is typed 1-arg — use t() from useTranslation('createPaymentLinkScreen') for new strings w/ defaultValue. Checkout i18n namespace is 'common' (donation.*). QA login for tests: hostbay@moxx.co / Katiekendra123@ (company_id 1, LIVE prod DB — always name test links "QA … DELETE ME" and delete them; never call createCryptoPayment/addPayment). Login API token path = data.accessToken. Frontend rebuild required after changes (standalone): next build + supervisorctl restart frontend. Preview URL: https://dynopay-setup-11.preview.emergentagent.com
+**Gotchas for a continuing agent:** tPaymentLink() is typed 1-arg — use t() from useTranslation('createPaymentLinkScreen') for new strings w/ defaultValue. Checkout i18n namespace is 'common' (donation.*). QA login for tests: hostbay@moxx.co / Katiekendra123@ (company_id 1, LIVE prod DB — always name test links "QA … DELETE ME" and delete them; never call createCryptoPayment/addPayment). Login API token path = data.accessToken. Frontend rebuild required after changes (standalone): next build + supervisorctl restart frontend. Preview URL: https://dynopay-setup-12.preview.emergentagent.com
 
 ### 2026-07-10 — Session 16: Fresh container re-provisioned ✅
-- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: SEQUENTIAL yarn installs /app (81s) then /app/backend (31s); 3 .env files from user continuation env (all app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo fix, OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4); SAFETY overrides NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false (verified in logs); next build standalone; public/ 42/42 intact after build. All health checks green (internal + external 200s, Google+GitHub SSO buttons, bad-creds 401, Railway PG + Redis + Tatum connected 40 rates).
+- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: SEQUENTIAL yarn installs /app (81s) then /app/backend (31s); 3 .env files from user continuation env (all app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo fix, OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4); SAFETY overrides NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false (verified in logs); next build standalone; public/ 42/42 intact after build. All health checks green (internal + external 200s, Google+GitHub SSO buttons, bad-creds 401, Railway PG + Redis + Tatum connected 40 rates).
 
 ### 2026-07-10 — Session 15: Customers redesign + Settings full redesign + landing WalletConnect learnings
 - **Customers page redesign** (Components/Page/Customers/index.tsx rewrite, logic preserved): synthetic backend records humanized at display layer — classifyCustomer() on email pattern (legacy-api-…@dynopay.internal → "API payments", recovered-… → "Recovered payment", internal → hide fake email as italic "No customer details provided", API chip w/ tooltip hint). Dashboard-style stat cards (uppercase eyebrow + icon, big tabular-nums value), full-width layout (old maxWidth-centering gap removed), polished table (code-icon avatar for API records, right-aligned amounts, chevron), restyled detail dialog (avatar header, API-hint banner, info grid, dark balance card, outlined credit/debit buttons) + wallet modal. New i18n keys customers.apiCustomerName/recoveredCustomerName/noCustomerDetails/sourceApi/apiRecordHint/countLabel_one/_other ×6 locales. fmtAmount() helper fixes old string-into-formatNumberWithComma TS errors.
@@ -3914,7 +3917,7 @@ Done so far in Phase C:
 - **Responsive sweep (mobile 390 / tablet 768 / desktop 1920, light+dark, done by main agent per user)**: landing hero stats verified single-row at all widths (measured via getBoundingClientRect — early "wrap" was a screenshot-scaling artifact), panels round correctly on mobile; customers stat-cards stack + table column-hiding + detail dialog OK on mobile/tablet; settings rail becomes horizontal scroll chips on mobile, all sections embed w/o overflow (scrollWidth==innerWidth at 390). FIXED during sweep: Components/UI/InfoBanner hardcoded #E8EBFB light-lavender bg made dark-mode text (#FAFAFA) unreadable (visible in Settings→Payments "set up USDT/USDC wallet" banner) → now theme-aware (dark: rgba(122,139,255,0.14) tint + border) — improves every InfoBanner usage app-wide.
 
 ### 2026-07-10 — Session 15: Fresh container re-provisioned ✅
-- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: SEQUENTIAL yarn installs /app then /app/backend; 3 .env files from user continuation env (all app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo fix, OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4); SAFETY overrides NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false (verified in logs); next build standalone; public/ 42/42 intact. All health checks green (internal + external 200s, Google+GitHub SSO buttons, bad-creds 401, Railway PG + Redis + Tatum connected).
+- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: SEQUENTIAL yarn installs /app then /app/backend; 3 .env files from user continuation env (all app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo fix, OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4); SAFETY overrides NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false (verified in logs); next build standalone; public/ 42/42 intact. All health checks green (internal + external 200s, Google+GitHub SSO buttons, bad-creds 401, Railway PG + Redis + Tatum connected).
 
 ### 2026-07-10 — Session 14c: Notifications "Settings" tab crash fix ✅ VERIFIED (frontend agent)
 - Prod bug: Settings tab on /notifications → ErrorBoundary. Root cause: NotificationItem (Settings-tab toggle rows) referenced bare `theme` with no `useTheme()` (top import had been renamed to staticTheme); shipped due to next.config `ignoreBuildErrors: true`. Fixed with `const theme = useTheme()` + removed unused import.
@@ -3946,13 +3949,13 @@ Done so far in Phase C:
 - ⚠️ PROD ACTION (user): push via "Save to GitHub" → DO autodeploy (includes session 13 deploy fix + all of the above).
 
 ### 2026-07-10 — Session 13: Fresh container re-provisioned + route-transition logo loader + DO deploy fix round 2
-- Re-provisioned on fresh container (preview https://dynopay-setup-11.preview.emergentagent.com); NOTE: run the two yarn installs SEQUENTIALLY (parallel installs corrupt the shared yarn cache with ENOENT .yarn-metadata.json). Safety overrides re-applied + verified; next build standalone; all health checks green.
+- Re-provisioned on fresh container (preview https://dynopay-setup-12.preview.emergentagent.com); NOTE: run the two yarn installs SEQUENTIALLY (parallel installs corrupt the shared yarn cache with ENOENT .yarn-metadata.json). Safety overrides re-applied + verified; next build standalone; all health checks green.
 - **NEW FEATURE — RouteTransitionLoader** (`/app/Components/Common/RouteTransitionLoader/index.tsx`, mounted in `_app.tsx`): Emergent-style full-screen pulsing DynoPay logo during page transitions. Router events, skips shallow/query-only changes, 250ms show-delay + 500ms min-visible anti-flicker, theme-aware frosted backdrop + correct logo variant per mode, z-index 2000, testid route-transition-loader. Verified both modes via Playwright.
 - **DO DEPLOY FIX (round 2)**: auto-commit 3567cad2 (2026-07-10 02:22Z) deleted all 42 public/ files from git AGAIN (2nd time; kaniko lstat error killed every build since; last ACTIVE deploy f7e7c380 01:34Z). Restored public/ from 3567cad2^; **HARDENED Dockerfile**: new Stage 1b `srcguard` copies full context and falls back to new tracked mirror `assets/public-runtime/` (keep in sync: `cp -r public/. assets/public-runtime/`) when public/ is missing; frontend-builder uses `COPY --from=srcguard /src/public/ ./public/`. Backend tsc clean, local next build OK, DO spec has OPENAI_API_KEY already.
 - ⚠️ PROD ACTION (user): push via "Save to GitHub" → DO autodeploy; deploy fix + loader live on dynopay.com only after redeploy.
 
 ### 2026-07-10 — Session 12: Fresh container re-provisioned + 4-issue fix batch ✅ VERIFIED (backend agent ALL PASS, frontend agent 5/5)
-- Re-provisioned per documented procedure on fresh container; preview URL now https://dynopay-setup-11.preview.emergentagent.com; safety overrides re-applied (NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false); next build standalone; all health checks green.
+- Re-provisioned per documented procedure on fresh container; preview URL now https://dynopay-setup-12.preview.emergentagent.com; safety overrides re-applied (NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false); next build standalone; all health checks green.
 - **Issue 3 (BACKEND — admin fee USDT "not activated")**: `/app/backend/services/tronEnergyService.ts::isRecipientActivatedForToken` — TronGrid `/v1/accounts/{addr}/tokens/trc20` now 404 (endpoint removed) AND TronScan fallback now 401 (key required) → EVERY USDT-TRC20 activation check failed → "assuming NEW recipient" default → 130k instead of 65k energy budgeted on every transfer/sweep (incl. to the admin fee USDT wallet TTve…, on-chain since Jul 2022). FIX: TronGrid `GET /v1/accounts/{addr}` (trc20 array parse via new `hasTrc20TokenBalance()`) + Tatum `GET /v3/tron/account/{addr}` fallback (TATUM_KEY). Verified: Binance hot wallet → true, admin wallet → false (real parse), calculateOptimalFeeLimit isNewRecipient=false → 65k path, old endpoint 404 confirmed. NOTE: admin USDT wallet currently holds 0 USDT on-chain (7.2 TRX + an unknown TVW3Wy… token), so activation for it correctly reads false until it holds USDT again — the FIX is that checks now return real data instead of always-false.
 - **Issue 1a (FOUT size-jump)**: `geist/font/sans|mono` package exports hardcode font-display:swap → header text painted in smaller fallback then "grew". FIX: _app.tsx now declares Geist via next/font/local (src ../node_modules/geist/dist/fonts/...Variable.woff2) with `display: "optional"` — no mid-paint swap. Same CSS vars (--font-sans etc.) preserved.
 - **Issue 1b (text too small)**: HomeHeader nav buttons 15px/400 → 16px/500 (lineHeight 24), StyledSignInButton 15→16, MobileNavItem 15.88→16.5/500, Get-started button 15→16, SystemStatusPill 11.5→12.5/500.
@@ -3963,7 +3966,7 @@ Done so far in Phase C:
 
 
 ### 2026-07-10 — Session 11: Fresh container re-provisioned ✅
-- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (Client ID Ov23liBuaGCFqNpp2QzW), EXT_PUBLIC typo → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true. Ran `next build` (standalone) — required by the frontend shim (`node .next/standalone/server.js`). SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK (40 rates), internal+external /api/ /health /auth/login = 200, Google+GitHub SSO buttons render, bad-creds 401.
+- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (Client ID Ov23liBuaGCFqNpp2QzW), EXT_PUBLIC typo → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true. Ran `next build` (standalone) — required by the frontend shim (`node .next/standalone/server.js`). SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK (40 rates), internal+external /api/ /health /auth/login = 200, Google+GitHub SSO buttons render, bad-creds 401.
 
 ### 2026-07-09 — Session 9c: Fee-wallet balance bug fix + Prod-mode frontend + Geist typography refresh ✅
 Three P0/P1 tasks in this session:
@@ -3997,7 +4000,7 @@ Three P0/P1 tasks in this session:
 User (hostbay@moxx.co): "select all only captures 5 unless I click show all first, despite 13 wallets saved." Root cause: `selectAll` action mapped over sliced `cryptoItems` (top 5 shown in collapsed grid). Fix: `/app/Components/UI/pay-link/CryptoSelection.tsx` `selectAll` now iterates full `allCryptoItems` (15 supported) filtered by `walletNotSetUp`, and calls `setShowAllCoins(true)` to auto-expand. `/app/Components/Page/CreatePaymentLink/index.tsx` passes `allCryptoItems={ALL_CRYPTO_ITEMS}` (line 1069). Testing agent + browser automation both timed out on MCP transport (platform infra issue; user emailed support@emergent.sh). Manual verification pending.
 
 ### 2026-07-09 — Session 9: Fresh container re-provisioned ✅
-- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (Client ID Ov23liBuaGCFqNpp2QzW), EXT_PUBLIC typo → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK, internal+external /api/ /auth/login = 200, Google+GitHub SSO buttons render, bad-creds 401.
+- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (Client ID Ov23liBuaGCFqNpp2QzW), EXT_PUBLIC typo → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK, internal+external /api/ /auth/login = 200, Google+GitHub SSO buttons render, bad-creds 401.
 
 ### 2026-07-09 — Session 8b: Typography standardization to Manrope ✅ VERIFIED
 User: "our in-app fonts are not so good, including auth pages — recommend something better?" → selected Option A (Manrope primary, keep app UI cohesive).
@@ -4008,7 +4011,7 @@ User: "our in-app fonts are not so good, including auth pages — recommend some
 - **Verified**: `/auth/login` computed body `font-family = "Manrope, -apple-system, ..."`; rendered HTML shows `font-family:'Manrope',sans-serif` inline + `<link rel=preload href="/fonts/Manrope-*.woff">`; visual screenshot confirms cohesive Manrope across headline, form, buttons, metrics (no layout breakage). Note: original Option A also mentioned optional Unbounded (auth hero) + JetBrains Mono (amounts/OTP) accents — NOT applied yet, pending user opt-in.
 
 ### 2026-07-09 — Session 8: Fresh container re-provisioned ✅
-- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (NEW Client ID Ov23liBuaGCFqNpp2QzW). SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK, internal+external /api/ /auth/login = 200, SSO buttons render, bad-creds 401.
+- Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (NEW Client ID Ov23liBuaGCFqNpp2QzW). SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK, internal+external /api/ /auth/login = 200, SSO buttons render, bad-creds 401.
 
 ### 2026-07-09 — Session 7b: GitHub auth button redesign ✅ (visually verified light+dark; frontend agent NOT run — presentational only)
 User: GitHub logo on auth pages "looks disconnected or small" (was an 88×48 icon-only pill under the big Google pill).
@@ -4025,7 +4028,7 @@ User reported 3 bugs (screenshots from prod dynopay.com; user had already pushed
 - ⚠️ **PROD ACTION (user)**: push via Save to GitHub → DO rebuild; all 3 bugs live on dynopay.com until redeployed. No DigitalOcean API key needed (deploy pipeline fine; bugs were in code).
 
 ### 2026-07 — Fresh container re-provisioned (session 7) ✅
-- Fresh container: no node_modules, no .env files. Re-provisioned from user-supplied `<continuation_request>` .env: `yarn install` in /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with all app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds converted from colon-syntax. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (user env said true — deliberately overridden; all cron/sweeps/webhook-worker/emails skipped — verified in logs). Health: Railway PostgreSQL + Redis + Tatum connected, internal :8001 + :3000 = 200, external preview /api/ + / + /auth/login = 200 (Google+GitHub SSO buttons render), bad-creds login → 401. Binance geo-blocked → CoinGecko fallback (expected).
+- Fresh container: no node_modules, no .env files. Re-provisioned from user-supplied `<continuation_request>` .env: `yarn install` in /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with all app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds converted from colon-syntax. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (user env said true — deliberately overridden; all cron/sweeps/webhook-worker/emails skipped — verified in logs). Health: Railway PostgreSQL + Redis + Tatum connected, internal :8001 + :3000 = 200, external preview /api/ + / + /auth/login = 200 (Google+GitHub SSO buttons render), bad-creds login → 401. Binance geo-blocked → CoinGecko fallback (expected).
 
 ### 2026-07-08 — Session 5d: Password login skips OTP + $500 fee-free welcome popup ✅ VERIFIED (backend 7/7, frontend 3/3 + re-test 7/7)
 User reported: (1) existing users (e.g. hostbay) logging in WITH password were still asked for email OTP; (2) wanted a celebratory popup so new merchants know about the $500 fee-free allowance the moment they onboard.
@@ -4061,7 +4064,7 @@ User approved 6 items (order 5→1→4→2→6→3). Items 1,2,4,5,6 DONE; item 
 - **Backend testing agent 3/3 PASS**: (A) getApi adminToken non-empty & equals admin_token; (B) email render script exit 0, brand colors present, old colors absent, tables balanced, CTA in own table; (C) regression /api/, /api/csrf-token, /api/dashboard, /api/dashboard/fee-tiers, /api/pay/calculateFees (1.5%) all 200.
 
 ### 2026-07-08 — Fresh container re-provisioned (session 5) ✅
-- Fresh container: no node_modules, no .env files → frontend FATAL. Re-provisioned from user-supplied `<continuation_request>` .env: `yarn install` in /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with all app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host in CORS, fresh NEXTAUTH_SECRET. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (user env said true — deliberately overridden; all cron/sweeps/emails skipped — verified in logs). Health: Railway PostgreSQL + Redis connected, internal /api/ /health /api/csrf-token = 200, external preview /api/ + / + /auth/login = 200. Binance geo-blocked → CoinGecko fallback (expected).
+- Fresh container: no node_modules, no .env files → frontend FATAL. Re-provisioned from user-supplied `<continuation_request>` .env: `yarn install` in /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with all app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host in CORS, fresh NEXTAUTH_SECRET. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (user env said true — deliberately overridden; all cron/sweeps/emails skipped — verified in logs). Health: Railway PostgreSQL + Redis connected, internal /api/ /health /api/csrf-token = 200, external preview /api/ + / + /auth/login = 200. Binance geo-blocked → CoinGecko fallback (expected).
 
 ### 2026-07-08 — Copy accuracy ("Keep it" → "Straight to your wallet") + hardcoded-English i18n sweep ✅ (smoke-verified, frontend agent NOT yet run)
 User: "Keep it" hero implied custody — funds are actually forwarded instantly to the merchant's saved wallet unless auto-convert is on. Also asked: translate ALL hardcoded English end-to-end. Approved option (a).
@@ -4089,7 +4092,7 @@ User (US IP) saw Portuguese — root-caused: browser-language previously took ef
 - Verified via browser automation (pt-BR navigator override, US egress IP): (1) first-time pt-browser+US-IP → English, ZERO pt flash; (2) first-time + geo blocked → falls back to Portuguese; (3) returning cached lang=pt non-manual → pt then geo-refined to en; (4) manual pt → stays pt, flags preserved.
 
 ### 2026-07-08 — Fresh container re-provisioned (session 4) ✅
-- Fresh container: no node_modules, no .env files → frontend FATAL. Re-provisioned from user-supplied credentials: `yarn install` in /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with all app URLs → https://dynopay-setup-11.preview.emergentagent.com, preview host in CORS, fresh NEXTAUTH_SECRET. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/emails skipped — verified in logs). Health: Railway PostgreSQL + Redis connected, internal /api/ /health /api/csrf-token = 200, external preview /api/ + / + /auth/login = 200.
+- Fresh container: no node_modules, no .env files → frontend FATAL. Re-provisioned from user-supplied credentials: `yarn install` in /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with all app URLs → https://dynopay-setup-12.preview.emergentagent.com, preview host in CORS, fresh NEXTAUTH_SECRET. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/emails skipped — verified in logs). Health: Railway PostgreSQL + Redis connected, internal /api/ /health /api/csrf-token = 200, external preview /api/ + / + /auth/login = 200.
 
 ### 2026-07-07 — Volume-based fee tier system + marketing copy alignment ✅ VERIFIED (7/7 backend)
 User flagged: (a) marketing said "0.5% flat" but backend actually charged 1.5%, (b) dashboard "Fee Tier Progress" widget only ever showed "Standard". User approved: 4 volume tiers (Starter 1.5%, Growth 1.0%, Scale 0.7%, Enterprise 0.5%) with auto-upgrade + auto-downgrade + upgrade emails.
@@ -4135,7 +4138,7 @@ User provided Google OAuth credentials (`163670787265-g39k8mfhfc4rgv4jpgt6k6n62p
 - **Security fix** — `pages/api/auth/[...nextauth].ts` used to read `process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET` (would have exposed the client secret to every browser at runtime). Changed to `process.env.GOOGLE_CLIENT_SECRET`. Also updated `clientId` fallback to prefer server-side `GOOGLE_CLIENT_ID`.
 - **Wiring** — Client-side Google Identity Services (GIS): `pages/auth/login.tsx::handleGoogleLogin` → `window.google.accounts.oauth2.initTokenClient({client_id, scope: "openid email profile", callback})` → `requestAccessToken()` → on success POSTs `{accessToken}` to `/api/user/google-signin`. Backend `backend/controller/userController.ts::googleSignIn` verifies the access token by calling `oauth2/v3/userinfo`, upserts the user by email/`google_id`, provisions default fiat+crypto wallets on new-user path, returns a session (mirrors OTP-login response shape). GIS script preloaded in `pages/_document.tsx` line 52.
 - **Verified** by frontend testing agent (6/6 PASS): (1) Google button visible on `/auth/login`, (2) Google button visible on `/auth/register`, (3) GIS `window.google.accounts.oauth2.initTokenClient` loaded, (4) button click invokes `initTokenClient` with the exact client_id `163670787265-…` and scope `openid email profile`, (5) `POST /api/user/google-signin` returns 401 "Invalid Google access token" for fake accessToken / 401 "Invalid Google ID token" for fake idToken / 400 "Google ID token or access token is required" when body empty, (6) click generates the correct Google OAuth popup URL `https://accounts.google.com/o/oauth2/v2/auth?client_id=…&scope=openid%20email%20profile&origin=<preview>`. Safety: no real Google credentials entered, no real OAuth completion, only fake tokens sent to backend.
-- **⚠️ User action required for preview end-to-end**: if you want the popup to complete real Google login on the preview URL (not just dynopay.com production), add `https://dynopay-setup-11.preview.emergentagent.com` to **"Authorized JavaScript origins"** in Google Cloud Console → OAuth 2.0 Client IDs → this client's edit page. (For NextAuth fallback, also add `/api/auth/callback/google` to "Authorized redirect URIs".) The dynopay.com production origin is presumably already whitelisted and will work as-is.
+- **⚠️ User action required for preview end-to-end**: if you want the popup to complete real Google login on the preview URL (not just dynopay.com production), add `https://dynopay-setup-12.preview.emergentagent.com` to **"Authorized JavaScript origins"** in Google Cloud Console → OAuth 2.0 Client IDs → this client's edit page. (For NextAuth fallback, also add `/api/auth/callback/google` to "Authorized redirect URIs".) The dynopay.com production origin is presumably already whitelisted and will work as-is.
 
 
 
@@ -4304,7 +4307,7 @@ User feedback: "How we stack up doesn't appear needed", "exit-intent popup keeps
 
 ### 2026-07-05 — Re-setup on user-provided .env (preview origin f12696f9-…)
 - Fresh container: `/app/node_modules`, `/app/backend/node_modules`, and all `.env` files were missing → frontend supervisor FATAL, backend Node process down.
-- Wrote `/app/backend/.env` from the user-supplied values (single-quoted so `GOOGLE_CLIENT_KEY` PEM with literal `\n` stays verbatim). Overrode URLs to this preview origin `https://dynopay-setup-11.preview.emergentagent.com` (`FRONTEND_URL` / `SERVER_URL` / `NEXTAUTH_URL` / `NEXT_PUBLIC_BASE_URL` / `CHECKOUT_URL` + added `NEXT_PUBLIC_SERVER_URL` and `NEXT_PUBLIC_API_DOCS_URL`). Appended preview origin to `CORS_ALLOWED_ORIGINS`. Replaced the placeholder `NEXTAUTH_SECRET="openssl rand -base64 32"` with a real generated base64 secret. Kept **WORKER_ROLE=secondary** (cron/sweeps/settlement OFF — verified "background jobs disabled — secondary instance"). Added the `EMERGENT_LLM_KEY` used by the SEO generator.
+- Wrote `/app/backend/.env` from the user-supplied values (single-quoted so `GOOGLE_CLIENT_KEY` PEM with literal `\n` stays verbatim). Overrode URLs to this preview origin `https://dynopay-setup-12.preview.emergentagent.com` (`FRONTEND_URL` / `SERVER_URL` / `NEXTAUTH_URL` / `NEXT_PUBLIC_BASE_URL` / `CHECKOUT_URL` + added `NEXT_PUBLIC_SERVER_URL` and `NEXT_PUBLIC_API_DOCS_URL`). Appended preview origin to `CORS_ALLOWED_ORIGINS`. Replaced the placeholder `NEXTAUTH_SECRET="openssl rand -base64 32"` with a real generated base64 secret. Kept **WORKER_ROLE=secondary** (cron/sweeps/settlement OFF — verified "background jobs disabled — secondary instance"). Added the `EMERGENT_LLM_KEY` used by the SEO generator.
 - Wrote `/app/.env.local` (Next.js public vars → preview origin) and `/app/frontend/.env` (`REACT_APP_BACKEND_URL` → preview origin, K8s ingress contract).
 - `yarn install` in `/app` (Next.js 14.2.35) and `/app/backend` (Node/TS). Hit the recurring corrupted `axios-1.14.0` yarn cache (`ENOENT` while extracting) — cleared `npm-axios-*` from `/usr/local/share/.cache/yarn/v6/` and retried; both clean.
 - Restarted backend + frontend via supervisor. Health verified:
@@ -4342,7 +4345,7 @@ User feedback: "How we stack up doesn't appear needed", "exit-intent popup keeps
 ### 2026-07-03 — Re-setup on fresh container from DigitalOcean prod env (WORKER_ROLE=secondary)
 - Fresh container: `/app/node_modules`, `/app/backend/node_modules`, and all `.env` files were missing → frontend FATAL (`next: not found`), Node backend down.
 - User provided a DigitalOcean API token. Pulled the prod app **`dynopay`** (app id `f86b27dc-feb0-4a44-a4e9-ebd2053e0468`, live `https://dynopay.com`) spec via `GET /v2/apps/{id}`. All 150 env vars were stored as GENERAL (plaintext) — retrieved every value incl. DB/Redis/Tatum/Brevo/Telnyx/Google KMS PEM.
-- Wrote `/app/backend/.env` from prod values with overrides: URLs (SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL/NEXT_PUBLIC_BASE_URL + added NEXT_PUBLIC_SERVER_URL/NEXT_PUBLIC_API_DOCS_URL) → preview origin `https://dynopay-setup-11.preview.emergentagent.com`; preview origin appended to CORS_ALLOWED_ORIGINS; **WORKER_ROLE=secondary** (cron/sweeps/settlement OFF — verified in logs "background jobs disabled — secondary instance"). Values single-quoted so the GOOGLE_CLIENT_KEY PEM (literal `\n`) stays verbatim. Prod NEXTAUTH_SECRET was the literal placeholder "openssl rand -base64 32" → replaced with a real generated base64 secret (in both backend .env and .env.local).
+- Wrote `/app/backend/.env` from prod values with overrides: URLs (SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL/NEXT_PUBLIC_BASE_URL + added NEXT_PUBLIC_SERVER_URL/NEXT_PUBLIC_API_DOCS_URL) → preview origin `https://dynopay-setup-12.preview.emergentagent.com`; preview origin appended to CORS_ALLOWED_ORIGINS; **WORKER_ROLE=secondary** (cron/sweeps/settlement OFF — verified in logs "background jobs disabled — secondary instance"). Values single-quoted so the GOOGLE_CLIENT_KEY PEM (literal `\n`) stays verbatim. Prod NEXTAUTH_SECRET was the literal placeholder "openssl rand -base64 32" → replaced with a real generated base64 secret (in both backend .env and .env.local).
 - Wrote `/app/.env.local` (Next.js public vars → preview origin) and `/app/frontend/.env` (`REACT_APP_BACKEND_URL` → preview origin, ingress contract).
 - `yarn install` in `/app` (Next.js 14.2.35) and `/app/backend` (Node/TS) — both clean. Restarted backend + frontend via supervisor.
 - Health verified: internal `GET /api/`→200, `/api/pay/network-fees`→200, `/api/geo-detect`→200; frontend `/`→200; login page renders via public preview origin (screenshot). Backend connected to Railway Postgres (models synced) + Redis, Tatum rates cached. Binance WS geo-blocked → CoinGecko fallback (expected). NOTE: this instance talks to the **live prod DB/Redis** — WORKER_ROLE=secondary keeps it read/serve-only for background work, but UI actions still write to prod data.
@@ -4433,7 +4436,7 @@ User asked to improve copy across "everything" with a friendly/approachable voic
 
 ### 2026-06-30 — Re-setup on provided .env (new preview origin: 01ded10d-…)
 - Fresh container: `/app/node_modules`, `/app/backend/node_modules`, and all `.env` files were missing → frontend FATAL, backend :8001 returned 500 (Node :3300 down).
-- Wrote `/app/backend/.env` from the user-provided values. Overrode URLs to this preview origin `https://dynopay-setup-11.preview.emergentagent.com` (FRONTEND_URL / SERVER_URL / NEXTAUTH_URL / NEXT_PUBLIC_BASE_URL / CHECKOUT_URL), appended the origin to `CORS_ALLOWED_ORIGINS`, generated a real `NEXTAUTH_SECRET` (user pasted a placeholder), and kept `WORKER_ROLE=secondary` so cron/sweeps/settlement stay OFF (gate: `isCronEnabled = enableBackgroundJobs && workerRole !== 'secondary'`). GOOGLE_CLIENT_KEY preserved with `\\n` escaping verbatim.
+- Wrote `/app/backend/.env` from the user-provided values. Overrode URLs to this preview origin `https://dynopay-setup-12.preview.emergentagent.com` (FRONTEND_URL / SERVER_URL / NEXTAUTH_URL / NEXT_PUBLIC_BASE_URL / CHECKOUT_URL), appended the origin to `CORS_ALLOWED_ORIGINS`, generated a real `NEXTAUTH_SECRET` (user pasted a placeholder), and kept `WORKER_ROLE=secondary` so cron/sweeps/settlement stay OFF (gate: `isCronEnabled = enableBackgroundJobs && workerRole !== 'secondary'`). GOOGLE_CLIENT_KEY preserved with `\\n` escaping verbatim.
 - Wrote `/app/.env.local` (Next.js public vars → preview origin) and `/app/frontend/.env` (`REACT_APP_BACKEND_URL` → preview origin, ingress contract).
 - `yarn install` in `/app` (Next.js 14.2.35, 108s) and `/app/backend` (Node/TS, 70s) — both clean. Restarted backend + frontend via supervisor.
 - Health verified (internal + via preview origin): `GET /api/` → 200, `/api/pay/network-fees` → 200, `/api/geo-detect` → 200, `/api/status` → 200; frontend `/`, `/auth/login`, `/auth/register`, `/fees` → 200. Login page renders correctly (screenshot). Console clean (only base-URL log + HMR). Backend connected to Railway Postgres + Redis, 40 Tatum rates cached. Binance WS geo-blocked → CoinGecko fallback active (expected, unchanged).

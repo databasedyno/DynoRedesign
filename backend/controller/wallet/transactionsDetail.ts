@@ -88,6 +88,10 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
     };
     let companyFilter = '';
     if (company_id) {
+      // RBAC: a member with view_transactions sees the OWNER's transaction.
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "view_transactions");
+      if (!companyData) return; // 403 already sent
+      replacements.user_id = Number((companyData as unknown as { user_id: number }).user_id);
       companyFilter = `AND ut.company_id = :company_id`;
       replacements.company_id = parseInt(company_id as string, 10);
     }

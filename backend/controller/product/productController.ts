@@ -24,6 +24,7 @@ import {
   errorResponseHelper,
 } from "../../helper";
 import { apiLogger } from "../../utils/loggers";
+import { resolveMembership, membershipCan } from "../../utils/permissions";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
 import { isSpacesEnabled, uploadPrivateFileToSpaces } from "../../services/objectStorage";
 import {
@@ -68,8 +69,14 @@ async function resolveScope(
   if (requested != null) {
     const owned = await isCompanyOwnedByUser(uid, requested);
     if (!owned) {
-      errorResponseHelper(res, 403, "You don't have access to this company");
-      return null;
+      // RBAC: allow an active team member with manage_products to act within the
+      // OWNER's company (reads/writes scope by company_id, so they see the
+      // owner's catalog).
+      const m = await resolveMembership(uid, requested);
+      if (!m || (!m.isOwner && !membershipCan(m, "manage_products"))) {
+        errorResponseHelper(res, 403, "You don't have access to this company");
+        return null;
+      }
     }
     return { uid, companyId: requested };
   }

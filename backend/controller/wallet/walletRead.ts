@@ -83,25 +83,29 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
     // Get company's preferred currency from their API key (production preferred)
     let preferredCurrency = 'USD';
     let fiatConversionRate = 1;
+    // RBAC: a granted team member reads the OWNER's wallets for a company, so
+    // scope every query below to the company owner's user_id (no-op for owners).
+    let effectiveUserId = Number(userData.user_id);
     
     if (company_id) {
-      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id);
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "view_wallets");
       if (!companyData) return; // 403 already sent
-      preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id as string);
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
+      preferredCurrency = await getUserDisplayCurrency(effectiveUserId, company_id as string);
     }
     
     // Check cache first (120 second TTL) - include currency in cache key
-    const cacheKey = `wallet:${userData.user_id}:${company_id || 'all'}:${preferredCurrency}:v5`;
+    const cacheKey = `wallet:${effectiveUserId}:${company_id || 'all'}:${preferredCurrency}:v5`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
-      walletLogger.info(`[Wallet] Cache hit for user ${userData.user_id}`);
+      walletLogger.info(`[Wallet] Cache hit for user ${effectiveUserId}`);
       return successResponseHelper(res, 200, "Wallets retrieved", cached);
     }
     
     // Build where clause with optional company_id filter
     // Only return CRYPTO wallets (this is a crypto-focused project)
     const whereClause: Record<string, unknown> = {
-      user_id: userData.user_id,
+      user_id: effectiveUserId,
       currency_type: 'CRYPTO',
     };
     
@@ -139,7 +143,7 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
          WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} ${volCompanyFilter}
          GROUP BY ut.wallet_id`,
         {
-          replacements: { userId: userData.user_id, companyId: company_id },
+          replacements: { userId: effectiveUserId, companyId: company_id },
           type: QueryTypes.SELECT,
         }
       ) as Promise<Array<{ wallet_id: string | number | null; processed_usd: string }>>,

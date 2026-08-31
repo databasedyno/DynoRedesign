@@ -101,6 +101,8 @@ export interface Membership {
   permissions: PermMap;
   companyId: number;
   userId: number;
+  /** The company OWNER's user_id — the effective data-owner to scope queries to. */
+  ownerUserId: number;
 }
 
 /**
@@ -120,7 +122,7 @@ export const resolveMembership = async (
 
   const ownerId = Number((company as unknown as { dataValues: { user_id: number } }).dataValues.user_id);
   if (ownerId === Number(userId)) {
-    return { isOwner: true, role: "owner", permissions: allTrue(), companyId, userId };
+    return { isOwner: true, role: "owner", permissions: allTrue(), companyId, userId, ownerUserId: ownerId };
   }
 
   const row = await teamMemberModel.findOne({
@@ -136,6 +138,7 @@ export const resolveMembership = async (
     permissions: sanitizePermissions(dv.permissions),
     companyId,
     userId,
+    ownerUserId: ownerId,
   };
 };
 

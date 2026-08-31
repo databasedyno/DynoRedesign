@@ -252,7 +252,7 @@ export const listBuyButtons = async (
       errorResponseHelper(res, 400, "company_id is required");
       return;
     }
-    const companyData = await validateCompanyOwnership(res, company_id, userData.user_id);
+    const companyData = await validateCompanyOwnership(res, company_id, userData.user_id, "manage_payment_links");
     if (!companyData) return;
 
     const rows = await buyButtonModel.findAll({
@@ -281,7 +281,7 @@ export const getBuyButton = async (
       return;
     }
     const v = row.dataValues as BuyButtonRow;
-    const companyData = await validateCompanyOwnership(res, v.company_id, userData.user_id);
+    const companyData = await validateCompanyOwnership(res, v.company_id, userData.user_id, "manage_payment_links");
     if (!companyData) return;
     successResponseHelper(res, 200, "Buy button", shapeButton(v));
   } catch (err) {

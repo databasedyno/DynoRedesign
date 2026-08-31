@@ -196,6 +196,7 @@ const companyOwnershipMiddleware = async (
         permissions: defaultPermissionsForRole("owner"),
         companyId: parsedCompanyId,
         userId: uid,
+        ownerUserId: uid,
       };
       return next();
     }

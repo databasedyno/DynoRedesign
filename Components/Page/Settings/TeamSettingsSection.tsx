@@ -94,6 +94,10 @@ const TeamSettingsSection: React.FC = () => {
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  // Revoke-access confirmation dialog (replaces the native window.confirm).
+  const [revokeTarget, setRevokeTarget] = useState<Member | null>(null);
+  const [revoking, setRevoking] = useState(false);
+
   const fetchMembers = useCallback(async () => {
     if (!companyId) {
       setMembers([]);
@@ -208,15 +212,19 @@ const TeamSettingsSection: React.FC = () => {
     }
   };
 
-  const revoke = async (m: Member) => {
-    if (typeof window !== "undefined" && !window.confirm(`Remove ${m.email} from this business?`)) return;
+  const performRevoke = async () => {
+    if (!revokeTarget) return;
+    setRevoking(true);
     try {
-      await axiosBaseApi.delete(`team/members/${m.id}`);
+      await axiosBaseApi.delete(`team/members/${revokeTarget.id}`);
       toast("Access revoked.", "success");
+      setRevokeTarget(null);
       fetchMembers();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string } } };
       toast(err?.response?.data?.message || "Couldn't revoke access.", "error");
+    } finally {
+      setRevoking(false);
     }
   };
 
@@ -331,7 +339,7 @@ const TeamSettingsSection: React.FC = () => {
                     </IconButton>
                   </Tooltip>
                   <Tooltip title={t("team.remove", { defaultValue: "Remove" })}>
-                    <IconButton onClick={() => revoke(m)} size="small" color="error" data-testid={`team-remove-${m.id}`}>
+                    <IconButton onClick={() => setRevokeTarget(m)} size="small" color="error" data-testid={`team-remove-${m.id}`}>
                       <DeleteOutlineRounded fontSize="small" />
                     </IconButton>
                   </Tooltip>
@@ -438,6 +446,49 @@ const TeamSettingsSection: React.FC = () => {
                 : t("team.createInvite", { defaultValue: "Create invite" })}
             </Button>
           )}
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={!!revokeTarget}
+        onClose={() => !revoking && setRevokeTarget(null)}
+        fullWidth
+        maxWidth="xs"
+        data-testid="team-revoke-dialog"
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          {t("team.revokeTitle", { defaultValue: "Remove teammate?" })}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" color="text.secondary">
+            {t("team.revokeBody", {
+              defaultValue: `${revokeTarget?.email || "This person"} will immediately lose access to this business. You can invite them again later.`,
+              email: revokeTarget?.email || "This person",
+            })}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setRevokeTarget(null)}
+            disabled={revoking}
+            sx={{ textTransform: "none" }}
+            data-testid="team-revoke-cancel"
+          >
+            {t("team.cancel", { defaultValue: "Cancel" })}
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={performRevoke}
+            disabled={revoking}
+            startIcon={revoking ? <CircularProgress size={16} color="inherit" /> : <DeleteOutlineRounded />}
+            sx={{ textTransform: "none", fontWeight: 600 }}
+            data-testid="team-revoke-confirm"
+          >
+            {revoking
+              ? t("team.revoking", { defaultValue: "Removing..." })
+              : t("team.revokeConfirm", { defaultValue: "Remove access" })}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

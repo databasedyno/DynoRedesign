@@ -18,6 +18,8 @@ import { generateInvoicePDF } from "../services/pdfService";
 import { resolveLangByEmail } from "../utils/emailI18n";
 import { sendInvoiceGeneratedEmail } from "../services/emailService";
 import { getFeeTiers, getTransactionFeePercent, FeeTier } from "../utils/feeConfigUtils";
+import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
+import { resolveMembership, membershipCan } from "../utils/permissions";
 import {
   getCompanyBaseCurrency,
   getCurrencySymbol,
@@ -677,7 +679,26 @@ const getAllInvoices = async (
       attributes: ["company_id"],
     });
 
-    const companyIds = companies.map((c: { dataValues: { company_id: number } }) => (c as unknown as { dataValues: { company_id: number } }).dataValues.company_id);
+    let companyIds: number[] = companies.map((c: { dataValues: { company_id: number } }) => (c as unknown as { dataValues: { company_id: number } }).dataValues.company_id);
+
+    // RBAC: an explicit ?company_id the caller does NOT own requires an active
+    // membership WITH manage_invoices — validateCompanyOwnership 403s otherwise
+    // (so a member lacking the permission is blocked, not silently shown empty).
+    if (company_id && !companyIds.includes(parseInt(company_id as string))) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "manage_invoices");
+      if (!companyData) return; // 403 already sent
+      companyIds = [parseInt(company_id as string)];
+    } else if (!company_id) {
+      // No explicit company: also honour the X-Company-Id-selected company for a
+      // granted member (best-effort; never 403 so owner flows are unaffected).
+      const hdrCid = parseInt(String(req.headers["x-company-id"] ?? ""), 10);
+      if (Number.isFinite(hdrCid) && hdrCid && !companyIds.includes(hdrCid)) {
+        const m = await resolveMembership(Number(userData.user_id), hdrCid);
+        if (m && (m.isOwner || membershipCan(m, "manage_invoices"))) {
+          companyIds = [hdrCid];
+        }
+      }
+    }
 
     // If user has no companies, return empty result
     if (companyIds.length === 0) {
@@ -755,17 +776,15 @@ const getInvoiceById = async (
 
     const invoiceData = invoice.dataValues;
 
-    // Verify user owns the company
-    const company = await companyModel.findOne({
-      where: {
-        company_id: invoiceData.company_id,
-        user_id: userData.user_id,
-      },
-    });
-
-    if (!company) {
-      return errorResponseHelper(res, 403, "Access denied");
-    }
+    // Verify the caller may access the company (owner OR team member with
+    // manage_invoices). validateCompanyOwnership sends the 403 when not allowed.
+    const company = await validateCompanyOwnership(
+      res,
+      invoiceData.company_id as number,
+      userData.user_id,
+      "manage_invoices"
+    );
+    if (!company) return; // 403 already sent
 
     // Sanitize response — hide internal fee breakdown details. Uses the
     // shared `sanitizeInvoice` helper so `getAllInvoices` returns the same
@@ -806,17 +825,15 @@ const downloadInvoicePDF = async (
 
     const invoiceData = invoice.dataValues;
 
-    // Verify user owns the company
-    const company = await companyModel.findOne({
-      where: {
-        company_id: invoiceData.company_id,
-        user_id: userData.user_id,
-      },
-    });
-
-    if (!company) {
-      return errorResponseHelper(res, 403, "Access denied");
-    }
+    // Verify the caller may access the company (owner OR team member with
+    // manage_invoices). validateCompanyOwnership sends the 403 when not allowed.
+    const company = await validateCompanyOwnership(
+      res,
+      invoiceData.company_id as number,
+      userData.user_id,
+      "manage_invoices"
+    );
+    if (!company) return; // 403 already sent
 
     // Generate PDF
     // If unit_price is 0, try to recalculate from the transaction

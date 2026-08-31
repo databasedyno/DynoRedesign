@@ -87,14 +87,23 @@ export const getUserAnalytics = async (
       company_id,
     } = req.body;
 
+    // RBAC: a member with view_wallets sees the OWNER's wallet analytics for a
+    // granted company (no-op for owners).
+    let effectiveUserId = Number(userData.user_id);
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "view_wallets");
+      if (!companyData) return; // 403 already sent
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
+
     // Get company's preferred currency for analytics display
-    const preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id);
+    const preferredCurrency = await getUserDisplayCurrency(effectiveUserId, company_id);
 
     // Build company filter for SQL queries (both tbl_user_transaction and tbl_user_temp_address have company_id)
     const safeCompanyId = company_id ? parseInt(company_id) : null;
     const companyFilterSQL = safeCompanyId ? ` and ut.company_id=${safeCompanyId}` : '';
 
-    const txWhere: any = { user_id: userData.user_id };
+    const txWhere: any = { user_id: effectiveUserId };
     if (company_id) txWhere.company_id = company_id;
 
     const totalTransactionsIncoming = (
@@ -107,7 +116,7 @@ export const getUserAnalytics = async (
       await selfTransactionModel.findAndCountAll({
         where: {
           transaction_type: "DEBIT",
-          user_id: userData.user_id,
+          user_id: effectiveUserId,
         },
       })
     ).count;
@@ -115,7 +124,7 @@ export const getUserAnalytics = async (
     let where = "";
     const safeYear = parseInt(year) || new Date().getFullYear();
     const safeMonth = parseInt(month) || (new Date().getMonth() + 1);
-    const safeUserId = Number(userData.user_id);
+    const safeUserId = Number(effectiveUserId);
     if (periodType === "YEAR") {
       where = `where extract(year from ut."createdAt")=${safeYear} and ut.user_id=${safeUserId}${companyFilterSQL}`;
     } else if (periodType === "MONTH") {

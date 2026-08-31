@@ -29,14 +29,23 @@ const apiAuditCompany = async (req: express.Request): Promise<number | null> => 
 };
 const auditKey = auditMutations("apikey", { resolveCompany: apiAuditCompany });
 
+// OWNER-ONLY resolver for API-key CREATION: the company comes from body.company_id
+// (there is no api_id yet). Minting a new key grants full API power (it can create
+// payments/payouts), so — like delete/revoke — creation is OWNER-ONLY. A teammate
+// with manage_api_keys may VIEW keys but never mint one (RBAC escalation guard, C1).
+const resolveApiKeyCompanyFromBody = async (req: express.Request): Promise<number | null> => {
+  const b = parseInt(String((req.body && req.body.company_id) ?? ""), 10);
+  return Number.isNaN(b) ? null : b;
+};
+
 // API Key Management (mutations audited to the Team Activity Log)
-apiRouter.post("/addApi", authMiddleware, auditKey, apiMiddleware, apiController.addApi);
+apiRouter.post("/addApi", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompanyFromBody), auditKey, apiMiddleware, apiController.addApi);
 apiRouter.get("/getApi", authMiddleware, apiController.getApi);
 apiRouter.get("/getApi/:id", authMiddleware, apiController.getApiById);
 apiRouter.put("/updateApi/:id", authMiddleware, auditKey, apiController.updateApi);
-apiRouter.post("/regenerateKey/:id", authMiddleware, auditKey, apiController.regenerateApiKey);
+apiRouter.post("/regenerateKey/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.regenerateApiKey);
 // ALIAS: Frontend compatibility - POST /userApi/regenerateApi/:id -> POST /userApi/regenerateKey/:id
-apiRouter.post("/regenerateApi/:id", authMiddleware, auditKey, apiController.regenerateApiKey);
+apiRouter.post("/regenerateApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.regenerateApiKey);
 apiRouter.put("/toggleStatus/:id", authMiddleware, auditKey, apiController.toggleApiStatus);
 apiRouter.post("/revoke/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.revokeApi);
 apiRouter.delete("/deleteApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.deleteApi);

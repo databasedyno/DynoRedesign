@@ -19,6 +19,8 @@ import { getRedisItem, setRedisItem, deleteRedisItem, redis } from "../../utils/
 import { formatAmountForDisplay, getCurrencyInfo } from "../../utils/currencyUtils";
 import { companyModel, paymentLinkModel, userModel, userWalletModel } from "../../models";
 import { PaymentUserJwtPayload } from "../../utils/types";
+import { validateCompanyOwnership } from "../../utils/validateCompanyOwnership";
+import { resolveMembership, membershipCan } from "../../utils/permissions";
 import { checkKycEnforcement, KYC_THRESHOLD_USD } from "../../helper/kycEnforcement";
 import { generateQRCodeWithLogo } from "../../utils/qrCodeWithLogo";
 import * as merchantPoolService from "../../services/merchantPoolService";
@@ -689,22 +691,15 @@ export const createPaymentLink = async (
       );
     }
     
-    // Phase 10 Fix: Validate company_id if provided
+    // Phase 10 Fix / RBAC: validate access to the company (owner OR team member
+    // with manage_payment_links) and resolve the OWNER's user_id. A member's link
+    // then belongs to the BUSINESS (owner) and every check below (KYC, wallets)
+    // runs against the owner — the effective merchant. No-op for owners.
+    let ownerUserId = Number(userData.user_id);
     if (company_id) {
-      const companyExists = await companyModel.findOne({
-        where: {
-          company_id,
-          user_id: userData.user_id,
-        },
-      });
-      
-      if (!companyExists) {
-        return errorResponseHelper(
-          res,
-          400,
-          "Invalid company_id or company does not belong to this user"
-        );
-      }
+      const companyAccess = await validateCompanyOwnership(res, company_id, userData.user_id, "manage_payment_links");
+      if (!companyAccess) return; // 403 already sent
+      ownerUserId = Number((companyAccess as unknown as { user_id: number }).user_id);
     }
     
     // ========================================
@@ -722,7 +717,7 @@ export const createPaymentLink = async (
       has_active_session: boolean;
     } | null = null;
 
-    const kycResult = await checkKycEnforcement(userData.user_id, company_id, '[KYC - PaymentCreate]');
+    const kycResult = await checkKycEnforcement(ownerUserId, company_id, '[KYC - PaymentCreate]');
 
     if (kycResult.blocked) {
       return errorResponseHelper(
@@ -758,7 +753,7 @@ export const createPaymentLink = async (
     const cryptoTypes = ['BTC', 'ETH', 'LTC', 'DOGE', 'TRX', 'BCH', 'USDT-TRC20', 'USDT-ERC20', 'USDC-ERC20', 'SOL', 'XRP', 'RLUSD', 'RLUSD-ERC20', 'POLYGON', 'USDT-POLYGON'];
     
     const walletWhereClause: Record<string, unknown> = {
-      user_id: userData.user_id,
+      user_id: ownerUserId,
       wallet_type: { [Op.in]: cryptoTypes },
       wallet_address: { [Op.not]: null },
     };
@@ -853,23 +848,9 @@ export const createPaymentLink = async (
       );
     }
     
-    // Verify the company belongs to this user
-    const userCompany = await companyModel.findOne({
-      where: { 
-        company_id: company_id,
-        user_id: userData.user_id 
-      }
-    });
-    
-    if (!userCompany) {
-      return errorResponseHelper(
-        res,
-        400,
-        "Invalid company_id. The specified company does not exist or does not belong to you."
-      );
-    }
-    
-    cronLogger.info(`[createPaymentLink] Using company_id: ${company_id} for user: ${userData.user_id}`);
+    // Company access + owner resolution already handled above (RBAC-aware:
+    // owner OR team member with manage_payment_links; ownerUserId is the business).
+    cronLogger.info(`[createPaymentLink] Using company_id: ${company_id} for owner: ${ownerUserId} (actor: ${userData.user_id})`);
     
     // ========================================
     // ACTIVE API KEY CHECK: Block if no active API key exists
@@ -902,8 +883,8 @@ export const createPaymentLink = async (
       allowedModes: allowedModes,
       base_amount: isDonation ? 0 : normalizedAmount,
       base_currency: normalizedCurrency,
-      user_id: userData.user_id,
-      adm_id: userData.user_id,  // Add adm_id for crypto payment compatibility
+      user_id: ownerUserId,
+      adm_id: ownerUserId,  // Add adm_id for crypto payment compatibility (belongs to the business owner)
       company_id: company_id,  // REQUIRED field
       payment_link: (envRaw("CHECKOUT_URL") || '').trim().replace(/\/$/, '') + "/pay?d=" + uniqueRef,
       description: description || null,
@@ -1166,8 +1147,16 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
     
     // Build where clause with optional company_id filter.
     // Contribution child rows (parent_link_id set) are internal — never listed.
+    // RBAC: a member with manage_payment_links sees the OWNER's links for a
+    // granted company (no-op for owners).
+    let effectiveUserId = Number(userData.user_id);
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id, "manage_payment_links");
+      if (!companyData) return; // 403 already sent
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
     const whereClause: Record<string, unknown> = {
-      user_id: userData.user_id,
+      user_id: effectiveUserId,
       parent_link_id: null,
       is_tip_jar: false,
     };
@@ -1402,9 +1391,10 @@ export const getPaymentLinkById = async (req: express.Request, res: express.Resp
   const link_id = req.params.id;
   
   try {
+    // Find by link_id; access is verified below so a granted team member (with
+    // manage_payment_links) can view the OWNER's link, not only their own.
     const link = await paymentLinkModel.findOne({
       where: {
-        user_id: userData.user_id,
         link_id,
       },
     });
@@ -1414,6 +1404,18 @@ export const getPaymentLinkById = async (req: express.Request, res: express.Resp
     }
 
     const linkData = link.dataValues;
+
+    // RBAC access check: the caller must OWN the link, or be a team member with
+    // manage_payment_links on the link's company.
+    if (Number(linkData.user_id) !== Number(userData.user_id)) {
+      const companyData = await validateCompanyOwnership(
+        res,
+        linkData.company_id as number,
+        userData.user_id,
+        "manage_payment_links"
+      );
+      if (!companyData) return; // 403 already sent
+    }
     const now = new Date();
     const isDonationLink = linkData.link_type === 'donation';
     
