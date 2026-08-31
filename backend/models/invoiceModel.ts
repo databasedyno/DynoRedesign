@@ -28,7 +28,7 @@ const invoiceModel = sequelize.define(
     // Provider (Dynopay) info
     provider_name: {
       type: DataTypes.STRING(100),
-      defaultValue: "Dynopay Innovations, LDA",
+      defaultValue: "Dynopay Innovations, LTD",
     },
     provider_address: {
       type: DataTypes.TEXT,

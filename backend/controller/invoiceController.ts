@@ -354,11 +354,12 @@ export const autoGenerateInvoice = async (
 
     const companyData = company.dataValues;
 
-    // Provider details (Dynopay Innovations, LDA)
+    // Provider details (Dynopay Innovations, LTD) — street address/VAT ID intentionally
+    // omitted from customer-facing receipts/invoices per brand/privacy requirement.
     const providerInfo = {
-      provider_name: "Dynopay Innovations, LDA",
-      provider_address: "Rua Luís de Camões 1017, 7° Dt°\nMontijo 2870-154\nPortugal",
-      provider_vat_id: "PT518713130",
+      provider_name: "Dynopay Innovations, LTD",
+      provider_address: "",
+      provider_vat_id: "",
     };
 
     // Customer details from company profile
