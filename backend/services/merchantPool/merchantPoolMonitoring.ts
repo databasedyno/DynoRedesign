@@ -322,7 +322,7 @@ const processAddress = async (addr: any, result: {
         // Auto-release if stuck for more than 2 hours with no reserved_until
         if (stuckMinutes > 120) {
           cronLogger.warn(`[MerchantPool] ⚠️ BUG-6 FIX: ${walletAddress} (${walletType}) stuck IN_USE with no reserved_until for ${stuckMinutes > 1440 ? (stuckMinutes/1440).toFixed(1) + ' days' : stuckMinutes.toFixed(0) + ' min'} — auto-releasing`);
-          const MerchantTempAddress = require("../../models/merchantPoolModels/merchantTempAddressModel").default;
+          const MerchantTempAddress = merchantTempAddressModel;
           
           // Clear all reservation fields and set status to AVAILABLE
           await MerchantTempAddress.update(
@@ -351,7 +351,7 @@ const processAddress = async (addr: any, result: {
       // FIX BUG-7: Handle NaN reserved_until (invalid date in DB) — auto-release the stuck address
       if (isNaN(minutesSinceReserved) || isNaN(minutesUntilExpiry)) {
         cronLogger.warn(`[MerchantPool] ⚠️ BUG-7 FIX: ${walletAddress} (${walletType}) has NaN reserved_until — releasing stuck address`);
-        const MerchantTempAddress = require("../../models/merchantPoolModels/merchantTempAddressModel").default;
+        const MerchantTempAddress = merchantTempAddressModel;
         await MerchantTempAddress.update(
           { status: 'AVAILABLE', current_payment_id: null, expected_amount: null, reserved_until: null, current_company_id: null },
           { where: { wallet_address: walletAddress } }

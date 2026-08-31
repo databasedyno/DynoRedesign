@@ -437,8 +437,15 @@ export { getUserFeeDiscount, calculateDiscountedFee };
 // ============================================
 export { backfillRefereeInvites, type BackfillResult } from './referral/refereeBackfill';
 
+// Real-time post-payment referee invite — extracted to its own module to keep
+// this file under the 500-line R2 budget. Re-exported here so existing import
+// paths (services/referralService) keep working.
+import { maybeSendPostPaymentInvite } from './referral/postPaymentInvite';
+export { maybeSendPostPaymentInvite };
+
 
 export default {
+  maybeSendPostPaymentInvite,
   // Referee Code (Type 2)
   generateRefereeCode,
   checkEmailHasAccount,

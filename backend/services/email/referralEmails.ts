@@ -250,3 +250,41 @@ export const sendReferralMonthlyDigestEmail = async (
     captureError(e, 'email', { extraContext: 'sendReferralMonthlyDigestEmail' });
   }
 };
+
+
+/**
+ * SHARE NUDGE — for referrers who have a code but have never referred anyone
+ * (0 referrals, $0 earned). A gentle "your link is ready, here's why it pays"
+ * push so dormant referrers actually start sharing. Plain English, matches the
+ * other referral emails in this file. Idempotency + eligibility live in
+ * referralNudgeService; sending is gated by DISABLE_OUTBOUND_EMAIL.
+ */
+export const sendReferralShareNudgeEmail = async (
+  email: string,
+  name: string,
+  code: string,
+  lang?: string
+) => {
+  try {
+    void lang;
+    const signupLink = `${FRONTEND_BASE_URL}/signup?ref=${code}`;
+    const subject = `Your Dynopay referral link is ready — earn 25% for a year 💸`;
+    const content = `
+      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Your Dynopay referral link is set up and ready to share — but it hasn't been used yet. Here's a quick nudge, because it genuinely pays off.`)}
+      ${p(`Refer another business. When they take their first payment, <strong>you earn 25% of the Dynopay fee on every payment they make for a full 12 months</strong> — and they get <strong>50% off their own fees for 30 days</strong>, so it's an easy pitch.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Your referral code', `<strong style="font-family:monospace;color:#166534;">${escapeHtml(code)}</strong>`)}
+          ${dataRow('Your link', `<a href="${signupLink}" style="color:#05936A;word-break:break-all;">${escapeHtml(signupLink)}</a>`, true)}
+        </table>
+      `, '#12B76A')}
+      ${p(`Share it once and it keeps earning in the background — no extra work.`)}`;
+
+    const html = dynoPayEmailTemplate(`Start earning with referrals`, content, true, `Share your link`, REFERRALS_URL);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral share nudge sent to ${email} (code=${code})`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralShareNudgeEmail' });
+  }
+};

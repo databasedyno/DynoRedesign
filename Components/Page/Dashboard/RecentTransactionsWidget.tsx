@@ -54,6 +54,12 @@ interface RecentTx {
   status?: string;
   base_amount?: number | string;
   amount?: number | string;
+  /**
+   * Real fiat value captured at settlement time (USD) — the actual money the
+   * merchant received, stored on the transaction. Preferred over a live-rate
+   * re-estimate so "recent payments" shows real money, not today's guess.
+   */
+  usd_value?: number | string | null;
   currency?: string;
   base_currency?: string;
   createdAt?: string;
@@ -530,14 +536,23 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               const amount = tx.base_amount ?? tx.amount ?? 0;
               const fiat = tx.base_currency || tx.currency || "USD";
               const crypto = tx.crypto_currency || tx.cryptocurrency || "";
-              // Approximate value shown beside a crypto amount so merchants
-              // instantly see what a payment is worth — in their chosen
-              // display currency (EUR/GBP/…). Only for crypto rows (skip when
-              // already fiat); null when we can't price it.
-              const usdValue = isCryptoCurrency(fiat)
-                ? toUsd(Number(amount), fiat)
-                : null;
-              const fiatEstimate = usdValue != null ? fx.formatFromUsd(usdValue) : null;
+              // Show the REAL money next to a crypto amount. Prefer the fiat
+              // value STORED on the transaction at settlement (usd_value — the
+              // actual money received), and only fall back to a live-rate
+              // re-estimate when no stored value exists. Only for crypto rows
+              // (fiat rows already show fiat as the primary amount).
+              const storedUsdRaw = tx.usd_value != null ? Number(tx.usd_value) : NaN;
+              const storedUsd =
+                Number.isFinite(storedUsdRaw) && storedUsdRaw > 0 ? storedUsdRaw : null;
+              const liveUsd = isCryptoCurrency(fiat) ? toUsd(Number(amount), fiat) : null;
+              const usdForDisplay = isCryptoCurrency(fiat) ? (storedUsd ?? liveUsd) : null;
+              const fiatEstimate =
+                usdForDisplay != null ? fx.formatFromUsd(usdForDisplay) : null;
+              // Exact (real settled money) when we have a stored USD value AND
+              // the display currency needs no FX conversion; otherwise it's an
+              // approximation and we mark it with "≈".
+              const fiatIsExact =
+                storedUsd != null && (fx.currency === "USD" || fx.rate === 1);
               const when = formatWhen(tx.createdAt || tx.created_at, t, i18n.language);
               const rawEmail = tx.customer_email || tx.customerEmail || "";
               const rawName = (tx as any).customer_name || (tx as any).customerName || "";
@@ -661,19 +676,34 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         </Box>
                       )}
                       {fiatEstimate != null && (
-                        <Box
-                          component="span"
-                          data-testid="recent-txn-fiat"
-                          sx={{
-                            ml: 1,
-                            color: theme.palette.text.secondary,
-                            fontFamily: "var(--font-sans)",
-                            fontWeight: 500,
-                            fontSize: "12px",
-                          }}
+                        <Tooltip
+                          title={
+                            fiatIsExact
+                              ? t("fiatExactTip", {
+                                  defaultValue: "Amount received at time of payment",
+                                })
+                              : t("fiatEstimateTip", {
+                                  defaultValue: "Approximate value at today's rate",
+                                })
+                          }
+                          placement="top"
+                          arrow
                         >
-                          {`\u2248 ${fiatEstimate}`}
-                        </Box>
+                          <Box
+                            component="span"
+                            data-testid="recent-txn-fiat"
+                            data-fiat-exact={fiatIsExact ? "1" : "0"}
+                            sx={{
+                              ml: 1,
+                              color: theme.palette.text.secondary,
+                              fontFamily: "var(--font-sans)",
+                              fontWeight: 500,
+                              fontSize: "12px",
+                            }}
+                          >
+                            {fiatIsExact ? fiatEstimate : `\u2248 ${fiatEstimate}`}
+                          </Box>
+                        </Tooltip>
                       )}
                     </Typography>
                     {/* Source badge — shown on EVERY row for parity with the

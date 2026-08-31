@@ -150,11 +150,11 @@
     "payRemainingCrypto": "Pagar Restante con Cripto"
   },
   "overpayment": {
-    "title": "Sobrepago Recibido",
+    "title": "Pago recibido",
     "subtitle": "Gracias — enviaste un poco de más.",
     "totalDue": "Total Adeudado:",
     "excess": "Exceso:",
-    "refundNotice": "El excedente se reembolsará a tu billetera en la tienda donde pagaste."
+    "refundNotice": "Tu pago se recibió por completo. Si enviaste algo de más, comunícate con la tienda donde pagaste."
   },
   "expired": {
     "title": "Enlace de Pago Expirado",

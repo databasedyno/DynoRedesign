@@ -1,274 +1,264 @@
 #!/usr/bin/env python3
 """
-DynoPay Fee Source Fallback - BCH satPerByte Cache Bug Fix Verification
-========================================================================
-Tests the network-fees endpoint to verify:
-1. BCH returns satPerByte==1 on BOTH fresh and cached calls
-2. POLYGON returns feeInUSD > 0, nativeSymbol == "POL"
-3. USDT_POLYGON returns feeInUSD > 0, nativeSymbol == "POL"
-4. ETH returns feeInUSD > 0 (control/regression)
-
-All requests include browser-like User-Agent and Origin header (Cloudflare requirement).
+REGRESSION TEST: Referral service refactor (maybeSendPostPaymentInvite extraction)
+READ-ONLY against LIVE PROD DB in SAFE MODE.
+Tests 7 endpoints to confirm no import cycle or runtime errors after the refactor.
 """
-
 import requests
 import json
 import sys
-import time
 
-# Base URL for the preview environment
-BASE_URL = "https://dynopay-preview-15.preview.emergentagent.com"
+BASE_URL = "https://87e6bc11-1888-4816-af91-aff395d8e903.preview.emergentagent.com/api"
+EMAIL = "onarrival21@gmail.com"
+PASSWORD = "Katiekendra123@"
 
-# Headers required for Cloudflare
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Origin": BASE_URL,
-    "Accept": "application/json"
-}
-
-def test_network_fees(chain, test_name, expected_checks):
-    """
-    Test GET /api/pay/network-fees?chain=<CHAIN>
-    
-    Args:
-        chain: Chain identifier (e.g., 'BCH', 'POLYGON')
-        test_name: Human-readable test name
-        expected_checks: Dict of field->expected_value checks
-    
-    Returns:
-        Tuple of (passed: bool, response_data: dict, error_msg: str)
-    """
-    url = f"{BASE_URL}/api/pay/network-fees?chain={chain}"
-    
+def test_health():
+    """Step 1: GET /health → healthy (db + redis connected)"""
+    print("\n[1/7] Testing GET /health...")
     try:
-        response = requests.get(url, headers=HEADERS, timeout=15)
-        
-        # Check HTTP status
-        if response.status_code != 200:
-            return False, None, f"HTTP {response.status_code} (expected 200)"
-        
-        # Parse JSON
-        try:
-            data = response.json()
-        except json.JSONDecodeError as e:
-            return False, None, f"Invalid JSON response: {e}"
-        
-        # Extract the actual fee data
-        if 'data' not in data:
-            return False, data, "Response missing 'data' field"
-        
-        fee_data = data['data']
-        
-        # Run expected checks
-        errors = []
-        for field, expected in expected_checks.items():
-            if field not in fee_data:
-                errors.append(f"Missing field '{field}'")
-            elif callable(expected):
-                # Custom check function
-                if not expected(fee_data[field]):
-                    errors.append(f"Field '{field}' check failed: {fee_data[field]}")
-            elif fee_data[field] != expected:
-                errors.append(f"Field '{field}' = {fee_data[field]} (expected {expected})")
-        
-        if errors:
-            return False, fee_data, "; ".join(errors)
-        
-        return True, fee_data, None
-        
-    except requests.exceptions.RequestException as e:
-        return False, None, f"Request failed: {e}"
+        resp = requests.get(f"{BASE_URL}/health", timeout=10)
+        print(f"  Status: {resp.status_code}")
+        if resp.status_code == 200:
+            data = resp.json()
+            print(f"  Response: {json.dumps(data, indent=2)}")
+            if data.get('status') == 'healthy' and data.get('database') == 'connected' and data.get('redis') == 'connected':
+                print("  ✅ PASS: Backend healthy, db + redis connected")
+                return True
+            else:
+                print(f"  ❌ FAIL: Backend not fully healthy: {data}")
+                return False
+        else:
+            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
+            print(f"  Response: {resp.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ FAIL: Exception: {e}")
+        return False
 
+def test_login():
+    """Step 2: POST /user/login → 200 + accessToken"""
+    print("\n[2/7] Testing POST /user/login...")
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/user/login",
+            json={"email": EMAIL, "password": PASSWORD},
+            timeout=10
+        )
+        print(f"  Status: {resp.status_code}")
+        if resp.status_code == 200:
+            data = resp.json()
+            token = data.get('data', {}).get('accessToken')
+            if token:
+                print(f"  ✅ PASS: Login successful, token length: {len(token)}")
+                return token
+            else:
+                print(f"  ❌ FAIL: No accessToken in response: {json.dumps(data, indent=2)}")
+                return None
+        else:
+            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
+            print(f"  Response: {resp.text[:500]}")
+            return None
+    except Exception as e:
+        print(f"  ❌ FAIL: Exception: {e}")
+        return None
+
+def test_referral_my_code(token):
+    """Step 3: GET /referral/my-code (Bearer) → 200, data.referral_code present"""
+    print("\n[3/7] Testing GET /referral/my-code...")
+    try:
+        resp = requests.get(
+            f"{BASE_URL}/referral/my-code",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=10
+        )
+        print(f"  Status: {resp.status_code}")
+        if resp.status_code == 200:
+            data = resp.json()
+            referral_code = data.get('data', {}).get('referral_code')
+            if referral_code:
+                print(f"  ✅ PASS: referral_code present: {referral_code}")
+                print(f"  Response snippet: {json.dumps(data.get('data', {}), indent=2)[:300]}")
+                return True
+            else:
+                print(f"  ❌ FAIL: No referral_code in response: {json.dumps(data, indent=2)}")
+                return False
+        else:
+            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
+            print(f"  Response: {resp.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ FAIL: Exception: {e}")
+        return False
+
+def test_referral_earnings(token):
+    """Step 4: GET /referral/earnings (Bearer) → 200, data.summary + data.commission present"""
+    print("\n[4/7] Testing GET /referral/earnings...")
+    try:
+        resp = requests.get(
+            f"{BASE_URL}/referral/earnings",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=10
+        )
+        print(f"  Status: {resp.status_code}")
+        if resp.status_code == 200:
+            data = resp.json()
+            summary = data.get('data', {}).get('summary')
+            commission = data.get('data', {}).get('commission')
+            if summary and commission:
+                print(f"  ✅ PASS: summary + commission present")
+                print(f"  Summary: {json.dumps(summary, indent=2)[:200]}")
+                print(f"  Commission: {json.dumps(commission, indent=2)[:200]}")
+                return True
+            else:
+                print(f"  ❌ FAIL: Missing summary or commission: {json.dumps(data, indent=2)}")
+                return False
+        else:
+            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
+            print(f"  Response: {resp.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ FAIL: Exception: {e}")
+        return False
+
+def test_dashboard_transactions(token):
+    """Step 5: GET /dashboard/recent-transactions?company_id=1 (Bearer) → 200, transactions include usd_value"""
+    print("\n[5/7] Testing GET /dashboard/recent-transactions?company_id=1...")
+    try:
+        resp = requests.get(
+            f"{BASE_URL}/dashboard/recent-transactions?company_id=1",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=10
+        )
+        print(f"  Status: {resp.status_code}")
+        if resp.status_code == 200:
+            data = resp.json()
+            transactions = data.get('data', {}).get('transactions', [])
+            if transactions:
+                # Check if usd_value is present in transactions
+                has_usd_value = all('usd_value' in tx for tx in transactions)
+                if has_usd_value:
+                    print(f"  ✅ PASS: {len(transactions)} transactions, all have usd_value")
+                    print(f"  Sample transaction: {json.dumps(transactions[0], indent=2)[:300]}")
+                    return True
+                else:
+                    print(f"  ❌ FAIL: Some transactions missing usd_value")
+                    return False
+            else:
+                print(f"  ⚠️  PASS (no transactions): Empty transactions array (expected for test account)")
+                return True
+        else:
+            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
+            print(f"  Response: {resp.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ FAIL: Exception: {e}")
+        return False
+
+def test_kyc_webhook_no_auth():
+    """Step 6: POST /kyc/webhook with garbage/no signature headers → 401 (not 500/404)"""
+    print("\n[6/7] Testing POST /kyc/webhook (no auth headers)...")
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/kyc/webhook",
+            json={"verification": {"id": "test"}},
+            headers={},  # No X-HMAC-SIGNATURE or X-AUTH-CLIENT
+            timeout=10
+        )
+        print(f"  Status: {resp.status_code}")
+        if resp.status_code == 401:
+            print(f"  ✅ PASS: Correctly rejected with 401 (not 500/404)")
+            print(f"  Response: {resp.text[:200]}")
+            return True
+        else:
+            print(f"  ❌ FAIL: Expected 401, got {resp.status_code}")
+            print(f"  Response: {resp.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ FAIL: Exception: {e}")
+        return False
+
+def test_verify_otp_invalid():
+    """Step 7: POST /user/registerEmail/verify-otp with invalid OTP → 400 (not 500)"""
+    print("\n[7/7] Testing POST /user/registerEmail/verify-otp (invalid OTP)...")
+    try:
+        import random
+        random_suffix = random.randint(10000, 99999)
+        fake_email = f"qa-donotcreate-{random_suffix}@example.com"
+        
+        resp = requests.post(
+            f"{BASE_URL}/user/registerEmail/verify-otp",
+            json={"email": fake_email, "otp": "000000"},
+            timeout=10
+        )
+        print(f"  Status: {resp.status_code}")
+        if resp.status_code == 400:
+            print(f"  ✅ PASS: Correctly rejected with 400 (not 500)")
+            print(f"  Response: {resp.text[:200]}")
+            return True
+        else:
+            print(f"  ❌ FAIL: Expected 400, got {resp.status_code}")
+            print(f"  Response: {resp.text[:500]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ FAIL: Exception: {e}")
+        return False
 
 def main():
     print("=" * 80)
-    print("DynoPay Fee Source Fallback - BCH satPerByte Cache Bug Fix Verification")
+    print("REGRESSION TEST: Referral service refactor")
+    print("Testing maybeSendPostPaymentInvite extraction (no import cycle)")
+    print("BASE URL:", BASE_URL)
     print("=" * 80)
-    print(f"Base URL: {BASE_URL}")
-    print(f"Endpoint: GET /api/pay/network-fees?chain=<CHAIN>")
-    print(f"Headers: User-Agent={HEADERS['User-Agent'][:50]}...")
-    print(f"         Origin={HEADERS['Origin']}")
-    print("=" * 80)
-    print()
     
-    all_passed = True
-    test_results = []
+    results = []
     
-    # TEST 1: BCH - First call (fresh, not cached)
-    print("TEST 1: BCH - First call (fresh, should populate cache)")
-    print("-" * 80)
-    passed, data, error = test_network_fees(
-        "BCH",
-        "BCH First Call",
-        {
-            "feeInUSD": lambda x: isinstance(x, (int, float)) and x > 0,
-            "satPerByte": 1
-        }
-    )
+    # Step 1: Health check
+    results.append(("Health check", test_health()))
     
-    if passed:
-        print(f"✅ PASSED")
-        print(f"   - HTTP 200")
-        print(f"   - feeInUSD: {data['feeInUSD']} (> 0) ✓")
-        print(f"   - satPerByte: {data['satPerByte']} (== 1) ✓")
-        test_results.append(("TEST 1: BCH First Call", True, data))
-    else:
-        print(f"❌ FAILED: {error}")
-        if data:
-            print(f"   Response data: {json.dumps(data, indent=2)}")
-        all_passed = False
-        test_results.append(("TEST 1: BCH First Call", False, error))
+    # Step 2: Login
+    token = test_login()
+    results.append(("Login", token is not None))
     
-    print()
+    if not token:
+        print("\n❌ CRITICAL: Login failed, cannot continue with authenticated tests")
+        print_summary(results)
+        sys.exit(1)
     
-    # TEST 2: BCH - Second call (should be cached)
-    # Wait a moment to ensure the first call is fully processed
-    time.sleep(0.5)
+    # Steps 3-5: Authenticated endpoints
+    results.append(("Referral my-code", test_referral_my_code(token)))
+    results.append(("Referral earnings", test_referral_earnings(token)))
+    results.append(("Dashboard transactions", test_dashboard_transactions(token)))
     
-    print("TEST 2: BCH - Second call (cached, THE CRITICAL BUG FIX TEST)")
-    print("-" * 80)
-    passed, data, error = test_network_fees(
-        "BCH",
-        "BCH Second Call (Cached)",
-        {
-            "feeInUSD": lambda x: isinstance(x, (int, float)) and x > 0,
-            "satPerByte": 1  # THIS WAS THE BUG - satPerByte disappeared on cached response
-        }
-    )
+    # Steps 6-7: Public endpoints (security checks)
+    results.append(("KYC webhook (no auth)", test_kyc_webhook_no_auth()))
+    results.append(("Verify OTP (invalid)", test_verify_otp_invalid()))
     
-    if passed:
-        print(f"✅ PASSED - THE BUG IS FIXED!")
-        print(f"   - HTTP 200")
-        print(f"   - feeInUSD: {data['feeInUSD']} (> 0) ✓")
-        print(f"   - satPerByte: {data['satPerByte']} (== 1) ✓ [CRITICAL: Present in cached response]")
-        test_results.append(("TEST 2: BCH Second Call (Cached)", True, data))
-    else:
-        print(f"❌ FAILED - THE BUG STILL EXISTS: {error}")
-        if data:
-            print(f"   Response data: {json.dumps(data, indent=2)}")
-            if 'satPerByte' not in data:
-                print(f"   ⚠️  CRITICAL: satPerByte field is MISSING from cached response!")
-        all_passed = False
-        test_results.append(("TEST 2: BCH Second Call (Cached)", False, error))
+    print_summary(results)
     
-    print()
-    
-    # TEST 3: POLYGON
-    print("TEST 3: POLYGON - Fee source fallback verification")
-    print("-" * 80)
-    passed, data, error = test_network_fees(
-        "POLYGON",
-        "POLYGON",
-        {
-            "feeInUSD": lambda x: isinstance(x, (int, float)) and x > 0,
-            "nativeSymbol": "POL"
-        }
-    )
-    
-    if passed:
-        print(f"✅ PASSED")
-        print(f"   - HTTP 200")
-        print(f"   - feeInUSD: {data['feeInUSD']} (> 0) ✓")
-        print(f"   - nativeSymbol: {data['nativeSymbol']} (== 'POL') ✓")
-        test_results.append(("TEST 3: POLYGON", True, data))
-    else:
-        print(f"❌ FAILED: {error}")
-        if data:
-            print(f"   Response data: {json.dumps(data, indent=2)}")
-        all_passed = False
-        test_results.append(("TEST 3: POLYGON", False, error))
-    
-    print()
-    
-    # TEST 4: USDT_POLYGON
-    print("TEST 4: USDT_POLYGON - Fee source fallback verification")
-    print("-" * 80)
-    passed, data, error = test_network_fees(
-        "USDT_POLYGON",
-        "USDT_POLYGON",
-        {
-            "feeInUSD": lambda x: isinstance(x, (int, float)) and x > 0,
-            "nativeSymbol": "POL"
-        }
-    )
-    
-    if passed:
-        print(f"✅ PASSED")
-        print(f"   - HTTP 200")
-        print(f"   - feeInUSD: {data['feeInUSD']} (> 0) ✓")
-        print(f"   - nativeSymbol: {data['nativeSymbol']} (== 'POL') ✓")
-        test_results.append(("TEST 4: USDT_POLYGON", True, data))
-    else:
-        print(f"❌ FAILED: {error}")
-        if data:
-            print(f"   Response data: {json.dumps(data, indent=2)}")
-        all_passed = False
-        test_results.append(("TEST 4: USDT_POLYGON", False, error))
-    
-    print()
-    
-    # TEST 5: ETH (control/regression check)
-    print("TEST 5: ETH - Control/regression check")
-    print("-" * 80)
-    passed, data, error = test_network_fees(
-        "ETH",
-        "ETH",
-        {
-            "feeInUSD": lambda x: isinstance(x, (int, float)) and x > 0
-        }
-    )
-    
-    if passed:
-        print(f"✅ PASSED")
-        print(f"   - HTTP 200")
-        print(f"   - feeInUSD: {data['feeInUSD']} (> 0) ✓")
-        test_results.append(("TEST 5: ETH (Control)", True, data))
-    else:
-        print(f"❌ FAILED: {error}")
-        if data:
-            print(f"   Response data: {json.dumps(data, indent=2)}")
-        all_passed = False
-        test_results.append(("TEST 5: ETH (Control)", False, error))
-    
-    print()
-    print("=" * 80)
+    # Exit with appropriate code
+    passed = sum(1 for _, result in results if result)
+    total = len(results)
+    sys.exit(0 if passed == total else 1)
+
+def print_summary(results):
+    print("\n" + "=" * 80)
     print("SUMMARY")
     print("=" * 80)
+    passed = sum(1 for _, result in results if result)
+    total = len(results)
     
-    passed_count = sum(1 for _, passed, _ in test_results if passed)
-    total_count = len(test_results)
+    for name, result in results:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status}: {name}")
     
-    for test_name, passed, result in test_results:
-        status = "✅ PASS" if passed else "❌ FAIL"
-        print(f"{status} - {test_name}")
-        if passed and isinstance(result, dict):
-            # Show key fields for passed tests
-            if 'satPerByte' in result:
-                print(f"       satPerByte={result['satPerByte']}, feeInUSD={result['feeInUSD']}")
-            elif 'nativeSymbol' in result:
-                print(f"       nativeSymbol={result['nativeSymbol']}, feeInUSD={result['feeInUSD']}")
-            else:
-                print(f"       feeInUSD={result['feeInUSD']}")
+    print("-" * 80)
+    print(f"TOTAL: {passed}/{total} tests passed ({100*passed//total}%)")
     
-    print()
-    print(f"RESULT: {passed_count}/{total_count} tests passed")
-    
-    if all_passed:
-        print()
-        print("🎉 ALL TESTS PASSED!")
-        print("✅ BCH returns satPerByte==1 on BOTH fresh and cached calls")
-        print("✅ POLYGON returns feeInUSD > 0, nativeSymbol == 'POL'")
-        print("✅ USDT_POLYGON returns feeInUSD > 0, nativeSymbol == 'POL'")
-        print("✅ ETH returns feeInUSD > 0 (no regression)")
-        print()
-        print("The BCH cached-path satPerByte bug fix is VERIFIED and WORKING CORRECTLY.")
-        return 0
+    if passed == total:
+        print("\n✅ ALL TESTS PASSED - No regression detected after refactor")
     else:
-        print()
-        print("❌ SOME TESTS FAILED")
-        print("Please review the failures above.")
-        return 1
-
+        print(f"\n❌ {total - passed} test(s) failed - Regression detected")
+    print("=" * 80)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

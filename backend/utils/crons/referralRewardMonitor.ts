@@ -97,7 +97,25 @@ export const setupReferralRewardCron = () => {
     }
   });
 
-  log("Referral Reward Monitor Cron scheduled for every 15 minutes (+ monthly digest 1st @ 09:00 UTC)", "info");
+  // Referral SHARE NUDGE — daily at 14:30 UTC. Emails active merchants who have a
+  // referral code but have NEVER referred anyone (0 referrals, $0 earned) to start
+  // sharing. Per-referrer Redis idempotency (30d) means each is nudged at most once
+  // a month; a daily lock guards against double-fire / leader re-election.
+  cron.schedule("30 14 * * *", async () => {
+    try {
+      const { acquireLock } = await import("../redisInstance");
+      const locked = await acquireLock("cron:referralShareNudge", 600, 1, 100, true);
+      if (!locked) return;
+      const { sendReferralShareNudges } = await import("../../services/referralNudgeService");
+      const r = await sendReferralShareNudges({ dryRun: false });
+      log(`Referral share nudge: ${r.sent} sent / ${r.skipped} skipped of ${r.scanned} scanned`, "info");
+    } catch (e) {
+      log(`Referral Share Nudge error: ${e}`, "error");
+      captureError(e, "cron", { extraContext: "referralRewardMonitor:shareNudge" });
+    }
+  });
+
+  log("Referral Reward Monitor Cron scheduled for every 15 minutes (+ monthly digest 1st @ 09:00 UTC, share nudge daily @ 14:30 UTC)", "info");
 };
 
 /**

@@ -150,11 +150,11 @@
     "payRemainingCrypto": "Payer le Reste en Crypto"
   },
   "overpayment": {
-    "title": "Trop-perçu Reçu",
+    "title": "Paiement reçu",
     "subtitle": "Merci — vous avez envoyé un peu trop.",
     "totalDue": "Total Dû:",
     "excess": "Excédent:",
-    "refundNotice": "Le surplus sera remboursé sur votre portefeuille de la boutique où vous avez payé."
+    "refundNotice": "Votre paiement a été reçu en totalité. Pour tout montant supplémentaire envoyé, contactez la boutique où vous avez payé."
   },
   "expired": {
     "title": "Lien de Paiement Expiré",

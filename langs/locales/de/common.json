@@ -129,11 +129,11 @@
     "payRemainingCrypto": "Rest mit Krypto bezahlen"
   },
   "overpayment": {
-    "title": "Überzahlung Erhalten",
+    "title": "Zahlung erhalten",
     "subtitle": "Danke — du hast etwas zu viel gesendet.",
     "totalDue": "Gesamtbetrag:",
     "excess": "Überschuss:",
-    "refundNotice": "Der Mehrbetrag wird deiner Wallet im Shop erstattet, in dem du bezahlt hast."
+    "refundNotice": "Deine Zahlung ist vollständig eingegangen. Für einen eventuell zu viel gezahlten Betrag wende dich bitte an den Shop, in dem du bezahlt hast."
   },
   "expired": {
     "title": "Zahlungslink Abgelaufen",

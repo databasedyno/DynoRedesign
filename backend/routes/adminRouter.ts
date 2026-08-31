@@ -201,4 +201,29 @@ adminRouter.post("/referral-invites/backfill", adminAuthMiddleware, async (req, 
   }
 });
 
+// ── Referral Share Nudge ─────────────────────────────────────────────────────
+// Email active merchants who have a referral code but have never referred anyone
+// (0 referrals, $0 earned) to start sharing. Defaults to a DRY RUN (counts +
+// sample only) — pass { "dry_run": false } to actually send. Per-referrer
+// idempotency (30d) means each is nudged at most once a month.
+// Body: { limit?: number (default 200, max 1000), dry_run?: boolean }
+adminRouter.post("/referral/share-nudge", adminAuthMiddleware, async (req, res) => {
+  try {
+    const { sendReferralShareNudges } = await import("../services/referralNudgeService");
+    const result = await sendReferralShareNudges({
+      limit: req.body?.limit,
+      dryRun: req.body?.dry_run !== false,
+    });
+    res.status(200).json({
+      success: true,
+      message: result.dry_run
+        ? "Dry run — no nudges sent"
+        : `${result.sent} share nudge(s) sent, ${result.skipped} skipped`,
+      data: result,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: (err as Error).message });
+  }
+});
+
 export default adminRouter;

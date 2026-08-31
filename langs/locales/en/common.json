@@ -151,11 +151,11 @@
     "payRemainingCrypto": "Pay Remaining with Crypto"
   },
   "overpayment": {
-    "title": "Overpayment Received",
+    "title": "Payment received",
     "subtitle": "Thanks — you sent a little extra.",
     "totalDue": "Total Due:",
     "excess": "Excess:",
-    "refundNotice": "The extra will be refunded to your wallet at the store you paid."
+    "refundNotice": "Your payment was received in full. For anything extra you sent, please contact the store you paid."
   },
   "expired": {
     "title": "Payment Link Expired",

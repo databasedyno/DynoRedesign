@@ -40,75 +40,99 @@ FORCE=0
 if [ "${1:-}" = "--force" ]; then FORCE=1; fi
 
 # -----------------------------------------------------------------------------
-# 1. Skip when no backend TS/config files are staged (hook mode only)
+# 1. Decide which gates to run. --force runs BOTH (CI / `yarn preflight`).
+#    In hook mode, run a gate only when its files are staged.
+#      backend  = backend/*.ts(x) + backend tsconfig/package/lock
+#      frontend = repo-root *.ts(x) OUTSIDE backend/ + root tsconfig/next.config/package.json
+#    The DigitalOcean deploy type-checks BOTH (backend `tsc` + frontend
+#    `next build` with typescript.ignoreBuildErrors=false), so a FRONTEND-only
+#    type error must be caught here too — it slips past `next dev` otherwise.
 # -----------------------------------------------------------------------------
-if [ "$FORCE" -ne 1 ]; then
-  # `git diff --cached` shows the changes that WILL be committed.
-  CHANGED=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null \
-    | grep -E '^backend/.*\.(ts|tsx)$|^backend/tsconfig\.json$|^backend/package\.json$|^backend/yarn\.lock$' \
-    || true)
+RUN_BACKEND=0
+RUN_FRONTEND=0
 
-  if [ -z "${CHANGED}" ]; then
-    echo "[preflight-tsc] No backend TS/config changes staged — skipping."
-    exit 0
-  fi
-
-  echo "[preflight-tsc] Backend TS changes detected:"
-  echo "${CHANGED}" | sed 's/^/  • /'
-fi
-
-# -----------------------------------------------------------------------------
-# 2. Ensure backend/node_modules/.bin/tsc exists (one-time cost)
-# -----------------------------------------------------------------------------
-if [ ! -x backend/node_modules/.bin/tsc ]; then
-  echo "[preflight-tsc] backend/node_modules missing — installing (one-time)..."
-  if ! (cd backend && yarn install --ignore-engines --production=false --frozen-lockfile >/tmp/preflight-yarn.log 2>&1); then
-    echo "[preflight-tsc]   frozen-lockfile install failed, retrying without --frozen-lockfile..."
-    (cd backend && yarn install --ignore-engines --production=false >/tmp/preflight-yarn.log 2>&1) || {
-      echo "[preflight-tsc] yarn install failed. Last 20 lines:"
-      tail -20 /tmp/preflight-yarn.log
-      # In hook mode, don't block on install failures either.
-      if [ "$FORCE" -ne 1 ]; then
-        echo "[preflight-tsc] (hook mode: WARN only — commit allowed)"
-        exit 0
-      fi
-      exit 1
-    }
-  fi
-fi
-
-# -----------------------------------------------------------------------------
-# 3. Run tsc --noEmit
-# -----------------------------------------------------------------------------
-echo "[preflight-tsc] Running backend tsc --noEmit ..."
-START_TS=$(date +%s)
-
-if (cd backend && ./node_modules/.bin/tsc --noEmit); then
-  ELAPSED=$(( $(date +%s) - START_TS ))
-  echo "[preflight-tsc] Backend TS OK (${ELAPSED}s) — safe to push."
-  exit 0
+if [ "$FORCE" -eq 1 ]; then
+  RUN_BACKEND=1
+  RUN_FRONTEND=1
 else
-  ELAPSED=$(( $(date +%s) - START_TS ))
-  if [ "$FORCE" -eq 1 ]; then
-    # Strict mode (CI / `yarn preflight`) — fail hard.
-    echo ""
-    echo "[preflight-tsc] Backend TypeScript errors above (${ELAPSED}s spent)."
-    echo "[preflight-tsc]"
-    echo "[preflight-tsc]    FIX the errors before deploying."
-    echo "[preflight-tsc]    This exact class of error costs ~7.5 min per failed build on DigitalOcean."
-    echo "[preflight-tsc]"
-    exit 1
-  else
-    # Hook mode — WARN only, do not block the commit. Save to GitHub stays green.
-    echo ""
-    echo "[preflight-tsc] WARNING: Backend TypeScript errors above (${ELAPSED}s spent)."
-    echo "[preflight-tsc]"
-    echo "[preflight-tsc]   Commit allowed (hook is warn-only as of session 47)."
-    echo "[preflight-tsc]   Please fix ASAP — GitHub Actions preflight.yml AND the"
-    echo "[preflight-tsc]   DigitalOcean deploy will fail on these errors."
-    echo "[preflight-tsc]"
-    echo "[preflight-tsc]   Run \`yarn preflight\` to see the strict pass/fail."
-    echo "[preflight-tsc]"
+  STAGED=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true)
+  if echo "${STAGED}" | grep -qE '^backend/.*\.(ts|tsx)$|^backend/tsconfig\.json$|^backend/package\.json$|^backend/yarn\.lock$'; then
+    RUN_BACKEND=1
+  fi
+  if echo "${STAGED}" | grep -qE '^(pages|Components|Containers|Redux|hooks|helpers|contexts|utils|constants|styles|api|middleware)/.*\.(ts|tsx)$|^[^/]*\.(ts|tsx)$|^tsconfig\.json$|^next\.config\.mjs$|^package\.json$'; then
+    RUN_FRONTEND=1
+  fi
+
+  if [ "$RUN_BACKEND" -eq 0 ] && [ "$RUN_FRONTEND" -eq 0 ]; then
+    echo "[preflight-tsc] No backend/frontend TS changes staged — skipping."
     exit 0
   fi
+  [ "$RUN_BACKEND" -eq 1 ] && echo "[preflight-tsc] Backend TS changes staged."
+  [ "$RUN_FRONTEND" -eq 1 ] && echo "[preflight-tsc] Frontend TS changes staged."
+fi
+
+# -----------------------------------------------------------------------------
+# 2. Ensure the tsc binary for a target exists (one-time install cost).
+# -----------------------------------------------------------------------------
+ensure_deps() {
+  # $1 = dir, $2 = tsc probe path
+  if [ -x "$2" ]; then return 0; fi
+  echo "[preflight-tsc] $1 node_modules missing — installing (one-time)..."
+  if (cd "$1" && yarn install --ignore-engines --production=false >/tmp/preflight-yarn-"$(basename "$1")".log 2>&1); then
+    return 0
+  fi
+  echo "[preflight-tsc] yarn install failed for '$1'. Last 20 lines:"
+  tail -20 /tmp/preflight-yarn-"$(basename "$1")".log 2>/dev/null || true
+  return 1
+}
+
+# -----------------------------------------------------------------------------
+# 3. Run tsc --noEmit for each requested gate; aggregate pass/fail.
+# -----------------------------------------------------------------------------
+FAILED=0
+
+run_gate() {
+  # $1 = label, $2 = dir, $3 = tsc probe path
+  local label="$1" dir="$2" probe="$3" start
+  if ! ensure_deps "$dir" "$probe"; then
+    if [ "$FORCE" -eq 1 ]; then FAILED=1; else
+      echo "[preflight-tsc] (hook mode: skipping ${label} gate on install failure)"
+    fi
+    return
+  fi
+  echo "[preflight-tsc] Running ${label} tsc --noEmit ..."
+  start=$(date +%s)
+  if (cd "$dir" && ./node_modules/.bin/tsc --noEmit); then
+    echo "[preflight-tsc] ${label} TS OK ($(( $(date +%s) - start ))s)."
+  else
+    echo "[preflight-tsc] ${label} TypeScript errors above ($(( $(date +%s) - start ))s)."
+    FAILED=1
+  fi
+}
+
+[ "$RUN_BACKEND" -eq 1 ]  && run_gate "Backend"  "backend" "backend/node_modules/.bin/tsc"
+[ "$RUN_FRONTEND" -eq 1 ] && run_gate "Frontend" "."       "node_modules/.bin/tsc"
+
+# -----------------------------------------------------------------------------
+# 4. Verdict — warn-in-hook, fail-in-CI (unchanged semantics).
+# -----------------------------------------------------------------------------
+if [ "$FAILED" -eq 0 ]; then
+  echo "[preflight-tsc] All staged TS gates passed — safe to push."
+  exit 0
+fi
+
+if [ "$FORCE" -eq 1 ]; then
+  echo ""
+  echo "[preflight-tsc]    FIX the TypeScript errors above before deploying."
+  echo "[preflight-tsc]    This class of error costs ~7.5 min per failed build on DigitalOcean."
+  echo ""
+  exit 1
+else
+  echo ""
+  echo "[preflight-tsc] WARNING: TypeScript errors above."
+  echo "[preflight-tsc]   Commit allowed (hook is warn-only)."
+  echo "[preflight-tsc]   GitHub Actions preflight.yml AND the DigitalOcean deploy WILL"
+  echo "[preflight-tsc]   fail on these errors. Run \`yarn preflight\` for the strict pass/fail."
+  echo ""
+  exit 0
 fi

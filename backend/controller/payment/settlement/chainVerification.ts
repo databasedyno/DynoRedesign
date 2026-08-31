@@ -1882,6 +1882,32 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           cronLogger.error("[cryptoVerification] Customer payment confirmation email failed:", err.message);
           // Don't fail the transaction if email fails
         }
+
+        // REAL-TIME PAYER AUTO-INVITE — invite the paying customer (no Dynopay
+        // account yet) to open their own merchant account with the 50%/30d
+        // referee offer the INSTANT they pay, instead of waiting up to 24h for
+        // the sweep cron (which stays as a safety net). Fully idempotent +
+        // guarded inside maybeSendPostPaymentInvite; can never affect settlement.
+        try {
+          const inviteEmail =
+            customerData?.email ||
+            customerData?.customer_email ||
+            tempData?.email ||
+            tempData?.customer_email;
+          const { maybeSendPostPaymentInvite } = await import(
+            "../../../services/referralService"
+          );
+          await maybeSendPostPaymentInvite({
+            email: inviteEmail,
+            companyId: company_data?.company_id,
+            userId: customerData?.adm_id,
+          });
+        } catch (inviteErr: unknown) {
+          cronLogger.error(
+            "[cryptoVerification] real-time referee invite failed:",
+            (inviteErr as { message?: string })?.message
+          );
+        }
       }
     } else {
       let currency = tempCurrency;

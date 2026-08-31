@@ -301,9 +301,14 @@ let veriffServiceInstance: VeriffService | null = null;
  */
 export const getVeriffService = (): VeriffService => {
   if (!veriffServiceInstance) {
-    // Try to initialize from environment variables
-    const apiKey = envRaw("VERIFF_API_KEY");
-    const apiSecret = envRaw("VERIFF_API_SECRET");
+    // Try to initialize from environment variables.
+    // .trim() defends against a stray trailing newline/space in the deployed
+    // secret — a very common cause of an otherwise-correct HMAC-SHA256 webhook
+    // signature failing (observed in prod: validClient:true but validSignature:false
+    // with a real, non-placeholder secret). The value MUST be Veriff's
+    // "Shared secret key" (Integrations → your integration), not another credential.
+    const apiKey = (envRaw("VERIFF_API_KEY") || "").trim();
+    const apiSecret = (envRaw("VERIFF_API_SECRET") || "").trim();
 
     if (!apiKey || !apiSecret) {
       throw new Error("Veriff API credentials not configured. Please set VERIFF_API_KEY and VERIFF_API_SECRET in environment variables.");

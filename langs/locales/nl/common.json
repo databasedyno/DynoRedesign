@@ -129,11 +129,11 @@
     "payRemainingCrypto": "Restant Betalen met Crypto"
   },
   "overpayment": {
-    "title": "Te Veel Betaald",
+    "title": "Betaling ontvangen",
     "subtitle": "Bedankt — je hebt iets te veel gestuurd.",
     "totalDue": "Totaal Verschuldigd:",
     "excess": "Overschot:",
-    "refundNotice": "Het extra bedrag wordt terugbetaald naar je wallet bij de winkel waar je betaalde."
+    "refundNotice": "Je betaling is volledig ontvangen. Neem voor een eventueel te veel betaald bedrag contact op met de winkel waar je hebt betaald."
   },
   "expired": {
     "title": "Betalingslink Verlopen",

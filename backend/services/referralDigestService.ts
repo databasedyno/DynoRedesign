@@ -129,7 +129,10 @@ export const sendMonthlyReferralDigests = async (
     if (!dryRun) {
       try {
         const already = await getRedisItem(idemKey);
-        if (already) { skipped++; continue; }
+        // getRedisItem returns {} (truthy) for a MISSING key — must check for
+        // real content, else every referrer is wrongly treated as "already sent"
+        // and the digest silently mails no one.
+        if (already && Object.keys(already).length > 0) { skipped++; continue; }
       } catch { /* redis down -> fall through and still send (better than silent skip) */ }
     }
 
