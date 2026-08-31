@@ -494,7 +494,10 @@
       "step2": "Pagamento confirmado",
       "caption": "Do checkout à confirmação em segundos",
       "captionSub": "A experiência hospedada real — o cliente escolhe uma moeda, paga e é liquidado na hora.",
-      "settled": "Liquidado"
+      "settled": "Liquidado",
+      "stepConvert": "Conversão automática para USDC",
+      "swapTitle": "Conversão automática",
+      "swapNote": "Fique com a moeda ou converta — a escolha é sua"
     },
     "compare": {
       "eyebrow": "Por que nós em vez das alternativas",

@@ -494,7 +494,10 @@
       "step2": "Paiement confirmé",
       "caption": "Du checkout à la confirmation en quelques secondes",
       "captionSub": "L'expérience hébergée réelle — le client choisit une crypto, paie, et c'est réglé instantanément.",
-      "settled": "Réglé"
+      "settled": "Réglé",
+      "stepConvert": "Conversion auto en USDC",
+      "swapTitle": "Conversion automatique",
+      "swapNote": "Gardez la crypto ou convertissez — c'est vous qui choisissez"
     },
     "compare": {
       "eyebrow": "Pourquoi nous plutôt que les autres",

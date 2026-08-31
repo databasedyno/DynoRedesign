@@ -494,7 +494,10 @@
       "step2": "Payment confirmed",
       "caption": "From checkout to confirmed in seconds",
       "captionSub": "The real hosted experience — your customer picks a coin, pays, and it settles instantly.",
-      "settled": "Settled"
+      "settled": "Settled",
+      "stepConvert": "Auto-converting to USDC",
+      "swapTitle": "Auto-converting",
+      "swapNote": "Keep the coin or auto-convert — your choice"
     },
     "compare": {
       "eyebrow": "Why us vs the alternatives",

@@ -494,7 +494,10 @@
       "step2": "Betaling bevestigd",
       "caption": "Van checkout tot bevestigd in seconden",
       "captionSub": "De echte gehoste ervaring — je klant kiest een munt, betaalt en het wordt direct afgewikkeld.",
-      "settled": "Afgewikkeld"
+      "settled": "Afgewikkeld",
+      "stepConvert": "Automatisch omzetten naar USDC",
+      "swapTitle": "Automatisch omzetten",
+      "swapNote": "Houd de munt of zet automatisch om — jouw keuze"
     },
     "compare": {
       "eyebrow": "Waarom wij vs de alternatieven",

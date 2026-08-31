@@ -2,8 +2,11 @@ import React, { memo, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { Icon } from "@iconify/react";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+import SwapVertRoundedIcon from "@mui/icons-material/SwapVertRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 
@@ -13,15 +16,16 @@ import { Eyebrow, HeadlineL } from "./styled.v3";
  * Genuine screenshots of the live hosted checkout (/pay/demo) and the
  * payment-success state (/pay/success-demo), captured into
  * public/assets/landing. A single phone auto-cycles the real journey:
- * awaiting payment → confirming on-chain → confirmed (checkout.png → success.png),
- * with a floating live-status chip and a "settled in seconds" timer badge that
- * counts up while pending and freezes on confirmation (conversion proof).
- * Hover pauses the loop so visitors can read each step. Honours
- * prefers-reduced-motion (shows the confirmed state, frozen timer).
+ * awaiting → confirming on-chain → auto-converting to USDC → confirmed
+ * (checkout.png → success.png). The convert scene overlays a coin-swap card
+ * (ETH → USDC) so visitors SEE the "keep it or auto-convert" choice in action.
+ * Floating live-status chip + a "settled in seconds" timer badge (counts while
+ * pending, freezes on confirm) = conversion proof. Hover pauses the loop.
+ * Honours prefers-reduced-motion (shows the confirmed state, frozen timer).
  */
 
-// Steps: 0 = awaiting, 1 = confirming (both on checkout.png), 2 = confirmed (success.png).
-const STEP_DURATION = [2200, 2000, 3200];
+// Steps: 0 awaiting, 1 confirming, 2 auto-converting (all on checkout.png), 3 confirmed (success.png).
+const STEP_DURATION = [2000, 1900, 2600, 3000];
 const PHONE_ASPECT = 960 / 1880; // checkout.png intrinsic ratio → stable phone screen box
 
 const fmt = (s: number) => `0:${String(Math.min(s, 59)).padStart(2, "0")}`;
@@ -37,11 +41,11 @@ const ProductShowcaseV3: React.FC = () => {
   // Step advancer — frozen while hovered (paused) or reduced-motion.
   useEffect(() => {
     if (reduced) {
-      setStep(2);
+      setStep(3);
       return;
     }
     if (paused) return;
-    const id = setTimeout(() => setStep((p) => (p + 1) % 3), STEP_DURATION[step]);
+    const id = setTimeout(() => setStep((p) => (p + 1) % 4), STEP_DURATION[step]);
     return () => clearTimeout(id);
   }, [step, paused, reduced]);
 
@@ -52,16 +56,18 @@ const ProductShowcaseV3: React.FC = () => {
       return;
     }
     if (step === 0) setSecs(0);
-    if (paused || step === 2) return;
+    if (paused || step === 3) return;
     const id = setInterval(() => setSecs((v) => (v >= 59 ? 59 : v + 1)), 1000);
     return () => clearInterval(id);
   }, [step, paused, reduced]);
 
-  const showSuccess = step === 2;
+  const showSuccess = step === 3;
+  const showSwap = step === 2;
 
   const chip = [
     { dot: "#F59E0B", label: t("v3.showcase.step0"), pulse: false, check: false },
     { dot: "#4F46E5", label: t("v3.showcase.step1"), pulse: true, check: false },
+    { dot: "#7C5CFF", label: t("v3.showcase.stepConvert", { defaultValue: "Auto-converting to USDC" }), pulse: true, check: false },
     { dot: "#16A34A", label: t("v3.showcase.step2"), pulse: false, check: true },
   ][step];
 
@@ -145,6 +151,92 @@ const ProductShowcaseV3: React.FC = () => {
                     transition: "opacity 0.6s ease",
                   }}
                 />
+
+                {/* Dim overlay behind the swap card */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(8,8,12,0.34)",
+                    opacity: showSwap ? 1 : 0,
+                    transition: "opacity 0.45s ease",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Coin-swap card (ETH -> USDC) — the "auto-convert" moment */}
+                <Box
+                  data-testid="showcase-swap"
+                  sx={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    width: "78%",
+                    transform: `translate(-50%, -50%) scale(${showSwap ? 1 : 0.92})`,
+                    opacity: showSwap ? 1 : 0,
+                    transition: "opacity 0.4s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)",
+                    pointerEvents: "none",
+                    background: "#FFFFFF",
+                    borderRadius: "20px",
+                    border: "1px solid rgba(10,10,10,0.06)",
+                    boxShadow: "0 24px 60px -20px rgba(0,0,0,0.5)",
+                    p: 2.25,
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 1.75 }}>
+                    <SwapVertRoundedIcon sx={{ fontSize: 15, color: "#7C5CFF" }} />
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "#7C5CFF", fontWeight: 700 }}>
+                      {t("v3.showcase.swapTitle", { defaultValue: "Auto-converting" })}
+                    </Typography>
+                  </Box>
+
+                  {/* From: ETH */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                    <Box sx={{ width: 30, height: 30, borderRadius: "50%", background: "#F3F1FB", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                      <Icon icon="cryptocurrency-color:eth" width={20} height={20} />
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.6 }}>
+                      <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 15, color: "#0A0A0A" }}>0.004376</Typography>
+                      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: "#71717A" }}>ETH</Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Animated swap arrow */}
+                  <Box sx={{ display: "flex", justifyContent: "center", my: 0.4 }}>
+                    <Box
+                      sx={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: "50%",
+                        background: "#EEF0FF",
+                        display: "grid",
+                        placeItems: "center",
+                        "@keyframes swapNudge": {
+                          "0%,100%": { transform: "translateY(-2px)", opacity: 0.55 },
+                          "50%": { transform: "translateY(2px)", opacity: 1 },
+                        },
+                        animation: showSwap ? "swapNudge 1.1s ease-in-out infinite" : "none",
+                      }}
+                    >
+                      <ArrowDownwardRoundedIcon sx={{ fontSize: 16, color: "#4F46E5" }} />
+                    </Box>
+                  </Box>
+
+                  {/* To: USDC */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                    <Box sx={{ width: 30, height: 30, borderRadius: "50%", background: "#EAF3FF", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                      <Icon icon="cryptocurrency-color:usdc" width={20} height={20} />
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.6 }}>
+                      <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 800, fontSize: 15, color: "#0A0A0A" }}>52.50</Typography>
+                      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: "#2563EB", fontWeight: 700 }}>USDC</Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 11, lineHeight: 1.4, color: "#52525B", mt: 1.75 }}>
+                    {t("v3.showcase.swapNote", { defaultValue: "Keep the coin or auto-convert — your choice" })}
+                  </Typography>
+                </Box>
 
                 {/* Timer badge (conversion proof) — top-center */}
                 <Box
@@ -250,7 +342,7 @@ const ProductShowcaseV3: React.FC = () => {
 
             {/* Progress dots */}
             <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mt: 3 }}>
-              {[0, 1, 2].map((i) => (
+              {[0, 1, 2, 3].map((i) => (
                 <Box
                   key={i}
                   sx={{

@@ -494,7 +494,10 @@
       "step2": "Zahlung bestätigt",
       "caption": "Vom Checkout zur Bestätigung in Sekunden",
       "captionSub": "Das echte gehostete Erlebnis — dein Kunde wählt einen Coin, zahlt, und es wird sofort abgewickelt.",
-      "settled": "Abgewickelt"
+      "settled": "Abgewickelt",
+      "stepConvert": "Auto-Umwandlung in USDC",
+      "swapTitle": "Automatische Umwandlung",
+      "swapNote": "Coin behalten oder umwandeln — deine Wahl"
     },
     "compare": {
       "eyebrow": "Warum wir statt der Alternativen",
