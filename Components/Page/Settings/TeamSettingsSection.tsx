@@ -27,12 +27,16 @@ import {
   DeleteOutlineRounded,
   ContentCopyRounded,
   CheckCircleRounded,
+  SendRounded,
+  VisibilityRounded,
 } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { rootReducer } from "@/utils/types";
+import useTokenData from "@/hooks/useTokenData";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 import TeamActivityPanel from "./TeamActivityPanel";
 
@@ -71,6 +75,14 @@ const TeamSettingsSection: React.FC = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation("common");
   const companyId = useSelectedCompanyId();
+  const tokenData = useTokenData();
+  const reduxEmail = useSelector((s: rootReducer) => {
+    const u = s.userReducer as { email?: string; profile?: { email?: string } | null };
+    return String(u?.email || u?.profile?.email || "");
+  });
+  // Owner's own email — used to stop them inviting themselves. Prefer redux (set
+  // on login), fall back to the decoded JWT so it's reliable even on a hard refresh.
+  const ownerEmail = (reduxEmail || tokenData?.email || "").toLowerCase();
 
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
@@ -97,6 +109,12 @@ const TeamSettingsSection: React.FC = () => {
   // Revoke-access confirmation dialog (replaces the native window.confirm).
   const [revokeTarget, setRevokeTarget] = useState<Member | null>(null);
   const [revoking, setRevoking] = useState(false);
+
+  // Resend / refresh an invite link for a still-pending teammate.
+  const [resendingId, setResendingId] = useState<number | null>(null);
+  const [resendLink, setResendLink] = useState<string | null>(null);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resendCopied, setResendCopied] = useState(false);
 
   const fetchMembers = useCallback(async () => {
     if (!companyId) {
@@ -193,6 +211,11 @@ const TeamSettingsSection: React.FC = () => {
           setSaving(false);
           return;
         }
+        if (ownerEmail && em === ownerEmail) {
+          toast("You already own this business — you can't invite yourself.", "error");
+          setSaving(false);
+          return;
+        }
         const res = await axiosBaseApi.post("team/invite", {
           email: em,
           role,
@@ -239,8 +262,52 @@ const TeamSettingsSection: React.FC = () => {
     }
   };
 
+  const copyResend = async () => {
+    if (!resendLink) return;
+    try {
+      await navigator.clipboard.writeText(resendLink);
+      setResendCopied(true);
+      setTimeout(() => setResendCopied(false), 2000);
+    } catch {
+      /* clipboard blocked — the link is still visible to copy manually */
+    }
+  };
+
+  // Refresh a pending invite's link (re-issues the token; the old link stops working).
+  const resend = async (m: Member) => {
+    if (!companyId) return;
+    setResendingId(m.id);
+    try {
+      const res = await axiosBaseApi.post("team/invite", {
+        email: m.email,
+        role: m.role,
+        permissions: m.permissions,
+        company_id: companyId,
+      });
+      setResendLink(res?.data?.data?.invite_link || null);
+      setResendEmail(m.email);
+      setResendCopied(false);
+      toast("Invite link refreshed.", "success");
+      fetchMembers();
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } };
+      toast(err?.response?.data?.message || "Couldn't resend the invite.", "error");
+    } finally {
+      setResendingId(null);
+    }
+  };
+
+  // Quick "Read-only" preset: grant only the view_* permissions (no manage_* actions).
+  const applyReadOnlyPreset = () => {
+    const next: Record<string, boolean> = {};
+    (catalogue?.keys || Object.keys(perms)).forEach((k) => (next[k] = k.startsWith("view_")));
+    setPerms(next);
+    if (!editing) setRole("member");
+  };
+
   const activeMembers = useMemo(() => members.filter((m) => m.status !== "revoked"), [members]);
   const permKeys = catalogue?.keys || Object.keys(perms);
+  const isSelfInvite = !editing && !!ownerEmail && email.trim().toLowerCase() === ownerEmail;
 
   return (
     <Box data-testid="team-settings-section">
@@ -338,6 +405,21 @@ const TeamSettingsSection: React.FC = () => {
                       <EditRounded fontSize="small" />
                     </IconButton>
                   </Tooltip>
+                  {m.status === "invited" && (
+                    <Tooltip title={t("team.resend", { defaultValue: "Resend invite link" })}>
+                      <span>
+                        <IconButton
+                          onClick={() => resend(m)}
+                          size="small"
+                          color="primary"
+                          disabled={resendingId === m.id}
+                          data-testid={`team-resend-${m.id}`}
+                        >
+                          {resendingId === m.id ? <CircularProgress size={16} /> : <SendRounded fontSize="small" />}
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  )}
                   <Tooltip title={t("team.remove", { defaultValue: "Remove" })}>
                     <IconButton onClick={() => setRevokeTarget(m)} size="small" color="error" data-testid={`team-remove-${m.id}`}>
                       <DeleteOutlineRounded fontSize="small" />
@@ -380,16 +462,32 @@ const TeamSettingsSection: React.FC = () => {
           ) : (
             <Stack gap={2} sx={{ mt: 0.5 }}>
               {!editing ? (
-                <TextField
-                  label={t("team.emailLabel", { defaultValue: "Teammate email" })}
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  fullWidth
-                  size="small"
-                  autoFocus
-                  data-testid="team-invite-email"
-                />
+                <Box>
+                  <TextField
+                    label={t("team.emailLabel", { defaultValue: "Teammate email" })}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    fullWidth
+                    size="small"
+                    autoFocus
+                    error={isSelfInvite}
+                    data-testid="team-invite-email"
+                  />
+                  {isSelfInvite && (
+                    <Typography
+                      variant="caption"
+                      color="error"
+                      sx={{ mt: 0.5, display: "block" }}
+                      data-testid="team-self-invite-hint"
+                    >
+                      {t("team.selfInvite", {
+                        defaultValue:
+                          "You already own this business — you can't invite yourself. Enter a teammate's email.",
+                      })}
+                    </Typography>
+                  )}
+                </Box>
               ) : (
                 <Typography variant="body2" color="text.secondary">
                   {email}
@@ -414,6 +512,21 @@ const TeamSettingsSection: React.FC = () => {
                       "Owner-only actions (changing payout wallets, deleting API keys, billing) are never granted to teammates.",
                   })}
                 </Typography>
+                <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 1, flexWrap: "wrap" }}>
+                  <Typography variant="caption" color="text.secondary">
+                    {t("team.quickPresets", { defaultValue: "Quick preset:" })}
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<VisibilityRounded fontSize="small" />}
+                    onClick={applyReadOnlyPreset}
+                    data-testid="team-preset-readonly"
+                    sx={{ textTransform: "none", borderRadius: 2, py: 0.25 }}
+                  >
+                    {t("team.presetReadOnly", { defaultValue: "Read-only (view only)" })}
+                  </Button>
+                </Stack>
                 <Box sx={{ mt: 1, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 0.5 }}>
                   {permKeys.map((k) => (
                     <FormControlLabel
@@ -435,7 +548,7 @@ const TeamSettingsSection: React.FC = () => {
             <Button
               variant="contained"
               onClick={submit}
-              disabled={saving}
+              disabled={saving || isSelfInvite}
               data-testid="team-dialog-submit"
               sx={{ textTransform: "none", fontWeight: 600 }}
             >
@@ -488,6 +601,48 @@ const TeamSettingsSection: React.FC = () => {
             {revoking
               ? t("team.revoking", { defaultValue: "Removing..." })
               : t("team.revokeConfirm", { defaultValue: "Remove access" })}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={!!resendLink}
+        onClose={() => setResendLink(null)}
+        fullWidth
+        maxWidth="sm"
+        data-testid="team-resend-dialog"
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          {t("team.resendTitle", { defaultValue: "Invite link refreshed" })}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+            {t("team.resendBody", {
+              defaultValue: `Share this fresh link with ${resendEmail}. Any earlier link for them no longer works.`,
+              email: resendEmail,
+            })}
+          </Typography>
+          <Stack direction="row" gap={1}>
+            <TextField
+              value={resendLink || ""}
+              fullWidth
+              size="small"
+              InputProps={{ readOnly: true }}
+              data-testid="team-resend-link"
+            />
+            <Button
+              variant="outlined"
+              startIcon={<ContentCopyRounded />}
+              onClick={copyResend}
+              sx={{ textTransform: "none", whiteSpace: "nowrap" }}
+            >
+              {resendCopied ? t("team.copied", { defaultValue: "Copied" }) : t("team.copy", { defaultValue: "Copy" })}
+            </Button>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setResendLink(null)} sx={{ textTransform: "none" }} data-testid="team-resend-done">
+            {t("team.done", { defaultValue: "Done" })}
           </Button>
         </DialogActions>
       </Dialog>
