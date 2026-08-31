@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://87e6bc11-1888-4816-af91-aff395d8e903.preview.emergentagent.com/api"
+BASE_URL = "https://payment-integration-92.preview.emergentagent.com/api"
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 
