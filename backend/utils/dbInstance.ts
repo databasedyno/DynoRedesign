@@ -15,9 +15,32 @@ const poolConfig = {
   evict: 1000,     // Check for idle connections every 1s
 };
 
-// Retry configuration for transient connection errors (e.g., Railway PG proxy drops)
+// Retry configuration for TRANSIENT connection errors (Railway PG public-proxy
+// drops). Previously this was `{ max: 3 }` with NO `match` list, so it retried
+// on EVERY error 3× within the same millisecond (no backoff) — which never rode
+// out a multi-second reset and still surfaced a 500 (see memory/REFACTOR_STATUS.md
+// §B). We now (a) scope retries to a `match` list of connection-level errors ONLY
+// (strictly safer than retrying all errors), and (b) add exponential backoff so an
+// idempotent read can survive a brief (~1-3s) single-connection reset.
 const retryConfig = {
-  max: 3,           // Retry up to 3 times on transient errors
+  max: 4,
+  match: [
+    // node-postgres / socket-level messages
+    /ECONNRESET/,
+    /Connection terminated unexpectedly/,
+    /Connection terminated due to connection timeout/,
+    /server closed the connection unexpectedly/,
+    /ETIMEDOUT/,
+    /ESOCKETTIMEDOUT/,
+    // Sequelize connection error class names
+    "SequelizeConnectionError",
+    "SequelizeConnectionRefusedError",
+    "SequelizeHostNotReachableError",
+    "SequelizeConnectionTimedOutError",
+    "SequelizeConnectionAcquireTimeoutError",
+  ],
+  backoffBase: 200, // 1st retry ~200ms, then ~400ms, ~800ms (rides out a brief blip)
+  backoffExponent: 2,
 };
 
 // SSL + keepAlive for remote PostgreSQL connections (Railway, Heroku, etc.)

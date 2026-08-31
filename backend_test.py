@@ -1,264 +1,254 @@
 #!/usr/bin/env python3
 """
-REGRESSION TEST: Referral service refactor (maybeSendPostPaymentInvite extraction)
-READ-ONLY against LIVE PROD DB in SAFE MODE.
-Tests 7 endpoints to confirm no import cycle or runtime errors after the refactor.
+DynoPay Phase 1 Backend Verification — R1 (DB retry resilience) + A2 (getFeeTiers owner-remap)
+STRICTLY READ-ONLY against LIVE PRODUCTION database (SAFE MODE)
 """
+
 import requests
 import json
 import sys
 
-BASE_URL = "https://payment-integration-92.preview.emergentagent.com/api"
+# Base URL through ingress
+BASE_URL = "https://0e929189-e8a6-44b7-ae69-e900656450ab.preview.emergentagent.com/api"
+BACKEND_HEALTH_URL = "http://localhost:8001/health"
+
+# Test credentials
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 
-def test_health():
-    """Step 1: GET /health → healthy (db + redis connected)"""
-    print("\n[1/7] Testing GET /health...")
-    try:
-        resp = requests.get(f"{BASE_URL}/health", timeout=10)
-        print(f"  Status: {resp.status_code}")
-        if resp.status_code == 200:
-            data = resp.json()
-            print(f"  Response: {json.dumps(data, indent=2)}")
-            if data.get('status') == 'healthy' and data.get('database') == 'connected' and data.get('redis') == 'connected':
-                print("  ✅ PASS: Backend healthy, db + redis connected")
-                return True
-            else:
-                print(f"  ❌ FAIL: Backend not fully healthy: {data}")
-                return False
-        else:
-            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
-            print(f"  Response: {resp.text[:500]}")
-            return False
-    except Exception as e:
-        print(f"  ❌ FAIL: Exception: {e}")
-        return False
+def print_section(title):
+    print(f"\n{'='*80}")
+    print(f"  {title}")
+    print('='*80)
 
-def test_login():
-    """Step 2: POST /user/login → 200 + accessToken"""
-    print("\n[2/7] Testing POST /user/login...")
+def print_test(test_name, passed, details=""):
+    status = "✅ PASS" if passed else "❌ FAIL"
+    print(f"{status}: {test_name}")
+    if details:
+        print(f"  → {details}")
+
+def login():
+    """Authenticate and get Bearer token"""
+    print_section("AUTHENTICATION")
+    
+    url = f"{BASE_URL}/user/login"
+    payload = {
+        "email": EMAIL,
+        "password": PASSWORD
+    }
+    
     try:
-        resp = requests.post(
-            f"{BASE_URL}/user/login",
-            json={"email": EMAIL, "password": PASSWORD},
-            timeout=10
-        )
-        print(f"  Status: {resp.status_code}")
-        if resp.status_code == 200:
-            data = resp.json()
-            token = data.get('data', {}).get('accessToken')
+        response = requests.post(url, json=payload, timeout=30)
+        print(f"POST /user/login → {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            token = data.get("data", {}).get("accessToken")
             if token:
-                print(f"  ✅ PASS: Login successful, token length: {len(token)}")
+                print_test("Login successful", True, f"Token length: {len(token)} chars")
                 return token
             else:
-                print(f"  ❌ FAIL: No accessToken in response: {json.dumps(data, indent=2)}")
+                print_test("Login failed", False, "No accessToken in response")
                 return None
         else:
-            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
-            print(f"  Response: {resp.text[:500]}")
+            print_test("Login failed", False, f"Status {response.status_code}: {response.text[:200]}")
             return None
     except Exception as e:
-        print(f"  ❌ FAIL: Exception: {e}")
+        print_test("Login failed", False, f"Exception: {str(e)}")
         return None
 
-def test_referral_my_code(token):
-    """Step 3: GET /referral/my-code (Bearer) → 200, data.referral_code present"""
-    print("\n[3/7] Testing GET /referral/my-code...")
-    try:
-        resp = requests.get(
-            f"{BASE_URL}/referral/my-code",
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=10
-        )
-        print(f"  Status: {resp.status_code}")
-        if resp.status_code == 200:
-            data = resp.json()
-            referral_code = data.get('data', {}).get('referral_code')
-            if referral_code:
-                print(f"  ✅ PASS: referral_code present: {referral_code}")
-                print(f"  Response snippet: {json.dumps(data.get('data', {}), indent=2)[:300]}")
-                return True
-            else:
-                print(f"  ❌ FAIL: No referral_code in response: {json.dumps(data, indent=2)}")
-                return False
-        else:
-            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
-            print(f"  Response: {resp.text[:500]}")
-            return False
-    except Exception as e:
-        print(f"  ❌ FAIL: Exception: {e}")
-        return False
-
-def test_referral_earnings(token):
-    """Step 4: GET /referral/earnings (Bearer) → 200, data.summary + data.commission present"""
-    print("\n[4/7] Testing GET /referral/earnings...")
-    try:
-        resp = requests.get(
-            f"{BASE_URL}/referral/earnings",
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=10
-        )
-        print(f"  Status: {resp.status_code}")
-        if resp.status_code == 200:
-            data = resp.json()
-            summary = data.get('data', {}).get('summary')
-            commission = data.get('data', {}).get('commission')
-            if summary and commission:
-                print(f"  ✅ PASS: summary + commission present")
-                print(f"  Summary: {json.dumps(summary, indent=2)[:200]}")
-                print(f"  Commission: {json.dumps(commission, indent=2)[:200]}")
-                return True
-            else:
-                print(f"  ❌ FAIL: Missing summary or commission: {json.dumps(data, indent=2)}")
-                return False
-        else:
-            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
-            print(f"  Response: {resp.text[:500]}")
-            return False
-    except Exception as e:
-        print(f"  ❌ FAIL: Exception: {e}")
-        return False
-
-def test_dashboard_transactions(token):
-    """Step 5: GET /dashboard/recent-transactions?company_id=1 (Bearer) → 200, transactions include usd_value"""
-    print("\n[5/7] Testing GET /dashboard/recent-transactions?company_id=1...")
-    try:
-        resp = requests.get(
-            f"{BASE_URL}/dashboard/recent-transactions?company_id=1",
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=10
-        )
-        print(f"  Status: {resp.status_code}")
-        if resp.status_code == 200:
-            data = resp.json()
-            transactions = data.get('data', {}).get('transactions', [])
-            if transactions:
-                # Check if usd_value is present in transactions
-                has_usd_value = all('usd_value' in tx for tx in transactions)
-                if has_usd_value:
-                    print(f"  ✅ PASS: {len(transactions)} transactions, all have usd_value")
-                    print(f"  Sample transaction: {json.dumps(transactions[0], indent=2)[:300]}")
-                    return True
-                else:
-                    print(f"  ❌ FAIL: Some transactions missing usd_value")
-                    return False
-            else:
-                print(f"  ⚠️  PASS (no transactions): Empty transactions array (expected for test account)")
-                return True
-        else:
-            print(f"  ❌ FAIL: Expected 200, got {resp.status_code}")
-            print(f"  Response: {resp.text[:500]}")
-            return False
-    except Exception as e:
-        print(f"  ❌ FAIL: Exception: {e}")
-        return False
-
-def test_kyc_webhook_no_auth():
-    """Step 6: POST /kyc/webhook with garbage/no signature headers → 401 (not 500/404)"""
-    print("\n[6/7] Testing POST /kyc/webhook (no auth headers)...")
-    try:
-        resp = requests.post(
-            f"{BASE_URL}/kyc/webhook",
-            json={"verification": {"id": "test"}},
-            headers={},  # No X-HMAC-SIGNATURE or X-AUTH-CLIENT
-            timeout=10
-        )
-        print(f"  Status: {resp.status_code}")
-        if resp.status_code == 401:
-            print(f"  ✅ PASS: Correctly rejected with 401 (not 500/404)")
-            print(f"  Response: {resp.text[:200]}")
-            return True
-        else:
-            print(f"  ❌ FAIL: Expected 401, got {resp.status_code}")
-            print(f"  Response: {resp.text[:500]}")
-            return False
-    except Exception as e:
-        print(f"  ❌ FAIL: Exception: {e}")
-        return False
-
-def test_verify_otp_invalid():
-    """Step 7: POST /user/registerEmail/verify-otp with invalid OTP → 400 (not 500)"""
-    print("\n[7/7] Testing POST /user/registerEmail/verify-otp (invalid OTP)...")
-    try:
-        import random
-        random_suffix = random.randint(10000, 99999)
-        fake_email = f"qa-donotcreate-{random_suffix}@example.com"
-        
-        resp = requests.post(
-            f"{BASE_URL}/user/registerEmail/verify-otp",
-            json={"email": fake_email, "otp": "000000"},
-            timeout=10
-        )
-        print(f"  Status: {resp.status_code}")
-        if resp.status_code == 400:
-            print(f"  ✅ PASS: Correctly rejected with 400 (not 500)")
-            print(f"  Response: {resp.text[:200]}")
-            return True
-        else:
-            print(f"  ❌ FAIL: Expected 400, got {resp.status_code}")
-            print(f"  Response: {resp.text[:500]}")
-            return False
-    except Exception as e:
-        print(f"  ❌ FAIL: Exception: {e}")
-        return False
-
-def main():
-    print("=" * 80)
-    print("REGRESSION TEST: Referral service refactor")
-    print("Testing maybeSendPostPaymentInvite extraction (no import cycle)")
-    print("BASE URL:", BASE_URL)
-    print("=" * 80)
+def test_r1_db_reads(token):
+    """R1 regression — DB reads healthy (Sequelize retry changes)"""
+    print_section("R1 REGRESSION — DB READS HEALTHY")
     
+    headers = {"Authorization": f"Bearer {token}"}
     results = []
     
-    # Step 1: Health check
-    results.append(("Health check", test_health()))
+    # Test 1: GET /api/dashboard/fee-tiers?company_id=1
+    print("\n[Test 1] GET /api/dashboard/fee-tiers?company_id=1")
+    try:
+        response = requests.get(f"{BASE_URL}/dashboard/fee-tiers?company_id=1", headers=headers, timeout=30)
+        status = response.status_code
+        print(f"  Status: {status}")
+        
+        if status == 200:
+            data = response.json()
+            print_test("Fee tiers endpoint", True, "200 OK")
+            results.append(("Fee tiers endpoint", True, status))
+        else:
+            print_test("Fee tiers endpoint", False, f"Expected 200, got {status}")
+            results.append(("Fee tiers endpoint", False, status))
+    except Exception as e:
+        print_test("Fee tiers endpoint", False, f"Exception: {str(e)}")
+        results.append(("Fee tiers endpoint", False, str(e)))
     
-    # Step 2: Login
-    token = test_login()
-    results.append(("Login", token is not None))
+    # Test 2: GET /api/dashboard/recent-transactions?company_id=1
+    print("\n[Test 2] GET /api/dashboard/recent-transactions?company_id=1")
+    try:
+        response = requests.get(f"{BASE_URL}/dashboard/recent-transactions?company_id=1", headers=headers, timeout=30)
+        status = response.status_code
+        print(f"  Status: {status}")
+        
+        if status == 200:
+            data = response.json()
+            transactions = data.get("data", {}).get("transactions", [])
+            print(f"  Transactions count: {len(transactions)}")
+            print_test("Recent transactions endpoint", True, f"200 OK, {len(transactions)} transactions")
+            results.append(("Recent transactions endpoint", True, status))
+        else:
+            print_test("Recent transactions endpoint", False, f"Expected 200, got {status}")
+            results.append(("Recent transactions endpoint", False, status))
+    except Exception as e:
+        print_test("Recent transactions endpoint", False, f"Exception: {str(e)}")
+        results.append(("Recent transactions endpoint", False, str(e)))
     
+    # Test 3: GET backend health directly (localhost:8001/health)
+    print("\n[Test 3] GET http://localhost:8001/health")
+    try:
+        response = requests.get(BACKEND_HEALTH_URL, timeout=10)
+        status = response.status_code
+        print(f"  Status: {status}")
+        
+        if status == 200:
+            data = response.json()
+            db_status = data.get("database")
+            redis_status = data.get("redis")
+            overall_status = data.get("status")
+            
+            print(f"  Overall status: {overall_status}")
+            print(f"  Database: {db_status}")
+            print(f"  Redis: {redis_status}")
+            
+            if overall_status == "healthy" and db_status == "connected" and redis_status == "connected":
+                print_test("Backend health check", True, "healthy, db+redis connected")
+                results.append(("Backend health check", True, status))
+            else:
+                print_test("Backend health check", False, f"Status: {overall_status}, DB: {db_status}, Redis: {redis_status}")
+                results.append(("Backend health check", False, f"{overall_status}/{db_status}/{redis_status}"))
+        else:
+            print_test("Backend health check", False, f"Expected 200, got {status}")
+            results.append(("Backend health check", False, status))
+    except Exception as e:
+        print_test("Backend health check", False, f"Exception: {str(e)}")
+        results.append(("Backend health check", False, str(e)))
+    
+    return results
+
+def test_a2_owner_regression(token):
+    """A2 owner regression — getFeeTiers returns owner's tier (Growth/1%/$28k), not Starter/$0"""
+    print_section("A2 OWNER REGRESSION — FEE TIER REMAP")
+    
+    headers = {"Authorization": f"Bearer {token}"}
+    results = []
+    
+    print("\n[Test 4] GET /api/dashboard/fee-tiers?company_id=1 (owner tier check)")
+    try:
+        response = requests.get(f"{BASE_URL}/dashboard/fee-tiers?company_id=1", headers=headers, timeout=30)
+        status = response.status_code
+        print(f"  Status: {status}")
+        
+        if status == 200:
+            data = response.json().get("data", {})
+            user_tier = data.get("user_tier", {})
+            
+            current_tier = user_tier.get("current_tier")
+            current_tier_percent = user_tier.get("current_tier_percent")
+            total_volume = user_tier.get("total_volume")
+            
+            print(f"  current_tier: {current_tier}")
+            print(f"  current_tier_percent: {current_tier_percent}")
+            print(f"  total_volume: {total_volume}")
+            
+            # Check if it's Growth tier with 1% and ~$28k volume (NOT Starter/$0)
+            is_growth = current_tier == "Growth"
+            is_one_percent = current_tier_percent == 1
+            is_high_volume = total_volume and float(total_volume) > 20000  # ~$28k, allow some variance
+            
+            if is_growth and is_one_percent and is_high_volume:
+                print_test("Owner sees Growth tier", True, f"Growth/1%/${total_volume} (NOT Starter/$0)")
+                results.append(("Owner sees Growth tier", True, f"{current_tier}/{current_tier_percent}%/${total_volume}"))
+            else:
+                print_test("Owner sees Growth tier", False, f"Expected Growth/1%/~$28k, got {current_tier}/{current_tier_percent}%/${total_volume}")
+                results.append(("Owner sees Growth tier", False, f"{current_tier}/{current_tier_percent}%/${total_volume}"))
+        else:
+            print_test("Owner sees Growth tier", False, f"Expected 200, got {status}")
+            results.append(("Owner sees Growth tier", False, status))
+    except Exception as e:
+        print_test("Owner sees Growth tier", False, f"Exception: {str(e)}")
+        results.append(("Owner sees Growth tier", False, str(e)))
+    
+    return results
+
+def test_a2_access_control(token):
+    """A2 access control — company_id=999999 (not owned) returns 403"""
+    print_section("A2 ACCESS CONTROL — NON-OWNED COMPANY")
+    
+    headers = {"Authorization": f"Bearer {token}"}
+    results = []
+    
+    print("\n[Test 5] GET /api/dashboard/fee-tiers?company_id=999999 (expect 403)")
+    try:
+        response = requests.get(f"{BASE_URL}/dashboard/fee-tiers?company_id=999999", headers=headers, timeout=30)
+        status = response.status_code
+        print(f"  Status: {status}")
+        
+        if status == 403:
+            print_test("Non-owned company blocked", True, "403 Forbidden as expected")
+            results.append(("Non-owned company blocked", True, status))
+        else:
+            print_test("Non-owned company blocked", False, f"Expected 403, got {status}")
+            results.append(("Non-owned company blocked", False, status))
+    except Exception as e:
+        print_test("Non-owned company blocked", False, f"Exception: {str(e)}")
+        results.append(("Non-owned company blocked", False, str(e)))
+    
+    return results
+
+def main():
+    print_section("DYNOPAY PHASE 1 BACKEND VERIFICATION")
+    print("READ-ONLY testing against LIVE PRODUCTION database (SAFE MODE)")
+    print(f"Base URL: {BASE_URL}")
+    print(f"Auth: {EMAIL}")
+    
+    # Step 1: Login
+    token = login()
     if not token:
-        print("\n❌ CRITICAL: Login failed, cannot continue with authenticated tests")
-        print_summary(results)
+        print("\n❌ CRITICAL: Authentication failed. Cannot proceed with tests.")
         sys.exit(1)
     
-    # Steps 3-5: Authenticated endpoints
-    results.append(("Referral my-code", test_referral_my_code(token)))
-    results.append(("Referral earnings", test_referral_earnings(token)))
-    results.append(("Dashboard transactions", test_dashboard_transactions(token)))
+    # Step 2: R1 regression tests (DB reads healthy)
+    r1_results = test_r1_db_reads(token)
     
-    # Steps 6-7: Public endpoints (security checks)
-    results.append(("KYC webhook (no auth)", test_kyc_webhook_no_auth()))
-    results.append(("Verify OTP (invalid)", test_verify_otp_invalid()))
+    # Step 3: A2 owner regression (fee tier remap)
+    a2_owner_results = test_a2_owner_regression(token)
     
-    print_summary(results)
+    # Step 4: A2 access control (403 for non-owned company)
+    a2_access_results = test_a2_access_control(token)
     
-    # Exit with appropriate code
-    passed = sum(1 for _, result in results if result)
-    total = len(results)
-    sys.exit(0 if passed == total else 1)
-
-def print_summary(results):
-    print("\n" + "=" * 80)
-    print("SUMMARY")
-    print("=" * 80)
-    passed = sum(1 for _, result in results if result)
-    total = len(results)
+    # Summary
+    all_results = r1_results + a2_owner_results + a2_access_results
+    passed = sum(1 for _, result, _ in all_results if result)
+    total = len(all_results)
     
-    for name, result in results:
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{status}: {name}")
+    print_section("SUMMARY")
+    print(f"Total tests: {total}")
+    print(f"Passed: {passed}")
+    print(f"Failed: {total - passed}")
+    print(f"Success rate: {(passed/total)*100:.1f}%")
     
-    print("-" * 80)
-    print(f"TOTAL: {passed}/{total} tests passed ({100*passed//total}%)")
+    print("\nDetailed results:")
+    for test_name, result, details in all_results:
+        status = "✅" if result else "❌"
+        print(f"  {status} {test_name}: {details}")
     
+    print("\n" + "="*80)
     if passed == total:
-        print("\n✅ ALL TESTS PASSED - No regression detected after refactor")
+        print("✅ ALL TESTS PASSED — Phase 1 backend verification SUCCESSFUL")
     else:
-        print(f"\n❌ {total - passed} test(s) failed - Regression detected")
-    print("=" * 80)
+        print(f"❌ {total - passed} TEST(S) FAILED — Phase 1 backend verification INCOMPLETE")
+    print("="*80)
+    
+    return 0 if passed == total else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

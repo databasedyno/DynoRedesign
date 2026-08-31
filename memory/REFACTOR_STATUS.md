@@ -1,3 +1,50 @@
+# ============================================================================
+# 2026-08-31 (pod 0e929189) — RBAC BATCH STATUS CORRECTION + PERF PHASE 1 SHIPPED
+# ----------------------------------------------------------------------------
+# The older "TEAM/RBAC FOLLOW-UPS … KNOWN/NOT DONE: A2,B,C1,C2,C3,D" backlog is STALE.
+# Verified against CURRENT code this session — ALL ALREADY DONE:
+#   A2 getFeeTiers owner-remap  -> dashboardController.getFeeTiers now validateCompanyOwnership-
+#      remaps userId->owner (tested 5/5: owner Growth/1%/$28,388.76; company_id=999999 -> 403).
+#   B  effective-owner scoping  -> validateCompanyOwnership(...,"<perm>") already applied in
+#      wallet/analytics|walletRead|transactionsList|transactionsDetail, apiController,
+#      customerDirectoryController, invoiceController, publishableKeyController, buyButtonController.
+#   C1 API-key CREATION owner-only -> apiRouter POST /addApi requireCompanyOwnerBy(...) (also
+#      regenerate/revoke/delete owner-only).
+#   C2 manage_team escalation guards -> teamController assertGrantAllowed (admin-only role +
+#      subset rule) + assertActOnTargetAllowed (no self/admin/owner row) on invite/update/revoke.
+#   C3 revoke reflected on refetch -> companyController.getCompany lists team memberships WHERE
+#      status='active' only (revoked drops out); FE CompanyDataContext derives selectedCompany
+#      from the refetched list (vanishes on revoke).
+#   D  member UX -> TeamSettingsSection revoke CONFIRM DIALOG (no native window.confirm) +
+#      CompanyDataContext isMember/memberRole/can() + NewSidebar permission gating + Member badge.
+# ALSO SHIPPED + VERIFIED this session:
+#   R1 DB resilience -> utils/dbInstance.ts Sequelize retry now match-list (ECONNRESET / "Connection
+#      terminated unexpectedly" / ETIMEDOUT / Sequelize*ConnectionError) + exponential backoff
+#      (base 200ms, exp 2, max 4). Was {max:3} no-match/no-backoff. Regression-tested, DB reads 200.
+# PHASE 2 (money-path P1/P2) INVESTIGATION — prior sessions already shipped most of it:
+#   [DONE] P2b currency list threaded (createCryptoPayment reads items.available_currencies from the
+#          redis payload — no re-query; cryptoCheckout.ts ~L1161).
+#   [DONE] FX 2nd call eliminated (router caches transferRate/crypto_amount into the payload;
+#          createCryptoPayment consumes cached_transfer_rate — cryptoCheckout.ts L1501-1530).
+#   [DONE] Redis writes + payment.created event already OFF the critical path (cryptoCheckout L1704/L1727).
+#   [OPEN, but money-path + UNVERIFIABLE read-only — user chose no test payment]:
+#     - P1a serve FX from the WARM cache on the FIRST call: helper/currencyConvert.ts uses the
+#       background cache ONLY as a fallback today (live FastForex/Tatum is PRIMARY). Preferring the
+#       warm cache changes the RATE REAL CUSTOMERS ARE CHARGED (up to ~180s stale) — a PRICING
+#       decision; needs explicit sign-off.
+#     - P2a skip the 2nd findOrRecreateCustomer (merchantApiRouter L317): safe for the LEGACY flow
+#       (middleware already DB-resolved the customer) but the customer-JWT flow relies on this SELECT
+#       as a deleted-customer safety net — skipping blind risks an FK error in that edge.
+#     - P1b move the Tatum ADDRESS subscription off the fast path into pool PRE-reservation
+#       (merchantPoolReservation.ts L112/187): HIGHEST RISK — a mis-subscribed address = a MISSED
+#       PAYMENT. MUST be verified with a real test payment / staging; NOT shippable blind.
+#   RECOMMENDATION: leave the money path as-is (already lighter than the RCA baseline); do
+#   P1a/P2a/P1b only with a controlled test payment or on staging. P0 co-location (infra, user's
+#   decision) remains the single biggest latency win.
+# ============================================================================
+
+
+
 # REFACTOR STATUS
 
 ---

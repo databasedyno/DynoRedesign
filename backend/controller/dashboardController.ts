@@ -702,6 +702,17 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
     const { company_id } = req.query;
     let userId = userData.user_id;
 
+    // RBAC (A2): if a company is specified, validate access and remap to the
+    // company OWNER's user_id so an active team member sees the OWNER's real
+    // fee tier / cumulative volume (no-op for owners; 403 if not permitted).
+    // Mirrors getDashboard / getChartData above — without this a member's own
+    // (empty) volume yields $0 / Starter.
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userId);
+      if (!companyData) return; // 403 already sent
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
+
     // Check Redis cache first (5 min TTL — tiers change infrequently)
     const cacheKey = `feeTiers:${userId}:${company_id || 'all'}:v2settled`;
     const cached = await getRedisItem(cacheKey);
