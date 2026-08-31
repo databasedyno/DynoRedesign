@@ -2496,7 +2496,7 @@ export const setCustomerEmail = async (
   res: express.Response
 ) => {
   try {
-    const { data, email } = req.body || {};
+    const { data, email, payment_id } = req.body || {};
     if (!data || typeof data !== "string") {
       return errorResponseHelper(res, 400, "Missing payment reference.");
     }
@@ -2513,16 +2513,63 @@ export const setCustomerEmail = async (
 
     // The checkout session that settlement reads for the receipt recipient is
     // stored in Redis under `customer-<ref>` (see cryptoCheckout.getData). Merge
-    // the buyer's email into it so the receipt has somewhere to go. Settlement
-    // (chainVerification) then attaches the payment to a REAL customer row keyed
-    // on (company_id, email) so the post-payment referral invite cron can reach
-    // this payer.
+    // the buyer's email into it so the receipt has somewhere to go.
     const key = "customer-" + data;
     const item = (await getRedisItem(key)) as Record<string, any> | null;
     if (!item) {
       return errorResponseHelper(res, 404, "Payment session not found or expired.");
     }
     await setRedisItem(key, { ...item, email: raw });
+
+    // Feed the referral engine with this real payer email — this endpoint is the
+    // SINGLE point every hosted-checkout path calls, so it covers them all, at
+    // BOTH timings:
+    //   • BEFORE settlement → chainVerification reads this Redis email and records
+    //     the transaction against a real customer (see settlement change).
+    //   • AFTER settlement (the success-screen "leave your email" catch) → the
+    //     transaction already exists with customer_id = NULL, so we link it here
+    //     using the payment id the client passes (falls back to the session).
+    // The invite cron (referralRewardMonitor) then reaches this payer, with its
+    // own dedup (skip existing accounts / already-invited / unsubscribed).
+    // Best-effort — a failure must NEVER block saving the receipt email.
+    try {
+      const companyId = Number(item.company_id);
+      if (companyId && !item.customer_id) {
+        const { findOrCreateEmailCustomer } = await import(
+          "../../middleware/legacy/customerResolver"
+        );
+        const realCustomer = await findOrCreateEmailCustomer(
+          companyId,
+          raw,
+          typeof item.customer_name === "string" ? item.customer_name : null,
+          String(item.base_currency || "USD")
+        );
+        const settledPaymentId = String(
+          payment_id || item.payment_id || item.unique_tx_id || item.current_payment_id || ""
+        ).trim();
+        if (realCustomer?.customer_id && settledPaymentId) {
+          // Only fill an UNASSIGNED transaction for THIS payment + company —
+          // never reassign a payment that already belongs to a customer.
+          await sequelize.query(
+            `UPDATE tbl_customer_transaction
+                SET customer_id = :cid, "updatedAt" = NOW()
+              WHERE unique_tx_id = :pid
+                AND company_id = :company
+                AND customer_id IS NULL`,
+            {
+              replacements: { cid: realCustomer.customer_id, pid: settledPaymentId, company: companyId },
+              type: QueryTypes.UPDATE,
+            }
+          );
+          apiLogger.info(
+            `[setCustomerEmail] referral: linked payment ${settledPaymentId.slice(0, 8)}… to customer ${realCustomer.customer_id} (company ${companyId}) if unassigned`
+          );
+        }
+      }
+    } catch (e) {
+      apiLogger.warn(`[setCustomerEmail] referral capture failed: ${(e as Error).message}`);
+    }
+
     apiLogger.info(`[setCustomerEmail] receipt email attached to session ${String(data).slice(0, 10)}…`);
     return successResponseHelper(res, 200, "Receipt email saved.", { saved: true });
   } catch (e) {

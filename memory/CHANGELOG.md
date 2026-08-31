@@ -1257,3 +1257,43 @@ Creator InlineTipCheckout, and the /pay/demo page (the tip + demo callers use th
 Verified: /pay/demo + /pay compile 200, no console errors; rendered HTML contains the field, the
 input, and the accent tint CSS (4338ca). Note: the automation screenshot tool renders this MUI app
 blank in headless (affects all pages, not this change) — verified via compiled output + HTML grep.
+
+
+# SUCCESS-SCREEN EMAIL CATCH — capture email post-payment for referral (2026-08-31, pod 5f684f1a)
+
+Directive: on the "payment confirmed" screen, gently ask for an email if the payer left none —
+"ensure it's applicable to ALL payment paths."
+
+Frontend (both real Dynopay-hosted success screens):
+- CleanCheckoutV2 (main hosted checkout: payment links + API checkout + storefront) and
+  Creator InlineTipCheckout (tips/coffee/support). On phase === 'confirmed', if no email was
+  captured during checkout, render the (now brand-tinted) ReceiptEmailField with success copy
+  ("Want a copy of your receipt?"); once saved it collapses to a "Receipt is on its way" line.
+  InlineTip gates on its existing collectReceiptEmail flag. testids:
+  clean-checkout-success-email-catch / -saved, inline-tip-success-email-catch / -saved.
+- Both now capture the payment id (r.transaction_id) from the addPayment response into a
+  paymentIdRef and pass it as payment_id to /pay/setCustomerEmail.
+
+Backend (single central point every path calls — controller/payment/paymentLinkController.ts
+setCustomerEmail): now accepts an optional payment_id and, best-effort:
+  1. saves the email to the Redis session (receipt — unchanged);
+  2. creates/finds a REAL customer keyed on (company_id, email) via findOrCreateEmailCustomer;
+  3. UPDATEs the settled transaction (unique_tx_id = payment_id AND company_id AND customer_id IS
+     NULL) to point at that real customer — so the daily invite cron (which JOINs
+     tbl_customer on t.customer_id) can reach a post-settlement payer.
+Guarded (only fills UNASSIGNED rows for this exact payment+company) and wrapped in try/catch so it
+NEVER blocks saving the receipt email. Pre-settlement capture is still handled by the earlier
+chainVerification change (settlement reads the Redis email and records a real customer).
+
+Why payment_id from the client: tbl_customer_transaction has no address column; the only durable
+link is unique_tx_id (= payment_id). The customer-<ref> Redis session doesn't reliably carry it
+post-settlement, but the frontend always has transaction_id from create-payment.
+
+Scope: Elements / Buy-Button public embeds only create synthetic buyer emails
+(pk-buyer-/elements-buyer-@dynopay.internal) — no real email captured, nothing to route.
+
+Verified: backend gate OK + tsc 0 errors; FULL frontend tsc 0 errors; backend boots + listens;
+/pay/demo 200. NOT E2E-tested: SAFE MODE (background jobs off, outbound email disabled, no real
+crypto settlements) and step 2/3 write to the LIVE prod DB by design (avoided polluting prod with
+test rows). Needs a real hosted-checkout payment where the payer adds an email ONLY on the success
+screen to confirm the post-settlement link + invite end-to-end.

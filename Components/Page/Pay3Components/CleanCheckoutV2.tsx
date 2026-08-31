@@ -485,6 +485,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       crypto_base: info.symbol,
       network: info.network,
     })
+    // Keep this payment id so a post-settlement email catch (success screen) can
+    // be linked to THIS transaction for the referral invite.
+    paymentIdRef.current = String(r.transaction_id || '')
     const timerMins: number =
       Number(r.remaining_minutes) || Number(r.expires_in_minutes) || Number(r.expiration_minutes) || 30
     setTimeLeft(timerMins * 60)
@@ -611,12 +614,16 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   }, [d, meta_])
 
   // ─── Save the optional receipt email (best-effort, non-blocking) ──
+  // paymentIdRef lets the success-screen "leave your email" catch feed the
+  // referral engine even AFTER settlement — the backend links this payment id to
+  // a real customer row so the post-payment invite cron can reach the payer.
+  const paymentIdRef = useRef<string>('')
   const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
   const emailInvalid = receiptEmail.trim().length > 0 && !emailValid(receiptEmail)
   const saveReceiptEmail = useCallback(async () => {
     const v = receiptEmail.trim().toLowerCase()
     if (!v || !emailValid(v) || !meta_?.token) return
-    const r = await api('/pay/setCustomerEmail', { data: d, email: v }, meta_.token)
+    const r = await api('/pay/setCustomerEmail', { data: d, email: v, payment_id: paymentIdRef.current || undefined }, meta_.token)
     if (r.ok && mountedRef.current) setEmailSaved(true)
   }, [receiptEmail, d, meta_])
 
@@ -867,6 +874,34 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             </Typography>
           )}
         </Box>
+
+        {/* Success-screen email catch — capture an email for the receipt AND the
+            referral invite when the payer didn't leave one during checkout. */}
+        {emailSaved ? (
+          <Box sx={{ mt: 1.5, mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75 }} data-testid="clean-checkout-success-email-saved">
+            <Icon icon="mdi:check-circle" width={16} color={LIME} />
+            <Typography sx={{ fontSize: 12.5, color: muted }}>
+              {t('checkout.receiptEmail.savedShort', { defaultValue: 'Receipt is on its way to your inbox.' })}
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ mt: 1.5 }} data-testid="clean-checkout-success-email-catch">
+            <ReceiptEmailField
+              value={receiptEmail}
+              onChange={(v) => { setReceiptEmail(v); setEmailSaved(false) }}
+              onSave={saveReceiptEmail}
+              saved={emailSaved}
+              invalid={emailInvalid}
+              label={t('checkout.receiptEmail.successLabel', { defaultValue: 'Want a copy of your receipt?' })}
+              helper={t('checkout.receiptEmail.successHelper', { defaultValue: "Add your email and we'll send your receipt — no account needed." })}
+              savedLabel={t('checkout.receiptEmail.saved', { defaultValue: 'Receipt will be sent to this email.' })}
+              invalidLabel={t('checkout.receiptEmail.invalid', { defaultValue: 'Enter a valid email address.' })}
+              muted={muted}
+              border={border}
+              accent={LIME}
+            />
+          </Box>
+        )}
 
         {/* ── Share card — turn a happy buyer/contributor into a promoter ── */}
         <Box

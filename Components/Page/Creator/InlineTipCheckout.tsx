@@ -221,10 +221,13 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   // Save the optional receipt email (best-effort, non-blocking).
   const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
   const emailInvalid = receiptEmail.trim().length > 0 && !emailValid(receiptEmail)
+  // paymentIdRef lets the success-screen email catch feed the referral engine
+  // post-settlement (backend links this payment id to a real customer row).
+  const paymentIdRef = useRef<string>('')
   const saveReceiptEmail = useCallback(async () => {
     const v = receiptEmail.trim().toLowerCase()
     if (!v || !emailValid(v) || !meta_?.token) return
-    const r = await api('/pay/setCustomerEmail', { data: d, email: v }, meta_.token)
+    const r = await api('/pay/setCustomerEmail', { data: d, email: v, payment_id: paymentIdRef.current || undefined }, meta_.token)
     if (r.ok) setEmailSaved(true)
   }, [receiptEmail, d, meta_])
 
@@ -386,6 +389,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
         crypto_base: info.symbol,
         network: info.network || '',
       })
+      paymentIdRef.current = String(r.transaction_id || '')
       const timerMins: number =
         Number(r.remaining_minutes) || Number(r.expires_in_minutes) || Number(r.expiration_minutes) || 30
       setTimeLeft(timerMins * 60)
@@ -1058,6 +1062,36 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             })}
           </Typography>
         </Box>
+
+        {/* Success-screen email catch — capture an email for the receipt AND the
+            referral invite when the supporter didn't leave one during checkout. */}
+        {collectReceiptEmail && (
+          emailSaved ? (
+            <Box sx={{ mt: 1.75, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75 }} data-testid="inline-tip-success-email-saved">
+              <Icon icon="mdi:check-circle" width={16} color={LIME} />
+              <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary }}>
+                {t('checkout.receiptEmail.savedShort', { defaultValue: 'Receipt is on its way to your inbox.' })}
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ mt: 1.75 }} data-testid="inline-tip-success-email-catch">
+              <ReceiptEmailField
+                value={receiptEmail}
+                onChange={(v) => { setReceiptEmail(v); setEmailSaved(false) }}
+                onSave={saveReceiptEmail}
+                saved={emailSaved}
+                invalid={emailInvalid}
+                label={t('checkout.receiptEmail.successLabel', { defaultValue: 'Want a copy of your receipt?' })}
+                helper={t('checkout.receiptEmail.successHelper', { defaultValue: "Add your email and we'll send your receipt — no account needed." })}
+                savedLabel={t('checkout.receiptEmail.saved', { defaultValue: 'Receipt will be sent to this email.' })}
+                invalidLabel={t('checkout.receiptEmail.invalid', { defaultValue: 'Enter a valid email address.' })}
+                muted={theme.palette.text.secondary}
+                border={border}
+                accent={LIME}
+              />
+            </Box>
+          )
+        )}
 
         {showDonorMsg && (
           <Box
