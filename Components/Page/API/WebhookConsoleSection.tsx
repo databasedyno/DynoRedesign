@@ -141,6 +141,16 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   const [savingUrl, setSavingUrl] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [sendingTest, setSendingTest] = useState(false);
+  const [reenabling, setReenabling] = useState(false);
+
+  // Circuit-breaker state: the backend auto-disables webhook delivery after
+  // repeated endpoint failures (see utils/webhookRetry.ts). Surface it here so
+  // the merchant can see WHY delivery stopped and re-enable it in one click.
+  const [disabledInfo, setDisabledInfo] = useState<{ disabled: boolean; at: string | null; reason: string | null }>({
+    disabled: false,
+    at: null,
+    reason: null,
+  });
 
   // Opt-in event subscriptions (backend: tbl_company.webhook_events).
   // Core payment updates are always delivered and are not listed here.
@@ -182,6 +192,11 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
         const subscribed = Array.isArray(d.webhook_events) ? d.webhook_events : [];
         setEvents(subscribed);
         setSavedEvents(subscribed);
+        setDisabledInfo({
+          disabled: !!d.webhook_disabled,
+          at: d.webhook_disabled_at ?? null,
+          reason: d.webhook_disabled_reason ?? null,
+        });
       }
     } catch {
       /* non-fatal */
@@ -251,8 +266,22 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     }
   };
 
-  const regenerateSecret = async () => {
+  const reenableWebhook = async () => {
     if (!companyId) return;
+    setReenabling(true);
+    try {
+      await axiosBaseApi.post(API_ENDPOINTS.company.webhookReenable(companyId));
+      setDisabledInfo({ disabled: false, at: null, reason: null });
+      toast("Webhook delivery re-enabled");
+      loadSettings();
+    } catch {
+      toast("Failed to re-enable webhook delivery", "error");
+    } finally {
+      setReenabling(false);
+    }
+  };
+
+  const regenerateSecret = async () => {    if (!companyId) return;
     setRegenerating(true);
     try {
       const res = await axiosBaseApi.put(API_ENDPOINTS.company.webhookSettings(companyId), { webhook_secret: "generate" });
@@ -379,6 +408,52 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
           </Typography>
         ) : (
           <Box data-testid="webhook-console">
+            {disabledInfo.disabled && (
+              <Box
+                data-testid="webhook-disabled-banner"
+                sx={{
+                  mb: 2, p: 1.75, borderRadius: 2,
+                  bgcolor: "rgba(220,38,38,0.10)",
+                  border: "1px solid rgba(220,38,38,0.35)",
+                  display: "flex", gap: 1.5, alignItems: "flex-start",
+                  flexDirection: isMobile ? "column" : "row",
+                }}
+              >
+                <Icon name="circle-alert" size={20} color="#DC2626" style={{ flexShrink: 0, marginTop: 2 }} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#DC2626" }}>
+                    Webhook delivery is turned off
+                  </Typography>
+                  <Typography sx={{ fontSize: 12.5, color: t.primary, mt: 0.5 }}>
+                    We stopped sending events because your endpoint repeatedly failed to respond
+                    {disabledInfo.at ? ` (since ${fmtTime(disabledInfo.at)})` : ""}. Fix or update your
+                    endpoint URL {showSettings ? "above" : "in the Webhooks tab"}, then re-enable delivery.
+                  </Typography>
+                  {disabledInfo.reason && (
+                    <Typography
+                      data-testid="webhook-disabled-reason"
+                      sx={{ fontSize: 11.5, color: t.secondary, mt: 0.5, fontFamily: "monospace", wordBreak: "break-word" }}
+                    >
+                      {disabledInfo.reason}
+                    </Typography>
+                  )}
+                </Box>
+                <Button
+                  variant="contained"
+                  onClick={reenableWebhook}
+                  disabled={reenabling}
+                  data-testid="webhook-reenable-btn"
+                  startIcon={reenabling ? <CircularProgress size={14} color="inherit" /> : <Icon name="refresh-cw" size={18} />}
+                  sx={{
+                    textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap", flexShrink: 0,
+                    bgcolor: "#DC2626", "&:hover": { bgcolor: "#B91C1C" },
+                    alignSelf: isMobile ? "stretch" : "flex-start",
+                  }}
+                >
+                  {reenabling ? "Re-enabling…" : "Re-enable"}
+                </Button>
+              </Box>
+            )}
             {showSettings && (
               <>
             {/* Endpoint URL */}

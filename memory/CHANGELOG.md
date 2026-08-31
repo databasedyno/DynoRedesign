@@ -1,3 +1,25 @@
+# SESSION 2026-08-31 (fork, pod 0e5cc9c0) — Webhook auto-disable RECOVERY UI (fixes DO-log anomaly) — SAFE MODE, prod DB
+CONTEXT: The prior DO-log investigation found payment 6bfc858b (company_id=1 Hostbay) settled fully, but the merchant's
+webhook.site endpoint 404'd → backend auto-disabled webhook delivery (tbl_company.webhook_disabled=TRUE, reason
+"Auto-disabled: 5 consecutive HTTP 404 responses from https://webhook.site/6669491e..."). The backend circuit-breaker
+(utils/webhookRetry.ts) + the 404-counter disable path + the re-enable endpoint (POST /company/webhook-reenable/:id,
+which clears the DB flag AND the Redis webhook-404-failures/webhook-disabled/webhook:cb keys) were ALL already built and
+GET /company/webhook-settings/:id already returns webhook_disabled/_at/_reason — but the FRONTEND never surfaced any of
+it, so an auto-disabled merchant had no in-app way to notice or recover. THE ANOMALY = a missing recovery UI.
+
+FIX (frontend-only, no prod writes, no schema/API changes):
+- api/endpoints.ts: added company.webhookReenable(companyId) -> POST /company/webhook-reenable/${id}.
+- Components/Page/API/WebhookConsoleSection.tsx: loadSettings() now captures webhook_disabled/_at/_reason into new
+  disabledInfo state; added reenableWebhook() handler (POST reenable → clears banner → toast → reload); rendered a red
+  "Webhook delivery is turned off" banner at the top of the console (shows in both Webhooks + Events views) with the
+  disable timestamp, the monospace reason string, and a red "Re-enable" button (data-testid webhook-disabled-banner /
+  webhook-disabled-reason / webhook-reenable-btn).
+VERIFIED: tsc --noEmit clean; POST reenable w/o auth → 403 CSRF (route mounted + protected); GET webhook-settings/1
+returns webhook_disabled=true + reason; real-browser screenshot (logged in as Hostbay) shows the banner rendering with
+the live 404 reason + working Re-enable button. Did NOT click Re-enable / no prod write — the webhook.site URL is still
+dead, so re-enabling before the merchant fixes the URL would just re-trip. Banner instructs fix-URL-then-re-enable.
+
+
 # SESSION 2026-06 (fork, pod eddcc06a) — SHIPPED 10 perf optimizations (B1-B4, F1-F6) — SAFE MODE, prod DB
 CONTEXT: Implemented the 10 user-approved fixes from PERF_ANALYSIS_2026-06_FULLSTACK.md. Prod Railway DB, SAFE MODE
 (ENABLE_BACKGROUND_JOBS=false, DISABLE_OUTBOUND_EMAIL=true, Redis index 1) untouched. No money-math changed.
