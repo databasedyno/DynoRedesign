@@ -19,6 +19,33 @@ const TATUM_API_URL = TATUM_V3_URL;
 // Cache duration for fees (5 minutes)
 const FEE_CACHE_DURATION = 5 * 60; // seconds
 
+// Extract a human-readable cause from any thrown error. For axios/HTTP errors
+// this surfaces the status code + response body (the ACTUAL reason, e.g. Tatum
+// "HTTP 400 validation.failed: chain must be one of ETH,BTC,LTC,DOGE"). The
+// winston loggers used here have no `format.splat()`, so a second logger
+// argument is silently dropped — we therefore interpolate the cause directly
+// into the message string so it always renders.
+const describeError = (error: unknown): string => {
+  const e = error as {
+    response?: { status?: number; statusText?: string; data?: unknown };
+    code?: string;
+    message?: string;
+  };
+  if (e && e.response) {
+    let body: string;
+    try {
+      body = typeof e.response.data === 'string'
+        ? e.response.data
+        : JSON.stringify(e.response.data);
+    } catch {
+      body = '[unserializable body]';
+    }
+    return `HTTP ${e.response.status ?? '?'} ${e.response.statusText ?? ''} ${String(body).slice(0, 400)}`.trim();
+  }
+  if (e && e.code) return `${e.code}: ${e.message ?? ''}`.trim();
+  return e?.message || String(error);
+};
+
 // Average transaction sizes (in bytes) for UTXO chains
 const TX_SIZES = {
   BTC: 250,   // ~250 bytes for typical P2PKH transaction
@@ -107,8 +134,7 @@ const fetchTatumFee = async (chain: string): Promise<unknown> => {
     );
     return response.data;
   } catch (error: unknown) {
-    const err = error as { message?: string };
-    cronLogger.error(`[BlockchainFeeService] Error fetching ${chain} fee:`, err.message);
+    cronLogger.error(`[BlockchainFeeService] Error fetching ${chain} fee: ${describeError(error)}`);
     throw error;
   }
 };
@@ -128,8 +154,7 @@ const fetchTronFee = async (): Promise<unknown> => {
       defaultBandwidthFree: 600,
     };
   } catch (error: unknown) {
-    const err = error as { message?: string };
-    cronLogger.warn('[BlockchainFeeService] tronEnergyService failed, trying Tatum API:', err.message);
+    cronLogger.warn(`[BlockchainFeeService] tronEnergyService failed, trying Tatum API: ${describeError(error)}`);
     
     // Fallback to Tatum API
     const tatumKey = getTatumKey();
@@ -145,8 +170,7 @@ const fetchTronFee = async (): Promise<unknown> => {
         chain: 'TRON',
       };
     } catch (tatumError: unknown) {
-      const tErr = tatumError as { message?: string };
-      cronLogger.error('[BlockchainFeeService] Error fetching TRON fee:', tErr.message);
+      cronLogger.error(`[BlockchainFeeService] Error fetching TRON fee: ${describeError(tatumError)}`);
       // Post Proposal #104 fallback: 100 SUN/energy (was 420)
       return {
         chain: 'TRON',
@@ -481,8 +505,7 @@ const computeAndCacheAllBlockchainFees = async (): Promise<Record<string, Blockc
       try {
         results[chain] = await getBlockchainNetworkFee(chain);
       } catch (error) {
-        const msg = (error as { message?: string })?.message || String(error);
-        cronLogger.error(`[BlockchainFeeService] Failed to get fee for ${chain}:`, msg);
+        cronLogger.error(`[BlockchainFeeService] Failed to get fee for ${chain}: ${describeError(error)}`);
       }
     })
   );

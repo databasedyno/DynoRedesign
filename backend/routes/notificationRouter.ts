@@ -82,7 +82,7 @@ notificationRouter.get("/types", notificationController.getNotificationTypes);
 // POST /api/notifications/trigger-weekly-summary - Manually trigger weekly summary (for testing)
 notificationRouter.post("/trigger-weekly-summary", async (req, res) => {
   try {
-    const results = await triggerWeeklySummary(req.body.user_id);
+    const results = await triggerWeeklySummary(req.body.user_id, { dryRun: req.body.dry_run === true || req.body.dryRun === true });
     return successResponseHelper(res, 200, "Weekly summary triggered", { results });
   } catch (e) {
     const message = getErrorMessage(e);

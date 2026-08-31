@@ -227,16 +227,30 @@ export const checkMissedPayments = async (): Promise<{
       // Process batch concurrently with per-address timeout
       await Promise.allSettled(batch.map(async (addr) => {
         const addrStartTime = Date.now();
-        return Promise.race([
-          processAddress(addr, result),
-          new Promise<void>((_, reject) =>
-            setTimeout(() => reject(new Error(`Timeout after ${PER_ADDRESS_TIMEOUT_MS}ms`)), PER_ADDRESS_TIMEOUT_MS)
-          ),
-        ]).catch((timeoutErr: Error) => {
-          const wa = addr.dataValues.wallet_address;
-          cronLogger.error(`[MerchantPool] ⏰ ${wa} — address processing timed out after ${Date.now() - addrStartTime}ms`);
-          result.errors.push(`Timeout for ${wa}: ${timeoutErr.message}`);
+        let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+        const timeoutGuard = new Promise<void>((_, reject) => {
+          timeoutHandle = setTimeout(
+            () => reject(new Error(`__ADDRESS_TIMEOUT__ after ${PER_ADDRESS_TIMEOUT_MS}ms`)),
+            PER_ADDRESS_TIMEOUT_MS
+          );
         });
+        return Promise.race([processAddress(addr, result), timeoutGuard])
+          .then(() => { if (timeoutHandle) clearTimeout(timeoutHandle); })
+          .catch((err: Error) => {
+            if (timeoutHandle) clearTimeout(timeoutHandle);
+            const wa = addr.dataValues.wallet_address;
+            const elapsed = Date.now() - addrStartTime;
+            const isTimeout = typeof err?.message === "string" && err.message.startsWith("__ADDRESS_TIMEOUT__");
+            if (isTimeout) {
+              cronLogger.error(`[MerchantPool] ⏰ ${wa} — address processing TIMED OUT after ${elapsed}ms (limit ${PER_ADDRESS_TIMEOUT_MS}ms)`);
+              result.errors.push(`Timeout for ${wa}: ${err.message}`);
+            } else {
+              // Not a timeout — a real processing error that was previously being
+              // mislabeled as "timed out". Surface the actual cause.
+              cronLogger.error(`[MerchantPool] ❌ ${wa} — address processing FAILED after ${elapsed}ms: ${err?.message || String(err)}`);
+              result.errors.push(`Error for ${wa}: ${err?.message || String(err)}`);
+            }
+          });
       }));
 
       // Rate limiting between batches

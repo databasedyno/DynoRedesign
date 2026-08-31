@@ -311,7 +311,24 @@ const handleVeriffWebhook = async (req: express.Request & { rawBody?: Buffer }, 
     const validSignature = veriffService.verifyWebhookRaw(raw, signature);
 
     if (!validClient || !validSignature) {
-      apiLogger.error("Invalid Veriff webhook auth", { validClient, validSignature });
+      // Rich, secret-safe diagnostics so a rejected webhook is actionable.
+      // The verification code itself is correct (raw body + HMAC-SHA256 +
+      // constant-time compare); a `validSignature:false` almost always means a
+      // wrong/placeholder VERIFF_API_SECRET (the "Shared secret key" from the
+      // Veriff dashboard) in the environment.
+      const veriffSecret = process.env.VERIFF_API_SECRET || "";
+      apiLogger.error("Invalid Veriff webhook auth", {
+        validClient,
+        validSignature,
+        authClientPresent: !!authClient,
+        signaturePresent: !!signature,
+        signatureLength: signature ? String(signature).length : 0,
+        signatureLooksHex: /^[0-9a-f]{64}$/i.test(String(signature || "")),
+        rawBodyCaptured: Buffer.isBuffer(req.rawBody),
+        contentType: req.headers["content-type"],
+        secretConfigured: !!veriffSecret,
+        secretIsPlaceholder: veriffSecret === "install-bundle",
+      });
       return errorResponseHelper(res, 401, "Invalid webhook signature");
     }
 

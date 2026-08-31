@@ -50,10 +50,11 @@ export const setupWeeklySummaryCron = () => {
               COALESCE(SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END), 0) as completed_count,
               COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_count,
               COALESCE(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END), 0) as failed_count,
-              (SELECT currency FROM tbl_user_transaction 
+              (SELECT crypto_currency FROM tbl_user_transaction 
                WHERE company_id = :companyId AND status = 'done'
+               AND crypto_currency IS NOT NULL AND crypto_currency <> ''
                AND "createdAt" >= :startDate AND "createdAt" <= :endDate
-               GROUP BY currency ORDER BY COUNT(*) DESC LIMIT 1) as top_currency
+               GROUP BY crypto_currency ORDER BY COUNT(*) DESC LIMIT 1) as top_currency
              FROM tbl_user_transaction 
              WHERE company_id = :companyId 
              AND "createdAt" >= :startDate
@@ -156,8 +157,9 @@ export const setupWeeklySummaryCron = () => {
 /**
  * Trigger weekly summary manually (for testing)
  */
-export const triggerWeeklySummary = async (userId?: number) => {
+export const triggerWeeklySummary = async (userId?: number, options?: { dryRun?: boolean }) => {
   try {
+    const dryRun = options?.dryRun === true;
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 7);
@@ -196,7 +198,12 @@ export const triggerWeeklySummary = async (userId?: number) => {
           COALESCE(SUM(CASE WHEN status = 'done' THEN base_amount ELSE 0 END), 0) as total_volume,
           COALESCE(SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END), 0) as completed_count,
           COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_count,
-          COALESCE(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END), 0) as failed_count
+          COALESCE(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END), 0) as failed_count,
+          (SELECT crypto_currency FROM tbl_user_transaction 
+           WHERE user_id = :userId AND status = 'done'
+           AND crypto_currency IS NOT NULL AND crypto_currency <> ''
+           AND "createdAt" >= :startDate AND "createdAt" <= :endDate
+           GROUP BY crypto_currency ORDER BY COUNT(*) DESC LIMIT 1) as top_currency
          FROM tbl_user_transaction 
          WHERE user_id = :userId 
          AND "createdAt" >= :startDate
@@ -220,6 +227,7 @@ export const triggerWeeklySummary = async (userId?: number) => {
         completed_count: string | number;
         pending_count: string | number;
         failed_count: string | number;
+        top_currency?: string;
       }
 
       const typedStats = stats as unknown as SummaryStats;
@@ -233,19 +241,25 @@ export const triggerWeeklySummary = async (userId?: number) => {
         completed_count: parseInt(String(typedStats.completed_count)),
         pending_count: parseInt(String(typedStats.pending_count)),
         failed_count: parseInt(String(typedStats.failed_count)),
+        top_currency: String(typedStats.top_currency || 'None'),
       };
 
-      const notification = await createNotification(
-        Number(user.user_id),
-        NOTIFICATION_TYPES.WEEKLY_SUMMARY,
-        "Your Weekly Summary",
-        `This week you had ${typedStats.transaction_count} transactions with a total volume of $${totalVolume.toFixed(2)}.`,
-        notificationData,
-        Number(user.company_id)
-      );
+      // dryRun (used by the test harness against the LIVE prod DB) validates the
+      // corrected summary query WITHOUT writing a notification row.
+      const notification = dryRun
+        ? null
+        : await createNotification(
+            Number(user.user_id),
+            NOTIFICATION_TYPES.WEEKLY_SUMMARY,
+            "Your Weekly Summary",
+            `This week you had ${typedStats.transaction_count} transactions with a total volume of $${totalVolume.toFixed(2)}.`,
+            notificationData,
+            Number(user.company_id)
+          );
 
       results.push({
         user_id: user.user_id,
+        dry_run: dryRun,
         notification,
         summary: notificationData,
       });

@@ -627,9 +627,9 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       : await checkSweepProfitability(walletType, actualBalance, feeData);
     
     if (!profitabilityResult.profitable) {
-      cronLogger.warn(`[MerchantPool] ⚠️ Sweep not profitable for ${poolAddress.dataValues.wallet_address}`);
-      cronLogger.warn(`[MerchantPool]    Balance: ${actualBalance} ${walletType} ($${profitabilityResult.balanceUSD?.toFixed(2)})`);
-      cronLogger.warn(`[MerchantPool]    Est. Fee: ${profitabilityResult.estimatedFee} ${walletType} ($${profitabilityResult.feeUSD?.toFixed(2)})`);
+      // Expected dust-handling (NOT an error): balance is below the profitable
+      // sweep threshold. Logged at INFO to avoid false-alarm noise/alerts.
+      cronLogger.info(`[MerchantPool] ⏭️ Sweep not profitable for ${poolAddress.dataValues.wallet_address} — balance ${actualBalance} ${walletType} ($${profitabilityResult.balanceUSD?.toFixed(2)}), est. fee ${profitabilityResult.estimatedFee} ${walletType} ($${profitabilityResult.feeUSD?.toFixed(2)}) — skipping (expected)`);
       
       // ─── DUST SWEEP DEFERRAL: Track consecutive unprofitable sweeps ───
       // ERC20 dust < $0.10: permanent write-off immediately (gas always >> balance).
@@ -677,7 +677,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
           // Defer: stop retrying for DEFERRAL_HOURS, then the counter resets and sweeping resumes
           const deferUntil = new Date(Date.now() + DEFERRAL_HOURS * 3600000).toISOString();
           await setRedisItemWithTTL(failCountKey, { count: failCount, deferredUntil: deferUntil }, DEFERRAL_HOURS * 3600);
-          cronLogger.warn(`[MerchantPool] ⏸️ SWEEP DEFERRED: ${poolAddress.dataValues.wallet_address} — $${(profitabilityResult.balanceUSD || 0).toFixed(2)} deferred after ${failCount} consecutive unprofitable sweeps. Will retry after ${deferUntil}`);
+          cronLogger.info(`[MerchantPool] ⏸️ SWEEP DEFERRED: ${poolAddress.dataValues.wallet_address} — $${(profitabilityResult.balanceUSD || 0).toFixed(2)} deferred after ${failCount} consecutive unprofitable sweeps. Will retry after ${deferUntil}`);
           
           // Keep admin_fee_balance intact (on-chain funds preserved), just release the lock
           await poolAddress.update({ status: "AVAILABLE" });
