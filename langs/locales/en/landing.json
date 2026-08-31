@@ -265,7 +265,8 @@
       "rewardBadge": "New here? We waive our <b>platform fee</b> on your first payment.",
       "getStarted": "Start free",
       "readDocs": "Read the docs",
-      "trustLine": "Non-custodial · 9 blockchains · Encrypted · GDPR / AML"
+      "trustLine": "Non-custodial · 9 blockchains · Encrypted · GDPR / AML",
+      "talkToSales": "Talk to sales"
     },
     "faq": {
       "eyebrow": "[ Answers ]",
@@ -377,7 +378,12 @@
       "youReceiveLabel": "You receive",
       "merchantNote": "You cover the fee, so the price your customer sees stays exactly $100.",
       "customerNote": "The fee is added on top — the customer covers it and you keep your full $100.",
-      "feeFootnote": "Example at the Starter rate with all per-payment fees included — see the Fees page for full pricing. Your rate drops to 0.5% as your volume grows."
+      "feeFootnote": "Example at the Starter rate with all per-payment fees included — see the Fees page for full pricing. Your rate drops to 0.5% as your volume grows.",
+      "value1": "First payment free",
+      "value2": "No monthly fees",
+      "value3": "No setup fees",
+      "value4": "Settle in stablecoin",
+      "tierLine": "Simple, usage-based pricing: from 1.5%, dropping to 0.5% as you grow — and your first payment is on us."
     },
     "coins": {
       "eyebrow": "[ Coins & tokens ]",
@@ -427,6 +433,88 @@
         "title": "Gaming",
         "desc": "Take global top-ups and in-game purchases with low, predictable fees."
       }
+    },
+    "pain": {
+      "eyebrow": "The old way is broken",
+      "headline": "Crypto payments shouldn't be this hard",
+      "body": "Volatile balances, custodial risk, chargeback fraud and bolted-on checkouts hold merchants back. DynoPay removes each one.",
+      "p1": "Prices swing before you can spend what you earned.",
+      "f1": "Auto-convert every payment to stablecoin the moment it settles.",
+      "p2": "A third party holds your funds — and can freeze them.",
+      "f2": "Non-custodial by design: crypto lands in your own wallet, never ours.",
+      "p3": "Card chargebacks claw back revenue months later.",
+      "f3": "On-chain payments are final — zero chargebacks, ever.",
+      "p4": "Integrations drag on and the checkout feels bolted-on.",
+      "f4": "A hosted checkout and clean REST API get you live in an afternoon."
+    },
+    "why": {
+      "eyebrow": "Why DynoPay",
+      "headline": "Built different where it counts",
+      "body": "We don't win on the lowest headline rate — we win on what actually protects your money and your time.",
+      "c1t": "Non-custodial by design",
+      "c1d": "Payments settle straight to your own wallet. We never hold or pool your crypto.",
+      "c2t": "Auto-convert to stablecoin",
+      "c2d": "Neutralize volatility automatically the instant a payment confirms.",
+      "c3t": "You choose who pays the fee",
+      "c3d": "Pass the network and processing fee to the customer, or absorb it — your call, per payment.",
+      "c4t": "One-click on-chain refunds",
+      "c4d": "Refund a customer in the original coin, straight from your dashboard.",
+      "c5t": "No monthly or setup fees",
+      "c5d": "Pay only when you get paid — and your very first payment is completely fee-free.",
+      "c6t": "Built for developers",
+      "c6d": "A clean REST API, sandbox keys and webhooks for every payment event. No SDK lock-in."
+    },
+    "developer": {
+      "eyebrow": "For developers",
+      "headline": "Go live in an afternoon",
+      "body": "A clean REST API, a hosted checkout, sandbox keys and webhooks for every payment event — with no SDK lock-in.",
+      "k1t": "Sandbox mode",
+      "k1d": "Every account ships with test keys (dpk_test_) to build and simulate payments — no real funds.",
+      "k2t": "Real-time webhooks",
+      "k2d": "Get notified the moment a payment is detected, confirmed and settled.",
+      "k3t": "Hosted checkout",
+      "k3d": "Drop in a payment link or embed — we handle coins, networks and QR codes.",
+      "k4t": "Non-custodial",
+      "k4d": "Funds settle to your wallet; you always keep control of your keys.",
+      "ctaDocs": "Read the API docs",
+      "ctaDemo": "See a live demo",
+      "terminalLabel": "Create a payment",
+      "snippetNote": "Simplified example — see the full API reference at /documentation."
+    },
+    "showcase": {
+      "eyebrow": "See it in action",
+      "headline": "The checkout your customers actually finish",
+      "body": "A clean, hosted checkout that handles coins, networks and QR codes — then confirms the moment the payment lands. This is the real thing, not a mockup.",
+      "cap1": "Hosted checkout",
+      "sub1": "Pick a coin, scan, pay — on any device.",
+      "cap2": "Instant confirmation",
+      "sub2": "Customers get a clear receipt the moment it settles."
+    },
+    "compare": {
+      "eyebrow": "Why us vs the alternatives",
+      "headline": "A fairer deal for accepting crypto",
+      "body": "How DynoPay stacks up against a typical crypto payment processor.",
+      "colDyno": "DynoPay",
+      "colOther": "Typical processor",
+      "note": "Comparison reflects common industry practice; specifics vary by provider.",
+      "r1f": "Fund custody",
+      "r1a": "Non-custodial — settles to your wallet",
+      "r1b": "Custodial — they hold your funds",
+      "r2f": "Volatility",
+      "r2a": "Auto-converts to stablecoin",
+      "r2b": "You're left holding the crypto",
+      "r3f": "Who pays the fee",
+      "r3a": "You choose, per payment",
+      "r3b": "Merchant, always",
+      "r4f": "Refunds",
+      "r4a": "One-click, on-chain",
+      "r4b": "Manual or unsupported",
+      "r5f": "Monthly & setup fees",
+      "r5a": "None",
+      "r5b": "Often charged",
+      "r6f": "First payment",
+      "r6a": "Free",
+      "r6b": "Charged from day one"
     }
   },
   "checkout": {

@@ -26,6 +26,11 @@ const LearnDocsCards = dynamic(() => import("./v3/LearnDocsCards"));
 const FAQCompact = dynamic(() => import("./v3/FAQCompact"));
 const ReferralCtaBandV3 = dynamic(() => import("./v3/ReferralCtaBandV3"));
 const FinalCTAAurora = dynamic(() => import("./v3/FinalCTAAurora"));
+const PainSolutionV3 = dynamic(() => import("./v3/PainSolutionV3"));
+const WhyDynoPayV3 = dynamic(() => import("./v3/WhyDynoPayV3"));
+const DeveloperBandV3 = dynamic(() => import("./v3/DeveloperBandV3"));
+const ProductShowcaseV3 = dynamic(() => import("./v3/ProductShowcaseV3"));
+const CompareV3 = dynamic(() => import("./v3/CompareV3"));
 
 /**
  * HomePage v3 — "Creator-first, cut in half" (2026-07-18).
@@ -73,15 +78,20 @@ const HomePage: FC = () => {
       <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
         <AudienceDoorsV3 />
       </Box>
+      <PainSolutionV3 />
       <SolutionsGridV3 />
       <Box id="features" component="div" sx={{ scrollMarginTop: "88px" }}>
         <ProductFeatureCards />
       </Box>
+      <ProductShowcaseV3 />
+      <WhyDynoPayV3 />
       <WaysToGetPaidV3 />
       <WhoPaysFeeV3 />
+      <CompareV3 />
       <CoinShowcaseV3 />
       <RefundsTrustV3 />
       <NumbersTrustBand />
+      <DeveloperBandV3 />
       <LearnDocsCards />
       <FAQCompact />
       <ReferralCtaBandV3 />

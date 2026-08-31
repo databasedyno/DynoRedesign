@@ -265,7 +265,8 @@
       "rewardBadge": "Neu hier? Wir erlassen unsere <b>Plattformgebühr</b> bei deiner ersten Zahlung.",
       "getStarted": "Kostenlos starten",
       "readDocs": "Docs lesen",
-      "trustLine": "Nicht verwahrend · 9 Blockchains · Verschlüsselt · DSGVO / AML"
+      "trustLine": "Nicht verwahrend · 9 Blockchains · Verschlüsselt · DSGVO / AML",
+      "talkToSales": "Vertrieb kontaktieren"
     },
     "faq": {
       "eyebrow": "[ Antworten ]",
@@ -377,7 +378,12 @@
       "youReceiveLabel": "Sie erhalten",
       "merchantNote": "Sie tragen die Gebühr, sodass der Preis für Ihren Kunden exakt $100 bleibt.",
       "customerNote": "Die Gebühr kommt oben drauf – der Kunde trägt sie und Sie behalten Ihre vollen $100.",
-      "feeFootnote": "Beispiel zum Starter-Satz, alle Gebühren pro Zahlung inklusive — alle Details auf der Gebührenseite. Ihr Satz sinkt mit dem Volumen auf 0,5 %."
+      "feeFootnote": "Beispiel zum Starter-Satz, alle Gebühren pro Zahlung inklusive — alle Details auf der Gebührenseite. Ihr Satz sinkt mit dem Volumen auf 0,5 %.",
+      "value1": "Erste Zahlung gratis",
+      "value2": "Keine monatlichen Gebühren",
+      "value3": "Keine Einrichtungsgebühren",
+      "value4": "Abwicklung in Stablecoin",
+      "tierLine": "Einfache, nutzungsbasierte Preise: ab 1,5 %, sinkend auf 0,5 % mit deinem Wachstum — und deine erste Zahlung geht auf uns."
     },
     "coins": {
       "eyebrow": "[ Coins & Tokens ]",
@@ -427,6 +433,88 @@
         "title": "Gaming",
         "desc": "Nehmen Sie weltweite Aufladungen und In-Game-Käufe mit niedrigen, planbaren Gebühren an."
       }
+    },
+    "pain": {
+      "eyebrow": "Der alte Weg ist kaputt",
+      "headline": "Krypto-Zahlungen sollten nicht so schwer sein",
+      "body": "Schwankende Guthaben, Verwahrungsrisiko durch Dritte, Chargeback-Betrug und ein aufgesetzter Checkout bremsen Händler aus. DynoPay beseitigt jedes dieser Probleme.",
+      "p1": "Kurse schwanken, bevor du ausgeben kannst, was du verdient hast.",
+      "f1": "Wandle jede Zahlung automatisch in einen Stablecoin um, sobald sie abgewickelt ist.",
+      "p2": "Ein Dritter verwahrt dein Geld — und kann es einfrieren.",
+      "f2": "Non-custodial by design: Krypto landet in deiner eigenen Wallet, nie in unserer.",
+      "p3": "Kartenrückbuchungen holen sich deinen Umsatz Monate später zurück.",
+      "f3": "On-Chain-Zahlungen sind endgültig — null Chargebacks, garantiert.",
+      "p4": "Integrationen ziehen sich hin und der Checkout wirkt aufgesetzt.",
+      "f4": "Ein gehosteter Checkout und eine saubere REST-API bringen dich an einem Nachmittag live."
+    },
+    "why": {
+      "eyebrow": "Warum DynoPay",
+      "headline": "Anders, wo es zählt",
+      "body": "Wir gewinnen nicht mit dem niedrigsten Schaufenster-Tarif — wir gewinnen mit dem, was dein Geld und deine Zeit wirklich schützt.",
+      "c1t": "Non-custodial by design",
+      "c1d": "Zahlungen landen direkt in deiner eigenen Wallet. Wir halten deine Krypto nie.",
+      "c2t": "Auto-Umwandlung in Stablecoin",
+      "c2d": "Neutralisiere Volatilität automatisch, sobald eine Zahlung bestätigt ist.",
+      "c3t": "Du entscheidest, wer die Gebühr zahlt",
+      "c3d": "Gib Netzwerk- und Bearbeitungsgebühr an den Kunden weiter oder übernimm sie — deine Wahl, pro Zahlung.",
+      "c4t": "On-Chain-Rückerstattungen per Klick",
+      "c4d": "Erstatte einem Kunden in der Originalwährung, direkt aus deinem Dashboard.",
+      "c5t": "Keine Monats- oder Einrichtungsgebühren",
+      "c5d": "Zahle nur, wenn du bezahlt wirst — und deine allererste Zahlung ist komplett gebührenfrei.",
+      "c6t": "Für Entwickler gebaut",
+      "c6d": "Eine saubere REST-API, Sandbox-Keys und Webhooks für jedes Zahlungsereignis. Kein SDK-Lock-in."
+    },
+    "developer": {
+      "eyebrow": "Für Entwickler",
+      "headline": "An einem Nachmittag live",
+      "body": "Eine saubere REST-API, ein gehosteter Checkout, Sandbox-Keys und Webhooks für jedes Zahlungsereignis — ohne SDK-Lock-in.",
+      "k1t": "Sandbox-Modus",
+      "k1d": "Jedes Konto erhält Test-Keys (dpk_test_), um Zahlungen zu bauen und zu simulieren — ohne echtes Geld.",
+      "k2t": "Echtzeit-Webhooks",
+      "k2d": "Werde benachrichtigt, sobald eine Zahlung erkannt, bestätigt und abgewickelt ist.",
+      "k3t": "Gehosteter Checkout",
+      "k3d": "Füge einen Zahlungslink oder ein Embed ein — wir kümmern uns um Coins, Netzwerke und QR-Codes.",
+      "k4t": "Non-custodial",
+      "k4d": "Geld landet in deiner Wallet; du behältst immer die Kontrolle über deine Keys.",
+      "ctaDocs": "API-Doku lesen",
+      "ctaDemo": "Live-Demo ansehen",
+      "terminalLabel": "Eine Zahlung erstellen",
+      "snippetNote": "Vereinfachtes Beispiel — die vollständige API-Referenz findest du unter /documentation."
+    },
+    "showcase": {
+      "eyebrow": "Sieh es in Aktion",
+      "headline": "Der Checkout, den deine Kunden wirklich abschließen",
+      "body": "Ein klarer, gehosteter Checkout, der Coins, Netzwerke und QR-Codes regelt — und bestätigt, sobald die Zahlung eingeht. Das ist das echte Produkt, kein Mockup.",
+      "cap1": "Gehosteter Checkout",
+      "sub1": "Coin wählen, scannen, zahlen — auf jedem Gerät.",
+      "cap2": "Sofortige Bestätigung",
+      "sub2": "Der Kunde sieht sofort einen klaren Beleg, sobald abgewickelt wurde."
+    },
+    "compare": {
+      "eyebrow": "Warum wir statt der Alternativen",
+      "headline": "Ein faireres Angebot für Krypto-Zahlungen",
+      "body": "Wie DynoPay im Vergleich zu einem typischen Krypto-Zahlungsdienstleister abschneidet.",
+      "colDyno": "DynoPay",
+      "colOther": "Typischer Anbieter",
+      "note": "Der Vergleich spiegelt gängige Branchenpraxis wider; Details variieren je nach Anbieter.",
+      "r1f": "Verwahrung der Gelder",
+      "r1a": "Non-custodial — direkt in deine Wallet",
+      "r1b": "Custodial — sie halten dein Geld",
+      "r2f": "Volatilität",
+      "r2a": "Automatische Umwandlung in Stablecoin",
+      "r2b": "Du bleibst auf der Krypto sitzen",
+      "r3f": "Wer zahlt die Gebühr",
+      "r3a": "Du entscheidest, pro Zahlung",
+      "r3b": "Immer der Händler",
+      "r4f": "Rückerstattungen",
+      "r4a": "Ein Klick, on-chain",
+      "r4b": "Manuell oder nicht möglich",
+      "r5f": "Monats- und Einrichtungsgebühren",
+      "r5a": "Keine",
+      "r5b": "Oft berechnet",
+      "r6f": "Erste Zahlung",
+      "r6a": "Kostenlos",
+      "r6b": "Ab dem ersten Tag berechnet"
     }
   },
   "checkout": {

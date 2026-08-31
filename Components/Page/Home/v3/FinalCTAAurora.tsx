@@ -144,6 +144,23 @@ const FinalCTAAurora: React.FC = () => {
               >
                 {t("v3.finalcta.readDocs")}
               </Button>
+              <Button
+                href="mailto:hi@dynopay.com?subject=DynoPay%20sales%20enquiry"
+                sx={{
+                  borderRadius: "999px",
+                  px: 3.5,
+                  py: 1.55,
+                  fontFamily: FONT_BODY,
+                  fontSize: 15.5,
+                  fontWeight: 500,
+                  textTransform: "none",
+                  color: "rgba(255,255,255,0.85)",
+                  border: "1px solid rgba(255,255,255,0.24)",
+                  "&:hover": { background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.45)" },
+                }}
+              >
+                {t("v3.finalcta.talkToSales")}
+              </Button>
             </Box>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", mt: 4 }}>
               {t("v3.finalcta.trustLine")}

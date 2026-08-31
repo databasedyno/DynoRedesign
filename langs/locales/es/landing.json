@@ -265,7 +265,8 @@
       "rewardBadge": "¿Eres nuevo? Eximimos nuestra <b>comisión de plataforma</b> en tu primer pago.",
       "getStarted": "Empieza gratis",
       "readDocs": "Leer la documentación",
-      "trustLine": "Sin custodia · 9 blockchains · Cifrado · RGPD / AML"
+      "trustLine": "Sin custodia · 9 blockchains · Cifrado · RGPD / AML",
+      "talkToSales": "Hablar con ventas"
     },
     "faq": {
       "eyebrow": "[ Respuestas ]",
@@ -377,7 +378,12 @@
       "youReceiveLabel": "Tú recibes",
       "merchantNote": "Tú cubres la comisión, así que el precio que ve tu cliente sigue siendo exactamente $100.",
       "customerNote": "La comisión se añade encima: la paga el cliente y tú te quedas con tus $100 completos.",
-      "feeFootnote": "Ejemplo con la tarifa Starter, con todas las comisiones por pago incluidas — consulta la página de Comisiones para el detalle completo. Tu tarifa baja al 0,5 % a medida que crece tu volumen."
+      "feeFootnote": "Ejemplo con la tarifa Starter, con todas las comisiones por pago incluidas — consulta la página de Comisiones para el detalle completo. Tu tarifa baja al 0,5 % a medida que crece tu volumen.",
+      "value1": "Primer pago gratis",
+      "value2": "Sin cuotas mensuales",
+      "value3": "Sin costos de alta",
+      "value4": "Liquidación en stablecoin",
+      "tierLine": "Precios simples según uso: desde 1,5 %, bajando a 0,5 % a medida que creces — y tu primer pago corre por nuestra cuenta."
     },
     "coins": {
       "eyebrow": "[ Monedas y tokens ]",
@@ -427,6 +433,88 @@
         "title": "Gaming",
         "desc": "Acepta recargas globales y compras dentro del juego con comisiones bajas y predecibles."
       }
+    },
+    "pain": {
+      "eyebrow": "La vieja forma está rota",
+      "headline": "Aceptar cripto no debería ser tan difícil",
+      "body": "Saldos volátiles, riesgo de custodia por terceros, fraude de contracargos y un checkout mal integrado frenan a los comercios. DynoPay elimina cada uno.",
+      "p1": "Los precios flunctúan antes de que puedas gastar lo que ganaste.",
+      "f1": "Convierte cada pago a stablecoin automáticamente en cuanto se liquida.",
+      "p2": "Un tercero retiene tus fondos — y puede congelarlos.",
+      "f2": "Sin custodia por diseño: la cripto llega a tu propia billetera, nunca a la nuestra.",
+      "p3": "Los contracargos con tarjeta reclaman tus ingresos meses después.",
+      "f3": "Los pagos on-chain son definitivos — cero contracargos, siempre.",
+      "p4": "Las integraciones se alargan y el checkout parece añadido a la fuerza.",
+      "f4": "Un checkout alojado y una API REST clara te ponen en marcha en una tarde."
+    },
+    "why": {
+      "eyebrow": "Por qué DynoPay",
+      "headline": "Diferentes donde de verdad importa",
+      "body": "No ganamos con la tarifa más baja del titular — ganamos con lo que realmente protege tu dinero y tu tiempo.",
+      "c1t": "Sin custodia por diseño",
+      "c1d": "Los pagos llegan directamente a tu billetera. Nunca retenemos tu cripto.",
+      "c2t": "Conversión automática a stablecoin",
+      "c2d": "Neutraliza la volatilidad automáticamente en cuanto se confirma un pago.",
+      "c3t": "Tú eliges quién paga la comisión",
+      "c3d": "Traslada la comisión de red y procesamiento al cliente, o asúmela — tú decides, en cada pago.",
+      "c4t": "Reembolsos on-chain en un clic",
+      "c4d": "Reembolsa a un cliente en la moneda original, directamente desde tu panel.",
+      "c5t": "Sin cuotas mensuales ni de alta",
+      "c5d": "Paga solo cuando cobras — y tu primer pago es totalmente gratis.",
+      "c6t": "Hecho para desarrolladores",
+      "c6d": "Una API REST clara, claves sandbox y webhooks para cada evento de pago. Sin ataduras a un SDK."
+    },
+    "developer": {
+      "eyebrow": "Para desarrolladores",
+      "headline": "En producción en una tarde",
+      "body": "Una API REST clara, un checkout alojado, claves sandbox y webhooks para cada evento de pago — sin ataduras a un SDK.",
+      "k1t": "Modo sandbox",
+      "k1d": "Cada cuenta incluye claves de prueba (dpk_test_) para crear y simular pagos — sin fondos reales.",
+      "k2t": "Webhooks en tiempo real",
+      "k2d": "Recibe aviso en cuanto un pago se detecta, confirma y liquida.",
+      "k3t": "Checkout alojado",
+      "k3d": "Añade un enlace de pago o un embed — nosotros gestionamos monedas, redes y códigos QR.",
+      "k4t": "Sin custodia",
+      "k4d": "Los fondos llegan a tu billetera; siempre mantienes el control de tus claves.",
+      "ctaDocs": "Ver la documentación de la API",
+      "ctaDemo": "Ver una demo en vivo",
+      "terminalLabel": "Crear un pago",
+      "snippetNote": "Ejemplo simplificado — consulta la referencia completa de la API en /documentation."
+    },
+    "showcase": {
+      "eyebrow": "Míralo en acción",
+      "headline": "El checkout que tus clientes sí completan",
+      "body": "Un checkout alojado y limpio que gestiona monedas, redes y códigos QR — y confirma en cuanto llega el pago. Es el producto real, no una maqueta.",
+      "cap1": "Checkout alojado",
+      "sub1": "Elige una moneda, escanea, paga — en cualquier dispositivo.",
+      "cap2": "Confirmación instantánea",
+      "sub2": "El cliente ve un recibo claro en cuanto se liquida."
+    },
+    "compare": {
+      "eyebrow": "Por qué nosotros frente a las alternativas",
+      "headline": "Un trato más justo para aceptar cripto",
+      "body": "Cómo se compara DynoPay con un procesador cripto típico.",
+      "colDyno": "DynoPay",
+      "colOther": "Procesador típico",
+      "note": "La comparación refleja prácticas habituales del sector; los detalles varían según el proveedor.",
+      "r1f": "Custodia de fondos",
+      "r1a": "Sin custodia — llega a tu billetera",
+      "r1b": "Con custodia — retienen tus fondos",
+      "r2f": "Volatilidad",
+      "r2a": "Conversión automática a stablecoin",
+      "r2b": "Te quedas con la cripto",
+      "r3f": "Quién paga la comisión",
+      "r3a": "Tú eliges, en cada pago",
+      "r3b": "El comercio, siempre",
+      "r4f": "Reembolsos",
+      "r4a": "Un clic, on-chain",
+      "r4b": "Manual o no disponible",
+      "r5f": "Cuotas mensuales y de alta",
+      "r5a": "Ninguna",
+      "r5b": "A menudo se cobran",
+      "r6f": "Primer pago",
+      "r6a": "Gratis",
+      "r6b": "Se cobra desde el primer día"
     }
   },
   "checkout": {

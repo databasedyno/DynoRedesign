@@ -265,7 +265,8 @@
       "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
       "getStarted": "Commencer gratuitement",
       "readDocs": "Lire la doc",
-      "trustLine": "Non-dépositaire · 9 blockchains · Chiffré · RGPD / AML"
+      "trustLine": "Non-dépositaire · 9 blockchains · Chiffré · RGPD / AML",
+      "talkToSales": "Contacter les ventes"
     },
     "faq": {
       "eyebrow": "[ Réponses ]",
@@ -377,7 +378,12 @@
       "youReceiveLabel": "Vous recevez",
       "merchantNote": "Vous couvrez les frais, donc le prix que voit votre client reste exactement $100.",
       "customerNote": "Les frais s'ajoutent au-dessus : le client les paie et vous gardez vos $100 entiers.",
-      "feeFootnote": "Exemple au tarif Starter, tous les frais par paiement inclus — voir la page Tarifs pour le détail complet. Votre taux descend à 0,5 % à mesure que le volume augmente."
+      "feeFootnote": "Exemple au tarif Starter, tous les frais par paiement inclus — voir la page Tarifs pour le détail complet. Votre taux descend à 0,5 % à mesure que le volume augmente.",
+      "value1": "Premier paiement offert",
+      "value2": "Aucuns frais mensuels",
+      "value3": "Aucuns frais d'installation",
+      "value4": "Règlement en stablecoin",
+      "tierLine": "Tarification simple à l'usage : à partir de 1,5 %, jusqu'à 0,5 % à mesure que vous grandissez — et votre premier paiement est offert."
     },
     "coins": {
       "eyebrow": "[ Cryptos et tokens ]",
@@ -427,6 +433,88 @@
         "title": "Gaming",
         "desc": "Acceptez recharges mondiales et achats in-game avec des frais bas et prévisibles."
       }
+    },
+    "pain": {
+      "eyebrow": "L'ancienne méthode est cassée",
+      "headline": "Les paiements crypto ne devraient pas être si compliqués",
+      "body": "Soldes volatils, risque de conservation par un tiers, fraude au rejet de débit et paiement mal intégré freinent les marchands. DynoPay élimine chacun de ces problèmes.",
+      "p1": "Les cours varient avant même que vous puissiez dépenser ce que vous avez gagné.",
+      "f1": "Conversion automatique de chaque paiement en stablecoin dès son règlement.",
+      "p2": "Un tiers détient vos fonds — et peut les geler.",
+      "f2": "Non-dépositaire par conception : la crypto arrive dans votre propre portefeuille, jamais le nôtre.",
+      "p3": "Les rejets de paiement par carte reprennent vos revenus des mois plus tard.",
+      "f3": "Les paiements on-chain sont définitifs — zéro rejet de débit, jamais.",
+      "p4": "Les intégrations s'éternisent et le paiement semble rajouté.",
+      "f4": "Un checkout hébergé et une API REST claire vous mettent en ligne en un après-midi."
+    },
+    "why": {
+      "eyebrow": "Pourquoi DynoPay",
+      "headline": "Une vraie différence là où ça compte",
+      "body": "Nous ne gagnons pas sur le taux affiché le plus bas — nous gagnons sur ce qui protège vraiment votre argent et votre temps.",
+      "c1t": "Non-dépositaire par conception",
+      "c1d": "Les paiements arrivent directement dans votre portefeuille. Nous ne détenons jamais votre crypto.",
+      "c2t": "Conversion auto en stablecoin",
+      "c2d": "Neutralisez la volatilité automatiquement dès qu'un paiement est confirmé.",
+      "c3t": "Vous choisissez qui paie les frais",
+      "c3d": "Répercutez les frais réseau et de traitement sur le client, ou absorbez-les — à vous de voir, paiement par paiement.",
+      "c4t": "Remboursements on-chain en un clic",
+      "c4d": "Remboursez un client dans la devise d'origine, directement depuis votre tableau de bord.",
+      "c5t": "Aucuns frais mensuels ni d'installation",
+      "c5d": "Payez seulement quand vous êtes payé — et votre tout premier paiement est sans frais.",
+      "c6t": "Conçu pour les développeurs",
+      "c6d": "Une API REST claire, des clés sandbox et des webhooks pour chaque événement de paiement. Sans dépendance à un SDK."
+    },
+    "developer": {
+      "eyebrow": "Pour les développeurs",
+      "headline": "En ligne en un après-midi",
+      "body": "Une API REST claire, un checkout hébergé, des clés sandbox et des webhooks pour chaque événement de paiement — sans dépendance à un SDK.",
+      "k1t": "Mode sandbox",
+      "k1d": "Chaque compte inclut des clés de test (dpk_test_) pour créer et simuler des paiements — sans fonds réels.",
+      "k2t": "Webhooks en temps réel",
+      "k2d": "Soyez notifié dès qu'un paiement est détecté, confirmé et réglé.",
+      "k3t": "Checkout hébergé",
+      "k3d": "Ajoutez un lien de paiement ou une intégration — nous gérons les coins, réseaux et QR codes.",
+      "k4t": "Non-dépositaire",
+      "k4d": "Les fonds arrivent dans votre portefeuille ; vous gardez toujours le contrôle de vos clés.",
+      "ctaDocs": "Voir la doc API",
+      "ctaDemo": "Voir une démo en direct",
+      "terminalLabel": "Créer un paiement",
+      "snippetNote": "Exemple simplifié — voir la référence complète de l'API sur /documentation."
+    },
+    "showcase": {
+      "eyebrow": "Voyez-le en action",
+      "headline": "Le checkout que vos clients terminent vraiment",
+      "body": "Un checkout hébergé et épuré qui gère les coins, les réseaux et les QR codes — puis confirme dès que le paiement arrive. C'est le vrai produit, pas une maquette.",
+      "cap1": "Checkout hébergé",
+      "sub1": "Choisir une crypto, scanner, payer — sur tout appareil.",
+      "cap2": "Confirmation instantanée",
+      "sub2": "Le client voit un reçu clair dès le règlement."
+    },
+    "compare": {
+      "eyebrow": "Pourquoi nous plutôt que les autres",
+      "headline": "Un accord plus juste pour accepter la crypto",
+      "body": "Comment DynoPay se compare à un processeur crypto classique.",
+      "colDyno": "DynoPay",
+      "colOther": "Processeur classique",
+      "note": "La comparaison reflète les pratiques courantes du secteur ; les détails varient selon le prestataire.",
+      "r1f": "Conservation des fonds",
+      "r1a": "Non-dépositaire — versé sur votre portefeuille",
+      "r1b": "Dépositaire — il détient vos fonds",
+      "r2f": "Volatilité",
+      "r2a": "Conversion auto en stablecoin",
+      "r2b": "Vous restez avec la crypto",
+      "r3f": "Qui paie les frais",
+      "r3a": "Vous choisissez, paiement par paiement",
+      "r3b": "Le marchand, toujours",
+      "r4f": "Remboursements",
+      "r4a": "En un clic, on-chain",
+      "r4b": "Manuel ou indisponible",
+      "r5f": "Frais mensuels et d'installation",
+      "r5a": "Aucun",
+      "r5b": "Souvent facturés",
+      "r6f": "Premier paiement",
+      "r6a": "Offert",
+      "r6b": "Facturé dès le premier jour"
     }
   },
   "checkout": {

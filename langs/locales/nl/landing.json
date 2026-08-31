@@ -265,7 +265,8 @@
       "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
       "getStarted": "Gratis starten",
       "readDocs": "Lees de docs",
-      "trustLine": "Non-custodial · 9 blockchains · Versleuteld · AVG / AML"
+      "trustLine": "Non-custodial · 9 blockchains · Versleuteld · AVG / AML",
+      "talkToSales": "Praat met sales"
     },
     "faq": {
       "eyebrow": "[ Antwoorden ]",
@@ -377,7 +378,12 @@
       "youReceiveLabel": "Jij ontvangt",
       "merchantNote": "Jij draagt de kosten, dus de prijs die je klant ziet blijft precies $100.",
       "customerNote": "De kosten komen er bovenop: de klant betaalt ze en jij houdt je volle $100.",
-      "feeFootnote": "Voorbeeld met het Starter-tarief, alle kosten per betaling inbegrepen — zie de Tarievenpagina voor alle details. Je tarief daalt naar 0,5% naarmate je volume groeit."
+      "feeFootnote": "Voorbeeld met het Starter-tarief, alle kosten per betaling inbegrepen — zie de Tarievenpagina voor alle details. Je tarief daalt naar 0,5% naarmate je volume groeit.",
+      "value1": "Eerste betaling gratis",
+      "value2": "Geen maandkosten",
+      "value3": "Geen opstartkosten",
+      "value4": "Afwikkeling in stablecoin",
+      "tierLine": "Eenvoudige prijs op basis van gebruik: vanaf 1,5%, dalend naar 0,5% naarmate je groeit — en je eerste betaling is van ons."
     },
     "coins": {
       "eyebrow": "[ Munten & tokens ]",
@@ -427,6 +433,88 @@
         "title": "Gaming",
         "desc": "Accepteer wereldwijde top-ups en in-game aankopen met lage, voorspelbare kosten."
       }
+    },
+    "pain": {
+      "eyebrow": "De oude manier is stuk",
+      "headline": "Crypto accepteren hoeft niet zo moeilijk te zijn",
+      "body": "Volatiele saldi, bewaarrisico bij derden, chargeback-fraude en een omslachtige checkout houden merchants tegen. DynoPay lost ze stuk voor stuk op.",
+      "p1": "Koersen schommelen voordat je kunt uitgeven wat je hebt verdiend.",
+      "f1": "Zet elke betaling automatisch om naar een stablecoin zodra ze is afgewikkeld.",
+      "p2": "Een derde partij beheert je geld — en kan het bevriezen.",
+      "f2": "Non-custodial van opzet: crypto komt in je eigen wallet, nooit die van ons.",
+      "p3": "Creditcard-chargebacks halen je omzet maanden later terug.",
+      "f3": "On-chain betalingen zijn definitief — nul chargebacks, altijd.",
+      "p4": "Integraties slepen aan en de checkout voelt erop geplakt.",
+      "f4": "Een gehoste checkout en heldere REST API zetten je in één middag live."
+    },
+    "why": {
+      "eyebrow": "Waarom DynoPay",
+      "headline": "Anders waar het telt",
+      "body": "We winnen niet met het laagste geadverteerde tarief — we winnen met wat je geld en je tijd echt beschermt.",
+      "c1t": "Non-custodial van opzet",
+      "c1d": "Betalingen komen rechtstreeks in je eigen wallet. Wij houden je crypto nooit vast.",
+      "c2t": "Auto-conversie naar stablecoin",
+      "c2d": "Neutraliseer volatiliteit automatisch zodra een betaling is bevestigd.",
+      "c3t": "Jij kiest wie de fee betaalt",
+      "c3d": "Reken de netwerk- en verwerkingskosten door aan de klant, of neem ze zelf — jouw keuze, per betaling.",
+      "c4t": "On-chain refunds met één klik",
+      "c4d": "Betaal een klant terug in de oorspronkelijke munt, direct vanuit je dashboard.",
+      "c5t": "Geen maand- of opstartkosten",
+      "c5d": "Betaal alleen als je betaald wordt — en je allereerste betaling is helemaal gratis.",
+      "c6t": "Gebouwd voor developers",
+      "c6d": "Een heldere REST API, sandbox-keys en webhooks voor elke betaalgebeurtenis. Geen SDK-lock-in."
+    },
+    "developer": {
+      "eyebrow": "Voor developers",
+      "headline": "In één middag live",
+      "body": "Een heldere REST API, een gehoste checkout, sandbox-keys en webhooks voor elke betaalgebeurtenis — zonder SDK-lock-in.",
+      "k1t": "Sandbox-modus",
+      "k1d": "Elk account krijgt test-keys (dpk_test_) om betalingen te bouwen en te simuleren — zonder echt geld.",
+      "k2t": "Realtime webhooks",
+      "k2d": "Word gewaarschuwd zodra een betaling wordt gedetecteerd, bevestigd en afgewikkeld.",
+      "k3t": "Gehoste checkout",
+      "k3d": "Plaats een betaallink of embed — wij regelen munten, netwerken en QR-codes.",
+      "k4t": "Non-custodial",
+      "k4d": "Geld komt in je wallet; jij houdt altijd de controle over je keys.",
+      "ctaDocs": "Lees de API-docs",
+      "ctaDemo": "Bekijk een live demo",
+      "terminalLabel": "Een betaling maken",
+      "snippetNote": "Vereenvoudigd voorbeeld — zie de volledige API-referentie op /documentation."
+    },
+    "showcase": {
+      "eyebrow": "Zie het in actie",
+      "headline": "De checkout die je klanten écht afronden",
+      "body": "Een strakke, gehoste checkout die munten, netwerken en QR-codes regelt — en bevestigt zodra de betaling binnen is. Dit is het echte product, geen mockup.",
+      "cap1": "Gehoste checkout",
+      "sub1": "Kies een munt, scan, betaal — op elk apparaat.",
+      "cap2": "Directe bevestiging",
+      "sub2": "De klant ziet meteen een duidelijke bon zodra het is afgewikkeld."
+    },
+    "compare": {
+      "eyebrow": "Waarom wij vs de alternatieven",
+      "headline": "Een eerlijkere deal voor crypto accepteren",
+      "body": "Hoe DynoPay zich verhoudt tot een doorsnee crypto-processor.",
+      "colDyno": "DynoPay",
+      "colOther": "Doorsnee processor",
+      "note": "De vergelijking weerspiegelt gangbare praktijken in de sector; details verschillen per aanbieder.",
+      "r1f": "Bewaring van geld",
+      "r1a": "Non-custodial — naar je eigen wallet",
+      "r1b": "Custodial — zij beheren je geld",
+      "r2f": "Volatiliteit",
+      "r2a": "Zet automatisch om naar stablecoin",
+      "r2b": "Jij blijft met de crypto zitten",
+      "r3f": "Wie betaalt de fee",
+      "r3a": "Jij kiest, per betaling",
+      "r3b": "De merchant, altijd",
+      "r4f": "Refunds",
+      "r4a": "Eén klik, on-chain",
+      "r4b": "Handmatig of niet mogelijk",
+      "r5f": "Maand- en opstartkosten",
+      "r5a": "Geen",
+      "r5b": "Vaak in rekening gebracht",
+      "r6f": "Eerste betaling",
+      "r6a": "Gratis",
+      "r6b": "Vanaf dag één in rekening gebracht"
     }
   },
   "checkout": {

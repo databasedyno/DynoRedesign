@@ -2,6 +2,7 @@ import React, { memo, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 import { BRAND_ACCENT } from "@/constants/theme";
@@ -43,6 +44,35 @@ const WhoPaysFeeV3: React.FC = () => {
             {t("v3.whopays.body")}
           </Typography>
         </Box>
+
+        {/* Value-first strip (2026-08): lead on what makes the rate worth it —
+            first payment free + no monthly/setup fees + settle in stablecoin —
+            rather than the headline %, which competitors undercut. */}
+        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: { xs: 1, md: 1.25 }, mb: 2.5 }}>
+          {[t("v3.whopays.value1"), t("v3.whopays.value2"), t("v3.whopays.value3"), t("v3.whopays.value4")].map((v) => (
+            <Box
+              key={v}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.75,
+                px: 1.75,
+                py: 0.85,
+                borderRadius: "999px",
+                border: `1px solid ${s.line}`,
+                background: s.surface,
+              }}
+            >
+              <CheckCircleRoundedIcon sx={{ fontSize: 15, color: s.dark ? "#818CF8" : BRAND_ACCENT }} />
+              <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 500, letterSpacing: "0.04em", color: s.ink }}>
+                {v}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+        <Typography sx={{ textAlign: "center", fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.55, color: s.ink2, maxWidth: 560, mx: "auto", mb: { xs: 4, md: 5 } }}>
+          {t("v3.whopays.tierLine")}
+        </Typography>
 
         {/* Segmented toggle */}
         <Box

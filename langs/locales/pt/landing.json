@@ -265,7 +265,8 @@
       "rewardBadge": "É novo por aqui? Isentamos a nossa <b>taxa de plataforma</b> no seu primeiro pagamento.",
       "getStarted": "Comece grátis",
       "readDocs": "Ler a documentação",
-      "trustLine": "Não custodial · 9 blockchains · Criptografado · GDPR / AML"
+      "trustLine": "Não custodial · 9 blockchains · Criptografado · GDPR / AML",
+      "talkToSales": "Falar com vendas"
     },
     "faq": {
       "eyebrow": "[ Respostas ]",
@@ -377,7 +378,12 @@
       "youReceiveLabel": "Você recebe",
       "merchantNote": "Você cobre a taxa, então o preço que o cliente vê continua exatamente $100.",
       "customerNote": "A taxa é somada por cima: o cliente paga e você fica com os seus $100 completos.",
-      "feeFootnote": "Exemplo com a tarifa Starter, com todas as taxas por pagamento incluídas — veja a página de Taxas para os detalhes completos. Sua tarifa cai para 0,5% conforme seu volume cresce."
+      "feeFootnote": "Exemplo com a tarifa Starter, com todas as taxas por pagamento incluídas — veja a página de Taxas para os detalhes completos. Sua tarifa cai para 0,5% conforme seu volume cresce.",
+      "value1": "Primeiro pagamento grátis",
+      "value2": "Sem mensalidade",
+      "value3": "Sem taxa de adesão",
+      "value4": "Liquidação em stablecoin",
+      "tierLine": "Preço simples por uso: a partir de 1,5%, caindo para 0,5% conforme você cresce — e o seu primeiro pagamento é por nossa conta."
     },
     "coins": {
       "eyebrow": "[ Moedas e tokens ]",
@@ -427,6 +433,88 @@
         "title": "Games",
         "desc": "Aceite recargas globais e compras no jogo com taxas baixas e previsíveis."
       }
+    },
+    "pain": {
+      "eyebrow": "O jeito antigo está quebrado",
+      "headline": "Aceitar cripto não deveria ser tão difícil",
+      "body": "Saldos voláteis, risco de custódia por terceiros, fraude de estorno e um checkout mal integrado travam os lojistas. A DynoPay elimina cada um deles.",
+      "p1": "Os preços oscilam antes de você gastar o que ganhou.",
+      "f1": "Converte cada pagamento em stablecoin automaticamente assim que é liquidado.",
+      "p2": "Um terceiro guarda os seus fundos — e pode congelá-los.",
+      "f2": "Sem custódia por design: a cripto chega à sua própria carteira, nunca à nossa.",
+      "p3": "Estornos de cartão retomam a sua receita meses depois.",
+      "f3": "Pagamentos on-chain são definitivos — zero estornos, sempre.",
+      "p4": "As integrações se arrastam e o checkout parece improvisado.",
+      "f4": "Um checkout hospedado e uma API REST clara colocam você no ar em uma tarde."
+    },
+    "why": {
+      "eyebrow": "Por que a DynoPay",
+      "headline": "Diferente onde realmente importa",
+      "body": "Não vencemos pela menor taxa anunciada — vencemos pelo que realmente protege o seu dinheiro e o seu tempo.",
+      "c1t": "Sem custódia por design",
+      "c1d": "Os pagamentos chegam direto à sua carteira. Nunca guardamos a sua cripto.",
+      "c2t": "Conversão automática em stablecoin",
+      "c2d": "Neutralize a volatilidade automaticamente assim que um pagamento é confirmado.",
+      "c3t": "Você escolhe quem paga a taxa",
+      "c3d": "Repasse a taxa de rede e de processamento ao cliente, ou absorva-a — a decisão é sua, a cada pagamento.",
+      "c4t": "Reembolsos on-chain em um clique",
+      "c4d": "Reembolse um cliente na moeda original, direto do seu painel.",
+      "c5t": "Sem mensalidade nem taxa de adesão",
+      "c5d": "Pague só quando receber — e o seu primeiro pagamento é totalmente sem taxa.",
+      "c6t": "Feito para desenvolvedores",
+      "c6d": "Uma API REST clara, chaves de sandbox e webhooks para cada evento de pagamento. Sem dependência de SDK."
+    },
+    "developer": {
+      "eyebrow": "Para desenvolvedores",
+      "headline": "No ar em uma tarde",
+      "body": "Uma API REST clara, um checkout hospedado, chaves de sandbox e webhooks para cada evento de pagamento — sem dependência de SDK.",
+      "k1t": "Modo sandbox",
+      "k1d": "Cada conta vem com chaves de teste (dpk_test_) para criar e simular pagamentos — sem fundos reais.",
+      "k2t": "Webhooks em tempo real",
+      "k2d": "Seja notificado assim que um pagamento é detectado, confirmado e liquidado.",
+      "k3t": "Checkout hospedado",
+      "k3d": "Adicione um link de pagamento ou um embed — cuidamos de moedas, redes e QR codes.",
+      "k4t": "Sem custódia",
+      "k4d": "Os fundos chegam à sua carteira; você mantém sempre o controle das suas chaves.",
+      "ctaDocs": "Ver a documentação da API",
+      "ctaDemo": "Ver uma demo ao vivo",
+      "terminalLabel": "Criar um pagamento",
+      "snippetNote": "Exemplo simplificado — veja a referência completa da API em /documentation."
+    },
+    "showcase": {
+      "eyebrow": "Veja em ação",
+      "headline": "O checkout que os seus clientes realmente concluem",
+      "body": "Um checkout hospedado e limpo que cuida de moedas, redes e QR codes — e confirma assim que o pagamento chega. É o produto real, não uma maquete.",
+      "cap1": "Checkout hospedado",
+      "sub1": "Escolha uma moeda, escaneie, pague — em qualquer dispositivo.",
+      "cap2": "Confirmação instantânea",
+      "sub2": "O cliente vê um recibo claro assim que é liquidado."
+    },
+    "compare": {
+      "eyebrow": "Por que nós em vez das alternativas",
+      "headline": "Um acordo mais justo para aceitar cripto",
+      "body": "Como a DynoPay se compara a um processador cripto típico.",
+      "colDyno": "DynoPay",
+      "colOther": "Processador típico",
+      "note": "A comparação reflete práticas comuns do setor; os detalhes variam conforme o provedor.",
+      "r1f": "Custódia dos fundos",
+      "r1a": "Sem custódia — vai para a sua carteira",
+      "r1b": "Com custódia — eles guardam os seus fundos",
+      "r2f": "Volatilidade",
+      "r2a": "Converte automaticamente em stablecoin",
+      "r2b": "Você fica com a cripto",
+      "r3f": "Quem paga a taxa",
+      "r3a": "Você escolhe, a cada pagamento",
+      "r3b": "O lojista, sempre",
+      "r4f": "Reembolsos",
+      "r4a": "Um clique, on-chain",
+      "r4b": "Manual ou indisponível",
+      "r5f": "Mensalidade e taxa de adesão",
+      "r5a": "Nenhuma",
+      "r5b": "Frequentemente cobradas",
+      "r6f": "Primeiro pagamento",
+      "r6a": "Grátis",
+      "r6b": "Cobrado desde o primeiro dia"
     }
   },
   "checkout": {
