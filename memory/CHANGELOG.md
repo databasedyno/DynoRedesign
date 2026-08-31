@@ -1127,3 +1127,11 @@ User feedback: the testimonial section "looked common." Researched Stripe's appr
 - Moved mobile sticky-bar `createPortal` out of PanelShell children into a fragment sibling —
   MUI Box PropTypes "Invalid prop children" dev warning eliminated (console now clean).
 - tsc --noEmit: 0 errors.
+
+## 2026-08-31 — Pod 5f684f1a re-setup (SAFE MODE, verified)
+- Rebuilt /app/.env + /app/backend/.env from user's cred paste; ran pod-bootstrap.sh (POD READY 28s).
+- SAFE MODE: bg jobs off, worker secondary, outbound email off, Redis DB 1, Binance proxy blanked.
+- Verified: /health db+redis connected, login 200 (Hostbay), tickers live, frontend 200 external.
+- Pending next (user backlog): email audit/CTA fixes, "$500 fee-free" -> "free first payment",
+  referral+earnings emails, payer auto-invite w/ 50%-off referral code, admin email fixes,
+  FIAT amounts on recent payments.

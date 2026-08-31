@@ -10,7 +10,7 @@ import time
 from typing import Dict, List, Optional
 
 # Base URL from environment
-BASE_URL = "https://9a70e7ed-acb4-4580-bf84-4e7e80243a2c.preview.emergentagent.com/api"
+BASE_URL = "https://merchant-demo-4.preview.emergentagent.com/api"
 
 # Owner credentials
 OWNER_EMAIL = "onarrival21@gmail.com"
