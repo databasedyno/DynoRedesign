@@ -1,8 +1,9 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 
@@ -13,30 +14,48 @@ import { Eyebrow, HeadlineL } from "./styled.v3";
  * payment-success state (/pay/success-demo), captured into
  * public/assets/landing. A single phone auto-cycles the real journey:
  * awaiting payment → confirming on-chain → confirmed (checkout.png → success.png),
- * with a floating live-status chip. No stock art, no fabricated UI, no real
- * merchant data. Honours prefers-reduced-motion (shows the confirmed state).
+ * with a floating live-status chip and a "settled in seconds" timer badge that
+ * counts up while pending and freezes on confirmation (conversion proof).
+ * Hover pauses the loop so visitors can read each step. Honours
+ * prefers-reduced-motion (shows the confirmed state, frozen timer).
  */
 
 // Steps: 0 = awaiting, 1 = confirming (both on checkout.png), 2 = confirmed (success.png).
 const STEP_DURATION = [2200, 2000, 3200];
 const PHONE_ASPECT = 960 / 1880; // checkout.png intrinsic ratio → stable phone screen box
 
+const fmt = (s: number) => `0:${String(Math.min(s, 59)).padStart(2, "0")}`;
+
 const ProductShowcaseV3: React.FC = () => {
   const s = useAurora();
   const { t } = useTranslation("landing");
+  const reduced = useReducedMotion();
   const [step, setStep] = useState(0);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [paused, setPaused] = useState(false);
+  const [secs, setSecs] = useState(0);
 
+  // Step advancer — frozen while hovered (paused) or reduced-motion.
   useEffect(() => {
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (reduced) {
       setStep(2);
       return;
     }
-    timer.current = setTimeout(() => setStep((p) => (p + 1) % 3), STEP_DURATION[step]);
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, [step]);
+    if (paused) return;
+    const id = setTimeout(() => setStep((p) => (p + 1) % 3), STEP_DURATION[step]);
+    return () => clearTimeout(id);
+  }, [step, paused, reduced]);
+
+  // Elapsed timer — resets at cycle start, counts while pending, freezes on confirm/hover.
+  useEffect(() => {
+    if (reduced) {
+      setSecs(38);
+      return;
+    }
+    if (step === 0) setSecs(0);
+    if (paused || step === 2) return;
+    const id = setInterval(() => setSecs((v) => (v >= 59 ? 59 : v + 1)), 1000);
+    return () => clearInterval(id);
+  }, [step, paused, reduced]);
 
   const showSuccess = step === 2;
 
@@ -66,9 +85,12 @@ const ProductShowcaseV3: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             style={{ width: "100%", maxWidth: 320 }}
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
           >
             {/* Phone frame */}
             <Box
+              data-testid="showcase-phone"
               sx={{
                 p: "10px",
                 borderRadius: "44px",
@@ -77,6 +99,7 @@ const ProductShowcaseV3: React.FC = () => {
                   : "linear-gradient(180deg,#2b2b33,#111114)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 boxShadow: "0 48px 96px -34px rgba(0,0,0,0.55)",
+                cursor: "default",
               }}
             >
               <Box
@@ -123,7 +146,36 @@ const ProductShowcaseV3: React.FC = () => {
                   }}
                 />
 
-                {/* Floating live-status chip */}
+                {/* Timer badge (conversion proof) — top-center */}
+                <Box
+                  data-testid="showcase-timer"
+                  sx={{
+                    position: "absolute",
+                    left: "50%",
+                    top: 16,
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.75,
+                    px: 1.4,
+                    py: 0.55,
+                    borderRadius: "999px",
+                    background: "rgba(12,12,16,0.7)",
+                    backdropFilter: "blur(14px)",
+                    WebkitBackdropFilter: "blur(14px)",
+                    border: `1px solid ${showSuccess ? "rgba(22,163,74,0.55)" : "rgba(255,255,255,0.14)"}`,
+                    boxShadow: "0 8px 24px -12px rgba(0,0,0,0.55)",
+                    whiteSpace: "nowrap",
+                    transition: "border-color 0.4s ease",
+                  }}
+                >
+                  <AccessTimeRoundedIcon sx={{ fontSize: 13, color: showSuccess ? "#4ADE80" : "rgba(255,255,255,0.7)" }} />
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, fontWeight: 600, letterSpacing: "0.02em", color: "#F5F5F5" }}>
+                    {showSuccess ? `${t("v3.showcase.settled", { defaultValue: "Settled" })} ${fmt(secs)}` : fmt(secs)}
+                  </Typography>
+                </Box>
+
+                {/* Floating live-status chip — bottom-center */}
                 <Box
                   data-testid="showcase-status"
                   sx={{

@@ -493,7 +493,8 @@
       "step1": "Confirming on-chain…",
       "step2": "Payment confirmed",
       "caption": "From checkout to confirmed in seconds",
-      "captionSub": "The real hosted experience — your customer picks a coin, pays, and it settles instantly."
+      "captionSub": "The real hosted experience — your customer picks a coin, pays, and it settles instantly.",
+      "settled": "Settled"
     },
     "compare": {
       "eyebrow": "Why us vs the alternatives",

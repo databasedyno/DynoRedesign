@@ -493,7 +493,8 @@
       "step1": "On-chain-Bestätigung…",
       "step2": "Zahlung bestätigt",
       "caption": "Vom Checkout zur Bestätigung in Sekunden",
-      "captionSub": "Das echte gehostete Erlebnis — dein Kunde wählt einen Coin, zahlt, und es wird sofort abgewickelt."
+      "captionSub": "Das echte gehostete Erlebnis — dein Kunde wählt einen Coin, zahlt, und es wird sofort abgewickelt.",
+      "settled": "Abgewickelt"
     },
     "compare": {
       "eyebrow": "Warum wir statt der Alternativen",
