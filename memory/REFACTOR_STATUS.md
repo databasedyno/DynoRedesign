@@ -2,6 +2,67 @@
 
 ---
 
+# 🏗️ OVERPAYMENT CHECKOUT SCREEN — stale UI for an unshipped refund flow — 2026-08-31 fork — 📋 DOCUMENTED, AWAITING USER DECISION (not yet implemented)
+
+## Problem verified (this session, read-only)
+The buyer-facing checkout shows a dedicated **"Overpayment Received"** screen when a customer overpays,
+and it promises a refund that never happens. Three things compound:
+
+1. **Merchant has NO control over overpayment.** The backend reads `tbl_company.overpayment_threshold_usd`
+   (default **$5**) but there is **no dashboard UI to set it**. The only merchant-facing payment-tolerance
+   controls (`Components/UI/CompanySettingsDialog/PaymentToleranceSection.tsx`) expose ONLY
+   `underpayment_threshold_usd` ("accept underpayments up to") and `grace_period_minutes`. Overpayment is
+   effectively a hard-coded $5 default the merchant can neither change nor act on.
+2. **The screen makes a promise the product does not keep.** `Components/UI/OverPayment/Index.tsx` renders
+   `overpayment.refundNotice` = *"The extra will be refunded to your wallet at the store you paid."* But:
+   - There is **no automatic overpayment-refund flow** (refund execution is deferred — see NEXT_STEPS.md).
+   - The OverPayment screen does **not** collect a refund address.
+   - Per `backend/services/overpaymentNotifier.ts` (comment ~L31) the **excess is routed to the ADMIN wallet**,
+     not refunded to the buyer and not kept by the merchant.
+3. **It's purely response-driven legacy behavior.** `backend/controller/payment/settlement/verifyPayment.ts`
+   (~L234-299) returns `status:"overpaid"` only when `overpaymentUsd > merchantOverpaymentThreshold`; otherwise
+   `"confirmed"`. The checkout (`Components/Page/Pay3Components/cryptoTransfer.tsx` ~L1119-1152, 1378-1390) then
+   swaps in the `OverPayment` component instead of the normal success screen. `payment.overpaid` webhook +
+   `notifyOverpayment` email fire once (deduped) — those are fine to keep.
+
+## Evidence / file refs
+- Backend flag (no FE control): `verifyPayment.ts` L139-166 (default $5), `PaymentToleranceSection.tsx` L65-117
+  (only underpayment + grace exposed). No `overpayment_threshold` anywhere in `Components/`,`pages/`,`src/`
+  except the checkout consuming it.
+- False refund promise: `Components/UI/OverPayment/Index.tsx` L400 (`overpayment.refundNotice`);
+  `langs/locales/en/common.json` → `overpayment.refundNotice`.
+- Excess → admin wallet: `backend/services/overpaymentNotifier.ts` (~L31).
+- Checkout switch: `cryptoTransfer.tsx` L1119-1152 (threshold gate) + L1378-1390 (renders `<OverPayment/>`).
+
+## Options presented to user (ask_human, 2026-08-31) — DECISION PENDING
+- **(a) [RECOMMENDED]** Treat overpaid as normal success at checkout — buyer sees the standard
+  "Payment received / confirmed" screen; drop the dedicated overpaid screen + refund promise. Backend still
+  records the overpayment and still fires `payment.overpaid` webhook/email to the merchant. Most honest given
+  no merchant control + no refund.
+- **(b)** Keep a light "you sent a little extra" acknowledgement on the success screen but remove the false
+  refund line; replace with accurate copy ("received in full — contact the store about any excess").
+- **(c)** Copy-only: just fix the misleading `overpayment.refundNotice` sentence (all 6 locales), leave the screen.
+- **(d)** Build the actual overpayment-refund flow instead (large — collect refund address, execute on-chain
+  refund of excess; currently deferred).
+
+## Implementation notes for whichever option wins (for the next agent)
+- **(a)**: cheapest + safe. In `cryptoTransfer.tsx`, fold `"overpaid"` into the `"confirmed"` success branch
+  (e.g. remove the `case "overpaid"` special-casing at ~L1119 and the `<OverPayment/>` render at ~L1378 so
+  overpaid falls through to the standard success/`CleanCheckoutV2` confirmed path at L537). No backend change
+  required — backend can keep returning `status:"overpaid"` for records/webhooks; the FE just stops branching on
+  it. Alternatively (bigger) make `verifyPayment.ts` L275 always return `"confirmed"` to the checkout — NOT
+  preferred because it would also silence the merchant webhook/email dedup path. Keep the `OverPayment` component
+  file in case (d) is ever built.
+- **(b)/(c)**: edit `overpayment.refundNotice` in all six `langs/locales/*/common.json`
+  (en/es/pt/fr/de/nl); for (b) also drop the standalone screen and inline the note on the success card.
+- **(d)**: out of scope here; ties into the deferred refund-execution flow (NEXT_STEPS.md §0).
+- ⚠️ SAFE-MODE preview cannot generate a real overpaid payment (no on-chain money movement); verify FE via the
+  payment-states demo route (`pages/pay/payment-states-demo.tsx` / `pages/QA.tsx` both render overpaid states)
+  or a mocked `verifyCryptoPayment` response, not a live payment.
+
+---
+
+
 # 🏗️ REFERRAL FEE-CREDIT CONSUMPTION (BLENDED default path) — 2026-06 fork — PHASED BUILD
 
 ## Problem verified (this session)
