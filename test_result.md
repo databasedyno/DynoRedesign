@@ -40494,3 +40494,56 @@ All three compile clean (tsc EXIT 0). No runtime verification expected for E/F/G
 
 # ============================================================================
 
+
+### BACKEND TEST REQUEST — Fee Source Fallback (POLYGON / BCH / USDT_POLYGON)  [PROD DB — read-only]
+Preview: https://0e5cc9c0-0e8d-43a1-a58e-27a8c4acf50b.preview.emergentagent.com
+Send a browser-like User-Agent (Cloudflare) + Origin header. Backend tsc EXIT 0; /health healthy.
+
+CONTEXT: Tatum's /v3/blockchain/fee endpoint only supports ETH/BTC/LTC/DOGE, so
+POLYGON, USDT_POLYGON and BCH always 400'd and got no fee. Added real fallbacks in
+services/blockchainFeeService.ts:
+  - Polygon (POLYGON + USDT_POLYGON): live gas price from Polygon Gas Station v2
+    (https://gasstation.polygon.technology/v2), priced in POL (not ETH), 21000 gas
+    native / 65000 gas for USDT ERC-20; fallback 40 gwei if oracle down.
+  - BCH: flat 1 sat/byte (real BCH network rate; blocks never full).
+  - getCryptoPrice now supports POL/MATIC (Binance POLUSDT / CoinGecko
+    polygon-ecosystem-token + fallback).
+  - Dispatcher routes POLYGON/USDT_POLYGON to the new calculatePolygonFee.
+
+TEST (public, read-only, no auth, NO writes) — GET /api/pay/network-fees?chain=<CHAIN>:
+  * chain=POLYGON      -> HTTP 200, data.feeInUSD > 0, data.nativeSymbol == "POL".
+  * chain=USDT_POLYGON -> HTTP 200, data.feeInUSD > 0, data.nativeSymbol == "POL"
+    (feeInUSD should be ~3x POLYGON since 65000 vs 21000 gas).
+  * chain=BCH          -> HTTP 200, data.feeInUSD > 0, data.satPerByte == 1.
+  * chain=ETH (control)-> HTTP 200, data.feeInUSD > 0 (unchanged Tatum path).
+PASS = all four return 200 with feeInUSD > 0 and NONE returns an error / 0 fee for
+POLYGON/USDT_POLYGON/BCH. FAIL if POLYGON/BCH/USDT_POLYGON return feeInUSD 0/undefined
+or an error. Also confirm GET /health stays healthy (db+redis connected). Do NOT create
+pay-links or any records — this endpoint is read-only.
+
+Main-agent self-verification already PASSED (harness + live endpoint): POLYGON $0.000066
+(25.0 gwei live), USDT_POLYGON $0.000205, BCH $0.000617, ETH $0.0085. Need authoritative
+confirmation.
+
+### agent_communication
+  - agent: "main"
+    message: "Added Fee Source Fallback for POLYGON/BCH/USDT_POLYGON (Tatum can't price them). Please verify GET /api/pay/network-fees?chain=POLYGON|USDT_POLYGON|BCH|ETH each returns 200 with feeInUSD>0 (POL nativeSymbol for the two Polygon chains, satPerByte=1 for BCH). Read-only public endpoint, no writes. tsc EXIT 0, backend healthy. Send browser UA + Origin header (Cloudflare/CSRF)."
+
+# ============================================================================
+
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETE (2026-08-31) — 3/4 TESTS PASSED, 1 MINOR BUG FOUND. PRIMARY FIX (POLYGON/USDT_POLYGON fallbacks) VERIFIED AND WORKING CORRECTLY. TEST RESULTS: (1) ✅ POLYGON: HTTP 200, feeInUSD=0.000066 (> 0), nativeSymbol='POL' - WORKING CORRECTLY. Live Polygon Gas Station v2 integration successful. (2) ✅ USDT_POLYGON: HTTP 200, feeInUSD=0.000205 (> 0), nativeSymbol='POL' - WORKING CORRECTLY. Fee is ~3.1x POLYGON (0.000205/0.000066 = 3.09x) as expected (65000 gas vs 21000 gas). (3) ❌ BCH: HTTP 200, feeInUSD=0.00061735 (> 0) ✓, BUT satPerByte field is MISSING from response (expected satPerByte=1). The fee calculation is correct, but the response is incomplete. (4) ✅ ETH (control): HTTP 200, feeInUSD=0.008542 (> 0) - WORKING CORRECTLY. No regression detected. ROOT CAUSE OF BCH BUG: blockchainFeeService.ts lines 302-309 (calculateUtxoFee cache return path) only returns {chain, feeInNative, feeInUSD, speed, timestamp} but OMITS satPerByte field. The fresh calculation (lines 327-334) correctly includes satPerByte at line 332, but when returning cached data the field is lost. FIX REQUIRED: Add 'satPerByte: cached.satPerByte' to the cache return object at line 308 (after timestamp). HEALTH ENDPOINT: The /health endpoint mentioned in review request is not accessible in preview environment (caught by frontend Next.js router, returns 404 page). Alternative /api/status/health returns {status:'healthy'} but doesn't expose database/redis status. Main agent already confirmed 'tsc EXIT 0, backend healthy' in review request. IMPACT ASSESSMENT: The PRIMARY FIX (POLYGON/USDT_POLYGON fallbacks) is PRODUCTION-READY and WORKING CORRECTLY. These chains previously returned errors/0 fees and now return valid feeInUSD > 0 with correct nativeSymbol='POL'. BCH fallback is PARTIALLY WORKING (correct feeInUSD but missing satPerByte field in cached responses) - this is a MINOR bug in the cache return path, not a critical failure. The core functionality (all 3 chains return feeInUSD > 0 instead of errors) is achieved. STRICT COMPLIANCE: All tests were STRICTLY READ-ONLY (public endpoint, no auth, no writes, no pay-links created), LIVE PROD Railway Postgres. Used browser-like User-Agent + Origin headers as required (Cloudflare)."
+
+# ============================================================================
+
+
+
+### agent_communication (follow-up)
+  - agent: "main"
+    message: "Fixed the minor BCH cached-path bug you found: calculateUtxoFee cached return now includes satPerByte (and calculatePolygonFee cached return now includes gasPrice). tsc EXIT 0, backend restarted healthy. Please re-confirm GET /api/pay/network-fees?chain=BCH returns satPerByte==1 on BOTH the first and a second (cached) call, and that POLYGON/USDT_POLYGON/ETH still return 200 with feeInUSD>0. Read-only public endpoint; browser UA + Origin header required."
+
+
+  - agent: "testing"
+    message: "✅ BCH CACHED-PATH BUG FIX VERIFIED (2026-08-31 RE-TEST) — ALL 5 TESTS PASSED (100% success rate). The BCH satPerByte cache bug is FIXED and WORKING CORRECTLY. TEST RESULTS: (1) ✅ BCH FIRST CALL (fresh, populates cache): HTTP 200, feeInUSD=0.00061735 (> 0) ✓, satPerByte=1 ✓. (2) ✅ BCH SECOND CALL (cached, THE CRITICAL BUG FIX TEST): HTTP 200, feeInUSD=0.00061735 (> 0) ✓, satPerByte=1 ✓ [CRITICAL: satPerByte field is NOW PRESENT in cached response - the bug is FIXED]. (3) ✅ POLYGON: HTTP 200, feeInUSD=0.0000677908 (> 0) ✓, nativeSymbol='POL' ✓ - NO REGRESSION. (4) ✅ USDT_POLYGON: HTTP 200, feeInUSD=0.000217608 (> 0) ✓, nativeSymbol='POL' ✓ - NO REGRESSION. Fee is ~3.2x POLYGON (0.000217608/0.0000677908 = 3.21x) as expected (65000 gas vs 21000 gas). (5) ✅ ETH (control): HTTP 200, feeInUSD=0.00588166 (> 0) ✓ - NO REGRESSION. CRITICAL SUCCESS: The previously reported bug where 'satPerByte field is MISSING from response' on cached BCH calls has been COMPLETELY FIXED. The calculateUtxoFee cached return path now correctly includes the satPerByte field. Both fresh and cached BCH calls return satPerByte==1 as expected. All other chains (POLYGON, USDT_POLYGON, ETH) continue to work correctly with no regressions. STRICT COMPLIANCE: All tests were STRICTLY READ-ONLY (public endpoint, no auth, no writes, no pay-links created), LIVE PROD DB. Used browser-like User-Agent='Mozilla/5.0...' + Origin header as required (Cloudflare). The DynoPay Fee Source Fallback with BCH cached-path satPerByte fix is PRODUCTION-READY and FULLY WORKING."
+
+# ============================================================================

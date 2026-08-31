@@ -62,6 +62,14 @@ const GAS_LIMITS = {
   MATIC: 21000,
 };
 
+// Gas limit for a Polygon (PoS) ERC-20 (e.g. USDT) transfer.
+const POLYGON_ERC20_GAS_LIMIT = 65000;
+// Conservative Polygon gas-price fallback (gwei) if the live oracle is unreachable.
+const POLYGON_GAS_FALLBACK_GWEI = 40;
+// BCH fee market is effectively flat at ~1 sat/byte (blocks are never full) and
+// Tatum's /blockchain/fee endpoint doesn't support BCH — 1 sat/byte is the real rate.
+const BCH_SAT_PER_BYTE = 1;
+
 // TRON energy/bandwidth costs (updated post Proposal #104, Aug 2025)
 // These are fallback values — live data is fetched from tronEnergyService
 const TRON_COSTS = {
@@ -204,6 +212,8 @@ const getCryptoPrice = async (symbol: string): Promise<number> => {
     'USDT': 1,
     'BCH': 450,
     'USDC': 1,
+    'POL': 0.4,
+    'MATIC': 0.4,
   };
 
   // FIX: Try Binance WebSocket prices first (already running, no extra API calls)
@@ -239,6 +249,8 @@ const getCryptoPrice = async (symbol: string): Promise<number> => {
       'TRX': 'tron',
       'USDT': 'tether',
       'BCH': 'bitcoin-cash',
+      'POL': 'polygon-ecosystem-token',
+      'MATIC': 'matic-network',
     };
 
     const coinId = idMap[symbol] || symbol.toLowerCase();
@@ -293,11 +305,16 @@ const calculateUtxoFee = async (
       feeInNative: Number(cached.feeInNative),
       feeInUSD: Number(cached.feeInUSD),
       speed: cached.speed as 'fast' | 'medium' | 'slow',
+      satPerByte: cached.satPerByte,
       timestamp: Number(cached.timestamp)
     };
   }
 
-  const feeData = await fetchTatumFee(chain) as { fast?: number; medium?: number; slow?: number };
+  // BCH: Tatum's /blockchain/fee endpoint doesn't support BCH; use the real
+  // flat ~1 sat/byte network rate. BTC/LTC/DOGE still come live from Tatum.
+  const feeData = chain === 'BCH'
+    ? { fast: BCH_SAT_PER_BYTE, medium: BCH_SAT_PER_BYTE, slow: BCH_SAT_PER_BYTE }
+    : (await fetchTatumFee(chain) as { fast?: number; medium?: number; slow?: number });
   const satPerByte = feeData[speed] || feeData.fast || 0;
   const txSize = TX_SIZES[chain] || 250;
   
@@ -314,6 +331,78 @@ const calculateUtxoFee = async (
     feeInUSD,
     speed,
     satPerByte,
+    timestamp: new Date(),
+  };
+
+  await setRedisItem(cacheKey, { ...result, timestamp: Date.now() });
+  return result;
+};
+
+/**
+ * Fetch live Polygon (PoS) gas price in Gwei from the Polygon Gas Station v2
+ * oracle (https://gasstation.polygon.technology/v2). Tatum's /blockchain/fee
+ * endpoint does not support Polygon. Falls back to a conservative constant if
+ * the oracle is unreachable.
+ */
+const fetchPolygonGasPriceGwei = async (
+  speed: 'fast' | 'medium' | 'slow' = 'fast'
+): Promise<number> => {
+  try {
+    const response = await axios.get('https://gasstation.polygon.technology/v2', { timeout: 8000 });
+    const d = response.data as {
+      safeLow?: { maxFee?: number };
+      standard?: { maxFee?: number };
+      fast?: { maxFee?: number };
+    };
+    const tier = speed === 'slow' ? d.safeLow : speed === 'medium' ? d.standard : d.fast;
+    const gwei = Number(tier?.maxFee ?? d.fast?.maxFee ?? d.standard?.maxFee);
+    if (Number.isFinite(gwei) && gwei > 0) return gwei;
+    throw new Error('gas station returned no usable maxFee');
+  } catch (error) {
+    cronLogger.warn(`[BlockchainFeeService] Polygon gas oracle failed, using ${POLYGON_GAS_FALLBACK_GWEI} gwei fallback: ${describeError(error)}`);
+    return POLYGON_GAS_FALLBACK_GWEI;
+  }
+};
+
+/**
+ * Calculate fee for Polygon (PoS) chains — POLYGON (native) and USDT_POLYGON.
+ * Gas is paid in POL (the native token), NOT ETH, so it is priced via
+ * getCryptoPrice('POL'). Tatum can't price Polygon, so gas comes from the
+ * Polygon Gas Station oracle above.
+ */
+const calculatePolygonFee = async (
+  chain: string,
+  speed: 'fast' | 'medium' | 'slow' = 'fast'
+): Promise<BlockchainFeeResult> => {
+  const cacheKey = `blockchain_fee_${chain}`;
+  const cached = await getRedisItem(cacheKey) as unknown as (BlockchainFeeResult & { timestamp?: string }) | null;
+
+  if (cached && cached.timestamp && Number(cached.timestamp) > Date.now() - FEE_CACHE_DURATION * 1000) {
+    return {
+      chain: cached.chain,
+      feeInNative: Number(cached.feeInNative),
+      feeInUSD: Number(cached.feeInUSD),
+      nativeSymbol: 'POL',
+      speed: cached.speed as 'fast' | 'medium' | 'slow',
+      gasPrice: cached.gasPrice,
+      timestamp: Number(cached.timestamp),
+    };
+  }
+
+  const gasPriceGwei = await fetchPolygonGasPriceGwei(speed);
+  // Native POL transfer = 21000 gas; a Polygon ERC-20 (USDT) transfer ≈ 65000 gas.
+  const gasLimit = chain === 'USDT_POLYGON' ? POLYGON_ERC20_GAS_LIMIT : GAS_LIMITS.MATIC;
+  const feeInNative = (gasPriceGwei * gasLimit) / 1e9; // gwei * gas / 1e9 = POL
+  const polPrice = await getCryptoPrice('POL');
+  const feeInUSD = feeInNative * polPrice;
+
+  const result: BlockchainFeeResult = {
+    chain,
+    feeInNative,
+    feeInUSD,
+    nativeSymbol: 'POL',
+    speed,
+    gasPrice: gasPriceGwei,
     timestamp: new Date(),
   };
 
@@ -435,8 +524,13 @@ export const getBlockchainNetworkFee = async (
     return calculateUtxoFee(normalizedChain, speed);
   }
   
+  // Polygon (PoS) chains — gas paid in POL, priced separately from ETH.
+  if (['POLYGON', 'USDT_POLYGON'].includes(normalizedChain)) {
+    return calculatePolygonFee(normalizedChain, speed);
+  }
+
   // EVM chains
-  if (['ETH', 'USDT_ERC20', 'USDC_ERC20', 'RLUSD_ERC20', 'POLYGON', 'USDT_POLYGON'].includes(normalizedChain)) {
+  if (['ETH', 'USDT_ERC20', 'USDC_ERC20', 'RLUSD_ERC20'].includes(normalizedChain)) {
     return calculateEvmFee(normalizedChain, speed);
   }
   
