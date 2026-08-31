@@ -2,6 +2,67 @@
 
 ---
 
+# ⚡ DYNOPAY PERFORMANCE + DB/REDIS CONNECTION RESILIENCE — 2026-06 fork (pod 87e6bc11) — 📋 DOCUMENTED, AWAITING USER GO-AHEAD (not yet implemented)
+
+Source of truth for this section = live prod investigation via DigitalOcean runtime logs + Railway (SMADAV bot) logs + prod DB (read-only, SAFE MODE). All numbers measured from the real `$20`/`$10` ETH payments on 2026-08-31.
+
+## A. Create-payment latency — RCA (why it is slow)
+`POST /api/user/cryptoPayment` measured at **3429ms** (the `$20` ETH request, IP axios/1.15.0, deploy 8c460411). Timeline from logs:
+
+| Phase | ~Duration | Cause |
+|---|---|---|
+| Auth middleware (find/create default customer) | ~480ms | 2-3 DB round-trips |
+| `getAvailableCurrencies` (configured wallets) | ~320ms | 1 DB round-trip |
+| `convertToMultiple` (ETH→USD rate) | ~410ms | **live Tatum call (cache miss)** on critical path |
+| 2nd `findOrRecreateCustomer` + webhook resolve + Redis write | ~470ms | **redundant** customer SELECT |
+| Currency re-validate + wallet lookup (inside `createCryptoPayment`) | ~470ms | 2 DB round-trips (**dup currency list**) |
+| Merchant-pool FAST PATH reservation | ~780ms | DB writes to reserve pre-reserved addr |
+| Tatum webhook subscription create/update | ~490ms | **live Tatum call on critical path** |
+
+**Two systemic root causes:**
+1. **App and DB/Redis are on different continents.** App = DigitalOcean **Amsterdam** (`region: ams`); Railway Postgres (`roundhouse.proxy.rlwy.net` → `66.33.22.233`, US) + Redis (`nozomi.proxy.rlwy.net`, US). Every DB round-trip ≈ **~150ms** transatlantic; ~10 sequential ones ≈ **~1.5s** of pure network wait (clean ~150ms gaps between single-query log lines confirm it).
+2. **Two live Tatum API calls on the request path** (rate ~410ms + address subscription ~490ms) ≈ **~0.9s**, plus duplicate work (customer fetched twice; currency list fetched twice).
+
+## B. "Connection terminated unexpectedly" dashboard 500s — RCA
+Transient **~48s window (19:40:10 → 19:40:58)** where BOTH Railway services dropped connections:
+- 19:40:10–20 — Redis `read ECONNRESET` burst: `[Lock] Redis error during acquire pre-reserve:*`, `[WebhookQueue] Worker error` (×8).
+- 19:40:51 — Postgres `read ECONNRESET` → `GET /api/pay/getPaymentLinks?company_id=71` → **500**.
+- 19:40:57–58 — Postgres **`Connection terminated unexpectedly`** → `GET /api/user/onboarding-status` **500**, `GET /api/company/getCompany` **500**, `[FeeFree]` error.
+
+- **Not caused by the SMADAV switch** — coincided with a dashboard refresh; other company-71 calls in the same refresh returned 200. App **self-recovered** (health green after, uptime unbroken).
+- **Same root cause as latency:** cross-continent connections over Railway's public proxy occasionally reset.
+- **Why existing retry didn't mask it:** `utils/dbInstance.ts` has `retry:{ max:3 }` but **no `match` list and no backoff** → 3 retries fire within ms, all inside the same multi-second reset → still 500. Redis client auto-reconnects (`reconnectStrategy: retries*100ms, cap 3s`) but in-flight ops fail during the ~10s gap.
+
+## C. Recommended fixes (ranked)
+
+### P0 — Infra: co-locate app + DB/Redis (~1.3–1.5s, and removes the ECONNRESET class) — USER'S DECISION
+Move Railway Postgres+Redis to an **EU region** to match the Amsterdam app, OR move the DO app to a **US region** to match the DB (or private-network them if both on Railway). Biggest single win; no code change. Eliminates both the per-query latency AND the transatlantic connection resets.
+
+### P1 — Code, no infra change (~0.8–1.0s) — READY TO IMPLEMENT ON GO-AHEAD
+- **Move the Tatum address subscription OFF the critical path** — create/refresh it during the **pool pre-reservation** (already runs ahead of time creating addresses), so `create-payment` never waits on Tatum (~490ms saved). Files: `controller/payment/cryptoCheckout.ts` (`createSubscriptionBlockBeeStyle` call), the pool pre-reserve worker/cron.
+- **Serve the exchange rate from the warm background cache** — the app already refreshes 40 rates/min; use that cached ETH→USD in the create path instead of a live Tatum call (~410ms saved). Files: `routes/merchantApiRouter.ts` `convertToMultiple(...)` (L325) → `utils/currencyUtils.ts` `currencyConvert` (make the create-path lookup prefer the warm cache).
+
+### P2 — Remove redundant DB work (~0.3–0.45s) — READY TO IMPLEMENT ON GO-AHEAD
+- **Reuse the customer the auth middleware already resolved** — `legacyApiAuthMiddleware` already finds/creates the default customer (`res.locals.user` / `defaultCustomer.customer_id`); skip the 2nd `findOrRecreateCustomer` at `routes/merchantApiRouter.ts` L317.
+- **Pass the already-fetched currency list into the controller** — router calls `getAvailableCurrencies` (L284); `createCryptoPayment` re-queries it ("Phase 11"). Thread the list through instead of re-querying.
+
+**Net:** Code-only (P1+P2) → **~3.4s → ~1.5–1.8s**. Adding P0 co-location → likely **under 1s**.
+
+### R1 — DB/Redis connection resilience (masks brief blips like §B) — READY TO IMPLEMENT ON GO-AHEAD
+- Sequelize `retry`: add `match: [/ECONNRESET/, /Connection terminated unexpectedly/, /server closed the connection/, /ETIMEDOUT/, /read ECONNRESET/]` **+ backoff** (`backoffBase`, `backoffExponent`) so idempotent reads retry over ~2-3s and ride out a single-connection reset. File: `utils/dbInstance.ts` (`retryConfig`).
+- Consider lowering pool `idle` so proxy-killed idle connections are recycled before reuse; ensure a `pool`/client `error` handler evicts dead connections.
+- Redis: the `reconnectStrategy` exists; verify critical lock/queue ops treat `ECONNRESET` as retryable (they already loop `maxRetries=3` in `redisInstance.ts` L170+).
+- NOTE: app-side retry only masks BRIEF resets; a multi-second network partition still needs P0.
+
+## Status / decisions pending
+- User asked (2026-06) to **document** A/B/C. Implementation of **P1 + P2 + R1** is **queued, awaiting explicit go-ahead** (money-path — confirm before touching create-payment). **P0** is the user's infra decision.
+- Related resolved this session: SMADAV (company 71) now correctly routes deposits through DynoPay (payment `e63470f4`, webhook → `smadav.up.railway.app/dynopay/crypto-wallet`, settled, shows on SMADAV dashboard). Earlier `$10` "missing" deposit was BlockBee (`BLOCKBEE_CRYTPO_PAYMENT_ON=true` on the bot), not a DynoPay bug — see below / prior notes.
+
+---
+
+
+---
+
 # 🏗️ OVERPAYMENT CHECKOUT SCREEN — stale UI for an unshipped refund flow — 2026-08-31 fork — 📋 DOCUMENTED, AWAITING USER DECISION (not yet implemented)
 
 ## Problem verified (this session, read-only)
