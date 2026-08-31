@@ -29,6 +29,7 @@ import {
   CheckCircleRounded,
   SendRounded,
   VisibilityRounded,
+  ScheduleRounded,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -53,6 +54,7 @@ interface Member {
   status: Status;
   invited_at?: string;
   accepted_at?: string | null;
+  expires_at?: string | null;
 }
 interface Catalogue {
   keys: string[];
@@ -305,6 +307,29 @@ const TeamSettingsSection: React.FC = () => {
     if (!editing) setRole("member");
   };
 
+  // Friendly "expires in X days" hint for a pending invite link.
+  const inviteExpiry = useCallback(
+    (iso?: string | null): { label: string; color: "error" | "warning" | "default"; tooltip: string } | null => {
+      if (!iso) return null;
+      const target = new Date(iso).getTime();
+      if (Number.isNaN(target)) return null;
+      const ms = target - Date.now();
+      const tooltip = t("team.expiresOn", {
+        defaultValue: `Link expires ${new Date(iso).toLocaleString()}`,
+        date: new Date(iso).toLocaleString(),
+      });
+      if (ms <= 0) return { label: t("team.expired", { defaultValue: "Expired" }), color: "error", tooltip };
+      const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
+      const color: "warning" | "default" = days <= 2 ? "warning" : "default";
+      const label =
+        days <= 1
+          ? t("team.expiresSoon", { defaultValue: "Expires within a day" })
+          : t("team.expiresInDays", { defaultValue: `Expires in ${days} days`, days });
+      return { label, color, tooltip };
+    },
+    [t]
+  );
+
   const activeMembers = useMemo(() => members.filter((m) => m.status !== "revoked"), [members]);
   const permKeys = catalogue?.keys || Object.keys(perms);
   const isSelfInvite = !editing && !!ownerEmail && email.trim().toLowerCase() === ownerEmail;
@@ -396,15 +421,32 @@ const TeamSettingsSection: React.FC = () => {
                   <Typography variant="caption" color="text.secondary">
                     {m.role === "admin"
                       ? t("team.adminFullAccess", { defaultValue: "Full access (except owner-only actions)" })
-                      : t("team.permCount", { defaultValue: `${grantCount} permission(s) granted`, count: grantCount })}
+                      : t("team.permCount", { defaultValue: `${grantCount} permission(s) granted`, num: grantCount })}
                   </Typography>
                 </Box>
-                <Stack direction="row" gap={0.5}>
+                <Stack direction="row" gap={0.5} alignItems="center">
                   <Tooltip title={t("team.edit", { defaultValue: "Edit role & permissions" })}>
                     <IconButton onClick={() => openEdit(m)} size="small" data-testid={`team-edit-${m.id}`}>
                       <EditRounded fontSize="small" />
                     </IconButton>
                   </Tooltip>
+                  {m.status === "invited" &&
+                    (() => {
+                      const exp = inviteExpiry(m.expires_at);
+                      return exp ? (
+                        <Tooltip title={exp.tooltip}>
+                          <Chip
+                            size="small"
+                            variant="outlined"
+                            color={exp.color}
+                            icon={<ScheduleRounded sx={{ fontSize: 14 }} />}
+                            label={exp.label}
+                            data-testid={`team-invite-expiry-${m.id}`}
+                            sx={{ height: 24, fontWeight: 500 }}
+                          />
+                        </Tooltip>
+                      ) : null;
+                    })()}
                   {m.status === "invited" && (
                     <Tooltip title={t("team.resend", { defaultValue: "Resend invite link" })}>
                       <span>
@@ -450,6 +492,7 @@ const TeamSettingsSection: React.FC = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
                 {t("team.inviteShare", {
                   defaultValue: `Share this secure link with ${email}. It lets them set a password and join this business.`,
+                  email,
                 })}
               </Typography>
               <Stack direction="row" gap={1}>

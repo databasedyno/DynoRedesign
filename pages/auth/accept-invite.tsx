@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -39,6 +40,7 @@ interface InviteInfo {
 const AcceptInvitePage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t } = useTranslation("common");
   const token = typeof router.query.token === "string" ? router.query.token : "";
 
   const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ const AcceptInvitePage = () => {
   useEffect(() => {
     if (!router.isReady) return;
     if (!token) {
-      setError("This invite link is missing its token.");
+      setError(t("acceptInvite.missingToken", { defaultValue: "This invite link is missing its token." }));
       setLoading(false);
       return;
     }
@@ -62,7 +64,11 @@ const AcceptInvitePage = () => {
         if (mounted) setInfo(res?.data?.data || null);
       } catch (e: unknown) {
         const err = e as { response?: { data?: { message?: string } } };
-        if (mounted) setError(err?.response?.data?.message || "This invite is invalid or has expired.");
+        if (mounted)
+          setError(
+            err?.response?.data?.message ||
+              t("acceptInvite.invalidOrExpired", { defaultValue: "This invite is invalid or has expired." })
+          );
       } finally {
         if (mounted) setLoading(false);
       }
@@ -70,12 +76,12 @@ const AcceptInvitePage = () => {
     return () => {
       mounted = false;
     };
-  }, [router.isReady, token]);
+  }, [router.isReady, token, t]);
 
   const accept = useCallback(async () => {
     if (!token) return;
     if (info && !info.email_has_account && (!password || password.length < 8)) {
-      setError("Choose a password with at least 8 characters.");
+      setError(t("acceptInvite.passwordTooShort", { defaultValue: "Choose a password with at least 8 characters." }));
       return;
     }
     setSubmitting(true);
@@ -111,20 +117,20 @@ const AcceptInvitePage = () => {
       } else if (d.needs_login) {
         router.replace("/auth/login");
       } else {
-        setError("Unexpected response. Please try logging in.");
+        setError(t("acceptInvite.unexpected", { defaultValue: "Unexpected response. Please try logging in." }));
       }
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string } } };
-      setError(err?.response?.data?.message || "Couldn't accept the invite.");
+      setError(err?.response?.data?.message || t("acceptInvite.acceptFailed", { defaultValue: "Couldn't accept the invite." }));
     } finally {
       setSubmitting(false);
     }
-  }, [token, info, name, password, dispatch, router]);
+  }, [token, info, name, password, dispatch, router, t]);
 
   return (
     <>
       <Head>
-        <title>Accept invite · Dynopay</title>
+        <title>{t("acceptInvite.headTitle", { defaultValue: "Accept invite · Dynopay" })}</title>
         <meta name="robots" content="noindex" />
       </Head>
       <Box
@@ -146,13 +152,13 @@ const AcceptInvitePage = () => {
             <Stack alignItems="center" gap={1.5} sx={{ textAlign: "center", py: 2 }} data-testid="accept-invite-error">
               <ErrorOutlineRounded color="error" sx={{ fontSize: 40 }} />
               <Typography variant="h6" fontWeight={700}>
-                Invite unavailable
+                {t("acceptInvite.unavailableTitle", { defaultValue: "Invite unavailable" })}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {error}
               </Typography>
               <Button variant="contained" onClick={() => router.replace("/auth/login")} sx={{ mt: 1, textTransform: "none" }}>
-                Go to login
+                {t("acceptInvite.goToLogin", { defaultValue: "Go to login" })}
               </Button>
             </Stack>
           ) : info ? (
@@ -160,15 +166,28 @@ const AcceptInvitePage = () => {
               <Stack alignItems="center" gap={1} sx={{ textAlign: "center" }}>
                 <GroupAddRounded color="primary" sx={{ fontSize: 40 }} />
                 <Typography variant="h6" fontWeight={700}>
-                  {`You've been invited${info.invited_by ? ` by ${info.invited_by}` : ""}`}
+                  {info.invited_by
+                    ? t("acceptInvite.invitedByTitle", {
+                        defaultValue: `You've been invited by ${info.invited_by}`,
+                        name: info.invited_by,
+                      })
+                    : t("acceptInvite.invitedTitle", { defaultValue: "You've been invited" })}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Join{" "}
-                  <strong>
-                    {info.companies?.map((c) => c.company_name || `Business #${c.company_id}`).join(", ")}
-                  </strong>{" "}
-                  as{" "}
-                  <strong style={{ textTransform: "capitalize" }}>{info.companies?.[0]?.role || "member"}</strong>.
+                  {(() => {
+                    const companiesStr =
+                      info.companies?.map((c) => c.company_name || `Business #${c.company_id}`).join(", ") || "";
+                    const roleRaw = info.companies?.[0]?.role || "member";
+                    const roleStr =
+                      roleRaw === "admin"
+                        ? t("acceptInvite.roleAdmin", { defaultValue: "admin" })
+                        : t("acceptInvite.roleMember", { defaultValue: "member" });
+                    return t("acceptInvite.joinLine", {
+                      defaultValue: `Join ${companiesStr} as ${roleStr}.`,
+                      companies: companiesStr,
+                      role: roleStr,
+                    });
+                  })()}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {info.email}
@@ -178,7 +197,10 @@ const AcceptInvitePage = () => {
               {info.email_has_account ? (
                 <>
                   <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
-                    You already have a Dynopay account for this email. Accept the invite, then log in to access the shared business.
+                    {t("acceptInvite.existingAccountNote", {
+                      defaultValue:
+                        "You already have a Dynopay account for this email. Accept the invite, then log in to access the shared business.",
+                    })}
                   </Typography>
                   <Button
                     variant="contained"
@@ -187,10 +209,12 @@ const AcceptInvitePage = () => {
                     data-testid="accept-invite-submit"
                     sx={{ textTransform: "none", fontWeight: 600 }}
                   >
-                    {submitting ? "Accepting..." : "Accept & continue to login"}
+                    {submitting
+                      ? t("acceptInvite.accepting", { defaultValue: "Accepting..." })
+                      : t("acceptInvite.acceptContinueLogin", { defaultValue: "Accept & continue to login" })}
                   </Button>
                   <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
-                    Forgot your password?{" "}
+                    {t("acceptInvite.forgotPrefix", { defaultValue: "Forgot your password?" })}{" "}
                     <MuiLink
                       component="button"
                       type="button"
@@ -198,7 +222,7 @@ const AcceptInvitePage = () => {
                       data-testid="accept-invite-forgot-password"
                       sx={{ fontWeight: 600, cursor: "pointer", verticalAlign: "baseline" }}
                     >
-                      Reset it on the login page
+                      {t("acceptInvite.forgotLink", { defaultValue: "Reset it on the login page" })}
                     </MuiLink>
                     .
                   </Typography>
@@ -206,7 +230,7 @@ const AcceptInvitePage = () => {
               ) : (
                 <>
                   <TextField
-                    label="Your name"
+                    label={t("acceptInvite.nameLabel", { defaultValue: "Your name" })}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
@@ -214,13 +238,13 @@ const AcceptInvitePage = () => {
                     data-testid="accept-invite-name"
                   />
                   <TextField
-                    label="Create a password"
+                    label={t("acceptInvite.passwordLabel", { defaultValue: "Create a password" })}
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     fullWidth
                     size="small"
-                    helperText="At least 8 characters."
+                    helperText={t("acceptInvite.passwordHelper", { defaultValue: "At least 8 characters." })}
                     data-testid="accept-invite-password"
                   />
                   {error && (
@@ -236,7 +260,9 @@ const AcceptInvitePage = () => {
                     sx={{ textTransform: "none", fontWeight: 600 }}
                     startIcon={submitting ? undefined : <CheckCircleRounded />}
                   >
-                    {submitting ? "Setting up..." : "Accept invite & join"}
+                    {submitting
+                      ? t("acceptInvite.settingUp", { defaultValue: "Setting up..." })
+                      : t("acceptInvite.acceptJoin", { defaultValue: "Accept invite & join" })}
                   </Button>
                 </>
               )}

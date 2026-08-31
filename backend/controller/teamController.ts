@@ -240,6 +240,7 @@ export const listMembers = async (req: express.Request, res: express.Response) =
           status: d.status,
           invited_at: d.created_at,
           accepted_at: d.accepted_at,
+          expires_at: d.invite_expires_at ?? null,
         };
       })
     );
