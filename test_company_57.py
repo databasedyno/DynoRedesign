@@ -2,7 +2,7 @@
 import requests
 import json
 
-BASE_URL = "https://merchant-demo-4.preview.emergentagent.com"
+BASE_URL = "https://merchant-onboard-19.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Login first
