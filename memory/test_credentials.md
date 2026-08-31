@@ -18,6 +18,11 @@
 # - Vault NOT re-sealed (no passphrase provided this session).
 # - >>> MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, "Hostbay") <<<
 #   (2-step login: /auth/login -> email -> Continue -> password -> Sign in)
+#   NOTE: login page has 3 "Continue*" buttons — use exact match "Continue" (google/github btns also match loosely).
+# - NEW public pages (2026-08-31): /signup?ref= -> 307 to /auth/register (alias for referral emails);
+#   /unsubscribe?token= -> tokenized unsubscribe page (layout "none", no auth).
+# - NEW admin endpoint: POST /api/admin/referral-invites/backfill (admin JWT required; dry_run
+#   defaults TRUE). Admin login password NOT on record — verify 403-without-auth only.
 # - Admin email on record: moxxcompany@gmail.com (no login password — do not use for login)
 # - VERIFIED: :8001/health healthy (db+redis connected, tatum operational, bg_jobs=false);
 #     POST <preview>/api/user/login -> 200 "Login Successful!" (Hostbay) through ingress;

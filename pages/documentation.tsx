@@ -236,12 +236,10 @@ const AuthBadge = styled("span", {
     whiteSpace: "nowrap" as const,
     background: isPublishable
       ? dk ? "rgba(245,158,11,0.15)" : "#FEF3C7"
-      : isApiOnly
+      : (isApiOnly || isOptionalBearer)
         ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
-        : isOptionalBearer
-          ? dk ? "rgba(5,150,105,0.15)" : "#D1FAE5"
-          : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
-    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : isApiOnly ? "#60A5FA" : isOptionalBearer ? "#10B981" : "#A78BFA",
+        : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
+    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : (isApiOnly || isOptionalBearer) ? "#60A5FA" : "#A78BFA",
   };
 });
 
@@ -452,6 +450,8 @@ const ENDPOINTS: Endpoint[] = [
       { name: "webhook_url", type: "string", required: false, description: "URL to receive payment status webhooks" },
       { name: "callback_url", type: "string", required: false, description: "Callback URL for payment updates" },
       { name: "meta_data", type: "object", required: false, description: "Custom metadata (order ID, notes, etc.)" },
+      { name: "customer_email", type: "string", required: false, description: "Payer's email — attributes the payment to a real customer (enables receipts + Dynopay referral invites)" },
+      { name: "customer_name", type: "string", required: false, description: "Payer's name (used with customer_email)" },
     ],
     requestExample: `{
   "amount": 50.00,
@@ -459,6 +459,7 @@ const ENDPOINTS: Endpoint[] = [
   "fee_payer": "company",
   "accepted_currencies": ["BTC", "ETH", "USDT"],
   "webhook_url": "https://yoursite.com/webhooks/dynopay",
+  "customer_email": "buyer@example.com",
   "meta_data": { "order_id": "ORD-12345" }
 }`,
     responseExample: `{
@@ -492,6 +493,8 @@ const ENDPOINTS: Endpoint[] = [
       { name: "webhook_url", type: "string", required: false, description: "Per-session webhook URL override (otherwise uses the key's default)" },
       { name: "callback_url", type: "string", required: false, description: "Legacy webhook alias" },
       { name: "meta_data", type: "object", required: false, description: "Custom metadata echoed back in webhooks" },
+      { name: "customer_email", type: "string", required: false, description: "Payer's email — attributes the payment to a real customer (enables receipts + Dynopay referral invites)" },
+      { name: "customer_name", type: "string", required: false, description: "Payer's name (used with customer_email)" },
       { name: "allowed_origins", type: "string[]", required: false, description: 'Domains permitted to iframe this session, e.g. ["https://shop.com"]' },
     ],
     requestExample: `{
@@ -1114,7 +1117,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
         <Typography sx={{ fontSize: 14, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mr: 1, display: { xs: "none", md: "block" } }}>
           {ep.title}
         </Typography>
-        <AuthBadge authType={ep.auth}>{ep.auth === "publishable-key" ? "Publishable Key" : ep.auth === "api-key" ? "API Key" : ep.auth === "api-key-optional-bearer" ? "API Key (Bearer Optional)" : "API Key + Bearer"}</AuthBadge>
+        <AuthBadge authType={ep.auth}>{ep.auth === "publishable-key" ? "Publishable Key" : "API Key"}</AuthBadge>
         <ExpandMoreIcon sx={{ fontSize: 20, color: "text.secondary", transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
       </EndpointHeader>
       {expanded && (
@@ -1501,34 +1504,34 @@ const DocumentationPage = () => {
                   Authentication
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  Dynopay uses three levels of authentication depending on the endpoint:
+                  Your API key is all you need. Every server-side endpoint authenticates with a single <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header — no customer login and no token exchange. Two other key types exist only for specific cases:
                 </Typography>
                 <Grid container spacing={2.5} sx={{ mb: 3 }}>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="blue">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#60A5FA", mb: 1 }}>API Key Only</Typography>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#60A5FA", mb: 1 }}>API Key — all you need</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
-                        Used for creating customers and listing supported currencies. Only requires the <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header.
+                        Send your secret <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header with every request. It powers everything — payments, checkout, wallets and transactions. Keep it server-side; never expose it in a browser.
                       </Typography>
                       <CodeBlock code="x-api-key: your_api_key" />
                     </AuthCard>
                   </Grid>
                   <Grid item xs={12} md={4}>
-                    <AuthCard variant="green">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#10B981", mb: 1 }}>API Key (Bearer Optional)</Typography>
+                    <AuthCard variant="purple">
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#A78BFA", mb: 1 }}>Publishable Key (browser)</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
-                        For payments and wallet operations. Works with just the API key (userless mode). Optionally add a customer token for per-customer tracking.
+                        Only for Embedded Checkout and Elements, which run in your customer&apos;s browser. Use your domain-restricted publishable key (<code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>pk_live_…</code>) there — never your secret API key.
                       </Typography>
-                      <CodeBlock code={`x-api-key: your_api_key\n# Optional:\nAuthorization: Bearer eyJhbGciOi...`} />
+                      <CodeBlock code={`# Browser only\npk_live_xxxxxxxxxxxx`} />
                     </AuthCard>
                   </Grid>
                   <Grid item xs={12} md={4}>
-                    <AuthCard variant="purple">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#A78BFA", mb: 1 }}>API Key + Bearer Token</Typography>
+                    <AuthCard variant="green">
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#10B981", mb: 1 }}>Customer Token (optional)</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
-                        For customer-specific operations where you want per-customer history and wallet balances.
+                        Advanced and rarely needed. A few endpoints accept an optional customer Bearer token to scope wallet balances and history to one customer. You obtain it from <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>POST /createUser</code>. Omit it and the API runs in userless mode.
                       </Typography>
-                      <CodeBlock code={`x-api-key: your_api_key\nAuthorization: Bearer eyJhbGciOi...`} />
+                      <CodeBlock code={`x-api-key: your_api_key\n# Optional (advanced):\nAuthorization: Bearer {token_from_createUser}`} />
                     </AuthCard>
                   </Grid>
                 </Grid>
@@ -1795,11 +1798,12 @@ app.post('/webhooks/dynopay', (req, res) => {
                       {[
                         ["400", "Bad Request — missing or invalid parameters"],
                         ["401", "Unauthorized — invalid or missing API key / token"],
-                        ["403", "Forbidden — API key disabled or company inactive"],
+                        ["403", "Forbidden — authenticated but not allowed (e.g. wrong role, or a publishable key used from a disallowed origin)"],
                         ["404", "Not Found — resource does not exist"],
+                        ["429", "Too Many Requests — rate limit hit; retry after the Retry-After header"],
                         ["500", "Server Error — something went wrong on our side"],
                       ].map(([code, desc], i) => (
-                        <tr key={code} style={{ borderBottom: i < 4 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                        <tr key={code} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
                             <code style={{ fontWeight: 700, color: Number(code) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{code}</code>
                           </td>

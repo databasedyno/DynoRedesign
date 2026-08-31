@@ -25,6 +25,7 @@ import jwt from "jsonwebtoken";
 import { QueryTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import { decrypt } from "../helper/encryption";
+import { findOrCreateDefaultCustomer, findOrCreateEmailCustomer, type CustomerRecord } from "./legacy/customerResolver";
 
 interface TestModeRestrictions {
   max_amount?: number;
@@ -49,13 +50,6 @@ interface CustomerJwtPayload {
   company_id?: number;
 }
 
-interface CustomerRecord {
-  id: string;
-  customer_id: number;
-  customer_name: string;
-  email: string;
-  company_id: number;
-}
 
 /**
  * Validates API key and extracts company data
@@ -162,79 +156,6 @@ const validateCustomerToken = (token: string): CustomerJwtPayload | null => {
 };
 
 /**
- * Finds or creates a default customer for legacy API calls
- */
-const findOrCreateDefaultCustomer = async (
-  companyId: number, 
-  admId: number,
-  baseCurrency: string
-): Promise<CustomerRecord | null> => {
-  try {
-    // Look for existing default customer for this company
-    const existingCustomer = await sequelize.query<CustomerRecord>(
-      `SELECT id, customer_id, customer_name, email, company_id 
-       FROM tbl_customer 
-       WHERE company_id = $1 AND email LIKE 'legacy-api-%'
-       ORDER BY "createdAt" DESC LIMIT 1`,
-      {
-        bind: [companyId],
-        type: QueryTypes.SELECT
-      }
-    );
-    
-    if (existingCustomer.length > 0) {
-      apiLogger.info(`[LegacyAuth] Found existing default customer: ${existingCustomer[0].customer_id}`);
-      return existingCustomer[0];
-    }
-    
-    // Create a new default customer for legacy API calls
-    const crypto = await import("crypto");
-    const customerId = crypto.randomUUID();
-    const defaultEmail = `legacy-api-${companyId}-${Date.now()}@dynopay.internal`;
-    
-    await sequelize.query(
-      `INSERT INTO tbl_customer (id, customer_name, email, company_id, "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, NOW(), NOW())`,
-      {
-        bind: [customerId, 'Legacy API Customer', defaultEmail, companyId],
-        type: QueryTypes.INSERT
-      }
-    );
-    
-    // Get the created customer with auto-generated customer_id
-    const newCustomer = await sequelize.query<CustomerRecord>(
-      `SELECT id, customer_id, customer_name, email, company_id 
-       FROM tbl_customer WHERE id = $1`,
-      {
-        bind: [customerId],
-        type: QueryTypes.SELECT
-      }
-    );
-    
-    if (newCustomer.length > 0) {
-      // Create wallet for the customer
-      const walletId = crypto.randomUUID();
-      await sequelize.query(
-        `INSERT INTO tbl_customer_wallet (id, customer_id, wallet_type, amount, "createdAt", "updatedAt")
-         VALUES ($1, $2, $3, 0, NOW(), NOW())`,
-        {
-          bind: [walletId, newCustomer[0].customer_id, baseCurrency],
-          type: QueryTypes.INSERT
-        }
-      );
-      
-      apiLogger.info(`[LegacyAuth] Created default customer: ${newCustomer[0].customer_id}`);
-      return newCustomer[0];
-    }
-    
-    return null;
-  } catch (error) {
-    apiLogger.error("[LegacyAuth] Error creating default customer:", error);
-    return null;
-  }
-};
-
-/**
  * Generate a temporary customer token for legacy API calls
  */
 const generateCustomerToken = (customer: CustomerRecord): string => {
@@ -335,7 +256,7 @@ const legacyApiAuthMiddleware = async (
     const apiKey = req.headers["x-api-key"] as string;
     
     if (!apiKey) {
-      return res.status(403).json({
+      return res.status(401).json({
         success: false,
         message: "API key is required in x-api-key header"
       });
@@ -343,7 +264,7 @@ const legacyApiAuthMiddleware = async (
     
     const apiKeyData = await validateApiKey(apiKey);
     if (!apiKeyData) {
-      return res.status(403).json({
+      return res.status(401).json({
         success: false,
         message: "Invalid API key"
       });
@@ -388,12 +309,41 @@ const legacyApiAuthMiddleware = async (
     // Step 3: No valid customer token - use LEGACY flow
     // This handles: no auth header, invalid JWT, or wallet_token (old style)
     apiLogger.info(`[LegacyAuth] Using legacy flow - creating/finding default customer`);
-    
-    const defaultCustomer = await findOrCreateDefaultCustomer(
-      apiKeyData.company_id,
-      apiKeyData.adm_id,
-      apiKeyData.base_currency || 'USD'
-    );
+
+    // If the merchant supplied the payer's email (optional `customer_email`
+    // body field, with optional `customer_name`), attribute the request to a
+    // REAL customer row instead of the shared synthetic default — this enables
+    // customer receipts and post-payment referral auto-invites.
+    const rawPayerEmail =
+      typeof req.body?.customer_email === "string"
+        ? req.body.customer_email.trim().toLowerCase()
+        : "";
+    const payerEmailValid =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawPayerEmail) &&
+      !rawPayerEmail.endsWith("@dynopay.internal") &&
+      !rawPayerEmail.endsWith("@dynopay.local");
+
+    let defaultCustomer: CustomerRecord | null = null;
+    if (payerEmailValid) {
+      const payerName =
+        typeof req.body?.customer_name === "string"
+          ? req.body.customer_name.trim()
+          : null;
+      defaultCustomer = await findOrCreateEmailCustomer(
+        apiKeyData.company_id,
+        rawPayerEmail,
+        payerName,
+        apiKeyData.base_currency || 'USD'
+      );
+    }
+
+    if (!defaultCustomer) {
+      defaultCustomer = await findOrCreateDefaultCustomer(
+        apiKeyData.company_id,
+        apiKeyData.adm_id,
+        apiKeyData.base_currency || 'USD'
+      );
+    }
     
     if (!defaultCustomer) {
       return res.status(500).json({
@@ -426,4 +376,4 @@ const legacyApiAuthMiddleware = async (
 };
 
 export default legacyApiAuthMiddleware;
-export { validateApiKey, validateCustomerToken, findOrCreateDefaultCustomer };
+export { validateApiKey, validateCustomerToken, findOrCreateDefaultCustomer, findOrCreateEmailCustomer };

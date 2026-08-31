@@ -4,7 +4,8 @@
  *
  * Detects when a merchant receives their very first successful payment.
  * Queries companies that have exactly 1 successful transaction created in the
- * last 30 minutes (to catch recent first payments). Redis dedup ensures one
+ * last 24 hours (slow-confirming payments settle well after createdAt; the
+ * Redis dedup below makes the wide window safe). Redis dedup ensures one
  * notification per company (1-year TTL).
  *
  * Extracted from `utils/cronJobs.ts` (2026-08-23n) so cronJobs stays under
@@ -35,6 +36,7 @@ export const setupFirstPaymentMonitorCron = () => {
         amount: string;
         currency: string;
         base_amount: string;
+        base_currency: string | null;
         customer_email: string | null;
         tx_created_at: string;
       }>(
@@ -49,6 +51,7 @@ export const setupFirstPaymentMonitorCron = () => {
           t.paid_amount as amount,
           t.paid_currency as currency,
           t.base_amount,
+          t.base_currency,
           cust.email as customer_email,
           t."createdAt" as tx_created_at
         FROM tbl_company c
@@ -56,7 +59,7 @@ export const setupFirstPaymentMonitorCron = () => {
         JOIN tbl_customer_transaction t ON t.company_id = c.company_id
         LEFT JOIN tbl_customer cust ON cust.customer_id = t.customer_id
         WHERE t.status = 'successful'
-          AND t."createdAt" >= NOW() - INTERVAL '30 minutes'
+          AND t."createdAt" >= NOW() - INTERVAL '24 hours'
         AND (
           SELECT COUNT(*) FROM tbl_customer_transaction t2
           WHERE t2.company_id = c.company_id AND t2.status = 'successful'
@@ -82,6 +85,32 @@ export const setupFirstPaymentMonitorCron = () => {
           const txDate = new Date(fp.tx_created_at);
           const daysSinceReg = Math.floor((txDate.getTime() - regDate.getTime()) / (1000 * 60 * 60 * 24));
 
+          // Resolve the real USD value: base_amount is in base_currency (often
+          // crypto), so only USD-pegged currencies can be used as-is — anything
+          // else is FX-converted. Previously base_amount was mislabelled as USD.
+          const USD_PEGGED = new Set([
+            "USD", "USDT", "USDC", "BUSD", "DAI",
+            "USDT-TRC20", "USDT-ERC20", "USDC-ERC20",
+            "USDT_TRC20", "USDT_ERC20", "USDC_ERC20",
+            "USDT-POLYGON", "USDT_POLYGON",
+          ]);
+          let amountUsd: string | null = null;
+          const baseCur = (fp.base_currency || "USD").toUpperCase();
+          const baseAmt = Number(fp.base_amount) || 0;
+          if (baseAmt > 0) {
+            if (USD_PEGGED.has(baseCur)) {
+              amountUsd = baseAmt.toFixed(2);
+            } else {
+              try {
+                const { convertToUSD } = await import("../currencyUtils");
+                const converted = Number(await convertToUSD(baseCur, baseAmt));
+                if (converted > 0) amountUsd = converted.toFixed(2);
+              } catch {
+                amountUsd = null;
+              }
+            }
+          }
+
           await sendFirstPaymentAdminEmail({
             user_id: fp.user_id,
             merchant_name: fp.merchant_name,
@@ -90,7 +119,7 @@ export const setupFirstPaymentMonitorCron = () => {
             company_id: fp.company_id,
             amount: fp.amount,
             currency: fp.currency,
-            amount_usd: fp.base_amount || null,
+            amount_usd: amountUsd,
             payment_method: fp.currency,
             customer_email: fp.customer_email,
             transaction_id: fp.tx_id,

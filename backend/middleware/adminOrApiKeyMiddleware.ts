@@ -38,7 +38,7 @@ const adminOrApiKeyMiddleware = async (
     // Try admin JWT
     const token = authHeader && authHeader?.split(" ")[1];
     if (!token) {
-      return errorResponseHelper(res, 403, "Authentication required. Provide either x-api-key header or admin JWT token.");
+      return errorResponseHelper(res, 401, "Authentication required. Provide either x-api-key header or admin JWT token.");
     }
 
     const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
@@ -50,7 +50,7 @@ const adminOrApiKeyMiddleware = async (
       const decoded = jwt.verify(token, tokenSecret) as IUserType;
       
       if (!decoded) {
-        return errorResponseHelper(res, 403, "Invalid token format");
+        return errorResponseHelper(res, 401, "Invalid token format");
       }
 
       // Check if user has admin role
@@ -66,11 +66,11 @@ const adminOrApiKeyMiddleware = async (
     } catch (err: unknown) {
       const error = err as { name?: string };
       if (error.name === 'TokenExpiredError') {
-        return errorResponseHelper(res, 403, "Your Login has Expired");
+        return errorResponseHelper(res, 401, "Your Login has Expired");
       } else if (error.name === 'JsonWebTokenError') {
-        return errorResponseHelper(res, 403, "Invalid token. Please login again.");
+        return errorResponseHelper(res, 401, "Invalid token. Please login again.");
       } else if (error.name === 'NotBeforeError') {
-        return errorResponseHelper(res, 403, "Token not active yet. Please try again later.");
+        return errorResponseHelper(res, 401, "Token not active yet. Please try again later.");
       } else {
         throw err;
       }

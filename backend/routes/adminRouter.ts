@@ -174,4 +174,31 @@ adminRouter.get("/tunnel/status", adminAuthMiddleware, (_req, res) => {
   });
 });
 
+// ── Referral Marketing Backfill ──────────────────────────────────────────────
+// One-time invite of historical paying customers (no account yet) with the
+// standard 50%/30d referee offer. Defaults to a DRY RUN (counts only) — pass
+// { "dry_run": false } to actually create codes and send invites.
+// Body: { days?: number (default 365), limit?: number (default 200, max 1000), dry_run?: boolean }
+adminRouter.post("/referral-invites/backfill", adminAuthMiddleware, async (req, res) => {
+  try {
+    const { backfillRefereeInvites } = await import("../services/referralService");
+    const result = await backfillRefereeInvites({
+      days: req.body?.days,
+      limit: req.body?.limit,
+      dryRun: req.body?.dry_run !== false,
+    });
+    res.status(200).json({
+      success: true,
+      message: result.dry_run
+        ? "Dry run — no invites sent"
+        : result.started
+          ? "Backfill started in background (progress in API logs)"
+          : result.reason || "Backfill not started",
+      data: result,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: (err as Error).message });
+  }
+});
+
 export default adminRouter;

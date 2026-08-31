@@ -126,6 +126,18 @@ const amountLabel = (tx: any, fallbackSym: string): string => {
   return `${amount} ${ticker}`.trim();
 };
 
+// Fiat equivalent from the stored usd_value (same convention as /transactions:
+// only shown when the backend has an actual stored value — never a live
+// client-side conversion, and never for unvalued pending rows).
+const fiatLabel = (tx: any): string | null => {
+  const v = Number(tx?.usd_value) || 0;
+  if (v <= 0) return null;
+  if (v >= 1)
+    return `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  if (v >= 0.01) return `$${v.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+  return `$${v.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+};
+
 const formatDate = (v?: string) => {
   if (!v) return "";
   return formatDateI18n(v, { month: "short", day: "numeric", year: "numeric" });
@@ -1187,6 +1199,20 @@ const PayoutsPage: React.FC = () => {
                   <Box sx={{ minWidth: 0 }}>
                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
                       {amountLabel(tx, sym)}
+                      {fiatLabel(tx) && (
+                        <Box
+                          component="span"
+                          data-testid={`payouts-pending-fiat-${i}`}
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            fontWeight: 500,
+                            fontSize: 13,
+                            ml: 0.75,
+                          }}
+                        >
+                          {"\u2248"} {fiatLabel(tx)}
+                        </Box>
+                      )}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -1349,6 +1375,20 @@ const PayoutsPage: React.FC = () => {
                   <Box sx={{ minWidth: 0 }}>
                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
                       {amountLabel(tx, sym)}
+                      {fiatLabel(tx) && (
+                        <Box
+                          component="span"
+                          data-testid={`payouts-settlement-fiat-${i}`}
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            fontWeight: 500,
+                            fontSize: 13,
+                            ml: 0.75,
+                          }}
+                        >
+                          {"\u2248"} {fiatLabel(tx)}
+                        </Box>
+                      )}
                     </Typography>
                     <Typography
                       variant="caption"

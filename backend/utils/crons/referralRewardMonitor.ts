@@ -219,6 +219,12 @@ export const expireStalePendingReferrals = async (): Promise<number> => {
 
 /**
  * B) Invite recent paying customers (no Dynopay account yet) to become merchants.
+ *
+ * 24-hour lookback (was 30 min): slow-confirming payments (e.g. BTC) often turn
+ * 'successful' long after createdAt, so a short window silently skipped those
+ * customers. checkRefereeCodeSent/checkEmailHasAccount dedup makes the wider
+ * window safe — each email is only ever invited once. Synthetic API-payment
+ * placeholder emails (…@dynopay.internal etc.) are excluded at the SQL level.
  */
 const sendPostPaymentInvites = async () => {
   const rows = await sequelize.query<{
@@ -234,9 +240,15 @@ const sendPostPaymentInvites = async () => {
        JOIN tbl_company c ON c.company_id = t.company_id
        JOIN tbl_customer cust ON cust.customer_id = t.customer_id
       WHERE t.status = 'successful'
-        AND t."createdAt" >= NOW() - INTERVAL '30 minutes'
+        AND t."createdAt" >= NOW() - INTERVAL '24 hours'
         AND cust.email IS NOT NULL
         AND cust.email <> ''
+        AND cust.email NOT ILIKE '%@dynopay.internal'
+        AND cust.email NOT ILIKE '%@dynopay.local'
+        AND cust.email NOT ILIKE 'legacy-api-%'
+        AND cust.email NOT ILIKE 'pk-buyer-%'
+        AND cust.email NOT ILIKE 'elements-buyer-%'
+        AND cust.email NOT ILIKE 'recovered-%'
       ORDER BY LOWER(cust.email), t."createdAt" DESC`,
     { type: QueryTypes.SELECT }
   );

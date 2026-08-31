@@ -120,7 +120,7 @@ const apiKeyOnlyMiddleware = async (
     
     if (!apiKey) {
       return sendError(res, {
-        status: 403,
+        status: 401,
         message: "API key is required in x-api-key header",
       });
     }
@@ -128,7 +128,7 @@ const apiKeyOnlyMiddleware = async (
     const apiKeyData = await validateApiKey(apiKey);
     if (!apiKeyData) {
       return sendError(res, {
-        status: 403,
+        status: 401,
         message: "Invalid API key",
       });
     }
@@ -745,7 +745,7 @@ router.post("/useWallet", legacyApiAuthMiddleware, asyncHandler(async (req, res)
   );
 
   if (walletData.length === 0) {
-    return sendError(res, { status: 400, message: "Wallet not found" });
+    return sendError(res, { status: 404, message: "Wallet not found" });
   }
 
   if (walletData[0].amount < amount) {

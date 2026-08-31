@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { apiLogger } from "../utils/loggers";
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
+import sequelize from '../utils/dbInstance';
 import User from '../models/userModels/userModel';
 import RefereeCode from '../models/referralModels/refereeCodeModel';
 import Referral from '../models/referralModels/referralModel';
@@ -426,55 +427,16 @@ export {
 };
 
 // ============================================
-// FEE DISCOUNT CALCULATION
+// FEE DISCOUNT CALCULATION (moved to referral/feeDiscount.ts — R2 file-size split)
 // ============================================
+import { getUserFeeDiscount, calculateDiscountedFee } from './referral/feeDiscount';
+export { getUserFeeDiscount, calculateDiscountedFee };
 
-/**
- * Get user's current fee discount
- * Returns discount percentage if valid, 0 if no discount or expired
- */
-export const getUserFeeDiscount = async (userId: number): Promise<{
-  discountPercent: number;
-  reason: string | null;
-  expiresAt: Date | null;
-}> => {
-  const user = await User.findByPk(userId, {
-    attributes: ['fee_discount_percent', 'fee_discount_expires_at', 'fee_discount_reason'],
-  });
+// ============================================
+// REFERRAL MARKETING BACKFILL (moved to referral/refereeBackfill.ts — R2 file-size split)
+// ============================================
+export { backfillRefereeInvites, type BackfillResult } from './referral/refereeBackfill';
 
-  if (!user) {
-    return { discountPercent: 0, reason: null, expiresAt: null };
-  }
-
-  const discountPercent = (user as { fee_discount_percent?: number }).fee_discount_percent || 0;
-  const expiresAt = (user as { fee_discount_expires_at?: Date }).fee_discount_expires_at;
-  const reason = (user as { fee_discount_reason?: string }).fee_discount_reason;
-
-  // Check if discount has expired
-  if (!expiresAt || new Date() > expiresAt) {
-    // Clear expired discount
-    await User.update(
-      {
-        fee_discount_percent: 0,
-        fee_discount_expires_at: null,
-        fee_discount_reason: null,
-      },
-      { where: { user_id: userId } }
-    );
-    return { discountPercent: 0, reason: null, expiresAt: null };
-  }
-
-  return { discountPercent, reason, expiresAt };
-};
-
-/**
- * Calculate discounted fee
- */
-export const calculateDiscountedFee = (originalFee: number, discountPercent: number): number => {
-  if (discountPercent <= 0) return originalFee;
-  const discount = (originalFee * discountPercent) / 100;
-  return Math.max(0, originalFee - discount);
-};
 
 export default {
   // Referee Code (Type 2)

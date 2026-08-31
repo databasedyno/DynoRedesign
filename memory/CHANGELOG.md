@@ -1135,3 +1135,71 @@ User feedback: the testimonial section "looked common." Researched Stripe's appr
 - Pending next (user backlog): email audit/CTA fixes, "$500 fee-free" -> "free first payment",
   referral+earnings emails, payer auto-invite w/ 50%-off referral code, admin email fixes,
   FIAT amounts on recent payments.
+
+## 2026-08-31 — Email system E2E audit + fixes (pod 5f684f1a)
+Analysis: full audit of all 14 email modules, triggers (crons), CTAs, and referral funnel.
+Fixed (all verified on preview; outbound email stays suppressed):
+- CRITICAL: /signup?ref= CTA in referee invite + 4 reminder emails was a 404 -> new
+  /app/pages/signup.tsx 307-redirects to /auth/register preserving query (fixes ALL past emails).
+- CRITICAL: /unsubscribe?token= was a 404 -> new /app/pages/unsubscribe.tsx (layout "none",
+  public) calling GET /api/user/unsubscribe-reminders/:token (POST blocked by CSRF).
+- Auto-invite cron window 30min -> 24h + synthetic email exclusion (referralRewardMonitor.ts);
+  slow-confirming payments were never invited. Dedup makes wide window safe.
+- firstPaymentMonitor: window 30min -> 24h; amount_usd was base_amount (crypto!) -> proper
+  USD-pegged check + convertToUSD.
+- Admin new-merchant email: "Fee-Free Balance $500.00 (trial)" -> "First payment free".
+- Admin new-visitor email: new URL(referrer) crash guarded.
+- Welcome email: added "first payment free" promo line (merchant.welcome.promo, all 6 locales).
+- Payouts page: fiat (approx $) now shown from usd_value on Recent settlements + pending rows
+  (data-testid payouts-settlement-fiat-N / payouts-pending-fiat-N).
+- NEW: legacy API accepts optional customer_email/customer_name -> real customer row
+  (findOrCreateEmailCustomer in legacyApiAuthMiddleware.ts, exported; documented in
+  /documentation for cryptoPayment + embed/session). Tested against live DB w/ cleanup.
+- NEW: POST /api/admin/referral-invites/backfill (adminAuthMiddleware; dry_run default TRUE,
+  days/limit params; real run processes in background). backfillRefereeInvites in referralService.ts.
+KEY DATA FINDING: prod has 419 successful payments but only ONE distinct customer email — the
+synthetic legacy-api placeholder. NO real payer emails captured yet -> backfill currently has 0
+eligible; referral marketing needs merchants (Hostbay) to pass customer_email on API payments.
+
+
+# API DOCS + RESPONSE CODES + AI CHAT (2026-08-31, pod 5f684f1a) — DONE & VERIFIED
+
+## Save-to-GitHub 500-line gate blocker — FIXED (strangler refactor, no behavior change)
+- referralService.ts 617 -> 461: extracted services/referral/feeDiscount.ts (getUserFeeDiscount,
+  calculateDiscountedFee) + services/referral/refereeBackfill.ts (backfillRefereeInvites,
+  BackfillResult). refereeBackfill imports the Type-2 helpers via dynamic import() (no static cycle).
+  referralService re-exports both so public API + default export unchanged. adminRouter dynamic
+  import of backfillRefereeInvites still resolves (verified 403 auth-gated).
+- legacyApiAuthMiddleware.ts 512 -> 379: extracted middleware/legacy/customerResolver.ts
+  (CustomerRecord, findOrCreateDefaultCustomer, findOrCreateEmailCustomer). Re-exported.
+- Gate green, tsc 0 errors, backend boots + listens on 3300.
+
+## API docs (pages/documentation.tsx) — "API key is all you need" reframe
+- Authentication section rewritten from 3 levels (incl. misleading required "API Key + Bearer"
+  card — NO endpoint actually required a token) to: API Key (all you need) / Publishable Key
+  (browser, pk_...) / Customer Token (OPTIONAL, advanced — obtained from POST /createUser, omit
+  for userless mode). Answers "where does the token come from".
+- Endpoint auth badges now uniformly render "API Key" (optional-bearer no longer shown as a
+  separate green "Bearer Optional" label/colour). Per-endpoint optional Authorization header rows
+  kept (already marked Optional + source).
+- Error-code table: added 429 (Too Many Requests / Retry-After); refined 403 wording (forbidden =
+  wrong role / disallowed publishable-key origin). Verified in rendered SSR HTML.
+
+## Response codes -> industry standard (auth failures 403 -> 401)
+- apiKeyOnlyMiddleware (merchantApiRouter): missing/invalid x-api-key 403 -> 401.
+- legacyApiAuthMiddleware: missing/invalid x-api-key 403 -> 401.
+- adminOrApiKeyMiddleware: auth-required / invalid-token / expired / not-yet-valid 403 -> 401;
+  KEPT 403 for "Admin access required" (genuine Forbidden = wrong role).
+- merchantApiRouter useWallet: "Wallet not found" 400 -> 404.
+- Success stays 200 (payment-API industry norm, e.g. Stripe). CSRF still returns 403 for
+  cookie POSTs with NO x-api-key (correct; real merchants send x-api-key -> bypass -> 401).
+- Verified via curl (external URL): GET no key -> 401; POST createUser/cryptoPayment/admin-credit
+  with x-api-key=invalid -> 401 "Invalid API key"; admin-credit bad JWT -> 401.
+
+## AI support chat "Emily" (backend/controller/supportChatController.ts SYSTEM_PROMPT)
+- FIXED outdated "$500 fee-free" -> "first successful payment is entirely platform-fee-free, any
+  size, no cap; volume fees from 2nd payment". Matches feeFreeService.ts (2026-08 rule).
+- Added current features: Embedded Checkout & Elements, no-code online store/product pages,
+  team members with role-based permissions; clarified referral program (merchant + referee).
+- Did NOT add BNB: CRYPTO_TYPES has no BNB, so Emily's asset list ("15" combos) was already right.
+- Verified live: Emily answers first-payment-free with NO $500 limit.
