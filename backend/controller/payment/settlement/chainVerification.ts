@@ -213,10 +213,53 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
 
       cronLogger.info("finalAmount=========>", finalAmount[0]);
 
+      // Referral capture: userless hosted checkouts settle with customer_id = null,
+      // and the buyer's email (from the "email me a receipt" field) lives only on
+      // the Redis customer session. Attach the settled payment to a REAL customer
+      // row keyed on (company_id, email) so the post-payment referral invite cron
+      // can reach this payer (it joins tbl_customer and reads a real email).
+      // Best-effort — a failure here must NEVER block settlement; on any error we
+      // fall back to the original customer_id (possibly null).
+      let resolvedCustomerId: number | null = customerData?.customer_id
+        ? Number(customerData.customer_id)
+        : null;
+      if (!resolvedCustomerId) {
+        const buyerEmail =
+          typeof customerData?.email === "string" ? customerData.email.trim().toLowerCase() : "";
+        const buyerEmailValid =
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail) &&
+          !buyerEmail.endsWith("@dynopay.internal") &&
+          !buyerEmail.endsWith("@dynopay.local");
+        const resolvedCompanyId = Number(customerData?.company_id || tempData?.company_id);
+        if (buyerEmailValid && resolvedCompanyId) {
+          try {
+            const { findOrCreateEmailCustomer } = await import(
+              "../../../middleware/legacy/customerResolver"
+            );
+            const realCustomer = await findOrCreateEmailCustomer(
+              resolvedCompanyId,
+              buyerEmail,
+              typeof customerData?.customer_name === "string" ? customerData.customer_name : null,
+              baseCurrency
+            );
+            if (realCustomer?.customer_id) {
+              resolvedCustomerId = realCustomer.customer_id;
+              cronLogger.info(
+                `[cryptoVerification] payer email captured → customer ${resolvedCustomerId} (company ${resolvedCompanyId}) for referral invite`
+              );
+            }
+          } catch (e) {
+            cronLogger.warn(
+              `[cryptoVerification] referral customer attach failed: ${(e as Error).message}`
+            );
+          }
+        }
+      }
+
       const customerPayload = {
         id: tempData?.incomplete && tempData?.customerInternalRef ? tempData.customerInternalRef : crypto.randomUUID(),
         company_id: Number(customerData.company_id || tempData?.company_id),
-        customer_id: customerData.customer_id ? Number(customerData.customer_id) : null,
+        customer_id: resolvedCustomerId,
         payment_mode: "CRYPTO",
         base_amount: Number(finalAmount[0].amount).toFixed(2),
         base_currency: baseCurrency,

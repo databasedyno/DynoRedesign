@@ -2513,7 +2513,10 @@ export const setCustomerEmail = async (
 
     // The checkout session that settlement reads for the receipt recipient is
     // stored in Redis under `customer-<ref>` (see cryptoCheckout.getData). Merge
-    // the buyer's email into it so the receipt has somewhere to go.
+    // the buyer's email into it so the receipt has somewhere to go. Settlement
+    // (chainVerification) then attaches the payment to a REAL customer row keyed
+    // on (company_id, email) so the post-payment referral invite cron can reach
+    // this payer.
     const key = "customer-" + data;
     const item = (await getRedisItem(key)) as Record<string, any> | null;
     if (!item) {

@@ -1203,3 +1203,36 @@ eligible; referral marketing needs merchants (Hostbay) to pass customer_email on
   team members with role-based permissions; clarified referral program (merchant + referee).
 - Did NOT add BNB: CRYPTO_TYPES has no BNB, so Emily's asset list ("15" combos) was already right.
 - Verified live: Emily answers first-payment-free with NO $500 limit.
+
+
+# HOSTED-CHECKOUT PAYER EMAILS -> REFERRAL ENGINE (2026-08-31, pod 5f684f1a) — DONE (SAFE-MODE limited test)
+
+Directive: "All captured emails must flow into the referral engine when relevant."
+
+Root cause: userless hosted checkouts settled in chainVerification with customer_id = NULL,
+and the payer's "email me a receipt" address lived ONLY on the Redis customer session. The
+post-payment referral invite cron (sendPostPaymentInvites in referralRewardMonitor) joins
+tbl_customer on t.customer_id and reads cust.email — so those payers were never reachable.
+
+Fix (isolated, settlement-side): in chainVerification.ts, just before customerTransactionModel
+.create, if the transaction has no customer_id and the Redis session carries a valid real buyer
+email (regex + not @dynopay.internal/@dynopay.local), attach the payment to a REAL tbl_customer
+row keyed on (company_id, email) via findOrCreateEmailCustomer (reused from
+middleware/legacy/customerResolver). Best-effort try/catch — NEVER blocks settlement; falls back
+to the original (possibly null) customer_id on any error. The existing invite cron then reaches
+the payer, with its existing dedup (skip if has account / already invited / unsubscribed / synthetic).
+
+Why NOT at setCustomerEmail: injecting customer_id into the live checkout session would flip
+cryptoCheckout.getData from the link-token path (getLinkAccessToken) to getAccessToken mid-checkout
+on any re-fetch — a risky behavior change. Settlement-side only touches the persisted transaction
+row's customer_id, leaving the live token flow untouched. setCustomerEmail is unchanged (still
+saves the receipt email to Redis, which settlement reads).
+
+Scope note: Elements / Buy-Button public embeds only ever create synthetic buyer emails
+(elements-buyer-…/pk-buyer-…@dynopay.internal) — no REAL email captured there, so nothing to route.
+
+Verified: tsc 0 errors, file-size gate OK, backend boots + listens on 3300, settlement module
+loads clean. NOT E2E-tested: SAFE MODE has background jobs off + outbound email disabled + no real
+crypto settlements, and findOrCreateEmailCustomer writes to the LIVE prod DB by design (avoided
+polluting prod with test rows). Needs a real hosted-checkout crypto payment (payer enters email)
+in production to confirm the full loop end-to-end.
