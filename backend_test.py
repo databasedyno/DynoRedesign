@@ -17,7 +17,7 @@ import sys
 import time
 
 # Base URL for the preview environment
-BASE_URL = "https://0e5cc9c0-0e8d-43a1-a58e-27a8c4acf50b.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-15.preview.emergentagent.com"
 
 # Headers required for Cloudflare
 HEADERS = {

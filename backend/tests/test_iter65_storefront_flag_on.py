@@ -8,7 +8,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = os.environ.get("NEXT_PUBLIC_BASE_URL", "https://merchant-onboard-19.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("NEXT_PUBLIC_BASE_URL", "https://dynopay-preview-15.preview.emergentagent.com").rstrip("/")
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

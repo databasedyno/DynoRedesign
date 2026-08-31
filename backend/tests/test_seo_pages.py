@@ -4,7 +4,7 @@ import re
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://merchant-onboard-19.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://dynopay-preview-15.preview.emergentagent.com").rstrip("/")
 
 COUNTRIES = [
     "united-states", "united-kingdom", "germany", "india",

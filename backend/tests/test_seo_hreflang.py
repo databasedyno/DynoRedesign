@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://merchant-onboard-19.preview.emergentagent.com"
+BASE = "https://dynopay-preview-15.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]

@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 
 env = dotenv_values("/app/.env")
 BASE_URL = (os.environ.get("NEXT_PUBLIC_BASE_URL") or env.get("NEXT_PUBLIC_BASE_URL")
-            or "https://merchant-onboard-19.preview.emergentagent.com").rstrip("/")
+            or "https://dynopay-preview-15.preview.emergentagent.com").rstrip("/")
 
 r = requests.post(f"{BASE_URL}/api/user/login",
                   json={"email": "hostbay@moxx.co", "password": "Katiekendra123@"}, timeout=60)
