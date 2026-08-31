@@ -1236,3 +1236,24 @@ loads clean. NOT E2E-tested: SAFE MODE has background jobs off + outbound email 
 crypto settlements, and findOrCreateEmailCustomer writes to the LIVE prod DB by design (avoided
 polluting prod with test rows). Needs a real hosted-checkout crypto payment (payer enters email)
 in production to confirm the full loop end-to-end.
+
+
+# CHECKOUT EMAIL NUDGE — more prominent "email me a receipt" field (2026-08-31, pod 5f684f1a)
+
+Goal: get more hosted-checkout payers to leave an email so the referral engine (see prior entry)
+has more real emails to invite.
+
+Change (frontend, presentational only): ReceiptEmailField (Components/Page/Pay3Components/
+checkoutExtras.tsx) restyled from a plain small label + input into a subtle brand-tinted CARD —
+indigo (#4338CA) 6% background + 33% border, a 26px rounded icon chip (mdi:email-fast-outline),
+and a bolder text.primary heading; the input now sits on background.paper with an accent focus
+ring. Added an optional `accent` prop (default #4338CA) — CleanCheckoutV2 passes LIME. Copy/i18n
+unchanged (label/helper/saved/invalid keys intact). data-testids unchanged
+(checkout-receipt-email-field / -input / -saved / -error).
+
+Applies to all three surfaces that render the field: CleanCheckoutV2 (main hosted checkout),
+Creator InlineTipCheckout, and the /pay/demo page (the tip + demo callers use the default accent).
+
+Verified: /pay/demo + /pay compile 200, no console errors; rendered HTML contains the field, the
+input, and the accent tint CSS (4338ca). Note: the automation screenshot tool renders this MUI app
+blank in headless (affects all pages, not this change) — verified via compiled output + HTML grep.

@@ -22,11 +22,32 @@ export const ReceiptEmailField: React.FC<{
   invalidLabel: string
   muted: string
   border: string
-}> = ({ value, onChange, onSave, saved, invalid, label, helper, savedLabel, invalidLabel, muted, border }) => (
-  <Box sx={{ mb: 2.5 }} data-testid="checkout-receipt-email-field">
-    <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
-      {label}
-    </Typography>
+  accent?: string
+}> = ({ value, onChange, onSave, saved, invalid, label, helper, savedLabel, invalidLabel, muted, border, accent = '#4338CA' }) => (
+  <Box
+    sx={{
+      mb: 2.5,
+      p: 1.75,
+      borderRadius: '12px',
+      border: `1px solid ${accent}33`,
+      backgroundColor: `${accent}0F`,
+    }}
+    data-testid="checkout-receipt-email-field"
+  >
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.85, mb: 1 }}>
+      <Box
+        sx={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 26, height: 26, borderRadius: '8px', flexShrink: 0,
+          backgroundColor: `${accent}1F`,
+        }}
+      >
+        <Icon icon="mdi:email-fast-outline" width={16} color={accent} />
+      </Box>
+      <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: 'text.primary', letterSpacing: '0.01em' }}>
+        {label}
+      </Typography>
+    </Box>
     <TextField
       fullWidth
       size="small"
@@ -40,23 +61,24 @@ export const ReceiptEmailField: React.FC<{
       error={invalid}
       inputProps={{ 'data-testid': 'checkout-receipt-email-input', 'aria-label': label }}
       sx={{
-        '& .MuiOutlinedInput-root': { borderRadius: '8px', minHeight: 46 },
+        '& .MuiOutlinedInput-root': { borderRadius: '8px', minHeight: 46, backgroundColor: 'background.paper' },
         '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
+        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: accent },
       }}
     />
     {invalid ? (
-      <Typography data-testid="checkout-receipt-email-error" sx={{ fontSize: 11.5, color: ERR, mt: 0.5 }}>
+      <Typography data-testid="checkout-receipt-email-error" sx={{ fontSize: 11.5, color: ERR, mt: 0.75 }}>
         {invalidLabel}
       </Typography>
     ) : saved ? (
       <Typography
         data-testid="checkout-receipt-email-saved"
-        sx={{ fontSize: 11.5, color: OK, mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}
+        sx={{ fontSize: 11.5, color: OK, mt: 0.75, display: 'flex', alignItems: 'center', gap: 0.5 }}
       >
         <Icon icon="mdi:check-circle" width={13} /> {savedLabel}
       </Typography>
     ) : (
-      <Typography sx={{ fontSize: 11.5, color: muted, mt: 0.5 }}>{helper}</Typography>
+      <Typography sx={{ fontSize: 11.5, color: muted, mt: 0.75 }}>{helper}</Typography>
     )}
   </Box>
 )

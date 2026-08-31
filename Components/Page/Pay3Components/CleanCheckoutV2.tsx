@@ -1165,6 +1165,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         invalidLabel={t('checkout.receiptEmail.invalid', { defaultValue: 'Enter a valid email address.' })}
         muted={muted}
         border={border}
+        accent={LIME}
       />
 
       {/* Partial-payment (underpaid) banner — tells the buyer exactly how much
