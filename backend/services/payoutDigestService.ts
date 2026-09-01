@@ -18,6 +18,7 @@ import {
   feeTable,
 } from "../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../utils/brandTokens";
+import { dispatchCompanyEmail } from "./email/companyDispatch";
 
 /**
  * Payout Digest Service (Session 97, 2026-08-02)
@@ -308,6 +309,7 @@ function fmtMoney(amount: number, symbol: string, currency: string): string {
  */
 export async function sendPayoutDigestEmail(
   d: PayoutDigest,
+  opts?: { fanout?: boolean },
 ): Promise<{ sent: boolean; skipped?: string }> {
   try {
     if (!d.email) return { sent: false, skipped: "no-email" };
@@ -433,12 +435,23 @@ export async function sendPayoutDigestEmail(
       buttonLink: `${FRONTEND_BASE_URL}/dashboard`,
     });
 
-    await mailTransporter({
-      to: d.email,
-      name: d.name,
-      subject,
-      body: html,
-    });
+    // Cron path fans the company digest out to team members (deduped + RBAC via
+    // notificationRecipients); the manual "send me a preview" path stays single.
+    if (opts?.fanout && d.companyId) {
+      await dispatchCompanyEmail(
+        d.companyId,
+        "digests",
+        { email: d.email, name: d.name },
+        (email, name) => mailTransporter({ to: email, name, subject, body: html }),
+      );
+    } else {
+      await mailTransporter({
+        to: d.email,
+        name: d.name,
+        subject,
+        body: html,
+      });
+    }
     apiLogger.info(
       `[PayoutDigest] sent to ${d.email} — settled=${d.settledVolume} ${d.displayCurrency}, count=${d.settledCount}`,
     );
@@ -456,10 +469,11 @@ export async function sendPayoutDigestEmail(
  */
 export async function sendPayoutDigestForUser(
   userId: number,
+  opts?: { fanout?: boolean },
 ): Promise<{ sent: boolean; digest?: PayoutDigest; skipped?: string }> {
   const d = await buildPayoutDigest(userId);
   if (!d) return { sent: false, skipped: "user-not-found" };
-  const r = await sendPayoutDigestEmail(d);
+  const r = await sendPayoutDigestEmail(d, opts);
   return { ...r, digest: d };
 }
 
@@ -496,7 +510,7 @@ export async function sendPayoutDigestsToAll(): Promise<{
   for (const r of rows) {
     const userId = Number(r.user_id);
     try {
-      const result = await sendPayoutDigestForUser(userId);
+      const result = await sendPayoutDigestForUser(userId, { fanout: true });
       if (result.sent) sent += 1;
       else skipped += 1;
     } catch (e) {

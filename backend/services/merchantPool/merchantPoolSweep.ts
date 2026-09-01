@@ -22,6 +22,7 @@ import * as keyCustody from "../keyCustody/keyCustodyService";
 import { getErrorMessage, sendAdminFeeSweepEmail } from "../../helper";
 import { sendPaymentReceivedEmail } from "../../helper/sendEmail";
 import { normalizeLang } from "../../utils/emailI18n";
+import { dispatchCompanyEmail } from "../email/companyDispatch";
 import { convertToUSD, convertToFiat, getCompanyBaseCurrency } from "../../utils/currencyUtils";
 import { buildPaymentReceivedDisplay } from "../../utils/paymentAmountDisplay";
 import { getRedisItem, setRedisItem, setRedisTTL, setRedisItemWithTTL } from "../../utils/redisInstance";
@@ -1094,18 +1095,23 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
                 const mrpCryptoAmount = mrpDisplay.cryptoAmount;
                 const mrpCryptoCurrency = mrpDisplay.cryptoCurrency;
 
-                await sendPaymentReceivedEmail(
-                  userData.email,
-                  userData.name,
-                  mrpAmount,
-                  mrpCurrency,
-                  companyData?.company_name || '',
-                  incomingTxId,
-                  dateStr,
-                  timeStr,
-                  normalizeLang((userData as { language?: string })?.language),
-                  mrpCryptoAmount,
-                  mrpCryptoCurrency
+                await dispatchCompanyEmail(
+                  companyData?.company_id,
+                  "payments",
+                  { email: userData.email, name: userData.name },
+                  (email, name) => sendPaymentReceivedEmail(
+                    email,
+                    name,
+                    mrpAmount,
+                    mrpCurrency,
+                    companyData?.company_name || '',
+                    incomingTxId,
+                    dateStr,
+                    timeStr,
+                    normalizeLang((userData as { language?: string })?.language),
+                    mrpCryptoAmount,
+                    mrpCryptoCurrency
+                  )
                 );
 
                 // Set dedup key so it won't be sent again

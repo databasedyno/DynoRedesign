@@ -22,6 +22,7 @@ import userModel from "../models/userModels/userModel";
 import companyModel from "../models/companyModels/companyModel";
 import { sendAutoConversionPayoutEmail, sendWeeklyConversionSummaryEmail } from "../helper/sendEmail";
 import { alertTreasuryLow } from "../utils/treasuryAlert";
+import { dispatchCompanyEmail } from "./email/companyDispatch";
 
 const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours of patience for slow chains (BTC)
 
@@ -526,33 +527,41 @@ const sendConversionPayoutNotification = async (data: any, withdrawalTxHash: str
   const grossSaleUsd = parseFloat(fullRecord?.actual_sale_usd || data.target_amount || "0");
   const totalReceivedUsd = grossSaleUsd + platformFeeUsd + sweepGasFeeUsd;
 
-  await sendAutoConversionPayoutEmail(
-    user.email,
-    [company?.contact_first_name, company?.contact_last_name].filter(Boolean).join(" ").trim() || user.name || "Merchant",
-    company?.company_name || "Your Company",
+  await dispatchCompanyEmail(
+    data.company_id,
+    "payouts",
     {
-      sourceCurrency: data.source_currency,
-      sourceAmount: parseFloat(data.source_amount).toString(),
-      sourceAmountUsd: data.source_amount_usd || data.locked_merchant_usd || "0",
-      targetCurrency: data.target_currency,
-      payoutAmount: netPayout > 0 ? netPayout.toFixed(2) : parseFloat(data.merchant_payout_usd || data.target_amount || "0").toFixed(2),
-      conversionRate: priceAtConversion.toString(),
-      priceAtConversion,
-      currentPrice,
-      priceMovementPct: parseFloat(data.price_movement_pct || "0"),
-      marketState: data.market_state_at_sweep || "STABLE",
-      feeTierUsed: data.fee_tier_used || "slow",
-      transactionId: String(data.transaction_id),
-      conversionId: String(data.conversion_id),
-      withdrawalTxHash,
-      // Fee breakdown
-      platformFeeUsd,
-      sweepGasFeeUsd,
-      tradeFeeUsd,
-      binanceWithdrawalFeeUsd: binanceWithdrawalFee,
-      grossSaleUsd,
-      totalReceivedUsd,
-    }
+      email: user.email,
+      name: [company?.contact_first_name, company?.contact_last_name].filter(Boolean).join(" ").trim() || user.name || "Merchant",
+    },
+    (email, name) => sendAutoConversionPayoutEmail(
+      email,
+      name,
+      company?.company_name || "Your Company",
+      {
+        sourceCurrency: data.source_currency,
+        sourceAmount: parseFloat(data.source_amount).toString(),
+        sourceAmountUsd: data.source_amount_usd || data.locked_merchant_usd || "0",
+        targetCurrency: data.target_currency,
+        payoutAmount: netPayout > 0 ? netPayout.toFixed(2) : parseFloat(data.merchant_payout_usd || data.target_amount || "0").toFixed(2),
+        conversionRate: priceAtConversion.toString(),
+        priceAtConversion,
+        currentPrice,
+        priceMovementPct: parseFloat(data.price_movement_pct || "0"),
+        marketState: data.market_state_at_sweep || "STABLE",
+        feeTierUsed: data.fee_tier_used || "slow",
+        transactionId: String(data.transaction_id),
+        conversionId: String(data.conversion_id),
+        withdrawalTxHash,
+        // Fee breakdown
+        platformFeeUsd,
+        sweepGasFeeUsd,
+        tradeFeeUsd,
+        binanceWithdrawalFeeUsd: binanceWithdrawalFee,
+        grossSaleUsd,
+        totalReceivedUsd,
+      }
+    )
   );
 
   log(`📧 Payout email sent to ${user.email} for conversion #${data.conversion_id} (net: $${netPayout.toFixed(2)})`);
@@ -982,22 +991,30 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
 
       const avgMovement = conversions.length > 0 ? movementSum / conversions.length : 0;
 
-      await sendWeeklyConversionSummaryEmail(
-        user.email,
-        [company?.contact_first_name, company?.contact_last_name].filter(Boolean).join(" ").trim() || user.name || "Merchant",
-        company?.company_name || "Your Company",
+      await dispatchCompanyEmail(
+        entry.company_id,
+        "digests",
         {
-          periodStart: startDate.toISOString().split("T")[0],
-          periodEnd: endDate.toISOString().split("T")[0],
-          totalConversions: conversions.length,
-          totalSourceUsd,
-          totalPayoutUsd,
-          totalSavedUsd,
-          totalVolatileConversions: totalVolatile,
-          avgPriceMovementPct: avgMovement,
-          cryptoBreakdown,
-          dailyVolume,
-        }
+          email: user.email,
+          name: [company?.contact_first_name, company?.contact_last_name].filter(Boolean).join(" ").trim() || user.name || "Merchant",
+        },
+        (email, name) => sendWeeklyConversionSummaryEmail(
+          email,
+          name,
+          company?.company_name || "Your Company",
+          {
+            periodStart: startDate.toISOString().split("T")[0],
+            periodEnd: endDate.toISOString().split("T")[0],
+            totalConversions: conversions.length,
+            totalSourceUsd,
+            totalPayoutUsd,
+            totalSavedUsd,
+            totalVolatileConversions: totalVolatile,
+            avgPriceMovementPct: avgMovement,
+            cryptoBreakdown,
+            dailyVolume,
+          }
+        )
       );
 
       log(`📧 Weekly summary sent to ${user.email} (${conversions.length} conversions, $${totalPayoutUsd.toFixed(2)} payout)`);

@@ -165,9 +165,30 @@ export async function resolveCompanyRecipients(
   return dedupeRecipients(recipients);
 }
 
+/**
+ * True only when a company has EXPLICITLY disabled a category via
+ * notification_prefs.categories[category] === false. Used by the dispatch
+ * helper to distinguish an intentional opt-out (suppress) from a resolver miss
+ * (fall back to the owner so a critical email is never silently dropped).
+ */
+export async function isCategoryDisabled(
+  companyId: number | null | undefined,
+  category: NotificationCategory,
+): Promise<boolean> {
+  if (!companyId) return false;
+  const c = await companyModel.findOne({ where: { company_id: companyId } });
+  if (!c) return false;
+  const cd = c.get({ plain: true }) as { notification_prefs?: Record<string, unknown> | null };
+  const prefs = (cd.notification_prefs && typeof cd.notification_prefs === "object")
+    ? cd.notification_prefs as { categories?: Record<string, boolean> }
+    : {};
+  return !!(prefs.categories && prefs.categories[category] === false);
+}
+
 export default {
   resolveAccountRecipient,
   resolveCompanyRecipients,
+  isCategoryDisabled,
   dedupeRecipients,
   dedupeEmails,
   CATEGORY_PERMISSION,

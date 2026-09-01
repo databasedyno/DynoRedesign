@@ -1,5 +1,6 @@
-import React from "react";
-import { Box, Divider, InputBase, Typography, useTheme } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Collapse, Divider, InputBase, Typography, useTheme } from "@mui/material";
+import ExpandMoreRounded from "@mui/icons-material/ExpandMoreRounded";
 import { useTranslation } from "react-i18next";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -87,6 +88,7 @@ const CompanyEmailRoutingCard: React.FC<Props> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("notifications");
+  const [showCategories, setShowCategories] = useState(false);
   const emailInvalid = routing.notificationEmail.trim() !== "" && !isValidEmail(routing.notificationEmail);
 
   return (
@@ -167,34 +169,70 @@ const CompanyEmailRoutingCard: React.FC<Props> = ({
           onChange={onFanoutChange}
         />
 
-        {/* Per-category master switches */}
+        {/* Per-category master switches — collapsed by default to keep the
+            panel calm; power users expand to fine-tune. */}
         <Box>
-          <Typography
+          <Box
+            data-testid="company-categories-toggle"
+            onClick={() => setShowCategories((v) => !v)}
+            role="button"
+            aria-expanded={showCategories}
             sx={{
-              fontSize: "12px",
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: theme.palette.text.secondary,
-              fontFamily: "var(--font-sans)",
-              mb: 1.5,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              cursor: "pointer",
+              py: 0.5,
+              userSelect: "none",
             }}
           >
-            {t("categoriesLabel", { defaultValue: "Email categories" })}
-          </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "10px" : 2 }}>
-            {CATEGORIES.map((c, i) => (
-              <Row
-                key={c.key}
-                testId={`company-category-${c.key}-switch`}
-                title={t(`category_${c.key}_title`, { defaultValue: c.title })}
-                description={t(`category_${c.key}_desc`, { defaultValue: c.desc })}
-                checked={routing.categories[c.key]}
-                onChange={(v) => onCategoryChange(c.key, v)}
-                showDivider={i < CATEGORIES.length - 1}
-              />
-            ))}
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: { xs: "13px", md: "15px" },
+                  fontWeight: 700,
+                  fontFamily: "var(--font-sans)",
+                  color: theme.palette.text.primary,
+                  lineHeight: 1.2,
+                }}
+              >
+                {t("categoriesLabel", { defaultValue: "Email categories" })}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "12.5px",
+                  color: theme.palette.text.secondary,
+                  fontFamily: "var(--font-sans)",
+                  mt: 0.5,
+                }}
+              >
+                {t("categoriesHelper", { defaultValue: "Choose which kinds of company emails are sent. All on by default." })}
+              </Typography>
+            </Box>
+            <ExpandMoreRounded
+              sx={{
+                color: theme.palette.text.secondary,
+                transform: showCategories ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
+                flexShrink: 0,
+              }}
+            />
           </Box>
+          <Collapse in={showCategories} timeout="auto" unmountOnExit>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "10px" : 2, pt: 2 }}>
+              {CATEGORIES.map((c, i) => (
+                <Row
+                  key={c.key}
+                  testId={`company-category-${c.key}-switch`}
+                  title={t(`category_${c.key}_title`, { defaultValue: c.title })}
+                  description={t(`category_${c.key}_desc`, { defaultValue: c.desc })}
+                  checked={routing.categories[c.key]}
+                  onChange={(v) => onCategoryChange(c.key, v)}
+                  showDivider={i < CATEGORIES.length - 1}
+                />
+              ))}
+            </Box>
+          </Collapse>
         </Box>
       </Box>
     </PanelCard>

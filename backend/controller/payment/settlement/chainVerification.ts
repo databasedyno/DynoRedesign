@@ -73,6 +73,7 @@ import { createConversionRecord } from "../../../services/conversionService";
 import { PaymentState, parseState, toRedisStatus, persistTransition } from "../../../services/paymentStateMachine";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 import { getAvailableCreditForFees, consumeReferralCreditForTransaction } from "../../../services/referralCreditService";
+import { dispatchCompanyEmail } from "../../../services/email/companyDispatch";
 
 import { settleCryptoTransaction } from "./settleTransaction";
 
@@ -1771,20 +1772,25 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const mrCryptoAmount = mrDisplay.cryptoAmount;
           const mrCryptoCurrency = mrDisplay.cryptoCurrency;
 
-          await sendPaymentReceivedEmail(
-            userData?.email,
-            merchantContactName,
-            mrPrimaryAmount,         // fiat amount (merchant currency)
-            mrPrimaryCurrency,       // fiat currency (e.g. USD)
-            companyName,             // companyName
-            transactionId,           // transactionId
-            paymentDateStr,          // date
-            paymentTimeStr,          // time
-            normalizeLang((userData as { language?: string })?.language), // merchant language
-            mrCryptoAmount,          // crypto amount received (secondary)
-            mrCryptoCurrency,        // crypto currency (secondary, e.g. "ETH → USDT")
-            campaignName,            // Phase 3.3 P1: when set, sends contribution-flavored copy
-            referralCreditAppliedUsd // Referral fee-credit (Option 1.a): >0 adds the "credit covered $X" line
+          await dispatchCompanyEmail(
+            company_data?.company_id,
+            "payments",
+            { email: userData?.email, name: merchantContactName },
+            (email, name) => sendPaymentReceivedEmail(
+              email,
+              name,
+              mrPrimaryAmount,         // fiat amount (merchant currency)
+              mrPrimaryCurrency,       // fiat currency (e.g. USD)
+              companyName,             // companyName
+              transactionId,           // transactionId
+              paymentDateStr,          // date
+              paymentTimeStr,          // time
+              normalizeLang((userData as { language?: string })?.language), // merchant language
+              mrCryptoAmount,          // crypto amount received (secondary)
+              mrCryptoCurrency,        // crypto currency (secondary, e.g. "ETH → USDT")
+              campaignName,            // Phase 3.3 P1: when set, sends contribution-flavored copy
+              referralCreditAppliedUsd // Referral fee-credit (Option 1.a): >0 adds the "credit covered $X" line
+            )
           );
         }
 
@@ -1798,16 +1804,21 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           try {
             const { sendLargeTransactionAlertEmail } = await import("../../../services/emailService");
             const customerEmail = customerData?.email || tempData?.email || null;
-            await sendLargeTransactionAlertEmail(
-              userData?.email,
-              userData?.name || 'Merchant',
-              `${baseAmount}`,
-              customerData?.base_currency || 'USD',
-              totalAmountReceived.toString(),
-              tempCurrency,
-              customerEmail,
-              transactionId,
-              companyName
+            await dispatchCompanyEmail(
+              company_data?.company_id,
+              "payments",
+              { email: userData?.email, name: userData?.name || 'Merchant' },
+              (email, name) => sendLargeTransactionAlertEmail(
+                email,
+                name,
+                `${baseAmount}`,
+                customerData?.base_currency || 'USD',
+                totalAmountReceived.toString(),
+                tempCurrency,
+                customerEmail,
+                transactionId,
+                companyName
+              )
             );
             cronLogger.info(`[cryptoVerification] Large transaction alert sent to ${userData?.email} for $${baseAmount}`);
           } catch (largeAlertError) {

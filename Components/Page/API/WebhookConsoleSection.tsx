@@ -396,6 +396,10 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
 
   const t = theme.palette.text;
   const urlDirty = url.trim() !== savedUrl.trim();
+  // A saved endpoint gates the "advanced" controls (toggle, secret, test,
+  // event subscriptions). With no URL there is nothing to configure yet, so we
+  // keep the panel to just the URL field + a one-line hint (declutter).
+  const hasUrl = savedUrl.trim() !== "";
   const eventsDirty = useMemo(
     () => [...events].sort().join(",") !== [...savedEvents].sort().join(","),
     [events, savedEvents],
@@ -485,7 +489,9 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             )}
             {showSettings && (
               <>
-            {/* Manual delivery toggle — pause/resume events to the company URL */}
+            {/* Manual delivery toggle — pause/resume events to the company URL.
+                Only meaningful once an endpoint URL exists. */}
+            {hasUrl && (
             <Box
               data-testid="webhook-delivery-toggle-row"
               sx={{
@@ -511,6 +517,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 inputProps={{ "aria-label": "Toggle webhook delivery" }}
               />
             </Box>
+            )}
 
             {/* Endpoint URL */}
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
@@ -537,6 +544,14 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
               </Button>
             </Box>
 
+            {!hasUrl && (
+              <Typography data-testid="webhook-no-url-hint" sx={{ fontSize: 12.5, color: t.secondary, mb: 1 }}>
+                Add your endpoint URL above to start receiving events. Once saved, you can set a signing secret, choose which events to receive and send a test.
+              </Typography>
+            )}
+
+            {hasUrl && (
+              <>
             {/* Signing secret */}
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
               Signing secret
@@ -639,6 +654,8 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 {savingEvents ? <CircularProgress size={18} color="inherit" /> : "Save events"}
               </Button>
             </Box>
+              </>
+            )}
               </>
             )}
 

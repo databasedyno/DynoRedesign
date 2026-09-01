@@ -14,6 +14,26 @@
 # ############################################################################
 
 # ============================================================================
+# CURRENT SESSION — 2026-09-01 (pod e952fc3d): EMAIL REWIRING (companyDispatch)
+#   Prod-connected, SAFE MODE (ENABLE_BACKGROUND_JOBS=false, DISABLE_OUTBOUND_EMAIL=true).
+#   Completed the deferred P0: routed 9 MERCHANT-facing operational email sends
+#   through services/email/companyDispatch.dispatchCompanyEmail (dedup + RBAC via
+#   utils/notificationRecipients). Files: pendingPaymentService (4x payments),
+#   conversionService (payout=payouts, weekly=digests), payoutDigestService
+#   (digest=digests, cron fans out / preview single), merchantPoolSweep (payments),
+#   chainVerification (payment-received + large-txn-alert = payments). LEFT DIRECT:
+#   admin-fee emails (ADMIN_EMAIL) + customer/buyer receipt.
+#   NOT HTTP-testable (cron/settlement side-effects). SELF-VERIFIED (no testing_agent,
+#   per user pref): backend tsc EXIT 0; file-size gate OK; backend healthy;
+#   reversible read-only harness scripts/verify_company_dispatch.ts = ALL PASS
+#   (5 categories resolve+dedupe to 1 send on company_id=1; explicit-disable of
+#   "payouts" suppresses while "payments" still delivers; notification_prefs
+#   captured + RESTORED to {}). No real email sent (stub sendOne + email OFF).
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-01 (pod e952fc3d): DO-log fixes Block 1 (SAFE backend)
 #   Prod-connected, SAFE MODE (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary,
 #   DISABLE_OUTBOUND_EMAIL=true, Redis /1). Owner login: onarrival21@gmail.com /

@@ -38,28 +38,22 @@ const ProductShowcaseV3: React.FC = () => {
   const [paused, setPaused] = useState(false);
   const [secs, setSecs] = useState(0);
 
-  // Step advancer — frozen while hovered (paused) or reduced-motion.
+  // Step advancer — frozen only while hovered (paused). Under reduced-motion we
+  // KEEP cycling the story (the narrative is the point) but strip the decorative
+  // motion below (entrance slide, pulse ring, swap-arrow) so it stays calm.
   useEffect(() => {
-    if (reduced) {
-      setStep(3);
-      return;
-    }
     if (paused) return;
     const id = setTimeout(() => setStep((p) => (p + 1) % 4), STEP_DURATION[step]);
     return () => clearTimeout(id);
-  }, [step, paused, reduced]);
+  }, [step, paused]);
 
   // Elapsed timer — resets at cycle start, counts while pending, freezes on confirm/hover.
   useEffect(() => {
-    if (reduced) {
-      setSecs(38);
-      return;
-    }
     if (step === 0) setSecs(0);
     if (paused || step === 3) return;
     const id = setInterval(() => setSecs((v) => (v >= 59 ? 59 : v + 1)), 1000);
     return () => clearInterval(id);
-  }, [step, paused, reduced]);
+  }, [step, paused]);
 
   const showSuccess = step === 3;
   const showSwap = step === 2;
@@ -86,10 +80,10 @@ const ProductShowcaseV3: React.FC = () => {
 
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <motion.div
-            initial={{ opacity: 0, y: 28 }}
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: reduced ? 0.3 : 0.6, ease: [0.16, 1, 0.3, 1] }}
             style={{ width: "100%", maxWidth: 320 }}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
@@ -215,7 +209,7 @@ const ProductShowcaseV3: React.FC = () => {
                           "0%,100%": { transform: "translateY(-2px)", opacity: 0.55 },
                           "50%": { transform: "translateY(2px)", opacity: 1 },
                         },
-                        animation: showSwap ? "swapNudge 1.1s ease-in-out infinite" : "none",
+                        animation: showSwap && !reduced ? "swapNudge 1.1s ease-in-out infinite" : "none",
                       }}
                     >
                       <ArrowDownwardRoundedIcon sx={{ fontSize: 16, color: "#4F46E5" }} />
@@ -312,7 +306,7 @@ const ProductShowcaseV3: React.FC = () => {
                         borderRadius: "50%",
                         background: chip.dot,
                         flexShrink: 0,
-                        ...(chip.pulse && {
+                        ...(chip.pulse && !reduced && {
                           "@keyframes showcasePulse": {
                             "0%": { boxShadow: `0 0 0 0 ${chip.dot}66` },
                             "70%": { boxShadow: `0 0 0 7px ${chip.dot}00` },

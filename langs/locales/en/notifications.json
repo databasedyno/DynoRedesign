@@ -35,6 +35,7 @@
   "teamFanoutTitle": "Also notify team members",
   "teamFanoutDescription": "Copy team members based on their role and permissions.",
   "categoriesLabel": "Email categories",
+  "categoriesHelper": "Choose which kinds of company emails are sent. All on by default.",
   "category_payments_title": "Payments",
   "category_payments_desc": "Payment received, confirming, partial or failed alerts",
   "category_payouts_title": "Payouts & settlements",

@@ -17,6 +17,7 @@ import {
 } from "../helper";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
 import { getCompanyBaseCurrency, convertToUSD, convertToFiat, formatCryptoAmount } from "../utils/currencyUtils";
+import { dispatchCompanyEmail } from "./email/companyDispatch";
 
 /**
  * Convert a received crypto amount into the merchant's fiat display currency
@@ -155,17 +156,22 @@ export const sendPendingPaymentNotification = async (
       currency,
       Number(amount),
     );
-    await sendPaymentPendingEmail(
-      user.email,
-      user.name,
-      user.company_name,
-      pendingFiat.fiatAmount,
-      pendingFiat.fiatCurrency,
-      txId,
-      confirmationsRequired,
-      normalizeLang(user.language),
-      pendingFiat.cryptoAmount,
-      pendingFiat.cryptoCurrency
+    await dispatchCompanyEmail(
+      customerData.company_id ?? user.company_id,
+      "payments",
+      { email: user.email, name: user.name },
+      (email, name) => sendPaymentPendingEmail(
+        email,
+        name,
+        user.company_name,
+        pendingFiat.fiatAmount,
+        pendingFiat.fiatCurrency,
+        txId,
+        confirmationsRequired,
+        normalizeLang(user.language),
+        pendingFiat.cryptoAmount,
+        pendingFiat.cryptoCurrency
+      )
     );
 
     // Mark notification as completed in Redis (expires in 24 hours)
@@ -261,18 +267,23 @@ export const sendConfirmationProgressNotification = async (
         currency,
         Number(customerData.amount || 0),
       );
-      await sendPaymentConfirmingEmail(
-        user.email,
-        user.name,
-        user.company_name,
-        confirmingFiat.fiatAmount,
-        confirmingFiat.fiatCurrency,
-        txId,
-        currentConfirmations,
-        requiredConfirmations,
-        normalizeLang(user.language),
-        confirmingFiat.cryptoAmount,
-        confirmingFiat.cryptoCurrency
+      await dispatchCompanyEmail(
+        customerData.company_id ?? user.company_id,
+        "payments",
+        { email: user.email, name: user.name },
+        (email, name) => sendPaymentConfirmingEmail(
+          email,
+          name,
+          user.company_name,
+          confirmingFiat.fiatAmount,
+          confirmingFiat.fiatCurrency,
+          txId,
+          currentConfirmations,
+          requiredConfirmations,
+          normalizeLang(user.language),
+          confirmingFiat.cryptoAmount,
+          confirmingFiat.cryptoCurrency
+        )
       );
     }
 
@@ -410,18 +421,23 @@ export const sendPartialPaymentNotification = async (
     );
 
     // Send email notification
-    await sendPaymentPartialEmail(
-      user.email,
-      user.name,
-      user.company_name,
-      receivedAmount.toString(),
-      expectedAmount.toString(),
-      remainingAmount,
-      currency,
-      txId,
-      address,
-      gracePeriodMinutes,
-      normalizeLang(user.language)
+    await dispatchCompanyEmail(
+      customerData.company_id ?? user.company_id,
+      "payments",
+      { email: user.email, name: user.name },
+      (email, name) => sendPaymentPartialEmail(
+        email,
+        name,
+        user.company_name,
+        receivedAmount.toString(),
+        expectedAmount.toString(),
+        remainingAmount,
+        currency,
+        txId,
+        address,
+        gracePeriodMinutes,
+        normalizeLang(user.language)
+      )
     );
 
     // Mark notification as sent in Redis (expires in 2 hours)
@@ -504,16 +520,21 @@ export const sendPartialPaymentExpiredNotification = async (
     );
 
     // Send email notification
-    await sendPaymentPartialExpiredEmail(
-      user.email,
-      user.name,
-      user.company_name,
-      receivedAmount.toString(),
-      expectedAmount.toString(),
-      currency,
-      txId,
-      status,
-      normalizeLang(user.language)
+    await dispatchCompanyEmail(
+      companyId,
+      "payments",
+      { email: user.email, name: user.name },
+      (email, name) => sendPaymentPartialExpiredEmail(
+        email,
+        name,
+        user.company_name,
+        receivedAmount.toString(),
+        expectedAmount.toString(),
+        currency,
+        txId,
+        status,
+        normalizeLang(user.language)
+      )
     );
 
     cronLogger.info(`Partial payment expired notification sent for address: ${address}, status: ${status}`);
