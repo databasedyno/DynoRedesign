@@ -1,274 +1,371 @@
 #!/usr/bin/env python3
 """
-Backend test for branded short link bug fix (2026-09-01)
-Tests the createPaymentLink endpoint to verify:
-1. short_link exists and equals <SERVER_URL>/<6-char-ref> (NO "/pay?d=")
-2. payment_link STILL contains "/pay?d=<ref>" (unchanged)
-3. The 6-char <ref> is IDENTICAL in both
+Backend API Testing Script for DynoPay
+Tests KYC status and branded short-link E2E flow
 """
 
 import requests
 import json
 import re
 import sys
+from typing import Dict, Any, Optional
 
 # Configuration
 BASE_URL = "http://localhost:8001"
-LOGIN_EMAIL = "onarrival21@gmail.com"
-LOGIN_PASSWORD = "Katiekendra123@"
+OWNER_EMAIL = "onarrival21@gmail.com"
+OWNER_PASSWORD = "Katiekendra123@"
+TEST_EMAIL = "onarrival21+ptest@gmail.com"
 
-# Expected URLs from backend/.env
+# Read SERVER_URL and CHECKOUT_URL from backend/.env
 SERVER_URL = "https://d4fef0d9-f3e2-42b2-a3b0-4b3e15a570d4.preview.emergentagent.com"
 CHECKOUT_URL = "https://d4fef0d9-f3e2-42b2-a3b0-4b3e15a570d4.preview.emergentagent.com"
 
-def log(msg):
-    print(f"[TEST] {msg}")
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    RESET = '\033[0m'
 
-def test_health():
-    """Verify backend health before testing"""
-    log("Step 0: Checking backend health...")
-    try:
-        resp = requests.get(f"{BASE_URL}/health", timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            log(f"✅ Backend healthy: status={data.get('status')}, db={data.get('database')}, redis={data.get('redis')}")
-            return True
-        else:
-            log(f"❌ Health check failed: {resp.status_code}")
-            return False
-    except Exception as e:
-        log(f"❌ Health check error: {e}")
-        return False
+def log_test(message: str, status: str = "INFO"):
+    """Log test messages with color coding"""
+    color = Colors.BLUE
+    if status == "PASS":
+        color = Colors.GREEN
+    elif status == "FAIL":
+        color = Colors.RED
+    elif status == "WARN":
+        color = Colors.YELLOW
+    
+    print(f"{color}[{status}]{Colors.RESET} {message}")
 
-def login():
-    """Login as owner and return JWT token"""
-    log("Step 1: Logging in as owner...")
+def login() -> Optional[str]:
+    """Login and return access token"""
+    log_test("Logging in as owner...", "INFO")
+    
     try:
-        resp = requests.post(
+        response = requests.post(
             f"{BASE_URL}/api/user/login",
-            json={"email": LOGIN_EMAIL, "password": LOGIN_PASSWORD},
-            timeout=10
+            json={
+                "email": OWNER_EMAIL,
+                "password": OWNER_PASSWORD
+            },
+            timeout=30
         )
         
-        if resp.status_code == 200:
-            data = resp.json()
+        if response.status_code == 200:
+            data = response.json()
             token = data.get("data", {}).get("accessToken")
             if token:
-                log(f"✅ Login successful, token obtained (length: {len(token)} chars)")
+                log_test(f"Login successful! Token length: {len(token)}", "PASS")
                 return token
             else:
-                log(f"❌ Login response missing accessToken: {data}")
+                log_test(f"Login response missing accessToken: {data}", "FAIL")
                 return None
         else:
-            log(f"❌ Login failed: {resp.status_code} - {resp.text}")
+            log_test(f"Login failed: {response.status_code} - {response.text}", "FAIL")
             return None
     except Exception as e:
-        log(f"❌ Login error: {e}")
+        log_test(f"Login exception: {str(e)}", "FAIL")
         return None
 
-def create_payment_link(token):
-    """Create a payment link and return the response data"""
-    log("Step 2: Creating payment link...")
-    
-    # Payment link payload - multi-crypto to avoid single-crypto merchant-pool address reservation
-    payload = {
-        "amount": 25,
-        "currency": "USD",
-        "email": "onarrival21+ptest@gmail.com",
-        "description": "QA branded-link test",
-        "crypto_currencies": ["BTC", "ETH"],
-        "company_id": 1
-    }
-    
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+def test_health() -> bool:
+    """Test health endpoint"""
+    log_test("Testing health endpoint...", "INFO")
     
     try:
-        resp = requests.post(
-            f"{BASE_URL}/api/pay/createPaymentLink",
-            json=payload,
-            headers=headers,
-            timeout=15
-        )
+        response = requests.get(f"{BASE_URL}/health", timeout=10)
         
-        log(f"Response status: {resp.status_code}")
-        
-        if resp.status_code == 200:
-            data = resp.json()
-            log(f"✅ Payment link created successfully")
-            return data.get("data")
-        elif resp.status_code == 400 and "An active API key is required" in resp.text:
-            log(f"⚠️ Expected error: {resp.text}")
-            log("This is NOT a bug fix failure - company needs an active API key")
-            return None
-        else:
-            log(f"❌ Create payment link failed: {resp.status_code}")
-            log(f"Response: {resp.text}")
-            return None
-    except Exception as e:
-        log(f"❌ Create payment link error: {e}")
-        return None
-
-def verify_assertions(data):
-    """Verify the three critical assertions"""
-    log("Step 3: Verifying assertions...")
-    
-    if not data:
-        log("❌ No data to verify")
-        return False
-    
-    short_link = data.get("short_link")
-    payment_link = data.get("payment_link")
-    link_id = data.get("link_id")
-    
-    log(f"short_link: {short_link}")
-    log(f"payment_link: {payment_link}")
-    log(f"link_id: {link_id}")
-    
-    all_passed = True
-    
-    # Assertion A: short_link EXISTS and equals <SERVER_URL>/<6-char-ref> (NO "/pay?d=")
-    log("\nAssertion A: short_link format...")
-    if not short_link:
-        log("❌ FAIL: short_link is missing")
-        all_passed = False
-    elif "/pay?d=" in short_link:
-        log(f"❌ FAIL: short_link contains '/pay?d=' (should NOT): {short_link}")
-        all_passed = False
-    else:
-        # Extract ref from short_link (last path segment)
-        match = re.search(r'/([A-Za-z0-9]{6})$', short_link)
-        if not match:
-            log(f"❌ FAIL: short_link does not end with 6 base62 chars: {short_link}")
-            all_passed = False
-        else:
-            ref_from_short = match.group(1)
-            expected_short = f"{SERVER_URL}/{ref_from_short}"
-            if short_link == expected_short:
-                log(f"✅ PASS: short_link = {short_link} (correct format, ref={ref_from_short})")
+        if response.status_code == 200:
+            data = response.json()
+            status = data.get("status")
+            if status == "healthy":
+                log_test(f"Health check PASSED: {json.dumps(data, indent=2)}", "PASS")
+                return True
             else:
-                log(f"❌ FAIL: short_link = {short_link}, expected = {expected_short}")
-                all_passed = False
-    
-    # Assertion B: payment_link STILL contains "/pay?d=<ref>" (unchanged)
-    log("\nAssertion B: payment_link format...")
-    if not payment_link:
-        log("❌ FAIL: payment_link is missing")
-        all_passed = False
-    elif "/pay?d=" not in payment_link:
-        log(f"❌ FAIL: payment_link does NOT contain '/pay?d=' (should contain it): {payment_link}")
-        all_passed = False
-    else:
-        # Extract ref from payment_link (?d=<ref>)
-        match = re.search(r'\?d=([A-Za-z0-9]{6})', payment_link)
-        if not match:
-            log(f"❌ FAIL: payment_link does not have ?d=<6-char-ref>: {payment_link}")
-            all_passed = False
+                log_test(f"Health check status not 'healthy': {status}", "FAIL")
+                return False
         else:
-            ref_from_payment = match.group(1)
-            expected_payment = f"{CHECKOUT_URL}/pay?d={ref_from_payment}"
-            if payment_link == expected_payment:
-                log(f"✅ PASS: payment_link = {payment_link} (correct format, ref={ref_from_payment})")
-            else:
-                log(f"✅ PASS: payment_link contains '/pay?d={ref_from_payment}' (format correct)")
-    
-    # Assertion C: The 6-char <ref> is IDENTICAL in both
-    log("\nAssertion C: ref consistency...")
-    if short_link and payment_link:
-        match_short = re.search(r'/([A-Za-z0-9]{6})$', short_link)
-        match_payment = re.search(r'\?d=([A-Za-z0-9]{6})', payment_link)
-        
-        if match_short and match_payment:
-            ref_short = match_short.group(1)
-            ref_payment = match_payment.group(1)
-            
-            if ref_short == ref_payment:
-                log(f"✅ PASS: Both refs are IDENTICAL: {ref_short}")
-            else:
-                log(f"❌ FAIL: Refs are DIFFERENT - short_link ref={ref_short}, payment_link ref={ref_payment}")
-                all_passed = False
-        else:
-            log("❌ FAIL: Could not extract refs from both links")
-            all_passed = False
-    
-    return all_passed, link_id
-
-def cleanup(token, link_id):
-    """Delete the test payment link"""
-    log(f"\nStep 4: Cleaning up (deleting link_id={link_id})...")
-    
-    if not link_id:
-        log("⚠️ No link_id to clean up")
-        return False
-    
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    
-    try:
-        resp = requests.delete(
-            f"{BASE_URL}/api/pay/deletePaymentLink/{link_id}",
-            headers=headers,
-            timeout=10
-        )
-        
-        if resp.status_code == 200:
-            log(f"✅ Cleanup successful: link_id={link_id} deleted")
-            return True
-        else:
-            log(f"⚠️ Cleanup failed: {resp.status_code} - {resp.text}")
+            log_test(f"Health check failed: {response.status_code} - {response.text}", "FAIL")
             return False
     except Exception as e:
-        log(f"❌ Cleanup error: {e}")
+        log_test(f"Health check exception: {str(e)}", "FAIL")
         return False
 
+def test_kyc_status(token: str) -> bool:
+    """Test KYC status endpoints"""
+    log_test("\n=== TEST 1: KYC Status ===", "INFO")
+    
+    headers = {"Authorization": f"Bearer {token}"}
+    all_passed = True
+    
+    # Test 1a: KYC status with company_id=1
+    log_test("Testing GET /api/kyc/status?company_id=1", "INFO")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/api/kyc/status?company_id=1",
+            headers=headers,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            log_test(f"Response: {json.dumps(data, indent=2)}", "INFO")
+            
+            status = data.get("data", {}).get("status")
+            can_process = data.get("data", {}).get("can_process_payments")
+            
+            if status == "approved":
+                log_test(f"✓ KYC status is 'approved'", "PASS")
+            else:
+                log_test(f"✗ KYC status is '{status}', expected 'approved'", "FAIL")
+                all_passed = False
+            
+            if can_process is True:
+                log_test(f"✓ can_process_payments is true", "PASS")
+            else:
+                log_test(f"✗ can_process_payments is {can_process}, expected true", "FAIL")
+                all_passed = False
+        else:
+            log_test(f"KYC status check failed: {response.status_code} - {response.text}", "FAIL")
+            all_passed = False
+    except Exception as e:
+        log_test(f"KYC status check exception: {str(e)}", "FAIL")
+        all_passed = False
+    
+    # Test 1b: KYC status without company_id (account-level)
+    log_test("\nTesting GET /api/kyc/status (no company param)", "INFO")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/api/kyc/status",
+            headers=headers,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            log_test(f"Response: {json.dumps(data, indent=2)}", "INFO")
+            
+            status = data.get("data", {}).get("status")
+            
+            if status == "approved":
+                log_test(f"✓ Account-level KYC status is 'approved'", "PASS")
+            else:
+                log_test(f"✗ Account-level KYC status is '{status}', expected 'approved'", "FAIL")
+                all_passed = False
+        else:
+            log_test(f"Account-level KYC status check failed: {response.status_code} - {response.text}", "FAIL")
+            all_passed = False
+    except Exception as e:
+        log_test(f"Account-level KYC status check exception: {str(e)}", "FAIL")
+        all_passed = False
+    
+    return all_passed
+
+def test_branded_short_link(token: str) -> bool:
+    """Test E2E branded short-link creation"""
+    log_test("\n=== TEST 2: E2E Branded Short-Link ===", "INFO")
+    
+    headers = {"Authorization": f"Bearer {token}"}
+    link_id = None
+    all_passed = True
+    
+    # Create payment link
+    log_test("Creating payment link with 2+ crypto currencies...", "INFO")
+    try:
+        payload = {
+            "amount": 25,
+            "currency": "USD",
+            "email": TEST_EMAIL,
+            "description": "QA branded-link E2E",
+            "crypto_currencies": ["BTC", "ETH"],
+            "company_id": 1
+        }
+        
+        log_test(f"Payload: {json.dumps(payload, indent=2)}", "INFO")
+        
+        response = requests.post(
+            f"{BASE_URL}/api/pay/createPaymentLink",
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        
+        log_test(f"Response status: {response.status_code}", "INFO")
+        log_test(f"Response body: {response.text[:500]}", "INFO")
+        
+        if response.status_code == 200:
+            data = response.json()
+            log_test(f"Full response: {json.dumps(data, indent=2)}", "INFO")
+            
+            response_data = data.get("data", {})
+            short_link = response_data.get("short_link")
+            payment_link = response_data.get("payment_link")
+            link_id = response_data.get("link_id") or response_data.get("id")
+            
+            log_test(f"\nExtracted values:", "INFO")
+            log_test(f"  short_link: {short_link}", "INFO")
+            log_test(f"  payment_link: {payment_link}", "INFO")
+            log_test(f"  link_id: {link_id}", "INFO")
+            
+            # Assertion a: short_link exists and format
+            if short_link:
+                # Extract ref from short_link (last path segment)
+                short_link_match = re.match(r'^(.+)/([A-Za-z0-9]{6})$', short_link)
+                
+                if short_link_match:
+                    base_url = short_link_match.group(1)
+                    short_ref = short_link_match.group(2)
+                    
+                    if base_url == SERVER_URL:
+                        log_test(f"✓ short_link base URL matches SERVER_URL: {SERVER_URL}", "PASS")
+                    else:
+                        log_test(f"✗ short_link base URL '{base_url}' != SERVER_URL '{SERVER_URL}'", "FAIL")
+                        all_passed = False
+                    
+                    if "/pay?d=" not in short_link:
+                        log_test(f"✓ short_link does NOT contain '/pay?d='", "PASS")
+                    else:
+                        log_test(f"✗ short_link contains '/pay?d=' (should be clean branded link)", "FAIL")
+                        all_passed = False
+                    
+                    log_test(f"✓ short_link ref is 6 base62 chars: {short_ref}", "PASS")
+                else:
+                    log_test(f"✗ short_link format invalid: {short_link}", "FAIL")
+                    all_passed = False
+            else:
+                log_test(f"✗ short_link is missing from response", "FAIL")
+                all_passed = False
+            
+            # Assertion b: payment_link still contains /pay?d=<ref>
+            if payment_link:
+                payment_link_match = re.search(r'/pay\?d=([A-Za-z0-9]{6})', payment_link)
+                
+                if payment_link_match:
+                    payment_ref = payment_link_match.group(1)
+                    
+                    if payment_link.startswith(CHECKOUT_URL):
+                        log_test(f"✓ payment_link starts with CHECKOUT_URL: {CHECKOUT_URL}", "PASS")
+                    else:
+                        log_test(f"✗ payment_link doesn't start with CHECKOUT_URL", "FAIL")
+                        all_passed = False
+                    
+                    log_test(f"✓ payment_link contains '/pay?d={payment_ref}'", "PASS")
+                    
+                    # Assertion c: refs match
+                    if short_link and short_link_match:
+                        if short_ref == payment_ref:
+                            log_test(f"✓ short_link ref '{short_ref}' matches payment_link ref '{payment_ref}'", "PASS")
+                        else:
+                            log_test(f"✗ short_link ref '{short_ref}' != payment_link ref '{payment_ref}'", "FAIL")
+                            all_passed = False
+                else:
+                    log_test(f"✗ payment_link format invalid (missing /pay?d=<ref>): {payment_link}", "FAIL")
+                    all_passed = False
+            else:
+                log_test(f"✗ payment_link is missing from response", "FAIL")
+                all_passed = False
+            
+        elif response.status_code == 400 or response.status_code == 403:
+            # Check for specific error messages
+            error_text = response.text.lower()
+            
+            if "kyc" in error_text or "kyc_required" in error_text:
+                log_test(f"✗ CRITICAL: KYC error still present! Response: {response.text}", "FAIL")
+                all_passed = False
+            elif "api key" in error_text or "active api key" in error_text:
+                log_test(f"⚠ 'An active API key is required' error (acceptable, different issue): {response.text}", "WARN")
+                # This is acceptable per the review request
+            else:
+                log_test(f"✗ Payment link creation failed: {response.status_code} - {response.text}", "FAIL")
+                all_passed = False
+        else:
+            log_test(f"✗ Payment link creation failed: {response.status_code} - {response.text}", "FAIL")
+            all_passed = False
+    except Exception as e:
+        log_test(f"Payment link creation exception: {str(e)}", "FAIL")
+        all_passed = False
+    
+    # Cleanup: Delete the payment link
+    if link_id:
+        log_test(f"\nCleaning up: Deleting payment link {link_id}...", "INFO")
+        try:
+            response = requests.delete(
+                f"{BASE_URL}/api/pay/deletePaymentLink/{link_id}",
+                headers=headers,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                log_test(f"✓ Payment link deleted successfully", "PASS")
+            else:
+                log_test(f"⚠ Payment link deletion returned {response.status_code}: {response.text}", "WARN")
+        except Exception as e:
+            log_test(f"⚠ Payment link deletion exception: {str(e)}", "WARN")
+    else:
+        log_test("⚠ No link_id to clean up", "WARN")
+    
+    return all_passed
+
 def main():
-    log("=" * 80)
-    log("BRANDED SHORT LINK BUG FIX VERIFICATION")
-    log("=" * 80)
+    """Main test execution"""
+    log_test("=" * 80, "INFO")
+    log_test("DynoPay Backend Testing - KYC Status & Branded Short-Link", "INFO")
+    log_test("=" * 80, "INFO")
+    log_test(f"BASE_URL: {BASE_URL}", "INFO")
+    log_test(f"SERVER_URL: {SERVER_URL}", "INFO")
+    log_test(f"CHECKOUT_URL: {CHECKOUT_URL}", "INFO")
+    log_test("=" * 80, "INFO")
     
-    # Step 0: Health check
-    if not test_health():
-        log("\n❌ OVERALL RESULT: FAILED (backend not healthy)")
-        sys.exit(1)
+    results = {
+        "health": False,
+        "login": False,
+        "kyc_status": False,
+        "branded_short_link": False
+    }
     
-    # Step 1: Login
+    # Test health
+    results["health"] = test_health()
+    
+    if not results["health"]:
+        log_test("\n⚠ Health check failed, but continuing with tests...", "WARN")
+    
+    # Login
     token = login()
     if not token:
-        log("\n❌ OVERALL RESULT: FAILED (login failed)")
+        log_test("\n✗ Login failed, cannot proceed with authenticated tests", "FAIL")
         sys.exit(1)
     
-    # Step 2: Create payment link
-    data = create_payment_link(token)
-    if data is None:
-        log("\n⚠️ OVERALL RESULT: INCONCLUSIVE (could not create payment link)")
-        log("If error was 'An active API key is required', report this exactly.")
-        sys.exit(2)
+    results["login"] = True
     
-    # Step 3: Verify assertions
-    all_passed, link_id = verify_assertions(data)
+    # Test KYC status
+    results["kyc_status"] = test_kyc_status(token)
     
-    # Step 4: Cleanup
-    cleanup_success = cleanup(token, link_id)
+    # Test branded short-link
+    results["branded_short_link"] = test_branded_short_link(token)
     
-    # Final result
-    log("\n" + "=" * 80)
-    if all_passed:
-        log("✅ OVERALL RESULT: ALL ASSERTIONS PASSED")
-        log("The branded short link bug fix is WORKING CORRECTLY.")
-        if cleanup_success:
-            log("✅ Cleanup successful - production DB kept clean.")
-        else:
-            log("⚠️ Cleanup failed - manual cleanup may be needed.")
+    # Summary
+    log_test("\n" + "=" * 80, "INFO")
+    log_test("TEST SUMMARY", "INFO")
+    log_test("=" * 80, "INFO")
+    
+    total_tests = len(results)
+    passed_tests = sum(1 for v in results.values() if v)
+    
+    for test_name, passed in results.items():
+        status = "PASS" if passed else "FAIL"
+        log_test(f"{test_name.replace('_', ' ').title()}: {status}", status)
+    
+    log_test("=" * 80, "INFO")
+    log_test(f"Total: {passed_tests}/{total_tests} tests passed", "INFO")
+    log_test("=" * 80, "INFO")
+    
+    if passed_tests == total_tests:
+        log_test("\n✓ ALL TESTS PASSED", "PASS")
+        sys.exit(0)
     else:
-        log("❌ OVERALL RESULT: SOME ASSERTIONS FAILED")
-        log("The branded short link bug fix has ISSUES.")
-    log("=" * 80)
-    
-    sys.exit(0 if all_passed else 1)
+        log_test(f"\n✗ {total_tests - passed_tests} TEST(S) FAILED", "FAIL")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

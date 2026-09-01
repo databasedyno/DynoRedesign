@@ -462,7 +462,9 @@
       "c5t": "Sin cuotas mensuales ni de alta",
       "c5d": "Paga solo cuando cobras — y tu primer pago es totalmente gratis.",
       "c6t": "Hecho para desarrolladores",
-      "c6d": "Una API REST clara, claves sandbox y webhooks para cada evento de pago. Sin ataduras a un SDK."
+      "c6d": "Una API REST clara, claves sandbox y webhooks para cada evento de pago. Sin ataduras a un SDK.",
+      "c7t": "Una cuenta, todas tus marcas",
+      "c7d": "Gestiona varios negocios o marcas desde un solo inicio de sesión: cada uno con su propio checkout, monederos y liquidación. Cambia entre ellos con un clic."
     },
     "developer": {
       "eyebrow": "Para desarrolladores",

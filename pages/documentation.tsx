@@ -937,6 +937,7 @@ const SECTIONS: Section[] = [
   { id: "transactions", title: "Transactions", icon: <ReceiptLongIcon />, endpoints: ["get-transactions", "get-single-transaction", "get-crypto-transaction", "get-payment-status"] },
   { id: "currencies", title: "Currencies", icon: <CurrencyExchangeIcon />, endpoints: ["get-supported-currency"] },
   { id: "wallet-management", title: "Merchant Wallet Management", icon: <AccountBalanceWalletIcon />, endpoints: ["admin-credit-wallet", "admin-debit-wallet"] },
+  { id: "buy-button", title: "Buy Button", icon: <CodeIcon /> },
   { id: "webhooks", title: "Webhooks", icon: <NotificationsActiveIcon /> },
   { id: "rate-limits", title: "Rate Limits", icon: <SpeedIcon /> },
   { id: "errors", title: "Error Handling", icon: <WarningAmberIcon /> },
@@ -1374,6 +1375,29 @@ const DocumentationPage = () => {
                 <CodeBlock lang="bash" code={`https://dynopay.com/api/user`} />
 
                 <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
+                  Ways to accept payments
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 1.5 }}>
+                  Pick whichever fits your stack — every method settles the same way (crypto in, forwarded to your wallet, webhook fired on status change). No code? Start with a Payment Link or a Buy Button.
+                </Typography>
+                <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+                  <li><strong>Hosted Checkout</strong> — call <code>Create Checkout Payment</code>, get a <code>checkout_url</code>, and redirect the buyer to a Dynopay-hosted page. Zero front-end work. See <strong>Payments</strong>.</li>
+                  <li><strong>Payment Links</strong> — create a reusable link in the dashboard (or via API) and share it by email, chat, or QR — e.g. <code>dynopay.com/aBc123</code>. Great for invoices and one-off requests, no site needed.</li>
+                  <li><strong>Buy Button</strong> — drop a <code>&lt;dynopay-buy-button&gt;</code> snippet on any page (Webflow, WordPress, plain HTML). A “Buy Now” button opens checkout in a modal. See <strong>Buy Button</strong> below.</li>
+                  <li><strong>Direct API</strong> — call <code>Create Direct Crypto Payment</code> to get an address + QR and render your own pay screen. Full control. See <strong>Payments</strong>.</li>
+                  <li><strong>Embedded Checkout (iframe)</strong> — mount the full checkout inside your page with <code>embed.js</code> + a server-created session. See <strong>Embedded Checkout</strong>.</li>
+                  <li><strong>Elements</strong> — render the pay UI (currency picker, address, QR, live status) directly in your DOM, no iframe. See <strong>Elements Inline Widget</strong>.</li>
+                  <li><strong>Webhooks</strong> — required for reliable fulfilment: Dynopay POSTs your server the moment a payment’s status changes. See <strong>Webhooks</strong>.</li>
+                </Box>
+
+                <InfoBox>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Multiple brands, one account</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    Run several businesses or brands from a single Dynopay login — each with its own wallets, checkout and settlement. Pass a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>company_id</code> when creating payments, links or keys to scope them to a specific brand, and switch between brands in the dashboard with one click.
+                  </Typography>
+                </InfoBox>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
                   When to use each section
                 </Typography>
                 <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
@@ -1549,6 +1573,75 @@ const DocumentationPage = () => {
                   })}
                 </Box>
               ))}
+
+              {/* ═══════════════════════════════════════════════════════
+                  BUY BUTTON SECTION
+                  ═══════════════════════════════════════════════════════ */}
+              <Box id="buy-button" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Buy Button
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  The Buy Button is the fastest way to sell without writing back-end code. Create a button once in the dashboard, then paste a small HTML snippet anywhere — a landing page, Webflow, WordPress, a blog, even an email-linked page. Your shopper clicks <strong>Buy Now</strong> and the Dynopay hosted checkout opens in a modal (or inline). The amount is fetched securely from our server by <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>button-id</code>, so it can never be tampered with in the browser.
+                </Typography>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  1 · Create a button
+                </Typography>
+                <Box component="ol" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+                  <li>Go to <strong>Developers → Buy Buttons</strong> in your dashboard.</li>
+                  <li>Set a <strong>label</strong>, a <strong>fixed price</strong> (or a min/max range so the customer chooses), and the currencies you accept.</li>
+                  <li>Copy the generated snippet. It already includes your <strong>publishable key</strong> (<code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>pk_live_…</code>) and <strong>button id</strong> (<code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>btn_…</code>).</li>
+                </Box>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  2 · Paste the snippet
+                </Typography>
+                <CodeBlock
+                  lang="html"
+                  code={`<!-- Dynopay embed SDK — load once per page -->\n<script src="https://checkout.dynopay.com/v1/embed.js"></script>\n\n<!-- Paste the button anywhere on your page -->\n<dynopay-buy-button\n  publishable-key="pk_live_your_key"\n  button-id="btn_xxxxxxxx"\n  mode="modal"\n  theme="dark"\n></dynopay-buy-button>`}
+                />
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
+                  Attributes
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Attribute", "Required", "Description"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["publishable-key", "Yes", "Your browser-safe key (pk_live_… or pk_test_…). Domain-locked and amount-capped — never your secret API key."],
+                        ["button-id", "Yes", "The btn_… id of the button you created. The price is resolved server-side from this id."],
+                        ["amount", "No", "Only for range/customer-chooses buttons — the default amount to pre-fill. Ignored for fixed-price buttons."],
+                        ["currency", "No", "Pre-select a single crypto (e.g. BTC). Omit to let the buyer choose from your accepted coins."],
+                        ["mode", "No", '"modal" (default) opens checkout in an overlay; "redirect" sends the buyer to the hosted page.'],
+                        ["theme", "No", '"dark" or "light" — match your page.'],
+                      ].map(([attr, req, desc], i) => (
+                        <tr key={attr as string} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{attr}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{req}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+
+                <InfoBox>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Fulfil on the webhook, not the button</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    The button is UX only. Always confirm the final payment via the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.confirmed</code> webhook (see below) before you deliver the product or mark the order paid.
+                  </Typography>
+                </InfoBox>
+              </Box>
 
               {/* ═══════════════════════════════════════════════════════
                   WEBHOOKS SECTION

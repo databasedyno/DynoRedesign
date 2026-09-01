@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import CustomButton from "../Buttons";
+import KycVerifiedBadge from "@/Components/UI/KycVerifiedBadge";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
 import { DashboardAction, TransactionAction, PaymentLinkAction, ApiAction } from "@/Redux/Actions";
 import { useWalletStore } from "@/contexts/WalletDataContext";
@@ -210,6 +211,7 @@ export default function CompanySelector() {
                   : companies[0].company_name)
                 : ""}
           </TriggerText>
+          <KycVerifiedBadge companyId={selected?.company_id ?? companies[0]?.company_id} size={16} />
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: { xs: "0px", sm: "8px" } }}>

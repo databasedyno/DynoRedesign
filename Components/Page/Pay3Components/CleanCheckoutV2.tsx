@@ -738,8 +738,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
-  // ─── LOADING ──────────────────────────────────────────────────────
-  if (phase === 'loading_meta' || phase === 'creating_payment') {
+  // ─── LOADING (meta only) ──────────────────────────────────────────
+  // Full-panel loader is used ONLY before the checkout meta is known — there
+  // is genuinely nothing to show yet. The `creating_payment` (address
+  // reservation) state deliberately does NOT blank the panel: it keeps the
+  // header + amount + coin selects mounted and shows an inline "Preparing
+  // payment address…" spinner in the address area, so the checkout no longer
+  // flashes in-then-out while addPayment runs (see the main render below).
+  if (phase === 'loading_meta') {
     return (
       <PanelShell isDark={isDark} border={border} muted={muted}>
         <Box display="flex" flexDirection="column" alignItems="center" gap={2} py={8}>
@@ -752,7 +758,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             }}
           />
           <Typography fontSize={13.5} color={muted}>
-            {phase === 'loading_meta' ? 'Loading checkout…' : 'Preparing payment address…'}
+            {t('checkout.loadingCheckout', { defaultValue: 'Loading checkout…' })}
           </Typography>
         </Box>
       </PanelShell>
@@ -1202,6 +1208,29 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         border={border}
         accent={LIME}
       />
+
+      {/* Reserving an address — inline loader. Keeps the header, amount and
+          coin selects steady (no full-panel flash) while /pay/addPayment runs.
+          Replaces the old full-panel `creating_payment` blank that made the
+          checkout appear to load, vanish, then reappear. */}
+      {phase === 'creating_payment' && (
+        <Box
+          data-testid="clean-checkout-preparing"
+          sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.25, py: 4 }}
+        >
+          <Box
+            sx={{
+              width: 26, height: 26, borderRadius: '50%',
+              border: `3px solid ${border}`, borderTopColor: INK,
+              animation: 'spin 800ms linear infinite',
+              '@keyframes spin': { to: { transform: 'rotate(360deg)' } },
+            }}
+          />
+          <Typography fontSize={13.5} color={muted}>
+            {t('checkout.preparingAddress', { defaultValue: 'Preparing payment address…' })}
+          </Typography>
+        </Box>
+      )}
 
       {/* Partial-payment (underpaid) banner — tells the buyer exactly how much
           MORE to send to the SAME address shown below to complete the payment. */}

@@ -462,7 +462,9 @@
       "c5t": "Aucuns frais mensuels ni d'installation",
       "c5d": "Payez seulement quand vous êtes payé — et votre tout premier paiement est sans frais.",
       "c6t": "Conçu pour les développeurs",
-      "c6d": "Une API REST claire, des clés sandbox et des webhooks pour chaque événement de paiement. Sans dépendance à un SDK."
+      "c6d": "Une API REST claire, des clés sandbox et des webhooks pour chaque événement de paiement. Sans dépendance à un SDK.",
+      "c7t": "Un compte, toutes vos marques",
+      "c7d": "Gérez plusieurs entreprises ou marques depuis une seule connexion — chacune avec son propre checkout, ses portefeuilles et ses règlements. Passez de l'une à l'autre en un clic."
     },
     "developer": {
       "eyebrow": "Pour les développeurs",

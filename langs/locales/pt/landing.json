@@ -462,7 +462,9 @@
       "c5t": "Sem mensalidade nem taxa de adesão",
       "c5d": "Pague só quando receber — e o seu primeiro pagamento é totalmente sem taxa.",
       "c6t": "Feito para desenvolvedores",
-      "c6d": "Uma API REST clara, chaves de sandbox e webhooks para cada evento de pagamento. Sem dependência de SDK."
+      "c6d": "Uma API REST clara, chaves de sandbox e webhooks para cada evento de pagamento. Sem dependência de SDK.",
+      "c7t": "Uma conta, todas as marcas",
+      "c7d": "Gerencie vários negócios ou marcas com um único login — cada um com seu próprio checkout, carteiras e liquidação. Alterne entre eles num clique."
     },
     "developer": {
       "eyebrow": "Para desenvolvedores",

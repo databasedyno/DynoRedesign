@@ -1,3 +1,9 @@
+# !!! 2026-09-01 KYC: user_id=1 (Hostbay) is now KYC-APPROVED in tbl_kyc (company 1, 71, account-level;
+#     veriff_reason='Manually verified (merchant request 2026-09-01)'). GET /api/kyc/status -> "approved",
+#     can_process_payments=true -> createPaymentLink UNBLOCKED. UNDO: DELETE FROM tbl_kyc WHERE user_id=1
+#     AND veriff_reason='Manually verified (merchant request 2026-09-01)'. New UI verified badge:
+#     Components/UI/KycVerifiedBadge (testid=kyc-verified-badge) next to company name in header.
+
 # ============================================================================
 # 2026-09-01 (pod d4fef0d9) RE-SETUP from user cred paste — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------

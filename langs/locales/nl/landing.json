@@ -462,7 +462,9 @@
       "c5t": "Geen maand- of opstartkosten",
       "c5d": "Betaal alleen als je betaald wordt — en je allereerste betaling is helemaal gratis.",
       "c6t": "Gebouwd voor developers",
-      "c6d": "Een heldere REST API, sandbox-keys en webhooks voor elke betaalgebeurtenis. Geen SDK-lock-in."
+      "c6d": "Een heldere REST API, sandbox-keys en webhooks voor elke betaalgebeurtenis. Geen SDK-lock-in.",
+      "c7t": "Eén account, al je merken",
+      "c7d": "Beheer meerdere bedrijven of merken vanuit één login — elk met een eigen checkout, wallets en uitbetaling. Wissel met één klik."
     },
     "developer": {
       "eyebrow": "Voor developers",

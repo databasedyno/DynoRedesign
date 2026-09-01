@@ -4,13 +4,36 @@ Welcome to the Dynopay API! This guide will help you integrate crypto payments a
 
 ## Table of Contents
 - [Quick Start](#quick-start)
+- [Ways to Accept Payments (Overview)](#ways-to-accept-payments-overview)
 - [Userless Payment (Simplified)](#userless-payment-simplified)
+- [Payment Links](#payment-links)
+- [Buy Button](#buy-button)
 - [Common Integration Patterns](#common-integration-patterns)
 - [Embedded Checkout (iframe on your page)](#embedded-checkout-iframe-on-your-page)
 - [Elements — Inline Crypto Widget (no iframe)](#elements--inline-crypto-widget-no-iframe)
 - [Customer Wallet System](#customer-wallet-system)
 - [Best Practices](#best-practices)
 - [FAQ](#faq)
+
+---
+
+## Ways to Accept Payments (Overview)
+
+Every method below settles the same way — the buyer pays in crypto, funds forward to the wallet you control, and a webhook fires when the status changes. Choose the one that fits your stack:
+
+| Method | Code needed | Best for |
+| --- | --- | --- |
+| **Hosted Checkout** | 1 API call | Redirect the buyer to a Dynopay-hosted checkout page (`checkout_url`). Fastest server integration. |
+| **Payment Links** | None (dashboard) | A reusable link (e.g. `dynopay.com/aBc123`) you share by email, chat, or QR. Invoices, one-off requests. |
+| **Buy Button** | Copy-paste HTML | A `<dynopay-buy-button>` "Buy Now" snippet for any site (Webflow, WordPress, static HTML). |
+| **Direct API (QR)** | API + your UI | Get an address + QR and render your own pay screen. Full control. |
+| **Embedded Checkout** | `embed.js` + server session | Mount the full checkout in an iframe inside your page. |
+| **Elements** | `embed.js` (no iframe) | Render the pay UI (currency picker, address, QR, live status) directly in your DOM. |
+| **Webhooks** | Server endpoint | Required for reliable fulfilment — Dynopay POSTs your server on every status change. |
+
+> No developer? Start with a **Payment Link** or a **Buy Button** — neither needs a backend.
+
+**Multiple brands, one account.** Run several businesses or brands from a single Dynopay login — each with its own wallets, checkout and settlement. Pass a `company_id` when creating payments, links, or keys to scope them to a specific brand, and switch between brands in the dashboard with one click.
 
 ---
 
@@ -395,6 +418,96 @@ async function createDirectPayment(amount, crypto = 'BTC') {
 ```
 
 ---
+
+## Payment Links
+
+A **Payment Link** is a reusable hosted-checkout URL you can share anywhere — no site or code required. Create one from the dashboard (**Payment Links → New**) or via the API, then send it by email, chat, or a QR code.
+
+- **Shareable short link:** `https://dynopay.com/<ref>` (e.g. `https://dynopay.com/aBc123`) — brand-friendly, redirects to the hosted checkout.
+- **Direct checkout URL:** `https://checkout.dynopay.com/pay?d=<ref>` — the same session, used internally and by older integrations.
+
+### Create a Payment Link (API)
+
+```bash
+curl -X POST https://dynopay.com/api/pay/createPaymentLink \
+  -H "Authorization: Bearer <your_dashboard_jwt>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "company_id": 1,
+    "base_amount": 25.00,
+    "base_currency": "USD",
+    "accepted_currencies": ["BTC", "ETH", "USDT-TRC20"],
+    "description": "Invoice #1042",
+    "email": "buyer@example.com",
+    "expire": "7d"
+  }'
+```
+
+Response (trimmed):
+```json
+{
+  "message": "Payment link created successfully",
+  "data": {
+    "link_id": 302,
+    "payment_link": "https://checkout.dynopay.com/pay?d=aBc123",
+    "short_link": "https://dynopay.com/aBc123",
+    "base_amount": 25,
+    "base_currency": "USD",
+    "accepted_currencies": ["BTC", "ETH", "USDT-TRC20"]
+  }
+}
+```
+
+Share `short_link` with your customer. When they open it they pick a coin, pay, and Dynopay forwards the funds to your wallet — then fires your webhook. Manage or delete links anytime from the dashboard (or `DELETE /api/pay/deletePaymentLink/:link_id`).
+
+> **Tip:** set `expire` to `24h`, `7d`, `30d`, or `No` (never expires). Add a `webhook_url` to receive status updates for that specific link.
+
+---
+
+## Buy Button
+
+The **Buy Button** turns any web page into a checkout with a copy-paste snippet — perfect for Webflow, WordPress, Shopify blogs, or plain HTML. The shopper clicks **Buy Now** and the hosted checkout opens in a modal (or redirects). The price is resolved securely on the server from the `button-id`, so it can't be tampered with in the browser.
+
+### 1. Create a button
+
+1. Open **Developers → Buy Buttons** in your dashboard.
+2. Set a **label**, a **fixed price** (or a min/max range so the customer chooses), and the currencies you accept.
+3. Copy the snippet — it already embeds your **publishable key** (`pk_live_…` / `pk_test_…`) and **button id** (`btn_…`).
+
+### 2. Paste the snippet
+
+```html
+<!-- Dynopay embed SDK — load once per page -->
+<script src="https://checkout.dynopay.com/v1/embed.js"></script>
+
+<!-- Paste the button anywhere on your page -->
+<dynopay-buy-button
+  publishable-key="pk_live_your_key"
+  button-id="btn_xxxxxxxx"
+  mode="modal"
+  theme="dark"
+></dynopay-buy-button>
+```
+
+### Attributes
+
+| Attribute | Required | Description |
+| --- | --- | --- |
+| `publishable-key` | Yes | Browser-safe key (`pk_live_…` or `pk_test_…`). Domain-locked and amount-capped — **never** your secret API key. |
+| `button-id` | Yes | The `btn_…` id you created. The price is resolved server-side from this id. |
+| `amount` | No | Default amount for range / customer-chooses buttons. Ignored for fixed-price buttons. |
+| `currency` | No | Pre-select a single crypto (e.g. `BTC`). Omit to let the buyer choose. |
+| `mode` | No | `"modal"` (default) opens checkout in an overlay; `"redirect"` sends the buyer to the hosted page. |
+| `theme` | No | `"dark"` or `"light"` to match your page. |
+
+> **Fulfil on the webhook, not the button.** The button is UX only — always confirm the final payment via the `payment.confirmed` webhook before delivering the product.
+
+### Test mode
+
+Use a **`pk_test_…`** publishable key to try the whole flow in sandbox without moving real funds. Create/read your test key under **Developers → Publishable Keys** (environment = *development*), then swap it back to `pk_live_…` when you go live.
+
+---
+
 
 ## Embedded Checkout (iframe on your page)
 
