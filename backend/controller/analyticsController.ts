@@ -126,10 +126,80 @@ const onboardingFunnel = async (req: express.Request, res: express.Response) => 
   }
 };
 
+/**
+ * GET /api/admin/analytics/attribution?days=90
+ * Signup source → conversion funnel from tbl_signup_attribution: for each
+ * derived channel (chatgpt/google/telegram/direct/…), how many signed up, went
+ * on to create a payment link, and actually transacted. Plus top UTM campaigns.
+ */
+const attribution = async (req: express.Request, res: express.Response) => {
+  try {
+    const days = Math.min(parseInt(req.query.days as string) || 90, 365);
+
+    const bySource = await sequelize.query<{
+      source: string;
+      signups: number;
+      created_link: number;
+      transacted: number;
+    }>(
+      `SELECT COALESCE(NULLIF(a.source, ''), 'unknown') AS source,
+              COUNT(*)::int AS signups,
+              COUNT(*) FILTER (WHERE EXISTS (
+                SELECT 1 FROM tbl_payment_link pl WHERE pl.user_id = a.user_id
+              ))::int AS created_link,
+              COUNT(*) FILTER (WHERE COALESCE(u.cumulative_volume_usd, 0) > 0)::int AS transacted
+       FROM tbl_signup_attribution a
+       JOIN tbl_user u ON u.user_id = a.user_id
+       WHERE a.created_at >= NOW() - (:days || ' days')::interval
+       GROUP BY 1
+       ORDER BY signups DESC`,
+      { replacements: { days: String(days) }, type: QueryTypes.SELECT }
+    );
+
+    const topCampaigns = await sequelize.query(
+      `SELECT COALESCE(NULLIF(a.utm_campaign, ''), '(none)') AS campaign,
+              COALESCE(NULLIF(a.utm_source, ''), '(none)') AS utm_source,
+              COUNT(*)::int AS signups
+       FROM tbl_signup_attribution a
+       WHERE a.created_at >= NOW() - (:days || ' days')::interval
+         AND (a.utm_campaign IS NOT NULL OR a.utm_source IS NOT NULL)
+       GROUP BY 1, 2
+       ORDER BY signups DESC
+       LIMIT 20`,
+      { replacements: { days: String(days) }, type: QueryTypes.SELECT }
+    );
+
+    const by_source = bySource.map((r) => ({
+      source: r.source,
+      signups: Number(r.signups) || 0,
+      created_link: Number(r.created_link) || 0,
+      transacted: Number(r.transacted) || 0,
+    }));
+    const totals = by_source.reduce(
+      (acc, r) => ({
+        signups: acc.signups + r.signups,
+        created_link: acc.created_link + r.created_link,
+        transacted: acc.transacted + r.transacted,
+      }),
+      { signups: 0, created_link: 0, transacted: 0 }
+    );
+
+    successResponseHelper(res, 200, "Attribution funnel retrieved", {
+      period_days: days,
+      totals,
+      by_source,
+      top_campaigns: topCampaigns,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger);
+  }
+};
+
 export default {
   revenue,
   userGrowth,
   cohorts,
   funnel,
   onboardingFunnel,
+  attribution,
 };

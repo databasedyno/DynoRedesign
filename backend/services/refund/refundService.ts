@@ -257,7 +257,7 @@ export const createRefund = async (input: CreateRefundInput) => {
     tempAddressId =
       alloc?.dataValues?.temp_address_id ?? alloc?.temp_address_id ?? null;
     if (!depositAddress) {
-      throw new Error("Failed to allocate a DynoPay deposit address for the refund.");
+      throw new Error("Failed to allocate a Dynopay deposit address for the refund.");
     }
   }
 

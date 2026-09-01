@@ -37,7 +37,7 @@
     "intro": "Goed nieuws! Uw bedrijf <strong>{{companyName}}</strong> heeft een betaling ontvangen.",
     "outro": "De middelen zijn doorgestuurd naar uw uitbetaalwallet. U kunt alle transactiedetails bekijken in uw dashboard.",
     "cta": "Transactie bekijken",
-    "referralCredit": "Referral-tegoed dekte {{amount}} van uw DynoPay-platformkosten voor deze betaling — u hield er meer aan over."
+    "referralCredit": "Referral-tegoed dekte {{amount}} van uw Dynopay-platformkosten voor deze betaling — u hield er meer aan over."
   },
   "paymentPending": {
     "subject": "Uw betaling wacht op bevestiging",
@@ -678,6 +678,44 @@
       "cta": "Begin crypto te accepteren",
       "heading": "Uw welkomstcadeau van Dynopay",
       "unsubscribeSuffix": "voor deze e-mails"
+    }
+  },
+  "activation": {
+    "step": {
+      "d1": {
+        "subject": "Alles klaar — zo ontvang je je eerste betaling",
+        "heading": "Laten we je eerste betaling binnenhalen",
+        "intro": "Je Dynopay-account is klaar. Je eerste cryptobetaling ontvangen duurt ongeveer 2 minuten — dit is de volgende stap."
+      },
+      "d3": {
+        "subject": "We helpen je nog steeds om betaald te worden",
+        "heading": "Eén stap van je eerste betaling",
+        "intro": "Kleine herinnering: nog een paar stappen en je accepteert crypto. Laten we de volgende doen."
+      },
+      "d7": {
+        "subject": "Je Dynopay-account is klaar wanneer jij dat bent",
+        "heading": "Ga verder waar je gebleven was",
+        "intro": "Je hebt Dynopay een week geleden ingesteld. Wanneer je maar wilt: dit is de snelste weg naar je eerste betaling."
+      }
+    },
+    "seg": {
+      "madeLink": {
+        "line": "Je hebt al een betaallink gemaakt — mooi. Voeg een uitbetalingswallet toe zodat we, zodra iemand betaalt, direct uitbetalen naar een wallet die jij beheert.",
+        "cta": "Uitbetalingswallet toevoegen"
+      },
+      "noLink": {
+        "line": "Maak je eerste betaallink — deel hem overal en accepteer Bitcoin, Ethereum of stablecoins, zonder terugboekingen.",
+        "cta": "Maak je eerste link"
+      },
+      "fundraiser": {
+        "line": "Lanceer je inzamelingspagina in enkele minuten — deel één link en ontvang cryptodonaties van over de hele wereld.",
+        "cta": "Inzamelingspagina maken"
+      }
+    },
+    "common": {
+      "videoCta": "Bekijk de video van 2 minuten →",
+      "unsubscribe": "Wil je deze installatietips niet?",
+      "unsubscribeAction": "Uitschrijven"
     }
   }
 }

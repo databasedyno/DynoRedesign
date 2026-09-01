@@ -437,7 +437,7 @@
     "pain": {
       "eyebrow": "Der alte Weg ist kaputt",
       "headline": "Krypto-Zahlungen sollten nicht so schwer sein",
-      "body": "Schwankende Guthaben, Verwahrungsrisiko durch Dritte, Chargeback-Betrug und ein aufgesetzter Checkout bremsen Händler aus. DynoPay beseitigt jedes dieser Probleme.",
+      "body": "Schwankende Guthaben, Verwahrungsrisiko durch Dritte, Chargeback-Betrug und ein aufgesetzter Checkout bremsen Händler aus. Dynopay beseitigt jedes dieser Probleme.",
       "p1": "Kurse schwanken, bevor du ausgeben kannst, was du verdient hast.",
       "f1": "Wandle jede Zahlung automatisch in einen Stablecoin um, sobald sie abgewickelt ist.",
       "p2": "Ein Dritter verwahrt dein Geld — und kann es einfrieren.",
@@ -448,7 +448,7 @@
       "f4": "Ein gehosteter Checkout und eine saubere REST-API bringen dich an einem Nachmittag live."
     },
     "why": {
-      "eyebrow": "Warum DynoPay",
+      "eyebrow": "Warum Dynopay",
       "headline": "Anders, wo es zählt",
       "body": "Wir gewinnen nicht mit dem niedrigsten Schaufenster-Tarif — wir gewinnen mit dem, was dein Geld und deine Zeit wirklich schützt.",
       "c1t": "Non-custodial by design",
@@ -502,8 +502,8 @@
     "compare": {
       "eyebrow": "Warum wir statt der Alternativen",
       "headline": "Ein faireres Angebot für Krypto-Zahlungen",
-      "body": "Wie DynoPay im Vergleich zu einem typischen Krypto-Zahlungsdienstleister abschneidet.",
-      "colDyno": "DynoPay",
+      "body": "Wie Dynopay im Vergleich zu einem typischen Krypto-Zahlungsdienstleister abschneidet.",
+      "colDyno": "Dynopay",
       "colOther": "Typischer Anbieter",
       "note": "Der Vergleich spiegelt gängige Branchenpraxis wider; Details variieren je nach Anbieter.",
       "r1f": "Verwahrung der Gelder",

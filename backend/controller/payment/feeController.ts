@@ -668,7 +668,7 @@ export const getFeePreview = async (req: express.Request, res: express.Response)
         fee_payer: feePayer,
         you_receive: parseFloat(youReceive.toFixed(2)),
         customer_pays: parseFloat(customerPays.toFixed(2)),
-        note: "Estimate covers the DynoPay platform fee (percentage + fixed). Network/blockchain fees are shown at checkout once a coin is selected.",
+        note: "Estimate covers the Dynopay platform fee (percentage + fixed). Network/blockchain fees are shown at checkout once a coin is selected.",
       },
       discount_info: {
         has_discount: discountInfo.discount_percent > 0,

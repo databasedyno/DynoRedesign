@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Payments for E-commerce Stores | DynoPay",
+  "meta_title": "Crypto Payments for E-commerce Stores | Dynopay",
   "meta_description": "Accept crypto payments for e-commerce stores. Bitcoin, Ethereum, USDT, Solana and 15+ cryptos. No chargebacks. Funds go direct to your wallet. Start free.",
   "h1": "Accept crypto payments for e-commerce stores without chargebacks",
   "subheading": "Receive Bitcoin, Ethereum, stablecoins, and 15+ cryptocurrencies directly to your wallet. No payment holds, no fraud disputes, no 2-4% processor fees.",
-  "intro_paragraph": "E-commerce merchants lose 0.47% of revenue to chargebacks and another 2.9% + $0.30 per card transaction. DynoPay is a non-custodial crypto commerce platform built for online stores: you receive funds directly in your own wallet the moment a customer pays, eliminating chargeback risk entirely. Pricing starts at 1.5% and drops to 0.5% at scale based on volume, with no monthly fees, no setup costs, and your first payment is completely free.",
+  "intro_paragraph": "E-commerce merchants lose 0.47% of revenue to chargebacks and another 2.9% + $0.30 per card transaction. Dynopay is a non-custodial crypto commerce platform built for online stores: you receive funds directly in your own wallet the moment a customer pays, eliminating chargeback risk entirely. Pricing starts at 1.5% and drops to 0.5% at scale based on volume, with no monthly fees, no setup costs, and your first payment is completely free.",
   "features": [
     {
       "title": "Zero chargeback risk, ever",
@@ -11,7 +11,7 @@
     },
     {
       "title": "Funds arrive in your wallet",
-      "description": "DynoPay never holds your money. Payments settle directly to your Ethereum address, Bitcoin wallet, or Solana account, usually within minutes. You control the private keys and custody at all times."
+      "description": "Dynopay never holds your money. Payments settle directly to your Ethereum address, Bitcoin wallet, or Solana account, usually within minutes. You control the private keys and custody at all times."
     },
     {
       "title": "Lower fees than card processors",
@@ -25,15 +25,15 @@
   ],
   "faqs": [
     {
-      "question": "What cryptocurrencies can my e-commerce store accept with DynoPay?",
-      "answer": "DynoPay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, and stablecoins like USDT on Ethereum, Tron, and Polygon, USDC on Ethereum, and RLUSD on Ethereum and XRP Ledger. You choose which to enable."
+      "question": "What cryptocurrencies can my e-commerce store accept with Dynopay?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, and stablecoins like USDT on Ethereum, Tron, and Polygon, USDC on Ethereum, and RLUSD on Ethereum and XRP Ledger. You choose which to enable."
     },
     {
       "question": "Do I need a crypto wallet to accept payments?",
-      "answer": "Yes. DynoPay is non-custodial, so you provide one wallet address per cryptocurrency you want to accept. Payments go directly there. You control the private keys. DynoPay never holds customer funds or requires you to withdraw."
+      "answer": "Yes. Dynopay is non-custodial, so you provide one wallet address per cryptocurrency you want to accept. Payments go directly there. You control the private keys. Dynopay never holds customer funds or requires you to withdraw."
     },
     {
-      "question": "How much does DynoPay charge per transaction?",
+      "question": "How much does Dynopay charge per transaction?",
       "answer": "Pricing starts at 1.5% plus one dollar per successful payment and drops automatically to 0.5% as your settled volume increases. No monthly fees, no setup costs, no hidden charges. Your first payment is completely fee-free."
     },
     {

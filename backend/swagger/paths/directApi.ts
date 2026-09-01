@@ -934,7 +934,7 @@ Transactions that were auto-converted from volatile crypto to stablecoin include
       description: '**Verify a payment by its unique payment_id**\n\nReturns the authoritative payment status keyed on the immutable `payment_id` returned when the payment was created (`POST /api/user/cryptoPayment`). Unlike `GET /api/user/getCryptoTransaction/{address}`, it does NOT depend on reusable merchant-pool deposit addresses and returns the final status straight from the database — so it stays correct even after the short-lived checkout session has expired. **This is the recommended endpoint for verifying a payment when you receive a webhook.**\n\n`payment_status` is one of: `waiting`, `pending`, `confirmed`, `processing`, `settled`, `underpaid`, `failed`, `expired`, `refunded`. Funds have been forwarded to your merchant wallet when `payment_status` is `settled` (or the convenience flag `is_paid` is `true`).\n\n**Authentication:** API Key + Customer Bearer Token',
       security: [{ ApiKeyAuth: [] }, { BearerAuth: [] }],
       parameters: [
-        { name: 'payment_id', in: 'path', required: true, schema: { type: 'string' }, description: 'DynoPay payment_id returned by POST /api/user/cryptoPayment' },
+        { name: 'payment_id', in: 'path', required: true, schema: { type: 'string' }, description: 'Dynopay payment_id returned by POST /api/user/cryptoPayment' },
       ],
       responses: {
         200: {

@@ -37,7 +37,7 @@
     "intro": "Ótimas notícias! A sua empresa <strong>{{companyName}}</strong> recebeu um pagamento.",
     "outro": "Os fundos foram encaminhados para a sua carteira de recebimentos. Pode ver todos os detalhes da transação no seu painel.",
     "cta": "Ver transação",
-    "referralCredit": "O crédito de indicação cobriu {{amount}} da sua taxa de plataforma da DynoPay neste pagamento — você ficou com mais."
+    "referralCredit": "O crédito de indicação cobriu {{amount}} da sua taxa de plataforma da Dynopay neste pagamento — você ficou com mais."
   },
   "paymentPending": {
     "subject": "O seu pagamento está pendente de confirmação",
@@ -678,6 +678,44 @@
       "cta": "Comece a aceitar cripto",
       "heading": "Seu presente de boas-vindas da Dynopay",
       "unsubscribeSuffix": "destes e-mails"
+    }
+  },
+  "activation": {
+    "step": {
+      "d1": {
+        "subject": "Tudo pronto — veja como receber o seu primeiro pagamento",
+        "heading": "Vamos receber o seu primeiro pagamento",
+        "intro": "A sua conta Dynopay está pronta. Receber o seu primeiro pagamento em cripto leva cerca de 2 minutos — veja o próximo passo."
+      },
+      "d3": {
+        "subject": "Continuamos aqui para o ajudar a receber",
+        "heading": "A um passo do seu primeiro pagamento",
+        "intro": "Um lembrete rápido: faltam poucos passos para começar a aceitar cripto. Vamos tratar do próximo."
+      },
+      "d7": {
+        "subject": "A sua conta Dynopay está pronta quando você estiver",
+        "heading": "Continue de onde parou",
+        "intro": "Você configurou a Dynopay há uma semana. Quando quiser, este é o caminho mais rápido para o seu primeiro pagamento."
+      }
+    },
+    "seg": {
+      "madeLink": {
+        "line": "Você já criou um link de pagamento — ótimo. Adicione uma carteira de saque para que, assim que alguém pagar, liquidemos direto numa carteira que você controla.",
+        "cta": "Adicionar carteira de saque"
+      },
+      "noLink": {
+        "line": "Crie o seu primeiro link de pagamento — partilhe em qualquer lugar e comece a aceitar Bitcoin, Ethereum ou stablecoins, sem estornos.",
+        "cta": "Criar o meu primeiro link"
+      },
+      "fundraiser": {
+        "line": "Lance a sua página de arrecadação em minutos — partilhe um único link e comece a receber doações em cripto de qualquer lugar do mundo.",
+        "cta": "Criar página de arrecadação"
+      }
+    },
+    "common": {
+      "videoCta": "Assista ao vídeo de configuração de 2 minutos →",
+      "unsubscribe": "Não quer estas dicas de configuração?",
+      "unsubscribeAction": "Cancelar inscrição"
     }
   }
 }

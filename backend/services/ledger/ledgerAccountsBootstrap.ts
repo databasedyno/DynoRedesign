@@ -29,7 +29,7 @@ export const STANDARD_ACCOUNTS: LedgerAccountAttributes[] = [
     name: "Platform Fee Revenue",
     kind: "INCOME",
     normal_side: "CR",
-    description: "Take-rate + fixed fees earned by DynoPay.",
+    description: "Take-rate + fixed fees earned by Dynopay.",
   },
   {
     code: "gas_expense",

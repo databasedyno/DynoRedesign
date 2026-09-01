@@ -37,7 +37,7 @@
     "intro": "Bonne nouvelle ! Votre entreprise <strong>{{companyName}}</strong> a reçu un paiement.",
     "outro": "Les fonds ont été transférés vers votre portefeuille de paiement. Vous pouvez consulter tous les détails de la transaction dans votre tableau de bord.",
     "cta": "Voir la transaction",
-    "referralCredit": "Le crédit de parrainage a couvert {{amount}} de vos frais de plateforme DynoPay sur ce paiement — vous en avez conservé davantage."
+    "referralCredit": "Le crédit de parrainage a couvert {{amount}} de vos frais de plateforme Dynopay sur ce paiement — vous en avez conservé davantage."
   },
   "paymentPending": {
     "subject": "Votre paiement est en attente de confirmation",
@@ -678,6 +678,44 @@
       "cta": "Accepter la crypto",
       "heading": "Votre cadeau de bienvenue Dynopay",
       "unsubscribeSuffix": "de ces e-mails"
+    }
+  },
+  "activation": {
+    "step": {
+      "d1": {
+        "subject": "Tout est prêt — voici comment recevoir votre premier paiement",
+        "heading": "Recevons votre premier paiement",
+        "intro": "Votre compte Dynopay est prêt. Recevoir votre premier paiement en crypto prend environ 2 minutes — voici la prochaine étape."
+      },
+      "d3": {
+        "subject": "Toujours là pour vous aider à être payé",
+        "heading": "À une étape de votre premier paiement",
+        "intro": "Petit rappel : il ne reste que quelques étapes avant d'accepter la crypto. Passons à la suivante."
+      },
+      "d7": {
+        "subject": "Votre compte Dynopay est prêt quand vous l'êtes",
+        "heading": "Reprenez là où vous en étiez",
+        "intro": "Vous avez configuré Dynopay il y a une semaine. Quand vous voulez, voici le chemin le plus rapide vers votre premier paiement."
+      }
+    },
+    "seg": {
+      "madeLink": {
+        "line": "Vous avez déjà créé un lien de paiement — parfait. Ajoutez un portefeuille de retrait pour qu'au moment où quelqu'un paie, nous versions directement sur un portefeuille que vous contrôlez.",
+        "cta": "Ajouter un portefeuille de retrait"
+      },
+      "noLink": {
+        "line": "Créez votre premier lien de paiement — partagez-le partout et commencez à accepter Bitcoin, Ethereum ou stablecoins, sans rétrofacturation.",
+        "cta": "Créer mon premier lien"
+      },
+      "fundraiser": {
+        "line": "Lancez votre page de collecte en quelques minutes — partagez un seul lien et recevez des dons en crypto du monde entier.",
+        "cta": "Créer ma page de collecte"
+      }
+    },
+    "common": {
+      "videoCta": "Regardez la vidéo de configuration de 2 minutes →",
+      "unsubscribe": "Vous ne voulez plus ces conseils de configuration ?",
+      "unsubscribeAction": "Se désabonner"
     }
   }
 }

@@ -89,6 +89,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { default: keyAccessAuditModel } = await import("../models/keyAccessAuditModel");
   const { teamMemberModel } = await import("../models"); // Team Members / RBAC (0015)
   const { teamActivityModel } = await import("../models"); // Team Activity Log (0016)
+  const { signupAttributionModel } = await import("../models"); // Signup Attribution (0019)
   return [
     ...v1,
     ...extra,
@@ -99,6 +100,7 @@ export async function getBootModels(): Promise<unknown[]> {
     keyAccessAuditModel,
     teamMemberModel,
     teamActivityModel,
+    signupAttributionModel,
   ];
 }
 
@@ -420,6 +422,16 @@ const addCompanyNotificationRouting = async (): Promise<void> => {
   );
 };
 
+/**
+ * Migration 0019: first-touch signup attribution table (tbl_signup_attribution).
+ * Brand-new table (create-only sync — no-op if it exists). Powers the source→
+ * conversion report and stores the activation-email marketing opt-out. Safe on prod.
+ */
+const createSignupAttributionTable = async (): Promise<void> => {
+  const { signupAttributionModel } = await import("../models");
+  if (isSyncable(signupAttributionModel)) await signupAttributionModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -441,5 +453,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0016_team_activity", up: createTeamActivityTable },
     { version: "0017_txn_webhook_secret", up: addTransactionWebhookSecret },
     { version: "0018_company_notification_routing", up: addCompanyNotificationRouting },
+    { version: "0019_signup_attribution", up: createSignupAttributionTable },
   ];
 }

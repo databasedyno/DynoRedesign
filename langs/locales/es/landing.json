@@ -437,7 +437,7 @@
     "pain": {
       "eyebrow": "La vieja forma está rota",
       "headline": "Aceptar cripto no debería ser tan difícil",
-      "body": "Saldos volátiles, riesgo de custodia por terceros, fraude de contracargos y un checkout mal integrado frenan a los comercios. DynoPay elimina cada uno.",
+      "body": "Saldos volátiles, riesgo de custodia por terceros, fraude de contracargos y un checkout mal integrado frenan a los comercios. Dynopay elimina cada uno.",
       "p1": "Los precios flunctúan antes de que puedas gastar lo que ganaste.",
       "f1": "Convierte cada pago a stablecoin automáticamente en cuanto se liquida.",
       "p2": "Un tercero retiene tus fondos — y puede congelarlos.",
@@ -448,7 +448,7 @@
       "f4": "Un checkout alojado y una API REST clara te ponen en marcha en una tarde."
     },
     "why": {
-      "eyebrow": "Por qué DynoPay",
+      "eyebrow": "Por qué Dynopay",
       "headline": "Diferentes donde de verdad importa",
       "body": "No ganamos con la tarifa más baja del titular — ganamos con lo que realmente protege tu dinero y tu tiempo.",
       "c1t": "Sin custodia por diseño",
@@ -502,8 +502,8 @@
     "compare": {
       "eyebrow": "Por qué nosotros frente a las alternativas",
       "headline": "Un trato más justo para aceptar cripto",
-      "body": "Cómo se compara DynoPay con un procesador cripto típico.",
-      "colDyno": "DynoPay",
+      "body": "Cómo se compara Dynopay con un procesador cripto típico.",
+      "colDyno": "Dynopay",
       "colOther": "Procesador típico",
       "note": "La comparación refleja prácticas habituales del sector; los detalles varían según el proveedor.",
       "r1f": "Custodia de fondos",

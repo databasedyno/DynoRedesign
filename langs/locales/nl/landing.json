@@ -437,7 +437,7 @@
     "pain": {
       "eyebrow": "De oude manier is stuk",
       "headline": "Crypto accepteren hoeft niet zo moeilijk te zijn",
-      "body": "Volatiele saldi, bewaarrisico bij derden, chargeback-fraude en een omslachtige checkout houden merchants tegen. DynoPay lost ze stuk voor stuk op.",
+      "body": "Volatiele saldi, bewaarrisico bij derden, chargeback-fraude en een omslachtige checkout houden merchants tegen. Dynopay lost ze stuk voor stuk op.",
       "p1": "Koersen schommelen voordat je kunt uitgeven wat je hebt verdiend.",
       "f1": "Zet elke betaling automatisch om naar een stablecoin zodra ze is afgewikkeld.",
       "p2": "Een derde partij beheert je geld — en kan het bevriezen.",
@@ -448,7 +448,7 @@
       "f4": "Een gehoste checkout en heldere REST API zetten je in één middag live."
     },
     "why": {
-      "eyebrow": "Waarom DynoPay",
+      "eyebrow": "Waarom Dynopay",
       "headline": "Anders waar het telt",
       "body": "We winnen niet met het laagste geadverteerde tarief — we winnen met wat je geld en je tijd echt beschermt.",
       "c1t": "Non-custodial van opzet",
@@ -502,8 +502,8 @@
     "compare": {
       "eyebrow": "Waarom wij vs de alternatieven",
       "headline": "Een eerlijkere deal voor crypto accepteren",
-      "body": "Hoe DynoPay zich verhoudt tot een doorsnee crypto-processor.",
-      "colDyno": "DynoPay",
+      "body": "Hoe Dynopay zich verhoudt tot een doorsnee crypto-processor.",
+      "colDyno": "Dynopay",
       "colOther": "Doorsnee processor",
       "note": "De vergelijking weerspiegelt gangbare praktijken in de sector; details verschillen per aanbieder.",
       "r1f": "Bewaring van geld",

@@ -37,7 +37,7 @@
     "intro": "¡Buenas noticias! Tu empresa <strong>{{companyName}}</strong> ha recibido un pago.",
     "outro": "Los fondos se han enviado a tu cartera de cobros. Puedes ver todos los detalles de la transacción en tu panel.",
     "cta": "Ver transacción",
-    "referralCredit": "El crédito por referidos cubrió {{amount}} de su comisión de plataforma de DynoPay en este pago; usted conservó más."
+    "referralCredit": "El crédito por referidos cubrió {{amount}} de su comisión de plataforma de Dynopay en este pago; usted conservó más."
   },
   "paymentPending": {
     "subject": "Tu pago está pendiente de confirmación",
@@ -678,6 +678,44 @@
       "cta": "Empieza a aceptar cripto",
       "heading": "Tu regalo de bienvenida de Dynopay",
       "unsubscribeSuffix": "de estos correos"
+    }
+  },
+  "activation": {
+    "step": {
+      "d1": {
+        "subject": "Todo listo: así recibes tu primer pago",
+        "heading": "Vamos a cobrar tu primer pago",
+        "intro": "Tu cuenta de Dynopay está lista. Recibir tu primer pago en cripto toma unos 2 minutos: este es el siguiente paso."
+      },
+      "d3": {
+        "subject": "Seguimos aquí para ayudarte a cobrar",
+        "heading": "A un paso de tu primer pago",
+        "intro": "Un recordatorio rápido: faltan unos pocos pasos para empezar a aceptar cripto. Hagamos el siguiente."
+      },
+      "d7": {
+        "subject": "Tu cuenta de Dynopay está lista cuando tú lo estés",
+        "heading": "Continúa donde lo dejaste",
+        "intro": "Configuraste Dynopay hace una semana. Cuando quieras, este es el camino más rápido a tu primer pago."
+      }
+    },
+    "seg": {
+      "madeLink": {
+        "line": "Ya creaste un enlace de pago, ¡genial! Agrega una billetera de retiro para que, en cuanto alguien pague, liquidemos directo en una billetera que tú controlas.",
+        "cta": "Agregar billetera de retiro"
+      },
+      "noLink": {
+        "line": "Crea tu primer enlace de pago: compártelo donde quieras y empieza a aceptar Bitcoin, Ethereum o stablecoins, sin contracargos.",
+        "cta": "Crear mi primer enlace"
+      },
+      "fundraiser": {
+        "line": "Lanza tu página de recaudación en minutos: comparte un solo enlace y empieza a recibir donaciones en cripto desde cualquier parte del mundo.",
+        "cta": "Crear página de recaudación"
+      }
+    },
+    "common": {
+      "videoCta": "Mira el video de configuración de 2 minutos →",
+      "unsubscribe": "¿No quieres estos consejos de configuración?",
+      "unsubscribeAction": "Cancelar suscripción"
     }
   }
 }

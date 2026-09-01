@@ -665,8 +665,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       ? `I just supported ${who}`
       : `I just paid ${who} with crypto`
     const text = isContribution
-      ? `${title} on DynoPay — join me and chip in!`
-      : `${title} on DynoPay.`
+      ? `${title} on Dynopay — join me and chip in!`
+      : `${title} on Dynopay.`
     try {
       const nav = typeof navigator !== 'undefined' ? (navigator as Navigator) : null
       if (nav && typeof nav.share === 'function') {
@@ -944,7 +944,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               ? t('checkout.share.copied', { defaultValue: 'Link copied!' })
               : isContribution
                 ? t('checkout.share.fundraiser', { defaultValue: 'Share this fundraiser' })
-                : t('checkout.share.dynopay', { defaultValue: 'Share DynoPay' })}
+                : t('checkout.share.dynopay', { defaultValue: 'Share Dynopay' })}
           </Button>
         </Box>
       </PanelShell>

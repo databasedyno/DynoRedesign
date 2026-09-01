@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Payments for Nonprofits & Charities | DynoPay",
+  "meta_title": "Crypto Payments for Nonprofits & Charities | Dynopay",
   "meta_description": "Accept Bitcoin, Ethereum, and 15+ cryptocurrencies for donations. No chargebacks, no monthly fees. Funds go directly to your wallet. Start free today.",
   "h1": "Accept Crypto Payments for Nonprofits & Charities Without Chargebacks",
   "subheading": "Receive donations in Bitcoin, Ethereum, USDC, and 15+ cryptocurrencies—funds arrive directly in your wallet with zero chargeback risk.",
-  "intro_paragraph": "Donation fraud costs nonprofits thousands in reversed credit card gifts and processing disputes. DynoPay eliminates chargebacks entirely by accepting crypto donations that settle directly to your organization's wallet—you keep full custody from the moment a donor sends funds. Launch donation pages, embed checkout widgets on your site, or run crowdfunding campaigns with goal tracking and donor updates. Fees start at 1.5% and drop to 0.5% at scale, with no monthly charges and your first donation completely free.",
+  "intro_paragraph": "Donation fraud costs nonprofits thousands in reversed credit card gifts and processing disputes. Dynopay eliminates chargebacks entirely by accepting crypto donations that settle directly to your organization's wallet—you keep full custody from the moment a donor sends funds. Launch donation pages, embed checkout widgets on your site, or run crowdfunding campaigns with goal tracking and donor updates. Fees start at 1.5% and drop to 0.5% at scale, with no monthly charges and your first donation completely free.",
   "features": [
     {
       "title": "Zero Chargeback Risk on Donations",
@@ -11,7 +11,7 @@
     },
     {
       "title": "Funds Go Directly to You",
-      "description": "Non-custodial model means donations arrive in your own wallet immediately. DynoPay never holds your funds, so you control treasury and disbursements without withdrawal delays."
+      "description": "Non-custodial model means donations arrive in your own wallet immediately. Dynopay never holds your funds, so you control treasury and disbursements without withdrawal delays."
     },
     {
       "title": "Accept Donations Globally",
@@ -26,15 +26,15 @@
   "faqs": [
     {
       "question": "Do nonprofits pay transaction fees on crypto donations?",
-      "answer": "Yes. DynoPay charges from 1.5% plus one dollar per donation on the Starter tier, dropping automatically to 0.5% as your settled volume grows. No monthly fees or setup costs. Your first donation is completely fee-free, and there are no chargeback fees because crypto payments are final."
+      "answer": "Yes. Dynopay charges from 1.5% plus one dollar per donation on the Starter tier, dropping automatically to 0.5% as your settled volume grows. No monthly fees or setup costs. Your first donation is completely fee-free, and there are no chargeback fees because crypto payments are final."
     },
     {
       "question": "Which cryptocurrencies can nonprofits accept for donations?",
-      "answer": "DynoPay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, USDT and USDC stablecoins on Ethereum and Polygon, Solana, XRP, RLUSD, Tron, and Bitcoin Cash. Donors choose their preferred asset at checkout."
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, USDT and USDC stablecoins on Ethereum and Polygon, Solana, XRP, RLUSD, Tron, and Bitcoin Cash. Donors choose their preferred asset at checkout."
     },
     {
       "question": "How do donated crypto funds reach our nonprofit's wallet?",
-      "answer": "DynoPay is non-custodial. Donations go directly from the donor to the wallet address you configure during setup. You maintain full custody at all times—DynoPay never holds, pools, or controls your funds. You can withdraw or spend immediately."
+      "answer": "Dynopay is non-custodial. Donations go directly from the donor to the wallet address you configure during setup. You maintain full custody at all times—Dynopay never holds, pools, or controls your funds. You can withdraw or spend immediately."
     },
     {
       "question": "Can international supporters donate crypto to US nonprofits?",

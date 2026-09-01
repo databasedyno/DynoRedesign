@@ -149,7 +149,7 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
         merchantUserId,
         NOTIFICATION_TYPES.PAYMENT_OVERPAID,
         "Customer overpaid",
-        `A customer sent ${excessCrypto} (≈ ${excessFiat}) more than due on ${companyName}. Your full amount was credited; the excess went to DynoPay.`,
+        `A customer sent ${excessCrypto} (≈ ${excessFiat}) more than due on ${companyName}. Your full amount was credited; the excess went to Dynopay.`,
         {
           payment_id: info.paymentId,
           excess_amount: info.excessAmount,

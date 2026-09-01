@@ -13,8 +13,134 @@ import { apiLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { sendNewVisitorAdminEmail } from "../services/emailService";
 import { authMiddleware } from "../middleware";
+import { classifySource, verifyUnsubToken } from "../utils/attributionSource";
 
 const trackRouter = express.Router();
+
+/**
+ * POST /api/track/attribution
+ * Auth required. Body: { referrer?, landing_page?, utm?: {source,medium,campaign,term,content} }
+ *
+ * Records ONE first-touch signup-attribution row per user (first write wins —
+ * never overwrites an existing row). Derives the channel from referrer/UTM,
+ * best-effort IP→country, and captures landing page + user-agent. Tracking must
+ * never surface an error to the client.
+ */
+trackRouter.post("/attribution", authMiddleware, async (req: express.Request, res: express.Response) => {
+  try {
+    const decoded = jwt.decode(res.locals.token) as { user_id?: number } | null;
+    const user_id = decoded?.user_id;
+    if (!user_id) return res.status(200).json({ ok: false });
+
+    const { signupAttributionModel } = await import("../models");
+
+    // First-touch wins — never overwrite an existing row.
+    const existing = await signupAttributionModel.findOne({ where: { user_id } });
+    if (existing) return res.status(200).json({ ok: true, existed: true });
+
+    const body = req.body || {};
+    const utm = (body.utm && typeof body.utm === "object" ? body.utm : {}) as Record<string, unknown>;
+    const asStr = (v: unknown, max = 240): string | null => {
+      if (v == null) return null;
+      const s = String(v).trim();
+      return s ? s.slice(0, max) : null;
+    };
+
+    const referrer = asStr(body.referrer, 500);
+    const utm_source = asStr(utm.source, 120);
+    const source = classifySource({ referrer, utmSource: utm_source });
+
+    const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim()
+      || req.socket.remoteAddress || null;
+    const user_agent = asStr(req.headers["user-agent"], 1000);
+
+    // Best-effort geo — never blocks the row on failure.
+    let country: string | null = null;
+    let city: string | null = null;
+    try {
+      const cleanIp = !ip || ip === "::1" || ip === "127.0.0.1" ? "" : ip;
+      const geoUrl = !cleanIp
+        ? "http://ip-api.com/json/?fields=status,country,city"
+        : `http://ip-api.com/json/${cleanIp}?fields=status,country,city`;
+      const geoRes = await axios.get(geoUrl, { timeout: 2500 });
+      if (geoRes.data?.status === "success") {
+        country = geoRes.data.country || null;
+        city = geoRes.data.city || null;
+      }
+    } catch { /* non-critical */ }
+
+    await signupAttributionModel.findOrCreate({
+      where: { user_id },
+      defaults: {
+        user_id,
+        referrer,
+        source,
+        utm_source,
+        utm_medium: asStr(utm.medium, 120),
+        utm_campaign: asStr(utm.campaign, 160),
+        utm_term: asStr(utm.term, 160),
+        utm_content: asStr(utm.content, 160),
+        landing_page: asStr(body.landing_page, 255),
+        ip: ip ? String(ip).slice(0, 45) : null,
+        country,
+        city,
+        user_agent,
+      },
+    });
+
+    return res.status(200).json({ ok: true, source });
+  } catch (err) {
+    apiLogger.error("[Track] Attribution error:", err);
+    return res.status(200).json({ ok: false });
+  }
+});
+
+/**
+ * GET /api/track/activation-unsubscribe?u=<userId>&t=<hmac>
+ * Public. Verifies the stateless HMAC token and sets marketing_opt_out=true so
+ * the activation drip skips this user. Renders a small confirmation page.
+ */
+trackRouter.get("/activation-unsubscribe", async (req: express.Request, res: express.Response) => {
+  const page = (title: string, msg: string): string =>
+    `<!doctype html><html lang="en"><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+    `<meta name="robots" content="noindex"><title>${title} · Dynopay</title>` +
+    `<style>body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;` +
+    `background:#0B0B0F;color:#F5F5F5;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}` +
+    `.card{max-width:460px;text-align:center}.card h1{font-size:22px;margin:0 0 12px;font-weight:700}` +
+    `.card p{color:#C9C9D1;font-size:15px;line-height:1.6;margin:0}</style></head>` +
+    `<body><div class="card"><h1>${title}</h1><p>${msg}</p></div></body></html>`;
+  try {
+    const user_id = Number(req.query.u);
+    const token = String(req.query.t || "");
+    if (!user_id || !verifyUnsubToken(user_id, token)) {
+      res.status(200).type("html").send(page(
+        "Link expired",
+        "This unsubscribe link is invalid or has expired. If you keep receiving setup emails, just reply to any of them and we'll remove you."
+      ));
+      return;
+    }
+    const { signupAttributionModel } = await import("../models");
+    const [row, created] = await signupAttributionModel.findOrCreate({
+      where: { user_id },
+      defaults: { user_id, marketing_opt_out: true },
+    });
+    if (!created) {
+      (row as unknown as { marketing_opt_out: boolean }).marketing_opt_out = true;
+      await (row as unknown as { save: () => Promise<unknown> }).save();
+    }
+    res.status(200).type("html").send(page(
+      "You're unsubscribed",
+      "You won't receive any more Dynopay setup tips. Your account and payments are unaffected — you can reach us anytime from your dashboard."
+    ));
+  } catch (err) {
+    apiLogger.error("[Track] Unsubscribe error:", err);
+    res.status(200).type("html").send(page(
+      "Something went wrong",
+      "We couldn't process that just now. Please try again in a minute."
+    ));
+  }
+});
 
 const ONBOARDING_EVENT_TYPES = [
   "checklist_shown",

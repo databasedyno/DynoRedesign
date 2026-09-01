@@ -37,7 +37,7 @@
     "intro": "Great news! Your company <strong>{{companyName}}</strong> has received a payment.",
     "outro": "The funds have been forwarded to your payout wallet. You can view the full transaction details in your dashboard.",
     "cta": "View Transaction",
-    "referralCredit": "Referral credit covered {{amount}} of your DynoPay platform fee on this payment — you kept more of it."
+    "referralCredit": "Referral credit covered {{amount}} of your Dynopay platform fee on this payment — you kept more of it."
   },
   "paymentPending": {
     "subject": "Your payment is pending confirmation",
@@ -678,6 +678,44 @@
       "cta": "Start accepting crypto",
       "heading": "Your welcome gift from Dynopay",
       "unsubscribeSuffix": "from these emails"
+    }
+  },
+  "activation": {
+    "step": {
+      "d1": {
+        "subject": "You're set up — here's how to get your first payment",
+        "heading": "Let's get you paid",
+        "intro": "Your Dynopay account is ready. Getting your first crypto payment takes about 2 minutes — here's the one thing to do next."
+      },
+      "d3": {
+        "subject": "Still here to help you get paid",
+        "heading": "One step from your first payment",
+        "intro": "Quick nudge: just a few small steps stand between you and accepting crypto. Let's knock out the next one."
+      },
+      "d7": {
+        "subject": "Your Dynopay account is ready when you are",
+        "heading": "Pick up where you left off",
+        "intro": "You set up Dynopay a week ago. Whenever you're ready, here's the fastest path to your first payment."
+      }
+    },
+    "seg": {
+      "madeLink": {
+        "line": "You've already created a payment link — nice. Add a payout wallet so the moment someone pays, we settle it straight to a wallet you control.",
+        "cta": "Add your payout wallet"
+      },
+      "noLink": {
+        "line": "Create your first payment link — share it anywhere and start accepting Bitcoin, Ethereum or stablecoins, with no chargebacks.",
+        "cta": "Create your first link"
+      },
+      "fundraiser": {
+        "line": "Launch your fundraiser page in minutes — share one link and start receiving crypto donations from anywhere in the world.",
+        "cta": "Create your fundraiser page"
+      }
+    },
+    "common": {
+      "videoCta": "Watch the 2-minute setup video →",
+      "unsubscribe": "Don't want these setup tips?",
+      "unsubscribeAction": "Unsubscribe"
     }
   }
 }

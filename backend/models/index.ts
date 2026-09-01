@@ -57,6 +57,7 @@ import onboardingEventModel from "./onboardingEventModel";
 
 // Login Activity
 import loginActivityModel from "./loginActivityModel";
+import signupAttributionModel from "./signupAttributionModel";
 import teamMemberModel from "./teamMemberModel"; // Team Members / RBAC
 import teamActivityModel from "./teamActivityModel"; // Team Activity Log (audit trail)
 
@@ -148,6 +149,8 @@ export {
   onboardingEventModel,
   // Login Activity
   loginActivityModel,
+  // Signup Attribution (first-touch source tracking)
+  signupAttributionModel,
   teamMemberModel,
   teamActivityModel,
   // Publishable Keys (Phase 2 — Buy Button)

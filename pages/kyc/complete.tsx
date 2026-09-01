@@ -19,7 +19,7 @@ const KycCompletePage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Verification submitted — DynoPay</title>
+        <title>Verification submitted — Dynopay</title>
         <meta name="robots" content="noindex" />
       </Head>
       <Box

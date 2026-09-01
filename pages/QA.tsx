@@ -146,7 +146,7 @@ const TEST_SECTIONS: TestSection[] = [
           { id: "3", action: "Click 'Start Accepting Crypto' CTA", expected: "If logged in → /dashboard. If not → /auth/login." },
           { id: "4", action: "Click 'Learn More' CTA", expected: "Navigates to /blog." },
           { id: "5", action: "Scroll to Features section", expected: "Feature cards render with icons and descriptions." },
-          { id: "6", action: "Scroll to 'Why Choose DynoPay' section", expected: "Comparison or USP cards display correctly." },
+          { id: "6", action: "Scroll to 'Why Choose Dynopay' section", expected: "Comparison or USP cards display correctly." },
           { id: "7", action: "Scroll to Use Cases section", expected: "Use case examples render properly." },
           { id: "8", action: "Scroll to Fee/Pricing section", expected: "Pricing tiers or fee breakdown visible." },
           { id: "9", action: "Scroll to Social Proof / Trust Badges", expected: "Supported crypto logos, trust badges, partner logos visible." },
@@ -1591,7 +1591,7 @@ const QAPage = () => {
               component="h1"
               sx={{ fontSize: { xs: 28, md: 42 }, mb: 1 }}
             >
-              DynoPay QA Test Plan
+              Dynopay QA Test Plan
             </HeadlineL>
             <Body sx={{ maxWidth: 640, mx: "auto", mb: 3 }}>
               Comprehensive step-by-step functionality tests covering all features.
@@ -1986,7 +1986,7 @@ const QAPage = () => {
           {/* Footer */}
           <Box sx={{ textAlign: "center", mt: 5 }}>
             <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-              DynoPay QA Test Plan • {totalCases} Test Cases • {totalSteps} Steps • Last Updated: March 2026
+              Dynopay QA Test Plan • {totalCases} Test Cases • {totalSteps} Steps • Last Updated: March 2026
             </Typography>
             <Typography
               component="button"

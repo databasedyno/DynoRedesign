@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Payments for Web Hosting & Domain Providers | DynoPay",
+  "meta_title": "Crypto Payments for Web Hosting & Domain Providers | Dynopay",
   "meta_description": "Accept Bitcoin, Ethereum, USDT and 15+ cryptocurrencies for hosting and domains. No chargebacks, global reach, funds direct to your wallet. Start free.",
   "h1": "Crypto payments for web hosting & domain providers built for recurring revenue",
   "subheading": "Accept Bitcoin, Ethereum, stablecoins and 15+ cryptocurrencies for hosting plans and domain registrations—funds arrive directly in your wallet with zero chargeback risk.",
-  "intro_paragraph": "Web hosting and domain providers lose revenue to fraudulent chargebacks, failed card renewals, and payment processor holds on international transactions. DynoPay is a non-custodial crypto commerce platform that sends every payment directly to your wallet—no intermediary custody, no chargeback fraud, no involuntary churn from expired cards. Bill renewals with API-generated payment links, take one-time domain purchases, and share payment links for manual invoices, all with fees starting at 1.5% that drop to 0.5% as your volume grows.",
+  "intro_paragraph": "Web hosting and domain providers lose revenue to fraudulent chargebacks, failed card renewals, and payment processor holds on international transactions. Dynopay is a non-custodial crypto commerce platform that sends every payment directly to your wallet—no intermediary custody, no chargeback fraud, no involuntary churn from expired cards. Bill renewals with API-generated payment links, take one-time domain purchases, and share payment links for manual invoices, all with fees starting at 1.5% that drop to 0.5% as your volume grows.",
   "features": [
     {
       "title": "No Chargebacks, Ever",
@@ -34,7 +34,7 @@
     },
     {
       "question": "How do crypto payment fees compare to credit card processors for hosting providers?",
-      "answer": "DynoPay charges from 1.5% plus one dollar per transaction at starter volume, dropping to 0.5% at scale based on settled volume. There are no monthly fees, setup costs, chargeback fees, or international transaction surcharges. Your first payment is completely fee-free."
+      "answer": "Dynopay charges from 1.5% plus one dollar per transaction at starter volume, dropping to 0.5% at scale based on settled volume. There are no monthly fees, setup costs, chargeback fees, or international transaction surcharges. Your first payment is completely fee-free."
     },
     {
       "question": "Do I need to hold crypto or understand blockchain to accept crypto payments?",
@@ -42,7 +42,7 @@
     },
     {
       "question": "Can customers in countries where my current payment processor doesn't work pay for hosting with crypto?",
-      "answer": "Yes. DynoPay has no country restrictions on receiving crypto payments. Customers in regions underserved by card networks or PayPal can pay you directly in Bitcoin, Ethereum, or stablecoins, expanding your addressable market."
+      "answer": "Yes. Dynopay has no country restrictions on receiving crypto payments. Customers in regions underserved by card networks or PayPal can pay you directly in Bitcoin, Ethereum, or stablecoins, expanding your addressable market."
     }
   ],
   "cta_headline": "Start accepting crypto payments in ten minutes",

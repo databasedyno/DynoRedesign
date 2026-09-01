@@ -75,6 +75,7 @@ import { Provider } from "react-redux";
 import LanguageBootstrap from "@/helpers/LanguageBootstrap";
 import LanguageOnboardingBar from "@/Components/UI/LanguageOnboardingBar";
 import LanguageSuggestBanner from "@/Components/UI/LanguageSuggestBanner";
+import AttributionTracker from "@/Components/AttributionTracker";
 import { enforceSessionPersistence } from "@/helpers/authPersistence";
 import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
@@ -263,6 +264,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/about",
       "/press",
       "/referral-program",
+      "/how-to",
     ]);
 
     if (
@@ -694,6 +696,7 @@ export default function App({
                   <CompanyDataProvider>
                     <WalletDataProvider>
                       <AppInner {...(props as AppPropsWithLayout)} />
+                      <AttributionTracker />
                       <LanguageOnboardingBar />
                       <LanguageSuggestBanner />
                     </WalletDataProvider>

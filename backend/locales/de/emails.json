@@ -37,7 +37,7 @@
     "intro": "Gute Nachrichten! Ihr Unternehmen <strong>{{companyName}}</strong> hat eine Zahlung erhalten.",
     "outro": "Die Mittel wurden an Ihr Auszahlungs-Wallet weitergeleitet. Alle Transaktionsdetails finden Sie in Ihrem Dashboard.",
     "cta": "Transaktion ansehen",
-    "referralCredit": "Empfehlungsguthaben hat {{amount}} Ihrer DynoPay-Plattformgebühr für diese Zahlung abgedeckt – Sie haben mehr davon behalten."
+    "referralCredit": "Empfehlungsguthaben hat {{amount}} Ihrer Dynopay-Plattformgebühr für diese Zahlung abgedeckt – Sie haben mehr davon behalten."
   },
   "paymentPending": {
     "subject": "Ihre Zahlung wartet auf Bestätigung",
@@ -678,6 +678,44 @@
       "cta": "Krypto akzeptieren",
       "heading": "Ihr Willkommensgeschenk von Dynopay",
       "unsubscribeSuffix": "von diesen E-Mails"
+    }
+  },
+  "activation": {
+    "step": {
+      "d1": {
+        "subject": "Alles bereit – so erhalten Sie Ihre erste Zahlung",
+        "heading": "Lassen Sie uns Ihre erste Zahlung erhalten",
+        "intro": "Ihr Dynopay-Konto ist bereit. Ihre erste Krypto-Zahlung zu erhalten dauert etwa 2 Minuten – hier ist der nächste Schritt."
+      },
+      "d3": {
+        "subject": "Wir helfen Ihnen weiterhin, bezahlt zu werden",
+        "heading": "Nur einen Schritt von Ihrer ersten Zahlung entfernt",
+        "intro": "Kurze Erinnerung: Nur wenige Schritte trennen Sie davon, Krypto zu akzeptieren. Erledigen wir den nächsten."
+      },
+      "d7": {
+        "subject": "Ihr Dynopay-Konto ist bereit, wenn Sie es sind",
+        "heading": "Machen Sie dort weiter, wo Sie aufgehört haben",
+        "intro": "Sie haben Dynopay vor einer Woche eingerichtet. Wann immer Sie bereit sind – hier ist der schnellste Weg zu Ihrer ersten Zahlung."
+      }
+    },
+    "seg": {
+      "madeLink": {
+        "line": "Sie haben bereits einen Zahlungslink erstellt – super. Fügen Sie eine Auszahlungs-Wallet hinzu, damit wir, sobald jemand zahlt, direkt an eine Wallet auszahlen, die Sie kontrollieren.",
+        "cta": "Auszahlungs-Wallet hinzufügen"
+      },
+      "noLink": {
+        "line": "Erstellen Sie Ihren ersten Zahlungslink – teilen Sie ihn überall und akzeptieren Sie Bitcoin, Ethereum oder Stablecoins, ohne Rückbuchungen.",
+        "cta": "Ersten Link erstellen"
+      },
+      "fundraiser": {
+        "line": "Starten Sie Ihre Spendenseite in wenigen Minuten – teilen Sie einen Link und erhalten Sie Krypto-Spenden aus aller Welt.",
+        "cta": "Spendenseite erstellen"
+      }
+    },
+    "common": {
+      "videoCta": "Sehen Sie sich das 2-minütige Einrichtungsvideo an →",
+      "unsubscribe": "Möchten Sie diese Einrichtungstipps nicht?",
+      "unsubscribeAction": "Abmelden"
     }
   }
 }

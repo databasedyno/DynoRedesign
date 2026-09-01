@@ -24,4 +24,7 @@ analyticsRouter.get("/funnel", adminAuthMiddleware, analyticsController.funnel);
 // Onboarding-checklist drop-off funnel
 analyticsRouter.get("/onboarding", adminAuthMiddleware, analyticsController.onboardingFunnel);
 
+// Signup source → conversion attribution funnel
+analyticsRouter.get("/attribution", adminAuthMiddleware, analyticsController.attribution);
+
 export default analyticsRouter;

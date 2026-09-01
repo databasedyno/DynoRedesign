@@ -145,7 +145,7 @@ const FinalCTAAurora: React.FC = () => {
                 {t("v3.finalcta.readDocs")}
               </Button>
               <Button
-                href="mailto:hi@dynopay.com?subject=DynoPay%20sales%20enquiry"
+                href="mailto:hi@dynopay.com?subject=Dynopay%20sales%20enquiry"
                 sx={{
                   borderRadius: "999px",
                   px: 3.5,

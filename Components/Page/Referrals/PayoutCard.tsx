@@ -283,7 +283,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   {`$${Number(data?.available_credit_usd ?? 0).toFixed(2)}`}
                 </Typography>
                 <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.25 }}>
-                  {t("payoutAvailableCreditDesc", { defaultValue: "Automatically lowers your DynoPay fee on your next payments." })}
+                  {t("payoutAvailableCreditDesc", { defaultValue: "Automatically lowers your Dynopay fee on your next payments." })}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1, minWidth: isMobile ? "100%" : 200, p: 1.5, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}`, bgcolor: theme.palette.secondary.main }}>

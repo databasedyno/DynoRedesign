@@ -34,6 +34,7 @@ import sequelize from "./utils/dbInstance";
 import config from "./utils/config";
 import { setupWeeklySummaryCron, setupWalletReminderCron, setupHealthCheckCron, setupRefereeCodeReminderCron, setupPaymentLinkReminderCron, setupOnboardingMonitorCron, setupFirstPaymentMonitorCron } from "./utils/cronJobs";
 import { setupReferralRewardCron } from "./utils/crons/referralRewardMonitor";
+import { setupActivationDripCron } from "./utils/crons/activationDrip";
 import { getOptimizationDiagnostics } from "./services/tronEnergyService";
 import { migrateWebhookUrls } from "./services/migrateWebhookUrls";
 import { registerAccountProvisioningHooks } from "./services/accountProvisioning";
@@ -1192,6 +1193,12 @@ setupFirstPaymentMonitorCron();
 // the invited merchant's fees for 12 months) after that merchant's first $100+
 // payment + sends post-payment "become a merchant" invites
 setupReferralRewardCron();
+
+// Activation drip — day 1/3/7 guidance/how-to nudges to real signups who have
+// verified their email but not transacted (madeLink / noLink / fundraiser
+// segments, localized, no monetary offer). Leader-gated → INERT in preview /
+// secondary workers (SAFE MODE).
+setupActivationDripCron();
 
 // ═══════════════════════════════════════════════════════════════════════
 // RELIABILITY: Payment Watchdog — detect stuck payments every 2 minutes

@@ -1,3 +1,53 @@
+# SESSION 2026-09-01 (fork, pod e952fc3d) — Signup Attribution + Activation Drip WIRED & TESTED + brand-casing sweep (Dynopay) — SAFE MODE, prod DB
+
+## A) Attribution + Activation Drip (P0) — completed the half-built feature from the prior fork
+Prior fork authored the model/migration/email templates/cron engine/FE tracker but never wired routes,
+admin endpoint, cron call, _app mount, or ran the i18n script. This session wired + verified all of it.
+- Backend routes (backend/routes/trackRouter.ts):
+    * POST /api/track/attribution  (authMiddleware; CSRF auto-skips w/ Bearer). First-touch-wins (one row/user,
+      idempotent via findOne + findOrCreate), classifySource() from referrer+UTM, best-effort IP->country (ip-api),
+      captures utm_*/landing/UA. Returns {ok, source} or {ok, existed:true}. Never throws.
+    * GET  /api/track/activation-unsubscribe?u=&t=  (public). verifyUnsubToken() HMAC; sets marketing_opt_out=true
+      (findOrCreate); renders small confirmation HTML (valid -> "You're unsubscribed", invalid -> "Link expired").
+- Admin funnel (backend/controller/analyticsController.ts + analyticsRouter.ts):
+    * GET /api/admin/analytics/attribution?days=90  (adminAuthMiddleware). by_source {signups, created_link
+      (EXISTS tbl_payment_link), transacted (cumulative_volume_usd>0)} + top_campaigns + totals.
+- Cron: setupActivationDripCron() wired into server.ts registerLeaderCronJobs() -> leader-gated => INERT in
+  preview/SAFE MODE. Daily 08:45 UTC. Redis dedup per user/step (30d). Segments madeLink/noLink/fundraiser.
+- i18n: ran backend/scripts/_add_activation_i18n.ts -> activation.* added to all 6 backend/locales/*/emails.json
+  (18 keys x 6 langs, 0 missing, 0 monetary). Email CTA -> {FRONTEND_BASE_URL}/how-to (was /documentation).
+- FE: <AttributionTracker/> mounted globally in pages/_app.tsx (captureFirstTouch + syncAttribution on route change).
+- /how-to NEW public page (pages/how-to.tsx, added to _app homePaths): auto-playing chaptered animated walkthrough
+  (create link -> share -> pay -> settle) = the "how-to video" the drip emails link to (I cannot record a real .mp4;
+  this is an in-app animated tour, swappable for a real recording later). framer-motion, Aurora tokens.
+- VERIFIED (reversible on QA user_id=1, all test rows deleted -> table back to 0):
+    * attribution POST -> {ok, source:"chatgpt"}; re-POST -> {ok, existed:true} (first-touch preserved)
+    * row: source/utm/IP->US geo/landing/UA all captured
+    * unsubscribe valid token -> opt_out=true; invalid -> "Link expired"
+    * drip dry-run cohorts d1=4 d3=6 d7=7, correct segmentation; sent=0 (dry-run)
+    * admin funnel SQL (reversible seed 43/49): chatgpt 1 signup/1 link, google 1 signup/0 link; campaigns tracked
+    * REAL-BROWSER E2E: land /?utm_source=chatgpt... -> dp_first_touch captured -> login -> dp_attr_synced=1 -> row created -> deleted
+    * backend tsc 0 err, FE tsc 0 err. Harness: backend/scripts/_verify_attribution.ts (modes: inspect|render|admin|finish).
+
+## B) Brand casing sweep — "DynoPay" -> "Dynopay" across ALL user-facing text (user request)
+Fixed ONLY user-facing strings; left code identifiers, comments, DYNOPAY uppercase mark, internal docs/tests, and the
+X-DynoPay-* HTTP header names (API/webhook contract — changing would break signature verification) intact.
+- Locales: backend/locales/*/emails.json (48) + langs/locales/*/landing.json (48).
+- Public SEO content: data/seo-pages/verticals/*.json (15 files, 121 occurrences) rendered by pages/for/[vertical].tsx.
+- UI/backend strings: CleanCheckoutV2 share text + 'Share Dynopay'; CryptoRefundModal (4 spots); Dashboard EmptyHero/
+  VolumeHero "Welcome to Dynopay"; invoices.tsx + kyc/complete.tsx <title>; feeController note; PayoutCard; QA.tsx (3);
+  overpaymentNotifier merchant msg; ledgerAccountsBootstrap desc; swagger directApi desc; trackRouter unsubscribe HTML;
+  _add_activation_i18n.ts source (so re-run stays correct).
+- VERIFIED: /for/developers renders 0 "DynoPay", 8 "Dynopay"; activation email subject now "Your Dynopay account...";
+  dashboard shows "Grow with Dynopay". backend+FE tsc both 0 errors.
+
+## Pending (unchanged from prior fork)
+- P1: VERIFF_API_SECRET on DigitalOcean (hourly Veriff webhook 401s). P2: legacy Tatum assetToOtherAddress -> directEvmSweep.
+- Recurring (infra): FastForex subscription inactive (FX warnings); merchant-pool sweeps "NO gas funded".
+
+---
+
+
 # SESSION 2026-08-31 (fork, pod 0e5cc9c0) — Webhook auto-disable RECOVERY UI (fixes DO-log anomaly) — SAFE MODE, prod DB
 CONTEXT: The prior DO-log investigation found payment 6bfc858b (company_id=1 Hostbay) settled fully, but the merchant's
 webhook.site endpoint 404'd → backend auto-disabled webhook delivery (tbl_company.webhook_disabled=TRUE, reason

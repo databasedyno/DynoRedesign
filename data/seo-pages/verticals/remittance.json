@@ -1,13 +1,13 @@
 {
-  "meta_title": "Crypto Payments for Remittance & Cross-Border Payouts | DynoPay",
+  "meta_title": "Crypto Payments for Remittance & Cross-Border Payouts | Dynopay",
   "meta_description": "Accept crypto payments for remittance & cross-border payouts. Non-custodial, 15+ cryptocurrencies, fees from 1.5%. No chargebacks. Start in 10 minutes.",
   "h1": "Crypto payments for remittance & cross-border payouts",
   "subheading": "Collect cross-border payments in Bitcoin, USDT, XRP, and 12+ other cryptocurrencies without correspondent banks, chargebacks, or holding periods",
-  "intro_paragraph": "Traditional remittance corridors saddle you with 3-7% FX markups, 3-5 day settlement windows, and slow legacy rails that frustrate your customers. DynoPay delivers crypto payments directly to your wallet—no custody, no chargebacks, no monthly fees. Your customers pay in Bitcoin, stablecoins, or 15+ cryptocurrencies, and you receive funds in minutes in the wallet you control. Fees start at 1.5% and drop to 0.5% as your volume grows, with your first transaction completely free.",
+  "intro_paragraph": "Traditional remittance corridors saddle you with 3-7% FX markups, 3-5 day settlement windows, and slow legacy rails that frustrate your customers. Dynopay delivers crypto payments directly to your wallet—no custody, no chargebacks, no monthly fees. Your customers pay in Bitcoin, stablecoins, or 15+ cryptocurrencies, and you receive funds in minutes in the wallet you control. Fees start at 1.5% and drop to 0.5% as your volume grows, with your first transaction completely free.",
   "features": [
     {
       "title": "Funds hit your wallet directly",
-      "description": "Non-custodial architecture means every payment lands in the wallet you specify during setup. DynoPay never touches your funds, so you maintain full control and can move capital immediately."
+      "description": "Non-custodial architecture means every payment lands in the wallet you specify during setup. Dynopay never touches your funds, so you maintain full control and can move capital immediately."
     },
     {
       "title": "Stablecoins eliminate FX volatility",
@@ -26,11 +26,11 @@
   "faqs": [
     {
       "question": "How do crypto payments reduce costs for cross-border payouts compared to banks?",
-      "answer": "Banks layer correspondent fees, FX spreads, and SWIFT charges that total 3-7% per transaction. DynoPay charges from 1.5% (dropping to 0.5% at volume) with no hidden fees, no intermediaries, and no currency conversion markups when using stablecoins."
+      "answer": "Banks layer correspondent fees, FX spreads, and SWIFT charges that total 3-7% per transaction. Dynopay charges from 1.5% (dropping to 0.5% at volume) with no hidden fees, no intermediaries, and no currency conversion markups when using stablecoins."
     },
     {
-      "question": "Which stablecoins does DynoPay support for remittance businesses?",
-      "answer": "DynoPay supports USDT on Ethereum, Polygon, and Tron networks, USDC on Ethereum, plus RLUSD on both Ethereum and the XRP Ledger. This gives your customers multiple low-fee options for stable-value transfers."
+      "question": "Which stablecoins does Dynopay support for remittance businesses?",
+      "answer": "Dynopay supports USDT on Ethereum, Polygon, and Tron networks, USDC on Ethereum, plus RLUSD on both Ethereum and the XRP Ledger. This gives your customers multiple low-fee options for stable-value transfers."
     },
     {
       "question": "Do I need a crypto wallet before I start accepting payments?",
@@ -41,8 +41,8 @@
       "answer": "Bitcoin confirms in 10-60 minutes depending on network congestion. Ethereum, Polygon, Tron, and Solana payments typically confirm in under 5 minutes. XRP and Litecoin settle in 2-5 minutes. All are faster than traditional wire transfers."
     },
     {
-      "question": "Can customers in any country send me crypto payments through DynoPay?",
-      "answer": "Yes. Crypto has no geographic limits on who can send funds to your wallet. Identity verification (KYC) applies to your DynoPay account once settled volume passes a threshold, fiat off-ramps run their own KYC, and as a remittance business you remain responsible for your own licensing and AML obligations."
+      "question": "Can customers in any country send me crypto payments through Dynopay?",
+      "answer": "Yes. Crypto has no geographic limits on who can send funds to your wallet. Identity verification (KYC) applies to your Dynopay account once settled volume passes a threshold, fiat off-ramps run their own KYC, and as a remittance business you remain responsible for your own licensing and AML obligations."
     }
   ],
   "cta_headline": "Start accepting crypto payments in 10 minutes",

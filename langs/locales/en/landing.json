@@ -437,7 +437,7 @@
     "pain": {
       "eyebrow": "The old way is broken",
       "headline": "Crypto payments shouldn't be this hard",
-      "body": "Volatile balances, custodial risk, chargeback fraud and bolted-on checkouts hold merchants back. DynoPay removes each one.",
+      "body": "Volatile balances, custodial risk, chargeback fraud and bolted-on checkouts hold merchants back. Dynopay removes each one.",
       "p1": "Prices swing before you can spend what you earned.",
       "f1": "Auto-convert every payment to stablecoin the moment it settles.",
       "p2": "A third party holds your funds — and can freeze them.",
@@ -448,7 +448,7 @@
       "f4": "A hosted checkout and clean REST API get you live in an afternoon."
     },
     "why": {
-      "eyebrow": "Why DynoPay",
+      "eyebrow": "Why Dynopay",
       "headline": "Built different where it counts",
       "body": "We don't win on the lowest headline rate — we win on what actually protects your money and your time.",
       "c1t": "Non-custodial by design",
@@ -502,8 +502,8 @@
     "compare": {
       "eyebrow": "Why us vs the alternatives",
       "headline": "A fairer deal for accepting crypto",
-      "body": "How DynoPay stacks up against a typical crypto payment processor.",
-      "colDyno": "DynoPay",
+      "body": "How Dynopay stacks up against a typical crypto payment processor.",
+      "colDyno": "Dynopay",
       "colOther": "Typical processor",
       "note": "Comparison reflects common industry practice; specifics vary by provider.",
       "r1f": "Fund custody",

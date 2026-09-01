@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Payments API for Developers | DynoPay",
+  "meta_title": "Crypto Payments API for Developers | Dynopay",
   "meta_description": "Integrate Bitcoin, Ethereum, Solana, and 15+ cryptocurrencies with one REST API. Non-custodial, webhook-driven, live in 10 minutes. Start building now.",
   "h1": "Crypto Payments API: One Endpoint, 15+ Chains, Zero Custody Risk",
   "subheading": "Build checkout flows, payment links, or crowdfunding into your app with a REST API, webhooks, and SDKs—funds settle directly to your wallet.",
-  "intro_paragraph": "Most crypto payment integrations force you to write smart contracts, manage multiple chain clients, or trust a third party with custody. DynoPay gives developers a single REST API that covers Bitcoin, Ethereum, Solana, Tron, Polygon, and XRP Ledger—15+ assets total—while every payment settles non-custodially to the wallet you control. No monthly fees, no setup costs, and your first transaction is completely free.",
+  "intro_paragraph": "Most crypto payment integrations force you to write smart contracts, manage multiple chain clients, or trust a third party with custody. Dynopay gives developers a single REST API that covers Bitcoin, Ethereum, Solana, Tron, Polygon, and XRP Ledger—15+ assets total—while every payment settles non-custodially to the wallet you control. No monthly fees, no setup costs, and your first transaction is completely free.",
   "features": [
     {
       "title": "One API, 15+ Cryptocurrencies",
@@ -11,7 +11,7 @@
     },
     {
       "title": "Non-Custodial by Design",
-      "description": "Payments flow directly to the wallet address you provide during setup. DynoPay never holds, freezes, or controls your funds—you retain custody from checkout to settlement."
+      "description": "Payments flow directly to the wallet address you provide during setup. Dynopay never holds, freezes, or controls your funds—you retain custody from checkout to settlement."
     },
     {
       "title": "Webhooks and Real-Time Events",
@@ -25,27 +25,27 @@
   ],
   "faqs": [
     {
-      "question": "What cryptocurrencies does the DynoPay API support?",
-      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (including USDT, USDC, and RLUSD on ERC-20), Polygon (MATIC and USDT), Tron (TRX and USDT-TRC20), Solana, and XRP Ledger (XRP and RLUSD)—15+ assets in total behind one REST API."
+      "question": "What cryptocurrencies does the Dynopay API support?",
+      "answer": "Dynopay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (including USDT, USDC, and RLUSD on ERC-20), Polygon (MATIC and USDT), Tron (TRX and USDT-TRC20), Solana, and XRP Ledger (XRP and RLUSD)—15+ assets in total behind one REST API."
     },
     {
-      "question": "How much does DynoPay charge per transaction?",
-      "answer": "DynoPay charges a volume-tiered platform fee that starts at 1.5 percent plus one dollar per successful payment and drops automatically to 0.5 percent at scale based on settled volume. Your first payment is completely free, and there are no monthly or setup fees."
+      "question": "How much does Dynopay charge per transaction?",
+      "answer": "Dynopay charges a volume-tiered platform fee that starts at 1.5 percent plus one dollar per successful payment and drops automatically to 0.5 percent at scale based on settled volume. Your first payment is completely free, and there are no monthly or setup fees."
     },
     {
       "question": "Do I need to deploy smart contracts to accept payments?",
-      "answer": "No. DynoPay handles chain interaction, address generation, and confirmation monitoring for you. You call a REST endpoint, receive a payment address, and listen for webhook events—no Solidity, no audits, no gas management."
+      "answer": "No. Dynopay handles chain interaction, address generation, and confirmation monitoring for you. You call a REST endpoint, receive a payment address, and listen for webhook events—no Solidity, no audits, no gas management."
     },
     {
-      "question": "Is DynoPay custodial or do I control the funds?",
-      "answer": "DynoPay is entirely non-custodial. Every payment settles directly to the wallet address you specify during onboarding. DynoPay never holds, moves, or controls your cryptocurrency at any point in the transaction lifecycle."
+      "question": "Is Dynopay custodial or do I control the funds?",
+      "answer": "Dynopay is entirely non-custodial. Every payment settles directly to the wallet address you specify during onboarding. Dynopay never holds, moves, or controls your cryptocurrency at any point in the transaction lifecycle."
     },
     {
       "question": "Can I test the API before going live?",
-      "answer": "Yes. DynoPay provides a sandbox environment with test API keys so you can simulate payments, trigger webhooks, and validate your integration logic before processing real transactions on mainnet."
+      "answer": "Yes. Dynopay provides a sandbox environment with test API keys so you can simulate payments, trigger webhooks, and validate your integration logic before processing real transactions on mainnet."
     }
   ],
-  "cta_headline": "Start Building with DynoPay Today",
+  "cta_headline": "Start Building with Dynopay Today",
   "cta_body": "Your first payment is free and you can go live in under 10 minutes. No monthly fees, no custody risk.",
   "_generated_at": "2026-08-29T14:58:16.495546Z",
   "_model": "anthropic/claude-sonnet-4-5-20250929",

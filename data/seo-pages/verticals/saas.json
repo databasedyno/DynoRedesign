@@ -1,13 +1,13 @@
 {
-  "meta_title": "Crypto Payments for SaaS & Subscription Products | DynoPay",
-  "meta_description": "Accept crypto payments for SaaS & subscription products with DynoPay. No chargebacks, global reach, 15+ cryptocurrencies. Fees from 1.5%. Start today.",
+  "meta_title": "Crypto Payments for SaaS & Subscription Products | Dynopay",
+  "meta_description": "Accept crypto payments for SaaS & subscription products with Dynopay. No chargebacks, global reach, 15+ cryptocurrencies. Fees from 1.5%. Start today.",
   "h1": "Accept crypto payments for SaaS & subscription products without chargebacks",
-  "subheading": "DynoPay helps subscription businesses eliminate involuntary churn, expand to restricted markets, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet.",
-  "intro_paragraph": "Subscription businesses routinely lose revenue to failed card payments and involuntary churn. International customers face currency conversion fees and payment method restrictions. DynoPay is a non-custodial platform that deposits crypto payments directly into your wallet—no middleman holding your funds. You get payment links, hosted checkout, and a REST API to bill subscribers in 15+ cryptocurrencies with fees starting at 1.5% and dropping to 0.5% at scale. No chargebacks. No monthly fees. First payment is free.",
+  "subheading": "Dynopay helps subscription businesses eliminate involuntary churn, expand to restricted markets, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet.",
+  "intro_paragraph": "Subscription businesses routinely lose revenue to failed card payments and involuntary churn. International customers face currency conversion fees and payment method restrictions. Dynopay is a non-custodial platform that deposits crypto payments directly into your wallet—no middleman holding your funds. You get payment links, hosted checkout, and a REST API to bill subscribers in 15+ cryptocurrencies with fees starting at 1.5% and dropping to 0.5% at scale. No chargebacks. No monthly fees. First payment is free.",
   "features": [
     {
       "title": "Non-custodial settlement to your wallet",
-      "description": "Funds go directly to your Ethereum, Bitcoin, or Solana wallet. DynoPay never holds your money, so you maintain full custody and can convert to fiat on your own schedule."
+      "description": "Funds go directly to your Ethereum, Bitcoin, or Solana wallet. Dynopay never holds your money, so you maintain full custody and can convert to fiat on your own schedule."
     },
     {
       "title": "Zero involuntary churn from crypto subscribers",
@@ -30,18 +30,18 @@
     },
     {
       "question": "What cryptocurrencies can my SaaS customers use to pay?",
-      "answer": "DynoPay supports 15+ cryptocurrencies: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX, and stablecoins including USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD on Ethereum and XRP Ledger."
+      "answer": "Dynopay supports 15+ cryptocurrencies: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX, and stablecoins including USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD on Ethereum and XRP Ledger."
     },
     {
-      "question": "What are DynoPay's fees for subscription payments?",
+      "question": "What are Dynopay's fees for subscription payments?",
       "answer": "Fees start at 1.5% plus one dollar per successful payment and drop automatically to 0.5% as your settled volume grows. No setup fees, no monthly fees, no hidden costs, and your first payment is completely free."
     },
     {
       "question": "Do I need to hold crypto or set up a merchant account?",
-      "answer": "You only need a wallet address for the cryptocurrency you want to receive. DynoPay is non-custodial, so payments go straight to your Coinbase, Ledger, MetaMask, or any wallet you control. No merchant account required."
+      "answer": "You only need a wallet address for the cryptocurrency you want to receive. Dynopay is non-custodial, so payments go straight to your Coinbase, Ledger, MetaMask, or any wallet you control. No merchant account required."
     },
     {
-      "question": "Can I bill recurring subscriptions in cryptocurrency using DynoPay?",
+      "question": "Can I bill recurring subscriptions in cryptocurrency using Dynopay?",
       "answer": "Yes, on a per-cycle basis. Crypto has no card-style auto-charge, so each renewal is a fresh payment: use the REST API and webhooks to generate a payment link per billing cycle and send it automatically. Renewals never fail on expired cards or issuer declines."
     }
   ],

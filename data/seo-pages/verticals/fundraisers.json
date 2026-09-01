@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Crowdfunding and Donations Platform | DynoPay",
+  "meta_title": "Crypto Crowdfunding and Donations Platform | Dynopay",
   "meta_description": "Run crowdfunding campaigns and collect donations in 15+ cryptocurrencies. Set goals, offer rewards, update supporters. Funds to your wallet. Start free.",
   "h1": "Crypto crowdfunding and donations for nonprofits and fundraisers",
   "subheading": "Launch campaigns with funding goals, reward tiers, and supporter updates—then receive Bitcoin, Ethereum, stablecoins, and more directly to your wallet.",
-  "intro_paragraph": "DynoPay gives nonprofits and organizers a complete campaign page to raise funds in crypto from supporters worldwide. Set a funding goal, create reward tiers, post updates that notify backers by email, and watch donations arrive in your own wallet—not held by a third party. Accept 15+ cryptocurrencies across Bitcoin, Ethereum, Polygon, Solana, Tron, and XRP Ledger. Pricing starts at 1.5% per transaction and drops to 0.5% as your volume grows, with your first payment completely free.",
+  "intro_paragraph": "Dynopay gives nonprofits and organizers a complete campaign page to raise funds in crypto from supporters worldwide. Set a funding goal, create reward tiers, post updates that notify backers by email, and watch donations arrive in your own wallet—not held by a third party. Accept 15+ cryptocurrencies across Bitcoin, Ethereum, Polygon, Solana, Tron, and XRP Ledger. Pricing starts at 1.5% per transaction and drops to 0.5% as your volume grows, with your first payment completely free.",
   "features": [
     {
       "title": "Campaign Pages with Reward Tiers",
@@ -29,8 +29,8 @@
       "answer": "Pricing starts at 1.5% plus one dollar per successful donation and drops automatically to 0.5% as your volume increases. Your first payment is completely free. No monthly fees, no setup costs, and no hidden charges."
     },
     {
-      "question": "Do I need to give DynoPay access to my wallet?",
-      "answer": "No. DynoPay is non-custodial, meaning you provide a wallet address where donations are sent directly. You maintain full control and custody of your funds at all times. DynoPay never holds or touches your donations."
+      "question": "Do I need to give Dynopay access to my wallet?",
+      "answer": "No. Dynopay is non-custodial, meaning you provide a wallet address where donations are sent directly. You maintain full control and custody of your funds at all times. Dynopay never holds or touches your donations."
     },
     {
       "question": "Which cryptocurrencies can donors use?",
@@ -42,7 +42,7 @@
     },
     {
       "question": "Are there any country restrictions on collecting donations?",
-      "answer": "No geographic restrictions apply to receiving crypto donations—supporters from any country can contribute to your campaign. Identity verification (KYC) applies to your DynoPay account once settled volume passes a threshold, and fiat off-ramps run their own KYC if you convert to local currency."
+      "answer": "No geographic restrictions apply to receiving crypto donations—supporters from any country can contribute to your campaign. Identity verification (KYC) applies to your Dynopay account once settled volume passes a threshold, and fiat off-ramps run their own KYC if you convert to local currency."
     }
   ],
   "cta_headline": "Launch your crypto fundraising campaign today",

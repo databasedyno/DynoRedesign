@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Payments for Gaming & iGaming | DynoPay",
+  "meta_title": "Crypto Payments for Gaming & iGaming | Dynopay",
   "meta_description": "Accept crypto payments for gaming & iGaming with no chargebacks, global reach, and instant settlements. Start in 10 minutes. First payment free.",
   "h1": "Crypto payments for gaming & iGaming platforms with zero chargeback risk",
   "subheading": "Accept 15+ cryptocurrencies from players worldwide, eliminate payment friction, and receive funds directly to your wallet—no intermediaries.",
-  "intro_paragraph": "Gaming and iGaming operators face constant payment challenges: card processors block or restrict accounts, chargebacks drain revenue, and players face endless card declines. DynoPay is a non-custodial platform that lets you accept Bitcoin, Ethereum, USDT, and 12+ other cryptocurrencies. You receive funds directly in your wallet—DynoPay never holds your money—and payments settle in minutes with fees starting at 1.5% that drop to 0.5% at scale. No chargebacks. No monthly fees.",
+  "intro_paragraph": "Gaming and iGaming operators face constant payment challenges: card processors block or restrict accounts, chargebacks drain revenue, and players face endless card declines. Dynopay is a non-custodial platform that lets you accept Bitcoin, Ethereum, USDT, and 12+ other cryptocurrencies. You receive funds directly in your wallet—Dynopay never holds your money—and payments settle in minutes with fees starting at 1.5% that drop to 0.5% at scale. No chargebacks. No monthly fees.",
   "features": [
     {
       "title": "Zero chargeback exposure",
@@ -15,7 +15,7 @@
     },
     {
       "title": "Direct wallet settlements",
-      "description": "Receive funds straight to your Ethereum, Bitcoin, or USDT wallet within minutes. DynoPay never holds your money, so you maintain full custody and can access capital immediately."
+      "description": "Receive funds straight to your Ethereum, Bitcoin, or USDT wallet within minutes. Dynopay never holds your money, so you maintain full custody and can access capital immediately."
     }
   ],
   "how_it_works": [
@@ -29,19 +29,19 @@
       "answer": "No. Cryptocurrency transactions are irreversible by design. Once a player sends a deposit, they cannot dispute or reverse it, eliminating chargeback fraud and the dispute losses gaming operators face from card payments."
     },
     {
-      "question": "What cryptocurrencies can gaming platforms accept with DynoPay?",
-      "answer": "DynoPay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, USDT on Ethereum, Polygon and Tron, USDC, SOL, XRP, RLUSD, and others. Players choose their preferred coin at checkout."
+      "question": "What cryptocurrencies can gaming platforms accept with Dynopay?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, USDT on Ethereum, Polygon and Tron, USDC, SOL, XRP, RLUSD, and others. Players choose their preferred coin at checkout."
     },
     {
-      "question": "How much does DynoPay charge for gaming crypto payments?",
+      "question": "How much does Dynopay charge for gaming crypto payments?",
       "answer": "Fees start at 1.5% plus one dollar per transaction and automatically drop to 0.5% as your settled volume grows. No monthly fees, no setup costs, and your first payment is completely free. No chargebacks mean no dispute fees."
     },
     {
       "question": "Can players from different countries deposit with crypto?",
-      "answer": "Crypto payments work globally, so players across the markets where your platform operates can deposit without card declines or regional processor gaps. Identity verification (KYC) applies to your DynoPay account once settled volume passes a threshold, and fiat off-ramps run their own KYC."
+      "answer": "Crypto payments work globally, so players across the markets where your platform operates can deposit without card declines or regional processor gaps. Identity verification (KYC) applies to your Dynopay account once settled volume passes a threshold, and fiat off-ramps run their own KYC."
     },
     {
-      "question": "How quickly can a gaming site start accepting crypto with DynoPay?",
+      "question": "How quickly can a gaming site start accepting crypto with Dynopay?",
       "answer": "Most operators go live in under 10 minutes. Sign up, verify your email, add your payout wallet address, and generate a payment link or embed the checkout widget. No lengthy processor underwriting—your own gaming licences and local compliance remain your responsibility."
     }
   ],
