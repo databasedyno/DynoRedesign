@@ -9,7 +9,7 @@
  * The full-page creator (/create-pay-link) stays reachable via the
  * "All options" link for complex cases (taxes, expiry, redirects, donations).
  */
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   Box,
   Drawer,
@@ -24,6 +24,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 import { QRCodeCanvas } from "qrcode.react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
@@ -34,7 +35,8 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { PaymentLinkAction, PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import CustomButton from "@/Components/UI/Buttons";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
-import { toShortPayLink } from "@/helpers/payLinkUrl";
+import { toShortPayLink, extractPayRef } from "@/helpers/payLinkUrl";
+import { downloadQrPng } from "@/helpers/downloadQrPng";
 import { MONO } from "@/styles/uiKit";
 
 const FIAT_OPTIONS = ["USD", "EUR", "GBP"] as const;
@@ -73,6 +75,8 @@ const QuickCreateLinkPanel = ({
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
   const [created, setCreated] = useState<CreatedLink | null>(null);
+  const [copied, setCopied] = useState(false);
+  const qrRef = useRef<HTMLDivElement>(null);
 
   const preview = useMemo(() => fmtAmount(amount, currency), [amount, currency]);
 
@@ -154,6 +158,10 @@ const QuickCreateLinkPanel = ({
   const handleCopy = async () => {
     if (!created) return;
     const ok = await copyToClipboard(created.url);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    }
     dispatch({
       type: "TOAST_SHOW",
       payload: {
@@ -177,6 +185,16 @@ const QuickCreateLinkPanel = ({
       }
     }
     handleCopy();
+  };
+
+  const handleDownloadQr = () => {
+    if (!created) return;
+    const canvas = qrRef.current?.querySelector("canvas") as HTMLCanvasElement | null;
+    const code = extractPayRef(created.url);
+    downloadQrPng(canvas, {
+      caption: created.url.replace(/^https?:\/\//, ""),
+      filename: `dynopay-${code || "payment-qr"}.png`,
+    });
   };
 
   const goAllOptions = () => {
@@ -372,7 +390,7 @@ const QuickCreateLinkPanel = ({
             </Typography>
 
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2.5 }}>
-              <Box sx={{ p: 1.5, borderRadius: "14px", backgroundColor: "#FFFFFF", border: `1px solid ${border}` }}>
+              <Box ref={qrRef} sx={{ p: 1.5, borderRadius: "14px", backgroundColor: "#FFFFFF", border: `1px solid ${border}` }}>
                 <QRCodeCanvas value={created.url} size={148} data-testid="quick-create-qr" />
               </Box>
             </Box>
@@ -426,7 +444,24 @@ const QuickCreateLinkPanel = ({
               >
                 <OpenInNewRoundedIcon sx={{ fontSize: 19 }} />
               </IconButton>
+              <IconButton
+                onClick={handleDownloadQr}
+                data-testid="quick-create-download-qr"
+                aria-label={t("quickCreate.downloadQr", { defaultValue: "Download QR" })}
+                sx={{ border: `1px solid ${border}`, borderRadius: "10px", minWidth: 44, minHeight: 44 }}
+              >
+                <FileDownloadRoundedIcon sx={{ fontSize: 19 }} />
+              </IconButton>
             </Box>
+
+            {copied && (
+              <Typography
+                data-testid="quick-create-copied-note"
+                sx={{ fontSize: 12, fontWeight: 600, color: "#059669", mb: 1.5, mt: -0.5 }}
+              >
+                {t("quickCreate.copiedOpensCheckout", { defaultValue: "Link copied — opens your checkout" })}
+              </Typography>
+            )}
 
             <Box sx={{ display: "flex", gap: 1.25 }}>
               <Box sx={{ flex: 1, "& button": { width: "100%", minHeight: 44 } }}>

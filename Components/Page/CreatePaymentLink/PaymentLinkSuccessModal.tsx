@@ -1,11 +1,11 @@
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import PopupModal from "@/Components/UI/PopupModal";
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
 import {
   CloseIconButton,
   LabelText,
@@ -26,6 +26,9 @@ import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
+import { extractPayRef } from "@/helpers/payLinkUrl";
+import { downloadQrPng } from "@/helpers/downloadQrPng";
+import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 import {
   PaymentDetailRowProps,
   PaymentLinkSuccessModalProps,
@@ -87,6 +90,8 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const linkQrRef = useRef<HTMLDivElement>(null);
 
   // Determine if single crypto is selected and find its wallet address
   // Only use the pool address from backend (directPayAddress) — no fallback to merchant wallet
@@ -142,10 +147,24 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
       return;
     }
     const ok = await copyToClipboard(paymentLink);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2200);
+    }
     showToast(
       ok ? String(tCommon("copiedToClipboard")) : String(tCommon("copyFailed")),
       ok ? "success" : "error",
     );
+  };
+
+  const handleDownloadLinkQr = () => {
+    if (!paymentLink) return;
+    const canvas = linkQrRef.current?.querySelector("canvas") as HTMLCanvasElement | null;
+    const code = extractPayRef(paymentLink);
+    downloadQrPng(canvas, {
+      caption: paymentLink.replace(/^https?:\/\//, ""),
+      filename: `dynopay-${code || "payment-qr"}.png`,
+    });
   };
 
   const handleSharePaymentLink = async () => {
@@ -264,6 +283,56 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                   draggable={false}
                 />
               </ApiKeyCopyButton>
+            </Box>
+
+            {linkCopied && (
+              <Typography
+                data-testid="paylink-copied-note"
+                sx={{ fontSize: 12, fontWeight: 600, color: "#059669", mt: -2 }}
+              >
+                {t("linkCopiedOpensCheckout", { defaultValue: "Link copied — opens your checkout" })}
+              </Typography>
+            )}
+
+            {/* Payment-link QR — scan to open the hosted checkout; downloadable for print/invoices */}
+            <Box
+              data-testid="paylink-qr-block"
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1.25,
+                p: isMobile ? 2 : 2.5,
+                borderRadius: "12px",
+                border: "1px solid",
+                borderColor: "divider",
+                backgroundColor: "background.paper",
+              }}
+            >
+              <Box
+                ref={linkQrRef}
+                sx={{
+                  p: 1.5,
+                  borderRadius: "10px",
+                  backgroundColor: "#FFFFFF",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+                }}
+              >
+                <QRCodeCanvas value={paymentLink || ""} size={isMobile ? 140 : 160} level="M" />
+              </Box>
+              <Typography sx={{ fontSize: 11, color: "text.secondary", textAlign: "center" }}>
+                {t("scanToOpenCheckout", { defaultValue: "Scan to open the checkout" })}
+              </Typography>
+              <Button
+                onClick={handleDownloadLinkQr}
+                data-testid="paylink-qr-download"
+                variant="outlined"
+                size="small"
+                startIcon={<FileDownloadRoundedIcon sx={{ fontSize: 16 }} />}
+                sx={{ textTransform: "none", fontSize: 12.5, fontWeight: 600, borderRadius: "10px" }}
+              >
+                {t("downloadQr", { defaultValue: "Download QR" })}
+              </Button>
             </Box>
 
             {/* Direct Pay QR Code — shown only when a single cryptocurrency is selected */}

@@ -1420,3 +1420,31 @@ NOT testable in preview: the literal dynopay.com -> checkout.dynopay.com hop
 PROD ENV NOTE: needs CHECKOUT_URL=https://checkout.dynopay.com (rewrite host +
 [handle] redirect target) and NEXT_PUBLIC_CREATOR_BASE_URL=https://dynopay.com
 (short-link display). next.config reads CHECKOUT_URL at build/startup.
+
+────────────────────────────────────────────────────────────────────────────
+2026-06 · QR download (short URL) + copy confirmation
+────────────────────────────────────────────────────────────────────────────
+Follow-ups on the short-link work, on the two merchant "here's your link"
+surfaces (both display the NEW short dynopay.com/<code> URL):
+
+  • helpers/downloadQrPng.ts (NEW): composites a QRCodeCanvas onto a padded
+    white card + scheme-less URL caption + "Powered by Dynopay" footer and
+    triggers a PNG download. Reuses the proven HandleQrCode.tsx pattern.
+  • QuickCreateLinkPanel.tsx: QR (already shown) now has a Download-QR icon
+    button; copy shows an inline green "Link copied — opens your checkout"
+    note under the actions. testids: quick-create-download-qr,
+    quick-create-copied-note.
+  • PaymentLinkSuccessModal.tsx (create-success AND links-table view modal):
+    added a payment-link QRCodeCanvas block ("Scan to open the checkout") with
+    a "Download QR" button, plus the same inline copy-confirmation note under
+    the link row. testids: paylink-qr-block, paylink-qr-download,
+    paylink-copied-note.
+  • Filenames: dynopay-<code>.png. QR encodes the SHORT branded URL, so a
+    scanned code hops dynopay.com/<code> -> checkout (see prior entry).
+
+VERIFIED: full `tsc --noEmit` = 0 errors; /create-pay-link, /pay-links,
+/dashboard recompile clean. NOT visually screenshotted — these are auth-gated
+dashboard surfaces and the screenshot tool renders this app blank (systemic;
+even `/` is blank in the tool). Reachable end-to-end only after login + link
+creation, which writes to the LIVE prod DB (SAFE MODE) — left for the user to
+eyeball on the dashboard / after deploy.
