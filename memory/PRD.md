@@ -24,6 +24,46 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-09-01 (fork, pod d4fef0d9): SYSTEMIC SANDBOX-KEY BACKFILL + partial-unique index + full
+     sandbox API suite — DONE + VERIFIED. LIVE prod DB, SAFE MODE.
+  ROOT CAUSE (why 40 legacy accounts lacked a dpk_test_ sandbox key): sandbox auto-provisioning in
+     addCompany only began ~2026-08-23 (earliest active dev key in whole DB; user-confirmed concern
+     "did they skip wallet?" is INVERTED — a LIVE key only mints AFTER a wallet is added, and DB-wide
+     there are 0 companies with a live key but no wallet, so all 40 candidates already had >=1 wallet).
+  (1) SHARED HELPER: NEW backend/controller/api/ensureSandboxApiKey.ts — extracted from the inline
+     addCompany block (byte-identical: dpk_test_, max_amount 100, allowed [BTC,ETH,USDT-TRC20,TRX,LTC],
+     sandbox_mode, 30d tokens, customer+wallet). Idempotent guard on active development key; non-fatal.
+     companyController.addCompany now calls it (kept auto_test_key_created flag). tsc 0.
+  (2) MIGRATION 0020 (bootMigrations.ts) — partial UNIQUE index tbl_api_active_company_env_uq ON
+     (company_id, environment) WHERE status='active'. Applied to LIVE prod (1 applied, 19 present).
+     0 dup active groups pre+post. Backstops the app-level "1 active key per env" cap.
+  (3) BACKFILL: NEW backend/scripts/backfill_sandbox_keys.ts (manual, --apply gate, dry-run default,
+     audit COUNTS only — never plaintext keys). Ran --apply: candidates=40 created=40 skipped=0
+     errored=0; remaining=0; dup groups=0. Active dev keys 4 -> 44. Idempotent (re-run = 0 candidates).
+     Spot-check decrypted co 3/36/108 -> valid dpk_test_ w/ matching embedded company_id + restrictions.
+  (4) SANDBOX API SUITE: NEW backend/scripts/sandbox_api_suite.ts (The Dev Store dpk_test_ key, real
+     merchant API). ALL PASS: $5 createPayment 200; $150 -> 400 sandbox_restriction (max_amount 100);
+     DOGE -> 400 sandbox_restriction; BTC/ETH pass; getSupportedCurrency 200 (13); missing key 401.
+     Only writes 2 Redis /1 sessions, both deleted. KEY LEARNING: the merchant's secret IS the
+     encrypted U2FsdGVk... blob (x-api-key) — the API decrypts it to dpk_test_...; do NOT send the
+     decrypted form. E2E regression: login(onarrival21)->getApi?company_id=1 returns 1 active prod +
+     1 active dev w/ restrictions. FRONTEND UNCHANGED (The Dev Store /developer-keys already green in
+     iter 110). No new login creds created. -->
+
+<!-- 2026-09-01 (fork, pod d4fef0d9): P0 checkout flicker FIXED (CleanCheckoutV2 no longer
+     blanks the panel during address reservation — inline spinner instead; testing_agent
+     iter 109 4/4). Docs: Buy Button + all integration methods + multi-brand note added to
+     /documentation AND DEVELOPER_INTEGRATION_GUIDE.md. Landing: "One account, every brand"
+     card in WhyDynoPay + business switcher relabelled to "Brands" (6 locales). Trimmed
+     test_result.md (2.8MB->12KB) & PRD.md (572KB->48KB) to clear git-commit friction
+     (Emergent has NO 500-line limit; standard GitHub limits only). BUG FIX: The Dev Store
+     (company_id=1) missing its sandbox key (predated auto-provisioning) — created dpk_test_
+     api_id=92 via POST /api/userApi/addApi; testing_agent iter 110 confirms both Live+Test
+     cards now show. LIVE key format unchanged (U2FsdGVk… is just encrypted-at-rest form).
+     OPEN: systemic sandbox backfill for OTHER legacy accounts (shared ensureSandboxApiKey
+     helper + one-time job + partial unique index — per integration_expert); whether to allow
+     >1 API key per environment (currently capped at 1); run item #5 sandbox API test. -->
+
 <!-- 2026-09-01 (fork, pod e952fc3d): EMAIL REWIRING → companyDispatch dedup/RBAC — DONE + VERIFIED. LIVE prod DB, SAFE MODE.
 COMPLETED the deferred backend batch: the operational email triggers now route through the dedup/RBAC resolver. Wrapped 9 MERCHANT-facing send sites with dispatchCompanyEmail(companyId, category, fallback, sendOne) — uses utils/notificationRecipients.resolveCompanyRecipients (company notification_email -> company.email -> owner, + permitted ACTIVE team members, deduped case-insensitively) and suppresses ONLY explicitly-disabled categories (else falls back to owner so a critical email is never dropped):
   • services/pendingPaymentService.ts — pending / confirming / partial / partial-expired  => "payments" (handoff wrongly said wired; only the import existed — now actually wrapped, 4 sites)

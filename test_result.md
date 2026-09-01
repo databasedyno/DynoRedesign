@@ -48,7 +48,24 @@
 #       was renamed — deeper in-app "Company" labels (settings/KYC/add-business dialog) left
 #       as-is pending user confirmation (KYC legally verifies a company, not a "brand").
 #
-#   (P1) SANDBOX API TEST (item #5) — PARTIAL / BLOCKED on missing key.
+#   (BUG) SANDBOX KEY MISSING FOR THE DEV STORE — FIXED + VERIFIED (testing_agent iter 110).
+#     User: "I used to see the Sandbox key but can't anymore." RCA: The Dev Store
+#     (company_id=1, created 2026-04-18) predates sandbox auto-provisioning, so tbl_api
+#     had ONLY a dpk_live_ (production) row, never a dpk_test_ (development) one — the UI
+#     (Components/Page/API/ApiKeysPage.tsx) just renders whatever getApi returns, so no
+#     Test card showed. Also confirmed the LIVE key FORMAT never changed: the user's pasted
+#     value (U2FsdGVkX1…) is just the CryptoJS-AES encrypted-at-rest form; decrypts to
+#     dpk_live_DYNOPAY_USER_API-{json}, identical family to August-era keys. FIX: created the
+#     missing sandbox key via the tested production endpoint POST /api/userApi/addApi
+#     {company_id:1, base_currency:USD, environment:development} -> api_id=92, dpk_test_,
+#     sandbox_mode:true, max $100, BTC/ETH/USDT-TRC20/TRX/LTC. Reversible (delete/disable
+#     api_id=92 to revert). Integration_expert consulted (auth): recommends a shared
+#     ensureSandboxApiKey() helper + a one-time idempotent backfill for ALL legacy accounts
+#     + a partial unique index (company_id, environment) WHERE status='active'; do NOT
+#     provision inside GET. Systemic backfill for other old companies is STILL PENDING user
+#     go-ahead (see open design Qs).
+#
+#   (P1) SANDBOX API TEST (item #5) — now UNBLOCKED for The Dev Store (has dpk_test_ api_id=92).
 #     FINDING: "The Dev Store" (company_id=1) has NO pk_test_ publishable key and NO
 #     'development' secret API key — only 2 pk_live_ keys (pub_key_id 6 active) + 1
 #     'production' secret key (api_id=2). So the sandbox happy-path can't be run as-is.

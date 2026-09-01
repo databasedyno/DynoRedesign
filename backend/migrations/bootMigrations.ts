@@ -432,6 +432,23 @@ const createSignupAttributionTable = async (): Promise<void> => {
   if (isSyncable(signupAttributionModel)) await signupAttributionModel.sync();
 };
 
+/**
+ * Migration 0020: enforce at most ONE active API key per (company_id, environment).
+ * A PARTIAL unique index over active rows only — revoked/inactive duplicates are
+ * still permitted (regenerate/revoke history). Verified 0 duplicate active groups
+ * before authoring, so it applies cleanly on live prod. Idempotent (IF NOT EXISTS),
+ * metadata-only on the tiny tbl_api. Backstops the app-level "1 active key per
+ * environment" rule (apiController.addApi / ensureLiveApiKey / ensureSandboxApiKey).
+ */
+const addApiActiveKeyUniqueIndex = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE UNIQUE INDEX IF NOT EXISTS "tbl_api_active_company_env_uq"
+       ON "tbl_api" ("company_id", "environment")
+       WHERE status = 'active'`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -454,5 +471,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0017_txn_webhook_secret", up: addTransactionWebhookSecret },
     { version: "0018_company_notification_routing", up: addCompanyNotificationRouting },
     { version: "0019_signup_attribution", up: createSignupAttributionTable },
+    { version: "0020_api_active_key_unique", up: addApiActiveKeyUniqueIndex },
   ];
 }

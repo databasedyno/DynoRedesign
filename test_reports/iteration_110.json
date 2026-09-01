@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only READ-ONLY verification of the sandbox key backfill for The Dev Store (company_id=1). Logged in as onarrival21@gmail.com (two-step login: email -> Continue -> password -> Sign in), navigated to /developer-keys with 'The Dev Store' already active in the brand switcher. Confirmed BOTH API key cards render: (1) 'Live API Key' card (Active, created Apr 18, 2026 at 18:20, masked key U2FsdGVkX1+F...9HNn) and (2) 'Test API Key' card (Auto-Created · Sandbox, Active, created Sep 01, 2026 at 23:20, masked key U2FsdGVkX19F...pw==). data-testid='sandbox-badge' count=1 and data-testid='sandbox-limits' count=1 with exact text 'Max $100 · BTC · ETH · USDT-TRC20 · TRX · LTC · sandbox mode'. Brand switcher shows both 'The Dev Store' (BUSINESS, active) and 'SMADAV' (BUSINESS). No mutations performed (no regenerate/disable/delete clicked). Bug is verified FIXED.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/developer-keys ApiKeyCard", "issues": ["React validateDOMNesting warning: <div> cannot appear as a descendant of <p> inside PanelCard -> Typography (ApiKeysPage.tsx:205). Non-blocking dev warning but should be cleaned up (Typography renders <p> by default; use component='div' or restructure children)."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "None for this bug — sandbox key is now visible for The Dev Store as expected.",
+    "Optional cleanup: fix Typography <p> containing <div> nesting warning in Components/Page/API/ApiKeysPage.tsx around the ApiKeyCard header/subtitle (use <Typography component='div'> or split the sub-elements out of the Typography)."
+  ],
+  "critical_code_review_comments": [
+    "ApiKeysPage.tsx renders whatever keys getApi returns per environment — no auto-provisioning in the page. Backfill via addApi was the correct approach for legacy accounts. Consider adding an idempotent sandbox-key provisioning step on login/company-load for other legacy accounts created before sandbox auto-provisioning existed, so this bug does not recur for other old company_ids."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (from /app/memory/test_credentials.md, used only for login)",
+  "seed_data_creation": "None. SAFE MODE respected — no create/delete/regenerate actions performed.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Login is a two-step flow at /auth/login: fill email -> click 'Continue' -> fill password -> click 'Sign in'. The developer-keys page renders masked keys as U2FsdGVk... (encrypted-at-rest blob) — verify by card titles 'Live API Key' / 'Test API Key' plus data-testid='sandbox-badge' and data-testid='sandbox-limits' rather than by dpk_live_/dpk_test_ prefixes (which are NOT shown in the masked view). Brand switcher is at the top-left with 'The Dev Store' as default active for this account.",
+  "rca_of_the_issue": "The Dev Store (company_id=1) was created 2026-04-18, before sandbox auto-provisioning existed, so getApi returned only a LIVE key entry (no development/sandbox row), causing the Test API Key card to be absent from the /developer-keys UI. Fix: main agent inserted a development-environment API row (api_id=92, dpk_test_ prefix, sandbox_mode:true) via POST /api/userApi/addApi for company_id=1. Verified: getApi now returns both environments, and ApiKeysPage renders both Live and Test cards with the correct sandbox badge and limits text."
+}
