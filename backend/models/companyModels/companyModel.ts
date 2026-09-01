@@ -187,6 +187,27 @@ const companyModel = sequelize.define(
         isEmail: true,
       },
     },
+    // Company-scoped notification recipient (0018). NULL -> falls back to
+    // `email`, then the owner's account email. See utils/notificationRecipients.
+    notification_email: {
+      type: DataTypes.STRING(190),
+      allowNull: true,
+      validate: {
+        isEmailOrEmpty(value: string | null) {
+          if (value === null || value === undefined || value === "") return;
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            throw new Error("notification_email must be a valid email address");
+          }
+        },
+      },
+    },
+    // Company-scoped routing prefs JSON (0018), e.g.
+    // { team_fanout: boolean, categories: { payments: bool, orders: bool, ... } }.
+    notification_prefs: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: {},
+    },
     mobile: {
       type: DataTypes.STRING,
     },

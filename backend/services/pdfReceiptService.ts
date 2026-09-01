@@ -10,13 +10,13 @@ import { t, normalizeLang } from "../utils/emailI18n";
 // Logo configuration - using local asset
 // LOGO_PATH and LOGO_URL removed - not used
 
-// Brand colors
+// Brand colors — aligned with the refreshed email template (indigo / near-black)
 const BRAND_COLORS = {
-  primary: "#1034a6",      // Dynopay Blue
-  accent: "#f47323",       // Dynopay Orange
-  dark: "#1a1a2e",         // Footer dark
-  text: "#4a4a4a",         // Body text
-  lightBg: "#f8f9ff",      // Light background
+  primary: "#4338CA",      // Indigo (matches email CTA + accent bar)
+  accent: "#818CF8",       // Indigo-light (wordmark "Pay" on dark bands)
+  dark: "#050505",         // Header/footer near-black (matches email header/footer)
+  text: "#374151",         // Body text
+  lightBg: "#f5f3ff",      // Subtle indigo tint for the amount card
   border: "#e5e7eb",       // Border color
 };
 
@@ -81,8 +81,10 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // HEADER SECTION
       // ============================================
       
-      // Header background
-      doc.rect(0, 0, doc.page.width, 120).fill(BRAND_COLORS.primary);
+      // Indigo accent bar (matches the email template's neon top bar)
+      doc.rect(0, 0, doc.page.width, 6).fill(BRAND_COLORS.primary);
+      // Header background (near-black, matches the email header band)
+      doc.rect(0, 6, doc.page.width, 114).fill(BRAND_COLORS.dark);
 
       // Dynopay Logo/Text
       doc.fontSize(28)
@@ -266,7 +268,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       doc.fontSize(9)
         .fillColor("#9ca3af")
         .text("dynopay.com", 400, footerY + 50, { align: "right", width: 150, link: "https://dynopay.com" })
-        .text("support@dynopay.com", 400, footerY + 65, { align: "right", width: 150, link: "mailto:support@dynopay.com" });
+        .text("Help & Support", 400, footerY + 65, { align: "right", width: 150, link: "https://dynopay.com/help-support" });
 
       // End document
       doc.end();

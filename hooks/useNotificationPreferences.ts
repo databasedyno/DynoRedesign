@@ -1,6 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
 interface NotificationPreferences {
@@ -21,6 +20,34 @@ const defaultPreferences: NotificationPreferences = {
   smsNotifications: false,
 };
 
+// Company-scoped email ROUTING config (migration 0018). Governs where the
+// business's operational emails (payments/payouts/orders/config/digests) go,
+// separate from the per-user account (security) emails above.
+export type NotificationCategoryKey =
+  | "payments"
+  | "payouts"
+  | "orders"
+  | "config"
+  | "digests";
+
+export interface CompanyRouting {
+  notificationEmail: string;
+  teamFanout: boolean;
+  categories: Record<NotificationCategoryKey, boolean>;
+}
+
+const defaultRouting: CompanyRouting = {
+  notificationEmail: "",
+  teamFanout: true,
+  categories: {
+    payments: true,
+    payouts: true,
+    orders: true,
+    config: true,
+    digests: true,
+  },
+};
+
 // Backend uses snake_case keys; the frontend hook exposes camelCase to consumers.
 // These mappers are the single source of truth for the naming translation.
 type BackendPreferences = {
@@ -30,6 +57,11 @@ type BackendPreferences = {
   security_alerts?: boolean;
   email_notifications?: boolean;
   sms_notifications?: boolean;
+  company_notification_email?: string | null;
+  company_notification_prefs?: {
+    team_fanout?: boolean;
+    categories?: Partial<Record<NotificationCategoryKey, boolean>>;
+  } | null;
 };
 
 const fromBackend = (b: BackendPreferences | undefined | null): NotificationPreferences => ({
@@ -50,9 +82,40 @@ const toBackend = (p: NotificationPreferences): BackendPreferences => ({
   sms_notifications: p.smsNotifications,
 });
 
+// Missing flags default to ENABLED (true) so a fresh company opts INTO every
+// category + team fan-out, matching the backend resolver's "missing => on".
+const routingFromBackend = (b: BackendPreferences | undefined | null): CompanyRouting => {
+  const prefs = b?.company_notification_prefs || {};
+  const cats = prefs.categories || {};
+  return {
+    notificationEmail: b?.company_notification_email ?? "",
+    teamFanout: prefs.team_fanout !== false,
+    categories: {
+      payments: cats.payments !== false,
+      payouts: cats.payouts !== false,
+      orders: cats.orders !== false,
+      config: cats.config !== false,
+      digests: cats.digests !== false,
+    },
+  };
+};
+
+const routingToBackend = (r: CompanyRouting) => ({
+  company_notification_email:
+    r.notificationEmail.trim() === "" ? null : r.notificationEmail.trim(),
+  company_notification_prefs: {
+    team_fanout: r.teamFanout,
+    categories: { ...r.categories },
+  },
+});
+
+export const isValidEmail = (e: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
+
 export const useNotificationPreferences = () => {
   const [preferences, setPreferences] =
     useState<NotificationPreferences>(defaultPreferences);
+  const [routing, setRouting] = useState<CompanyRouting>(defaultRouting);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +133,7 @@ export const useNotificationPreferences = () => {
       const raw = response?.data?.data as BackendPreferences | undefined;
       if (raw) {
         setPreferences(fromBackend(raw));
+        setRouting(routingFromBackend(raw));
       }
     } catch (err) {
       console.error("Failed to fetch notification preferences:", err);
@@ -88,7 +152,11 @@ export const useNotificationPreferences = () => {
     try {
       // Translate camelCase (UI) → snake_case (backend contract).
       const body: Record<string, any> = { ...toBackend(prefs) };
-      if (selectedCompanyId) body.company_id = selectedCompanyId;
+      if (selectedCompanyId) {
+        body.company_id = selectedCompanyId;
+        // Company-scoped routing (0018) travels with the same PUT.
+        Object.assign(body, routingToBackend(routing));
+      }
       const response = await axiosBaseApi.put("/notifications/preferences", body);
       // Axios only reaches this branch on a 2xx response. Treat any 2xx as success —
       // successResponseHelper returns { message, data } with no explicit `status` flag.
@@ -111,7 +179,7 @@ export const useNotificationPreferences = () => {
     } finally {
       setSaving(false);
     }
-  }, [selectedCompanyId]);
+  }, [selectedCompanyId, routing]);
 
   const updatePreference = useCallback(
     (key: keyof NotificationPreferences, value: boolean) => {
@@ -120,12 +188,29 @@ export const useNotificationPreferences = () => {
     []
   );
 
+  const updateRouting = useCallback((partial: Partial<CompanyRouting>) => {
+    setRouting((prev) => ({ ...prev, ...partial }));
+  }, []);
+
+  const updateRoutingCategory = useCallback(
+    (key: NotificationCategoryKey, value: boolean) => {
+      setRouting((prev) => ({
+        ...prev,
+        categories: { ...prev.categories, [key]: value },
+      }));
+    },
+    []
+  );
+
   return {
     preferences,
+    routing,
     loading,
     saving,
     error,
     updatePreference,
+    updateRouting,
+    updateRoutingCategory,
     savePreferences,
     fetchPreferences,
   };

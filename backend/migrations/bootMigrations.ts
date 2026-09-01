@@ -397,6 +397,29 @@ const addTransactionWebhookSecret = async (): Promise<void> => {
   );
 };
 
+/**
+ * Migration 0018: company-scoped notification routing. Adds two additive,
+ * nullable/defaulted columns to tbl_company:
+ *   - notification_email  (VARCHAR 190, NULL) — the address that receives
+ *     COMPANY/business emails (payments, payouts, orders, digests, config).
+ *     Resolution order when routing a company email: notification_email ->
+ *     existing company.email -> owner's account email (never null in practice).
+ *   - notification_prefs  (JSONB, DEFAULT '{}') — company-scoped routing prefs,
+ *     e.g. { "team_fanout": true, "categories": { "payments": true, ... } }.
+ *     This COMPLEMENTS the per-USER tbl_notification_preferences table (which
+ *     stays account-scoped: security/login/OTP prefs live there).
+ * Additive + nullable/default => metadata-only in Postgres (no table rewrite),
+ * fully idempotent (ADD COLUMN IF NOT EXISTS). Verified-safe pattern on live prod.
+ */
+const addCompanyNotificationRouting = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_company"
+       ADD COLUMN IF NOT EXISTS "notification_email" VARCHAR(190),
+       ADD COLUMN IF NOT EXISTS "notification_prefs" JSONB NOT NULL DEFAULT '{}'::jsonb`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {
   const { v1, extra } = await loadBootModelGroups();
   return [
@@ -417,5 +440,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0015_team_members", up: createTeamMemberTable },
     { version: "0016_team_activity", up: createTeamActivityTable },
     { version: "0017_txn_webhook_secret", up: addTransactionWebhookSecret },
+    { version: "0018_company_notification_routing", up: addCompanyNotificationRouting },
   ];
 }

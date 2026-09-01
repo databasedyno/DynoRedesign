@@ -15,7 +15,8 @@ import EnvelopeIcon from "@/assets/Icons/envelope-icon.svg";
 import MobileIcon from "@/assets/Icons/mobile-icon.svg";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
-import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { useNotificationPreferences, isValidEmail } from "@/hooks/useNotificationPreferences";
+import CompanyEmailRoutingCard from "@/Components/Page/Notification/CompanyEmailRoutingCard";
 import { NotificationItemProps } from "@/utils/types/notification";
 import { roundLongDecimalsInText } from "@/utils/currencyFormat";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
@@ -120,6 +121,7 @@ const NotificationPage = () => {
   const isMobile = useIsMobile("md");
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const isMember = useCompanyStore().isMember;
   // Fall back to the persisted last_company_id before Redux hydrates so the
   // initial fetches are already company-scoped (avoids a duplicate un-scoped
   // request on every full page load).
@@ -127,9 +129,12 @@ const NotificationPage = () => {
 
   const {
     preferences,
+    routing,
     loading,
     saving,
     updatePreference,
+    updateRouting,
+    updateRoutingCategory,
     savePreferences,
   } = useNotificationPreferences();
 
@@ -304,6 +309,15 @@ const NotificationPage = () => {
 
   const handleSaveChanges = async () => {
     setOpenToast(false);
+
+    // Company routing email must be blank or a valid address (owners only).
+    const routingActive = !isMember && !!selectedCompanyId;
+    if (routingActive && routing.notificationEmail.trim() !== "" && !isValidEmail(routing.notificationEmail)) {
+      setToastMessage("Please enter a valid company notification email.");
+      setToastSeverity("error");
+      setOpenToast(true);
+      return;
+    }
 
     const success = await savePreferences(preferences);
 
@@ -499,6 +513,18 @@ const NotificationPage = () => {
       {/* Settings Tab */}
       {activeTab === "settings" && (
       <Grid container spacing={2.5}>
+        {/* Company email routing (owner-only, company-scoped) — separates
+            business/operational emails from personal account security emails. */}
+        {!isMember && !!selectedCompanyId && (
+          <Grid item xs={12} data-testid="company-email-routing-card">
+            <CompanyEmailRoutingCard
+              routing={routing}
+              onEmailChange={(v) => updateRouting({ notificationEmail: v })}
+              onFanoutChange={(v) => updateRouting({ teamFanout: v })}
+              onCategoryChange={updateRoutingCategory}
+            />
+          </Grid>
+        )}
         {/* Left Column - Two Cards Stacked */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -801,6 +827,7 @@ const NotificationPage = () => {
             </PanelCard>
 
             <CustomButton
+              data-testid="notifications-save-btn"
               label={saving ? "Saving..." : tNotifications("saveChanges")}
               variant="primary"
               size={isMobile ? "small" : "medium"}

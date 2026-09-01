@@ -34,6 +34,10 @@ const DYNOPAY_DEFAULT_WEBHOOK_SECRET = envRaw("DYNOPAY_WEBHOOK_SECRET") || 'dyno
 const MAX_CONSECUTIVE_404_FAILURES = 5;
 // TTL for the disabled-URL Redis key (24 hours)
 const WEBHOOK_DISABLE_TTL_SECONDS = 86400;
+// Per-attempt HTTP timeout (ms) for outbound merchant webhook delivery.
+// Configurable via env so a slow-but-healthy merchant endpoint doesn't
+// spuriously time out (default bumped 15s -> 20s; floor 5s).
+const WEBHOOK_DELIVERY_TIMEOUT_MS = Math.max(5000, Number(envRaw("WEBHOOK_DELIVERY_TIMEOUT_MS")) || 20000);
 
 /**
  * Generate HMAC-SHA256 signature for webhook payload
@@ -280,7 +284,7 @@ const callUrlWithPayload = async (
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         const response = await axios.post(url, webhookPayload, {
-          timeout: 15000,
+          timeout: WEBHOOK_DELIVERY_TIMEOUT_MS,
           headers,
         });
         
@@ -389,31 +393,39 @@ const callUrlWithPayload = async (
                       );
                       webhookLogs.error(`[callMerchantWebhook] 🚨 Set tbl_company.webhook_disabled=TRUE for company_id=${companyId}`);
 
-                      // Send merchant alert email (best-effort, non-blocking)
+                      // Send merchant alert email (best-effort, non-blocking).
+                      // Routed through the central recipient resolver (0018): the
+                      // company notification address + any active team member
+                      // holding manage_company_settings, de-duplicated case-
+                      // insensitively (a solo merchant still gets exactly one email).
                       try {
                         const [ownerRows] = await sequelize.query(
-                          `SELECT u.email, u.name, c.company_name, u.language
+                          `SELECT u.name, c.company_name, u.language
                              FROM tbl_user u
                              JOIN tbl_company c ON c.user_id = u.user_id
                             WHERE c.company_id = :cid LIMIT 1`,
                           { replacements: { cid: companyId }, type: QueryTypes.SELECT }
                         );
-                        const owner = ownerRows as { email?: string; name?: string; company_name?: string; language?: string } | undefined;
-                        if (owner?.email) {
+                        const owner = ownerRows as { name?: string; company_name?: string; language?: string } | undefined;
+                        const { resolveCompanyRecipients } = await import("../utils/notificationRecipients");
+                        const recipients = await resolveCompanyRecipients(Number(companyId), "config");
+                        if (recipients.length > 0) {
                           const emailSvc = require('../services/emailService');
                           const sendFn = emailSvc.sendWebhookDisabledEmail || emailSvc.default?.sendWebhookDisabledEmail;
                           if (typeof sendFn === 'function') {
-                            await sendFn(
-                              owner.email,
-                              owner.name || 'Merchant',
-                              owner.company_name || 'your company',
-                              url,
-                              String(eventData.event || urlType),
-                              `HTTP 404 — endpoint returned Not Found for ${newCount} consecutive attempts`,
-                              newCount,
-                              owner.language
-                            );
-                            webhookLogs.info(`[callMerchantWebhook] 📧 Sent webhook-disabled alert email to ${owner.email}`);
+                            for (const r of recipients) {
+                              await sendFn(
+                                r.email,
+                                r.name || owner?.name || 'Merchant',
+                                owner?.company_name || 'your company',
+                                url,
+                                String(eventData.event || urlType),
+                                `HTTP 404 — endpoint returned Not Found for ${newCount} consecutive attempts`,
+                                newCount,
+                                owner?.language
+                              );
+                            }
+                            webhookLogs.info(`[callMerchantWebhook] 📧 Sent webhook-disabled alert to ${recipients.length} recipient(s): ${recipients.map(r => r.email).join(', ')}`);
                           }
                         }
                       } catch (mailErr) {
@@ -442,7 +454,8 @@ const callUrlWithPayload = async (
         }
         
         if (attempt < maxRetries) {
-          const delay = 1000 * Math.pow(2, attempt - 1); // Exponential backoff: 1s, 2s, 4s
+          const base = 1000 * Math.pow(2, attempt - 1); // Exponential backoff: 1s, 2s, 4s
+          const delay = base + Math.floor(Math.random() * 500); // + jitter (avoids retry thundering-herd)
           webhookLogs.warn(`[callMerchantWebhook] ⚠️ Attempt ${attempt} failed, retrying in ${delay}ms: ${errorMessage}`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }

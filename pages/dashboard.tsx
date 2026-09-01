@@ -1,6 +1,7 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
+import ReferralRewardBanner from "@/Components/Page/Dashboard/ReferralRewardBanner";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
 import CustomButton from "@/Components/UI/Buttons";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
@@ -98,6 +99,7 @@ export default function Home({
         {!isMember && <OnboardingFlow />}
         {!isMember && <AutoClaimHandle />}
         {!isMember && setupComplete && <ClaimHandleBanner />}
+        {!isMember && setupComplete && <ReferralRewardBanner />}
 
         {/* Coinbase look: scope Inter to the dashboard by redefining --font-sans
             here (every dashboard text uses var(--font-sans)); numbers already

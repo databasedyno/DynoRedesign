@@ -251,11 +251,11 @@ export const baseEmailTemplate = (
                   <td align="center">
                     <table role="presentation" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/privacy" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Privacy</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/privacy-policy" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Privacy</a></td>
                         <td class="ftr-text" style="color: #4b5563; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/terms" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Terms</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/terms-conditions" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Terms</a></td>
                         <td class="ftr-text" style="color: #4b5563; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/support" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Support</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/help-support" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Support</a></td>
                       </tr>
                     </table>
                   </td>

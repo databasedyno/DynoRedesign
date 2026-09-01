@@ -182,6 +182,43 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     };
   }, [router]);
 
+  // Stale-chunk recovery (DO-log #7): after a new deploy a still-open tab holds
+  // the OLD build's HTML and requests old /_next/static chunk hashes that no
+  // longer exist (404 -> ChunkLoadError). Force a ONE-TIME hard reload so the
+  // tab picks up the current build. A sessionStorage guard prevents reload loops.
+  useEffect(() => {
+    const RELOAD_KEY = "dp_chunk_reload_at";
+    const isChunkError = (msg?: string) =>
+      !!msg && /ChunkLoadError|Loading chunk [0-9]+ failed|Loading CSS chunk/i.test(msg);
+    const reloadOnce = () => {
+      try {
+        const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
+        if (Date.now() - last < 10000) return; // already reloaded recently — avoid a loop
+        sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+      } catch { /* sessionStorage unavailable — still attempt a single reload */ }
+      window.location.reload();
+    };
+    const onRouteError = (err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err || "");
+      if (isChunkError(msg)) reloadOnce();
+    };
+    const onWindowError = (e: ErrorEvent) => { if (isChunkError(e?.message)) reloadOnce(); };
+    const onRejection = (e: PromiseRejectionEvent) => {
+      const r = e?.reason;
+      const msg = r instanceof Error ? r.message : String(r || "");
+      if (isChunkError(msg)) reloadOnce();
+    };
+    router.events.on("routeChangeError", onRouteError);
+    window.addEventListener("error", onWindowError);
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => {
+      router.events.off("routeChangeError", onRouteError);
+      window.removeEventListener("error", onWindowError);
+      window.removeEventListener("unhandledrejection", onRejection);
+    };
+  }, [router]);
+
+
   const [pageName, setPageName] = useState<string>("");
   const [pageDescription, setPageDescription] = useState<string>("");
   const [pageAction, setPageAction] = useState<ReactNode | null>(null);

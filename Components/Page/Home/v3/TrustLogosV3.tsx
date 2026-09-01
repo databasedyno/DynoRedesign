@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { FONT_TECH, useAurora } from "./theme.v3";
@@ -69,29 +69,38 @@ const TrustLogosV3: React.FC = () => {
           }}
         >
           {CHAINS.map((c) => (
-            <Box
+            <Tooltip
               key={c.label}
-              title={c.label}
-              aria-label={c.label}
-              sx={{
-                width: { xs: 34, md: 38 },
-                height: { xs: 34, md: 38 },
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#FFFFFF",
-                border: `1px solid ${s.line}`,
-                boxShadow: s.dark ? "0 2px 10px -4px rgba(0,0,0,0.6)" : "0 2px 8px -4px rgba(10,10,10,0.18)",
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                "&:hover": {
-                  transform: "translateY(-2px)",
-                  boxShadow: s.dark ? "0 8px 20px -8px rgba(0,0,0,0.7)" : "0 8px 18px -8px rgba(10,10,10,0.25)",
-                },
-              }}
+              title={`${c.label} · ${t("v3.trust.chainTooltip", { defaultValue: "See fees & supported networks" })}`}
+              arrow
+              enterDelay={200}
             >
-              <Icon icon={c.icon} width={22} height={22} />
-            </Box>
+              <Box
+                component="a"
+                href="/fees"
+                data-testid={`trust-chain-${c.label.toLowerCase().replace(/\s+/g, "-")}`}
+                aria-label={`${c.label} — see fees and supported networks`}
+                sx={{
+                  width: { xs: 34, md: 38 },
+                  height: { xs: 34, md: 38 },
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#FFFFFF",
+                  border: `1px solid ${s.line}`,
+                  cursor: "pointer",
+                  boxShadow: s.dark ? "0 2px 10px -4px rgba(0,0,0,0.6)" : "0 2px 8px -4px rgba(10,10,10,0.18)",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: s.dark ? "0 8px 20px -8px rgba(0,0,0,0.7)" : "0 8px 18px -8px rgba(10,10,10,0.25)",
+                  },
+                }}
+              >
+                <Icon icon={c.icon} width={22} height={22} />
+              </Box>
+            </Tooltip>
           ))}
         </Box>
       </Box>

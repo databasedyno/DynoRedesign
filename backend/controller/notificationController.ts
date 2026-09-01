@@ -9,7 +9,7 @@ import {
   successResponseHelper,
 } from "../helper";
 import { IUserType } from "../utils/types";
-import { notificationModel, notificationPreferencesModel } from "../models";
+import { notificationModel, notificationPreferencesModel, companyModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 // sequelize import removed - not used
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
@@ -49,10 +49,21 @@ const getPreferences = async (req: express.Request, res: express.Response) => {
     const { company_id } = req.query;
     const userId = userData.user_id;
 
+    let companyData: Record<string, unknown> | null = null;
     if (company_id) {
-      const companyData = await validateCompanyOwnership(res, company_id as string, userId);
+      companyData = await validateCompanyOwnership(res, company_id as string, userId);
       if (!companyData) return;
     }
+
+    // Company-scoped routing extras (0018): the address + prefs that govern
+    // COMPANY emails (payments/orders/payouts/config/digests). Only meaningful
+    // when a company is in scope. account-scoped prefs stay in the per-user row.
+    const companyExtras = companyData
+      ? {
+          company_notification_email: (companyData.notification_email as string | null) ?? null,
+          company_notification_prefs: (companyData.notification_prefs as Record<string, unknown>) ?? {},
+        }
+      : {};
 
     // Find existing preferences or return defaults
     let preferences = await notificationPreferencesModel.findOne({
@@ -76,12 +87,14 @@ const getPreferences = async (req: express.Request, res: express.Response) => {
         email_notifications: true,
         sms_notifications: false,
         browser_notifications: false,
+        ...companyExtras,
         is_default: true,
       });
     }
 
     return successResponseHelper(res, 200, "Notification preferences retrieved", {
       ...preferences.dataValues,
+      ...companyExtras,
       is_default: false,
     });
 
@@ -111,6 +124,8 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
       email_notifications,
       sms_notifications,
       browser_notifications,
+      company_notification_email,
+      company_notification_prefs,
     } = req.body;
 
     if (company_id) {
@@ -163,6 +178,38 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
         sms_notifications: sms_notifications ?? false,
         browser_notifications: browser_notifications ?? false,
       });
+    }
+
+    // Company-scoped routing settings (0018): the notification recipient address
+    // + routing prefs live on tbl_company (NOT the per-user prefs row). Owner-
+    // gated via the validateCompanyOwnership check above. Additive + sanitized.
+    if (company_id && (company_notification_email !== undefined || company_notification_prefs !== undefined)) {
+      const companyUpdate: Record<string, unknown> = {};
+      if (company_notification_email !== undefined) {
+        const val = (company_notification_email === null || company_notification_email === "")
+          ? null : String(company_notification_email).trim();
+        if (val !== null && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+          return errorResponseHelper(res, 400, "Invalid company notification email");
+        }
+        companyUpdate.notification_email = val;
+      }
+      if (company_notification_prefs && typeof company_notification_prefs === "object") {
+        const raw = company_notification_prefs as Record<string, unknown>;
+        const clean: Record<string, unknown> = {};
+        if (typeof raw.team_fanout === "boolean") clean.team_fanout = raw.team_fanout;
+        if (raw.categories && typeof raw.categories === "object") {
+          const cats: Record<string, boolean> = {};
+          for (const k of ["payments", "payouts", "orders", "config", "digests"]) {
+            const v = (raw.categories as Record<string, unknown>)[k];
+            if (typeof v === "boolean") cats[k] = v;
+          }
+          clean.categories = cats;
+        }
+        companyUpdate.notification_prefs = clean;
+      }
+      if (Object.keys(companyUpdate).length > 0) {
+        await companyModel.update(companyUpdate, { where: { company_id } });
+      }
     }
 
     return successResponseHelper(res, 200, "Notification preferences updated", preferences?.dataValues);
