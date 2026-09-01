@@ -1136,3 +1136,46 @@ real domain verbs on BlockchainService + call-site rewrites — money-path, not 
   `Components/Page/Pay3Components/cryptoTransfer.tsx` (5 calls → `payAxios`),
   `Components/Page/Creator/InlineTipCheckout.tsx` (local `api()` → shared `checkoutApi`).
   Shared `checkout/*` type/constant/helper modules otherwise unchanged.
+
+════════════════════════════════════════════════════════════════════════════
+NEXT ACTION ITEMS — Short payment links + QR/copy (recorded 2026-06)
+════════════════════════════════════════════════════════════════════════════
+Context: shipped (1) commit-blocker SVG cleanup, (2) branded short links
+dynopay.com/<code> -> checkout.dynopay.com/<code>, (3) QR-download of the short
+URL + inline copy-confirmation. See memory/CHANGELOG.md (2026-06 entries) for
+the full implementation + verification notes.
+
+PENDING VERIFICATION (needs the user / production — NOT testable in preview):
+  [ ] Cross-subdomain hop: open a real https://dynopay.com/<code> in a browser
+      and confirm it lands on the checkout (preview has ONE host, so this could
+      not be exercised here). Verified in preview: link-exists API, 307 ->
+      /pay?d=<code> -> 200 checkout, legacy ?d= links, non-code -> 404.
+  [ ] QR download + "Link copied — opens your checkout" note on the live
+      dashboard (auth-gated surfaces; screenshot tool renders this app blank,
+      and reaching the success state writes to the LIVE prod DB under SAFE MODE).
+  [ ] Re-test the earlier auth-enumeration + font-flash (FOUT) fixes on prod
+      alongside this deploy.
+
+PROD ENV PRECONDITIONS (must be set at build/startup):
+  - CHECKOUT_URL=https://checkout.dynopay.com   (next.config rewrite host +
+    [handle].tsx redirect target; read at build/startup)
+  - NEXT_PUBLIC_CREATOR_BASE_URL=https://dynopay.com  (short-link display base)
+
+NEXT / BACKLOG (P1 unless noted):
+  [ ] Deploy & verify (P0) — run the deploy, then walk the checklist above.
+  [ ] QR in emails/invoices — attach the short-URL QR to payment-request
+      emails and PDF invoices so payers can scan from print.
+  [ ] Branded QR — logo in the QR centre + accent stripe for on-brand flyers
+      (extend helpers/downloadQrPng.ts + QRCodeCanvas imageSettings).
+  [ ] (Optional) Also surface the short link + QR-download on the pay-links
+      [slug] detail/edit page (currently only create-success + quick-create +
+      table view modal show it).
+
+FILES OF REFERENCE (this work):
+  - helpers/payLinkUrl.ts, helpers/downloadQrPng.ts (NEW)
+  - backend/controller/payment/paymentLinkController.ts (checkPaymentLinkExists)
+  - backend/routes/paymentRouter.ts, backend/controller/paymentController.ts
+  - next.config.mjs (beforeFiles host-scoped rewrite)
+  - pages/[handle].tsx (payment-code-first catch-all)
+  - Components/Page/CreatePaymentLink/{index.tsx,PaymentLinkSuccessModal.tsx}
+  - Components/Page/Payment-link/{PaymentLinksTable.tsx,QuickCreateLinkPanel.tsx}
