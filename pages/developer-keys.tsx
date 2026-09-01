@@ -1,6 +1,7 @@
 import CustomButton from "@/Components/UI/Buttons";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import useIsMobile from "@/hooks/useIsMobile";
+import useEdgeFade from "@/hooks/useEdgeFade";
 import { pageProps } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
 import { Box, Skeleton, useTheme } from "@mui/material";
@@ -44,6 +45,7 @@ const Developers = ({
 }: pageProps) => {
   const namespaces = ["apiScreen", "common"];
   const isMobile = useIsMobile("md");
+  const tabsFade = useEdgeFade<HTMLDivElement>();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
@@ -142,8 +144,10 @@ const Developers = ({
       </Head>
       <OnboardingBanner vertical="developers" />
 
-      {/* Segmented tabs — same shell as /storefront */}
+      {/* Segmented tabs — same shell as /storefront. Edge fade = honest scroll
+          affordance so the last pill (Docs) no longer hard-clips on mobile. */}
       <Box
+        ref={tabsFade.ref}
         sx={{
           display: "inline-flex",
           gap: 0.5,
@@ -154,6 +158,10 @@ const Developers = ({
           backgroundColor: isDark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
           maxWidth: "100%",
           overflowX: "auto",
+          "&::-webkit-scrollbar": { display: "none" },
+          scrollbarWidth: "none",
+          maskImage: tabsFade.maskImage,
+          WebkitMaskImage: tabsFade.WebkitMaskImage,
         }}
         data-testid="developers-tabs"
       >

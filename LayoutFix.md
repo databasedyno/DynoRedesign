@@ -7,6 +7,8 @@
 
 Overall the app is in good shape — layout, spacing, typography and light/dark all render cleanly. The items below are the concrete findings, worst first. All fixes are **frontend/CSS only — no backend or DB risk.**
 
+> **Status (2026-09-01):** Issues **#1 and #2 are FIXED and verified** on mobile. #3 and #4 are product decisions left as-is (see notes). #5 confirmed intentional (not a bug).
+
 ---
 
 ## Pages verified clean
@@ -17,27 +19,22 @@ Overall the app is in good shape — layout, spacing, typography and light/dark 
 
 ## Issues
 
-### 1. Mobile language bar clips its flag row (all public pages) — **BUG, high priority**
+### 1. Mobile language bar clips its flag row (all public pages) — **BUG, high priority** — ✅ FIXED
 - **Where:** `Components/UI/LanguageOnboardingBar/index.tsx` (mounted globally in `pages/_app.tsx`).
-- **Symptom:** The persistent bottom "Choose your language" bar shows all 6 languages fine on desktop, but at 390px only **"English" + a half-clipped flag** are visible — the other 5 (Português, Français, Español, Deutsch, Nederlands) overflow off the right edge with **no scroll affordance**. The user has no way to know more options exist.
+- **Symptom:** The persistent bottom "Choose your language" bar shows all 6 languages fine on desktop, but at 390px only **"English" + a half-clipped flag** are visible — the other 5 (Português, Français, Español, Deutsch, Nederlands) overflow off the right edge. (The chip row already had a `useEdgeFade` scroll mask, but the long **"Choose your language"** headline — `whiteSpace: nowrap` — ate ~half the row width, squeezing the scroller down to ~1 visible chip.)
 - **Secondary problems on the same bar:**
   - Sits underneath the floating chat widget (bottom-right) → they overlap on mobile.
   - **Duplicates** language switching already available in the footer *and* the header globe (3 switchers doing the same thing).
   - Consumes a full row of vertical space on every marketing page.
-- **Evidence:** landing/fees/about/docs/status/signup mobile screenshots — bar reads `Choose your language | English | [flag cut] | ✕`.
-- **Suggested fix (pick one):**
-  - a) Make the flag row horizontally scrollable with a right-edge fade/gradient so it's discoverable; keep the chat widget clear of it. **(minimal)**
-  - b) Collapse the bar into a single compact dropdown/pill on mobile (`< md`) instead of listing every flag inline.
-  - c) Suppress the sticky bar on mobile entirely (header globe + footer already cover it) and only show it `>= md`.
+- **FIX APPLIED:** The headline text is now hidden on phones (`display: { xs: "none", sm: "inline" }`) — the globe icon stays as the cue and the flag chips get the full row width. Verified at 390px: **3 chips visible (English · Português · Français…) with the right-edge fade** as an honest scroll affordance (all 6 still reachable by swipe). Desktop unchanged.
 
 ---
 
-### 2. Scroll-tab rows clip the last tab (authenticated, mobile) — **minor bug**
+### 2. Scroll-tab rows clip the last tab (authenticated, mobile) — **minor bug** — ✅ FIXED
 - **Where:**
-  - `Components/Page/Transactions/TransactionsTopBar.tsx` — tabs `All · Payment links · API · ♥ (favorites)`; the ♥ tab is sliced in half at the right edge.
-  - `pages/developer-keys.tsx` (~line 156, tab shell `overflowX: "auto"`, `data-testid="developers-tabs"`) — tabs `Keys · Webhooks · Events log · Docs`; the last tab is sliced.
-- **Symptom:** Rows are horizontally scrollable, but with a hard-clipped icon and **no fade/chevron** they look broken rather than scrollable.
-- **Suggested fix:** Add a right-edge fade mask (or a subtle chevron/`…`) on these `overflow-x:auto` tab strips at `< md`, and ensure trailing padding so the last pill isn't cut mid-glyph. Same pattern applies to any other horizontal pill-tab strip (e.g. CreatePaymentLink).
+  - `pages/developer-keys.tsx` (~line 145, tab shell `data-testid="developers-tabs"`) — tabs `Keys · Webhooks · Events log · Docs`; the last tab hard-clipped (this Box used `overflowX: "auto"` but had **no** edge fade).
+  - `Components/Page/Transactions/TransactionsTopBar.tsx` — tabs `All · Payment links · API · ♥ …`. **Already** wired to `useEdgeFade` (line ~271/285), so its soft-cut right edge is the intended fade, not a bug. **No change needed.**
+- **FIX APPLIED (developer-keys only):** wired the tab strip to `useEdgeFade` (`ref` + `maskImage`/`WebkitMaskImage`) and hid the scrollbar, matching the Transactions/storefront pattern. The last tab (Docs) now fades softly instead of hard-clipping. Verified at 390px.
 
 ---
 
@@ -56,8 +53,9 @@ Overall the app is in good shape — layout, spacing, typography and light/dark 
 ---
 
 ## Suggested fix order
-1. **Issue 1** — mobile language bar (most visible; affects every public/marketing visitor).
-2. **Issue 2** — tab-row clipping (quick CSS fade fix, applies to 2–3 components).
-3. **Issue 3** — landing length (optional, larger effort / product decision).
+1. ~~**Issue 1** — mobile language bar~~ ✅ **DONE** (headline hidden on phones; chips get full width + fade).
+2. ~~**Issue 2** — tab-row clipping~~ ✅ **DONE** (developer-keys wired to `useEdgeFade`; Transactions already had it).
+3. **Issue 3** — landing length: **left as-is** (deliberate marketing page; trimming/lazy-loading is a product call — say the word and I'll do it).
+4. **Issue 4** — redundant language switchers: the Issue-1 fix reduces the mobile squeeze; fully removing the footer selector or header globe is a product decision, **left as-is**.
 
-_All changes above are CSS/JSX-only; no API, schema, or SAFE-MODE impact._
+_All applied changes are CSS/JSX-only; no API, schema, or SAFE-MODE impact._

@@ -127,6 +127,9 @@ export const LanguageOnboardingBar = () => {
           component="span"
           data-testid="language-onboarding-headline"
           sx={{
+            // Hidden on phones so the flag chips get the full row width
+            // (was squeezing the scroller down to ~1 visible chip at 390px).
+            display: { xs: "none", sm: "inline" },
             fontSize: { xs: 13, sm: 14 },
             fontWeight: 700,
             color: theme.palette.text.primary,
