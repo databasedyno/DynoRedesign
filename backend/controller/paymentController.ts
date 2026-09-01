@@ -17,6 +17,7 @@ import {
   getCreatorPublicAnalytics,
   setRefundAddress,
   setCustomerEmail,
+  checkPaymentLinkExists,
 } from "./payment/paymentLinkController";
 import {
   getNetworkFees,
@@ -2275,6 +2276,7 @@ export default {
   uploadCampaignImage,
   getCreatorProfile,
   getCreatorPublicAnalytics,
+  checkPaymentLinkExists,
   setRefundAddress,
   setCustomerEmail,
   getPaymentMeta,

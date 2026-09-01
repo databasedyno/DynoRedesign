@@ -1369,3 +1369,54 @@ Verified: backend gate OK + tsc 0 errors; FULL frontend tsc 0 errors; backend bo
 crypto settlements) and step 2/3 write to the LIVE prod DB by design (avoided polluting prod with
 test rows). Needs a real hosted-checkout payment where the payer adds an email ONLY on the success
 screen to confirm the post-settlement link + invite end-to-end.
+
+════════════════════════════════════════════════════════════════════════════
+2026-06 · Branded short payment links + commit-blocker cleanup
+════════════════════════════════════════════════════════════════════════════
+
+COMMIT BLOCKER (fixed): several SVG assets were single lines of up to ~9.5M
+chars (raster PNG base64 stuffed into an <svg>), which stalled the platform
+commit/snapshot. Removed 4 UNUSED giants (use-case-1..4.svg, ~27MB, zero code
+refs) + their 4 unused PNGs (~20MB). Slimmed the 2 USED ones (Dogecoin-icon.svg
+1.66MB, RLUSD-icon.svg 763KB) to clean <350-byte vectors (imports unchanged).
+Longest single line in any text file: 9.5MB -> 330KB. No real code file was ever
+a problem (max ~7KB). Frontend compiles clean; new SVGs valid XML.
+
+SHORT PAYMENT LINKS (dynopay.com/<6char> -> checkout.dynopay.com/<6char>):
+Requirement: links display as https://dynopay.com/<code> and open the checkout.
+Approach = pure application layer (NO DigitalOcean/DNS work; both subdomains
+serve the same Next app). Display-only reshape; stored value + API/webhook
+payloads keep the legacy https://checkout.dynopay.com/pay?d=<code> form for
+backward-compat & merchant integrations (user choice 1a).
+
+  • helpers/payLinkUrl.ts (NEW): extractPayRef() + toShortPayLink() — display/
+    copy/QR helper, idempotent, falls back to the original link. Base origin =
+    NEXT_PUBLIC_CREATOR_BASE_URL || NEXT_PUBLIC_BASE_URL.
+  • Wired the short form into the 3 share surfaces (display only):
+      - Components/Page/CreatePaymentLink/index.tsx (create success modal, L147)
+      - Components/Page/Payment-link/PaymentLinksTable.tsx (copy btns + view modal)
+      - Components/Page/Payment-link/QuickCreateLinkPanel.tsx (copy/share/QR/open, L137)
+  • Backend read-only resolver: GET /api/pay/link-exists/:code -> {exists:bool}.
+      - controller/payment/paymentLinkController.ts :: checkPaymentLinkExists
+        (exported; wired in paymentController.ts + paymentRouter.ts, rate-limited).
+      - Validates ^[A-Za-z0-9]{6}$, LIKE '%/pay?d=<code>', fails OPEN to false.
+        No writes — SAFE MODE compliant.
+  • Rule A (next.config.mjs rewrites -> beforeFiles): on the CHECKOUT_URL host a
+    bare /:code([A-Za-z0-9]{6}) rewrites to /pay?d=:code (clean URL, no redirect).
+    Host-scoped so it never fires on the main domain or the Emergent preview.
+  • Rule B (pages/[handle].tsx getServerSideProps): a 6-char base62 segment is
+    checked against link-exists FIRST (payment codes take priority over creator
+    handles, per user). Uses the RAW (case-sensitive) param, not the lowercased
+    handle. Prod main domain -> 307 to CHECKOUT_URL/<code>; single-host/preview
+    -> 307 to /pay?d=<code>. Non-codes fall through to the normal creator lookup.
+
+VERIFIED (preview, single host):
+  link-exists true for real codes (t4jBc2, 6AgI4F), false for random/wrong-case;
+  GET /t4jBc2 -> 307 /pay?d=t4jBc2 -> 200 checkout (13KB); legacy /pay?d= still
+  200; /zzzzzz -> 404 (creator fallthrough); all routes compile clean.
+NOT testable in preview: the literal dynopay.com -> checkout.dynopay.com hop
+(only one host exists here) — user will verify on production after deploy.
+
+PROD ENV NOTE: needs CHECKOUT_URL=https://checkout.dynopay.com (rewrite host +
+[handle] redirect target) and NEXT_PUBLIC_CREATOR_BASE_URL=https://dynopay.com
+(short-link display). next.config reads CHECKOUT_URL at build/startup.

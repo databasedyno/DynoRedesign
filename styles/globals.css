@@ -223,11 +223,27 @@ a {
    ============================================================ */
 @font-face {
   font-family: "Manrope Fallback";
-  src: local("Arial");
+  /* BUGFIX 2026-09-01: the previous `src: local("Arial")` did NOT resolve on
+     platforms that lack a font literally named "Arial" (Linux, many Android
+     devices, headless/embedded browsers). When it failed, the fallback silently
+     dropped to the browser DEFAULT SERIF (Times) — whose x-height is ~15%
+     SMALLER than Manrope — so cold-load headings first painted small in a serif
+     and then visibly GREW when Manrope swapped in (the long-standing "text grows
+     bigger on first load" bug). We now list metric-compatible sans-serif faces
+     for every OS so an Arial-equivalent ALWAYS resolves:
+       Windows / most    -> Arial
+       macOS / iOS       -> Helvetica Neue / Helvetica
+       Linux (Chromium)  -> Liberation Sans / Arimo
+       Android           -> Roboto
+     Measured at 200px: Arial x-height 107 / width 1612 vs Manrope 108 / 1623 —
+     within ~1% on BOTH axes, so size-adjust is ~100% (was an over-tuned 103.69%
+     that only masked the broken serif fallback). */
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica"),
+       local("Liberation Sans"), local("Arimo"), local("Roboto");
   ascent-override: 106.6%;
   descent-override: 30%;
   line-gap-override: 0%;
-  size-adjust: 103.69%;
+  size-adjust: 101%;
 }
 
 /* --- Legacy weight-carrying aliases (Urbanist*) → Manrope ---

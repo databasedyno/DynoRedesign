@@ -93,18 +93,17 @@ export const forgotPasswordPhone = async (req: express.Request, res: express.Res
       return successResponseHelper(res, 200, "If the phone number exists, an OTP has been sent", {});
     }
 
-    // Fallback to email if user has one
+    // SMS failed — silently fall back to email if the account has one, but keep
+    // the response IDENTICAL (account-enumeration protection: never reveal that
+    // the number is registered or that it fell back to email).
     const userEmail = user.dataValues?.email;
     const userName = user.dataValues?.name || "User";
     if (userEmail) {
       userLogger.info(`SMS failed, falling back to email for password reset`, { mobile: mobile.slice(0, 4) + "****" });
-      const emailSent = await sendEmailOTP(userEmail, userName);
-      if (emailSent) {
-        return successResponseHelper(res, 200, "SMS unavailable. OTP sent to your registered email instead.", { fallbackEmail: true });
-      }
+      await sendEmailOTP(userEmail, userName);
     }
 
-    return errorResponseHelper(res, 503, "Unable to send OTP at this time. Please try again shortly.");
+    return successResponseHelper(res, 200, "If the phone number exists, an OTP has been sent", {});
 
   } catch (e) {
     handleControllerError(res, e, userLogger);
@@ -205,7 +204,8 @@ export const forgotPasswordPhoneVerifyOtp = async (req: express.Request, res: ex
     // Find user by mobile to get email for the reset session
     const user = await userModel.findOne({ where: { mobile } });
     if (!user) {
-      return errorResponseHelper(res, 404, "User not found");
+      // Stay generic — never reveal that the number has no account.
+      return errorResponseHelper(res, 400, "Invalid OTP. Please try again.");
     }
 
     // Create reset session token

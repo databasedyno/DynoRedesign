@@ -34,6 +34,7 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { PaymentLinkAction, PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import CustomButton from "@/Components/UI/Buttons";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
+import { toShortPayLink } from "@/helpers/payLinkUrl";
 import { MONO } from "@/styles/uiKit";
 
 const FIAT_OPTIONS = ["USD", "EUR", "GBP"] as const;
@@ -134,7 +135,7 @@ const QuickCreateLinkPanel = ({
       const res = await axiosBaseApi.post("/pay/createPaymentLink", payload);
       const data = res?.data?.data;
       if (data?.payment_link) {
-        setCreated({ url: data.payment_link, amount, currency, description: description.trim() });
+        setCreated({ url: toShortPayLink(data.payment_link), amount, currency, description: description.trim() });
         // Refresh the pay-links list behind the panel (no-op elsewhere).
         dispatch(PaymentLinkAction(PAYLINK_FETCH, { company_id: selectedCompanyId }));
       } else {

@@ -239,26 +239,20 @@ export const resendLoginOTP = async (req: express.Request, res: express.Response
 };
 
 export const checkEmail = async (req: express.Request, res: express.Response) => {
+  // ── Account-enumeration protection ─────────────────────────────────────────
+  // NEVER reveal whether an email is registered, and NEVER leak the account's
+  // phone number. Always respond as if the email is valid so the login UI
+  // advances to the password / OTP step identically for real and unknown
+  // emails. A wrong password (login) or wrong code (OTP) then fails with a
+  // generic error, so an attacker cannot probe which addresses have accounts.
   try {
     const { email } = req.query as { email?: string };
-    const userData = await userModel.findOne({
-      where: {
-        email: email.toLowerCase(),
-      },
-    });
-
-    let resData: Record<string, unknown> = { validEmail: false };
-    if (userData) {
-      resData = {
-        validEmail: true,
-        email: userData.dataValues.email,
-        mobile: userData.dataValues.mobile ? userData.dataValues.mobile : null,
-      };
+    if (!email || typeof email !== "string" || !email.trim()) {
+      return errorResponseHelper(res, 400, "Email is required");
     }
-    successResponseHelper(res, 200, "User profile retrieved successfully", resData);
+    return successResponseHelper(res, 200, "OK", { validEmail: true });
   } catch (e) {
-
-      handleControllerError(res, e, userLogger);
+    handleControllerError(res, e, userLogger);
   }
 };
 
@@ -274,7 +268,12 @@ export const generateOTP = async (req: express.Request, res: express.Response) =
       });
 
       if (!userData) {
-        return errorResponseHelper(res, 404, "Please enter a registered mobile number!");
+        // ── Account-enumeration protection ──────────────────────────────────
+        // Behave EXACTLY as if an OTP was sent to a registered number. Nothing
+        // is actually sent (no account exists); a later code entry fails with a
+        // generic "invalid code", so an attacker can't tell registered numbers
+        // from unregistered ones.
+        return successResponseHelper(res, 200, "OTP sent successfully via SMS!");
       }
 
       // Attempt 1: Send via Telnyx SMS (with built-in retry)
@@ -316,7 +315,11 @@ export const generateOTP = async (req: express.Request, res: express.Response) =
         }
         return errorResponseHelper(res, 503, "Unable to send OTP email. Please try again shortly.");
       } else {
-        return errorResponseHelper(res, 404, "Please enter a registered email!");
+        // ── Account-enumeration protection ──────────────────────────────────
+        // Respond as if the OTP was sent even when no account exists. Nothing
+        // is sent; a later code entry fails generically. Keeps the response
+        // identical for real and unknown emails.
+        return successResponseHelper(res, 200, "OTP sent successfully!");
       }
     } else {
       return errorResponseHelper(res, 400, "Please add any number or email!");
@@ -331,33 +334,42 @@ export const confirmOTP = async (req: express.Request, res: express.Response) =>
     const { email, otp, mobile } = req.body;
     if (otp) {
       if (mobile) {
-        const {
-          data: { data },
-        } = await axios.post(
-          `https://api.telnyx.com/v2/verifications/by_phone_number/+${mobile}/actions/verify`,
-          {
-            code: otp,
-            verify_profile_id: envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID"),
-          },
-          {
-            headers: {
-              Authorization: "Bearer " + (envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN")),
+        // ── Account-enumeration protection ──────────────────────────────────
+        // ANY verification failure — a wrong code, OR no verification in flight
+        // (the number was never registered so no OTP was ever sent) — returns
+        // the SAME generic "OTP did not match!". Never 404 "user not found".
+        let accepted = false;
+        try {
+          const {
+            data: { data },
+          } = await axios.post(
+            `https://api.telnyx.com/v2/verifications/by_phone_number/+${mobile}/actions/verify`,
+            {
+              code: otp,
+              verify_profile_id: envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID"),
             },
-          }
-        );
-        if (data.response_code === "accepted") {
-          // Look up user by mobile when using phone OTP, fallback to email
-          const userData = await userModel.findOne({
-            where: mobile ? { mobile } : { email },
-          });
-          if (!userData) {
-            return errorResponseHelper(res, 404, "User not found for this phone number");
-          }
-          const resData = await getAccessToken(userData.dataValues.user_id);
-          successResponseHelper(res, 200, "Login Successful!", resData);
-        } else {
-          errorResponseHelper(res, 400, "OTP did not match!");
+            {
+              headers: {
+                Authorization: "Bearer " + (envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN")),
+              },
+            }
+          );
+          accepted = data?.response_code === "accepted";
+        } catch (telnyxErr) {
+          userLogger.warn("[confirmOTP] Telnyx verify failed", { error: (telnyxErr as Error).message });
+          accepted = false;
         }
+        if (!accepted) {
+          return errorResponseHelper(res, 400, "OTP did not match!");
+        }
+        // Verified at Telnyx — look up the local account.
+        const userData = await userModel.findOne({ where: { mobile } });
+        if (!userData) {
+          // Stay generic even if the code verified but there's no local account.
+          return errorResponseHelper(res, 400, "OTP did not match!");
+        }
+        const resData = await getAccessToken(userData.dataValues.user_id);
+        return successResponseHelper(res, 200, "Login Successful!", resData);
       } else {
         // Get OTP from Redis instead of localStorage
         const otpKey = `otp:${email}`;
@@ -380,6 +392,10 @@ export const confirmOTP = async (req: express.Request, res: express.Response) =>
             });
             // Delete OTP after successful verification
             await deleteRedisItem(otpKey);
+            if (!userData) {
+              // Stay generic — never reveal that the account is missing.
+              return errorResponseHelper(res, 400, "OTP did not match!");
+            }
             const resData = await getAccessToken(userData.dataValues.user_id);
             successResponseHelper(res, 200, "Login Successful!", resData);
           } else {

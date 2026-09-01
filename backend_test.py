@@ -1,324 +1,466 @@
 #!/usr/bin/env python3
 """
-DynoPay Block 1 Backend Verification — CSRF exemption + regression
-STRICTLY READ-ONLY against LIVE PRODUCTION database (SAFE MODE)
-Pod: e952fc3d, Date: 2026-09-01
+Account-Enumeration Protection Verification for DynoPay Backend
+================================================================
+Tests that login/OTP/forgot-password flows NEVER reveal whether an email or phone is registered.
+
+SAFETY RULES (CRITICAL):
+- Do NOT call generateOTP or confirmOTP with REAL registered phone numbers
+- Do NOT attempt real-account password more than ONCE
+- Do NOT register new accounts or modify data
+- Use fake unregistered numbers like 15550001111
+
+Base URL: https://payment-gateway-init-2.preview.emergentagent.com/api
 """
 
 import requests
 import json
-import sys
+import random
+import string
+from typing import Dict, Any, Tuple
 
-# Base URL through ingress (pod e952fc3d)
-BASE_URL = "https://e952fc3d-dd86-499c-ab1c-c9be775a7943.preview.emergentagent.com/api"
-BACKEND_HEALTH_URL = "http://localhost:8001/health"
+BASE_URL = "https://payment-gateway-init-2.preview.emergentagent.com"
+API_BASE = f"{BASE_URL}/api"
 
-# Test credentials
-EMAIL = "onarrival21@gmail.com"
-PASSWORD = "Katiekendra123@"
+# Test credentials from /app/memory/test_credentials.md
+EXISTING_EMAIL = "onarrival21@gmail.com"  # user_id=1, "Hostbay"
 
-def print_section(title):
+# Generate random test data
+def random_email():
+    """Generate a random non-existent email"""
+    rand = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+    return f"noone-{rand}@example.com"
+
+def random_phone():
+    """Generate a random fake phone number (US format, clearly fake)"""
+    return f"1555000{random.randint(1000, 9999)}"
+
+def print_test(step: str, description: str):
+    """Print test step header"""
     print(f"\n{'='*80}")
-    print(f"  {title}")
+    print(f"STEP {step}: {description}")
     print('='*80)
 
-def print_test(test_name, passed, details=""):
+def print_result(passed: bool, message: str, details: str = ""):
+    """Print test result"""
     status = "✅ PASS" if passed else "❌ FAIL"
-    print(f"{status}: {test_name}")
+    print(f"{status}: {message}")
     if details:
-        print(f"  → {details}")
+        print(f"  Details: {details}")
 
-def test_csrf_github_signin():
-    """
-    PRIMARY TEST #6: CSRF exemption for /api/user/github-signin
-    (A) POST with bogus code, NO csrf token -> EXPECT 401 (NOT 403)
-    """
-    print_section("PRIMARY TEST #6 — CSRF EXEMPTION FOR GITHUB SIGN-IN")
+def compare_responses(resp1: Dict, resp2: Dict, name1: str, name2: str) -> Tuple[bool, str]:
+    """Compare two responses to ensure they're identical in shape"""
+    # Compare status codes
+    if resp1.get('status') != resp2.get('status'):
+        return False, f"Status codes differ: {name1}={resp1.get('status')}, {name2}={resp2.get('status')}"
     
-    results = []
+    # Compare response structure (keys)
+    keys1 = set(resp1.get('data', {}).keys())
+    keys2 = set(resp2.get('data', {}).keys())
+    if keys1 != keys2:
+        return False, f"Response keys differ: {name1}={keys1}, {name2}={keys2}"
     
-    # Test A: GitHub sign-in with bogus code (NO CSRF token, NO cookies)
-    print("\n[Test A] POST /api/user/github-signin with bogus code (NO X-CSRF-Token, NO cookies)")
-    url = f"{BASE_URL}/user/github-signin"
-    payload = {"code": "bogus_test_code"}
-    
-    try:
-        # NO headers (no CSRF token, no cookies)
-        response = requests.post(url, json=payload, timeout=30)
-        status = response.status_code
-        print(f"  Status: {status}")
-        
-        try:
-            response_data = response.json()
-            message = response_data.get("message", "")
-            print(f"  Message: {message}")
-        except:
-            message = response.text[:200]
-            print(f"  Response: {message}")
-        
-        # CRITICAL: Must be 401 "Invalid GitHub authorization code", NOT 403 "CSRF token validation failed"
-        if status == 401:
-            if "Invalid GitHub authorization code" in message or "authorization code" in message.lower():
-                print_test("GitHub sign-in CSRF exempt", True, "401 'Invalid GitHub authorization code' (NOT 403 CSRF blocked)")
-                results.append(("GitHub sign-in CSRF exempt", True, f"{status}: {message}"))
-            else:
-                print_test("GitHub sign-in CSRF exempt", False, f"Got 401 but unexpected message: {message}")
-                results.append(("GitHub sign-in CSRF exempt", False, f"{status}: {message}"))
-        elif status == 403:
-            print_test("GitHub sign-in CSRF exempt", False, f"CRITICAL FAILURE: Got 403 (CSRF blocked), expected 401")
-            results.append(("GitHub sign-in CSRF exempt", False, f"{status}: {message}"))
-        else:
-            print_test("GitHub sign-in CSRF exempt", False, f"Expected 401, got {status}: {message}")
-            results.append(("GitHub sign-in CSRF exempt", False, f"{status}: {message}"))
-    except Exception as e:
-        print_test("GitHub sign-in CSRF exempt", False, f"Exception: {str(e)}")
-        results.append(("GitHub sign-in CSRF exempt", False, str(e)))
-    
-    return results
+    return True, "Responses are identical in shape"
 
-def test_csrf_control():
-    """
-    CONTROL TEST (B): Verify CSRF is still enforced elsewhere
-    POST /api/user/updateProfile with NO Bearer, NO csrf -> EXPECT 403
-    """
-    print_section("CONTROL TEST — CSRF STILL ENFORCED ELSEWHERE")
-    
-    results = []
-    
-    print("\n[Test B] POST /api/user/updateProfile (NO Authorization, NO X-CSRF-Token)")
-    url = f"{BASE_URL}/user/updateProfile"
-    payload = {}
-    
+def test_health():
+    """Test backend health endpoint"""
+    print_test("0", "Backend Health Check")
     try:
-        # NO headers (no Bearer token, no CSRF token)
-        response = requests.post(url, json=payload, timeout=30)
-        status = response.status_code
-        print(f"  Status: {status}")
+        # Use localhost:8001 as the backend runs internally on this port
+        resp = requests.get("http://localhost:8001/health", timeout=10)
+        data = resp.json()
         
-        try:
-            response_data = response.json()
-            message = response_data.get("message", response_data.get("error", ""))
-            print(f"  Message: {message}")
-        except:
-            message = response.text[:200]
-            print(f"  Response: {message}")
-        
-        # MUST be 403 "CSRF token validation failed"
-        if status == 403:
-            if "CSRF" in message or "csrf" in message.lower():
-                print_test("CSRF still enforced", True, "403 'CSRF token validation failed' as expected")
-                results.append(("CSRF still enforced", True, f"{status}: {message}"))
-            else:
-                print_test("CSRF still enforced", False, f"Got 403 but unexpected message: {message}")
-                results.append(("CSRF still enforced", False, f"{status}: {message}"))
+        if resp.status_code == 200 and data.get('status') == 'healthy':
+            print_result(True, "Backend is healthy", 
+                        f"DB: {data.get('database')}, Redis: {data.get('redis')}, BG Jobs: {data.get('background_jobs', {}).get('eligible')}")
+            return True
         else:
-            print_test("CSRF still enforced", False, f"Expected 403 CSRF error, got {status}: {message}")
-            results.append(("CSRF still enforced", False, f"{status}: {message}"))
+            print_result(False, f"Backend unhealthy: {resp.status_code}", str(data))
+            return False
     except Exception as e:
-        print_test("CSRF still enforced", False, f"Exception: {str(e)}")
-        results.append(("CSRF still enforced", False, str(e)))
-    
-    return results
+        print_result(False, f"Health check failed: {str(e)}")
+        return False
 
-def login():
-    """Authenticate and get Bearer token"""
-    print_section("AUTHENTICATION FOR REGRESSION TESTS")
+def test_check_email():
+    """Test 1: GET /api/user/checkEmail - must not reveal email existence"""
+    print_test("1", "GET /api/user/checkEmail - Account Enumeration Protection")
     
-    url = f"{BASE_URL}/user/login"
-    payload = {
-        "email": EMAIL,
-        "password": PASSWORD
-    }
-    
+    # Test with non-existent email
+    nonexistent_email = random_email()
+    print(f"\n1a. Testing with NON-EXISTENT email: {nonexistent_email}")
     try:
-        response = requests.post(url, json=payload, timeout=30)
-        print(f"POST /user/login → {response.status_code}")
+        resp1 = requests.get(f"{API_BASE}/user/checkEmail", 
+                            params={'email': nonexistent_email}, 
+                            timeout=10)
+        data1 = resp1.json()
+        print(f"  Status: {resp1.status_code}")
+        print(f"  Response: {json.dumps(data1, indent=2)}")
         
-        if response.status_code == 200:
-            data = response.json()
-            token = data.get("data", {}).get("accessToken")
-            if token:
-                print_test("Login successful", True, f"Token length: {len(token)} chars")
-                return token
-            else:
-                print_test("Login failed", False, "No accessToken in response")
-                return None
-        else:
-            print_test("Login failed", False, f"Status {response.status_code}: {response.text[:200]}")
-            return None
+        # Check for PII leakage
+        has_pii = any(key in str(data1).lower() for key in ['mobile', 'phone', 'name', 'user_id'])
+        if has_pii:
+            print_result(False, "Response contains PII (mobile/phone/name/user_id)", str(data1))
+            return False
+        
+        # Should return validEmail: true (masked)
+        if data1.get('data', {}).get('validEmail') != True:
+            print_result(False, f"Expected validEmail=true, got {data1.get('data', {}).get('validEmail')}")
+            return False
+        
+        print_result(True, "Non-existent email returns validEmail=true with no PII")
+        
     except Exception as e:
-        print_test("Login failed", False, f"Exception: {str(e)}")
-        return None
+        print_result(False, f"Request failed: {str(e)}")
+        return False
+    
+    # Test with existing email
+    print(f"\n1b. Testing with EXISTING email: {EXISTING_EMAIL}")
+    try:
+        resp2 = requests.get(f"{API_BASE}/user/checkEmail", 
+                            params={'email': EXISTING_EMAIL}, 
+                            timeout=10)
+        data2 = resp2.json()
+        print(f"  Status: {resp2.status_code}")
+        print(f"  Response: {json.dumps(data2, indent=2)}")
+        
+        # Check for PII leakage
+        has_pii = any(key in str(data2).lower() for key in ['mobile', 'phone', 'name', 'user_id'])
+        if has_pii:
+            print_result(False, "Response contains PII (mobile/phone/name/user_id)", str(data2))
+            return False
+        
+        # Should return validEmail: true (masked)
+        if data2.get('data', {}).get('validEmail') != True:
+            print_result(False, f"Expected validEmail=true, got {data2.get('data', {}).get('validEmail')}")
+            return False
+        
+        print_result(True, "Existing email returns validEmail=true with no PII")
+        
+    except Exception as e:
+        print_result(False, f"Request failed: {str(e)}")
+        return False
+    
+    # Compare responses
+    print(f"\n1c. Comparing responses (must be identical)")
+    identical, msg = compare_responses(
+        {'status': resp1.status_code, 'data': data1.get('data', {})},
+        {'status': resp2.status_code, 'data': data2.get('data', {})},
+        "non-existent", "existing"
+    )
+    print_result(identical, msg)
+    
+    return identical
 
-def test_regression(token):
-    """
-    REGRESSION TESTS: Verify existing endpoints still work
-    - GET /api/referral/my-code -> 200, referral_code non-empty
-    - GET /api/dashboard/recent-transactions?company_id=1 -> 200
-    """
-    print_section("REGRESSION TESTS — EXISTING ENDPOINTS")
+def test_check_phone():
+    """Test 2: GET /api/user/checkPhone - must not reveal phone existence"""
+    print_test("2", "GET /api/user/checkPhone - Account Enumeration Protection")
     
-    headers = {"Authorization": f"Bearer {token}"}
-    results = []
-    
-    # Test 1: GET /api/referral/my-code
-    print("\n[Test 1] GET /api/referral/my-code")
+    # Test with non-existent phone
+    nonexistent_phone = random_phone()
+    print(f"\nTesting with NON-EXISTENT phone: {nonexistent_phone}")
     try:
-        response = requests.get(f"{BASE_URL}/referral/my-code", headers=headers, timeout=30)
-        status = response.status_code
-        print(f"  Status: {status}")
+        resp = requests.get(f"{API_BASE}/user/checkPhone", 
+                           params={'phone': nonexistent_phone}, 
+                           timeout=10)
+        data = resp.json()
+        print(f"  Status: {resp.status_code}")
+        print(f"  Response: {json.dumps(data, indent=2)}")
         
-        if status == 200:
-            data = response.json()
-            referral_code = data.get("data", {}).get("referral_code", "")
-            print(f"  referral_code: {referral_code}")
-            
-            if referral_code:
-                print_test("Referral my-code endpoint", True, f"200 OK, referral_code='{referral_code}'")
-                results.append(("Referral my-code endpoint", True, status))
-            else:
-                print_test("Referral my-code endpoint", False, "200 but referral_code is empty")
-                results.append(("Referral my-code endpoint", False, "empty referral_code"))
-        else:
-            print_test("Referral my-code endpoint", False, f"Expected 200, got {status}")
-            results.append(("Referral my-code endpoint", False, status))
-    except Exception as e:
-        print_test("Referral my-code endpoint", False, f"Exception: {str(e)}")
-        results.append(("Referral my-code endpoint", False, str(e)))
-    
-    # Test 2: GET /api/dashboard/recent-transactions?company_id=1
-    print("\n[Test 2] GET /api/dashboard/recent-transactions?company_id=1")
-    try:
-        response = requests.get(f"{BASE_URL}/dashboard/recent-transactions?company_id=1", headers=headers, timeout=30)
-        status = response.status_code
-        print(f"  Status: {status}")
+        # Check for PII leakage
+        has_pii = any(key in str(data).lower() for key in ['email', 'name', 'user_id'])
+        if has_pii:
+            print_result(False, "Response contains PII (email/name/user_id)", str(data))
+            return False
         
-        if status == 200:
-            data = response.json()
-            transactions = data.get("data", {}).get("transactions", [])
-            print(f"  Transactions count: {len(transactions)}")
-            print_test("Recent transactions endpoint", True, f"200 OK, {len(transactions)} transactions")
-            results.append(("Recent transactions endpoint", True, status))
-        else:
-            print_test("Recent transactions endpoint", False, f"Expected 200, got {status}")
-            results.append(("Recent transactions endpoint", False, status))
+        # Should return validPhone: true (masked)
+        if data.get('data', {}).get('validPhone') != True:
+            print_result(False, f"Expected validPhone=true, got {data.get('data', {}).get('validPhone')}")
+            return False
+        
+        # Must not return validPhone: false
+        if data.get('data', {}).get('validPhone') == False:
+            print_result(False, "Response reveals phone doesn't exist (validPhone=false)")
+            return False
+        
+        print_result(True, "Non-existent phone returns validPhone=true with no PII")
+        return True
+        
     except Exception as e:
-        print_test("Recent transactions endpoint", False, f"Exception: {str(e)}")
-        results.append(("Recent transactions endpoint", False, str(e)))
-    
-    return results
+        print_result(False, f"Request failed: {str(e)}")
+        return False
 
-def test_backend_health():
-    """
-    Backend health check via localhost:8001/health
-    EXPECT: status="healthy", database="connected", redis="connected", background_jobs.eligible=false
-    """
-    print_section("BACKEND HEALTH CHECK")
+def test_login():
+    """Test 3: POST /api/user/login - must return generic error"""
+    print_test("3", "POST /api/user/login - Generic Error Messages")
     
-    results = []
-    
-    print("\n[Test 3] GET http://localhost:8001/health")
+    # Test with non-existent email
+    nonexistent_email = random_email()
+    print(f"\n3a. Testing with NON-EXISTENT email: {nonexistent_email}")
     try:
-        response = requests.get(BACKEND_HEALTH_URL, timeout=10)
-        status = response.status_code
-        print(f"  Status: {status}")
+        resp1 = requests.post(f"{API_BASE}/user/login", 
+                             json={'email': nonexistent_email, 'password': 'anypassword123'},
+                             timeout=10)
+        data1 = resp1.json()
+        print(f"  Status: {resp1.status_code}")
+        print(f"  Response: {json.dumps(data1, indent=2)}")
         
-        if status == 200:
-            data = response.json()
-            overall_status = data.get("status")
-            db_status = data.get("database")
-            redis_status = data.get("redis")
-            bg_jobs = data.get("background_jobs", {})
-            bg_eligible = bg_jobs.get("eligible") if isinstance(bg_jobs, dict) else None
-            
-            print(f"  Overall status: {overall_status}")
-            print(f"  Database: {db_status}")
-            print(f"  Redis: {redis_status}")
-            print(f"  Background jobs eligible: {bg_eligible}")
-            
-            # Check all conditions
-            is_healthy = overall_status == "healthy"
-            is_db_connected = db_status == "connected"
-            is_redis_connected = redis_status == "connected"
-            is_safe_mode = bg_eligible == False
-            
-            if is_healthy and is_db_connected and is_redis_connected and is_safe_mode:
-                print_test("Backend health check", True, "healthy, db+redis connected, SAFE MODE (bg_jobs.eligible=false)")
-                results.append(("Backend health check", True, status))
-            else:
-                details = f"status={overall_status}, db={db_status}, redis={redis_status}, bg_eligible={bg_eligible}"
-                print_test("Backend health check", False, f"Expected healthy/connected/connected/false, got {details}")
-                results.append(("Backend health check", False, details))
+        if resp1.status_code != 401:
+            print_result(False, f"Expected 401, got {resp1.status_code}")
+            return False
+        
+        message1 = data1.get('message', '').lower()
+        # Check for account-revealing messages
+        bad_phrases = ['no account', 'not registered', 'user not found', 'does not exist', 'not exist']
+        if any(phrase in message1 for phrase in bad_phrases):
+            print_result(False, f"Message reveals account doesn't exist: {data1.get('message')}")
+            return False
+        
+        # Should be generic like "Invalid email or password"
+        if 'invalid' not in message1 or ('email' in message1 or 'password' in message1):
+            print_result(True, f"Generic error message: {data1.get('message')}")
         else:
-            print_test("Backend health check", False, f"Expected 200, got {status}")
-            results.append(("Backend health check", False, status))
+            print_result(False, f"Message not generic enough: {data1.get('message')}")
+            return False
+        
     except Exception as e:
-        print_test("Backend health check", False, f"Exception: {str(e)}")
-        results.append(("Backend health check", False, str(e)))
+        print_result(False, f"Request failed: {str(e)}")
+        return False
     
-    return results
+    # Test with existing email + wrong password (ONLY ONCE per safety rules)
+    print(f"\n3b. Testing with EXISTING email + WRONG password: {EXISTING_EMAIL}")
+    print("  ⚠️  SAFETY: Attempting ONLY ONCE to avoid account lockout")
+    try:
+        resp2 = requests.post(f"{API_BASE}/user/login", 
+                             json={'email': EXISTING_EMAIL, 'password': 'WrongPassword999!'},
+                             timeout=10)
+        data2 = resp2.json()
+        print(f"  Status: {resp2.status_code}")
+        print(f"  Response: {json.dumps(data2, indent=2)}")
+        
+        if resp2.status_code != 401:
+            print_result(False, f"Expected 401, got {resp2.status_code}")
+            return False
+        
+        message2 = data2.get('message', '').lower()
+        
+        # Should be same generic message
+        if message1 == message2:
+            print_result(True, "Both errors are identical (generic)")
+        else:
+            print_result(False, f"Error messages differ: '{data1.get('message')}' vs '{data2.get('message')}'")
+            return False
+        
+        return True
+        
+    except Exception as e:
+        print_result(False, f"Request failed: {str(e)}")
+        return False
+
+def test_generate_otp_email():
+    """Test 4: POST /api/user/generateOTP (email) - must return masked success"""
+    print_test("4", "POST /api/user/generateOTP (email) - Masked Success")
+    
+    nonexistent_email = random_email()
+    print(f"\nTesting with NON-EXISTENT email: {nonexistent_email}")
+    try:
+        resp = requests.post(f"{API_BASE}/user/generateOTP", 
+                            json={'email': nonexistent_email},
+                            timeout=10)
+        data = resp.json()
+        print(f"  Status: {resp.status_code}")
+        print(f"  Response: {json.dumps(data, indent=2)}")
+        
+        # Should return 200 success (masked)
+        if resp.status_code != 200:
+            print_result(False, f"Expected 200, got {resp.status_code}")
+            return False
+        
+        message = data.get('message', '').lower()
+        
+        # Must NOT return 404 or "registered" wording
+        if resp.status_code == 404 or 'registered' in message or 'not found' in message:
+            print_result(False, f"Response reveals email doesn't exist: {resp.status_code} - {data.get('message')}")
+            return False
+        
+        # Should say something like "OTP sent successfully"
+        if 'otp' in message and 'sent' in message:
+            print_result(True, f"Masked success message: {data.get('message')}")
+            return True
+        else:
+            print_result(False, f"Unexpected message: {data.get('message')}")
+            return False
+        
+    except Exception as e:
+        print_result(False, f"Request failed: {str(e)}")
+        return False
+
+def test_generate_otp_mobile():
+    """Test 5: POST /api/user/generateOTP (mobile) - must return masked success"""
+    print_test("5", "POST /api/user/generateOTP (mobile) - Masked Success")
+    
+    fake_phone = random_phone()
+    print(f"\nTesting with FAKE/unregistered phone: {fake_phone}")
+    print("  ⚠️  SAFETY: Using clearly fake number (15550xxxxx) - will NOT send real SMS")
+    try:
+        resp = requests.post(f"{API_BASE}/user/generateOTP", 
+                            json={'mobile': fake_phone},
+                            timeout=10)
+        data = resp.json()
+        print(f"  Status: {resp.status_code}")
+        print(f"  Response: {json.dumps(data, indent=2)}")
+        
+        # Should return 200 success (masked)
+        if resp.status_code != 200:
+            print_result(False, f"Expected 200, got {resp.status_code}")
+            return False
+        
+        message = data.get('message', '').lower()
+        
+        # Must NOT return 404 or "registered" wording
+        if resp.status_code == 404 or 'registered' in message or 'not found' in message:
+            print_result(False, f"Response reveals phone doesn't exist: {resp.status_code} - {data.get('message')}")
+            return False
+        
+        # Should say something like "OTP sent successfully via SMS"
+        if 'otp' in message and 'sent' in message:
+            print_result(True, f"Masked success message: {data.get('message')}")
+            return True
+        else:
+            print_result(False, f"Unexpected message: {data.get('message')}")
+            return False
+        
+    except Exception as e:
+        print_result(False, f"Request failed: {str(e)}")
+        return False
+
+def test_confirm_otp():
+    """Test 6: POST /api/user/confirmOTP - must return generic error"""
+    print_test("6", "POST /api/user/confirmOTP - Generic Error")
+    
+    nonexistent_email = random_email()
+    print(f"\nTesting with NON-EXISTENT email: {nonexistent_email}")
+    try:
+        resp = requests.post(f"{API_BASE}/user/confirmOTP", 
+                            json={'email': nonexistent_email, 'otp': '000000'},
+                            timeout=10)
+        data = resp.json()
+        print(f"  Status: {resp.status_code}")
+        print(f"  Response: {json.dumps(data, indent=2)}")
+        
+        # Should return 400 (not 404)
+        if resp.status_code == 404:
+            print_result(False, "Returns 404 (reveals account doesn't exist)")
+            return False
+        
+        if resp.status_code != 400:
+            print_result(False, f"Expected 400, got {resp.status_code}")
+            return False
+        
+        message = data.get('message', '').lower()
+        
+        # Check for account-revealing messages (NOT OTP-related messages)
+        # "OTP expired or not found" is ACCEPTABLE - it's about the OTP, not the account
+        bad_phrases = ['account not found', 'user not found', 'not registered', 'account does not exist', 'user does not exist']
+        if any(phrase in message for phrase in bad_phrases):
+            print_result(False, f"Message reveals account doesn't exist: {data.get('message')}")
+            return False
+        
+        # Should be generic like "OTP expired or not found" or "OTP did not match"
+        # These messages are about the OTP itself, not about account existence
+        if 'otp' in message and ('expired' in message or 'not found' in message or 'not match' in message or 'invalid' in message):
+            print_result(True, f"Generic error message: {data.get('message')}")
+            return True
+        else:
+            print_result(False, f"Unexpected message: {data.get('message')}")
+            return False
+        
+    except Exception as e:
+        print_result(False, f"Request failed: {str(e)}")
+        return False
+
+def test_forgot_password():
+    """Test 7: POST /api/user/forgot-password - must return masked success"""
+    print_test("7", "POST /api/user/forgot-password - Masked Success")
+    
+    nonexistent_email = random_email()
+    print(f"\nTesting with NON-EXISTENT email: {nonexistent_email}")
+    try:
+        resp = requests.post(f"{API_BASE}/user/forgot-password", 
+                            json={'email': nonexistent_email},
+                            timeout=10)
+        data = resp.json()
+        print(f"  Status: {resp.status_code}")
+        print(f"  Response: {json.dumps(data, indent=2)}")
+        
+        # Should return 200 success (masked)
+        if resp.status_code != 200:
+            print_result(False, f"Expected 200, got {resp.status_code}")
+            return False
+        
+        message = data.get('message', '').lower()
+        
+        # Should be masked like "If the email exists, an OTP has been sent"
+        if 'if' in message and 'email' in message and ('otp' in message or 'sent' in message):
+            print_result(True, f"Masked success message: {data.get('message')}")
+            return True
+        elif 'otp' in message and 'sent' in message:
+            # Also accept generic "OTP sent" without "if exists" (still masked)
+            print_result(True, f"Masked success message: {data.get('message')}")
+            return True
+        else:
+            print_result(False, f"Message not properly masked: {data.get('message')}")
+            return False
+        
+    except Exception as e:
+        print_result(False, f"Request failed: {str(e)}")
+        return False
 
 def main():
-    print_section("DYNOPAY BLOCK 1 BACKEND VERIFICATION")
-    print("READ-ONLY testing against LIVE PRODUCTION database (SAFE MODE)")
-    print(f"Pod: e952fc3d, Date: 2026-09-01")
-    print(f"Base URL: {BASE_URL}")
-    print(f"Auth: {EMAIL}")
-    print("\nChanges being verified:")
-    print("  #6 CSRF exemption for /api/user/github-signin (HIGH PRIORITY)")
-    print("  #4 Configurable webhook timeout (MEDIUM, internal)")
-    print("  #2 Fixed email footer links (MEDIUM, template)")
-    
-    all_results = []
-    
-    # PRIMARY TEST: CSRF exemption for GitHub sign-in
-    csrf_github_results = test_csrf_github_signin()
-    all_results.extend(csrf_github_results)
-    
-    # CONTROL TEST: CSRF still enforced elsewhere
-    csrf_control_results = test_csrf_control()
-    all_results.extend(csrf_control_results)
-    
-    # REGRESSION TESTS (need authentication)
-    token = login()
-    if not token:
-        print("\n⚠️ WARNING: Authentication failed. Cannot proceed with regression tests.")
-        print("Primary CSRF tests completed, but regression tests skipped.")
-    else:
-        # Regression: existing endpoints
-        regression_results = test_regression(token)
-        all_results.extend(regression_results)
-    
-    # Backend health check (no auth needed)
-    health_results = test_backend_health()
-    all_results.extend(health_results)
-    
-    # Summary
-    passed = sum(1 for _, result, _ in all_results if result)
-    total = len(all_results)
-    
-    print_section("SUMMARY")
-    print(f"Total tests: {total}")
-    print(f"Passed: {passed}")
-    print(f"Failed: {total - passed}")
-    print(f"Success rate: {(passed/total)*100:.1f}%")
-    
-    print("\nDetailed results:")
-    for test_name, result, details in all_results:
-        status = "✅" if result else "❌"
-        print(f"  {status} {test_name}: {details}")
-    
+    """Run all tests"""
     print("\n" + "="*80)
-    if passed == total:
-        print("✅ ALL TESTS PASSED — Block 1 backend verification SUCCESSFUL")
-        print("\nNOTE: Changes #4 (webhook timeout) and #2 (email footer links) are")
-        print("internal/template changes with NO direct HTTP surface. They are covered")
-        print("by the clean healthy boot + regression reads above.")
-    else:
-        print(f"❌ {total - passed} TEST(S) FAILED — Block 1 backend verification INCOMPLETE")
+    print("ACCOUNT-ENUMERATION PROTECTION VERIFICATION")
+    print("DynoPay Backend - Node/Express")
+    print("="*80)
+    print(f"\nBase URL: {BASE_URL}")
+    print(f"API Base: {API_BASE}")
+    print(f"\nExisting test email: {EXISTING_EMAIL}")
+    print("\n⚠️  SAFETY MODE: LIVE PRODUCTION DATABASE")
+    print("  - Using fake emails/phones for non-existent tests")
+    print("  - Real account password attempt: ONLY ONCE")
+    print("  - NO data mutations, NO account creation")
     print("="*80)
     
-    return 0 if passed == total else 1
+    results = {}
+    
+    # Run all tests
+    results['health'] = test_health()
+    results['checkEmail'] = test_check_email()
+    results['checkPhone'] = test_check_phone()
+    results['login'] = test_login()
+    results['generateOTP_email'] = test_generate_otp_email()
+    results['generateOTP_mobile'] = test_generate_otp_mobile()
+    results['confirmOTP'] = test_confirm_otp()
+    results['forgotPassword'] = test_forgot_password()
+    
+    # Summary
+    print("\n" + "="*80)
+    print("SUMMARY")
+    print("="*80)
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
+    
+    for test_name, result in results.items():
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"{status}: {test_name}")
+    
+    print(f"\nTotal: {passed}/{total} tests passed ({passed*100//total}%)")
+    
+    if passed == total:
+        print("\n🎉 ALL TESTS PASSED - Account-enumeration protection is WORKING CORRECTLY")
+        return 0
+    else:
+        print(f"\n⚠️  {total - passed} TEST(S) FAILED - Account-enumeration protection has issues")
+        return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit(main())

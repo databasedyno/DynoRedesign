@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://merchant-portal-247.preview.emergentagent.com"
+BASE = "https://payment-gateway-init-2.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

@@ -70,6 +70,37 @@ const generatePaymentRef = async (): Promise<string> => {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SHORT-LINK RESOLUTION — read-only existence check for the branded short URL
+// (dynopay.com/<code>). The main-domain catch-all uses this to decide whether
+// a 6-char path segment is a payment link (→ checkout) or a creator handle
+// (→ profile). No mutation, safe under SAFE MODE. Fails open to "not a code"
+// so an error never hides a real creator page.
+// ═══════════════════════════════════════════════════════════════════════════
+export const checkPaymentLinkExists = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const code = String(req.params.code || "").trim();
+    // Refs are exactly 6 base62 chars (see randomShortRef); reject anything
+    // else fast so this never scans the table for arbitrary input.
+    if (!/^[A-Za-z0-9]{6}$/.test(code)) {
+      return res.status(200).json({ success: true, data: { exists: false } });
+    }
+    const rows = await sequelize.query(
+      `SELECT 1 FROM tbl_payment_link WHERE payment_link LIKE :pat LIMIT 1`,
+      { replacements: { pat: `%/pay?d=${code}` }, type: QueryTypes.SELECT }
+    );
+    return res
+      .status(200)
+      .json({ success: true, data: { exists: rows.length > 0 } });
+  } catch (e) {
+    apiLogger.warn("[checkPaymentLinkExists] lookup failed:", e);
+    return res.status(200).json({ success: true, data: { exists: false } });
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
 // DONATION / CROWDFUNDING HELPERS
 // A donation link is a multi-use campaign parent (link_type='donation').
 // Every donor spawns a 'contribution' child row (parent_link_id set) that

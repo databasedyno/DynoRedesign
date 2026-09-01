@@ -59,6 +59,33 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   let creatorHost = ''
   try { creatorHost = creatorBase ? new URL(creatorBase).host.toLowerCase() : '' } catch { creatorHost = '' }
   const reqHost = String(ctx.req.headers['x-forwarded-host'] || ctx.req.headers.host || '').split(',')[0].trim().toLowerCase()
+
+  // ─── Branded short payment links: dynopay.com/<code> ───
+  // A single 6-char base62 segment MAY be a payment link. Payment codes take
+  // priority over creator handles (product decision). Check case-sensitively
+  // (base62) against the raw param — NOT the lowercased `handle` above.
+  const codeSegment = String(ctx.params?.handle || '')
+  if (/^[A-Za-z0-9]{6}$/.test(codeSegment)) {
+    try {
+      const er = await fetch(`${base}/api/pay/link-exists/${codeSegment}`, { headers: { Accept: 'application/json' } })
+      if (er.ok) {
+        const ej = await er.json()
+        if (ej?.data?.exists) {
+          const checkoutBase = (process.env.CHECKOUT_URL || '').replace(/\/+$/, '')
+          let checkoutHost = ''
+          try { checkoutHost = checkoutBase ? new URL(checkoutBase).host.toLowerCase() : '' } catch { checkoutHost = '' }
+          const isPreviewHost = /(\.preview\.emergentagent\.com|localhost|127\.0\.0\.1)/.test(reqHost)
+          // Production main/creator domain → hop to the checkout subdomain (clean URL).
+          if (checkoutBase && checkoutHost && reqHost && reqHost !== checkoutHost && !isPreviewHost) {
+            return { redirect: { destination: `${checkoutBase}/${codeSegment}`, permanent: false } }
+          }
+          // Single-host (preview) or already on checkout host → serve checkout here.
+          return { redirect: { destination: `/pay?d=${codeSegment}`, permanent: false } }
+        }
+      }
+    } catch { /* not a payment code / lookup failed — fall through to creator lookup */ }
+  }
+
   try {
     // Profile + analytics in parallel — analytics is optional and never blocks
     // the page render. If the endpoint 404s (older creator, network hiccup),

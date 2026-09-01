@@ -20,6 +20,11 @@ paymentRouter.post("/getData", paymentRateLimiter, paymentController.getData);
 // Read-only checkout metadata for SSR link previews (OG tags)
 paymentRouter.get("/meta", paymentRateLimiter, paymentController.getPaymentMeta);
 
+// Short-link resolver: is this 6-char code a payment link? (read-only, public)
+// Used by the main-domain catch-all to distinguish payment codes from creator
+// handles before rendering dynopay.com/<segment>.
+paymentRouter.get("/link-exists/:code", paymentRateLimiter, paymentController.checkPaymentLinkExists);
+
 // Public creator vanity page profile (dynopay.com/{handle} → SSR fetch)
 paymentRouter.get("/creator/:handle", paymentRateLimiter, paymentController.getCreatorProfile);
 

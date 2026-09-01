@@ -55,6 +55,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import Toast from "@/Components/UI/Toast";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
+import { toShortPayLink } from "@/helpers/payLinkUrl";
 import { useEdgeFades } from "@/Components/Common/ScrollHint";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTableCardView from "@/hooks/useTableCardView";
@@ -335,7 +336,7 @@ const PaymentLinksTable = ({
       blockchainFees: row.status,
       linkId: row.id,
     });
-    setPaymentLink(row.paymentUrl);
+    setPaymentLink(toShortPayLink(row.paymentUrl));
     setOpenViewModel(true);
   };
 
@@ -454,7 +455,7 @@ const PaymentLinksTable = ({
                         <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
                           <CopyButton
                             aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })}
-                            onClick={() => handleCopy(row.paymentUrl)}
+                            onClick={() => handleCopy(toShortPayLink(row.paymentUrl))}
                             sx={{ width: 32, height: 32, minWidth: 32, p: "6px" }}
                           >
                             <Image src={CopyIcon} alt="" width={14} height={14} draggable={false} className="themed-icon-primary" />
@@ -768,7 +769,7 @@ const PaymentLinksTable = ({
                       >
                       {row.status !== "expired" && (
                         <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
-                          <CopyButton aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })} onClick={() => handleCopy(row.paymentUrl)}>
+                          <CopyButton aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })} onClick={() => handleCopy(toShortPayLink(row.paymentUrl))}>
                             <Image
                               src={CopyIcon}
                               alt=""

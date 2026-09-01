@@ -309,26 +309,17 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
 // response. Used by BOTH the direct password login and the OTP login path.
 
 export const checkPhone = async (req: express.Request, res: express.Response) => {
+  // ── Account-enumeration protection ─────────────────────────────────────────
+  // NEVER reveal whether a phone number is registered, and NEVER leak the
+  // account's name/email. Always respond as if the phone is valid so the login
+  // UI advances to the OTP step identically for real and unknown numbers. A
+  // wrong OTP then fails generically, so an attacker can't probe for accounts.
   try {
     const { phone } = req.query as { phone?: string };
     if (!phone) {
       return errorResponseHelper(res, 400, "Phone number is required");
     }
-    const cleaned = phone.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '');
-    const userData = await userModel.findOne({
-      where: { mobile: cleaned },
-    });
-
-    let resData: Record<string, unknown> = { validPhone: false };
-    if (userData) {
-      resData = {
-        validPhone: true,
-        mobile: userData.dataValues.mobile,
-        email: userData.dataValues.email ? userData.dataValues.email : null,
-        name: userData.dataValues.name,
-      };
-    }
-    successResponseHelper(res, 200, "Phone check completed", resData);
+    return successResponseHelper(res, 200, "Phone check completed", { validPhone: true });
   } catch (e) {
     handleControllerError(res, e, userLogger);
   }

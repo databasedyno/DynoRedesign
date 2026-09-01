@@ -33,6 +33,7 @@ import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
 import i18n from "@/i18n";
 import { PaymentLink } from "@/utils/types/paymentLink";
+import { toShortPayLink } from "@/helpers/payLinkUrl";
 
 import {
   ActionButtons,
@@ -144,7 +145,7 @@ const CreatePaymentLinkPage = ({
     if (currentLength > prevPaymentLinksLengthRef.current && isCreating) {
       const newestLink = currentLinks[0];
       if (newestLink?.payment_link) {
-        setPaymentLink(newestLink.payment_link);
+        setPaymentLink(toShortPayLink(newestLink.payment_link));
       }
       // Extract Direct Pay pool address from backend response
       if (newestLink?.direct_pay_address) {

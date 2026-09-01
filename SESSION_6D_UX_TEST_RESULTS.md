@@ -1,7 +1,7 @@
 # SESSION 6d UX VERIFICATION RESULTS
 **Date:** 2026-07-08  
 **Tester:** Testing Agent (auto_frontend_testing_agent)  
-**App URL:** https://merchant-portal-247.preview.emergentagent.com  
+**App URL:** https://payment-gateway-init-2.preview.emergentagent.com  
 **Method:** Playwright UI automation with JWT injection (READ-ONLY, no mutations)
 
 ---

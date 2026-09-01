@@ -102,9 +102,27 @@ const nextConfig = {
   // Dormant in production (nginx serves /images before Next ever sees it).
   async rewrites() {
     const backend = process.env.INTERNAL_API_URL || "http://localhost:8001";
-    return [
+    const afterFiles = [
       { source: "/images/:path*", destination: `${backend}/images/:path*` },
     ];
+    // ─── Branded short checkout links ───
+    // On the checkout subdomain a bare 6-char base62 code renders the hosted
+    // checkout with a clean URL (no ?d=). Host-scoped to CHECKOUT_URL so it
+    // never touches the main/creator domain or the Emergent preview (whose host
+    // is never checkout.dynopay.com), and length-locked to 6 chars so it can't
+    // shadow /pay, /api, static assets or any real single-segment checkout page.
+    const beforeFiles = [];
+    const checkoutHost = (process.env.CHECKOUT_URL || "")
+      .replace(/^https?:\/\//, "")
+      .replace(/\/+$/, "");
+    if (checkoutHost) {
+      beforeFiles.push({
+        source: "/:code([A-Za-z0-9]{6})",
+        has: [{ type: "host", value: checkoutHost }],
+        destination: "/pay?d=:code",
+      });
+    }
+    return { beforeFiles, afterFiles };
   },
 
 
