@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
-import { Box, IconButton, useTheme } from "@mui/material";
+import { Box, IconButton, useTheme, useMediaQuery } from "@mui/material";
 import Image, { StaticImageData } from "next/image";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -37,6 +37,10 @@ const DISMISS_KEY = "lang_onboard";
  */
 export const LanguageOnboardingBar = () => {
   const theme = useTheme();
+  // Desktop always shows the header globe (top-right), so the sticky nudge there
+  // is pure redundancy + overlaps it. Show this first-visit bar ONLY on mobile,
+  // where the header globe is hidden and this is the practical quick-switch.
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const chipsFade = useEdgeFade<HTMLDivElement>();
   const { t } = useTranslation("common");
   const router = useRouter();
@@ -52,7 +56,7 @@ export const LanguageOnboardingBar = () => {
         const hasToken = !!localStorage.getItem("token");
         const chose = localStorage.getItem("lang_manual") === "true";
         const dismissed = localStorage.getItem(DISMISS_KEY) === "1";
-        eligible = !hasToken && !chose && !dismissed;
+        eligible = isMobile && !hasToken && !chose && !dismissed;
       } catch {
         /* localStorage unavailable — never block the page */
       }
@@ -67,7 +71,7 @@ export const LanguageOnboardingBar = () => {
     evaluate();
     window.addEventListener("focus", evaluate);
     return () => window.removeEventListener("focus", evaluate);
-  }, [router.pathname]);
+  }, [router.pathname, isMobile]);
 
   // Publish the bar's footprint as a CSS var so floating UI (e.g. the storefront
   // mini-cart pill) can lift itself clear of the bar instead of being covered.

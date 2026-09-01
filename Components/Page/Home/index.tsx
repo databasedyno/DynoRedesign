@@ -72,6 +72,12 @@ const HomePage: FC = () => {
     }).catch(() => {});
   }, []);
 
+  // #3 landing-length (phones only): the length problem is a mobile one, so the
+  // most overlapping marketing sections are hidden at `xs` (< 600px) while kept
+  // in full on tablet + desktop (`sm`+). They remain in the SSR HTML, so search
+  // engines still see them — this is a CSS visibility trim, not a content cut.
+  const hideOnPhone = { display: { xs: "none", sm: "block" } } as const;
+
   return (
     <HomeWrapper>
       <HeroPlayground />
@@ -80,18 +86,30 @@ const HomePage: FC = () => {
       <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
         <AudienceDoorsV3 />
       </Box>
-      <PainSolutionV3 />
-      <SolutionsGridV3 />
+      <Box sx={hideOnPhone}>
+        <PainSolutionV3 />
+      </Box>
+      <Box sx={hideOnPhone}>
+        <SolutionsGridV3 />
+      </Box>
       <Box id="features" component="div" sx={{ scrollMarginTop: "88px" }}>
         <ProductFeatureCards />
       </Box>
       <ProductShowcaseV3 />
-      <WhyDynoPayV3 />
-      <WaysToGetPaidV3 />
-      <WhoPaysFeeV3 />
+      <Box sx={hideOnPhone}>
+        <WhyDynoPayV3 />
+      </Box>
+      <Box sx={hideOnPhone}>
+        <WaysToGetPaidV3 />
+      </Box>
+      <Box sx={hideOnPhone}>
+        <WhoPaysFeeV3 />
+      </Box>
       <CompareV3 />
       <CoinShowcaseV3 />
-      <RefundsTrustV3 />
+      <Box sx={hideOnPhone}>
+        <RefundsTrustV3 />
+      </Box>
       <NumbersTrustBand />
       <DeveloperBandV3 />
       <LearnDocsCards />
