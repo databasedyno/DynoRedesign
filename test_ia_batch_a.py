@@ -17,7 +17,7 @@ import subprocess
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://payment-integration-92.preview.emergentagent.com"
+BASE_URL = "https://merchant-portal-247.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 LOGIN_EMAIL = "hostbay@moxx.co"
 LOGIN_PASSWORD = "Katiekendra123@"

@@ -9,7 +9,7 @@ import json
 import sys
 
 # Base URL through ingress
-BASE_URL = "https://0e929189-e8a6-44b7-ae69-e900656450ab.preview.emergentagent.com/api"
+BASE_URL = "https://merchant-portal-247.preview.emergentagent.com/api"
 BACKEND_HEALTH_URL = "http://localhost:8001/health"
 
 # Test credentials

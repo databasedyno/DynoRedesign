@@ -1,7 +1,39 @@
 # ============================================================================
+# 2026-09-01 (pod e952fc3d) RE-SETUP from user cred paste — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
+# ----------------------------------------------------------------------------
+# - CURRENT Preview URL (THIS POD): https://e952fc3d-dd86-499c-ab1c-c9be775a7943.preview.emergentagent.com
+#   (IGNORE all older *.preview.emergentagent.com URLs below — historical.)
+# - Fresh pod: BOTH .env files were MISSING (gitignored). Rebuilt by hand from the user's full
+#   cred paste, then ran `bash scripts/pod-bootstrap.sh --skip-env` -> POD READY in 30s.
+#     /app/.env         (frontend subset; NEXT_PUBLIC_BASE_URL EMPTY -> relative /api)
+#     /app/backend/.env (full key set, 190 lines)
+# - SAFE MODE overrides applied to backend/.env (preview talks to LIVE prod Railway DB):
+#     ENABLE_BACKGROUND_JOBS=false (paste had true — OVERRIDDEN), WORKER_ROLE=secondary
+#     DISABLE_OUTBOUND_EMAIL=true (no Brevo outbound email)
+#     REDIS_PUBLIC_URL -> nozomi.proxy.rlwy.net:15794/1 (isolated Redis DB index 1, not prod's 0)
+#     BINANCE_PROXY_URL + SSH_TUNNEL_HOST BLANKED (Binance geo-blocked 451 -> WS uses REST fallback)
+#     NEXTAUTH_SECRET freshly generated (paste had literal "openssl rand -base64 32" placeholder)
+#     DATABASE_URL set explicitly (postgresql://postgres@roundhouse.proxy.rlwy.net:23599/railway)
+#     GOOGLE_CLIENT_KEY inline as single-\n-escaped PEM (dotenv expands -> multi-line key)
+# - >>> MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, "Hostbay") <<<
+#   (2-step login: /auth/login -> email -> Continue (exact) -> password -> Sign in)
+# - Admin email on record: moxxcompany@gmail.com (no login password on record — do not use for login)
+# - VERIFIED this session: :8001/health healthy (db+redis connected, tatum CLOSED/operational,
+#     background_jobs.eligible=false, binance geo_blocked=true REST-fallback);
+#     /api/public/tickers live (BTC ~$77.9k, ETH ~$2.45k);
+#     POST <preview>/api/user/login -> 200 "Login Successful!" (Hostbay) end-to-end through ingress;
+#     /auth/login external -> 200; frontend 200 internal :3000 + external preview 200.
+# - NOTE for testing agents: WIRED TO PRODUCTION DB — prefer READ-ONLY checks. Next.js dev never hits
+#     'networkidle' (HMR ws) -> wait on selectors, warm route first. Social login has
+#     redirect_uri_mismatch on preview (OAuth URIs point at dynopay.com); email/password works fine.
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-08-31 (pod 0e929189) RE-SETUP from user cred paste — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - CURRENT Preview URL (THIS POD): https://0e929189-e8a6-44b7-ae69-e900656450ab.preview.emergentagent.com
+# - CURRENT Preview URL (THIS POD): https://merchant-portal-247.preview.emergentagent.com
 #   (⚠️ IGNORE all older *.preview.emergentagent.com URLs below — historical, incl. payment-integration-92.)
 # - Fresh pod: BOTH .env files were MISSING (gitignored). Rebuilt by hand from the user's full
 #   cred paste, then ran `bash scripts/pod-bootstrap.sh --skip-env` -> POD READY in 30s.
@@ -34,7 +66,7 @@
 # ============================================================================
 # 2026-06 (pod 87e6bc11) FORK — WEBHOOK ADDITIVE REDESIGN + MANUAL TOGGLE — prod-connected, SAFE MODE
 # ----------------------------------------------------------------------------
-# - CURRENT Preview URL (THIS POD): https://payment-integration-92.preview.emergentagent.com
+# - CURRENT Preview URL (THIS POD): https://merchant-portal-247.preview.emergentagent.com
 #   (⚠️ IGNORE older dynopay-preview-15.preview.emergentagent.com — that was a prior fork's host.)
 # - OWNER LOGIN (unchanged): onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
 #     2-step: data-testid=login-email-input -> Continue (exact) -> password-input -> signin-submit-btn.
@@ -58,7 +90,7 @@
 # ============================================================================
 # 2026-08-31 (pod 0e5cc9c0) RE-SETUP from user cred paste — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - CURRENT Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - CURRENT Preview URL: https://merchant-portal-247.preview.emergentagent.com
 #   (⚠️ IGNORE all older *.preview.emergentagent.com URLs below — historical.)
 # - Fresh pod: BOTH .env files were missing (gitignored). Rebuilt by hand from the user's
 #   full cred paste, then ran scripts/pod-bootstrap.sh --skip-env -> POD READY in 27s.
@@ -90,7 +122,7 @@
 # ============================================================================
 # 2026-08-31 (pod 5f684f1a) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - CURRENT Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - CURRENT Preview URL: https://merchant-portal-247.preview.emergentagent.com
 #   (⚠️ IGNORE older merchant-demo-4 / dynopay-setup-12 URLs below — historical.)
 # - Fresh pod: BOTH .env files missing (gitignored). Rebuilt by hand from user's full
 #   cred paste, then ran scripts/pod-bootstrap.sh -> POD READY in 28s.
@@ -125,7 +157,7 @@
 # ============================================================================
 # 2026-08-31 (pod 9a70e7ed) FORK — RBAC Task D UX polish + FE E2E, prod-connected SAFE MODE
 # ----------------------------------------------------------------------------
-# - CURRENT Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - CURRENT Preview URL: https://merchant-portal-247.preview.emergentagent.com
 #   (⚠️ IGNORE older dynopay-setup-12 URLs below — historical.)
 # - OWNER LOGIN (unchanged): onarrival21@gmail.com / Katiekendra123@  (2-step:
 #     /auth/login -> type email -> Continue -> type password -> Sign in). user_id=1, company_id=1 "Hostbay".
@@ -138,7 +170,7 @@
 # ============================================================================
 # 2026-08-30 (pod 10424307) RE-SETUP + TEAM MEMBERS/RBAC — prod-connected, SAFE MODE
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - OWNER LOGIN (unchanged): onarrival21@gmail.com / Katiekendra123@  (2-step:
 #     /auth/login -> email -> Continue -> password -> Sign in). user_id=1, company_id=1.
 # - Env rebuilt by hand from user's cred paste. SAFE MODE overrides:
@@ -156,7 +188,7 @@
 # ============================================================================
 # 2026-08-30 (pod f4fac0c7) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Fresh pod: /app restored from git only -> BOTH .env files were MISSING (gitignored).
 #     Rebuilt by hand from the user's full cred paste, then ran scripts/pod-bootstrap.sh
 #     (auto-detected preview URL, synced URL keys, enforced SAFE MODE) -> POD READY in 30s.
@@ -187,7 +219,7 @@
 # ============================================================================
 # 2026-08-29 (pod eddcc06a) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: conflict_280826_1905
 # - Fresh pod: /app restored from git only -> BOTH .env files were MISSING (gitignored).
 #     Rebuilt by hand from the user's full cred paste:
@@ -218,7 +250,7 @@
 # ============================================================================
 # 2026-08-29 (pod ef498f41) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 #     (the older crypto-payment-init-1.preview.emergentagent.com host also still routes here)
 # - Fresh pod: /app restored from git only -> /app/backend/.env survived, /app/.env was MISSING.
 #     Recreated /app/.env by hand from the user's full cred paste (frontend subset;
@@ -250,7 +282,7 @@
 # ============================================================================
 # 2026-08-29 (pod 202ba772) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: conflict_280826_1905  (user specified this is the correct branch)
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/backend/.env (239 lines, full key set) + /app/.env (frontend subset;
@@ -276,7 +308,7 @@
 # ============================================================================
 # 2026-08-28 (pod 78b9bfca) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/backend/.env (186 keys) + /app/.env (30-line frontend subset;
 #     NEXT_PUBLIC_BASE_URL EMPTY -> browser makes relative /api calls -> ingress :8001).
@@ -301,7 +333,7 @@
 # ============================================================================
 # 2026-08-28 (pod 6fe4ee0c) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #   /app/backend/.env (full key set) + /app/.env (frontend; NEXT_PUBLIC_BASE_URL EMPTY
@@ -327,7 +359,7 @@
 # ============================================================================
 # 2026-08-27 (pod 09016278) RE-SETUP — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env rebuilt from a fresh full cred paste (no vault passphrase): /app/backend/.env
 #   (backend, full key set) + /app/.env (frontend, same set; NEXT_PUBLIC_BASE_URL left
@@ -391,7 +423,7 @@
 # ============================================================================
 # 2026-08-27 (pod f431e319) RE-SETUP #5 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/backend/.env (backend, full 188 keys) + /app/.env (frontend, same set;
@@ -440,7 +472,7 @@
 # ============================================================================
 # 2026-08-26 (pod 43248c91) RE-SETUP #4 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/.env (frontend) + /app/backend/.env (backend),
@@ -470,7 +502,7 @@
 # ============================================================================
 # 2026-08-26 (pod 6c9c118d) RE-SETUP #3 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/.env (30 lines, frontend) + /app/backend/.env (216 lines, backend),
@@ -500,7 +532,7 @@
 # ============================================================================
 # 2026-08-26 (new pod) RE-SETUP #2 — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase):
 #     /app/.env (frontend) + /app/backend/.env (backend), then `bash scripts/pod-bootstrap.sh`
@@ -527,7 +559,7 @@
 # ============================================================================
 # 2026-08-26 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env REBUILT by hand from a fresh full cred paste (no vault passphrase used):
 #     /app/.env (34 lines, frontend) + /app/backend/.env (245 lines, backend),
@@ -593,7 +625,7 @@
 # ============================================================================
 # 2026-08-25 (new pod) RE-SETUP — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env (41 lines) + /app/backend/.env (226 lines) written by hand,
@@ -622,7 +654,7 @@
 # ============================================================================
 # 2026-08-25 (later) RE-SETUP (current pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Branch: Improvement (latest, contains all other branches)
 # - Env files REBUILT from a fresh full cred paste (no vault passphrase; env.vault.enc
 #   NOT used). /app/.env + /app/backend/.env written by hand, then
@@ -649,7 +681,7 @@
 # ============================================================================
 # 2026-08-25 RE-SETUP (prior pod) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Env files REBUILT from a fresh full cred paste by the user (no vault passphrase
 #   this session; env.vault.enc NOT used). /app/.env + /app/backend/.env written by
 #   hand, then `bash scripts/pod-bootstrap.sh` synced URLs + enforced SAFE MODE.
@@ -675,7 +707,7 @@
 # ============================================================================
 # 2026-08-24 RE-SETUP (this session) — prod-connected, SAFE MODE — VERIFIED
 # ----------------------------------------------------------------------------
-# - Preview URL: https://payment-integration-92.preview.emergentagent.com
+# - Preview URL: https://merchant-portal-247.preview.emergentagent.com
 # - Env files were REBUILT DIRECTLY from a fresh full cred paste by the user
 #   (NOT restored from env.vault.enc — no passphrase was provided this session).
 # - /app/backend/.env and /app/.env written by hand; SAFE MODE enforced:
@@ -701,7 +733,7 @@
 # DynoPay — Emergent Preview Setup Notes (prod-connected, SAFE MODE)
 
 ## Status: RUNNING — connected to the user's LIVE Railway PostgreSQL + Redis
-- Preview URL: https://payment-integration-92.preview.emergentagent.com
+- Preview URL: https://merchant-portal-247.preview.emergentagent.com
 - Architecture: Next.js (`:3000`) + Node/Express backend (`server.ts` on `:3300`) behind a
   Python/uvicorn proxy (`server.py` on `:8001`, the `/api/*` ingress target). Proxy forwards
   `/api/*` to Node and stubs `/api/auth/*` (NextAuth) with empty JSON.
@@ -748,7 +780,7 @@
 # ============================================================================
 # 2026-08-26 — 9-ISSUE STOREFRONT/CHECKOUT FIX BATCH (this session)
 # ----------------------------------------------------------------------------
-# Preview URL (CORRECT): https://payment-integration-92.preview.emergentagent.com
+# Preview URL (CORRECT): https://merchant-portal-247.preview.emergentagent.com
 #   (bootstrap auto-detected a STALE url d6d663a8-... from a read-only supervisor
 #    APP_URL — it is DEAD/502. All env URL keys were re-pointed to dynopay-setup-4.)
 # Merchant login (owns @devhub): hostbay@moxx.co / Katiekendra123@  (user_id=1, company_id=1)

@@ -4,7 +4,7 @@ import time
 import requests
 import pytest
 
-BASE_URL = "https://payment-integration-92.preview.emergentagent.com"
+BASE_URL = "https://merchant-portal-247.preview.emergentagent.com"
 
 
 def _csrf_session():

@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Base URL for the preview environment
-BASE_URL = "https://payment-integration-92.preview.emergentagent.com"
+BASE_URL = "https://merchant-portal-247.preview.emergentagent.com"
 
 # Test results storage
 test_results = []

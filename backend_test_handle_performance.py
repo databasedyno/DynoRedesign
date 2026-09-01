@@ -19,7 +19,7 @@ import time
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://payment-integration-92.preview.emergentagent.com"
+EXTERNAL_BASE = "https://merchant-portal-247.preview.emergentagent.com"
 API_BASE = f"{EXTERNAL_BASE}/api"
 
 # Performance threshold

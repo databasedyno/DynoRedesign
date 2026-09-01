@@ -7,7 +7,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://payment-integration-92.preview.emergentagent.com"
+BASE_URL = "https://merchant-portal-247.preview.emergentagent.com"
 LOCAL_HEALTH = "http://localhost:8001/health"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
