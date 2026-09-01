@@ -1,4 +1,34 @@
 # ============================================================================
+# 2026-09-01 (pod d4fef0d9) RE-SETUP from user cred paste — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
+# ----------------------------------------------------------------------------
+# - CURRENT Preview URL (THIS POD): https://d4fef0d9-f3e2-42b2-a3b0-4b3e15a570d4.preview.emergentagent.com
+#   (IGNORE all older *.preview.emergentagent.com URLs below — historical.)
+# - Fresh pod: /app was restored from git (working tree had been wiped -> `git checkout HEAD -- .`).
+#   BOTH .env files were MISSING (gitignored). Rebuilt by hand from the user's full cred paste,
+#   then ran `bash scripts/pod-bootstrap.sh --skip-env` -> POD READY in 42s.
+#     /app/.env         (frontend subset; NEXT_PUBLIC_BASE_URL EMPTY -> relative /api)
+#     /app/backend/.env (full key set)
+# - SAFE MODE overrides applied to backend/.env (preview talks to LIVE prod Railway DB):
+#     ENABLE_BACKGROUND_JOBS=false (paste had true — OVERRIDDEN), WORKER_ROLE=secondary
+#     DISABLE_OUTBOUND_EMAIL=true (no Brevo outbound email)
+#     REDIS_PUBLIC_URL -> nozomi.proxy.rlwy.net:15794/1 (isolated Redis DB index 1, not prod's 0)
+#     BINANCE_PROXY_URL + SSH_TUNNEL_HOST BLANKED (Binance geo-blocked 451 -> WS uses REST fallback)
+#     NEXTAUTH_SECRET freshly generated (paste had literal "openssl rand -base64 32" placeholder)
+#     DATABASE_URL set explicitly (postgresql://postgres@roundhouse.proxy.rlwy.net:23599/railway)
+#     GOOGLE_CLIENT_KEY inline as single-\n-escaped PEM (normalizePrivateKey handles \n/\\n)
+# - >>> MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, "Hostbay") <<<
+#   (2-step login: /auth/login -> email -> Continue (exact) -> password -> Sign in)
+# - Admin email on record: moxxcompany@gmail.com (no login password on record — do not use for login)
+# - VERIFIED this session: :8001/health healthy (db+redis connected, tatum operational CLOSED,
+#     background_jobs.eligible=false, binance geo_blocked=true REST-fallback); frontend + external 200.
+# - NOTE for testing agents: WIRED TO PRODUCTION DB — prefer READ-ONLY checks. Next.js dev never hits
+#     'networkidle' (HMR ws) -> wait on selectors, warm route first. Social login has
+#     redirect_uri_mismatch on preview (OAuth URIs point at dynopay.com); email/password works fine.
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-09-01 (pod e952fc3d) RE-SETUP from user cred paste — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - CURRENT Preview URL (THIS POD): https://payment-gateway-init-2.preview.emergentagent.com
