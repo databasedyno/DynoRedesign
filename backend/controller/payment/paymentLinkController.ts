@@ -951,6 +951,18 @@ export const createPaymentLink = async (
     };
 
     const links = await paymentLinkModel.create(payload);
+
+    // Branded short link (customer/merchant-facing): https://dynopay.com/<6-char ref>
+    // The canonical `payload.payment_link` (CHECKOUT_URL/pay?d=<ref>) is KEPT in
+    // the DB/Redis because other flows (update/delete) parse the `?d=` param from
+    // it. Emails, however, should show the clean branded short link, which the
+    // `dynopay.com/<code>` route (pages/[handle].tsx -> /api/pay/link-exists)
+    // resolves to the hosted checkout.
+    const brandedShortLink =
+      (envRaw("SERVER_URL") || envRaw("FRONTEND_URL") || envRaw("CHECKOUT_URL") || "")
+        .trim()
+        .replace(/\/+$/, "") + "/" + uniqueRef;
+
     const redisPayload = {
       ...payload,
       pathType: "createLink",
@@ -990,7 +1002,7 @@ You have received a payment request from <strong>${companyName}</strong>.
 </div>
 
 <div style="text-align: center; margin: 24px 0;">
-  <a href="${payload.payment_link}" style="display: inline-block; background: linear-gradient(135deg, #f47323 0%, #e05a00 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">Pay Now</a>
+  <a href="${brandedShortLink}" style="display: inline-block; background: linear-gradient(135deg, #f47323 0%, #e05a00 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">Pay Now</a>
 </div>
         `.trim();
 
@@ -1024,7 +1036,7 @@ You have received a payment request from <strong>${companyName}</strong>.
             String(donationFields.title || 'Crowdfunding campaign'),
             (donationFields.goal_amount as number | null) ?? null,
             normalizedCurrency,
-            payload.payment_link,
+            brandedShortLink,
             description || null
           );
           cronLogger.info(`[PaymentLink] Crowdfunding campaign notification sent to ${user.dataValues.email}`);
@@ -1035,7 +1047,7 @@ You have received a payment request from <strong>${companyName}</strong>.
             user.dataValues.name || 'Merchant',
             normalizedAmount.toString(),
             normalizedCurrency,
-            payload.payment_link,
+            brandedShortLink,
             description || 'No description provided',
             expires_at ? new Date(expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : null
           );
@@ -1145,6 +1157,10 @@ You have received a payment request from <strong>${companyName}</strong>.
     
     const responseData = {
       ...links.dataValues,
+      // Branded short link (https://dynopay.com/<ref>) — additive, non-breaking.
+      // The canonical `payment_link` (…/pay?d=<ref>) is preserved for internal
+      // parsing; `short_link` is the clean, shareable form for UI + emails.
+      short_link: brandedShortLink,
       // Formatted amount display
       amount_display: amountDisplay,
       currency_info: currencyInfo,

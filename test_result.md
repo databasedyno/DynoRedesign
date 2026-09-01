@@ -14,6 +14,46 @@
 # ############################################################################
 
 # ============================================================================
+# CURRENT SESSION — 2026-09-01 (pod d4fef0d9): BUG #1 — BRANDED SHORT LINK IN EMAILS
+#   Prod-connected, SAFE MODE (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary,
+#   DISABLE_OUTBOUND_EMAIL=true, Redis /1). Owner login: onarrival21@gmail.com /
+#   Katiekendra123@ (user_id=1, company_id=1 "Hostbay"). LIVE prod DB — prefer read-only.
+#
+#   USER BUG: "The email received still shows checkout.dynopay.com instead of
+#   https://dynopay.com/<6-digit> when a payment link is created."
+#
+#   FIX (backend only, additive/non-breaking) in
+#   backend/controller/payment/paymentLinkController.ts (createPaymentLink):
+#     - Added `brandedShortLink` = (SERVER_URL||FRONTEND_URL||CHECKOUT_URL)/<uniqueRef>
+#       (on prod = https://dynopay.com/<ref>; on this pod = <preview>/<ref>).
+#     - Emails now use brandedShortLink: customer "Pay Now" href, merchant
+#       sendPaymentLinkCreatedEmail, and sendCrowdfundingCampaignCreatedEmail.
+#     - DB/Redis `payment_link` KEPT as CHECKOUT_URL/pay?d=<ref> (other flows parse
+#       the ?d= param — see updatePaymentLink/delete + tbl_payment_link LIKE '%d=%').
+#     - Response now ALSO returns additive `short_link` = brandedShortLink.
+#
+#   BACKEND TEST FOCUS (create + read-only assertions; delete the test link after):
+#     POST /api/userApi/createPaymentLink (owner JWT). Assert response.data.short_link
+#     == "<SERVER_URL>/<6charRef>" (no "/pay?d="), and response.data.payment_link
+#     STILL == "<CHECKOUT_URL>/pay?d=<same 6charRef>" (unchanged). 6-char base62 ref
+#     must be identical in both. Email is OFF (SAFE MODE) — do NOT assert delivery.
+#
+#   RESULT (deep_testing_backend_v2, 2026-09-01): FIX CODE-VERIFIED 6/6 (short_link
+#     added + used in all 3 email sends; payment_link/DB format preserved; response
+#     returns additive short_link). Could NOT create a NEW link at runtime: company_id=1
+#     is KYC-BLOCKED (checkKycEnforcement — volume $29,144 > $10,000 threshold, 90-day
+#     grace expired, kyc_status=not_started). KYC is per-OWNER (user_id=1) so BOTH its
+#     companies ("The Dev Store" id=1, "SMADAV" id=71) are blocked from live link
+#     creation. 41 existing links inspected: correct payment_link (/pay?d=) + short_link=null (pre-fix).
+#   NOTE: The user's "sandbox API on The Dev Store" = a PUBLISHABLE KEY (pk_test_…,
+#     environment='development') for the Buy Button / checkout-session flow
+#     (/api/publishable-keys + /api/buy-buttons) — a DIFFERENT path than createPaymentLink.
+#     Use it for item #5 (sandbox API test) and #2 (Buy Button docs). It is NOT KYC-gated.
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-01 (pod e952fc3d): EMAIL REWIRING (companyDispatch)
 #   Prod-connected, SAFE MODE (ENABLE_BACKGROUND_JOBS=false, DISABLE_OUTBOUND_EMAIL=true).
 #   Completed the deferred P0: routed 9 MERCHANT-facing operational email sends
