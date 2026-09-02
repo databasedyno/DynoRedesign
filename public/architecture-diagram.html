@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1640, initial-scale=1" />
+<title>DynoPay - System Architecture</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#0f172a; --muted:#64748b;
+    --line:#e2e8f0; --chip:#f1f5f9;
+    --clients:#6366f1; --edge:#0ea5e9; --frontend:#8b5cf6;
+    --gateway:#f59e0b; --backend:#10b981; --data:#ef4444; --external:#475569;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Arial,sans-serif;color:var(--ink);}
+  .wrap{width:1600px;padding:34px 40px 40px;}
+  .head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;}
+  h1{font-size:30px;font-weight:800;letter-spacing:-0.5px;}
+  .sub{color:var(--muted);font-size:14.5px;font-weight:500;margin-bottom:22px;}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+  .layer{position:relative;display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:stretch;margin:0 0 8px;}
+  .lname{display:flex;flex-direction:column;justify-content:center;font-size:12px;font-weight:800;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase;}
+  .lname small{font-weight:600;letter-spacing:0.3px;color:#94a3b8;text-transform:none;font-size:11px;margin-top:3px;}
+  .row{display:flex;gap:14px;flex-wrap:nowrap;}
+  .card{flex:1;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c,#cbd5e1);border-radius:12px;padding:13px 16px;min-height:58px;display:flex;flex-direction:column;justify-content:center;}
+  .card .t{font-size:14.5px;font-weight:700;}
+  .card .d{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35;}
+  .card.wide{flex-basis:100%;}
+  .chips{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:600;color:#334155;}
+
+  .container-box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:14px;padding:12px;flex:1;}
+  .container-box .ctitle{font-size:12.5px;font-weight:800;color:var(--backend);letter-spacing:0.4px;margin:2px 4px 10px;display:flex;align-items:center;gap:8px;}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+
+  .arrow{grid-column:2 / 3;display:flex;justify-content:center;margin:-1px 0 3px;}
+  .arrow svg{display:block;}
+  .arrowlabel{font-size:10.5px;color:#94a3b8;font-weight:600;align-self:center;margin-left:8px;}
+
+  .cyl{flex:1;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--data);border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:12px;}
+  .cyl .ico{width:30px;height:34px;border:2px solid var(--data);border-radius:50%/16px;flex-shrink:0;position:relative;opacity:.85;}
+  .cyl .ico:after{content:'';position:absolute;left:2px;right:2px;top:5px;height:8px;border:2px solid var(--data);border-radius:50%;opacity:.6;}
+
+  .foot{margin-top:22px;display:flex;gap:22px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;}
+  .foot b{color:#334155;}
+</style>
+</head>
+<body>
+<div class="wrap" id="diagram">
+  <div class="head">
+    <h1>DynoPay &mdash; System Architecture</h1>
+    <div class="sub">Crypto payments platform &middot; Next.js + TypeScript &middot; PostgreSQL &middot; Redis</div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="layer">
+    <div class="lname"><span><span class="dot" style="background:var(--clients)"></span>Clients</span><small>Browser / mobile web</small></div>
+    <div class="row">
+      <div class="card" style="--c:var(--clients)"><div class="t">Merchant Dashboard</div><div class="d">Next.js SPA &mdash; wallets, pay-links, invoices, payouts, settings</div></div>
+      <div class="card" style="--c:var(--clients)"><div class="t">Public Crypto Checkout</div><div class="d">Buyer pays a pay-link / invoice in crypto</div></div>
+      <div class="card" style="--c:var(--clients)"><div class="t">Storefront</div><div class="d">Hosted product / order pages</div></div>
+      <div class="card" style="--c:var(--clients)"><div class="t">Creator / Tip Pages</div><div class="d">Public creator handle + tipping</div></div>
+    </div>
+  </div>
+  <div class="arrow"><svg width="20" height="20"><path d="M10 1 V15 M4 10 L10 16 L16 10" fill="none" stroke="#cbd5e1" stroke-width="2"/></svg><span class="arrowlabel">HTTPS</span></div>
+
+  <!-- EDGE -->
+  <div class="layer">
+    <div class="lname"><span><span class="dot" style="background:var(--edge)"></span>Edge</span><small>Ingress + TLS</small></div>
+    <div class="row">
+      <div class="card wide" style="--c:var(--edge)"><div class="t">Kubernetes Ingress / Nginx</div><div class="d">Path routing &nbsp;&mdash;&nbsp; <b>/api/*</b> &rarr; backend&nbsp;:8001 &nbsp;&middot;&nbsp; <b>/*</b> &rarr; frontend&nbsp;:3000 &nbsp;&middot;&nbsp; TLS termination</div></div>
+    </div>
+  </div>
+  <div class="arrow"><svg width="20" height="20"><path d="M10 1 V15 M4 10 L10 16 L16 10" fill="none" stroke="#cbd5e1" stroke-width="2"/></svg></div>
+
+  <!-- FRONTEND -->
+  <div class="layer">
+    <div class="lname"><span><span class="dot" style="background:var(--frontend)"></span>Frontend</span><small>port :3000</small></div>
+    <div class="row">
+      <div class="card wide" style="--c:var(--frontend)">
+        <div class="t">Next.js 14 &middot; React 18</div>
+        <div class="d">SSR + client rendering, i18n routing, static assets in /public</div>
+        <div class="chips"><span class="chip">MUI</span><span class="chip">Redux + Redux-Saga</span><span class="chip">SWR (data cache)</span><span class="chip">react-i18next</span><span class="chip">NextAuth (social login)</span><span class="chip">Web Push client</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="arrow"><svg width="20" height="20"><path d="M10 1 V15 M4 10 L10 16 L16 10" fill="none" stroke="#cbd5e1" stroke-width="2"/></svg><span class="arrowlabel">REST /api (relative)</span></div>
+
+  <!-- API GATEWAY -->
+  <div class="layer">
+    <div class="lname"><span><span class="dot" style="background:var(--gateway)"></span>API Gateway</span><small>port :8001</small></div>
+    <div class="row">
+      <div class="card wide" style="--c:var(--gateway)"><div class="t">Python ASGI Reverse Proxy &nbsp;(uvicorn &middot; server.py)</div><div class="d">Supervisor entrypoint &mdash; spawns the Node backend (ts-node) and proxies every request to it on :3300</div></div>
+    </div>
+  </div>
+  <div class="arrow"><svg width="20" height="20"><path d="M10 1 V15 M4 10 L10 16 L16 10" fill="none" stroke="#cbd5e1" stroke-width="2"/></svg><span class="arrowlabel">localhost:3300</span></div>
+
+  <!-- BACKEND -->
+  <div class="layer">
+    <div class="lname"><span><span class="dot" style="background:var(--backend)"></span>Backend</span><small>port :3300</small></div>
+    <div class="row">
+      <div class="container-box">
+        <div class="ctitle">Express + TypeScript API &nbsp;(server.ts)</div>
+        <div class="grid4">
+          <div class="card" style="--c:var(--backend)"><div class="t">Middleware</div><div class="d">JWT auth &middot; CSRF &middot; rate-limit &middot; company-ownership guards</div></div>
+          <div class="card" style="--c:var(--backend)"><div class="t">Controllers</div><div class="d">payments &middot; wallets &middot; company &middot; KYC &middot; invoices &middot; notifications &middot; team</div></div>
+          <div class="card" style="--c:var(--backend)"><div class="t">Services</div><div class="d">email &middot; web-push &middot; payout digest &middot; activation drip &middot; wallet alerts</div></div>
+          <div class="card" style="--c:var(--backend)"><div class="t">Cron / Background Jobs</div><div class="d">gated by WORKER_ROLE &amp; ENABLE_BACKGROUND_JOBS (leader only)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="arrow"><svg width="20" height="20"><path d="M10 1 V15 M4 10 L10 16 L16 10" fill="none" stroke="#cbd5e1" stroke-width="2"/></svg></div>
+
+  <!-- DATA -->
+  <div class="layer">
+    <div class="lname"><span><span class="dot" style="background:var(--data)"></span>Data</span><small>Railway managed</small></div>
+    <div class="row">
+      <div class="cyl"><div class="ico"></div><div><div class="t" style="font-size:14.5px;font-weight:700">PostgreSQL</div><div class="d" style="font-size:12px;color:var(--muted)">Sequelize ORM &mdash; users, companies, wallets, transactions, notifications</div></div></div>
+      <div class="cyl"><div class="ico"></div><div><div class="t" style="font-size:14.5px;font-weight:700">Redis</div><div class="d" style="font-size:12px;color:var(--muted)">cache &middot; sessions &middot; rate-limit &middot; job locks (isolated DB index)</div></div></div>
+    </div>
+  </div>
+  <div class="arrow"><svg width="20" height="20"><path d="M10 1 V15 M4 10 L10 16 L16 10" fill="none" stroke="#cbd5e1" stroke-width="2"/></svg><span class="arrowlabel">outbound API / RPC</span></div>
+
+  <!-- EXTERNAL -->
+  <div class="layer">
+    <div class="lname"><span><span class="dot" style="background:var(--external)"></span>External</span><small>3rd-party services</small></div>
+    <div class="row">
+      <div class="card" style="--c:var(--external)"><div class="t">Tatum</div><div class="d">crypto wallets &amp; on-chain tx</div></div>
+      <div class="card" style="--c:var(--external)"><div class="t">TRON / EVM Nodes</div><div class="d">TronWeb + chain RPC</div></div>
+      <div class="card" style="--c:var(--external)"><div class="t">Binance Price Feed</div><div class="d">geo-blocked &rarr; REST fallback</div></div>
+      <div class="card" style="--c:var(--external)"><div class="t">SMTP Email</div><div class="d">nodemailer transactional</div></div>
+      <div class="card" style="--c:var(--external)"><div class="t">DigitalOcean Spaces</div><div class="d">media / upload CDN</div></div>
+      <div class="card" style="--c:var(--external)"><div class="t">Web Push (VAPID)</div><div class="d">browser push delivery</div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span><b>Frontend</b> Next.js 14 / React 18 / MUI / Redux-Saga / SWR</span>
+    <span><b>Backend</b> Express + TypeScript (ts-node) behind Python ASGI proxy</span>
+    <span><b>Data</b> PostgreSQL (Sequelize) + Redis on Railway</span>
+    <span><b>Chains</b> BTC / ETH / TRON / LTC &amp; more via Tatum</span>
+  </div>
+</div>
+</body>
+</html>
