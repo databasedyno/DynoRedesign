@@ -61,5 +61,9 @@
   "totalProcessedEyebrow": "Insgesamt verarbeitet · alle Chains",
   "activeChains": "Aktive Chains",
   "supported": "Unterstützt",
-  "coverage": "Abdeckung"
+  "coverage": "Abdeckung",
+  "walletUpdated": "Wallet erfolgreich aktualisiert",
+  "editOtpNotice": "Zum Ändern der Adresse ist ein Einmalcode erforderlich, der an Ihre E-Mail gesendet wird.",
+  "verifyAndSave": "Bestätigen & speichern",
+  "updatingWallet": "Wallet wird aktualisiert…"
 }

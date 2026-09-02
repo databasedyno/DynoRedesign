@@ -61,5 +61,9 @@
   "totalProcessedEyebrow": "Total processed · all chains",
   "activeChains": "Active chains",
   "supported": "Supported",
-  "coverage": "Coverage"
+  "coverage": "Coverage",
+  "walletUpdated": "Wallet updated successfully",
+  "editOtpNotice": "Changing the address requires a one-time code sent to your email.",
+  "verifyAndSave": "Verify & save",
+  "updatingWallet": "Updating your wallet…"
 }

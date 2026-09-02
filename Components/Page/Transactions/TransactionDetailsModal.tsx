@@ -6,10 +6,8 @@ import Image from "next/image";
 import React, { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import CorrectIcon from "@/assets/Icons/correct-icon.png";
 import HashIcon from "@/assets/Icons/hash-icon.svg";
 import RightArrowIcon from "@/assets/Icons/right-arrow-icon.svg";
-import WrongIcon from "@/assets/Icons/wrong-icon.png";
 import BNBIcon from "@/assets/cryptocurrency/BNB-icon.svg";
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
@@ -28,8 +26,8 @@ import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
-import { HourGlassIcon } from "@/utils/customIcons";
 import { TransactionDetailsModalProps } from "@/utils/types/transaction";
+import TransactionStatusBadge from "@/Components/UI/TransactionStatusBadge";
 import {
   ActionButtonGroup,
   CopyButton,
@@ -40,9 +38,6 @@ import {
   SectionDivider,
   SectionTitle,
   SectionTitleWithIcon,
-  StatusBadge,
-  StatusIconWrapper,
-  StatusText,
   TitleColumn,
   TitleLabel,
   TitleValue,
@@ -85,23 +80,6 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     if (normalized.includes("USDC")) return USDCIcon;
     if (normalized.includes("USDT")) return USDTIcon;
     return BitcoinIcon;
-  };
-
-  const getStatusIcon = (status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid" | "awaiting_payment") => {
-    switch (status) {
-      case "settled":
-        return <Image src={CorrectIcon} alt="correct" draggable={false} />;
-      case "confirmed":
-        return <Image src={CorrectIcon} alt="confirmed" draggable={false} />;
-      case "pending":
-      case "processing":
-        return <HourGlassIcon fill={"#F57C00"} size={isMobile ? 12 : 16} />;
-      case "unpaid":
-      case "awaiting_payment":
-        return <HourGlassIcon fill={"#9CA3AF"} size={isMobile ? 12 : 16} />;
-      case "failed":
-        return <Image src={WrongIcon} alt="incorrect" draggable={false} />;
-    }
   };
 
   const handleCopy = (text: string) => {
@@ -260,14 +238,12 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
           >
             {tTransactions("transactionDetails")}
           </Typography>
-          <StatusBadge status={transaction.status}>
-            <StatusIconWrapper>
-              {getStatusIcon(transaction.status)}
-            </StatusIconWrapper>
-            <StatusText status={transaction.status}>
-              {tTransactions(transaction.status)}
-            </StatusText>
-          </StatusBadge>
+          <TransactionStatusBadge
+            status={transaction.status}
+            autoConverted={transaction.autoConverted}
+            variant="pill"
+            data-testid="tx-modal-status"
+          />
           <IconButton
             onClick={onClose}
             aria-label="Close transaction details"

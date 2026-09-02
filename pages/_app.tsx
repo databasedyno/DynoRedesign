@@ -569,7 +569,15 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         {/* ─── Font CSS variables — Blueprint §1.3: consolidated to Manrope (display),
              IBM Plex Sans (body/UI), IBM Plex Mono (money/figures). Legacy vars are
              repointed at the new families so ~1000 existing references update for free. ─── */}
-        <style>{`
+        {/* MUST be dangerouslySetInnerHTML: a string child of <style> gets HTML-escaped
+             by React SSR (" -> &quot;, ' -> &#x27;) and browsers do NOT decode entities
+             inside <style>, so every var(--font-*) was invalid until hydration rewrote
+             the text -> whole page painted in the browser default serif first, then
+             "grew" into Manrope/Plex ("page appears small then normal" bug). */}
+        <style
+          data-testid="font-vars-style"
+          dangerouslySetInnerHTML={{
+            __html: `
           :root {
             --font-sans: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-mono: ${PlexMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -580,7 +588,9 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
             --font-inter: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-roboto-mono: ${PlexMono.style.fontFamily}, ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
           }
-        `}</style>
+        `,
+          }}
+        />
         <title>{pageTitle}</title>
         <meta name="description" content={metaDescription} />
 

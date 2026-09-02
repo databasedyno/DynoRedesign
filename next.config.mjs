@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: false,
   output: "standalone",
+  // Optional alternate build dir so a prod build can run beside the dev server.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   // TypeScript strict-mode is now enforced by `next build` (2026-08-02
   // Session 97i). Previously ignored because the frontend had 286
   // pre-existing strict-tsc errors; the Session 97e→97h cleanup arc

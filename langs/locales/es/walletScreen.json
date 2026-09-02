@@ -61,5 +61,9 @@
   "totalProcessedEyebrow": "Total procesado · todas las cadenas",
   "activeChains": "Cadenas activas",
   "supported": "Soportado",
-  "coverage": "Cobertura"
+  "coverage": "Cobertura",
+  "walletUpdated": "Cartera actualizada correctamente",
+  "editOtpNotice": "Cambiar la dirección requiere un código de un solo uso enviado a tu correo.",
+  "verifyAndSave": "Verificar y guardar",
+  "updatingWallet": "Actualizando tu cartera…"
 }

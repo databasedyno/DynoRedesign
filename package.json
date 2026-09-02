@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "rimraf .next && next dev --turbo",
     "build": "next build",
+    "icons:bundle": "node scripts/gen-icon-bundle.mjs",
     "start": "next start",
     "lint": "tsc --noEmit && eslint . --ext .ts,.tsx && node scripts/check-contrast.mjs",
     "lint:contrast": "node scripts/check-contrast.mjs",
@@ -64,6 +65,8 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.128",
+    "@iconify/utils": "^3.1.4",
     "@next/bundle-analyzer": "^16.3.3",
     "@types/canvas-confetti": "^1.9.0",
     "@types/crypto-js": "^4.2.2",

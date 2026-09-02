@@ -95,12 +95,9 @@ const HomeHeader = memo(function HomeHeader() {
   // tests and confuses first-time visitors).
   const [openMobileSection, setOpenMobileSection] = useState<string | null>(null);
 
-  // Avoid SSR/client hydration mismatch for theme-dependent assets.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  const logoSrc = !mounted || isDark ? DynopayWhiteLogo : DynopayLogo;
+  // Theme mode is SSR'd from the cookie, so isDark is hydration-safe — no
+  // pre-mount white-logo guard (it painted an invisible logo on light theme).
+  const logoSrc = isDark ? DynopayWhiteLogo : DynopayLogo;
 
   const lastScrollY = useRef<number>(0);
   const ticking = useRef<boolean>(false);

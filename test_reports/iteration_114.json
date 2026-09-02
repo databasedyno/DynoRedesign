@@ -1,0 +1,75 @@
+{
+  "summary": "Frontend-only verification of DynoPay: (1) landing stability across mobile/tablet/desktop; (2) transactions status badges (row/card/modal + dark mode + tooltip + no horizontal overflow); (3) wallets page read-only checks of edit/add flows. All targeted fixes verified working. Login used onarrival21@gmail.com. Live production DB — no writes performed (all dialogs cancelled).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "detailed_results": {
+    "landing_stability": {
+      "ssr_font_vars_style_valid": true,
+      "ssr_no_html_entities_in_style": true,
+      "ssr_contains_manrope_hero_var": true,
+      "mobile_390x844": {"h1_font_family_starts_with_Manrope": true, "stable_before_vs_after_3s": true, "no_horizontal_overflow": true, "logo_contains_blackLogo": true},
+      "tablet_820x1180": {"h1_font_family_starts_with_Manrope": true, "stable_before_vs_after_3s": true, "no_horizontal_overflow": true, "logo_contains_blackLogo": true},
+      "desktop_1440x900": {"h1_font_family_starts_with_Manrope": true, "stable_before_vs_after_3s": true, "no_horizontal_overflow": true, "logo_contains_blackLogo": true},
+      "landing_console_errors": [],
+      "landing_hydration_warnings": []
+    },
+    "transactions_desktop_1440x900": {
+      "tx_row_status_count": 10,
+      "row0_label": "unpaid",
+      "row0_status_in_viewport": true,
+      "table_no_horizontal_scroll": true,
+      "tooltip_text_on_hover": "The buyer opened the checkout but has not paid yet.",
+      "click_opens_details_drawer": true,
+      "tx_modal_status_matches_row": true,
+      "dark_mode_row_status_readable": true,
+      "dark_mode_row_status_color": "rgb(161, 161, 170)"
+    },
+    "transactions_mobile_390x844": {
+      "tx_card_status_count": 10,
+      "card_click_opens_drawer": true,
+      "tx_modal_status_matches_card": true
+    },
+    "wallets_page": {
+      "edit_btn_count": 13,
+      "delete_btn_count": 13,
+      "edit_svg_rendered_width_px": 16,
+      "delete_svg_rendered_width_px": 18,
+      "edit_aria_label": "Edit wallet",
+      "delete_aria_label": "Delete wallet",
+      "edit_dialog_opens": true,
+      "edit_dialog_hides_add_description": true,
+      "edit_dialog_shows_paste_helper": true,
+      "edit_dialog_initial_submit_label": "Save changes",
+      "edit_dialog_prefills_current_address": true,
+      "edit_after_address_change_shows_otp_helper": true,
+      "edit_after_address_change_submit_label": "Verify & save",
+      "cancel_does_not_change_wallet_list": true,
+      "add_wallet_dialog_opens": true,
+      "add_wallet_dialog_shows_description": true,
+      "mobile_edit_icon_svg_rendered": true
+    },
+    "regression": {
+      "dashboard_console_errors": [],
+      "dashboard_hydration_warnings": [],
+      "transactions_hydration_warnings": []
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "MINOR/PORTAL: `[data-testid=\"add-wallet-dialog\"]` (and likely `edit-wallet-dialog`) renders with TWO elements in the DOM simultaneously — one with `visibility: hidden` and one with `visibility: visible` (both display:block, both fully-sized 447x613). This trips strict Playwright locators and can hurt a11y (screen readers may announce the hidden clone). Likely caused by keeping a mounted MUI Drawer / a duplicate portal target with SSR + hydration. Consider unmounting when closed or using a single portal instance.",
+    "MINOR: On the earlier run on /wallet a lingering `edit-wallet-dialog` DOM node remained after clicking Cancel (query returned non-null even though visually closed). Same portal/mount-cleanup concern as above. Wallet list length was unchanged so no functional impact."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (login flow: email → Continue → password → signin-submit-btn)",
+  "seed_data_creation": "none — read-only against live production DB, all dialogs cancelled without submit",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All three review-request fixes verified on preview URL. SSR font-vars <style> is properly emitted via dangerouslySetInnerHTML (no &quot; / &#x27;). Transaction status badges use TransactionStatusBadge with tx-row-status / tx-card-status / tx-modal-status testids. Wallet edit/add icons have aria-labels + testids and Lucide SVGs render at 14-18px. Edit flow correctly switches submit label to 'Verify & save' and shows the OTP helper on address change. NOTE for next agent: two portal instances of add-wallet-dialog / edit-wallet-dialog exist in the DOM (one hidden) — always use `getComputedStyle(el).visibility==='visible'` filter when asserting content, and prefer native input value setter + dispatchEvent('input', bubbles:true) over page.keyboard.type() for MUI text fields inside dialogs (keyboard.type occasionally failed to trigger React onChange in this app).",
+  "rca of the issue": "n/a — no bugs to RCA; all three targeted fixes function correctly."
+}

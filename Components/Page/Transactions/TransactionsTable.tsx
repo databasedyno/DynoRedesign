@@ -12,10 +12,10 @@ import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import { Icon, MONO } from "@/styles/uiKit";
-import { StatusDot, StatusTone } from "@/Components/UI/StatusDot";
+import TransactionStatusBadge from "@/Components/UI/TransactionStatusBadge";
 import { getAssetColor } from "@/helpers/assetColor";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
-import { Box, Tooltip, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -24,8 +24,8 @@ import { useTranslation } from "react-i18next";
 import CryptoIcon from "@/assets/Icons/crypto-icon.svg";
 import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
 import HexagonIcon from "@/assets/Icons/hexagon-icon.svg";
-import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
 import SwapHorizIcon from "@/assets/Icons/swap-round-icon.svg";
+import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
 import TimeIcon from "@/assets/Icons/time-icon.svg";
 import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 
@@ -129,72 +129,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     if (normalized.includes("POLYGON")) return PolygonIcon;
     if (normalized.includes("RLUSD")) return RLUSDIcon;
     return BitcoinIcon;
-  };
-
-  // Move 6 (clarity microcopy): one-line tooltips demystify crypto statuses
-  // for first-time merchants. Shown on hover AND on tap (touch devices).
-  const statusTooltip = useCallback(
-    (status: string, autoConverted?: boolean): string => {
-      if (autoConverted && status === "settled") {
-        return t("statusTipConverted", {
-          defaultValue: "Settled and auto-converted to your payout currency.",
-        });
-      }
-      switch (status) {
-        case "pending":
-        case "processing":
-          return t("statusTipPending", {
-            defaultValue: "Waiting for the buyer's payment to appear on the blockchain.",
-          });
-        case "confirmed":
-          return t("statusTipConfirming", {
-            defaultValue: "Payment seen on-chain — waiting for enough confirmations.",
-          });
-        case "settled":
-          return t("statusTipSettled", {
-            defaultValue: "Confirmed and credited to your balance.",
-          });
-        case "failed":
-          return t("statusTipFailed", {
-            defaultValue: "This payment did not complete — no funds moved.",
-          });
-        case "unpaid":
-          return t("statusTipUnpaid", {
-            defaultValue: "The buyer opened the checkout but has not paid yet.",
-          });
-        case "awaiting_payment":
-          return t("statusTipAwaiting", {
-            defaultValue: "No payment received yet — this address is waiting for the buyer to send funds.",
-          });
-        default:
-          return "";
-      }
-    },
-    [t],
-  );
-
-  // Map the raw transaction status onto the shared StatusDot tone palette
-  // (Blueprint §3 — one calm dot+text status primitive across every table).
-  const statusTone = (status: string): StatusTone => {
-    switch (status) {
-      case "settled":
-        return "settled";
-      case "confirmed":
-        return "info";
-      case "pending":
-      case "processing":
-        return "pending";
-      case "failed":
-        return "failed";
-      case "unpaid":
-        return "unpaid";
-      case "awaiting_payment":
-        // Nothing on-chain yet — same calm hollow slate as 'unpaid', but a
-        // distinct label so the merchant knows the window is still open.
-        return "unpaid";
-      default:
-        return "neutral";
-    }
   };
 
   /** Session 55: unified source badge — delegates to the single shared
@@ -404,31 +338,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {transaction.crypto}
                   </Typography>
                 </Box>
-                <Tooltip
-                  title={statusTooltip(transaction.status, transaction.autoConverted)}
-                  arrow
-                  enterTouchDelay={50}
-                  leaveTouchDelay={2500}
-                >
-                  <Box component="span" sx={{ display: "inline-flex" }}>
-                    <StatusDot tone={statusTone(transaction.status)}>
-                      {tTransactions(transaction.status)}
-                      {transaction.autoConverted && transaction.status === "settled" && (
-                        <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "10px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, ml: 0.5 }}>
-                          <Image
-                            src={SwapHorizIcon}
-                            alt="auto-converted"
-                            width={11}
-                            height={11}
-                            draggable={false}
-                            className="themed-icon"
-                          />
-                          Converted
-                        </Typography>
-                      )}
-                    </StatusDot>
-                  </Box>
-                </Tooltip>
+                <TransactionStatusBadge
+                  status={transaction.status}
+                  autoConverted={transaction.autoConverted}
+                  data-testid="tx-card-status"
+                />
               </Box>
               {/* Middle row: Amount + USD */}
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 0.75 }}>
@@ -689,31 +603,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>
-                    <Tooltip
-                      title={statusTooltip(transaction.status, transaction.autoConverted)}
-                      arrow
-                      enterTouchDelay={50}
-                      leaveTouchDelay={2500}
-                    >
-                      <Box component="span" sx={{ display: "inline-flex" }}>
-                        <StatusDot tone={statusTone(transaction.status)}>
-                          {tTransactions(transaction.status)}
-                          {transaction.autoConverted && transaction.status === "settled" && (
-                            <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, ml: 0.5 }}>
-                              <Image
-                                src={SwapHorizIcon}
-                                alt="auto-converted"
-                                width={12}
-                                height={12}
-                                draggable={false}
-                                className="themed-icon"
-                              />
-                              Converted
-                            </Typography>
-                          )}
-                        </StatusDot>
-                      </Box>
-                    </Tooltip>
+                    <TransactionStatusBadge
+                      status={transaction.status}
+                      autoConverted={transaction.autoConverted}
+                      data-testid="tx-row-status"
+                    />
                   </TransactionsTableCell>
                 </TransactionsTableRow>
               ))

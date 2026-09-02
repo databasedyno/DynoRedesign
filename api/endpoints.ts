@@ -44,6 +44,8 @@ export const API_ENDPOINTS = {
     verifyCryptoPayment: "/wallet/verifyCryptoPayment",
     verifyPayment: "/wallet/verifyPayment",
     updateWallet: (walletId: PathId) => `/wallet/updateWallet/${walletId}`,
+    updateWalletSendOtp: "/wallet/wallet/update/send-otp",
+    updateWalletWithOtp: "/wallet/wallet/update",
   },
 
   pay: {

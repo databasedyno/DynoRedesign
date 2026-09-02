@@ -153,6 +153,8 @@ export const useWalletData = () => {
           walletTitle: type,
           walletAddress: wallet.wallet_address,
           name: WALLET_NAMES[type],
+          walletName: wallet.wallet_name || "",
+          destinationTag: wallet.destination_tag != null ? String(wallet.destination_tag) : "",
           totalProcessed: Number(wallet.amount_in_usd) || 0,
         };
       });

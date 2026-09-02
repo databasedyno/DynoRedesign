@@ -61,5 +61,6 @@
   "statusTipFailed": "Diese Zahlung wurde nicht abgeschlossen — keine Gelder bewegt.",
   "statusTipUnpaid": "Der Käufer hat den Checkout geöffnet, aber noch nicht bezahlt.",
   "awaiting_payment": "warten auf zahlung",
-  "statusTipAwaiting": "Noch keine Zahlung eingegangen – diese Adresse wartet darauf, dass der Käufer die Gelder sendet."
+  "statusTipAwaiting": "Noch keine Zahlung eingegangen – diese Adresse wartet darauf, dass der Käufer die Gelder sendet.",
+  "autoConvertedShort": "Umgewandelt"
 }

@@ -9,7 +9,13 @@
  */
 import React from "react";
 import { Box, styled } from "@mui/material";
-import { Icon as Iconify } from "@iconify/react";
+import { Icon as Iconify, addCollection } from "@iconify/react";
+import iconBundle from "./iconBundle.json";
+
+// Every lucide icon the app uses is bundled (scripts/gen-icon-bundle.mjs) so
+// <Icon/> paints instantly + offline; anything not in the bundle still falls
+// back to the Iconify API.
+addCollection(iconBundle as Parameters<typeof addCollection>[0]);
 
 export { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 

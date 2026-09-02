@@ -1,3 +1,14 @@
+# SESSION 2026-09-02 (fork, pod vault-setup) — Landing reflow ROOT CAUSE + status badges + wallet edit flow — SAFE MODE, prod DB
+- Landing "small then big": React escaped quotes inside <style>{`…`}</style> in _app.tsx -> font vars invalid pre-hydration
+  (Times New Roman first paint). Fixed via dangerouslySetInnerHTML; header/footer logo no longer forced white pre-mount.
+  Verified on a real production build: SSR paint == hydrated paint (390 + 1440). Guard: scripts/verify-ssr-vs-hydrated.js.
+- Shared TransactionStatusBadge (list + drawer consistent); desktop transactions grid now fits 1280-1440 (Status visible).
+- Edit wallet address change used the ADD validator (always "already exists") -> now uses /wallet/wallet/update/send-otp + /wallet/wallet/update.
+  Success refetches; add-success screen on Wallets page; aria-labels/testids on edit/delete; real wallet_name/destination_tag prefill.
+- Lucide icons bundled offline (styles/iconBundle.json via `yarn icons:bundle`) — no more blank icon buttons.
+- Fixed 2 pre-existing eslint errors that made `next build` (prod deploy) fail.
+- testing_agent iteration_114: 100% frontend. Backend OTP edit flow curl-verified + fully reverted on live DB.
+
 # SESSION 2026-09-01 (fork, pod e952fc3d) — Signup Attribution + Activation Drip WIRED & TESTED + brand-casing sweep (Dynopay) — SAFE MODE, prod DB
 
 ## A) Attribution + Activation Drip (P0) — completed the half-built feature from the prior fork

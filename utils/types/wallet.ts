@@ -20,6 +20,7 @@ export interface AddWalletModalProps {
   editWalletId?: number;
   editWalletName?: string;
   editWalletAddress?: string;
+  editDestinationTag?: string;
 }
 
 export type Address = {
@@ -95,6 +96,9 @@ export interface WalletDataType {
   walletTitle: WalletType;
   walletAddress: string;
   name: string;
+  /** Merchant-given label (tbl_user_wallet.wallet_name); empty when unnamed. */
+  walletName?: string;
+  destinationTag?: string;
   totalProcessed: number;
 }
 

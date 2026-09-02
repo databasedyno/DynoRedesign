@@ -61,5 +61,6 @@
   "statusTipFailed": "Este pagamento não foi concluído — nenhum fundo foi movido.",
   "statusTipUnpaid": "O comprador abriu o checkout mas ainda não pagou.",
   "awaiting_payment": "aguardando pagamento",
-  "statusTipAwaiting": "Nenhum pagamento recebido ainda — este endereço está aguardando o comprador enviar os fundos."
+  "statusTipAwaiting": "Nenhum pagamento recebido ainda — este endereço está aguardando o comprador enviar os fundos.",
+  "autoConvertedShort": "Convertido"
 }

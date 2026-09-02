@@ -58,6 +58,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const [editWalletId, setEditWalletId] = useState<string | number | undefined>(undefined);
   const [editWalletName, setEditWalletName] = useState("");
   const [editWalletAddress, setEditWalletAddress] = useState("");
+  const [editDestinationTag, setEditDestinationTag] = useState("");
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string | number; type: string; address: string } | null>(null);
 
@@ -80,8 +81,9 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const handleEdit = (wallet: WalletDataType) => {
     setEditWalletCrypto(wallet.walletTitle);
     setEditWalletId(wallet.id);
-    setEditWalletName(wallet.name);
+    setEditWalletName(wallet.walletName || wallet.name);
     setEditWalletAddress(wallet.walletAddress);
+    setEditDestinationTag(wallet.destinationTag || "");
     setOpenEditModal(true);
   };
 
@@ -480,7 +482,11 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       }}
                     />
 
-                    <WalletEditButton onClick={() => handleEdit(wallet)}>
+                    <WalletEditButton
+                      onClick={() => handleEdit(wallet)}
+                      aria-label={tWallet("editWalletTitle")}
+                      data-testid="wallet-edit-btn"
+                    >
                       <Icon
                         name="pencil"
                         size={isMobile ? 14 : 16}
@@ -490,6 +496,8 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
 
                     <WalletEditButton
                       onClick={() => handleDelete(wallet)}
+                      aria-label={tWallet("deleteWallet", { defaultValue: "Delete wallet" })}
+                      data-testid="wallet-delete-btn"
                       sx={{
                         "&:hover": {
                           backgroundColor: "#FEE2E2",
@@ -599,12 +607,14 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
         editWalletId={editWalletId != null ? Number(editWalletId) : undefined}
         editWalletName={editWalletName}
         editWalletAddress={editWalletAddress}
+        editDestinationTag={editDestinationTag}
         onClose={() => {
           setOpenEditModal(false);
           setEditWalletCrypto("");
           setEditWalletId(undefined);
           setEditWalletName("");
           setEditWalletAddress("");
+          setEditDestinationTag("");
         }}
       />
 

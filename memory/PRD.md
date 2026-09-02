@@ -24,6 +24,50 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-09-02 (fork, pod vault-setup): LANDING "SMALL→BIG" ROOT-CAUSE FIX + STATUS BADGES + WALLET FLOW —
+     DONE (testing_agent iteration_114 = 100% frontend; backend edit-OTP flow curl-verified + reverted; FE tsc 0,
+     eslint 0 errors). LIVE prod DB, SAFE MODE. Preview: https://5cde9912-3a46-41e1-8e85-456d471c580a.preview.emergentagent.com
+  (1) LANDING REFLOW — TRUE ROOT CAUSE (reproduced on dynopay.com prod, 390px + throttled net): the font CSS
+      variables in pages/_app.tsx were rendered as <style>{`…`}</style>; React SSR HTML-escapes the quotes
+      (" -> &quot;, ' -> &#x27;) and browsers do NOT decode entities inside <style>, so `--font-hero: &quot;…`
+      was INVALID CSS until hydration rewrote the node -> whole page painted in Times New Roman / default fonts,
+      then "grew" into Manrope/Plex. (Earlier "fixes" targeted font preloading = wrong layer.) FIX: style now
+      emitted via dangerouslySetInnerHTML (data-testid font-vars-style). Also removed the `!mounted` white-logo
+      guard in HomeHeader + HomeFooter (logo was invisible pre-hydration on light theme; theme is SSR'd from the
+      cookie so isDark is hydration-safe). VERIFIED on a real `next build` (NEXT_DIST_DIR=.next-prod, port 3400):
+      JS-disabled SSR paint == hydrated paint for h1/hero/header/logo/main at 390 and 1440. Regression script:
+      scripts/verify-ssr-vs-hydrated.js. next.config.mjs: optional distDir via NEXT_DIST_DIR env.
+  (2) STATUS BADGES — new shared Components/UI/TransactionStatusBadge.tsx (tone map + i18n label + tooltip +
+      "Converted" sub-label; variants inline|pill) replaces the divergent StatusDot-in-table vs legacy icon pill
+      in TransactionDetailsModal header. testids tx-row-status / tx-card-status / tx-modal-status /
+      tx-status-converted. Transactions table (styled.tsx) >=md now uses weighted minmax(0,Nfr) columns +
+      minWidth 0 (was repeat(7,1fr)+minWidth:max-content+cell maxWidth 180 => fixed 1356px row => Status column
+      pushed off-screen on 1280-1440 laptops). <md keeps max-content horizontal scroll. i18n
+      transactions.autoConvertedShort x6.
+  (3) WALLET FLOW — BUG: Edit wallet + address change called /wallet/validateWalletAddress (add-flow) which
+      rejects "A DOGE wallet already exists" for the very wallet being edited (repro'd via curl), and verifyOtp
+      would have created a new slot. FIX: AddWalletModal edit mode uses the dedicated backend flow
+      POST /wallet/wallet/update/send-otp {wallet_id,company_id} -> POST /wallet/wallet/update {wallet_id,
+      company_id,otp,wallet_address,wallet_name,destination_tag}; resend re-hits send-otp; success -> toast +
+      refetchWallets + close. Name-only edits still PUT /wallet/updateWallet/:id (no OTP) and now refetch.
+      Add-wallet success screen (Done / Add another) now shows on the Wallets page too (Done closes when no
+      onWalletAdded). Real wallet_name + destination_tag now flow into edit prefill (useWalletData/WalletDataType).
+      UX: helper text "Changing the address requires a one-time code…" + CTA "Verify & save" when OTP needed;
+      add-only description hidden in edit; edit/delete buttons got aria-labels + testids wallet-edit-btn /
+      wallet-delete-btn. i18n walletScreen.{walletUpdated,editOtpNotice,verifyAndSave,updatingWallet} x6.
+      E2E (reversible, live DB): send-otp -> OTP read from tbl_user.verified_otp -> wrong OTP 400 -> correct OTP
+      with SAME DOGE address + name "Doge main" -> 200 -> name reverted to NULL, OTP cleared.
+  (4) ICONS OFFLINE — <Icon/> (styles/uiKit.tsx) fetched every lucide icon from api.iconify.design at runtime
+      (edit/delete wallet buttons rendered as BLANK squares while loading / when CDN blocked). Now
+      scripts/gen-icon-bundle.mjs (yarn icons:bundle) writes styles/iconBundle.json (61 icons, 16KB) which is
+      addCollection'ed at import — instant + offline; unknown icons still fall back to the API. Re-run the script
+      after adding a new <Icon name=...>. Dev deps: @iconify-json/lucide, @iconify/utils.
+  (5) DEPLOY BLOCKERS FIXED: `next build` FAILED on 2 pre-existing eslint ERRORS (PayoutCard `useSavedWallet`
+      callback named like a hook -> renamed applySavedWallet; how-to.tsx unescaped apostrophe). Prod deploy would
+      have failed without this.
+  KNOWN/MINOR (pre-existing): PopupModal uses keepMounted so closed dialogs stay in DOM (visibility:hidden) —
+      duplicate testids for strict locators; no functional impact. -->
+
 <!-- 2026-09-02 (fork, pod 054d2272 / preview setup-credentials): FIRST+LAST NAME COLLECTION +
      PREFILL + EDIT + IDENTITY-VERIFIED LOCK — DONE (FE+BE tsc 0; screenshot-verified locked state;
      backend curl-verified 403 guard). LIVE prod DB, SAFE MODE. Storage: kept single tbl_user.name

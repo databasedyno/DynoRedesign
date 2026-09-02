@@ -61,5 +61,6 @@
   "statusTipFailed": "This payment did not complete — no funds moved.",
   "statusTipUnpaid": "The buyer opened the checkout but has not paid yet.",
   "awaiting_payment": "awaiting payment",
-  "statusTipAwaiting": "No payment received yet — this address is waiting for the buyer to send funds."
+  "statusTipAwaiting": "No payment received yet — this address is waiting for the buyer to send funds.",
+  "autoConvertedShort": "Converted"
 }

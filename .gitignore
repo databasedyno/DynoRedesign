@@ -83,3 +83,4 @@ backend/dynopay.json
 # Jest cache + test logs (pod-local, never commit)
 backend/.jest-cache/
 backend/test-run.log
+.next-prod

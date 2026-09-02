@@ -36,16 +36,19 @@ export const TransactionsTableContainer = styled(Box)(({ theme }) => ({
 export const TransactionsTableHeader = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  // >=md: weighted columns that always FIT the container (no horizontal scroll,
+  // so the Status column is never pushed off-screen on 1280-1440 laptops).
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 1.3fr) minmax(0, 1.1fr)",
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "19px 20px",
   backgroundColor: theme.palette.primary.light,
   borderRadius: "14px 14px 0 0",
   gap: "16px",
-  minWidth: "max-content",
+  minWidth: 0,
   flexShrink: 0,
   [theme.breakpoints.down("md")]: {
+    minWidth: "max-content",
     gridTemplateColumns:
       "minmax(120px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(150px, 1fr) minmax(100px, 1fr)",
     padding: "15px 12px",
@@ -69,7 +72,7 @@ export const TransactionsTableHeaderItem = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  minWidth: "180px",
+  minWidth: 0,
   gap: 10,
   "& span": {
     fontSize: "15px",
@@ -77,6 +80,8 @@ export const TransactionsTableHeaderItem = styled(Box)(({ theme }) => ({
     color: theme.palette.text.primary,
     fontFamily: "var(--font-sans)",
     whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     [theme.breakpoints.down("md")]: {
       fontSize: "13px",
     },
@@ -127,11 +132,12 @@ export const TransactionsTableBody = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   padding: "0 20px",
-  minWidth: "max-content",
+  minWidth: 0,
   flex: 1,
   minHeight: 0,
   overflowY: "auto",
   [theme.breakpoints.down("md")]: {
+    minWidth: "max-content",
     padding: "0 12px",
   },
 }));
@@ -139,14 +145,15 @@ export const TransactionsTableBody = styled(Box)(({ theme }) => ({
 export const TransactionsTableRow = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 1.3fr) minmax(0, 1.1fr)",
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "11px 0",
   borderBottom: `1px solid ${theme.palette.divider}`,
   gap: "16px",
-  minWidth: "max-content",
+  minWidth: 0,
   [theme.breakpoints.down("md")]: {
+    minWidth: "max-content",
     gridTemplateColumns:
       "minmax(120px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(150px, 1fr) minmax(100px, 1fr)",
     gap: "12px",
@@ -173,7 +180,7 @@ export const TransactionsTableRow = styled(Box)(({ theme }) => ({
 export const TransactionsTableCell = styled(Box)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
-  maxWidth: "180px",
+  maxWidth: "100%",
   minWidth: 0,
   color: theme.palette.text.primary,
   fontFamily: "var(--font-sans)",

@@ -61,5 +61,9 @@
   "totalProcessedEyebrow": "Total traité · toutes les chaînes",
   "activeChains": "Chaînes actives",
   "supported": "Pris en charge",
-  "coverage": "Couverture"
+  "coverage": "Couverture",
+  "walletUpdated": "Portefeuille mis à jour avec succès",
+  "editOtpNotice": "Modifier l'adresse nécessite un code à usage unique envoyé par e-mail.",
+  "verifyAndSave": "Vérifier et enregistrer",
+  "updatingWallet": "Mise à jour de votre portefeuille…"
 }

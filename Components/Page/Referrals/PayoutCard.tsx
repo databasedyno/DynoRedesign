@@ -103,7 +103,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
   };
 
   // ── Actions ───────────────────────────────────────────────────────────
-  const useSavedWallet = useCallback(async (address: string) => {
+  const applySavedWallet = useCallback(async (address: string) => {
     setBusy(`save-${address}`);
     const r = await post(API_ENDPOINTS.referral.payoutOptIn, { mode: "cash", address });
     setBusy(null);
@@ -457,7 +457,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                       {data.trc20_address_masked}
                     </Typography>
                   </Box>
-                  <Box data-testid="payout-reenable-btn" onClick={() => data.trc20_address && useSavedWallet(data.trc20_address)} sx={pillBtn("primary")}>
+                  <Box data-testid="payout-reenable-btn" onClick={() => data.trc20_address && applySavedWallet(data.trc20_address)} sx={pillBtn("primary")}>
                     {busy === `save-${data.trc20_address}` ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
                     {t("payoutReEnable", { defaultValue: "Re-enable cash-out" })}
                   </Box>
@@ -480,7 +480,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                             {w.address_masked} · {w.wallet_type}
                           </Typography>
                         </Box>
-                        <Box data-testid={`payout-use-wallet-${w.wallet_id}`} onClick={() => useSavedWallet(w.address)} sx={pillBtn("primary")}>
+                        <Box data-testid={`payout-use-wallet-${w.wallet_id}`} onClick={() => applySavedWallet(w.address)} sx={pillBtn("primary")}>
                           {busy === `save-${w.address}` ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
                           {t("payoutUse", { defaultValue: "Use" })}
                         </Box>

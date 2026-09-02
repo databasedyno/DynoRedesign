@@ -529,7 +529,7 @@ const Scene = ({ id, s, reduce }: { id: string; s: Tokens; reduce: boolean }) =>
             Pay $49.00
           </Typography>
           <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, color: s.ink3, mb: 2 }}>
-            Choose how you'd like to pay
+            Choose how you&apos;d like to pay
           </Typography>
           <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
             {coins.map((c, i) => (

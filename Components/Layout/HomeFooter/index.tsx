@@ -60,12 +60,8 @@ const HomeFooter: FC = () => {
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
 
-  // Theme-aware logo (avoid hydration mismatch: default to white pre-mount).
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  const logoSrc = !mounted || dark ? WhiteLogo : BlackLogo;
+  // Theme mode is SSR'd from the cookie, so `dark` is hydration-safe.
+  const logoSrc = dark ? WhiteLogo : BlackLogo;
 
   const linkColor = dark ? "rgba(255,255,255,0.66)" : "#3F3F46";
   const linkHover = dark ? "#A5B4FC" : BRAND_ACCENT;
