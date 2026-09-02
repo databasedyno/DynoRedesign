@@ -1,4 +1,34 @@
 # ============================================================================
+# 2026-09-02 (pod 815f7348) RE-SETUP from ENCRYPTED VAULT — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
+# ----------------------------------------------------------------------------
+# - CURRENT Preview URL (THIS POD): https://815f7348-470d-47de-b291-ab9c16e25b5b.preview.emergentagent.com
+#   (IGNORE all older *.preview.emergentagent.com URLs below — historical, incl. vault-setup-1.)
+# - Fresh pod: /app working tree was WIPED (only .git/.emergent) -> `git reset --hard HEAD`
+#   restored branch conflict_280826_1905. BOTH .env files were MISSING (gitignored).
+#   RESTORED from env.vault.enc via: bash scripts/env-vault.sh open 'Katiekendra123@'
+#   (-> /app/.env 191 lines, /app/backend/.env 187 lines). Then `bash scripts/pod-bootstrap.sh --skip-env`.
+# - SAFE MODE (preview talks to LIVE prod Railway DB) — enforced this session:
+#     ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (bootstrap-enforced)
+#     DISABLE_OUTBOUND_EMAIL=true (from vault)
+#     REDIS_PUBLIC_URL -> nozomi.proxy.rlwy.net:15794/1 (I appended /1 by hand; vault had NO index = prod's /0)
+#     BINANCE_PROXY_URL + SSH_TUNNEL_HOST BLANKED by hand (no SSH tunnel on this pod; REST fallback)
+#     NODE_ENV=production, DATABASE_URL roundhouse.proxy.rlwy.net:23599/railway
+#     /app/.env NEXT_PUBLIC_BASE_URL EMPTY -> browser relative /api calls -> ingress :8001 -> local backend
+# - >>> MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, "Hostbay") <<<
+#   (2-step login: /auth/login -> email -> Continue (exact) -> password -> Sign in)
+# - Admin email on record: moxxcompany@gmail.com (no login password on record — do not use for login)
+# - VERIFIED this session: :8001/health healthy (db+redis connected, tatum operational CLOSED,
+#     background_jobs.eligible=false, binance geo_blocked=true REST-fallback);
+#     /api/public/tickers live (BTC ~$77.1k, ETH ~$2.38k); POST /api/user/login -> 200 "Login Successful!";
+#     frontend :3000 -> 200 and external preview -> 200.
+# - NOTE for testing agents: WIRED TO PRODUCTION DB — prefer READ-ONLY checks. Next.js dev never hits
+#     'networkidle' (HMR ws) -> wait on selectors, warm route first. Social login redirect_uri_mismatch
+#     on preview (OAuth URIs point at dynopay.com); email/password works fine.
+# ============================================================================
+
+
+
+# ============================================================================
 # 2026-09-02 (pod 054d2272) RE-SETUP from ENCRYPTED VAULT — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - CURRENT Preview URL (THIS POD): https://vault-setup-1.preview.emergentagent.com
