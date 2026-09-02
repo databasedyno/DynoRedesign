@@ -18,6 +18,7 @@ import {
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
 import InlineTipCheckout from "@/Components/Page/Creator/InlineTipCheckout";
+import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 
 // Platform floor: minimum order total is $10 (matches tips / donations).
 const MIN_TOTAL_CENTS = 1000;
@@ -222,9 +223,12 @@ const CheckoutPage: NextPageWithLayout = () => {
             </Link>
           </Typography>
         )}
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
-          {t("checkout.store.title", { defaultValue: "Checkout" })}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3, flexWrap: "wrap" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            {t("checkout.store.title", { defaultValue: "Checkout" })}
+          </Typography>
+          <PublicVerifiedBadge handle={handle} showLabel size={16} ml={0} />
+        </Box>
 
         {payRef ? (
           <Box data-testid="checkout-inline-pay">

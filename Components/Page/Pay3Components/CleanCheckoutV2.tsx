@@ -59,6 +59,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import Logo from '@/assets/Icons/Logo'
 import CheckoutStatusStrip from '@/Components/UI/CheckoutStatusStrip'
 import RateFreshness from '@/Components/UI/RateFreshness'
+import PublicVerifiedBadge from '@/Components/UI/PublicVerifiedBadge'
 import type { CheckoutState } from '@/Components/UI/CheckoutShell'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 // ─── Extracted checkout modules (Session refactor) ───────────────────────
@@ -837,6 +838,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           <Typography fontSize={14} color={muted} mt={1}>
             {isContribution ? campaignTitle || merchantName : t('checkout.success.paidTo', { defaultValue: 'Paid to {{name}}', name: merchantName })} — {feePayerIsCustomer ? fmtFiat(totalAmt) : `${fiatSymbol}${fiatAmount}`}
           </Typography>
+          {/* Identity-verified merchant trust signal on the on-screen receipt */}
+          <Box sx={{ mt: 1 }}>
+            <PublicVerifiedBadge linkRef={d} showLabel size={15} ml={0} />
+          </Box>
           <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
           </Typography>
@@ -1017,6 +1022,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       >
         {headline}
       </Typography>
+
+      {/* Identity-verified badge — buyer-trust signal shown when the merchant
+          behind this payment link is KYC-approved (resolved by the link ref).
+          Renders nothing for unverified/unknown merchants. */}
+      <Box sx={{ mt: 0.75 }}>
+        <PublicVerifiedBadge linkRef={d} showLabel size={16} ml={0} />
+      </Box>
 
       {/* Amount subheadline — single line, OR a transparent breakdown when the
           customer pays fees / tax applies (Amount + Network fee = Total). */}

@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
+import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 import { formatDateTimeI18n } from "@/utils/formatDate";
 import { GetServerSideProps } from "next";
 import {
@@ -352,6 +353,25 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             data-testid="order-status-chip"
           />
         </Stack>
+
+        {/* Sold-by line with identity-verified badge — buyer-trust signal on
+            the receipt when the merchant behind this order is KYC-verified. */}
+        {order.merchant?.name && (
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 2, mt: -1.5, flexWrap: "wrap" }}
+            data-testid="order-merchant"
+          >
+            <Typography variant="body2" color="text.secondary">
+              {t("order.soldBy", { defaultValue: "Sold by" })} <b>{order.merchant.name}</b>
+            </Typography>
+            <PublicVerifiedBadge
+              handle={order.merchant.handle}
+              orderId={order.public_ref}
+              size={15}
+              ml={0}
+            />
+          </Box>
+        )}
 
         {/* Public-surfaces clarity pass: one plain-English line answering
             "what is happening with my money?" for every status. */}

@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
 
 /**
  * Format a cents integer to a currency-symbol prefixed string.
@@ -130,8 +131,20 @@ export const sendOrderReceiptEmail = async (
     const hasDigital = items.some((i: any) => (i.product_snapshot?.product_type || "digital") === "digital");
     const hasPhysical = items.some((i: any) => i.product_snapshot?.product_type === "physical");
 
+    // "Verified Everywhere": buyer-trust line when the selling merchant is
+    // KYC-identity-verified. Resolved from the order's owner; safe no-op (no
+    // line) when unverified or the lookup fails.
+    const merchantVerified = await isMerchantIdentityVerified(
+      order?.merchant_user_id,
+      order?.company_id ?? null,
+    );
+    const verifiedLine = merchantVerified
+      ? p(`<span style="display:inline-flex;align-items:center;gap:6px;color:#12B76A;font-weight:600;">&#10003; Identity-verified merchant</span>`)
+      : "";
+
     const message = `
       ${p(`Thanks for your purchase! Your payment has been received and your order is confirmed.`)}
+      ${verifiedLine}
       ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
       ${itemsTable}
       ${hasDigital ? p(`Download links above are valid for 24 hours. Need a fresh link? <a href="${esc(orderPublicUrl)}" style="color:#05936A;">Open your order page</a>.`) : ""}

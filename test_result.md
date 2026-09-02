@@ -1,3 +1,72 @@
+# ============================================================================
+# CURRENT SESSION — 2026-09-02 (pod 054d2272): SETUP + TEST LAST COMMIT + FEATURE + BUG
+#   Restored env from encrypted vault (passphrase Katiekendra123@) -> pod-bootstrap --skip-env.
+#   LIVE prod DB, SAFE MODE (bg jobs off, email off, Redis /1, Binance/SSH tunnel blanked).
+#   Preview: https://054d2272-456b-42fd-b660-3919d63aa8e8.preview.emergentagent.com
+#   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
+#
+#   PLAN (user-approved):
+#   1) TEST last commit df3eab005 "Brand terminology + Add-brand account-type choice + settings fixes"
+#      (FRONTEND). User approved creating a THROWAWAY test brand then DELETING it (prod DB write, reversible).
+#   2) FIX bug: after auto-refresh on return, Dashboard balance stuck on skeleton until manual refresh.
+#   3) FEATURE "Verified Everywhere": show KYC identity-verified badge on ALL buyer-facing surfaces
+#      (hosted /pay page, storefront checkout+product, on-screen receipt/success, emailed receipt)
+#      via a NEW read-only PUBLIC endpoint (buyers are unauthenticated).
+#
+#   FRONTEND TEST FOCUS (item 1) — testids:
+#     Login (2-step): login-email-input -> Continue (exact) -> password-input -> signin-submit-btn
+#     Add brand: company-selector-trigger -> add-company-btn -> createbrand-account-type-chooser
+#       (options createbrand-account-type-individual / -business); individual hides name section,
+#       email optional; company-name-input, company-country-input, company-currency-input;
+#       create-company-submit-btn. Verify "Brand" terminology (not "Company").
+#     Settings dialog: settings-save-changes-btn (label "Save Changes"), settings-delete-brand-btn,
+#       account-type-chooser, account-type-business-badge. /settings must NOT double-render account details.
+#     Delete throwaway brand: settings-delete-brand-btn -> type brand name into
+#       delete-company-confirm-input -> confirm "Delete". MUST clean up (leave prod as found).
+# ============================================================================
+
+# ============================================================================
+# STATUS (2026-09-02, pod 054d2272) — progress + BACKEND TEST FOCUS
+# ----------------------------------------------------------------------------
+#   ITEM 1 (last commit): TEST1 (Brand terminology) + TEST2 (Individual/Business create) PASS.
+#     Throwaway brand "QA Throwaway 90202" (company_id=115) created then DELETED via API
+#     (DELETE /api/company/deleteCompany/115 -> "Company deleted successfully!"; prod restored
+#     to SMADAV(71)+The Dev Store(1)). TEST3 (/settings duplicate-render + "Save Changes" label +
+#     no required asterisks on State/City/Address/Zip) still needs a read-only FE check.
+#   ITEM 2 (skeleton bug): FIXED. Root cause: DashboardAction dispatches DASHBOARD_INIT ->
+#     reducer sets loading:true, but DashboardSaga dedupe `break`ed without a terminal action ->
+#     loading stuck true -> VolumeHero showSkeleton + Sparkline stuck. FIX (Redux/Reducers/
+#     dashboardReducer.ts + Redux/Sagas/DashboardSaga.ts): added statsLoaded/chartLoaded flags so
+#     the skeleton only shows on genuine first load; saga dedupe now clears transient loading.
+#   ITEM 3 (Verified Everywhere): DONE + partially verified.
+#     Backend: NEW read-only public endpoint GET /api/public/merchant-verification
+#       ?handle= | ?linkRef= | ?orderId=  -> { verified, business_name }. Helper
+#       backend/helper/merchantVerification.ts. Emailed buyer receipt
+#       (orderEmails.sendOrderReceiptEmail) adds a green "Identity-verified merchant" line
+#       (email OFF in SAFE MODE so not delivery-tested).
+#     Frontend: NEW Components/UI/PublicVerifiedBadge (testid=public-verified-badge), wired into
+#       CleanCheckoutV2 (H1 + on-screen receipt, linkRef=d), ShopHero (handle), product page,
+#       store checkout (handle), CreatorProfile (handle), order/[publicRef] (handle+orderId).
+#       i18n verifiedBadge.{label,tooltip} added to all 6 common.json.
+#     VERIFIED: endpoint handle=devhub -> verified:true "The Dev Store" (internal + preview
+#       ingress); real linkRefs (user_id=1) -> true; unknown/none -> false. BADGE RENDERS: green
+#       check next to "The Dev Store" on /devhub/shop (preview screenshot-confirmed).
+#
+#   BACKEND TEST FOCUS (deep_testing_backend_v2, READ-ONLY — prod DB):
+#     GET /api/public/merchant-verification
+#       - ?handle=devhub            -> 200 { verified:true, business_name:"The Dev Store" }
+#       - ?handle=<random-nonexist> -> 200 { verified:false }
+#       - (no params)               -> 200 { verified:false }
+#       - ?linkRef=ZZZZZZ (bogus)   -> 200 { verified:false }
+#       - ?linkRef=<real active link ref owned by user_id=1> -> 200 { verified:true }
+#         (get a ref: login onarrival21@gmail.com/Katiekendra123@ -> data.accessToken;
+#          GET /api/pay/getPaymentLinks?company_id=1 (Bearer) -> parse ?d=<ref> from payment_link)
+#       Endpoint must NEVER 4xx/5xx (always 200 with verified boolean); no DB writes.
+# ============================================================================
+
+
+
+
 # ############################################################################
 # >>> CURRENT MERCHANT LOGIN (updated 2026-08-27, pod f431e319) <<<
 #     LOGIN EMAIL:  onarrival21@gmail.com   (password unchanged: Katiekendra123@)

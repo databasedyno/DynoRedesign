@@ -182,7 +182,16 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
         const key = String((payload && (payload as any).company_id) ?? "all");
         const now = Date.now();
         if (key === _lastDashboardAllKey && now - _lastDashboardAllAt < DASHBOARD_ALL_DEDUPE_MS) {
-          break; // duplicate burst for the same company — skip
+          // Duplicate burst for the same company (remount / refocus / a second
+          // dispatcher within the window). The DASHBOARD_INIT reducer may have
+          // just flipped `loading` -> true for this dispatch; a bare `break`
+          // used to leave the skeleton STUCK forever because no terminal
+          // DASHBOARD_FETCH/ERROR followed. Clear the transient loading flags
+          // (DASHBOARD_ERROR only resets loading/chartLoading — it does NOT
+          // touch stats/chartData or the *Loaded markers), then skip the
+          // redundant network call. The data fetched <4s ago is still current.
+          yield put({ type: DASHBOARD_ERROR });
+          break;
         }
         _lastDashboardAllKey = key;
         _lastDashboardAllAt = now;

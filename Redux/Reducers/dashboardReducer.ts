@@ -63,6 +63,14 @@ export interface DashboardState {
   loading: boolean;
   chartLoading: boolean;
   fetched: boolean;
+  // True once real dashboard stats / chart series have been fetched at least
+  // once this session. Used to gate the loading skeleton so a re-init from a
+  // refocus / remount / background refresh keeps the current data on screen
+  // instead of flashing — or getting permanently STUCK — on a skeleton when
+  // the saga dedupes or drops the follow-up fetch. (Distinct from `fetched`,
+  // which OnboardingFlow reads for the "first payment received" milestone.)
+  statsLoaded: boolean;
+  chartLoaded: boolean;
 }
 
 const dashboardInitialState: DashboardState = {
@@ -88,6 +96,8 @@ const dashboardInitialState: DashboardState = {
   loading: false,
   chartLoading: false,
   fetched: false,
+  statsLoaded: false,
+  chartLoaded: false,
 };
 
 const dashboardReducer = (
@@ -100,19 +110,29 @@ const dashboardReducer = (
     case DASHBOARD_INIT:
       return {
         ...state,
-        loading: true,
+        // Only show the full skeleton on the genuine FIRST load (no stats yet).
+        // Once real stats are on screen, a re-init (refocus / remount / extra
+        // dispatcher / deduped refresh) must NOT flip back to a skeleton — a
+        // plain `loading:true` here got permanently stuck whenever the saga
+        // deduped the follow-up DASHBOARD_FETCH_ALL and `break`ed without a
+        // terminal DASHBOARD_FETCH/ERROR. Keep the current numbers visible.
+        loading: state.statsLoaded ? false : true,
       };
 
     case DASHBOARD_CHART_INIT:
       return {
         ...state,
-        chartLoading: true,
+        // Same guard as DASHBOARD_INIT: never flash/stick the chart skeleton
+        // once a series is loaded — the balance headline's "This period" metric
+        // keys off chartLoading too (showSkeleton = loading || chartLoading).
+        chartLoading: state.chartLoaded ? false : true,
       };
 
     case DASHBOARD_FETCH:
       return {
         ...state,
         loading: false,
+        statsLoaded: true,
         stats: payload.stats || state.stats,
       };
 
@@ -120,6 +140,7 @@ const dashboardReducer = (
       return {
         ...state,
         chartLoading: false,
+        chartLoaded: true,
         chartData: payload.chartData || state.chartData,
         chartSummary:
           payload.chartSummary !== undefined ? payload.chartSummary : state.chartSummary,

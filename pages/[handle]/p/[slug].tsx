@@ -8,6 +8,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
+import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
@@ -117,11 +118,14 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
         <meta key="og:locale" property="og:locale" content={metaLang} />
       </Head>
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="product-detail">
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          <Link href={`/${merchant.handle}/shop`} style={{ color: "inherit" }}>
-            {t("shop.backToShop", { name: merchant.name, defaultValue: `← Back to ${merchant.name}’s shop` })}
-          </Link>
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 2, flexWrap: "wrap" }}>
+          <Typography variant="body2">
+            <Link href={`/${merchant.handle}/shop`} style={{ color: "inherit" }}>
+              {t("shop.backToShop", { name: merchant.name, defaultValue: `← Back to ${merchant.name}’s shop` })}
+            </Link>
+          </Typography>
+          <PublicVerifiedBadge handle={merchant.handle} size={15} ml={0} />
+        </Box>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 3, md: 5 } }}>
           <Box sx={{ position: "relative", bgcolor: "grey.100", aspectRatio: "1/1", borderRadius: 2, overflow: "hidden" }} data-testid="product-detail-image">
             {cover ? (

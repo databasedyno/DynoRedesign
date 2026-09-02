@@ -300,6 +300,44 @@ router.get("/public/fx-rates", async (_req: express.Request, res: express.Respon
 });
 
 /**
+ * Public merchant identity-verification endpoint — powers the buyer-facing
+ * "Identity verified" badge across payment pages, storefronts and receipts
+ * ("Verified Everywhere"). No auth, read-only, no DB writes.
+ *
+ * Accepts exactly one PUBLIC identifier as a query param:
+ *   ?handle=<storefront/creator handle>   (storefront, product, checkout, creator)
+ *   ?linkRef=<d param of /pay?d=...>       (hosted payment link checkout)
+ *   ?orderId=<product order id>            (order / receipt pages)
+ * Returns { verified: boolean, business_name: string|null }. Anything that
+ * doesn't resolve (or any error) yields { verified: false } — the badge simply
+ * doesn't render, so an unverified/unknown merchant is never mislabelled.
+ */
+router.get("/public/merchant-verification", async (req: express.Request, res: express.Response) => {
+  try {
+    const { resolveMerchantForVerification, isMerchantIdentityVerified } = await import(
+      "../helper/merchantVerification"
+    );
+    const { handle, linkRef, orderId } = req.query as Record<string, string | undefined>;
+
+    if (!handle && !linkRef && !orderId) {
+      return res.status(200).json({ status: "success", data: { verified: false, business_name: null } });
+    }
+
+    const merchant = await resolveMerchantForVerification({ handle, linkRef, orderId });
+    const verified = await isMerchantIdentityVerified(merchant.userId, merchant.companyId);
+
+    return res.status(200).json({
+      status: "success",
+      data: { verified, business_name: merchant.businessName },
+    });
+  } catch (err: any) {
+    apiLogger.warn("/api/public/merchant-verification failed:", err?.message);
+    return res.status(200).json({ status: "success", data: { verified: false, business_name: null } });
+  }
+});
+
+
+/**
  * ─────────────────────────────────────────────────────────────────────────────
  * PUBLIC SANDBOX PLAYGROUND — extracted to routes/publicSandboxRouter.ts
  * (mounted below at /public/sandbox) to keep this aggregator under the R2

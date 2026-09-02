@@ -944,5 +944,9 @@
       "update": "A mis à jour le portefeuille de paiement",
       "change": "A modifié un portefeuille de paiement"
     }
+  },
+  "verifiedBadge": {
+    "label": "Identité vérifiée",
+    "tooltip": "L'identité de ce marchand a été vérifiée par Dynopay"
   }
 }

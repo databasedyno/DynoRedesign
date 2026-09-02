@@ -944,5 +944,9 @@
       "update": "Actualizó la cartera de pago",
       "change": "Cambió una cartera de pago"
     }
+  },
+  "verifiedBadge": {
+    "label": "Identidad verificada",
+    "tooltip": "La identidad de este comercio ha sido verificada por Dynopay"
   }
 }

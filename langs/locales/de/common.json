@@ -944,5 +944,9 @@
       "update": "Hat das Auszahlungs-Wallet aktualisiert",
       "change": "Hat ein Auszahlungs-Wallet geändert"
     }
+  },
+  "verifiedBadge": {
+    "label": "Identität verifiziert",
+    "tooltip": "Die Identität dieses Händlers wurde von Dynopay verifiziert"
   }
 }

@@ -26,6 +26,7 @@ import {
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import type { ShopMerchant, ShopProduct } from "./types";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 
 interface Props {
   merchant: ShopMerchant;
@@ -156,21 +157,24 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
         </Avatar>
 
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 800,
-              fontSize: { xs: "1.75rem", md: "2.5rem" },
-              lineHeight: 1.12,
-              letterSpacing: "-0.03em",
-              fontFamily: "var(--font-hero), var(--font-sans)",
-              color: isDark ? "rgba(255,255,255,0.98)" : "rgba(0,0,0,0.92)",
-              wordBreak: "break-word",
-            }}
-            data-testid="shop-merchant-name"
-          >
-            {merchant.name}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: "1.75rem", md: "2.5rem" },
+                lineHeight: 1.12,
+                letterSpacing: "-0.03em",
+                fontFamily: "var(--font-hero), var(--font-sans)",
+                color: isDark ? "rgba(255,255,255,0.98)" : "rgba(0,0,0,0.92)",
+                wordBreak: "break-word",
+              }}
+              data-testid="shop-merchant-name"
+            >
+              {merchant.name}
+            </Typography>
+            <PublicVerifiedBadge handle={merchant.handle} size={22} ml={0} />
+          </Box>
 
           <Typography
             variant="body2"

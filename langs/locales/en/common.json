@@ -945,5 +945,9 @@
       "update": "Updated the payout wallet",
       "change": "Changed a payout wallet"
     }
+  },
+  "verifiedBadge": {
+    "label": "Identity verified",
+    "tooltip": "This merchant's identity has been verified by Dynopay"
   }
 }

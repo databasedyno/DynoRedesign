@@ -12,6 +12,7 @@ import { BRAND_ACCENT } from '@/constants/theme'
 import { GRADIENT_STOPS } from '@/constants/creatorTheme'
 import SupportWidget, { SupportWidgetData } from './SupportWidget'
 import InlineTipCheckout from './InlineTipCheckout'
+import PublicVerifiedBadge from '@/Components/UI/PublicVerifiedBadge'
 import type { CreatorAnalyticsData } from './AnalyticsWidget'
 import CreatorShopSection, { CreatorShopProduct } from './CreatorShopSection'
 
@@ -416,9 +417,12 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               )}
             </Box>
           </Box>
-          <Typography data-testid='creator-name' fontWeight={800} fontSize={{ xs: 26, sm: 30 }} letterSpacing='-0.03em' color={theme.palette.text.primary} mt={2} sx={{ fontFamily: 'var(--font-hero), var(--font-sans)' }}>
-            {creator.name}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, mt: 2, flexWrap: 'wrap' }}>
+            <Typography data-testid='creator-name' fontWeight={800} fontSize={{ xs: 26, sm: 30 }} letterSpacing='-0.03em' color={theme.palette.text.primary} sx={{ fontFamily: 'var(--font-hero), var(--font-sans)' }}>
+              {creator.name}
+            </Typography>
+            <PublicVerifiedBadge handle={creator.handle} size={20} ml={0} />
+          </Box>
           <Box
             sx={{
               display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.75,
