@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, useTheme, Grid } from "@mui/material";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { blogPosts } from "@/utils/blogData";
+import { blogPosts, getBlogCover } from "@/utils/blogData";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from 'react-i18next';
 import { brandFg } from "@/constants/theme";
@@ -69,6 +69,7 @@ const BlogPage = () => {
             return (
               <Grid item xs={12} md={6} key={post.slug}>
                 <Box
+                  data-testid={`blog-card-${post.slug}`}
                   onClick={() => router.push(`/blog/${post.slug}`)}
                   sx={{
                     cursor: "pointer",
@@ -79,7 +80,7 @@ const BlogPage = () => {
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
-                    transition: "all 0.3s ease",
+                    transition: "transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
                     "&:hover": {
                       transform: "translateY(-4px)",
                       borderColor: isDark ? "rgba(129,140,248,0.30)" : "rgba(79,70,229,0.18)",
@@ -87,8 +88,39 @@ const BlogPage = () => {
                         ? "0 16px 48px rgba(0,0,0,0.4)"
                         : "0 16px 48px rgba(10,10,10,0.08)",
                     },
+                    "&:hover img": { transform: "scale(1.03)" },
                   }}
                 >
+                  {/* Cover — same branded card that renders when the post is shared */}
+                  <Box
+                    sx={{
+                      borderRadius: "14px",
+                      overflow: "hidden",
+                      aspectRatio: "1200 / 630",
+                      mb: 2.5,
+                      bgcolor: "#050720",
+                      border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      data-testid={`blog-card-cover-${post.slug}`}
+                      src={getBlogCover(post)}
+                      alt={post.title}
+                      width={1200}
+                      height={630}
+                      loading="lazy"
+                      decoding="async"
+                      sx={{
+                        display: "block",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "transform 0.5s ease",
+                      }}
+                    />
+                  </Box>
+
                   {/* Category + Read time */}
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
                     <Box

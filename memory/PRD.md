@@ -24,6 +24,13 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-06 (fork): BLOG COVER REFRESH — DONE + VERIFIED (screenshots /blog + /blog/[slug]; 4/4 covers loaded, post
+     cover 1200x630; tsc 0, eslint 0). utils/blogData.ts += getBlogCover(post) = coverImage || /og/blog-<slug>.png (the
+     same branded share card). pages/blog/index.tsx: each card gets a 1200/630 cover on top (rounded 14px, lazy, hover
+     scale; testids blog-card-<slug>, blog-card-cover-<slug>). pages/blog/[slug].tsx: hero cover between author row and
+     share buttons (rounded 20px, shadow, fetchPriority=high + <link rel=preload>; testid blog-post-cover). To add art
+     for a new post: add it to blogPosts, run `python3 scripts/generate-og-images.py` (pip: pillow fonttools brotli). -->
+
 <!-- 2026-06 (fork): INLINE KYC STEP + EVENT-TRIGGERED ACTIVATION EMAIL + PER-PAGE OG CARDS — DONE + VERIFIED
      (testing_agent iteration_118: 8/8 scenarios pass, backend pytest 14/14, all gate scenarios via Playwright route
      interception — no prod writes). BE tsc 0, FE tsc 0, eslint 0.

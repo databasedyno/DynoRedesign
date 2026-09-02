@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, useTheme, Divider, IconButton, Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { getBlogPost, blogPosts } from "@/utils/blogData";
+import { getBlogPost, blogPosts, getBlogCover } from "@/utils/blogData";
 import useIsMobile from "@/hooks/useIsMobile";
 // HomeHeader is rendered by HomeLayout in _app.tsx
 import type { GetStaticPaths, GetStaticProps } from "next";
@@ -420,6 +420,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
         <meta key="twitter:description" name="twitter:description" content={post.excerpt} />
         <meta property="article:published_time" content={post.publishedAt} />
         <link key="canonical" rel="canonical" href={`https://dynopay.com/blog/${post.slug}`} />
+        <link rel="preload" as="image" href={getBlogCover(post)} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -572,6 +573,31 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               {post.author.role}
             </Typography>
           </Box>
+        </Box>
+
+        {/* Cover — identical to the card shown when this post is shared */}
+        <Box
+          sx={{
+            borderRadius: "20px",
+            overflow: "hidden",
+            aspectRatio: "1200 / 630",
+            mb: 4,
+            bgcolor: "#050720",
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+            boxShadow: isDark ? "0 24px 64px rgba(0,0,0,0.45)" : "0 24px 64px rgba(10,10,10,0.10)",
+          }}
+        >
+          <Box
+            component="img"
+            data-testid="blog-post-cover"
+            src={getBlogCover(post)}
+            alt={post.title}
+            width={1200}
+            height={630}
+            fetchPriority="high"
+            decoding="async"
+            sx={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+          />
         </Box>
 
         {/* Share buttons */}

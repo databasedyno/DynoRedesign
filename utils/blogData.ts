@@ -379,6 +379,10 @@ Get your API key from the [Dynopay dashboard](https://dynopay.com) and make your
   },
 ];
 
+/** Cover = the same branded 1200x630 card used for social shares (public/og/, scripts/generate-og-images.py). */
+export const getBlogCover = (post: Pick<BlogPost, "slug" | "coverImage">): string =>
+  post.coverImage || `/og/blog-${post.slug}.png`;
+
 export const getBlogPost = (slug: string): BlogPost | undefined => {
   return blogPosts.find((post) => post.slug === slug);
 };
