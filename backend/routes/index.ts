@@ -40,6 +40,7 @@ import {
 import adminRouter from "./adminRouter";
 import publicSandboxRouter from "./publicSandboxRouter";
 import teamRouter from "./teamRouter"; // Team Members / RBAC
+import walletSecurityRouter from "./walletSecurityRouter"; // PUBLIC "this wasn't me" revert
 import { logWebhookValidationFailure } from "../utils/securityLogger";
 import { verifyTatumSignature } from "../utils/webhookSignature";
 
@@ -386,6 +387,7 @@ router.use("/admin", adminRouter);
 router.use("/company", authMiddleware, emailVerifiedMiddleware, companyRouter);
 router.use("/userApi", apiRouter);
 router.use("/wallet", authMiddleware, walletMiddleware, emailVerifiedMiddleware, walletRouter);
+router.use("/wallet-security", walletSecurityRouter); // PUBLIC — token-authed revert link
 router.use("/__paytest", paymentTestHookRouter); // GUARDED test hook (off unless PAYMENT_TEST_HOOK_SECRET set)
 router.use("/pay", paymentRouter);
 router.use("/tax", taxRouter);

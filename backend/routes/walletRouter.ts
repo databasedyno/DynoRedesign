@@ -4,6 +4,7 @@ import { requireCompanyOwnerBy } from "../middleware/teamPermissionMiddleware";
 import { auditMutations } from "../utils/activityLog";
 import { userWalletModel } from "../models";
 import { requireWalletSudo } from "../controller/wallet/walletSudo";
+import { checkAddressSanity } from "../controller/wallet/walletSecurity";
 
 const walletRouter = express.Router();
 
@@ -37,6 +38,9 @@ walletRouter.get("/getWalletAddresses", walletController.getWalletAddresses);
 // Reuse wallets across companies (new-company onboarding + Wallets page)
 walletRouter.get("/reusable-wallets", walletController.getReusableWallets);
 walletRouter.post("/copyWalletAddresses", walletController.copyWalletAddresses);
+
+// Pre-save address sanity check (network-mismatch + never-received warning).
+walletRouter.post("/address-sanity", checkAddressSanity);
 
 // CREATE - Add wallet address (2-step OTP flow)
 // Step 1: Validate address and send OTP

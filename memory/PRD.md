@@ -581,3 +581,47 @@ low-risk mechanical change). Files: see REFACTOR_STATUS.md "Next Actions" checkb
 
 ## 1. "Landing appears small then normal" — ROOT CAUSE: prod was on the PRE-FIX build
 - Verified prod dynopay.com build last-modified = 2026-08-29 14:11 GMT (deployed ~30 min before this session).
+
+
+# WALLET SECURITY + ONBOARDING PREMIUM WALLET (2026-06 fork, pod 5cde9912) — DONE (backend curl-verified, frontend testing_agent iteration_116 PASS)
+
+## Scope (user-approved 1a/2a/3a/4a)
+- 3a: Onboarding wallet step now mounts the premium WalletManagerModal (Sudo Mode + Smart Paste + Bulk Reuse)
+  instead of the lightweight AddWalletModal. Added props onSaved + headerExtra to WalletManagerModal;
+  OnboardingFlow passes companyId + StepIndicator and advances/celebrates on onSaved.
+- 1a: Wallet Change Alerts. Any payout ADDRESS add/change now sends notifyWalletChanges():
+  friendly-but-secure email with a one-tap "This wasn't me — undo & lock" button + an always-shown in-app
+  notification (type wallet_changed, NOT preference-gated). Applied EVERYWHERE (4a): single add (walletOtp.verifyOtp),
+  single edit (walletMutations.updateWalletWithOTP), and batch (walletBatch). Name/tag-only edits keep the old light email.
+  One-tap link -> public page /wallet-security?token=... -> POST /api/wallet-security/revert-change (CSRF-exempt,
+  token-authed) -> performRevert(): reverts adds (clear slot) / edits (restore prev addr+name+tag), FREEZES wallet
+  changes (Redis wallet_freeze_<uid>, kills sudo session), emails "account secured" + in-app lock notice, alerts ADMIN_EMAIL.
+  Freeze is enforced (403 WALLET_FROZEN) at every mutation/unlock entry point: walletOtp.validateWallet/verifyOtp,
+  walletMutations.sendUpdateWalletOTP/updateWalletWithOTP, walletSudo.requestWalletSudoOtp/verifyWalletSudoOtp, walletBatch.
+  Revert token stored in Redis (wallet_revert_<token>) with 7-day TTL.
+- 2a: Address Sanity Check (soft, dismissible). New authed POST /api/wallet/address-sanity {address,currency}
+  returns network_mismatch (instant, EVM/Tron shape vs selected chain) + has_received_funds (best-effort Tatum
+  getAddressBalance/getIncomingTransactions; null = unknown -> no warning). WalletManagerModal runs it on Save and
+  shows a dismissible review dialog (Save anyway / Go back). AddWalletModal shows an instant inline network-mismatch
+  note (data-testid wallet-address-network-mismatch).
+
+## New / changed files
+- NEW backend: services/wallet/walletChangeAlert.ts, services/email/walletSecurityEmails.ts,
+  controller/wallet/walletSecurity.ts, routes/walletSecurityRouter.ts (all <500 lines for husky size hook).
+- NEW frontend: pages/wallet-security.tsx (layout="none" public page).
+- Edited: walletOtp.ts, walletMutations.ts, walletBatch.ts, walletSudo.ts, middleware/csrfMiddleware.ts (exempt
+  /api/wallet-security/revert-change), routes/index.ts + routes/walletRouter.ts, services/emailService.ts (export *),
+  api/endpoints.ts (wallet.addressSanity + walletSecurity.revertChange), Components/UI/WalletManagerModal/index.tsx,
+  Components/UI/OnboardingFlow/index.tsx, Components/UI/AddWalletModal/index.tsx.
+
+## Verification
+- Backend curl: revert bad-token -> 410 LINK_EXPIRED; malformed -> 400; sanity EVM-into-BTC -> network_mismatch high;
+  valid ETH -> no_history low; missing fields -> 400. Backend boots clean (listening 3300).
+- Frontend testing_agent iteration_116: public /wallet-security expired state PASS; premium manager opens + unlock gate
+  PASS; network-mismatch inline warning PASS (verified via RLUSD since all 13 primary currencies already added on test acct).
+- NOT e2e-tested (env constraint): full unlock->save->alert->revert chain, because OTP email is suppressed (SAFE MODE)
+  and the pod is on the LIVE prod DB (must not mutate). Backend logic curl-verified instead.
+
+## Still open / backlog (from prior handoff)
+- P1 Bulk Undo (undo last batch within unlocked session); P1 Session Extend (+10 min on ending-soon banner);
+  P2 Wallet Search filter; P2 Shared Address Tags ("used on X networks").

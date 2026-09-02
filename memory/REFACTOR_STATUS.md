@@ -1,4 +1,94 @@
 # ============================================================================
+# 2026-06 (pod 5cde9912) — SETTLEMENT FREEZE ON ACCOUNT LOCK  [PLAN — NOT YET BUILT]
+# ----------------------------------------------------------------------------
+# REQUEST (verbatim intent): when an account is frozen (today only via the
+# "this wasn't me" wallet-change link), SETTLEMENT of assets must also freeze.
+# Any crypto already received into a merchant-pool TEMP address for that merchant
+# must STAY in that temp address (not swept, not paid out) and that temp address
+# must NOT be recycled for another payment — until an ADMIN unfreezes the account.
+#
+# CONFIRMED UNDERSTANDING
+#   Today's freeze = Redis key `wallet_freeze_<uid>` (services/wallet/walletChangeAlert.ts).
+#   It ONLY guards wallet-MANAGEMENT endpoints (add/edit/unlock) via assertWalletNotFrozen().
+#   It does NOT touch the money path at all. We are extending the SAME freeze so it also
+#   (a) halts sweep, (b) halts merchant payout, (c) prevents temp-address reuse, (d) is
+#   released only by an admin.
+#
+# CODE REVIEW — THE SEAMS (verified against current code this session)
+#   MODEL  tbl_merchant_temp_address (models/merchantPoolModels/index.ts):
+#     - carries owner_user_id, wallet_type, wallet_address, status.
+#     - status = STRING(20) with a JS isIn validator
+#       [AVAILABLE,RESERVED,PRE_RESERVED,IN_USE,PROCESSING,SWEEPING,DISABLED,PENDING_TRUSTLINE].
+#     - ==> adding a new "FROZEN" value = ONE-LINE validator change, NO DB migration (varchar,
+#       not a Postgres ENUM). Batch sweep/reserve queries select by explicit status lists, so a
+#       "FROZEN" address is auto-excluded from reuse/sweep. Low-risk on the LIVE DB.
+#   SWEEP  services/merchantPool/merchantPoolSweep.ts  (temp-addr -> DynoPay admin/settlement wallet):
+#     - sweepPoolAddress(tempAddressId): per-address sweep. Triggered IMMEDIATELY after payout at
+#       chainVerification.ts ~L1137 AND by cron.
+#     - sweepByThreshold() / sweepByTime(): batch cron sweeps; both select status IN
+#       (AVAILABLE, IN_USE, PRE_RESERVED). performScheduledSweeps() orchestrates (cron).
+#   RESERVE/RELEASE  services/merchantPool/merchantPoolReservation.ts:
+#     - reserveAddress(userId, walletType, …): hands out an AVAILABLE addr for a NEW payment.
+#     - releaseAddress(tempAddressId, …): returns addr to AVAILABLE/IN_USE after sweep.
+#     - getAvailableAddress: queries status:"AVAILABLE".
+#   PAYOUT  controller/payment/settlement/chainVerification.ts (cryptoVerification):
+#     - merchant payout wallet resolved via userWalletModel.findOne(...) ~L172; owner user_id known here.
+#     - auto-convert immediate sweep fired ~L1137.
+#   FREEZE PRIMITIVES  services/wallet/walletChangeAlert.ts:
+#     - isWalletFrozen(user_id), freezeWalletChanges(uid,reason), clearWalletFreeze(uid),
+#       assertWalletNotFrozen(res,uid). Freeze is REDIS-ONLY today.
+#   Related: memory/KEY_CUSTODY_THREAT_MODEL.md.
+#
+# IMPLEMENTATION PLAN (phased)
+#   PHASE 0 — make the freeze AUTHORITATIVE + PERSISTENT (prereq for the money path):
+#     - Redis-only is unsafe for a settlement hold: a Redis flush/restart would silently resume
+#       sweeps. Persist freeze in the DB (source of truth); keep Redis as a fast cache mirror.
+#     - RECOMMEND new table tbl_wallet_freeze { user_id UNIQUE, reason, source
+#       ('this_wasnt_me'|'admin'|'auto'), frozen_at, cleared_at, cleared_by }. Additive CREATE
+#       TABLE (low risk). Alternative = boolean+reason columns on tbl_user.
+#     - Refactor isWalletFrozen -> Redis-first then DB fallback (+backfill cache);
+#       freeze/clear write BOTH.
+#   PHASE 1 — HOLD settlement on the money path (gate 3 seams by owner_user_id):
+#     1. Add "FROZEN" to the status isIn validator.
+#     2. SWEEP gate: at the top of sweepPoolAddress + inside sweepByThreshold/sweepByTime loops,
+#        if isWalletFrozen(owner_user_id) -> SKIP; set/keep status="FROZEN"; do NOT release to
+#        AVAILABLE. Funds stay parked in the temp address.
+#     3. PAYOUT gate: in cryptoVerification, if the settling merchant is frozen -> do NOT run the
+#        merchant payout NOR the auto-sweep; mark the temp addr "FROZEN", record a HELD pool txn,
+#        alert admin + notify merchant.
+#     4. RESERVE gate: reserveAddress refuses to hand out an addr for a frozen merchant (blocks NEW
+#        incoming payments while frozen). [OPEN DECISION #2 below.]
+#   PHASE 2 — ADMIN UNFREEZE + release held funds:
+#     - Admin-guarded POST /api/admin/security/wallet-freeze/:userId/clear -> clears freeze (DB+Redis),
+#       flips that merchant's "FROZEN" temp addrs back to the correct sweepable status (IN_USE for
+#       account-based / AVAILABLE for UTXO per existing releaseAddress rules), optionally enqueues an
+#       immediate sweep. Records cleared_by + timestamp.
+#     - Admin read-only list of currently-frozen accounts + held addresses/balances for review.
+#     - The public "this wasn't me" flow already calls freezeWalletChanges -> now implies a settlement
+#       hold automatically (no extra change beyond Phase 0/1).
+#   PHASE 3 — notifications & audit:
+#     - On hold: in-app + email to merchant ("payouts paused while we review"); admin alert (ADMIN_EMAIL).
+#     - On unfreeze: "payouts resumed" notice + release held addrs.
+#
+# RISK / TESTING
+#   - LIVE prod DB + MONEY PATH. Changes are additive/reversible (new "FROZEN" status + new table).
+#     NEVER test with real funds on this pod. Background jobs are OFF here (SAFE MODE) so cron sweeps
+#     don't run — verify freeze-skip via targeted function/unit tests, not by waiting on cron.
+#   - Keep new modules < 500 lines (husky file-size hook). Suggested: services/wallet/settlementFreeze.ts
+#     (freeze persistence + hold/release helpers) + a small admin controller.
+#
+# OPEN DECISIONS (need user sign-off before build)
+#   #1 Persist freeze via new tbl_wallet_freeze (recommended, audit trail) vs. columns on tbl_user?
+#   #2 While frozen: BLOCK new incoming payments (reserveAddress refuses) [recommended] vs. accept
+#      them but hold their settlement too?
+#   #3 Admin-only unfreeze (never auto) — user already confirmed. ✅
+#   #4 Funds already PAID OUT before the freeze are NOT clawed back — only pending/unsettled funds
+#      are held. Confirm.
+# STATUS: documented; awaiting user approval + decisions #1/#2/#4 before implementation.
+# ============================================================================
+
+
+# ============================================================================
 # 2026-08-31 (pod 0e929189) — RBAC BATCH STATUS CORRECTION + PERF PHASE 1 SHIPPED
 # ----------------------------------------------------------------------------
 # The older "TEAM/RBAC FOLLOW-UPS … KNOWN/NOT DONE: A2,B,C1,C2,C3,D" backlog is STALE.

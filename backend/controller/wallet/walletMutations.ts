@@ -74,6 +74,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
 
 export const deleteWalletAddress = async (
   req: express.Request,
@@ -202,6 +203,8 @@ export const sendUpdateWalletOTP = async (
 
     const user_id = userData.user_id;
 
+    if (await assertWalletNotFrozen(res, user_id)) return;
+
     // Build where clause with multi-tenant security
     const whereClause: Record<string, unknown> = {
       user_id,
@@ -288,6 +291,8 @@ export const updateWalletWithOTP = async (
 
     const user_id = userData.user_id;
 
+    if (await assertWalletNotFrozen(res, user_id)) return;
+
     // Verify OTP - ensure string comparison
     const otpString = String(otp).trim();
     
@@ -327,6 +332,13 @@ export const updateWalletWithOTP = async (
         "Wallet not found or you don't have permission to update it"
       );
     }
+
+    // Snapshot previous state for the change-alert / revert flow.
+    const prevAddress = existingWallet.dataValues.wallet_address;
+    const prevName = existingWallet.dataValues.wallet_name;
+    const prevTag = existingWallet.dataValues.destination_tag != null
+      ? Number(existingWallet.dataValues.destination_tag)
+      : null;
 
     // If updating wallet address, validate it
     if (wallet_address) {
@@ -401,15 +413,42 @@ export const updateWalletWithOTP = async (
     
     const companyName = companyData?.dataValues.company_name || "Your Company";
     const maskAddress = (addr: string) => addr ? `${addr.substring(0, 8)}...${addr.substring(addr.length - 6)}` : 'N/A';
-    
-    await sendWalletUpdatedEmail(
-      userData.email,
-      userData.name,
-      maskAddress(updatedWallet.dataValues.wallet_address),
-      updatedWallet.dataValues.wallet_type,
-      companyName,
-      updatedWallet.dataValues.wallet_name || undefined
-    );
+
+    const newAddress = updatedWallet.dataValues.wallet_address;
+    const addressChanged = !!wallet_address && newAddress !== prevAddress;
+
+    if (addressChanged) {
+      // Payout address changed — send the security-grade alert with the one-tap
+      // "this wasn't me" revert link + drop an in-app notice.
+      await notifyWalletChanges({
+        user_id,
+        company_id,
+        email: userData.email,
+        name: userData.name,
+        companyName,
+        changes: [
+          {
+            wallet_id: updatedWallet.dataValues.wallet_id,
+            currency: updatedWallet.dataValues.wallet_type,
+            action: "edit",
+            previous_address: prevAddress,
+            previous_name: prevName,
+            previous_tag: prevTag,
+            new_address: newAddress,
+          },
+        ],
+      });
+    } else {
+      // Name/tag-only edit — keep the lightweight confirmation email.
+      await sendWalletUpdatedEmail(
+        userData.email,
+        userData.name,
+        maskAddress(newAddress),
+        updatedWallet.dataValues.wallet_type,
+        companyName,
+        updatedWallet.dataValues.wallet_name || undefined
+      );
+    }
 
     return successResponseHelper(res, 200, "Wallet address updated successfully!", {
       wallet_id: updatedWallet.dataValues.wallet_id,

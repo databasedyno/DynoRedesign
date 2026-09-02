@@ -20,6 +20,7 @@ import { walletLogger } from "../../utils/loggers";
 import { invalidateWalletCache } from "./walletShared";
 import { ensureLiveApiKey } from "./walletOtp";
 import { sendWalletBatchSummaryEmail } from "../../services/emailService";
+import { notifyWalletChanges, WalletChange, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
 
 const MAX_BATCH_OPS = 50;
 
@@ -87,6 +88,9 @@ export const batchWalletMutate = async (
   try {
     const user_id = userData.user_id;
     const { company_id } = req.body;
+
+    if (await assertWalletNotFrozen(res, user_id)) return;
+
     const operations: BatchOp[] = Array.isArray(req.body?.operations)
       ? req.body.operations
       : [];
@@ -106,6 +110,7 @@ export const batchWalletMutate = async (
     const added: string[] = [];
     const updated: string[] = [];
     const removed: string[] = [];
+    const changeRecords: WalletChange[] = [];
     const seenAddCurrencies = new Set<string>();
 
     for (let i = 0; i < operations.length; i++) {
@@ -166,6 +171,15 @@ export const batchWalletMutate = async (
           }
           seenAddCurrencies.add(currency);
           added.push(currency);
+          changeRecords.push({
+            wallet_id: slot.dataValues.wallet_id,
+            currency,
+            action: "add",
+            previous_address: null,
+            previous_name: null,
+            previous_tag: null,
+            new_address: wallet_address,
+          });
           results.push({ index: i, action, currency, wallet_id: slot.dataValues.wallet_id, status: "ok", message: "Added" });
         } else if (action === "edit") {
           const wallet_id = parseInt(String(op.wallet_id), 10);
@@ -205,6 +219,17 @@ export const batchWalletMutate = async (
           }
           await userWalletModel.update(upd, { where: { wallet_id, user_id, company_id } });
           updated.push(currency);
+          if (isAddrChange) {
+            changeRecords.push({
+              wallet_id,
+              currency,
+              action: "edit",
+              previous_address: w.dataValues.wallet_address,
+              previous_name: w.dataValues.wallet_name,
+              previous_tag: w.dataValues.destination_tag != null ? Number(w.dataValues.destination_tag) : null,
+              new_address: newAddress as string,
+            });
+          }
           results.push({ index: i, action, wallet_id, currency, status: "ok", message: "Updated" });
         } else if (action === "delete") {
           const wallet_id = parseInt(String(op.wallet_id), 10);
@@ -247,7 +272,9 @@ export const batchWalletMutate = async (
       );
     }
 
-    // One concise summary email (non-fatal; suppressed in SAFE MODE).
+    // Notify the merchant. Address adds/changes get the security-grade alert
+    // (one-tap "this wasn't me" revert); name/remove-only batches get the
+    // lightweight summary. Non-fatal; email suppressed in SAFE MODE.
     try {
       if (added.length || updated.length || removed.length) {
         const acct = await userModel.findOne({
@@ -255,12 +282,24 @@ export const batchWalletMutate = async (
           attributes: ["email", "name", "language"],
         });
         if (acct?.dataValues?.email) {
-          await sendWalletBatchSummaryEmail(
-            acct.dataValues.email,
-            acct.dataValues.name,
-            { companyName: company.dataValues.company_name, added, updated, removed },
-            acct.dataValues.language,
-          );
+          if (changeRecords.length > 0) {
+            await notifyWalletChanges({
+              user_id,
+              company_id,
+              email: acct.dataValues.email,
+              name: acct.dataValues.name,
+              companyName: company.dataValues.company_name,
+              changes: changeRecords,
+              lang: acct.dataValues.language,
+            });
+          } else {
+            await sendWalletBatchSummaryEmail(
+              acct.dataValues.email,
+              acct.dataValues.name,
+              { companyName: company.dataValues.company_name, added, updated, removed },
+              acct.dataValues.language,
+            );
+          }
         }
       }
     } catch (ee) {

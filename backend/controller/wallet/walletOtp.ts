@@ -23,7 +23,6 @@ import {
   sendWithdrawalOTPEmail,
   sendWithdrawalSuccessEmail,
   sendExchangeOTPEmail,
-  sendWalletAddedEmail,
   sendWalletUpdatedEmail,
   sendWalletUpdateOTPEmail,
   sendWalletDeletedEmail,
@@ -76,6 +75,7 @@ import {
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
 import { t, resolveEmailLang } from "../../utils/emailI18n";
+import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
 
 export async function updateOtp(userData, wallet_address, currency) {
   const randomNumberOTP = Math.floor(100000 + Math.random() * 900000);
@@ -146,7 +146,9 @@ export const validateWallet = async (
     
     try {
       const user_id = userData.user_id;
-      
+
+      if (await assertWalletNotFrozen(res, user_id)) return;
+
       // Wallet operations require a verified email — security OTPs are delivered by email.
       const accountUser = await userModel.findOne({
         where: { user_id },
@@ -322,7 +324,9 @@ export const verifyOtp = async (req: express.Request, res: express.Response) => 
     }
     
     const user_id = userData.user_id;
-    
+
+    if (await assertWalletNotFrozen(res, user_id)) return;
+
     // Verify user has access to this company
     const company = await companyModel.findOne({
       where: {
@@ -430,7 +434,6 @@ export const verifyOtp = async (req: express.Request, res: express.Response) => 
     });
     
     const companyName = companyData?.dataValues.company_name || "Your Company";
-    const maskAddress = (addr: string) => `${addr.substring(0, 8)}...${addr.substring(addr.length - 6)}`;
     
     // Initialize merchant pool for this currency type (lazy initialization)
     // This creates the merchant's xpub if not exists and adds initial pool addresses
@@ -446,14 +449,26 @@ export const verifyOtp = async (req: express.Request, res: express.Response) => 
       walletLogger.warn(`[verifyOtp] ⚠️ Merchant pool initialization skipped:`, poolError.message);
     }
     
-    await sendWalletAddedEmail(
-      userData.email,
-      userData.name,
-      maskAddress(wallet_address),
-      currency,
+    // Change alert doubles as the "wallet added" confirmation + carries the
+    // one-tap "this wasn't me" revert link and drops an in-app notice.
+    await notifyWalletChanges({
+      user_id,
+      company_id,
+      email: userData.email,
+      name: userData.name,
       companyName,
-      wallet_name || undefined
-    );
+      changes: [
+        {
+          wallet_id: walletSlot.dataValues.wallet_id,
+          currency,
+          action: "add",
+          previous_address: null,
+          previous_name: null,
+          previous_tag: null,
+          new_address: wallet_address,
+        },
+      ],
+    });
 
     // Invalidate wallet cache so getWallet returns fresh data
     await invalidateWalletCache(user_id);

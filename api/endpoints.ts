@@ -52,6 +52,13 @@ export const API_ENDPOINTS = {
     sudoVerifyOtp: "/wallet/sudo/verify-otp",
     sudoRevoke: "/wallet/sudo/revoke",
     batch: "/wallet/batch",
+    // Pre-save address sanity (network-mismatch + never-received warning)
+    addressSanity: "/wallet/address-sanity",
+  },
+
+  walletSecurity: {
+    // PUBLIC — token-authed "this wasn't me" revert (no Authorization header)
+    revertChange: "/wallet-security/revert-change",
   },
 
   pay: {

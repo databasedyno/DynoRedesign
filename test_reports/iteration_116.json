@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only verification of three flows on preview pod. (1) Public /wallet-security?token=deadbeef... renders standalone dark card, resolves to data-status='expired' with title 'This link has expired' and 'Contact support' button; no app shell/sidebar present. PASS. (2) 2-step login (Continue -> Sign in) with onarrival21@gmail.com succeeded and redirected to /dashboard. On /wallet the page renders with 13 wallets; 'Manage wallets' button (data-testid='wallet-manage-btn') present. Clicking it opens the premium right-side sheet (data-testid='wallet-manager-modal') showing the 'Verify it's you' unlock gate with an 'Email me a code' button. Clicking that button transitions to an 'Email Verification' code-entry dialog with a 'Code in 26s' countdown, indicating the code was sent (backend accepted request). No visible toast text; the UI confirmation is the code dialog state change. Stopped there per instructions — OTP not attempted. PASS (with note below). (3) AddWalletModal mismatch: exact BTC scenario NOT reproducible here because every one of the 13 currencies including BTC is already added to this brand and appears disabled ('Added') in the crypto selector, so BTC cannot be selected in the Add Wallet flow. Verified the same mismatch mechanism using RLUSD (only addable non-EVM currency): pasting 0x742d35Cc6634C0532925a3b844Bc454e4438f44e produced the inline red warning with data-testid='wallet-address-network-mismatch' reading: 'This looks like a Ethereum-style (EVM) address, but you selected RLUSD. Double-check you're on the right network before saving.' The detection code path (detectAddressKind + EVM_CURRENCIES check) is thus verified. No submit attempted.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AddWalletModal - network mismatch warning", "issues": ["Grammar: 'This looks like a Ethereum-style (EVM) address' should be 'This looks like an Ethereum-style (EVM) address' (article agreement). Minor copy nit in networkMismatchWarn default string in AddWalletModal/index.tsx around line 805."]},
+    {"screen": "WalletManagerModal unlock gate", "issues": ["After clicking 'Email me a code' the transition to the code-entry dialog works but no explicit success toast text was detected via [role=status]/[role=alert]/Toastify selectors. The countdown 'Code in 26s' in the Resend button conveys the state, but an explicit toast (as described in the spec: 'code sent' toast) may not be firing or is not exposed via standard toast roles. Verify by main agent whether this is expected."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "None blocking. Optional: Fix minor grammar 'a Ethereum' -> 'an Ethereum' in networkMismatchWarn default string (AddWalletModal/index.tsx ~L805).",
+    "Optional: Confirm whether the 'code sent' toast is intentionally suppressed in favor of the OTP dialog transition; if a toast was expected per spec, it isn't visible with standard role/class selectors."
+  ],
+  "critical_code_review_comments": [
+    "AddWalletModal mismatch UI is scoped inside the dialog and correctly gated on cryptocurrency && detectAddressKind(addr) != unknown && !matches, working as designed.",
+    "Wallet-security page correctly hides app shell (layout=none) and gracefully transitions from loading -> expired for unknown token.",
+    "Crypto selector disables already-added currencies which is UX-correct but makes the exact BTC mismatch test case unrepeatable on this merchant; future testing should use an account with unadded currencies or seed a fresh brand."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only per request)", "frontend": "100% of testable flows (exact BTC path unreproducible due to environment data)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step). LIVE prod DB — do not mutate.",
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Merchant onarrival21@gmail.com already has all 13 primary currencies added (BTC/ETH/LTC/DOGE/BCH/TRX/SOL/XRP/POLYGON/USDT-*/USDC-ERC20). Only RLUSD and RLUSD-ERC20 remain addable in the Add Wallet dropdown. To reproduce the BTC network-mismatch case exactly, either (a) use a fresh brand/account, or (b) delete a wallet first — but note wallet mutation requires the email OTP which is suppressed in this pod. The WalletManagerModal 'Email me a code' click reliably transitions to the OTP entry dialog with a countdown (Code in 26s / Resend code). Public /wallet-security?token=<bad> reliably goes loading -> expired within ~1-2s.",
+  "rca of the issue": "N/A - no defects found in the three verified flows. The one deviation from the test script (BTC not selectable) is caused by test-data state on this merchant (BTC already added -> option disabled), not a product bug."
+}

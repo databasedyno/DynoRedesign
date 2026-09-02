@@ -29,6 +29,10 @@ interface Props {
   open: boolean;
   onClose: () => void;
   companyId?: number | null;
+  /** Fires after a fully-successful save (used by onboarding to advance). */
+  onSaved?: () => void;
+  /** Optional node rendered above the title (e.g. onboarding step indicator). */
+  headerExtra?: React.ReactNode;
 }
 
 const SlideLeft = React.forwardRef(function SlideLeft(
@@ -38,7 +42,7 @@ const SlideLeft = React.forwardRef(function SlideLeft(
   return <Slide direction="left" ref={ref} {...props} />;
 });
 
-const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
+const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved, headerExtra }) => {
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   const c = tone(dark);
@@ -69,6 +73,9 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
   const [saving, setSaving] = useState(false);
   const [opResults, setOpResults] = useState<OpResult[] | null>(null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const [sanityWarn, setSanityWarn] = useState<{ network: string; message: string; severity: string }[] | null>(null);
+  const [sanityChecking, setSanityChecking] = useState(false);
+  const ackSanityRef = useRef(false);
   const seededRef = useRef(false);
 
   const [reuseCompanies, setReuseCompanies] = useState<ReusableCompany[]>([]);
@@ -104,6 +111,8 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
     }
     setOpResults(null);
     setConfirmDiscard(false);
+    setSanityWarn(null);
+    ackSanityRef.current = false;
   }, [open]);
 
   useEffect(() => {
@@ -224,9 +233,48 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
   };
 
   // ---- save ----
+  const runSanity = useCallback(
+    async (ops: any[]): Promise<{ network: string; message: string; severity: string }[]> => {
+      const targets: { currency: string; address: string }[] = [];
+      for (const op of ops) {
+        if (op.action === "add" && op.wallet_address) {
+          targets.push({ currency: op.currency, address: op.wallet_address });
+        } else if (op.action === "edit" && op.wallet_address) {
+          const w = walletData.find((x) => String(x.id) === String(op.wallet_id));
+          if (w) targets.push({ currency: w.walletTitle, address: op.wallet_address });
+        }
+      }
+      if (targets.length === 0) return [];
+      const perTarget = await Promise.all(
+        targets.map(async (t) => {
+          try {
+            const res: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.addressSanity, t);
+            const warns: any[] = res?.data?.data?.warnings || [];
+            return warns.map((w) => ({ network: t.currency, message: w.message, severity: w.severity }));
+          } catch {
+            return [];
+          }
+        }),
+      );
+      return perTarget.flat();
+    },
+    [walletData],
+  );
+
   const handleSave = async () => {
     const { ops, meta } = buildOps();
     if (ops.length === 0) return;
+    // Soft, dismissible address sanity review (network-mismatch + never-received).
+    if (!ackSanityRef.current) {
+      setSanityChecking(true);
+      const warns = await runSanity(ops);
+      setSanityChecking(false);
+      if (warns.length > 0) {
+        setSanityWarn(warns);
+        return;
+      }
+    }
+    ackSanityRef.current = false;
     setSaving(true);
     setOpResults(null);
     try {
@@ -241,6 +289,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
         setAddRows([]);
         setExpanded(new Set());
         setOpResults(null);
+        onSaved?.();
       } else {
         const okAddKeys = new Set(results.filter((r) => r.status === "ok" && meta[r.index]?.origin === "add").map((r) => meta[r.index]?.addKey));
         setAddRows((rows) => rows.filter((r) => !okAddKeys.has(r.key)));
@@ -346,6 +395,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
           {/* Header */}
           <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 2.5 }, pb: 2, borderBottom: sudo.active ? "none" : `1px solid ${border}` }}>
             <Box>
+              {headerExtra && <Box sx={{ mb: 1.25 }}>{headerExtra}</Box>}
               <Typography component="h2" sx={{ fontSize: { xs: 18, sm: 20 }, fontWeight: 700, fontFamily: "var(--font-display)", letterSpacing: -0.3, lineHeight: 1.2 }}>
                 {tw("managerTitle", "Manage wallets")}
               </Typography>
@@ -457,7 +507,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
 
               <ManagerFooter
                 counts={counts}
-                saving={saving}
+                saving={saving || sanityChecking}
                 confirmDiscard={confirmDiscard}
                 onClose={requestClose}
                 onDiscardConfirm={discardAndClose}
@@ -467,6 +517,68 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId }) => {
               />
             </>
           )}
+        </Box>
+      </Dialog>
+
+      {/* Address sanity review — soft, dismissible (network-mismatch / never-received) */}
+      <Dialog
+        open={!!sanityWarn}
+        onClose={() => setSanityWarn(null)}
+        maxWidth="xs"
+        fullWidth
+        sx={{ "& .MuiDialog-paper": { borderRadius: "12px", backgroundColor: theme.palette.background.paper } }}
+      >
+        <Box data-testid="wallet-manager-sanity-review" sx={{ p: { xs: 2.5, sm: 3 } }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+            <Icon name="circle-alert" size={20} color={c.amber} />
+            <Typography sx={{ fontSize: 17, fontWeight: 700, fontFamily: "var(--font-display)" }}>
+              {tw("sanityTitle", "Before you save")}
+            </Typography>
+          </Box>
+          <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", mb: 2 }}>
+            {tw("sanitySubtitle", "A couple of addresses are worth a second look. You can still save if they're correct.")}
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25, mb: 2.5 }}>
+            {(sanityWarn || []).map((w, i) => (
+              <Box
+                key={`${w.network}-${i}`}
+                data-testid="wallet-manager-sanity-item"
+                sx={{
+                  p: 1.5,
+                  borderRadius: "8px",
+                  border: `1px solid ${w.severity === "high" ? `${c.rose}55` : `${c.amber}55`}`,
+                  backgroundColor: w.severity === "high" ? c.roseSoft : c.amberSoft,
+                }}
+              >
+                <Typography sx={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)", color: w.severity === "high" ? c.rose : c.amber, mb: 0.25 }}>
+                  {w.network}
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, fontFamily: "var(--font-sans)", color: theme.palette.text.primary, lineHeight: 1.4 }}>
+                  {w.message}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ display: "flex", gap: 1.5 }}>
+            <CustomButton
+              label={tw("sanityBack", "Go back & check")}
+              variant="outlined"
+              onClick={() => setSanityWarn(null)}
+              data-testid="wallet-manager-sanity-back-btn"
+              sx={{ flex: 1 }}
+            />
+            <CustomButton
+              label={tw("sanityProceed", "Save anyway")}
+              variant="primary"
+              onClick={() => {
+                ackSanityRef.current = true;
+                setSanityWarn(null);
+                handleSave();
+              }}
+              data-testid="wallet-manager-sanity-proceed-btn"
+              sx={{ flex: 1 }}
+            />
+          </Box>
         </Box>
       </Dialog>
 

@@ -94,6 +94,10 @@ const EXEMPT_PATHS = [
   // destination address (no auth/session yet). Keyed by the unguessable order
   // public_ref / link id; only stores an address (no funds move here).
   "/api/refunds/capture-address",
+  // Wallet security "this wasn't me" revert — public, uses a one-time
+  // unguessable token from the change-alert email (no session/cookie exists
+  // when opened from an inbox). Token itself authenticates the request.
+  "/api/wallet-security/revert-change",
 ];
 
 /**

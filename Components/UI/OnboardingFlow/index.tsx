@@ -16,7 +16,7 @@ import {
   PaymentsRounded,
 } from "@mui/icons-material";
 import CreateCompanyModal from "./CreateCompanyModal";
-import AddWalletModal from "@/Components/UI/AddWalletModal";
+import WalletManagerModal from "@/Components/UI/WalletManagerModal";
 import CelebrationOverlay from "./CelebrationOverlay";
 import StepIndicator from "./StepIndicator";
 import OnboardingChecklist, { ChecklistStep } from "./OnboardingChecklist";
@@ -316,10 +316,11 @@ const OnboardingFlow: React.FC = () => {
         onClose={handleModalClose}
       />
 
-      <AddWalletModal
+      <WalletManagerModal
         open={activeModal === "wallet"}
+        companyId={companyId}
         onClose={handleModalClose}
-        onWalletAdded={handleWalletAdded}
+        onSaved={handleWalletAdded}
         headerExtra={<StepIndicator currentStep={2} totalSteps={2} />}
       />
 

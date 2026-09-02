@@ -15,6 +15,7 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { UserAction } from "@/Redux/Actions";
 import { USER_LOGIN, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { verifyOtp } from "@/utils/walletOtp";
+import { detectAddressKind, addrKindLabel, EVM_CURRENCIES, TRON_CURRENCIES } from "@/utils/walletAddressType";
 import { rootReducer } from "@/utils/types";
 import { Address, AddWalletModalProps } from "@/utils/types/wallet";
 import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
@@ -781,6 +782,31 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             }
             data-testid="wallet-address-input"
           />
+
+          {(() => {
+            const kind = detectAddressKind(walletAddress);
+            if (kind === "unknown" || !cryptocurrency) return null;
+            const expectsEvm = (EVM_CURRENCIES as readonly string[]).includes(cryptocurrency);
+            const expectsTron = (TRON_CURRENCIES as readonly string[]).includes(cryptocurrency);
+            const matches = (kind === "evm" && expectsEvm) || (kind === "tron" && expectsTron);
+            if (matches) return null;
+            return (
+              <Typography
+                data-testid="wallet-address-network-mismatch"
+                sx={{
+                  mt: 0.75,
+                  fontSize: 12.5,
+                  fontFamily: "var(--font-sans)",
+                  color: muiTheme.palette.mode === "dark" ? "#FB7185" : "#BE123C",
+                  lineHeight: 1.45,
+                }}
+              >
+                {tWallet("networkMismatchWarn", {
+                  defaultValue: `This looks like ${kind === "evm" ? "an" : "a"} ${addrKindLabel(kind)} address, but you selected ${cryptocurrency}. Double-check you're on the right network before saving.`,
+                })}
+              </Typography>
+            );
+          })()}
 
           <WarningContainer>
             <WarningIconContainer>

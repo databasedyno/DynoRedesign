@@ -26,6 +26,7 @@ import {
 import { userModel } from "../../models/userModels";
 import { walletLogger } from "../../utils/loggers";
 import { sendWalletSudoOTPEmail } from "../../services/emailService";
+import { assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
 
 // Bulk add/edit/delete lives in walletBatch.ts (kept separate for the 500-line budget).
 export { batchWalletMutate } from "./walletBatch";
@@ -95,11 +96,11 @@ export const requestWalletSudoOtp = async (
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     const user_id = userData.user_id;
+    if (await assertWalletNotFrozen(res, user_id)) return;
     const accountUser = await userModel.findOne({
       where: { user_id },
       attributes: ["email", "email_verified", "name", "language"],
-    });
-    if (!accountUser?.dataValues?.email || !accountUser.dataValues.email_verified) {
+    });    if (!accountUser?.dataValues?.email || !accountUser.dataValues.email_verified) {
       return res.status(403).json({
         success: false,
         statusCode: 403,
@@ -162,6 +163,8 @@ export const verifyWalletSudoOtp = async (
     if (!/^\d{6}$/.test(otp)) {
       return errorResponseHelper(res, 400, "Please enter a valid 6-digit code.");
     }
+
+    if (await assertWalletNotFrozen(res, user_id)) return;
 
     const stored = await getRedisItem(sudoOtpKey(user_id));
     if (!stored || Object.keys(stored).length === 0) {
