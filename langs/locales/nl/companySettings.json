@@ -1,6 +1,6 @@
 {
-  "title": "Bedrijfsinstellingen",
-  "subtitle": "Hier kunt u informatie over uw bedrijf controleren of wijzigen.",
+  "title": "Merkgegevens",
+  "subtitle": "Hier kun je de gegevens van je merk bekijken of wijzigen.",
   "profileImage": "Profielafbeelding",
   "fields": {
     "profileName": "Profielnaam*"
@@ -43,7 +43,8 @@
   "cryptoConversionUsdcErc20": "USDC (ERC20)",
   "actions": {
     "cancel": "Annuleren",
-    "saveChanges": "Wijzigingen opslaan"
+    "saveChanges": "Wijzigingen opslaan",
+    "delete": "Merk verwijderen"
   },
   "placeholders": {
     "webhook": "Webhook-meldingen configureren.",

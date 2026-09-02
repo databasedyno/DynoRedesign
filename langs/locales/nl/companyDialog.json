@@ -1,20 +1,20 @@
 {
   "mode": {
     "add": {
-      "title": "Nieuw bedrijf toevoegen",
-      "subtitle": "Maak een nieuw bedrijfsprofiel aan om cryptocurrency-betalingen te beheren",
-      "primaryButton": "Bedrijf starten"
+      "title": "Nieuw merk toevoegen",
+      "subtitle": "Maak een nieuw merk om cryptobetalingen te beheren",
+      "primaryButton": "Een merk starten"
     },
     "edit": {
-      "title": "Bedrijf bewerken",
-      "subtitle": "Bedrijfsprofielinformatie bijwerken",
+      "title": "Merk bewerken",
+      "subtitle": "Merkgegevens bijwerken",
       "primaryButton": "Bijwerken"
     }
   },
   "fields": {
     "companyName": {
-      "label": "Bedrijfsnaam*",
-      "placeholder": "Bedrijfsnaam invoeren"
+      "label": "Merknaam*",
+      "placeholder": "Voer merknaam in"
     },
     "website": {
       "label": "Website (optioneel)",
@@ -38,15 +38,15 @@
       "placeholder": "Land selecteren"
     },
     "state": {
-      "label": "Provincie*",
+      "label": "Provincie",
       "placeholder": "Provincie selecteren"
     },
     "city": {
-      "label": "Stad*",
+      "label": "Stad",
       "placeholder": "Stad selecteren"
     },
     "addressLine1": {
-      "label": "Adresregel 1*",
+      "label": "Adres, regel 1",
       "placeholder": "Adresregel 1 invoeren"
     },
     "addressLine2": {
@@ -54,7 +54,7 @@
       "placeholder": "Adresregel 2 invoeren"
     },
     "zipCode": {
-      "label": "Postcode*",
+      "label": "Postcode",
       "placeholder": "Postcode invoeren"
     },
     "vatNumber": {
@@ -66,7 +66,7 @@
     "cancel": "Annuleren"
   },
   "validation": {
-    "companyNameRequired": "Bedrijfsnaam is verplicht",
+    "companyNameRequired": "Merknaam is verplicht",
     "emailInvalid": "Voer een geldig e-mailadres in",
     "emailRequired": "E-mail is verplicht",
     "mobileRequired": "Mobiel nummer is verplicht",
@@ -82,17 +82,17 @@
   "vatNumber": "BTW-nummer (optioneel)",
   "vatVerify": "BTW-nummer geverifieerd",
   "createModal": {
-    "title": "Maak je bedrijf aan",
-    "subtitle": "Stel je bedrijfsprofiel in om betalingen te accepteren",
+    "title": "Maak je merk",
+    "subtitle": "Stel je merk in om betalingen te ontvangen",
     "closeLater": "Ik doe dit later",
     "sectionYourName": "Je naam",
-    "sectionCompanyDetails": "Bedrijfsgegevens",
+    "sectionCompanyDetails": "Merkgegevens",
     "firstNameLabel": "Voornaam *",
     "firstNamePlaceholder": "Voornaam",
     "lastNameLabel": "Achternaam *",
     "lastNamePlaceholder": "Achternaam",
-    "companyNameLabel": "Bedrijfsnaam *",
-    "companyNamePlaceholder": "Voer je bedrijfsnaam in",
+    "companyNameLabel": "Merknaam *",
+    "companyNamePlaceholder": "Voer je merknaam in",
     "businessEmailLabel": "Zakelijke e-mail *",
     "businessEmailPlaceholder": "Voer je zakelijke e-mail in",
     "mobileLabel": "Mobiel nummer (optioneel)",
@@ -105,9 +105,9 @@
     "brandLogoLabel": "Merklogo (optioneel)",
     "uploadChange": "Wijzigen",
     "uploadUpload": "Uploaden",
-    "submit": "Bedrijf aanmaken",
-    "progressTitle": "Je bedrijf wordt ingesteld…",
-    "progressStep1": "Je bedrijfsprofiel wordt aangemaakt…",
+    "submit": "Merk aanmaken",
+    "progressTitle": "Je merk wordt ingesteld…",
+    "progressStep1": "Je merk wordt aangemaakt…",
     "progressStep2": "Factuurvoorkeuren worden geconfigureerd…",
     "progressStep3": "Welkomstmails worden verzonden…",
     "progressStep4": "Je verkopersaccount wordt ingericht…",
@@ -117,7 +117,7 @@
     "validation": {
       "firstNameRequired": "Voornaam is verplicht",
       "lastNameRequired": "Achternaam is verplicht",
-      "companyNameRequired": "Bedrijfsnaam is verplicht",
+      "companyNameRequired": "Merknaam is verplicht",
       "emailRequired": "E-mail is verplicht",
       "emailInvalid": "Voer een geldig e-mailadres in",
       "mobileInvalid": "Voer een geldig mobiel nummer in",
@@ -125,15 +125,26 @@
       "countryRequired": "Selecteer je land",
       "currencyRequired": "Selecteer een valuta"
     },
-    "addTitle": "Nieuw bedrijf toevoegen",
-    "addSubtitle": "Stel nog een bedrijfsprofiel in onder je account",
+    "addTitle": "Een nieuw merk toevoegen",
+    "addSubtitle": "Stel nog een merk in onder je account",
     "payLinkSubtitle": "Gebruikt op facturen en bonnen. Duurt ongeveer 30 seconden.",
-    "cancel": "Annuleren"
+    "cancel": "Annuleren",
+    "emailLabelOptional": "E-mail (optioneel)",
+    "stepBrand": "Merk",
+    "stepWallet": "Portemonnee"
   },
-  "addCompanyBtn": "Bedrijf toevoegen",
-  "noCompaniesYet": "Nog geen bedrijven",
-  "createFirstCompanyBody": "Maak uw eerste bedrijfsprofiel aan om betalingen te accepteren en uw bedrijf te beheren.",
+  "addCompanyBtn": "Merk toevoegen",
+  "noCompaniesYet": "Nog geen merken",
+  "createFirstCompanyBody": "Maak je eerste merk om betalingen te ontvangen en je bedrijf te beheren.",
   "noResultsFound": "Geen resultaten gevonden",
   "optional": "optioneel",
-  "validateTax": "Valideer belasting-ID"
+  "validateTax": "Valideer belasting-ID",
+  "accountType": {
+    "label": "Accounttype",
+    "individualTitle": "Particulier / maker",
+    "individualDesc": "Persoonlijke betalingen, fooien en een openbare pagina.",
+    "businessTitle": "Geregistreerd bedrijf",
+    "businessDesc": "Facturen, btw/belasting, adres en teamtoegang.",
+    "switchHelper": "Voeg hieronder je bedrijfsnaam en land toe en sla op om over te schakelen naar een zakelijk account. Je wallets, sleutels en geschiedenis blijven ongewijzigd."
+  }
 }

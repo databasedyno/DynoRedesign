@@ -1,20 +1,20 @@
 {
   "mode": {
     "add": {
-      "title": "Add new company",
-      "subtitle": "Create a new business profile to manage cryptocurrency payments",
-      "primaryButton": "Start a company"
+      "title": "Add new brand",
+      "subtitle": "Create a new brand to manage crypto payments",
+      "primaryButton": "Start a brand"
     },
     "edit": {
-      "title": "Edit company",
-      "subtitle": "Update company profile information",
+      "title": "Edit brand",
+      "subtitle": "Update brand information",
       "primaryButton": "Update"
     }
   },
   "fields": {
     "companyName": {
-      "label": "Company name*",
-      "placeholder": "Enter company name"
+      "label": "Brand name*",
+      "placeholder": "Enter brand name"
     },
     "website": {
       "label": "Website (optional)",
@@ -38,15 +38,15 @@
       "placeholder": "Select country"
     },
     "state": {
-      "label": "State*",
+      "label": "State",
       "placeholder": "Select state"
     },
     "city": {
-      "label": "City*",
+      "label": "City",
       "placeholder": "Select city"
     },
     "addressLine1": {
-      "label": "Address, Line 1*",
+      "label": "Address, Line 1",
       "placeholder": "Enter address line 1"
     },
     "addressLine2": {
@@ -54,7 +54,7 @@
       "placeholder": "Enter address line 2"
     },
     "zipCode": {
-      "label": "Zip Code*",
+      "label": "Zip Code",
       "placeholder": "Enter zip code"
     },
     "vatNumber": {
@@ -66,7 +66,7 @@
     "cancel": "Cancel"
   },
   "validation": {
-    "companyNameRequired": "Company name is required",
+    "companyNameRequired": "Brand name is required",
     "emailInvalid": "Please enter a valid email",
     "emailRequired": "Email is required",
     "mobileRequired": "Mobile number is required",
@@ -82,17 +82,17 @@
   "vatNumber": "VAT Number (optional)",
   "vatVerify": "VAT Number verified",
   "createModal": {
-    "title": "Create Your Company",
-    "subtitle": "Set up your business profile to start accepting payments",
+    "title": "Create your brand",
+    "subtitle": "Set up your brand to start accepting payments",
     "closeLater": "I'll do this later",
     "sectionYourName": "Your Name",
-    "sectionCompanyDetails": "Company Details",
+    "sectionCompanyDetails": "Brand details",
     "firstNameLabel": "First Name *",
     "firstNamePlaceholder": "First name",
     "lastNameLabel": "Last Name *",
     "lastNamePlaceholder": "Last name",
-    "companyNameLabel": "Company Name *",
-    "companyNamePlaceholder": "Enter your company name",
+    "companyNameLabel": "Brand name *",
+    "companyNamePlaceholder": "Enter your brand name",
     "businessEmailLabel": "Business Email *",
     "businessEmailPlaceholder": "Enter your business email",
     "mobileLabel": "Mobile Number (optional)",
@@ -105,9 +105,9 @@
     "brandLogoLabel": "Brand Logo (optional)",
     "uploadChange": "Change",
     "uploadUpload": "Upload",
-    "submit": "Create Company",
-    "progressTitle": "Setting up your company…",
-    "progressStep1": "Creating your business profile…",
+    "submit": "Create brand",
+    "progressTitle": "Setting up your brand…",
+    "progressStep1": "Creating your brand…",
     "progressStep2": "Configuring billing preferences…",
     "progressStep3": "Sending welcome emails…",
     "progressStep4": "Provisioning your merchant account…",
@@ -117,7 +117,7 @@
     "validation": {
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
-      "companyNameRequired": "Company name is required",
+      "companyNameRequired": "Brand name is required",
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email",
       "mobileInvalid": "Please enter a valid mobile number",
@@ -125,15 +125,26 @@
       "countryRequired": "Please select your country",
       "currencyRequired": "Please select a currency"
     },
-    "addTitle": "Add a New Company",
-    "addSubtitle": "Set up another business profile under your account",
+    "addTitle": "Add a new brand",
+    "addSubtitle": "Set up another brand under your account",
     "payLinkSubtitle": "Used on invoices and receipts. Takes about 30 seconds.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "emailLabelOptional": "Email (optional)",
+    "stepBrand": "Brand",
+    "stepWallet": "Wallet"
   },
-  "addCompanyBtn": "Add Company",
-  "noCompaniesYet": "No companies yet",
-  "createFirstCompanyBody": "Create your first company profile to start accepting payments and managing your business.",
+  "addCompanyBtn": "Add brand",
+  "noCompaniesYet": "No brands yet",
+  "createFirstCompanyBody": "Create your first brand to start accepting payments and managing your business.",
   "noResultsFound": "No results found",
   "optional": "optional",
-  "validateTax": "Validate Tax ID"
+  "validateTax": "Validate Tax ID",
+  "accountType": {
+    "label": "Account type",
+    "individualTitle": "Individual / creator",
+    "individualDesc": "Personal payments, tips and a public page.",
+    "businessTitle": "Registered business",
+    "businessDesc": "Invoices, VAT/tax, address and team access.",
+    "switchHelper": "Add your business name and country below, then Save to switch to a business account. Your wallets, keys and history stay exactly as they are."
+  }
 }

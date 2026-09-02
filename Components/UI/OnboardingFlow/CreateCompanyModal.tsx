@@ -8,6 +8,9 @@ import { fetchGeoDefaults, currencyForCountry } from "@/utils/geoDefaults";
 import {
   CloudUploadRounded,
   CloseRounded,
+  PersonRounded,
+  StorefrontRounded,
+  CheckRounded,
 } from "@mui/icons-material";
 import {
   Autocomplete,
@@ -67,6 +70,12 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const userState = useSelector((state: rootReducer) => state.userReducer);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // A brand can be Individual (personal / creator) or a registered Business.
+  // Business collects the legal profile (name + country) up front; Individual
+  // only needs a display name + country. Defaults to business (most add-brand
+  // flows), but the user picks explicitly.
+  const [accountType, setAccountType] = useState<"individual" | "business">("business");
+  const isBusiness = accountType === "business";
   const [companyName, setCompanyName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -157,11 +166,13 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!firstName.trim()) newErrors.firstName = t("createModal.validation.firstNameRequired");
-    if (!lastName.trim()) newErrors.lastName = t("createModal.validation.lastNameRequired");
+    // Individual brands only need a display name + country. Business brands also
+    // require a contact name + email for invoices/receipts.
+    if (isBusiness && !firstName.trim()) newErrors.firstName = t("createModal.validation.firstNameRequired");
+    if (isBusiness && !lastName.trim()) newErrors.lastName = t("createModal.validation.lastNameRequired");
     if (!companyName.trim()) newErrors.companyName = t("createModal.validation.companyNameRequired");
-    if (!email.trim()) newErrors.email = t("createModal.validation.emailRequired");
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    if (isBusiness && !email.trim()) newErrors.email = t("createModal.validation.emailRequired");
+    else if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       newErrors.email = t("createModal.validation.emailInvalid");
     // D) Mobile is optional — only validate the format if a value was entered.
     if (mobile && mobile.replace(/\D/g, "").length < 10)
@@ -199,9 +210,8 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
     if (!validate() || submitting) return;
     setSubmitting(true);
 
-    const values = {
+    const values: Record<string, unknown> = {
       company_name: companyName.trim(),
-      email: email.trim(),
       mobile,
       website: website.trim(),
       first_name: firstName.trim(),
@@ -209,7 +219,11 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
       country: country?.isoCode ?? "",
       country_name: country?.name ?? "",
       currency: currency || "USD",
+      account_type: accountType,
     };
+    // Only send email when present — an individual brand may omit it, and an
+    // empty string would trip the model's isEmail validator.
+    if (email.trim()) values.email = email.trim();
 
     const formData = new FormData();
     formData.append("data", JSON.stringify(values));
@@ -373,7 +387,107 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
           />
         ) : (
           <>
-        {/* Your Name Section */}
+        {/* Account type — is this brand an individual/creator or a registered
+            business? Business collects the legal profile; individual stays light. */}
+        <Box data-testid="createbrand-account-type-chooser">
+          <Typography
+            sx={{
+              fontSize: "13px", fontWeight: 600, fontFamily: "var(--font-sans)",
+              color: theme.palette.text.secondary, mb: 1, textTransform: "uppercase",
+              letterSpacing: "0.5px",
+            }}
+          >
+            {t("accountType.label", { defaultValue: "Account type" })}
+          </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+              gap: 1.25,
+            }}
+          >
+            {([
+              {
+                key: "individual" as const,
+                icon: <PersonRounded sx={{ fontSize: 20 }} />,
+                title: t("accountType.individualTitle", { defaultValue: "Individual / creator" }),
+                desc: t("accountType.individualDesc", { defaultValue: "Personal payments, tips and a public page." }),
+              },
+              {
+                key: "business" as const,
+                icon: <StorefrontRounded sx={{ fontSize: 20 }} />,
+                title: t("accountType.businessTitle", { defaultValue: "Registered business" }),
+                desc: t("accountType.businessDesc", { defaultValue: "Invoices, VAT/tax, address and team access." }),
+              },
+            ]).map((opt) => {
+              const selected = accountType === opt.key;
+              return (
+                <Box
+                  key={opt.key}
+                  role="button"
+                  tabIndex={0}
+                  data-testid={`createbrand-account-type-${opt.key}`}
+                  aria-pressed={selected}
+                  onClick={() => setAccountType(opt.key)}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setAccountType(opt.key);
+                    }
+                  }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 1.25,
+                    p: 1.5,
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    outline: "none",
+                    transition: "border-color 0.15s ease, background-color 0.15s ease",
+                    border: `1.5px solid ${
+                      selected
+                        ? "#4F46E5"
+                        : theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.12)"
+                          : "rgba(15,15,20,0.10)"
+                    }`,
+                    backgroundColor: selected
+                      ? theme.palette.mode === "dark"
+                        ? "rgba(120,140,248,0.10)"
+                        : "rgba(79,70,229,0.05)"
+                      : "transparent",
+                  }}
+                >
+                  <Box sx={{ mt: "1px", color: selected ? "#4F46E5" : theme.palette.text.secondary, flexShrink: 0 }}>
+                    {opt.icon}
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px", fontWeight: 700, fontFamily: "var(--font-sans)",
+                        color: theme.palette.text.primary, display: "flex", alignItems: "center", gap: 0.5,
+                      }}
+                    >
+                      {opt.title}
+                      {selected && <CheckRounded sx={{ fontSize: 15, color: "#4F46E5" }} />}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        mt: 0.25, fontSize: "12px", fontFamily: "var(--font-sans)",
+                        color: theme.palette.text.secondary, lineHeight: 1.4,
+                      }}
+                    >
+                      {opt.desc}
+                    </Typography>
+                  </Box>
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
+
+        {/* Your Name Section — contact person, business brands only. */}
+        {isBusiness && (
         <Box>
           <Typography
             sx={{
@@ -413,8 +527,9 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             </Box>
           </Box>
         </Box>
+        )}
 
-        {/* Company Section */}
+        {/* Brand Section */}
         <Box>
           <Typography
             sx={{
@@ -441,7 +556,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         />
 
         <InputField
-          label={t("createModal.businessEmailLabel")}
+          label={isBusiness ? t("createModal.businessEmailLabel") : t("createModal.emailLabelOptional", { defaultValue: "Email (optional)" })}
           placeholder={t("createModal.businessEmailPlaceholder")}
           type="email"
           value={email}

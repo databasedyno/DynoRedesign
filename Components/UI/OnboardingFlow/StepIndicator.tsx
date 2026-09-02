@@ -1,6 +1,7 @@
 import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Typography, useTheme } from "@mui/material";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface StepIndicatorProps {
   currentStep: number;
@@ -15,6 +16,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
+  const { t } = useTranslation("companyDialog");
 
   return (
     <Box
@@ -99,7 +101,9 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
                 transition: "color 0.3s ease",
               }}
             >
-              {step === 1 ? "Company" : "Wallet"}
+              {step === 1
+                ? t("createModal.stepBrand", { defaultValue: "Brand" })
+                : t("createModal.stepWallet", { defaultValue: "Wallet" })}
             </Typography>
 
             {/* Connector line (between steps, not after last) */}

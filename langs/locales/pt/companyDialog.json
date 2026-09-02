@@ -1,20 +1,20 @@
 {
   "mode": {
     "add": {
-      "title": "Adicionar nova empresa",
-      "subtitle": "Crie um novo perfil empresarial para gerenciar pagamentos em criptomoedas",
-      "primaryButton": "Criar empresa"
+      "title": "Adicionar nova marca",
+      "subtitle": "Crie uma nova marca para gerenciar pagamentos em cripto",
+      "primaryButton": "Iniciar uma marca"
     },
     "edit": {
-      "title": "Editar empresa",
-      "subtitle": "Atualize as informações do perfil da empresa",
+      "title": "Editar marca",
+      "subtitle": "Atualize as informações da marca",
       "primaryButton": "Atualizar"
     }
   },
   "fields": {
     "companyName": {
-      "label": "Nome da empresa*",
-      "placeholder": "Insira o nome da empresa"
+      "label": "Nome da marca*",
+      "placeholder": "Digite o nome da marca"
     },
     "website": {
       "label": "Website (opcional)",
@@ -38,15 +38,15 @@
       "placeholder": "Selecione o país"
     },
     "state": {
-      "label": "Estado*",
+      "label": "Estado",
       "placeholder": "Selecione o estado"
     },
     "city": {
-      "label": "Cidade*",
+      "label": "Cidade",
       "placeholder": "Selecione a cidade"
     },
     "addressLine1": {
-      "label": "Endereço, Linha 1*",
+      "label": "Endereço, linha 1",
       "placeholder": "Insira o endereço, linha 1"
     },
     "addressLine2": {
@@ -54,7 +54,7 @@
       "placeholder": "Insira o endereço, linha 2"
     },
     "zipCode": {
-      "label": "Código postal*",
+      "label": "CEP",
       "placeholder": "Insira o código postal"
     },
     "vatNumber": {
@@ -66,7 +66,7 @@
     "cancel": "Cancelar"
   },
   "validation": {
-    "companyNameRequired": "O nome da empresa é obrigatório",
+    "companyNameRequired": "O nome da marca é obrigatório",
     "emailInvalid": "Por favor, insira um e-mail válido",
     "emailRequired": "O e-mail é obrigatório",
     "mobileRequired": "O número de celular é obrigatório",
@@ -82,17 +82,17 @@
   "vatVerify": "Número de IVA verificado",
   "mobilePlaceholder": "Digite seu número de celular",
   "createModal": {
-    "title": "Crie a sua empresa",
-    "subtitle": "Configure o perfil da sua empresa para começar a aceitar pagamentos",
+    "title": "Crie sua marca",
+    "subtitle": "Configure sua marca para começar a aceitar pagamentos",
     "closeLater": "Faço isto mais tarde",
     "sectionYourName": "O seu nome",
-    "sectionCompanyDetails": "Dados da empresa",
+    "sectionCompanyDetails": "Detalhes da marca",
     "firstNameLabel": "Nome próprio *",
     "firstNamePlaceholder": "Nome próprio",
     "lastNameLabel": "Apelido *",
     "lastNamePlaceholder": "Apelido",
-    "companyNameLabel": "Nome da empresa *",
-    "companyNamePlaceholder": "Introduza o nome da sua empresa",
+    "companyNameLabel": "Nome da marca *",
+    "companyNamePlaceholder": "Digite o nome da sua marca",
     "businessEmailLabel": "E-mail comercial *",
     "businessEmailPlaceholder": "Introduza o seu e-mail comercial",
     "mobileLabel": "Número de telemóvel (opcional)",
@@ -105,9 +105,9 @@
     "brandLogoLabel": "Logótipo da marca (opcional)",
     "uploadChange": "Alterar",
     "uploadUpload": "Carregar",
-    "submit": "Criar empresa",
-    "progressTitle": "A configurar a sua empresa…",
-    "progressStep1": "A criar o perfil da sua empresa…",
+    "submit": "Criar marca",
+    "progressTitle": "Configurando sua marca…",
+    "progressStep1": "Criando sua marca…",
     "progressStep2": "A configurar as preferências de faturação…",
     "progressStep3": "A enviar e-mails de boas-vindas…",
     "progressStep4": "A provisionar a sua conta de comerciante…",
@@ -117,7 +117,7 @@
     "validation": {
       "firstNameRequired": "O nome próprio é obrigatório",
       "lastNameRequired": "O apelido é obrigatório",
-      "companyNameRequired": "O nome da empresa é obrigatório",
+      "companyNameRequired": "O nome da marca é obrigatório",
       "emailRequired": "O e-mail é obrigatório",
       "emailInvalid": "Introduza um e-mail válido",
       "mobileInvalid": "Introduza um número de telemóvel válido",
@@ -125,15 +125,26 @@
       "countryRequired": "Selecione o seu país",
       "currencyRequired": "Selecione uma moeda"
     },
-    "addTitle": "Adicionar uma nova empresa",
-    "addSubtitle": "Configure outro perfil de empresa na sua conta",
+    "addTitle": "Adicionar uma nova marca",
+    "addSubtitle": "Configure outra marca na sua conta",
     "payLinkSubtitle": "Usado em faturas e recibos. Demora cerca de 30 segundos.",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "emailLabelOptional": "E-mail (opcional)",
+    "stepBrand": "Marca",
+    "stepWallet": "Carteira"
   },
-  "addCompanyBtn": "Adicionar empresa",
-  "noCompaniesYet": "Nenhuma empresa ainda",
-  "createFirstCompanyBody": "Crie o perfil da sua primeira empresa para começar a aceitar pagamentos e gerenciar seu negócio.",
+  "addCompanyBtn": "Adicionar marca",
+  "noCompaniesYet": "Ainda não há marcas",
+  "createFirstCompanyBody": "Crie sua primeira marca para começar a aceitar pagamentos e gerenciar seu negócio.",
   "noResultsFound": "Nenhum resultado encontrado",
   "optional": "opcional",
-  "validateTax": "Validar NIF"
+  "validateTax": "Validar NIF",
+  "accountType": {
+    "label": "Tipo de conta",
+    "individualTitle": "Individual / criador",
+    "individualDesc": "Pagamentos pessoais, gorjetas e uma página pública.",
+    "businessTitle": "Empresa registrada",
+    "businessDesc": "Faturas, IVA/impostos, endereço e acesso da equipe.",
+    "switchHelper": "Adicione o nome e o país da sua empresa abaixo e salve para mudar para uma conta empresarial. Suas carteiras, chaves e histórico permanecem iguais."
+  }
 }

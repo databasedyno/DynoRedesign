@@ -53,11 +53,17 @@ export function CompanySettingsDialogProvider({
   return (
     <CompanySettingsDialogContext.Provider value={value}>
       {children}
-      <CompanySettingsDialog
-        open={open}
-        company={company}
-        onClose={closeCompanySettings}
-      />
+      {/* Only mount while open. PopupModal uses keepMounted, so an always-mounted
+          dialog would keep a full (hidden) copy of the account-details form —
+          incl. the account-type chooser — in the DOM even when closed, duplicating
+          the inline copy on /settings. Gating on open removes that ghost render. */}
+      {open && company && (
+        <CompanySettingsDialog
+          open={open}
+          company={company}
+          onClose={closeCompanySettings}
+        />
+      )}
     </CompanySettingsDialogContext.Provider>
   );
 }

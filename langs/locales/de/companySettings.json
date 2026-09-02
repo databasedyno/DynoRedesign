@@ -1,6 +1,6 @@
 {
-  "title": "Unternehmenseinstellungen",
-  "subtitle": "Hier können Sie Informationen über Ihr Unternehmen überprüfen oder ändern.",
+  "title": "Markendetails",
+  "subtitle": "Hier kannst du die Informationen deiner Marke prüfen oder ändern.",
   "profileImage": "Profilbild",
   "fields": {
     "profileName": "Profilname*"
@@ -43,7 +43,8 @@
   "cryptoConversionUsdcErc20": "USDC (ERC20)",
   "actions": {
     "cancel": "Abbrechen",
-    "saveChanges": "Änderungen speichern"
+    "saveChanges": "Änderungen speichern",
+    "delete": "Marke löschen"
   },
   "placeholders": {
     "webhook": "Webhook-Benachrichtigungen konfigurieren.",

@@ -2,6 +2,8 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import PersonRounded from "@mui/icons-material/Person";
+import StorefrontRounded from "@mui/icons-material/Storefront";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
@@ -173,6 +175,12 @@ export type CompanyDetailsSectionProps = {
   infoBannerMessage?: string;
   infoBannerChildren?: React.ReactNode;
   infoBannerSx?: object;
+  /** Current (possibly just-chosen) account type. */
+  accountType?: "individual" | "business";
+  /** True when the account may still be switched (i.e. it is currently individual). */
+  canChangeType?: boolean;
+  /** Called when the user picks a different account type in the chooser. */
+  onAccountTypeChange?: (t: "individual" | "business") => void;
 };
 
 export default function CompanyDetailsSection({
@@ -188,6 +196,9 @@ export default function CompanyDetailsSection({
   isMobile = false,
   expanded,
   onAccordionChange,
+  accountType = "business",
+  canChangeType = false,
+  onAccountTypeChange,
 }: CompanyDetailsSectionProps) {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -252,6 +263,181 @@ export default function CompanyDetailsSection({
       isMobile={isMobile}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {/* Account type — the Account is the tenant; a "Business account" is
+            simply one with a business profile filled in. Switching unlocks
+            invoices, VAT and team features (nothing is gated behind a plan). */}
+        <Box data-testid="account-type-chooser">
+          <Typography
+            sx={{
+              fontSize: "13px",
+              fontWeight: 600,
+              fontFamily: "var(--font-sans)",
+              color: theme.palette.text.secondary,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              mb: 1,
+            }}
+          >
+            {t("accountType.label", { defaultValue: "Account type" })}
+          </Typography>
+
+          {canChangeType ? (
+            <>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                  gap: 1.25,
+                }}
+              >
+                {([
+                  {
+                    key: "individual" as const,
+                    icon: <PersonRounded sx={{ fontSize: 20 }} />,
+                    title: t("accountType.individualTitle", { defaultValue: "Individual / creator" }),
+                    desc: t("accountType.individualDesc", { defaultValue: "Personal payments, tips and a public page." }),
+                  },
+                  {
+                    key: "business" as const,
+                    icon: <StorefrontRounded sx={{ fontSize: 20 }} />,
+                    title: t("accountType.businessTitle", { defaultValue: "Registered business" }),
+                    desc: t("accountType.businessDesc", { defaultValue: "Invoices, VAT/tax, address and team access." }),
+                  },
+                ]).map((opt) => {
+                  const selected = accountType === opt.key;
+                  return (
+                    <Box
+                      key={opt.key}
+                      role="button"
+                      tabIndex={0}
+                      data-testid={`account-type-option-${opt.key}`}
+                      aria-pressed={selected}
+                      onClick={() => onAccountTypeChange?.(opt.key)}
+                      onKeyDown={(e: React.KeyboardEvent) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onAccountTypeChange?.(opt.key);
+                        }
+                      }}
+                      sx={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 1.25,
+                        p: 1.5,
+                        borderRadius: "12px",
+                        cursor: "pointer",
+                        outline: "none",
+                        transition: "border-color 0.15s ease, background-color 0.15s ease",
+                        border: `1.5px solid ${
+                          selected
+                            ? "#4F46E5"
+                            : theme.palette.mode === "dark"
+                              ? "rgba(255,255,255,0.12)"
+                              : "rgba(15,15,20,0.10)"
+                        }`,
+                        backgroundColor: selected
+                          ? theme.palette.mode === "dark"
+                            ? "rgba(120,140,248,0.10)"
+                            : "rgba(79,70,229,0.05)"
+                          : "transparent",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          mt: "1px",
+                          color: selected ? "#4F46E5" : theme.palette.text.secondary,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {opt.icon}
+                      </Box>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            fontFamily: "var(--font-sans)",
+                            color: theme.palette.text.primary,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                          }}
+                        >
+                          {opt.title}
+                          {selected && (
+                            <CheckIcon sx={{ fontSize: 15, color: "#4F46E5" }} />
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            mt: 0.25,
+                            fontSize: "12px",
+                            fontFamily: "var(--font-sans)",
+                            color: theme.palette.text.secondary,
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {opt.desc}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+              {accountType === "business" && (
+                <Typography
+                  data-testid="account-type-switch-helper"
+                  sx={{
+                    mt: 1,
+                    fontSize: "12.5px",
+                    fontFamily: "var(--font-sans)",
+                    color: theme.palette.text.secondary,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {t("accountType.switchHelper", {
+                    defaultValue:
+                      "Add your business name and country below, then Save to switch to a business account. Your wallets, keys and history stay exactly as they are.",
+                  })}
+                </Typography>
+              )}
+            </>
+          ) : (
+            <Box
+              data-testid="account-type-business-badge"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.75,
+                px: 1.25,
+                py: 0.75,
+                borderRadius: "10px",
+                border: `1px solid ${
+                  theme.palette.mode === "dark"
+                    ? "rgba(120,140,248,0.30)"
+                    : "rgba(79,70,229,0.22)"
+                }`,
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(120,140,248,0.08)"
+                    : "rgba(79,70,229,0.04)",
+              }}
+            >
+              <StorefrontRounded sx={{ fontSize: 18, color: "#4F46E5" }} />
+              <Typography
+                sx={{
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  fontFamily: "var(--font-sans)",
+                  color: theme.palette.text.primary,
+                }}
+              >
+                {t("accountType.businessTitle", { defaultValue: "Registered business" })}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
         <Grid
           container
           columnSpacing={"12px"}

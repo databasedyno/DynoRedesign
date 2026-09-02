@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, useTheme } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useRouter } from "next/router";
@@ -37,6 +37,24 @@ const ActivationChecklist: React.FC<Props> = ({
   // (tips + products + payment links) is live. Drives the storefront step below.
   const { profile: storefront } = useStorefrontProfile();
   const hasHandle = Boolean(storefront?.handle);
+
+  // Light first-run account-type choice: new users default to 'individual', so
+  // this lets them self-identify intentionally. Choosing "business" routes to
+  // the single conversion home (Settings -> Account details); the choice is
+  // acknowledged (localStorage) so the prompt doesn't nag afterwards.
+  const [choiceAck, setChoiceAck] = useState(true);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setChoiceAck(window.localStorage.getItem("dp_account_type_ack") === "1");
+    }
+  }, []);
+  const ackChoice = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("dp_account_type_ack", "1");
+    }
+    setChoiceAck(true);
+  };
+  const showTypeChoice = isIndividual && !choiceAck && !profileComplete;
 
   const steps = useMemo(
     () => [
@@ -160,6 +178,105 @@ const ActivationChecklist: React.FC<Props> = ({
             "Create your first payment link and share it with a customer to receive your first crypto payment.",
         })}
       </Box>
+
+      {/* Light account-type choice (first run, individuals only) */}
+      {showTypeChoice && (
+        <Box
+          data-testid="dash2026-account-type-choice"
+          sx={{
+            mt: 2.5,
+            p: 2,
+            borderRadius: "12px",
+            border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+            backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(10,10,15,0.02)",
+          }}
+        >
+          <Box
+            sx={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 14,
+              fontWeight: 600,
+              color: isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight,
+            }}
+          >
+            {t("accountTypeChoiceTitle", { defaultValue: "How will you get paid?" })}
+          </Box>
+          <Box sx={{ display: "flex", gap: 1.25, mt: 1.25, flexWrap: "wrap" }}>
+            {[
+              {
+                key: "individual",
+                testid: "dash2026-choose-individual",
+                label: t("accountTypeChoiceIndividual", {
+                  defaultValue: "I'm an individual / creator",
+                }),
+                onClick: ackChoice,
+              },
+              {
+                key: "business",
+                testid: "dash2026-choose-business",
+                label: t("accountTypeChoiceBusiness", {
+                  defaultValue: "I'm a registered business",
+                }),
+                onClick: () => {
+                  ackChoice();
+                  router.push("/settings?section=company");
+                },
+              },
+            ].map((opt) => (
+              <Box
+                key={opt.key}
+                role="button"
+                tabIndex={0}
+                data-testid={opt.testid}
+                onClick={opt.onClick}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    opt.onClick();
+                  }
+                }}
+                sx={{
+                  flex: { xs: "1 1 100%", sm: "1 1 auto" },
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  px: 2,
+                  py: 1.25,
+                  borderRadius: 999,
+                  cursor: "pointer",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight,
+                  border: `1.5px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                  transition: "border-color 140ms ease, background-color 140ms ease",
+                  "&:hover, &:focus-visible": {
+                    borderColor: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
+                    backgroundColor: isDark
+                      ? "rgba(120,140,248,0.08)"
+                      : "rgba(79,70,229,0.04)",
+                    outline: "none",
+                  },
+                }}
+              >
+                {opt.label}
+              </Box>
+            ))}
+          </Box>
+          <Box
+            sx={{
+              mt: 1,
+              fontFamily: "var(--font-sans)",
+              fontSize: 12,
+              color: isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight,
+            }}
+          >
+            {t("accountTypeChoiceHelper", {
+              defaultValue: "You can change this anytime in Settings → Account details.",
+            })}
+          </Box>
+        </Box>
+      )}
 
       {/* Progress */}
       <Box sx={{ mt: 3, mb: 2.5 }}>
@@ -329,17 +446,10 @@ const ActivationChecklist: React.FC<Props> = ({
         <Box
           role="button"
           tabIndex={0}
-          data-testid={
-            isIndividual ? "dash2026-activation-upgrade" : "dash2026-activation-docs"
-          }
-          onClick={() =>
-            router.push(isIndividual ? "/settings?section=company" : "/documentation")
-          }
+          data-testid="dash2026-activation-docs"
+          onClick={() => router.push("/documentation")}
           onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ")
-              router.push(
-                isIndividual ? "/settings?section=company" : "/documentation",
-              );
+            if (e.key === "Enter" || e.key === " ") router.push("/documentation");
           }}
           sx={{
             display: "inline-flex",
@@ -360,9 +470,7 @@ const ActivationChecklist: React.FC<Props> = ({
             },
           }}
         >
-          {isIndividual
-            ? t("upgradeToBusiness", { defaultValue: "Add business details" })
-            : t("viewDocs", { defaultValue: "Read the docs" })}
+          {t("viewDocs", { defaultValue: "Read the docs" })}
         </Box>
       </Box>
     </SurfaceCard>

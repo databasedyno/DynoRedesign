@@ -37,7 +37,6 @@ import { TRANSACTION_FETCH } from "@/Redux/Actions/TransactionAction";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import { API_FETCH } from "@/Redux/Actions/ApiAction";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
-import UpgradeToBusinessModal from "@/Components/UI/UpgradeToBusinessModal";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import StepIndicator from "@/Components/UI/OnboardingFlow/StepIndicator";
 import CelebrationOverlay from "@/Components/UI/OnboardingFlow/CelebrationOverlay";
@@ -56,8 +55,6 @@ export default function CompanySelector() {
   // Add Company Flow states
   const [addCompanyPhase, setAddCompanyPhase] = useState<"idle" | "company" | "wallet" | "celebration">("idle");
   const [switchToast, setSwitchToast] = useState<string | null>(null);
-  // Individual -> Business upgrade (guided modal opened from the switcher).
-  const [upgradeCompany, setUpgradeCompany] = useState<any | null>(null);
 
   const handleAddCompanyClick = useCallback(() => {
     setAddCompanyPhase("company");
@@ -413,55 +410,6 @@ export default function CompanySelector() {
                   >
                     {c.email}
                   </Typography>
-
-                  {/* Individual + owned -> a contextual "Upgrade to Business"
-                      chip right where accounts are managed/switched. */}
-                  {!c.is_member &&
-                    String(c?.account_type ?? "business").toLowerCase() ===
-                      "individual" && (
-                      <Box
-                        role="button"
-                        tabIndex={0}
-                        data-testid={`company-upgrade-${c.company_id}`}
-                        onClick={(e: React.MouseEvent) => {
-                          e.stopPropagation();
-                          handleClose();
-                          setUpgradeCompany(c);
-                        }}
-                        sx={{
-                          mt: "6px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          alignSelf: "flex-start",
-                          px: "8px",
-                          py: "3px",
-                          borderRadius: "999px",
-                          cursor: "pointer",
-                          fontFamily: "var(--font-sans)",
-                          fontSize: isMobile ? "10px" : "11px",
-                          fontWeight: 700,
-                          color: brandFg(theme.palette.mode === "dark"),
-                          border: `1px solid ${brandFg(theme.palette.mode === "dark")}`,
-                          backgroundColor:
-                            theme.palette.mode === "dark"
-                              ? "rgba(120,140,248,0.10)"
-                              : "rgba(79,70,229,0.06)",
-                          transition: "background-color 0.15s ease",
-                          "&:hover": {
-                            backgroundColor:
-                              theme.palette.mode === "dark"
-                                ? "rgba(120,140,248,0.18)"
-                                : "rgba(79,70,229,0.12)",
-                          },
-                        }}
-                      >
-                        {t("upgradeToBusiness", {
-                          defaultValue: "Upgrade to Business",
-                        })}
-                        <Add sx={{ fontSize: isMobile ? "12px" : "13px" }} />
-                      </Box>
-                    )}
                 </ItemLeft>
 
                 {/* Owned companies get the quick-edit pencil; a company you only
@@ -526,16 +474,6 @@ export default function CompanySelector() {
       <CelebrationOverlay
         open={addCompanyPhase === "celebration"}
         onDismiss={handleCelebrationDismiss}
-      />
-
-      {/* Individual -> Business upgrade (guided) */}
-      <UpgradeToBusinessModal
-        open={!!upgradeCompany}
-        company={upgradeCompany}
-        onClose={() => setUpgradeCompany(null)}
-        onSuccess={() => {
-          companyState.refetchCompanies();
-        }}
       />
       {/* Company switch toast indicator */}
       <Snackbar

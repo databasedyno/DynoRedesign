@@ -1,20 +1,20 @@
 {
   "mode": {
     "add": {
-      "title": "Neues Unternehmen hinzufügen",
-      "subtitle": "Erstellen Sie ein neues Unternehmensprofil zur Verwaltung von Kryptowährungs-Zahlungen",
-      "primaryButton": "Unternehmen erstellen"
+      "title": "Neue Marke hinzufügen",
+      "subtitle": "Erstelle eine neue Marke, um Krypto-Zahlungen zu verwalten",
+      "primaryButton": "Marke starten"
     },
     "edit": {
-      "title": "Unternehmen bearbeiten",
-      "subtitle": "Unternehmensprofil-Informationen aktualisieren",
+      "title": "Marke bearbeiten",
+      "subtitle": "Markeninformationen aktualisieren",
       "primaryButton": "Aktualisieren"
     }
   },
   "fields": {
     "companyName": {
-      "label": "Firmenname*",
-      "placeholder": "Firmennamen eingeben"
+      "label": "Markenname*",
+      "placeholder": "Markennamen eingeben"
     },
     "website": {
       "label": "Website (optional)",
@@ -38,15 +38,15 @@
       "placeholder": "Land auswählen"
     },
     "state": {
-      "label": "Bundesland*",
+      "label": "Bundesland",
       "placeholder": "Bundesland auswählen"
     },
     "city": {
-      "label": "Stadt*",
+      "label": "Stadt",
       "placeholder": "Stadt auswählen"
     },
     "addressLine1": {
-      "label": "Adresszeile 1*",
+      "label": "Adresse, Zeile 1",
       "placeholder": "Adresszeile 1 eingeben"
     },
     "addressLine2": {
@@ -54,7 +54,7 @@
       "placeholder": "Adresszeile 2 eingeben"
     },
     "zipCode": {
-      "label": "Postleitzahl*",
+      "label": "PLZ",
       "placeholder": "Postleitzahl eingeben"
     },
     "vatNumber": {
@@ -66,7 +66,7 @@
     "cancel": "Abbrechen"
   },
   "validation": {
-    "companyNameRequired": "Firmenname ist erforderlich",
+    "companyNameRequired": "Markenname ist erforderlich",
     "emailInvalid": "Bitte geben Sie eine gültige E-Mail ein",
     "emailRequired": "E-Mail ist erforderlich",
     "mobileRequired": "Mobilnummer ist erforderlich",
@@ -82,17 +82,17 @@
   "vatNumber": "USt-IdNr. (optional)",
   "vatVerify": "USt-IdNr. verifiziert",
   "createModal": {
-    "title": "Erstellen Sie Ihr Unternehmen",
-    "subtitle": "Richten Sie Ihr Unternehmensprofil ein, um Zahlungen zu akzeptieren",
+    "title": "Erstelle deine Marke",
+    "subtitle": "Richte deine Marke ein, um Zahlungen zu akzeptieren",
     "closeLater": "Das mache ich später",
     "sectionYourName": "Ihr Name",
-    "sectionCompanyDetails": "Unternehmensdaten",
+    "sectionCompanyDetails": "Markendetails",
     "firstNameLabel": "Vorname *",
     "firstNamePlaceholder": "Vorname",
     "lastNameLabel": "Nachname *",
     "lastNamePlaceholder": "Nachname",
-    "companyNameLabel": "Firmenname *",
-    "companyNamePlaceholder": "Geben Sie Ihren Firmennamen ein",
+    "companyNameLabel": "Markenname *",
+    "companyNamePlaceholder": "Gib deinen Markennamen ein",
     "businessEmailLabel": "Geschäftliche E-Mail *",
     "businessEmailPlaceholder": "Geben Sie Ihre geschäftliche E-Mail ein",
     "mobileLabel": "Handynummer (optional)",
@@ -105,9 +105,9 @@
     "brandLogoLabel": "Markenlogo (optional)",
     "uploadChange": "Ändern",
     "uploadUpload": "Hochladen",
-    "submit": "Unternehmen erstellen",
-    "progressTitle": "Ihr Unternehmen wird eingerichtet…",
-    "progressStep1": "Ihr Unternehmensprofil wird erstellt…",
+    "submit": "Marke erstellen",
+    "progressTitle": "Deine Marke wird eingerichtet…",
+    "progressStep1": "Deine Marke wird erstellt…",
     "progressStep2": "Abrechnungseinstellungen werden konfiguriert…",
     "progressStep3": "Willkommens-E-Mails werden gesendet…",
     "progressStep4": "Ihr Händlerkonto wird bereitgestellt…",
@@ -117,7 +117,7 @@
     "validation": {
       "firstNameRequired": "Vorname ist erforderlich",
       "lastNameRequired": "Nachname ist erforderlich",
-      "companyNameRequired": "Firmenname ist erforderlich",
+      "companyNameRequired": "Markenname ist erforderlich",
       "emailRequired": "E-Mail ist erforderlich",
       "emailInvalid": "Bitte geben Sie eine gültige E-Mail ein",
       "mobileInvalid": "Bitte geben Sie eine gültige Handynummer ein",
@@ -125,15 +125,26 @@
       "countryRequired": "Bitte wählen Sie Ihr Land",
       "currencyRequired": "Bitte wählen Sie eine Währung"
     },
-    "addTitle": "Neues Unternehmen hinzufügen",
-    "addSubtitle": "Richten Sie ein weiteres Unternehmensprofil unter Ihrem Konto ein",
+    "addTitle": "Neue Marke hinzufügen",
+    "addSubtitle": "Richte eine weitere Marke in deinem Konto ein",
     "payLinkSubtitle": "Wird auf Rechnungen und Belegen verwendet. Dauert etwa 30 Sekunden.",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "emailLabelOptional": "E-Mail (optional)",
+    "stepBrand": "Marke",
+    "stepWallet": "Wallet"
   },
-  "addCompanyBtn": "Unternehmen hinzufügen",
-  "noCompaniesYet": "Noch keine Unternehmen",
-  "createFirstCompanyBody": "Erstellen Sie Ihr erstes Unternehmensprofil, um Zahlungen zu akzeptieren und Ihr Geschäft zu verwalten.",
+  "addCompanyBtn": "Marke hinzufügen",
+  "noCompaniesYet": "Noch keine Marken",
+  "createFirstCompanyBody": "Erstelle deine erste Marke, um Zahlungen zu akzeptieren und dein Geschäft zu verwalten.",
   "noResultsFound": "Keine Ergebnisse gefunden",
   "optional": "optional",
-  "validateTax": "Steuer-ID validieren"
+  "validateTax": "Steuer-ID validieren",
+  "accountType": {
+    "label": "Kontotyp",
+    "individualTitle": "Privat / Creator",
+    "individualDesc": "Persönliche Zahlungen, Trinkgelder und eine öffentliche Seite.",
+    "businessTitle": "Registriertes Unternehmen",
+    "businessDesc": "Rechnungen, MwSt./Steuer, Adresse und Teamzugriff.",
+    "switchHelper": "Füge unten deinen Firmennamen und dein Land hinzu und speichere, um zu einem Geschäftskonto zu wechseln. Deine Wallets, Schlüssel und dein Verlauf bleiben unverändert."
+  }
 }

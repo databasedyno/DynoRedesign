@@ -93,6 +93,13 @@ export default function CompanySettingsDialog({
   const [mediaFile, setMediaFile] = useState<File | undefined>();
   const [savingLogo, setSavingLogo] = useState(false);
   const [expanded, setExpanded] = useState<string | false>("company");
+  // Account-type choice (individual <-> business). Seeded from the company row;
+  // a business account cannot be switched back to individual (no downgrade).
+  const originalAccountType: "individual" | "business" =
+    String((company as unknown as Record<string, unknown>)?.account_type ?? "business").toLowerCase() === "individual"
+      ? "individual"
+      : "business";
+  const [accountTypeChoice, setAccountTypeChoice] = useState<"individual" | "business">(originalAccountType);
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");
@@ -138,7 +145,7 @@ export default function CompanySettingsDialog({
     setToastSeverity(severity);
     setTimeout(() => setOpenToast(true), 0);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setOpenToast(false), 3000);
+    toastTimer.current = setTimeout(() => setOpenToast(false), 5000);
   };
 
   const handleAccordionChange =
@@ -233,6 +240,12 @@ export default function CompanySettingsDialog({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, company]);
+
+  // Keep the account-type choice in sync with the selected company.
+  useEffect(() => {
+    setAccountTypeChoice(originalAccountType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [company?.company_id, open]);
 
   // Fetch auto-convert settings from dedicated endpoint
   useEffect(() => {
@@ -349,12 +362,58 @@ export default function CompanySettingsDialog({
     uploadLogo(file, previewUrl);
   };
 
-  const handleSubmit = (values: Values) => {
+  const handleSubmit = async (values: Values) => {
     if (!company?.company_id) return;
+
+    const convertingToBusiness =
+      originalAccountType === "individual" && accountTypeChoice === "business";
+
+    // Business accounts need a name + country for invoices/tax — block the
+    // switch (not the whole save) with a clear message when they're missing.
+    if (convertingToBusiness) {
+      if (!String(values.company_name ?? "").trim()) {
+        showToast("Add your business name to switch to a business account.", "error");
+        return;
+      }
+      if (!String(values.country ?? "").trim()) {
+        showToast("Add your country to switch to a business account.", "error");
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append("data", JSON.stringify(values));
     if (mediaFile) formData.append("image", mediaFile);
-    companyState.updateCompany({ id: company.company_id, formData });
+
+    try {
+      await companyState.updateCompany({ id: company.company_id, formData });
+    } catch {
+      // error toast handled inside the store — stop here so we don't flip type
+      return;
+    }
+
+    // Flip individual -> business by reusing the dedicated endpoint, so the
+    // Settings save is the single place this conversion happens.
+    if (convertingToBusiness) {
+      try {
+        await axiosBaseApi.put(
+          API_ENDPOINTS.company.upgradeToBusiness(company.company_id),
+          {
+            company_name: String(values.company_name ?? "").trim(),
+            country: String(values.country ?? "").trim(),
+            website: String(values.website ?? "").trim(),
+            vat_number: String(values.VAT_number ?? "").trim(),
+          },
+        );
+        await companyState.refetchCompanies();
+        showToast("Your account is now a business account.");
+      } catch (e: unknown) {
+        const msg =
+          (e as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          "Could not switch to a business account. Please try again.";
+        showToast(msg, "error");
+      }
+    }
 
     // Save auto-convert settings via dedicated endpoint
     axiosBaseApi
@@ -439,6 +498,9 @@ export default function CompanySettingsDialog({
                     isMobile={isMobile}
                     expanded={expanded === "company"}
                     onAccordionChange={handleAccordionChange("company")}
+                    accountType={accountTypeChoice}
+                    canChangeType={originalAccountType === "individual"}
+                    onAccountTypeChange={setAccountTypeChoice}
                   />
                   )}
 
@@ -536,7 +598,8 @@ export default function CompanySettingsDialog({
                   >
                     {sections.includes("company") ? (
                       <CustomButton
-                        label="Delete Company"
+                        label={tSettings("actions.delete", { defaultValue: "Delete brand" })}
+                        data-testid="settings-delete-brand-btn"
                         variant="outlined"
                         size={isMobile ? "small" : "medium"}
                         onClick={() => setDeleteAlertOpen(true)}
@@ -569,6 +632,7 @@ export default function CompanySettingsDialog({
                       )}
                       <CustomButton
                         label={tSettings("actions.saveChanges")}
+                        data-testid="settings-save-changes-btn"
                         variant="primary"
                         size={isMobile ? "small" : "medium"}
                         onClick={() => handleSubmit(values)}

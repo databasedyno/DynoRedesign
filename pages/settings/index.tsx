@@ -23,7 +23,6 @@ import { useTranslation } from "react-i18next";
 import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
 import UserDisplayCurrencySelector from "@/Components/UI/UserDisplayCurrencySelector";
 import CustomButton from "@/Components/UI/Buttons";
-import UpgradeToBusinessModal from "@/Components/UI/UpgradeToBusinessModal";
 import useIsMobile from "@/hooks/useIsMobile";
 import useEdgeFade from "@/hooks/useEdgeFade";
 import useTokenData from "@/hooks/useTokenData";
@@ -151,7 +150,6 @@ const CompanyConfigSection = ({
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [addOpen, setAddOpen] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
     companyState.refetchCompanies();
@@ -226,101 +224,6 @@ const CompanyConfigSection = ({
 
   return (
     <Box>
-      {/* Individual -> Business upgrade card (Account details section only). */}
-      {visibleSections.includes("company") &&
-        selectedCompany &&
-        String((selectedCompany as any)?.account_type ?? "business").toLowerCase() ===
-          "individual" && (
-          <Box
-            data-testid="settings-upgrade-business-card"
-            sx={{
-              mb: 2.5,
-              p: { xs: 2, sm: 2.5 },
-              borderRadius: "14px",
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              alignItems: { xs: "stretch", sm: "center" },
-              gap: { xs: 1.5, sm: 2 },
-              border: `1px solid ${
-                theme.palette.mode === "dark"
-                  ? "rgba(120,140,248,0.30)"
-                  : "rgba(79,70,229,0.22)"
-              }`,
-              backgroundColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(120,140,248,0.08)"
-                  : "rgba(79,70,229,0.04)",
-            }}
-          >
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                flexShrink: 0,
-                borderRadius: "10px",
-                display: { xs: "none", sm: "flex" },
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor:
-                  theme.palette.mode === "dark"
-                    ? "rgba(120,140,248,0.16)"
-                    : "rgba(79,70,229,0.08)",
-              }}
-            >
-              <BusinessRounded sx={{ fontSize: 22, color: "#4F46E5" }} />
-            </Box>
-            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <Typography
-                sx={{
-                  fontSize: { xs: "14px", sm: "15px" },
-                  fontWeight: 700,
-                  fontFamily: "var(--font-sans)",
-                  color: theme.palette.text.primary,
-                }}
-              >
-                {t("settingsPage.upgradeBusinessTitle", {
-                  defaultValue: "Upgrade to a Business account",
-                })}
-              </Typography>
-              <Typography
-                sx={{
-                  mt: 0.25,
-                  fontSize: { xs: "12.5px", sm: "13px" },
-                  fontFamily: "var(--font-sans)",
-                  color: theme.palette.text.secondary,
-                  lineHeight: 1.45,
-                }}
-              >
-                {t("settingsPage.upgradeBusinessBody", {
-                  defaultValue:
-                    "Complete your business profile to unlock invoices, tax reporting and team features — your wallets, keys and history stay exactly as they are.",
-                })}
-              </Typography>
-            </Box>
-            <Box sx={{ flexShrink: 0, width: { xs: "100%", sm: "auto" } }}>
-              <CustomButton
-                data-testid="settings-upgrade-business-btn"
-                label={t("settingsPage.upgradeBusinessCta", {
-                  defaultValue: "Upgrade to Business",
-                })}
-                variant="primary"
-                size="small"
-                fullWidth
-                onClick={() => setUpgradeOpen(true)}
-              />
-            </Box>
-          </Box>
-        )}
-
-      <UpgradeToBusinessModal
-        open={upgradeOpen}
-        company={selectedCompany}
-        onClose={() => setUpgradeOpen(false)}
-        onSuccess={() => {
-          companyState.refetchCompanies();
-        }}
-      />
-
       {/* Company picker + add button */}
       <Box
         sx={{

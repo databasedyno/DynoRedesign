@@ -1,20 +1,20 @@
 {
   "mode": {
     "add": {
-      "title": "Ajouter une nouvelle entreprise",
-      "subtitle": "Créez un nouveau profil d'entreprise pour gérer les paiements en cryptomonnaie",
-      "primaryButton": "Créer une entreprise"
+      "title": "Ajouter une nouvelle marque",
+      "subtitle": "Créez une nouvelle marque pour gérer les paiements en crypto",
+      "primaryButton": "Démarrer une marque"
     },
     "edit": {
-      "title": "Modifier l'entreprise",
-      "subtitle": "Mettre à jour les informations du profil de l'entreprise",
+      "title": "Modifier la marque",
+      "subtitle": "Mettre à jour les informations de la marque",
       "primaryButton": "Mettre à jour"
     }
   },
   "fields": {
     "companyName": {
-      "label": "Nom de l'entreprise*",
-      "placeholder": "Entrez le nom de l'entreprise"
+      "label": "Nom de la marque*",
+      "placeholder": "Saisissez le nom de la marque"
     },
     "website": {
       "label": "Site web (optionnel)",
@@ -38,15 +38,15 @@
       "placeholder": "Sélectionnez le pays"
     },
     "state": {
-      "label": "État/Région*",
+      "label": "État/Région",
       "placeholder": "Sélectionnez l'état/la région"
     },
     "city": {
-      "label": "Ville*",
+      "label": "Ville",
       "placeholder": "Sélectionnez la ville"
     },
     "addressLine1": {
-      "label": "Adresse, Ligne 1*",
+      "label": "Adresse, ligne 1",
       "placeholder": "Entrez l'adresse ligne 1"
     },
     "addressLine2": {
@@ -54,7 +54,7 @@
       "placeholder": "Entrez l'adresse ligne 2"
     },
     "zipCode": {
-      "label": "Code Postal*",
+      "label": "Code postal",
       "placeholder": "Entrez le code postal"
     },
     "vatNumber": {
@@ -66,7 +66,7 @@
     "cancel": "Annuler"
   },
   "validation": {
-    "companyNameRequired": "Le nom de l'entreprise est obligatoire",
+    "companyNameRequired": "Le nom de la marque est requis",
     "emailInvalid": "Veuillez entrer un e-mail valide",
     "emailRequired": "L'e-mail est obligatoire",
     "mobileRequired": "Le numéro de mobile est obligatoire",
@@ -82,17 +82,17 @@
   "vatNumber": "Numéro de TVA (optionnel)",
   "vatVerify": "Numéro de TVA vérifié",
   "createModal": {
-    "title": "Créez votre entreprise",
-    "subtitle": "Configurez le profil de votre entreprise pour commencer à accepter des paiements",
+    "title": "Créez votre marque",
+    "subtitle": "Configurez votre marque pour commencer à accepter des paiements",
     "closeLater": "Je le ferai plus tard",
     "sectionYourName": "Votre nom",
-    "sectionCompanyDetails": "Détails de l'entreprise",
+    "sectionCompanyDetails": "Détails de la marque",
     "firstNameLabel": "Prénom *",
     "firstNamePlaceholder": "Prénom",
     "lastNameLabel": "Nom *",
     "lastNamePlaceholder": "Nom",
-    "companyNameLabel": "Nom de l'entreprise *",
-    "companyNamePlaceholder": "Saisissez le nom de votre entreprise",
+    "companyNameLabel": "Nom de la marque *",
+    "companyNamePlaceholder": "Saisissez le nom de votre marque",
     "businessEmailLabel": "E-mail professionnel *",
     "businessEmailPlaceholder": "Saisissez votre e-mail professionnel",
     "mobileLabel": "Numéro de mobile (facultatif)",
@@ -105,9 +105,9 @@
     "brandLogoLabel": "Logo de la marque (facultatif)",
     "uploadChange": "Modifier",
     "uploadUpload": "Téléverser",
-    "submit": "Créer l'entreprise",
-    "progressTitle": "Configuration de votre entreprise…",
-    "progressStep1": "Création du profil de votre entreprise…",
+    "submit": "Créer la marque",
+    "progressTitle": "Configuration de votre marque…",
+    "progressStep1": "Création de votre marque…",
     "progressStep2": "Configuration des préférences de facturation…",
     "progressStep3": "Envoi des e-mails de bienvenue…",
     "progressStep4": "Provisionnement de votre compte marchand…",
@@ -117,7 +117,7 @@
     "validation": {
       "firstNameRequired": "Le prénom est requis",
       "lastNameRequired": "Le nom est requis",
-      "companyNameRequired": "Le nom de l'entreprise est requis",
+      "companyNameRequired": "Le nom de la marque est requis",
       "emailRequired": "L'e-mail est requis",
       "emailInvalid": "Veuillez saisir un e-mail valide",
       "mobileInvalid": "Veuillez saisir un numéro de mobile valide",
@@ -125,15 +125,26 @@
       "countryRequired": "Veuillez sélectionner votre pays",
       "currencyRequired": "Veuillez sélectionner une devise"
     },
-    "addTitle": "Ajouter une nouvelle entreprise",
-    "addSubtitle": "Configurez un autre profil d'entreprise sous votre compte",
+    "addTitle": "Ajouter une nouvelle marque",
+    "addSubtitle": "Configurez une autre marque dans votre compte",
     "payLinkSubtitle": "Utilisé sur les factures et les reçus. Prend environ 30 secondes.",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "emailLabelOptional": "E-mail (facultatif)",
+    "stepBrand": "Marque",
+    "stepWallet": "Portefeuille"
   },
-  "addCompanyBtn": "Ajouter une entreprise",
-  "noCompaniesYet": "Aucune entreprise pour le moment",
-  "createFirstCompanyBody": "Créez le profil de votre première entreprise pour commencer à accepter des paiements et gérer votre activité.",
+  "addCompanyBtn": "Ajouter une marque",
+  "noCompaniesYet": "Aucune marque pour l'instant",
+  "createFirstCompanyBody": "Créez votre première marque pour commencer à accepter des paiements et gérer votre activité.",
   "noResultsFound": "Aucun résultat trouvé",
   "optional": "optionnel",
-  "validateTax": "Valider le numéro de taxe"
+  "validateTax": "Valider le numéro de taxe",
+  "accountType": {
+    "label": "Type de compte",
+    "individualTitle": "Particulier / créateur",
+    "individualDesc": "Paiements personnels, pourboires et une page publique.",
+    "businessTitle": "Entreprise enregistrée",
+    "businessDesc": "Factures, TVA/taxes, adresse et accès de l'équipe.",
+    "switchHelper": "Ajoutez le nom et le pays de votre entreprise ci-dessous, puis enregistrez pour passer à un compte entreprise. Vos portefeuilles, clés et historique restent inchangés."
+  }
 }
