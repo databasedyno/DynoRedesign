@@ -30,6 +30,16 @@ companyRouter.put(
   companyController.updateCompany
 );
 
+// Upgrade an individual account to a business account (owner-only). Flips
+// account_type in place — does NOT create a second company.
+companyRouter.put(
+  "/upgrade-to-business/:id",
+  authMiddleware,
+  companyOwnershipMiddleware,
+  requireCompanyOwner,
+  companyController.upgradeToBusiness
+);
+
 companyRouter.get("/getCompany", authMiddleware, companyController.getCompany);
 companyRouter.get("/getCompany/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getCompanyById);
 companyRouter.get("/getTransactions/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_transactions"), companyController.getTransactions);

@@ -24,6 +24,44 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-09-02 (fork, pod d4fef0d9): KYC TRUTH ALIGNMENT + INDIVIDUAL->BUSINESS UPGRADE + KYC GRACE
+     COUNTDOWN — DONE + VERIFIED (backend curl + reversible harness; frontend testing_agent iter_112 100%).
+     LIVE prod DB, SAFE MODE. Preview: https://d4fef0d9-...preview.emergentagent.com
+  (1) KYC STATUS VOLUME ALIGNMENT (backend/controller/kycController.ts getKYCStatus): now derives volume +
+      grace/blocked state from checkKycEnforcement() (SUM successful tbl_customer_transaction) instead of the
+      old tbl_user_transaction sum — so the dashboard matches the actual payment-gating source of truth. Also
+      surfaces new fields: is_exempt, blocked, has_active_session, verification_url, grace_period{days_remaining,
+      grace_period_end, threshold_date, blocked}. VERIFIED: company_1 volume jumped $0 -> $29,174.82 (the exact
+      discrepancy the user reported); requires_kyc=true, status=approved => grace null, can_process=true.
+  (2) INDIVIDUAL->BUSINESS UPGRADE: NEW owner-only endpoint PUT /api/company/upgrade-to-business/:id
+      (companyController.upgradeToBusiness; companyRouter: authMiddleware+companyOwnershipMiddleware+
+      requireCompanyOwner). Flips account_type individual->business IN PLACE (no 2nd company); requires
+      business name + country, optional website + VAT. api/endpoints.ts += company.upgradeToBusiness. Guided
+      modal NEW Components/UI/UpgradeToBusinessModal (prefilled name, country Autocomplete, website, VAT;
+      fullScreen on mobile; success state; testids upgrade-business-modal/-name-input/-country-input/-website-
+      input/-vat-input/-submit-btn/-success/-cancel-btn). Entry points: CompanySelector chip company-upgrade-<id>
+      (individual+owned rows only) AND Settings->Account details card settings-upgrade-business-card
+      (visibleSections includes 'company' + individual). VERIFIED backend: positive flip 200 + DB business,
+      already-business 400, missing-name 400, no-auth 403, idempotent — all via REVERSIBLE harness
+      backend/scripts/verify_upgrade_business.ts (scratch company created+deleted). VERIFIED frontend: chip
+      shows only on individual, opens modal, flip -> success -> badge flips to BUSINESS + chip disappears;
+      settings card same; desktop + mobile full-screen sheet.
+  (3) KYC GRACE COUNTDOWN: NEW Components/Page/Dashboard/KycGraceBanner.tsx rendered in pages/dashboard.tsx
+      (!isMember). Shows 'X days to verify your identity' (amber) or 'Verification overdue — payments paused'
+      (red, when grace expired) with a one-click 'Start verification' button (POST /api/kyc/submit -> Veriff
+      URL redirect; 'Continue verification' if a session already exists). Hidden when !requires_kyc, approved,
+      or exempt. testids kyc-grace-banner/-days/-start-btn. VERIFIED: renders '90 days to verify' for a
+      scratch over-threshold individual, HIDDEN for approved The Dev Store.
+  BUG FIXED mid-session (iter_111 MEDIUM): banner didn't render on in-app company switch (needed reload).
+      ROOT CAUSE: SWR KEY COLLISION — KycGraceBanner and KycVerifiedBadge both used key ['kyc/status', companyId]
+      but different fetchers (object vs string), so the banner intermittently read a string. FIX: banner key ->
+      ['kyc/status/full', companyId]. Also silenced MUI renderOption key-spread warning (destructure key).
+      Re-verified iter_112 100% (banner appears <2s on switch, no reload; mobile full-screen modal flip OK).
+  SAFE-MODE HYGIENE: all frontend testing used a REVERSIBLE fixture (backend/scripts/kyc_ui_fixture.ts
+      --setup/--teardown: scratch individual company + one $15k successful customer_transaction). Torn down
+      after — user_1 confirmed back to exactly [The Dev Store(business), SMADAV(business)], 0 scratch rows.
+      NO new login creds. BE+FE tsc 0. -->
+
 <!-- 2026-09-02 (fork, pod d4fef0d9): TWO NAI PICKS SHIPPED & SCREENSHOT-VERIFIED (frontend-only).
   (1) BRAND FEATURE SPOTLIGHT — new Components/Page/Home/v3/BrandSpotlightV3.tsx: a dedicated
       "headline feature" section (2-col desktop / stacked mobile) pairing value copy (eyebrow

@@ -83,6 +83,7 @@ export const API_ENDPOINTS = {
 
   company: {
     autoConvert: (companyId: PathId) => `/company/auto-convert/${companyId}`,
+    upgradeToBusiness: (companyId: PathId) => `/company/upgrade-to-business/${companyId}`,
     webhookHistory: (companyId: PathId, q: string = "") =>
       `/company/webhook-history/${companyId}?page=1&limit=20${q}`,
     webhookHistoryDetail: (companyId: PathId, logId: PathId) =>

@@ -11,7 +11,7 @@ import { QueryTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import kycModel from "../models/kycModel";
 import { getVeriffService } from "../services/veriffService";
-import { isKycExempt } from "../helper/kycEnforcement";
+import { isKycExempt, checkKycEnforcement, KYC_THRESHOLD_USD, KYC_GRACE_PERIOD_DAYS } from "../helper/kycEnforcement";
 import { createNotification, NOTIFICATION_TYPES } from "./notificationController";
 import { IUserType } from "../utils/types";
 import {
@@ -38,7 +38,7 @@ const getKYCStatus = async (req: express.Request, res: express.Response) => {
     const userId = userData.user_id;
     const companyId = req.query.company_id ? parseInt(req.query.company_id as string) : null;
 
-    // Get user's KYC record
+    // Get user's KYC record (authoritative for the displayed status/badge)
     const whereClause = companyId
       ? { user_id: userId, company_id: companyId }
       : { user_id: userId };
@@ -48,47 +48,52 @@ const getKYCStatus = async (req: express.Request, res: express.Response) => {
       order: [["created_at", "DESC"]],
     });
 
-    // Calculate user's total volume
-    const volumeQuery = companyId
-      ? `SELECT COALESCE(SUM(base_amount), 0) as total_volume
-         FROM tbl_user_transaction 
-         WHERE user_id = :userId AND company_id = :companyId AND status = 'done'`
-      : `SELECT COALESCE(SUM(base_amount), 0) as total_volume
-         FROM tbl_user_transaction 
-         WHERE user_id = :userId AND status = 'done'`;
+    // TRUTH ALIGNMENT: volume, threshold, grace + blocked state all come from
+    // the SAME source that actually gates payments (checkKycEnforcement sums
+    // successful tbl_customer_transaction). Previously this endpoint summed
+    // tbl_user_transaction, so the dashboard could disagree with enforcement.
+    const enforcement = await checkKycEnforcement(userId, companyId, "[KYC status]");
 
-    const volumeResult = await sequelize.query<{ total_volume: string }>(volumeQuery, {
-      replacements: { userId, companyId },
-      type: QueryTypes.SELECT,
-    });
+    const isExempt = enforcement.kycStatus === "exempt";
+    const displayStatus = kycRecord ? String(kycRecord.get("status")) : "not_started";
+    const isApproved = displayStatus === "approved";
 
-    const totalVolume = parseFloat(String(volumeResult[0]?.total_volume || "0"));
-    const volumeThreshold = 10000; // $10,000 USD threshold
-    const gracePeriodDays = 90;
-    const requiresKYC = totalVolume >= volumeThreshold;
+    const requiresKYC = enforcement.needsEnforcement; // false when exempt / under threshold
+    // During the grace period payments still flow (blocked=false); only an
+    // expired grace period without approval blocks processing.
+    const canProcess = !enforcement.blocked;
+    // "Start verification" is offered when KYC is required, not yet approved, and
+    // there isn't already an in-flight Veriff session.
+    const needsSubmission =
+      requiresKYC && !isApproved && !["submitted", "pending"].includes(displayStatus);
 
-    // Calculate grace period info
-    let gracePeriodInfo = null;
-    if (requiresKYC && kycRecord?.get("status") !== "approved") {
-      // This is simplified - actual grace period calculation happens in payment endpoints
+    let gracePeriodInfo: Record<string, unknown> | null = null;
+    if (requiresKYC && !isApproved) {
+      const days = enforcement.daysRemaining;
       gracePeriodInfo = {
-        grace_period_days: gracePeriodDays,
-        message: `You have ${gracePeriodDays} days from when you first exceeded the threshold to complete KYC verification.`
+        grace_period_days: KYC_GRACE_PERIOD_DAYS,
+        days_remaining: typeof days === "number" ? Math.max(0, days) : null,
+        grace_period_end: enforcement.gracePeriodEnd ?? null,
+        threshold_date: enforcement.thresholdDate ?? null,
+        blocked: enforcement.blocked,
+        message: enforcement.blocked
+          ? "Your verification grace period has ended. Complete KYC to resume processing payments."
+          : `You have ${typeof days === "number" ? Math.max(0, days) : KYC_GRACE_PERIOD_DAYS} days to complete KYC verification.`,
       };
     }
 
-    // Get KYC requirements status
-    const needsSubmission = requiresKYC && (!kycRecord || kycRecord.get("status") === "pending" || kycRecord.get("status") === "not_started");
-    const canProcess = !requiresKYC || (kycRecord && kycRecord.get("status") === "approved");
-
     return successResponseHelper(res, 200, "KYC status retrieved successfully", {
       kyc_record: kycRecord || null,
-      total_volume: totalVolume,
-      volume_threshold: volumeThreshold,
+      total_volume: enforcement.totalVolume,
+      volume_threshold: KYC_THRESHOLD_USD,
       requires_kyc: requiresKYC,
       needs_submission: needsSubmission,
       can_process_payments: canProcess,
-      status: kycRecord ? kycRecord.get("status") : "not_started",
+      status: displayStatus,
+      is_exempt: isExempt,
+      blocked: enforcement.blocked,
+      has_active_session: enforcement.hasActiveSession ?? false,
+      verification_url: enforcement.veriffSessionUrl ?? null,
       grace_period: gracePeriodInfo,
     });
 

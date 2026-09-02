@@ -612,6 +612,70 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
   }
 };
 
+/**
+ * Upgrade an INDIVIDUAL account to a BUSINESS account.
+ * PUT /api/company/upgrade-to-business/:id  (owner-only)
+ *
+ * The Account is the tenant; a "Business" is simply an Account that has filled
+ * in a business profile. This flips account_type individual -> business in
+ * place — it does NOT create a second company, so wallets, API keys, team
+ * members, payment history and settings all stay intact. Requires a business
+ * name + country (the minimum a business profile needs for invoices/tax);
+ * website + VAT/Tax ID are optional and stored when provided.
+ */
+const upgradeToBusiness = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const company_id = req.params.id;
+    const { company_name, country, website, vat_number } = req.body ?? {};
+
+    const name = String(company_name ?? "").trim();
+    const ctry = String(country ?? "").trim();
+    if (!name) return errorResponseHelper(res, 400, "Business name is required");
+    if (!ctry) return errorResponseHelper(res, 400, "Country is required");
+
+    const company = await companyModel.findOne({
+      where: { company_id, user_id: userData.user_id },
+    });
+    if (!company) {
+      return errorResponseHelper(res, 404, "Company not found");
+    }
+
+    const currentType = String(company.dataValues.account_type ?? "business").toLowerCase();
+    if (currentType === "business") {
+      return errorResponseHelper(res, 400, "This account is already a business account");
+    }
+
+    const updates: Record<string, unknown> = {
+      account_type: "business",
+      company_name: name,
+      country: ctry,
+    };
+    if (website !== undefined) {
+      updates.website = String(website ?? "").trim() || null;
+    }
+    if (vat_number !== undefined) {
+      updates.vat_number = String(vat_number ?? "").trim() || null;
+    }
+
+    const resData = await companyModel.update(updates, {
+      where: { company_id, user_id: userData.user_id },
+      returning: true,
+    });
+
+    const updated = resData[1]?.[0]?.dataValues ?? { ...company.dataValues, ...updates };
+
+    companyLogger.info(
+      `Account upgraded individual -> business (company_id=${company_id})`,
+      { user_id: userData.user_id, company_id }
+    );
+
+    return successResponseHelper(res, 200, "Account upgraded to Business successfully!", updated);
+  } catch (e) {
+    handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
+  }
+};
+
 const getCompany = async (_req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
@@ -1824,6 +1888,7 @@ export default {
   getCompanyById,
   deleteCompany,
   updateCompany,
+  upgradeToBusiness,
   getTransactions,
   validateTaxId,
   updateWebhookSettings,
