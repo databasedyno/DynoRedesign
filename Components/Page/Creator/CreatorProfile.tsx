@@ -13,6 +13,7 @@ import { GRADIENT_STOPS } from '@/constants/creatorTheme'
 import SupportWidget, { SupportWidgetData } from './SupportWidget'
 import InlineTipCheckout from './InlineTipCheckout'
 import PublicVerifiedBadge from '@/Components/UI/PublicVerifiedBadge'
+import MerchantTrustRow from '@/Components/UI/MerchantTrustRow'
 import type { CreatorAnalyticsData } from './AnalyticsWidget'
 import CreatorShopSection, { CreatorShopProduct } from './CreatorShopSection'
 
@@ -736,8 +737,11 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
           </Box>
         )}
 
+        {/* Trust row — "Payments secured by Dynopay · Verified merchant". */}
+        <MerchantTrustRow handle={creator.handle} sx={{ mt: 5 }} />
+
         {/* ── Powered by ── */}
-        <Box display='flex' alignItems='center' justifyContent='center' gap={0.75} mt={5} sx={{ opacity: 0.7 }}>
+        <Box display='flex' alignItems='center' justifyContent='center' gap={0.75} mt={2} sx={{ opacity: 0.7 }}>
           <Typography fontSize={12} color={theme.palette.text.secondary}>Powered by</Typography>
           <Logo width={15} height={18} />
           <Typography fontSize={12} fontWeight={700} color={theme.palette.text.primary}>Dynopay</Typography>

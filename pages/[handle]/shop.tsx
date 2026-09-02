@@ -18,6 +18,7 @@ import { Container } from "@mui/material";
 import { NextPageWithLayout } from "@/pages/_app";
 import { ShopClient } from "@/Components/Page/Shop";
 import type { ShopMerchant, ShopProduct } from "@/Components/Page/Shop/types";
+import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
 import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
 
 interface ShopPageProps {
@@ -139,6 +140,8 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
           products={products}
           shopUrl={url}
         />
+        {/* Trust row — buyer reassurance at the foot of the storefront. */}
+        <MerchantTrustRow handle={merchant.handle} sx={{ mt: { xs: 5, md: 7 } }} />
       </Container>
     </>
   );
