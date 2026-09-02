@@ -1,6 +1,6 @@
-import React, { memo } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
-import { motion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import BusinessCenterRoundedIcon from "@mui/icons-material/BusinessCenterRounded";
@@ -30,6 +30,14 @@ const BrandSpotlightV3: React.FC = () => {
   const accent = s.dark ? "#818CF8" : BRAND_ACCENT;
   const verified = s.dark ? "#4ADE80" : "#16A34A";
 
+  // Live "hop": the active-brand highlight cycles through the brands while the
+  // mock is on-screen, so the switcher feels alive as visitors scroll. Paused
+  // off-screen and fully disabled under prefers-reduced-motion.
+  const mockRef = useRef<HTMLDivElement | null>(null);
+  const inView = useInView(mockRef, { margin: "-15% 0px" });
+  const reduceMotion = useReducedMotion();
+  const [activeBrand, setActiveBrand] = useState(0);
+
   const bullets = [
     t("v3.brandSpotlight.b1", { defaultValue: "One login for every brand — no juggling separate accounts." }),
     t("v3.brandSpotlight.b2", { defaultValue: "Each brand keeps its own checkout, wallets and settlement currency." }),
@@ -41,6 +49,14 @@ const BrandSpotlightV3: React.FC = () => {
     { name: "Nomad Studio", email: "pay@nomadstudio.io", type: "Business", verified: false, active: false },
     { name: "Side Projects", email: "me@side.dev", type: "Individual", verified: false, active: false },
   ];
+
+  useEffect(() => {
+    if (!inView || reduceMotion) return;
+    const id = setInterval(() => {
+      setActiveBrand((i) => (i + 1) % brands.length);
+    }, 1900);
+    return () => clearInterval(id);
+  }, [inView, reduceMotion, brands.length]);
 
   const enter = {
     initial: { opacity: 0, y: 24 },
@@ -147,6 +163,7 @@ const BrandSpotlightV3: React.FC = () => {
               }}
             />
             <Box
+              ref={mockRef}
               data-testid="brand-switcher-mock"
               role="img"
               aria-label="DynoPay brand switcher showing multiple brands under one account"
@@ -200,11 +217,13 @@ const BrandSpotlightV3: React.FC = () => {
 
               {/* brand rows */}
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                {brands.map((b) => {
+                {brands.map((b, idx) => {
                   const isIndividual = b.type === "Individual";
+                  const isActive = idx === activeBrand;
                   return (
                     <Box
                       key={b.name}
+                      data-testid={`brand-row-${idx}`}
                       sx={{
                         display: "flex",
                         alignItems: "flex-start",
@@ -212,12 +231,13 @@ const BrandSpotlightV3: React.FC = () => {
                         gap: 1,
                         p: 1,
                         borderRadius: "10px",
-                        border: `1px solid ${b.active ? `${accent}55` : "transparent"}`,
-                        background: b.active
+                        border: `1px solid ${isActive ? `${accent}55` : "transparent"}`,
+                        background: isActive
                           ? s.dark
                             ? "rgba(129,140,248,0.14)"
                             : "rgba(79,70,229,0.07)"
                           : "transparent",
+                        transition: "background-color .55s ease, border-color .55s ease",
                       }}
                     >
                       <Box sx={{ minWidth: 0 }}>
@@ -255,9 +275,18 @@ const BrandSpotlightV3: React.FC = () => {
                           {b.email}
                         </Typography>
                       </Box>
-                      {b.active && (
-                        <CheckRoundedIcon sx={{ fontSize: 18, color: accent, flexShrink: 0, mt: 0.25 }} />
-                      )}
+                      <CheckRoundedIcon
+                        aria-hidden
+                        sx={{
+                          fontSize: 18,
+                          color: accent,
+                          flexShrink: 0,
+                          mt: 0.25,
+                          opacity: isActive ? 1 : 0,
+                          transform: isActive ? "scale(1)" : "scale(0.6)",
+                          transition: "opacity .45s ease, transform .45s ease",
+                        }}
+                      />
                     </Box>
                   );
                 })}

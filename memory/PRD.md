@@ -41,7 +41,30 @@
       gated on isSandboxKey, copies apiKey). New apiScreen keys use t() defaultValue (no locale
       file needed; fallbackLng=en). Verified: logged in (The Dev Store) -> /developer-keys ->
       Test card shows Auto-Created·Sandbox badge + limits line + "Copy sandbox key"; Live card
-      correctly has NO copy-sandbox button. FE tsc 0. No backend changes. -->
+      correctly has NO copy-sandbox button. FE tsc 0. No backend changes.
+  (3) SPOTLIGHT SWITCH ANIMATION — BrandSpotlightV3 active-brand highlight now cycles
+      (useInView-gated so it only runs on-screen; useReducedMotion respected; CSS-transitioned
+      bg/border + check). Verified: active-row samples [0,0,0,1,2,2] -> hops through all 3. -->
+
+<!-- 2026-09-02 CODEBASE ANALYSIS (no code change) — answers for the user:
+  KYC VERIFICATION + GRACE: provider Veriff. Volume-triggered, NOT upfront. Threshold
+    KYC_THRESHOLD_USD=$10k (SUM successful tbl_customer_transaction). Under $10k -> no KYC,
+    can_process_payments=true. At/over $10k -> 90-day grace (KYC_GRACE_PERIOD_DAYS, from the date
+    the running total first hit $10k). During grace payments flow + escalating warnings; after grace
+    AND not approved -> blocked=true. Enforced in helper/kycEnforcement.checkKycEnforcement, called by
+    paymentLinkController (createPaymentLink L751), payment/cryptoCheckout (L1129), confirmPayment.
+    Flow: POST /api/kyc/submit -> Veriff session; Veriff webhook POST /api/kyc/webhook (HMAC) maps
+    approved/declined/resubmission_requested; resubmit via /api/kyc/resubmit. Exemptions via
+    KYC_EXEMPT_COMPANY_IDS/USER_IDS env. MINOR INCONSISTENCY: getKYCStatus sums tbl_user_transaction
+    while enforcement+onboarding sum tbl_customer_transaction (enforcement is source of truth).
+  INDIVIDUAL vs BUSINESS: tenant = Account = tbl_company row; account_type 'individual'|'business'
+    (DB default 'business'). (a) INDIVIDUAL auto-created at signup via userModel afterCreate hook
+    -> services/accountProvisioning.ensurePersonalAccount (account_type='individual', idempotent,
+    afterCommit, skips test emails + team-invite signups; kill-switch AUTO_PROVISION_PERSONAL_ACCOUNT).
+    (b) BUSINESS = any company the user explicitly creates via addCompany/"Add brand" (no account_type
+    passed -> model default 'business'). GAP: no endpoint flips individual->business (settings/updateCompany
+    don't write account_type), despite the "Company = Account with a business profile" concept. -->
+
 
 <!-- 2026-09-01 (fork, pod d4fef0d9) follow-up: LANDING FIXES per user.
   (a) MULTI-BRAND CARD MOBILE VISIBILITY (user: "important feature must show on desktop, mobile,
