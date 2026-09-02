@@ -44,6 +44,7 @@ import {
   sendCustomerPaymentConfirmationEmail,
 } from "../../../services/emailService";
 import { generatePaymentReceipt, getReceiptFilename } from "../../../services/pdfReceiptService";
+import { isMerchantIdentityVerified } from "../../../helper/merchantVerification";
 import crypto from "crypto";
 import { safeDeleteSubscription } from "../../../helper/subscriptionHelpers";
 import { incrementAdminFee, incrementUserWallet, incrementCustomerWallet } from "../../../helper/walletHelpers";
@@ -111,14 +112,27 @@ export const downloadReceipt = async (
 
     // Merchant (company) name — read-only lookup
     let companyName = "Merchant";
+    let companyOwnerUserId: number | null = null;
     const companyId = customerData?.company_id || tempData?.company_id;
     if (companyId) {
       try {
         const company = await companyModel.findOne({ where: { company_id: companyId } });
         if (company?.dataValues?.company_name) companyName = company.dataValues.company_name;
+        if (company?.dataValues?.user_id) companyOwnerUserId = Number(company.dataValues.user_id);
       } catch {
         /* keep fallback name */
       }
+    }
+
+    // Identity-verified merchant marker for the PDF (best-effort, read-only).
+    let merchantVerified = false;
+    try {
+      merchantVerified = await isMerchantIdentityVerified(
+        companyOwnerUserId,
+        companyId ? Number(companyId) : null
+      );
+    } catch {
+      merchantVerified = false;
     }
 
     // Amounts — same sources verifyCryptoPayment uses for its confirmed payload
@@ -157,6 +171,7 @@ export const downloadReceipt = async (
       cryptoAmount: receivedAmount > 0 ? formatCryptoAmount(receivedAmount, currency) : undefined,
       cryptoCurrency: currency || undefined,
       companyName,
+      merchantVerified,
       customerEmail: customerEmail || "-",
       customerName,
       paymentDate: isNaN(paymentDate.getTime()) ? new Date() : paymentDate,

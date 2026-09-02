@@ -947,6 +947,8 @@
   },
   "verifiedBadge": {
     "label": "Identiteit geverifieerd",
-    "tooltip": "De identiteit van deze verkoper is geverifieerd door Dynopay"
+    "tooltip": "De identiteit van deze verkoper is geverifieerd door Dynopay",
+    "securedBy": "Betalingen beveiligd door Dynopay",
+    "merchantLabel": "Geverifieerde verkoper"
   }
 }

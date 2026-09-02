@@ -34,6 +34,8 @@ interface ReceiptData {
   // Merchant details
   companyName: string;
   companyLogo?: string;
+  /** True when the merchant is KYC identity-verified — renders a green check on the receipt. */
+  merchantVerified?: boolean;
   
   // Customer details
   customerEmail: string;
@@ -205,6 +207,21 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       doc.fontSize(14)
         .fillColor(BRAND_COLORS.dark)
         .text(data.companyName, 50, yPos + 20);
+
+      // Identity-verified marker — a small drawn green check (pdfkit's default
+      // font can't render a ✓ glyph) + localized label, matching the on-screen
+      // and email receipts. Only shown for a KYC-verified merchant.
+      if (data.merchantVerified) {
+        const vy = yPos + 42;
+        doc.save();
+        doc.lineWidth(1.6).strokeColor("#12B76A").lineJoin("round").lineCap("round");
+        doc.moveTo(50, vy + 4).lineTo(53.5, vy + 7.5).lineTo(59, vy).stroke();
+        doc.restore();
+        doc.fontSize(10)
+          .fillColor("#12B76A")
+          .text(t("receipt.verifiedMerchant", L), 64, vy);
+        doc.fillColor(BRAND_COLORS.text);
+      }
 
       // Customer column
       doc.fontSize(12)

@@ -948,6 +948,8 @@
   },
   "verifiedBadge": {
     "label": "Identity verified",
-    "tooltip": "This merchant's identity has been verified by Dynopay"
+    "tooltip": "This merchant's identity has been verified by Dynopay",
+    "securedBy": "Payments secured by Dynopay",
+    "merchantLabel": "Verified merchant"
   }
 }

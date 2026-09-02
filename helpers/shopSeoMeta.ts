@@ -15,6 +15,7 @@ interface ShopSeoStrings {
   shopSuffix: string;
   shopDesc: string; // {name}
   productDesc: string; // {title}
+  verifiedPrefix: string; // prepended to social description when the merchant is KYC-verified
 }
 
 const STRINGS: Record<SeoLang, ShopSeoStrings> = {
@@ -22,31 +23,37 @@ const STRINGS: Record<SeoLang, ShopSeoStrings> = {
     shopSuffix: "Shop",
     shopDesc: "Support {name} — buy digital products, back campaigns, and tip in crypto. Direct to their wallet.",
     productDesc: "Buy {title} with crypto.",
+    verifiedPrefix: "Verified merchant",
   },
   es: {
     shopSuffix: "Tienda",
     shopDesc: "Apoya a {name}: compra productos digitales, respalda campañas y deja propinas en cripto. Directo a su billetera.",
     productDesc: "Compra {title} con cripto.",
+    verifiedPrefix: "Comercio verificado",
   },
   pt: {
     shopSuffix: "Loja",
     shopDesc: "Apoie {name} — compre produtos digitais, financie campanhas e deixe gorjetas em cripto. Direto para a carteira.",
     productDesc: "Compre {title} com cripto.",
+    verifiedPrefix: "Comerciante verificado",
   },
   fr: {
     shopSuffix: "Boutique",
     shopDesc: "Soutenez {name} — achetez des produits numériques, financez des campagnes et laissez des pourboires en crypto. Directement sur son portefeuille.",
     productDesc: "Achetez {title} en crypto.",
+    verifiedPrefix: "Marchand vérifié",
   },
   de: {
     shopSuffix: "Shop",
     shopDesc: "Unterstütze {name} — kaufe digitale Produkte, finanziere Kampagnen und gib Trinkgeld in Krypto. Direkt in die Wallet.",
     productDesc: "Kaufe {title} mit Krypto.",
+    verifiedPrefix: "Verifizierter Händler",
   },
   nl: {
     shopSuffix: "Winkel",
     shopDesc: "Steun {name} — koop digitale producten, steun campagnes en geef fooien in crypto. Direct naar de wallet.",
     productDesc: "Koop {title} met crypto.",
+    verifiedPrefix: "Geverifieerde verkoper",
   },
 };
 

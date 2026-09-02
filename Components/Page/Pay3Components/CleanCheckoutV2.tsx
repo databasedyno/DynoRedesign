@@ -60,6 +60,7 @@ import Logo from '@/assets/Icons/Logo'
 import CheckoutStatusStrip from '@/Components/UI/CheckoutStatusStrip'
 import RateFreshness from '@/Components/UI/RateFreshness'
 import PublicVerifiedBadge from '@/Components/UI/PublicVerifiedBadge'
+import MerchantTrustRow from '@/Components/UI/MerchantTrustRow'
 import type { CheckoutState } from '@/Components/UI/CheckoutShell'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 // ─── Extracted checkout modules (Session refactor) ───────────────────────
@@ -1566,8 +1567,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         />
       )}
 
+      {/* Trust row — "Payments secured by Dynopay · Verified merchant" (the
+          verified segment shows only for a KYC-verified merchant). */}
+      <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${border}` }}>
+        <MerchantTrustRow linkRef={d} color={muted} justify="center" />
+      </Box>
+
       {/* Footer links */}
-      <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography fontSize={11} color={muted}>
           {t('checkout.poweredBy', { defaultValue: 'Powered by' })} <strong style={{ color: theme.palette.text.primary }}>DYNOPAY</strong>
         </Typography>

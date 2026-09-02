@@ -37,7 +37,7 @@ interface Variant {
   variant_id: number; attributes?: any; price_cents: number;
   stock_count: number | null; image_url?: string; is_active: boolean;
 }
-interface DetailProps { merchant: Merchant; product: Product; variants: Variant[]; siteUrl: string; metaLang: string }
+interface DetailProps { merchant: Merchant; product: Product; variants: Variant[]; siteUrl: string; metaLang: string; verified?: boolean }
 
 function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
@@ -46,7 +46,7 @@ function formatPrice(cents: number, ccy: string): string {
   } catch { return `${n.toFixed(2)} ${ccy}`; }
 }
 
-const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl, metaLang }) => {
+const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl, metaLang, verified }) => {
   const cart = useCart();
   const { t } = useTranslation("landing");
   const activeVariants = useMemo(() => (variants || []).filter((v) => v.is_active), [variants]);
@@ -94,6 +94,9 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
 
   const title = `${product.title} — @${merchant.handle} · Dynopay`;
   const description = product.subtitle || product.description_md?.slice(0, 200) || shopSeoStrings(metaLang).productDesc.replace("{title}", product.title);
+  // Verified-merchant marker in shared link previews.
+  const socialTitle = verified ? `✅ ${title}` : title;
+  const socialDescription = verified ? `${shopSeoStrings(metaLang).verifiedPrefix} · ${description}` : description;
   const url = `${siteUrl}/${merchant.handle}/p/${product.slug}`;
   // hreflang / canonical: English default = bare URL; other locales = ?lang=xx.
   const altHref = (lng: string) => (lng === "en" ? url : `${url}?lang=${lng}`);
@@ -104,18 +107,21 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
     <>
       <Head>
         <title>{title}</title>
-        <meta name="description" content={description} />
+        <meta name="description" content={socialDescription} />
         <link key="canonical" rel="canonical" href={canonical} />
         {/* hreflang alternates — keys match _app's cluster so these override it */}
         {SEO_SUPPORTED.map((lng) => (
           <link key={lng} rel="alternate" hrefLang={lng} href={altHref(lng)} />
         ))}
         <link key="x-default" rel="alternate" hrefLang="x-default" href={url} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
+        <meta key="og:title" property="og:title" content={socialTitle} />
+        <meta key="og:description" property="og:description" content={socialDescription} />
         <meta property="og:url" content={canonical} key="og:url" />
         {cover && <meta property="og:image" content={cover} />}
         <meta key="og:locale" property="og:locale" content={metaLang} />
+        <meta key="twitter:title" name="twitter:title" content={socialTitle} />
+        <meta key="twitter:description" name="twitter:description" content={socialDescription} />
+        {cover && <meta name="twitter:image" content={cover} />}
       </Head>
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="product-detail">
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 2, flexWrap: "wrap" }}>
@@ -292,6 +298,18 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     } else {
       ctx.res.setHeader("Cache-Control", "private, no-store");
     }
+    // Verified-merchant marker for shared link previews (best-effort, non-fatal).
+    let verified = false;
+    try {
+      const vr = await fetch(
+        `${base}/api/public/merchant-verification?handle=${encodeURIComponent(handle)}`,
+        { headers: { Accept: "application/json" } }
+      );
+      if (vr.ok) {
+        const vj = await vr.json();
+        verified = Boolean(vj?.data?.verified);
+      }
+    } catch { /* ignore — just no verified marker */ }
     return {
       props: {
         merchant: data.merchant,
@@ -299,6 +317,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         variants: Array.isArray(data.variants) ? data.variants : [],
         siteUrl,
         metaLang,
+        verified,
       },
     };
   } catch (e) {

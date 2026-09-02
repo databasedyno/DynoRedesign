@@ -947,6 +947,8 @@
   },
   "verifiedBadge": {
     "label": "Identidad verificada",
-    "tooltip": "La identidad de este comercio ha sido verificada por Dynopay"
+    "tooltip": "La identidad de este comercio ha sido verificada por Dynopay",
+    "securedBy": "Pagos protegidos por Dynopay",
+    "merchantLabel": "Comercio verificado"
   }
 }

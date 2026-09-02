@@ -947,6 +947,8 @@
   },
   "verifiedBadge": {
     "label": "Identität verifiziert",
-    "tooltip": "Die Identität dieses Händlers wurde von Dynopay verifiziert"
+    "tooltip": "Die Identität dieses Händlers wurde von Dynopay verifiziert",
+    "securedBy": "Zahlungen abgesichert durch Dynopay",
+    "merchantLabel": "Verifizierter Händler"
   }
 }

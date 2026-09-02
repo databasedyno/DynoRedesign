@@ -25,14 +25,20 @@ interface ShopPageProps {
   products: ShopProduct[];
   siteUrl: string;
   metaLang: string;
+  verified?: boolean;
 }
 
-const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteUrl, metaLang }) => {
+const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteUrl, metaLang, verified }) => {
   const seo = shopSeoStrings(metaLang);
   const title = `${merchant.name} — ${seo.shopSuffix} · Dynopay`;
   const description =
     merchant.bio ||
     seo.shopDesc.replace("{name}", merchant.name);
+  // "Verified Everywhere" — a verified marker in shared link previews so buyers
+  // can spot a KYC-verified seller at a glance (✅ in the social title + a
+  // localized "Verified merchant ·" prefix in the description).
+  const socialTitle = verified ? `✅ ${title}` : title;
+  const socialDescription = verified ? `${seo.verifiedPrefix} · ${description}` : description;
   const url = `${siteUrl}/${merchant.handle}/shop`;
   const ogImage =
     merchant.avatar || `${siteUrl}/og/default-shop.png`;
@@ -83,7 +89,7 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
     <>
       <Head>
         <title>{title}</title>
-        <meta name="description" content={description} />
+        <meta name="description" content={socialDescription} />
         <link key="canonical" rel="canonical" href={canonical} />
         {/* hreflang alternates — one per supported ?lang= variant + x-default.
             Keys match _app's fallback cluster so these (correct, per-handle) tags
@@ -95,8 +101,8 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
+        <meta key="og:title" property="og:title" content={socialTitle} />
+        <meta key="og:description" property="og:description" content={socialDescription} />
         <meta property="og:url" content={canonical} key="og:url" />
         <meta property="og:image" content={ogImage} />
         <meta property="og:site_name" content="Dynopay" />
@@ -104,8 +110,8 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
+        <meta key="twitter:title" name="twitter:title" content={socialTitle} />
+        <meta key="twitter:description" name="twitter:description" content={socialDescription} />
         <meta name="twitter:image" content={ogImage} />
 
         {/* Structured data */}
@@ -185,12 +191,25 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     } else {
       ctx.res.setHeader("Cache-Control", "private, no-store");
     }
+    // Verified-merchant marker for shared link previews (best-effort, non-fatal).
+    let verified = false;
+    try {
+      const vr = await fetch(
+        `${base}/api/public/merchant-verification?handle=${encodeURIComponent(handle)}`,
+        { headers: { Accept: "application/json" } }
+      );
+      if (vr.ok) {
+        const vj = await vr.json();
+        verified = Boolean(vj?.data?.verified);
+      }
+    } catch { /* ignore — just no verified marker */ }
     return {
       props: {
         merchant: data.merchant,
         products: Array.isArray(data.products) ? data.products : [],
         siteUrl,
         metaLang,
+        verified,
       },
     };
   } catch (e) {

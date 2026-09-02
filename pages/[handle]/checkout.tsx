@@ -19,6 +19,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
 import InlineTipCheckout from "@/Components/Page/Creator/InlineTipCheckout";
 import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
+import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
 
 // Platform floor: minimum order total is $10 (matches tips / donations).
 const MIN_TOTAL_CENTS = 1000;
@@ -371,6 +372,9 @@ const CheckoutPage: NextPageWithLayout = () => {
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", mt: 1.5 }}>
           {t("checkout.store.poweredBy", { defaultValue: "Powered by Dynopay · Payment settles directly to the merchant’s wallet" })}
         </Typography>
+        <Box sx={{ mt: 1.5 }}>
+          <MerchantTrustRow handle={handle} justify="center" />
+        </Box>
         </>
         )}
       </Container>
