@@ -529,6 +529,13 @@
     },
     "trust": {
       "label": "Accept payments across 9 blockchains"
+    },
+    "brandSpotlight": {
+      "eyebrow": "Multi-brand",
+      "b1": "One login for every brand — no juggling separate accounts.",
+      "b2": "Each brand keeps its own checkout, wallets and settlement currency.",
+      "b3": "Switch between brands in one click, on any device.",
+      "cta": "Start your first brand"
     }
   },
   "checkout": {

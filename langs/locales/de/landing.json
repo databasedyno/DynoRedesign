@@ -529,6 +529,13 @@
     },
     "trust": {
       "label": "Zahlungen auf 9 Blockchains akzeptieren"
+    },
+    "brandSpotlight": {
+      "eyebrow": "Multi-Brand",
+      "b1": "Ein Login für alle Marken – kein Jonglieren mit separaten Konten.",
+      "b2": "Jede Marke behält eigenen Checkout, Wallets und Abrechnungswährung.",
+      "b3": "Mit einem Klick zwischen Marken wechseln – auf jedem Gerät.",
+      "cta": "Erste Marke starten"
     }
   },
   "checkout": {

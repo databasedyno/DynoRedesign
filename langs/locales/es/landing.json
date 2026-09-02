@@ -529,6 +529,13 @@
     },
     "trust": {
       "label": "Acepta pagos en 9 blockchains"
+    },
+    "brandSpotlight": {
+      "eyebrow": "Multimarca",
+      "b1": "Un solo acceso para todas tus marcas, sin cuentas separadas.",
+      "b2": "Cada marca mantiene su propio checkout, monederos y moneda de liquidación.",
+      "b3": "Cambia entre marcas con un clic, en cualquier dispositivo.",
+      "cta": "Crea tu primera marca"
     }
   },
   "checkout": {

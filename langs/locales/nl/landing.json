@@ -529,6 +529,13 @@
     },
     "trust": {
       "label": "Accepteer betalingen op 9 blockchains"
+    },
+    "brandSpotlight": {
+      "eyebrow": "Multi-brand",
+      "b1": "Eén login voor al je merken — geen aparte accounts meer.",
+      "b2": "Elk merk houdt zijn eigen checkout, wallets en afrekenvaluta.",
+      "b3": "Wissel met één klik tussen merken, op elk apparaat.",
+      "cta": "Start je eerste merk"
     }
   },
   "checkout": {

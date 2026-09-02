@@ -28,6 +28,7 @@ const ReferralCtaBandV3 = dynamic(() => import("./v3/ReferralCtaBandV3"));
 const FinalCTAAurora = dynamic(() => import("./v3/FinalCTAAurora"));
 const PainSolutionV3 = dynamic(() => import("./v3/PainSolutionV3"));
 const WhyDynoPayV3 = dynamic(() => import("./v3/WhyDynoPayV3"));
+const BrandSpotlightV3 = dynamic(() => import("./v3/BrandSpotlightV3"));
 const DeveloperBandV3 = dynamic(() => import("./v3/DeveloperBandV3"));
 const ProductShowcaseV3 = dynamic(() => import("./v3/ProductShowcaseV3"));
 const CompareV3 = dynamic(() => import("./v3/CompareV3"));
@@ -97,6 +98,7 @@ const HomePage: FC = () => {
       </Box>
       <ProductShowcaseV3 />
       <WhyDynoPayV3 />
+      <BrandSpotlightV3 />
       <Box sx={hideOnPhone}>
         <WaysToGetPaidV3 />
       </Box>

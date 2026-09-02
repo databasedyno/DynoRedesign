@@ -24,6 +24,25 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-09-02 (fork, pod d4fef0d9): TWO NAI PICKS SHIPPED & SCREENSHOT-VERIFIED (frontend-only).
+  (1) BRAND FEATURE SPOTLIGHT — new Components/Page/Home/v3/BrandSpotlightV3.tsx: a dedicated
+      "headline feature" section (2-col desktop / stacked mobile) pairing value copy (eyebrow
+      "Multi-brand", reuses why.c7t/c7d headline+body, 3 check bullets, "Start your first brand"
+      pill CTA -> /auth/register?ref=brand_spotlight) with a faithful, theme-aware DOM MOCK of the
+      in-dashboard brand switcher (CompanySelector look: "Aurora Group" header, Your brands, active
+      brand row w/ verified + BUSINESS badge, Add brand). Wired in Home/index.tsx right after
+      <WhyDynoPayV3/>, NOT wrapped in hideOnPhone -> visible on desktop+tablet+mobile. New i18n
+      v3.brandSpotlight (eyebrow,b1,b2,b3,cta) injected into ALL 6 landing locales (JSON round-trip
+      byte-preserving). Verified: 1440px + 390px screenshots both render the mock + copy.
+  (2) SANDBOX BADGE POLISH — Components/Page/API/ApiKeysPage.tsx (ApiKeyCard, sandbox-only):
+      the "Auto-created · Sandbox" badge already existed; ADDED (a) a MUI Tooltip on it explaining
+      what Auto-created means (enterTouchDelay=0 so it works on mobile tap; cursor:help), and
+      (b) a NEW one-click labeled "Copy sandbox key" button (data-testid=copy-sandbox-key-btn,
+      gated on isSandboxKey, copies apiKey). New apiScreen keys use t() defaultValue (no locale
+      file needed; fallbackLng=en). Verified: logged in (The Dev Store) -> /developer-keys ->
+      Test card shows Auto-Created·Sandbox badge + limits line + "Copy sandbox key"; Live card
+      correctly has NO copy-sandbox button. FE tsc 0. No backend changes. -->
+
 <!-- 2026-09-01 (fork, pod d4fef0d9) follow-up: LANDING FIXES per user.
   (a) MULTI-BRAND CARD MOBILE VISIBILITY (user: "important feature must show on desktop, mobile,
       tablet"). ROOT CAUSE: Home/index.tsx wrapped <WhyDynoPayV3/> (which holds the "One account,

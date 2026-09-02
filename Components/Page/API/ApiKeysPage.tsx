@@ -1,6 +1,6 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Tooltip } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -275,24 +275,36 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
           }}
         >
           {isSandboxKey && (
-            <Tags
-              data-testid="sandbox-badge"
-              sx={{
-                background: "transparent",
-                color: brandFg(theme.palette.mode === "dark"),
-                border: "none",
-                padding: 0,
-                whiteSpace: "nowrap",
-              }}
-              aria-label={t("keys.testAutoCreatedBadge", {
-                defaultValue: "Auto-created · Sandbox",
+            <Tooltip
+              arrow
+              enterTouchDelay={0}
+              leaveTouchDelay={4000}
+              title={t("keys.autoCreatedTooltip", {
+                defaultValue:
+                  "Created automatically when your account was set up — no action needed. Use it to try the API safely: test payments are simulated and capped at ${{max}}.",
+                max: sandboxRestrictions?.max_amount ?? 100,
               })}
             >
-              <Icon name="flask-conical" size={16} />
-              {t("keys.testAutoCreatedBadge", {
-                defaultValue: "Auto-created · Sandbox",
-              })}
-            </Tags>
+              <Tags
+                data-testid="sandbox-badge"
+                sx={{
+                  background: "transparent",
+                  color: brandFg(theme.palette.mode === "dark"),
+                  border: "none",
+                  padding: 0,
+                  whiteSpace: "nowrap",
+                  cursor: "help",
+                }}
+                aria-label={t("keys.testAutoCreatedBadge", {
+                  defaultValue: "Auto-created · Sandbox",
+                })}
+              >
+                <Icon name="flask-conical" size={16} />
+                {t("keys.testAutoCreatedBadge", {
+                  defaultValue: "Auto-created · Sandbox",
+                })}
+              </Tags>
+            </Tooltip>
           )}
           <Tags sx={{ whiteSpace: "nowrap" }}>
             <Icon name="circle-check" size={16} /> {t("status.active")}
@@ -453,6 +465,39 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
             />
           </ApiKeyViewButton>
         </ApiKeyCardTopRow>
+        {isSandboxKey && (
+          <Box sx={{ mt: 1.25 }}>
+            <Box
+              component="button"
+              type="button"
+              data-testid="copy-sandbox-key-btn"
+              onClick={() => onCopy(apiKey)}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.75,
+                border: `1px solid ${theme.palette.primary.main}`,
+                background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
+                color: brandFg(theme.palette.mode === "dark"),
+                borderRadius: "8px",
+                px: 1.5,
+                py: 0.65,
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 600,
+                fontFamily: "var(--font-sans)",
+                transition: "background-color .2s ease",
+                "&:hover": {
+                  background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.18)" : "#e6eeff",
+                },
+              }}
+              aria-label={t("keys.copySandboxKeyAria", { defaultValue: "Copy your sandbox API key" })}
+            >
+              <Image src={CopyIcon.src} alt="" width={14} height={14} draggable={false} />
+              {t("keys.copySandboxKey", { defaultValue: "Copy sandbox key" })}
+            </Box>
+          </Box>
+        )}
         <ApiKeyCardTopRow sx={{ alignItems: "center" }}>
           <ApiKeyDeleteButton
             size="small"
