@@ -24,6 +24,17 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-06 (fork, pod 5cde9912): GIT COMMIT BLOCKER FIXED — DONE + VERIFIED (testing_agent iteration_115 all green).
+     User: "blocker preventing commit — 500 line limit or large images?" ROOT CAUSE: husky pre-commit
+     (.husky/pre-commit -> backend/scripts/check-file-size.mjs) FAILS on NEW backend .ts > 500 lines;
+     controller/wallet/walletSudo.ts was 545. (Not images: largest staged file was PRD.md 77KB.) FIX: split into
+     walletSudo.ts (session/OTP + requireWalletSudo, 269 lines; re-exports batchWalletMutate) + NEW walletBatch.ts
+     (batchWalletMutate + isPlausibleAddress, 288 lines). walletController/walletRouter imports unchanged. All gates
+     green (preflight-tsc BE+FE, file-size, secrets). COMMITTED via the hook: 332368ef059b5dfe7f286a65656cb50254f9ba29.
+     iteration_115: status 401 no-auth / 200 active=false w/ Bearer / batch 403 SUDO_REQUIRED w/o session; FE sheet
+     opens to unlock gate, 0 console errors. Reminder: keep new backend .ts files <= 500 lines or the platform's
+     auto-commit (and Save to GitHub) will be blocked again. -->
+
 <!-- 2026-06 (fork, pod 5cde9912): WALLET MANAGER PREMIUM UI/UX REBUILD — DONE + VERIFIED (screenshots light/dark/
      mobile; reversible LIVE E2E: BTC wallet_name NULL -> "Main" -> NULL via the new UI, DB confirmed back to NULL,
      company_1 = 13 wallets; test Redis sudo session cleared). FE tsc 0, eslint 0. User: "I hope the UI/UX for wallet
