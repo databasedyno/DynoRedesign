@@ -9,7 +9,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://054d2272-456b-42fd-b660-3919d63aa8e8.preview.emergentagent.com"
+BASE_URL = "https://vault-setup-1.preview.emergentagent.com"
 
 def test_health_check():
     """Test 1: Backend health check"""

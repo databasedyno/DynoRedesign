@@ -1,6 +1,6 @@
 # DynoPay Mobile QA Sweep Report - Session 74
 **Date:** 2026-07-18  
-**Preview URL:** https://setup-credentials.preview.emergentagent.com  
+**Preview URL:** https://vault-setup-1.preview.emergentagent.com  
 **Test Account:** hostbay@moxx.co  
 **Viewports Tested:** iPhone 14 Pro (393×852), iPhone SE (375×667)
 

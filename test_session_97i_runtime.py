@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://setup-credentials.preview.emergentagent.com"
+BASE_URL = "https://vault-setup-1.preview.emergentagent.com"
 
 def test_3a_login():
     """Test 3a: Login flow with CSRF + credentials"""

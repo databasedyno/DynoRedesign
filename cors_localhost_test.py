@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://setup-credentials.preview.emergentagent.com",
+        "origin": "https://vault-setup-1.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

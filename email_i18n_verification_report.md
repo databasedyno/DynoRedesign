@@ -2,7 +2,7 @@
 ## DynoPay Backend - 2026-09-02
 
 ### Test Environment
-- **Base URL**: https://054d2272-456b-42fd-b660-3919d63aa8e8.preview.emergentagent.com
+- **Base URL**: https://vault-setup-1.preview.emergentagent.com
 - **Mode**: LIVE prod DB, SAFE MODE (email disabled)
 - **Backend**: Node.js/TypeScript on port 3300 (via Python proxy on 8001)
 - **Test Type**: READ-ONLY regression + boot verification

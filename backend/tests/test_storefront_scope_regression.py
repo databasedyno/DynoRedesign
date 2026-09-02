@@ -7,7 +7,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://setup-credentials.preview.emergentagent.com"
+BASE_URL = "https://vault-setup-1.preview.emergentagent.com"
 LOCAL_HEALTH = "http://localhost:8001/health"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

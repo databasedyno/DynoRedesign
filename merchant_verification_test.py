@@ -15,7 +15,7 @@ from typing import Dict, Any, Optional
 from urllib.parse import quote
 
 # Configuration
-BASE_URL = "https://054d2272-456b-42fd-b660-3919d63aa8e8.preview.emergentagent.com"
+BASE_URL = "https://vault-setup-1.preview.emergentagent.com"
 OWNER_EMAIL = "onarrival21@gmail.com"
 OWNER_PASSWORD = "Katiekendra123@"
 

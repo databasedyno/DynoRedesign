@@ -20,7 +20,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Environment configuration
-BASE_URL = "https://setup-credentials.preview.emergentagent.com"
+BASE_URL = "https://vault-setup-1.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials (hostbay merchant account)
