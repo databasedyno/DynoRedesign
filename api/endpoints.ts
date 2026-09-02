@@ -77,6 +77,7 @@ export const API_ENDPOINTS = {
   },
 
   user: {
+    activationNudge: "/user/activation-nudge",
     addEmail: "/user/addEmail",
     addPhone: "/user/addPhone",
     checkEmail: "/user/checkEmail?email=",

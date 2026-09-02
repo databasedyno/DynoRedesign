@@ -718,6 +718,23 @@
       "videoCta": "Bekijk de video van 2 minuten →",
       "unsubscribe": "Wil je deze installatietips niet?",
       "unsubscribeAction": "Uitschrijven"
+    },
+    "gate": {
+      "subject": "Rond je installatie af om betaald te worden",
+      "heading": "Je bent één stap verwijderd van je eerste betaling",
+      "outro": "Het duurt maar een minuut en je gaat precies verder waar je was gebleven.",
+      "brand": {
+        "intro": "Je probeerde een betaallink te maken, maar je account heeft nog geen merk. Je merknaam staat op je checkout, facturen en bonnen — toevoegen duurt ongeveer 30 seconden.",
+        "cta": "Merk toevoegen"
+      },
+      "wallet": {
+        "intro": "Je probeerde een betaallink te maken, maar er is nog geen uitbetaalwallet aan je account gekoppeld. Betalingen worden rechtstreeks afgewikkeld naar een wallet die jij beheert, dus we hebben een adres nodig voordat je betaald kunt worden.",
+        "cta": "Uitbetaalwallet toevoegen"
+      },
+      "kyc": {
+        "intro": "Je hebt al meer dan $10.000 aan betalingen verwerkt — goed bezig. Daarom is nu een korte identiteitscontrole vereist voordat je nieuwe betaallinks kunt maken. Dit duurt meestal ongeveer 5 minuten.",
+        "cta": "Mijn identiteit verifiëren"
+      }
     }
   },
   "chrome": {

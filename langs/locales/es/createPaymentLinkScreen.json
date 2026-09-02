@@ -239,5 +239,12 @@
   "notifyContributorsHelper": "Envía esta actualización a todos los que han contribuido a tu campaña.",
   "noSupportersYet": "Aún no hay contribuciones. Una vez que las personas apoyen tu campaña, puedes responderles aquí.",
   "supportersHelper": "Responde a un seguidor para agradecerle. Tu respuesta aparecerá públicamente debajo de su mensaje en la página de la campaña.",
-  "replyPlaceholder": "Escribe una respuesta pública de agradecimiento…"
+  "replyPlaceholder": "Escribe una respuesta pública de agradecimiento…",
+  "setupStepKycLabel": "Verifica tu identidad",
+  "setupStepKycHelperBlocked": "Obligatorio — has superado 10.000 $ en volumen de pagos. Tarda ~5 minutos.",
+  "setupStepKycHelperGrace": "Quedan {{days}} días para verificar. Tarda ~5 minutos.",
+  "setupStepKycHelperContinue": "Continúa tu verificación donde la dejaste.",
+  "setupStepKycStarting": "Abriendo la verificación…",
+  "setupKycTitle": "Verifica tu identidad para seguir cobrando",
+  "setupKycSubtitle": "Has superado 10.000 $ en volumen de pagos y el periodo de gracia de 90 días ha terminado. Completa una verificación rápida de identidad para crear nuevos enlaces de pago."
 }

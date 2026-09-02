@@ -131,6 +131,9 @@ userRouter.delete("/account", authMiddleware, userController.deleteAccount);
 // Onboarding status (requires auth) - check wallet, KYC, API key, company setup status
 userRouter.get("/onboarding-status", authMiddleware, userController.getOnboardingStatus);
 
+// Event-triggered "finish setting up to get paid" email when the create-pay-link gate blocks a merchant
+userRouter.post("/activation-nudge", authMiddleware, moderateRateLimiter, userController.sendActivationNudge);
+
 // Email verification endpoints (requires auth)
 userRouter.post("/verify-email", authMiddleware, userController.verifyEmail);
 userRouter.post("/resend-verification", authMiddleware, otpRateLimiter, userController.resendVerification);

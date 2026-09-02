@@ -718,6 +718,23 @@
       "videoCta": "Sehen Sie sich das 2-minütige Einrichtungsvideo an →",
       "unsubscribe": "Möchten Sie diese Einrichtungstipps nicht?",
       "unsubscribeAction": "Abmelden"
+    },
+    "gate": {
+      "subject": "Einrichtung abschließen, um bezahlt zu werden",
+      "heading": "Nur noch ein Schritt bis zur ersten Zahlung",
+      "outro": "Es dauert nur eine Minute, und du machst genau dort weiter, wo du aufgehört hast.",
+      "brand": {
+        "intro": "Du wolltest einen Zahlungslink erstellen, aber dein Konto hat noch keine Marke. Dein Markenname erscheint im Checkout, auf Rechnungen und Belegen — das Anlegen dauert etwa 30 Sekunden.",
+        "cta": "Marke hinzufügen"
+      },
+      "wallet": {
+        "intro": "Du wolltest einen Zahlungslink erstellen, aber in deinem Konto ist noch keine Auszahlungs-Wallet hinterlegt. Zahlungen gehen direkt in eine Wallet, die du kontrollierst — deshalb brauchen wir eine Adresse, bevor du bezahlt werden kannst.",
+        "cta": "Auszahlungs-Wallet hinzufügen"
+      },
+      "kyc": {
+        "intro": "Du hast bereits über 10.000 $ an Zahlungen abgewickelt — stark. Deshalb ist jetzt eine kurze Identitätsprüfung nötig, bevor du neue Zahlungslinks erstellen kannst. Sie dauert meist etwa 5 Minuten.",
+        "cta": "Identität bestätigen"
+      }
     }
   },
   "chrome": {

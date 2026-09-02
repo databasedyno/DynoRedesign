@@ -718,6 +718,23 @@
       "videoCta": "Mira el video de configuración de 2 minutos →",
       "unsubscribe": "¿No quieres estos consejos de configuración?",
       "unsubscribeAction": "Cancelar suscripción"
+    },
+    "gate": {
+      "subject": "Termina la configuración para cobrar",
+      "heading": "Estás a un paso de cobrar",
+      "outro": "Solo toma un minuto y continuarás exactamente donde lo dejaste.",
+      "brand": {
+        "intro": "Intentaste crear un enlace de pago, pero tu cuenta aún no tiene una marca. El nombre de tu marca aparece en el checkout, las facturas y los recibos — añadirla toma unos 30 segundos.",
+        "cta": "Añadir mi marca"
+      },
+      "wallet": {
+        "intro": "Intentaste crear un enlace de pago, pero tu cuenta aún no tiene un monedero de cobro. Los pagos se liquidan directamente en un monedero que tú controlas, así que necesitamos una dirección antes de que puedas cobrar.",
+        "cta": "Añadir monedero de cobro"
+      },
+      "kyc": {
+        "intro": "Ya has procesado más de 10.000 $ en pagos — buen trabajo. Por eso, ahora se requiere una verificación rápida de identidad antes de crear nuevos enlaces de pago. Suele tardar unos 5 minutos.",
+        "cta": "Verificar mi identidad"
+      }
     }
   },
   "chrome": {

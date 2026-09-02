@@ -718,6 +718,23 @@
       "videoCta": "Regardez la vidéo de configuration de 2 minutes →",
       "unsubscribe": "Vous ne voulez plus ces conseils de configuration ?",
       "unsubscribeAction": "Se désabonner"
+    },
+    "gate": {
+      "subject": "Terminez la configuration pour être payé",
+      "heading": "Il ne vous manque qu'une étape pour être payé",
+      "outro": "Cela ne prend qu'une minute, et vous reprendrez exactement où vous en étiez.",
+      "brand": {
+        "intro": "Vous avez essayé de créer un lien de paiement, mais votre compte n'a pas encore de marque. Le nom de votre marque apparaît sur votre checkout, vos factures et vos reçus — l'ajouter prend environ 30 secondes.",
+        "cta": "Ajouter ma marque"
+      },
+      "wallet": {
+        "intro": "Vous avez essayé de créer un lien de paiement, mais aucun portefeuille de versement n'est associé à votre compte. Les paiements sont réglés directement dans un portefeuille que vous contrôlez : nous avons donc besoin d'une adresse avant de pouvoir vous payer.",
+        "cta": "Ajouter mon portefeuille"
+      },
+      "kyc": {
+        "intro": "Vous avez traité plus de 10 000 $ de paiements — bravo. Une vérification d'identité rapide est désormais requise avant de créer de nouveaux liens de paiement. Cela prend généralement environ 5 minutes.",
+        "cta": "Vérifier mon identité"
+      }
     }
   },
   "chrome": {

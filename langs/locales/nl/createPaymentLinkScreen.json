@@ -239,5 +239,12 @@
   "notifyContributorsHelper": "Stuur deze update naar iedereen die aan je campagne heeft bijgedragen.",
   "noSupportersYet": "Nog geen bijdragen. Zodra mensen je campagne steunen, kun je hier op hen reageren.",
   "supportersHelper": "Reageer op een supporter om ze te bedanken. Je reactie verschijnt openbaar onder hun bericht op de campagnepagina.",
-  "replyPlaceholder": "Schrijf een openbaar bedankbericht…"
+  "replyPlaceholder": "Schrijf een openbaar bedankbericht…",
+  "setupStepKycLabel": "Verifieer je identiteit",
+  "setupStepKycHelperBlocked": "Vereist — je hebt $10.000 aan betalingsvolume overschreden. Duurt ~5 minuten.",
+  "setupStepKycHelperGrace": "Nog {{days}} dagen om te verifiëren. Duurt ~5 minuten.",
+  "setupStepKycHelperContinue": "Ga verder met je verificatie waar je was gebleven.",
+  "setupStepKycStarting": "Verificatie wordt geopend…",
+  "setupKycTitle": "Verifieer je identiteit om betaald te blijven worden",
+  "setupKycSubtitle": "Je hebt $10.000 aan betalingsvolume overschreden en de respijtperiode van 90 dagen is voorbij. Voltooi een korte identiteitscontrole om nieuwe betaallinks te maken."
 }

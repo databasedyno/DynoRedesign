@@ -718,6 +718,23 @@
       "videoCta": "Assista ao vídeo de configuração de 2 minutos →",
       "unsubscribe": "Não quer estas dicas de configuração?",
       "unsubscribeAction": "Cancelar inscrição"
+    },
+    "gate": {
+      "subject": "Conclua a configuração para receber pagamentos",
+      "heading": "Falta só um passo para você receber",
+      "outro": "Leva apenas um minuto e você continua exatamente de onde parou.",
+      "brand": {
+        "intro": "Você tentou criar um link de pagamento, mas sua conta ainda não tem uma marca. O nome da marca aparece no checkout, nas faturas e nos recibos — adicionar leva cerca de 30 segundos.",
+        "cta": "Adicionar minha marca"
+      },
+      "wallet": {
+        "intro": "Você tentou criar um link de pagamento, mas ainda não há uma carteira de recebimento na sua conta. Os pagamentos são liquidados direto em uma carteira que você controla, então precisamos de um endereço antes de você receber.",
+        "cta": "Adicionar carteira de recebimento"
+      },
+      "kyc": {
+        "intro": "Você já processou mais de US$ 10.000 em pagamentos — ótimo trabalho. Por isso, uma verificação rápida de identidade agora é necessária antes de criar novos links de pagamento. Costuma levar cerca de 5 minutos.",
+        "cta": "Verificar minha identidade"
+      }
     }
   },
   "chrome": {

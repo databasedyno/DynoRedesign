@@ -2,7 +2,11 @@ import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import CreatePaymentLinkPage from "@/Components/Page/CreatePaymentLink";
+import KycGraceBanner from "@/Components/Page/Dashboard/KycGraceBanner";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useKycGate } from "@/hooks/useKycGate";
+import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 import { pageProps, rootReducer } from "@/utils/types";
 import { Box, Typography, useTheme } from "@mui/material";
 import {
@@ -10,6 +14,7 @@ import {
   AccountBalanceWalletRounded,
   ArrowForwardRounded,
   CheckCircleRounded,
+  VerifiedUserRounded,
 } from "@mui/icons-material";
 import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
@@ -28,10 +33,15 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
 
   const companyState = useCompanyStore();
   const walletState = useWalletStore();
+  const kyc = useKycGate();
   const selectedCompanyId = companyState.selectedCompanyId;
   const hasCompany = companyState.companyList?.length > 0;
   const hasWallet = walletState.walletList?.length > 0;
-  const setupComplete = hasCompany && hasWallet;
+  // KYC only gates once the 90-day grace period has expired (backend returns
+  // 403 [KYC_REQUIRED] on create). During grace the form stays usable and the
+  // amber KycGraceBanner is shown above it instead.
+  const kycBlocked = kyc.blocked;
+  const setupComplete = hasCompany && hasWallet && !kycBlocked;
   // F4: track fetch error separately so we can show a retry banner instead
   // of the "Create your first company" onboarding gate when the API failed.
   const companyFetchError = (companyState as any).fetchError === true;
@@ -41,7 +51,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   // still in-flight on a fresh page reload. Both flags must be true before
   // we can conclude "this merchant genuinely has no wallets".
   const walletFetched = (walletState as any).fetched === true;
-  const dataStillLoading = !companyFetched || !walletFetched;
+  const dataStillLoading = !companyFetched || !walletFetched || kyc.loading;
 
   // Inline modal state — keep the user on /create-pay-link
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
@@ -52,6 +62,29 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     walletState.refetchWallets();
   }, [dispatch, selectedCompanyId]);
+
+  // Backend said "KYC_REQUIRED" on create (status flipped since page load) →
+  // re-read the gate so the inline KYC step replaces the form instead of a toast.
+  const createErrorField = useSelector((s: rootReducer) => s.paymentLinkReducer?.createErrorField);
+  const createErrorNonce = useSelector((s: rootReducer) => s.paymentLinkReducer?.createErrorNonce);
+  useEffect(() => {
+    if (createErrorField === "kyc") kyc.refresh();
+  }, [createErrorNonce]);
+
+  // Event-triggered "finish setting up to get paid" email — fired once per
+  // gate per browser session the moment the guard blocks the merchant. The
+  // backend re-verifies the gate and dedups per week in Redis.
+  const guardShown = !dataStillLoading && !companyFetchError && !setupComplete;
+  const openGate = !hasCompany ? "brand" : !hasWallet ? "wallet" : kycBlocked ? "kyc" : null;
+  useEffect(() => {
+    if (!guardShown || !openGate) return;
+    const key = `dp:activation-nudge:${openGate}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    axiosBaseApi
+      .post(API_ENDPOINTS.user.activationNudge, { gate: openGate, company_id: selectedCompanyId || undefined })
+      .catch(() => {});
+  }, [guardShown, openGate, selectedCompanyId]);
 
   const tCreatePaymentLink = useCallback(
     (key: string, defaultValue?: string) =>
@@ -68,15 +101,28 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
     }
   }, [setPageName, setPageDescription, tCreatePaymentLink]);
 
-  // Build step list — show all 2 steps, mark each done/active so user sees progress.
+  // Build step list — show all steps, mark each done/active so user sees progress.
+  // The KYC step only appears once verification is actually required (> $10k volume).
   type Step = {
-    key: "company" | "wallet";
+    key: "company" | "wallet" | "kyc";
     label: string;
     helper: string;
     icon: typeof BusinessRounded;
     done: boolean;
+    busy?: boolean;
     onClick: () => void;
   };
+  const kycHelper = kyc.starting
+    ? tCreatePaymentLink("setupStepKycStarting", "Opening verification…")
+    : kyc.hasSession
+      ? tCreatePaymentLink("setupStepKycHelperContinue", "Continue your verification where you left off.")
+      : kycBlocked || kyc.daysRemaining === null
+        ? tCreatePaymentLink("setupStepKycHelperBlocked", "Required — you've passed $10,000 in payment volume. Takes ~5 minutes.")
+        : t("setupStepKycHelperGrace", {
+            ns: "createPaymentLinkScreen",
+            days: kyc.daysRemaining,
+            defaultValue: "{{days}} days left to verify. Takes ~5 minutes.",
+          });
   const steps: Step[] = [
     {
       key: "company",
@@ -94,7 +140,23 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
       done: hasWallet,
       onClick: () => setWalletModalOpen(true),
     },
+    ...(kyc.required
+      ? [
+          {
+            key: "kyc" as const,
+            label: tCreatePaymentLink("setupStepKycLabel", "Verify your identity"),
+            helper: kycHelper,
+            icon: VerifiedUserRounded,
+            done: false,
+            busy: kyc.starting,
+            onClick: () => {
+              void kyc.startVerification();
+            },
+          },
+        ]
+      : []),
   ];
+  const kycOnlyGate = hasCompany && hasWallet && kycBlocked;
 
   const handleCompanySuccess = () => {
     setCompanyModalOpen(false);
@@ -118,6 +180,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
       {setupComplete ? (
         <Box sx={{ mt: isMobile ? "4px" : "0px" }}>
           <OnboardingBanner vertical="fundraisers" />
+          {kyc.required && <KycGraceBanner />}
           <CreatePaymentLinkPage
             paymentLinkData={{}}
             disabled={false}
@@ -244,6 +307,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
       ) : (
         <Box
           data-testid="payment-link-setup-guard"
+          data-gate={openGate || ""}
           sx={{
             maxWidth: "600px",
             mx: "auto",
@@ -265,7 +329,11 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               mb: 2.5,
             }}
           >
-            <BusinessRounded sx={{ fontSize: 32, color: brandFg(theme.palette.mode === "dark") }} />
+            {kycOnlyGate ? (
+              <VerifiedUserRounded sx={{ fontSize: 32, color: brandFg(theme.palette.mode === "dark") }} />
+            ) : (
+              <BusinessRounded sx={{ fontSize: 32, color: brandFg(theme.palette.mode === "dark") }} />
+            )}
           </Box>
           <Typography
             data-testid="setup-required-title"
@@ -277,9 +345,12 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               mb: 1,
             }}
           >
-            {tCreatePaymentLink("setupTitle")}
+            {kycOnlyGate
+              ? tCreatePaymentLink("setupKycTitle", "Verify your identity to keep getting paid")
+              : tCreatePaymentLink("setupTitle")}
           </Typography>
           <Typography
+            data-testid="setup-required-subtitle"
             sx={{
               fontSize: isMobile ? "13px" : "15px",
               fontFamily: "var(--font-sans)",
@@ -289,17 +360,23 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               lineHeight: 1.5,
             }}
           >
-            {tCreatePaymentLink("setupSubtitle")}
+            {kycOnlyGate
+              ? tCreatePaymentLink(
+                  "setupKycSubtitle",
+                  "You've passed $10,000 in payment volume and the 90-day grace period has ended. Complete a quick identity check to create new payment links.",
+                )
+              : tCreatePaymentLink("setupSubtitle")}
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
             {steps.map((step) => {
               const Icon = step.done ? CheckCircleRounded : step.icon;
+              const interactive = !step.done && !step.busy;
               return (
                 <Box
                   key={step.key}
                   data-testid={`setup-guard-step-${step.key}`}
-                  onClick={step.done ? undefined : step.onClick}
+                  onClick={interactive ? step.onClick : undefined}
                   sx={{
                     display: "flex",
                     alignItems: "center",
@@ -310,14 +387,15 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
                     backgroundColor: step.done
                       ? (theme.palette.success as any).light || theme.palette.background.paper
                       : theme.palette.background.paper,
-                    cursor: step.done ? "default" : "pointer",
+                    cursor: interactive ? "pointer" : "default",
+                    opacity: step.busy ? 0.7 : 1,
                     transition: "all 0.15s ease",
-                    "&:hover": step.done
-                      ? {}
-                      : {
+                    "&:hover": interactive
+                      ? {
                           borderColor: theme.palette.primary.main,
                           backgroundColor: theme.palette.primary.light,
-                        },
+                        }
+                      : {},
                   }}
                 >
                   <Box

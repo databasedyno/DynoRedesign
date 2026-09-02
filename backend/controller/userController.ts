@@ -39,6 +39,7 @@ export * from "./user/contactEmail";
 export * from "./user/contactPhone";
 export * from "./user/accountLifecycle";
 export * from "./user/onboarding";
+export * from "./user/activationNudge";
 export * from "./user/creatorHandle";
 export * from "./user/creatorProfile";
 export * from "./user/preferences";
@@ -55,6 +56,7 @@ import { changeEmail, removeEmail, addEmail, verifyAddEmail } from "./user/conta
 import { changePhone, removePhone, addPhone, verifyAddPhone } from "./user/contactPhone";
 import { deleteAccount, unsubscribeFromReminders, unsubscribeFromPaymentReminders } from "./user/accountLifecycle";
 import { getOnboardingStatus, verifyEmail, resendVerification } from "./user/onboarding";
+import { sendActivationNudge } from "./user/activationNudge";
 import { checkHandle, checkHandlePublic, reserveHandle } from "./user/creatorHandle";
 import { updateCreatorProfile, uploadCoverImage, getCreatorProfileSettings } from "./user/creatorProfile";
 import { getCreatorStats, getCreatorAnalytics, getCreatorAnalyticsSplit } from "./user/creatorAnalytics";
@@ -96,6 +98,7 @@ export default {
   unsubscribeFromReminders,
   unsubscribeFromPaymentReminders,
   getOnboardingStatus,
+  sendActivationNudge,
   verifyEmail,
   resendVerification,
   updateLastCompany,

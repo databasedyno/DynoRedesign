@@ -322,7 +322,15 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   }, [i18n.language]);
 
   const SITE_URL = "https://dynopay.com";
-  const OG_IMAGE = `${SITE_URL}/og/dynopay-og.png`;
+  const DEFAULT_OG_IMAGE = `${SITE_URL}/og/dynopay-og.png`;
+  // Per-page branded share cards (public/og/, built by scripts/generate-og-images.py)
+  const ROUTE_OG_IMAGE: Record<string, string> = {
+    "/fees": `${SITE_URL}/og/fees.png`,
+    "/about": `${SITE_URL}/og/about.png`,
+    "/how-to": `${SITE_URL}/og/how-to.png`,
+    "/blog": `${SITE_URL}/og/blog.png`,
+  };
+  const OG_IMAGE = ROUTE_OG_IMAGE[pathname] || DEFAULT_OG_IMAGE;
   const LOGO_IMAGE = `${SITE_URL}/favicon-512.png`;
   const SUPPORTED_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
   const OG_LOCALES: Record<string, string> = { en: "en_US", pt: "pt_BR", fr: "fr_FR", es: "es_ES", de: "de_DE", nl: "nl_NL" };

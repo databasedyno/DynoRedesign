@@ -235,6 +235,9 @@ const CreatePaymentLinkPage = ({
         if (activeTab !== 1) setActiveTab(1);
         break;
       case "kyc":
+        // Handled by pages/create-pay-link.tsx: it refreshes the KYC gate so the
+        // inline "Verify your identity" step replaces the form (toast still fires).
+        break;
       case "company_id":
       case "generic":
       default:

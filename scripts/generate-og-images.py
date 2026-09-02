@@ -224,28 +224,34 @@ def blog_posts():
 
 def render_blog(slug, title):
     """Branded 1200x630 OpenGraph card for a single blog post."""
+    render_card(
+        out_name=f"blog-{slug}.png",
+        eyebrow="DYNOPAY BLOG",
+        title=title,
+        pill="Crypto commerce insights",
+        footer="dynopay.com/blog",
+        max_lines=3, start=74, floor=40, eyebrow_y=200, title_y=250, title_bottom=470,
+    )
+
+
+def render_card(out_name, eyebrow, title, pill, footer, coins=None,
+                max_lines=2, start=92, floor=54, eyebrow_y=208, title_y=258, title_bottom=448):
+    """Generic branded 1200x630 card: logo, tracked eyebrow, auto-fit title, green pill, footer."""
     im = background()
     d = ImageDraw.Draw(im, "RGBA")
     left = 84
-
-    # real Dynopay white logo lockup
     paste_logo(im, left, 66)
+    tracked_text(d, (left, eyebrow_y), eyebrow, load_font("Outfit-SemiBold", 27), LAVENDER, tracking=5)
 
-    # eyebrow
-    tracked_text(d, (left, 200), "DYNOPAY BLOG", load_font("Outfit-SemiBold", 27), LAVENDER, tracking=5)
-
-    # post title — allow up to 3 lines since blog headlines run long
-    font, lines = fit_title(d, title, W - left - 90, 250, 470, max_lines=3, start=74, floor=40)
-    y = 250
+    font, lines = fit_title(d, title, W - left - 90, title_y, title_bottom, max_lines=max_lines, start=start, floor=floor)
+    y = title_y
     for line in lines:
         d.text((left, y), line, font=font, fill=WHITE)
         y += int(font.size * 1.12)
 
-    # green pill
     pill_y = y + 22
-    pill_text = "Crypto commerce insights"
     pill_font = load_font("Outfit-SemiBold", 25)
-    tw = d.textlength(pill_text, font=pill_font)
+    tw = d.textlength(pill, font=pill_font)
     pad_x, dot_r = 26, 6
     pill_w = pad_x * 2 + dot_r * 2 + 14 + tw
     d.rounded_rectangle(
@@ -257,19 +263,38 @@ def render_blog(slug, title):
     )
     cy = pill_y + 28
     d.ellipse([left + pad_x, cy - dot_r, left + pad_x + dot_r * 2, cy + dot_r], fill=GREEN)
-    d.text((left + pad_x + dot_r * 2 + 14, pill_y + 12), pill_text, font=pill_font, fill=MINT)
+    d.text((left + pad_x + dot_r * 2 + 14, pill_y + 12), pill, font=pill_font, fill=MINT)
 
-    # footer
-    d.text((left, H - 78), "dynopay.com/blog", font=load_font("Outfit-SemiBold", 27), fill=PALE)
+    d.text((left, H - 78), footer, font=load_font("Outfit-SemiBold", 27), fill=PALE)
+    if coins:
+        coins_font = load_font("Outfit-SemiBold", 24)
+        d.text((W - 84 - d.textlength(coins, font=coins_font), H - 76), coins, font=coins_font, fill=(255, 255, 255, 150))
 
-    out = os.path.join(OUT_DIR, f"blog-{slug}.png")
+    out = os.path.join(OUT_DIR, out_name)
     im.save(out, "PNG", optimize=True)
     print(f"wrote {out} ({os.path.getsize(out) // 1024} KB)")
+
+
+# Per-page share cards for the main marketing pages (wired in pages/_app.tsx ROUTE_OG_IMAGE).
+PAGE_CARDS = [
+    dict(out_name="fees.png", eyebrow="PRICING & FEES", title="1.5% down to 0.5%. No monthly fee.",
+         pill="No setup fee  •  No chargebacks  •  Pay only when paid", footer="dynopay.com/fees",
+         coins="BTC  •  ETH  •  SOL  •  USDT  •  USDC"),
+    dict(out_name="about.png", eyebrow="ABOUT DYNOPAY", title="Making crypto payments simple for every business",
+         pill="Non-custodial  •  Since 2024  •  6 languages", footer="dynopay.com/about"),
+    dict(out_name="how-to.png", eyebrow="HOW IT WORKS", title="Get paid in crypto in about 2 minutes",
+         pill="Create a link  •  Share it  •  Settle to your wallet", footer="dynopay.com/how-to",
+         coins="BTC  •  ETH  •  USDT  •  USDC"),
+    dict(out_name="blog.png", eyebrow="DYNOPAY BLOG", title="Guides on fees, settlement & crypto integrations",
+         pill="Crypto commerce insights", footer="dynopay.com/blog"),
+]
 
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     render_press()
+    for card in PAGE_CARDS:
+        render_card(**card)
     for slug, title in blog_posts():
         render_blog(slug, title)
     for p in sorted(glob.glob(os.path.join(ROOT, "data", "seo-pages", "*", "*.json"))):

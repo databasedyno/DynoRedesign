@@ -239,5 +239,12 @@
   "notifyContributorsHelper": "Envoyez cette mise à jour à tous ceux qui ont contribué à votre campagne.",
   "noSupportersYet": "Aucune contribution pour le moment. Une fois que des personnes soutiennent votre campagne, vous pouvez leur répondre ici.",
   "supportersHelper": "Répondez à un soutien pour le remercier. Votre réponse apparaîtra publiquement sous son message sur la page de la campagne.",
-  "replyPlaceholder": "Écrivez une réponse publique de remerciement…"
+  "replyPlaceholder": "Écrivez une réponse publique de remerciement…",
+  "setupStepKycLabel": "Vérifiez votre identité",
+  "setupStepKycHelperBlocked": "Obligatoire — vous avez dépassé 10 000 $ de volume de paiements. Environ 5 minutes.",
+  "setupStepKycHelperGrace": "{{days}} jours restants pour vérifier. Environ 5 minutes.",
+  "setupStepKycHelperContinue": "Reprenez votre vérification où vous l'aviez laissée.",
+  "setupStepKycStarting": "Ouverture de la vérification…",
+  "setupKycTitle": "Vérifiez votre identité pour continuer à être payé",
+  "setupKycSubtitle": "Vous avez dépassé 10 000 $ de volume de paiements et la période de grâce de 90 jours est terminée. Effectuez une vérification d'identité rapide pour créer de nouveaux liens de paiement."
 }

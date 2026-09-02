@@ -22,6 +22,7 @@ import { PaymentUserJwtPayload } from "../../utils/types";
 import { validateCompanyOwnership } from "../../utils/validateCompanyOwnership";
 import { resolveMembership, membershipCan } from "../../utils/permissions";
 import { checkKycEnforcement, KYC_THRESHOLD_USD } from "../../helper/kycEnforcement";
+import { sendActivationGateEmail } from "../../services/email/activationGateEmail";
 import { generateQRCodeWithLogo } from "../../utils/qrCodeWithLogo";
 import * as merchantPoolService from "../../services/merchantPoolService";
 import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfig";
@@ -751,6 +752,7 @@ export const createPaymentLink = async (
     const kycResult = await checkKycEnforcement(ownerUserId, company_id, '[KYC - PaymentCreate]');
 
     if (kycResult.blocked) {
+      void sendActivationGateEmail(ownerUserId, "kyc", company_id ? Number(company_id) : null);
       return errorResponseHelper(
         res,
         403,

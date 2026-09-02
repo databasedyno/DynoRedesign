@@ -24,6 +24,30 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-06 (fork): INLINE KYC STEP + EVENT-TRIGGERED ACTIVATION EMAIL + PER-PAGE OG CARDS — DONE + VERIFIED
+     (testing_agent iteration_118: 8/8 scenarios pass, backend pytest 14/14, all gate scenarios via Playwright route
+     interception — no prod writes). BE tsc 0, FE tsc 0, eslint 0.
+  1) INLINE KYC STEP (/create-pay-link): NEW hooks/useKycGate.ts (SWR ['kyc/status/full', companyId] -> GET /kyc/status;
+     required/blocked/daysRemaining/hasSession/startVerification/refresh). KycGraceBanner refactored onto the hook.
+     pages/create-pay-link.tsx: setupComplete = company && wallet && !kyc.blocked; loading waits for kyc; steps array
+     gains a 3rd "Verify your identity" step whenever kyc.required (helper: blocked / "{{days}} days left" / continue /
+     "Opening verification…"); KYC-only gate swaps title/subtitle (setupKycTitle/Subtitle) + VerifiedUser icon; grace
+     (not blocked) renders the form with <KycGraceBanner/> above it; backend [KYC_REQUIRED] create error -> kyc.refresh()
+     flips the guard in. testids: payment-link-setup-guard[data-gate=brand|wallet|kyc], setup-required-subtitle,
+     setup-guard-step-kyc. i18n keys setupStepKyc*/setupKyc* in createPaymentLinkScreen.json (6 locales).
+  2) ACTIVATION GATE EMAIL: NEW backend/services/email/activationGateEmail.ts sendActivationGateEmail(userId, gate,
+     companyId) — subject "Finish setting up to get paid", per-gate intro/CTA -> /create-pay-link, video CTA (not for kyc),
+     unsubscribe footer (existing activation-unsubscribe token), Redis dedup activation-gate:{uid}:{gate} 7d, honours
+     marketing_opt_out, SERVER-SIDE gate re-check (brand: no company; wallet: no wallet for owned company; kyc:
+     checkKycEnforcement().blocked) so clients can't trigger arbitrary mail. i18n activation.gate.* in backend/locales
+     (6 langs). NEW controller/user/activationNudge.ts -> POST /api/user/activation-nudge {gate, company_id?} (auth +
+     moderateRateLimiter; 400 on bad gate). Also fired server-side in paymentLinkController when KYC blocks create.
+     Frontend fires it once per gate per browser session (sessionStorage dp:activation-nudge:<gate>) when the guard shows.
+     NOTE: preview has DISABLE_OUTBOUND_EMAIL=true — real send only in prod.
+  3) PER-PAGE OG CARDS: scripts/generate-og-images.py += render_card() + PAGE_CARDS -> public/og/{fees,about,how-to,blog}.png
+     (1200x630, same brand system as vertical cards; deps: pip fonttools brotli pillow). _app.tsx ROUTE_OG_IMAGE map picks
+     them for og:image/twitter:image; everything else keeps /og/dynopay-og.png. -->
+
 <!-- 2026-06 (fork): SEO TITLE/META AUDIT + FIXES — DONE + VERIFIED (rendered-HTML audit via scripts/seo_audit.py; tsc 0, eslint 0).
      User shared a Slack preview of the homepage and asked to analyze titles/SEO for clarity + marketing.
      • Homepage title now matches H1 + OG image: "Accept Crypto Payments — Get Paid Your Way · Dynopay" (was "Sell, tip,

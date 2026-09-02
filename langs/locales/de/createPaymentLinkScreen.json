@@ -239,5 +239,12 @@
   "notifyContributorsHelper": "Sende dieses Update an alle, die zu deiner Kampagne beigetragen haben.",
   "noSupportersYet": "Noch keine Beiträge. Sobald Menschen deine Kampagne unterstützen, kannst du hier auf sie antworten.",
   "supportersHelper": "Antworte einem Unterstützer, um dich zu bedanken. Deine Antwort erscheint öffentlich unter ihrer Nachricht auf der Kampagnenseite.",
-  "replyPlaceholder": "Schreibe eine öffentliche Dankesantwort…"
+  "replyPlaceholder": "Schreibe eine öffentliche Dankesantwort…",
+  "setupStepKycLabel": "Identität bestätigen",
+  "setupStepKycHelperBlocked": "Erforderlich — du hast 10.000 $ Zahlungsvolumen überschritten. Dauert ca. 5 Minuten.",
+  "setupStepKycHelperGrace": "Noch {{days}} Tage zur Verifizierung. Dauert ca. 5 Minuten.",
+  "setupStepKycHelperContinue": "Setze deine Verifizierung dort fort, wo du aufgehört hast.",
+  "setupStepKycStarting": "Verifizierung wird geöffnet…",
+  "setupKycTitle": "Bestätige deine Identität, um weiterhin bezahlt zu werden",
+  "setupKycSubtitle": "Du hast 10.000 $ Zahlungsvolumen überschritten und die 90-tägige Schonfrist ist abgelaufen. Schließe eine kurze Identitätsprüfung ab, um neue Zahlungslinks zu erstellen."
 }

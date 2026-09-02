@@ -239,5 +239,12 @@
   "notifyContributorsHelper": "Envie esta atualização a todos que contribuíram para a sua campanha.",
   "noSupportersYet": "Ainda não há contribuições. Assim que as pessoas apoiarem a sua campanha, pode responder-lhes aqui.",
   "supportersHelper": "Responda a um apoiador para agradecê-lo. A sua resposta aparece publicamente sob a mensagem deles na página da campanha.",
-  "replyPlaceholder": "Escreva uma resposta pública de agradecimento…"
+  "replyPlaceholder": "Escreva uma resposta pública de agradecimento…",
+  "setupStepKycLabel": "Verifique sua identidade",
+  "setupStepKycHelperBlocked": "Obrigatório — você passou de US$ 10.000 em volume de pagamentos. Leva ~5 minutos.",
+  "setupStepKycHelperGrace": "{{days}} dias restantes para verificar. Leva ~5 minutos.",
+  "setupStepKycHelperContinue": "Continue sua verificação de onde parou.",
+  "setupStepKycStarting": "Abrindo verificação…",
+  "setupKycTitle": "Verifique sua identidade para continuar recebendo",
+  "setupKycSubtitle": "Você passou de US$ 10.000 em volume de pagamentos e o período de carência de 90 dias terminou. Conclua uma verificação rápida de identidade para criar novos links de pagamento."
 }
