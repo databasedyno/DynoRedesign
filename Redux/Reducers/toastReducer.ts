@@ -5,6 +5,7 @@ const ToastInitialState = {
   message: "",
   severity: "",
   loading: false,
+  placement: "bottom-right",
 };
 
 const toastReducer = (state = ToastInitialState, action: any) => {
@@ -18,6 +19,7 @@ const toastReducer = (state = ToastInitialState, action: any) => {
         // Preserve "error" severity explicitly, default to "success" only if not provided
         severity: payload.severity === "error" ? "error" : (payload.severity || "success"),
         loading: payload.loading ?? false,
+        placement: payload.placement || "bottom-right",
       };
 
     case TOAST_HIDE:

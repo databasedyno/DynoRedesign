@@ -3,6 +3,7 @@ import { walletController } from "../controller";
 import { requireCompanyOwnerBy } from "../middleware/teamPermissionMiddleware";
 import { auditMutations } from "../utils/activityLog";
 import { userWalletModel } from "../models";
+import { requireWalletSudo } from "../controller/wallet/walletSudo";
 
 const walletRouter = express.Router();
 
@@ -62,6 +63,24 @@ walletRouter.post("/wallet/update", requireCompanyOwnerBy(resolveWalletCompany),
 // DELETE WITH OTP - Delete wallet from main payment system (2-step OTP flow)
 walletRouter.post("/wallet/delete/send-otp", walletController.sendDeletePaymentWalletOTP);
 walletRouter.post("/wallet/delete/verify", requireCompanyOwnerBy(resolveWalletCompany), auditWallet, walletController.deletePaymentWalletWithOTP);
+
+// ============================================
+// FULL PACKAGE — 10-minute security session (sudo) + bulk wallet management.
+// One OTP unlocks a 10-min window authorising many add/edit/delete ops.
+// ADDITIVE: the single-action OTP routes above are unchanged.
+// ============================================
+walletRouter.get("/sudo/status", walletController.getWalletSudoStatus);
+walletRouter.post("/sudo/request-otp", walletController.requestWalletSudoOtp);
+walletRouter.post("/sudo/verify-otp", walletController.verifyWalletSudoOtp);
+walletRouter.post("/sudo/revoke", walletController.revokeWalletSudo);
+// Bulk mutate — owner-only + requires an active sudo session.
+walletRouter.post(
+  "/batch",
+  requireCompanyOwnerBy(resolveWalletCompany),
+  requireWalletSudo,
+  auditWallet,
+  walletController.batchWalletMutate,
+);
 
 // ============================================
 // TRANSACTION & OTHER WALLET OPERATIONS

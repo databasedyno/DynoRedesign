@@ -13,8 +13,9 @@ import SuccessIcon from "@/assets/Icons/success-icon.svg";
 const Toast = (props: IToastProps) => {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { open, severity, message, loading } = props;
+  const { open, severity, message, loading, placement = "bottom-right" } = props;
   const isMobile = useIsMobile("sm");
+  const topCenter = placement === "top-center";
 
   const handleClose = () => {
     dispatch({ type: TOAST_HIDE });
@@ -55,6 +56,15 @@ const Toast = (props: IToastProps) => {
       };
     }
 
+    if (severity === "warning") {
+      const amber = theme.palette.mode === "dark" ? "#FBBF24" : "#B45309";
+      return {
+        borderColor: amber,
+        textColor: amber,
+        icon: <ErrorOutlineIcon sx={{ color: amber, fontSize: "14px" }} />,
+      };
+    }
+
     // Default to success (green)
     return {
       borderColor: theme.palette.border.success,
@@ -69,10 +79,12 @@ const Toast = (props: IToastProps) => {
     <Box
       data-testid="app-toast"
       data-severity={loading ? "loading" : severity || "success"}
+      data-placement={placement}
       sx={{
         position: "fixed",
-        bottom: isMobile ? "16px" : "24px",
-        right: isMobile ? "16px" : "24px",
+        ...(topCenter
+          ? { top: isMobile ? "12px" : "20px", left: "50%", transform: "translateX(-50%)", maxWidth: "calc(100vw - 32px)" }
+          : { bottom: isMobile ? "16px" : "24px", right: isMobile ? "16px" : "24px" }),
         zIndex: 99999,
         backgroundColor: theme.palette.secondary.light,
         border: `1px solid ${toastStyles.borderColor}`,
@@ -83,7 +95,7 @@ const Toast = (props: IToastProps) => {
         alignItems: "center",
         gap: "12px",
         overflow: "hidden",
-        animation: "slideInRight 0.3s ease-out",
+        animation: topCenter ? "slideInDown 0.3s ease-out" : "slideInRight 0.3s ease-out",
         "@keyframes slideInRight": {
           "0%": {
             transform: "translateX(100%)",
@@ -93,6 +105,10 @@ const Toast = (props: IToastProps) => {
             transform: "translateX(0)",
             opacity: 1,
           },
+        },
+        "@keyframes slideInDown": {
+          "0%": { transform: "translate(-50%, -16px)", opacity: 0 },
+          "100%": { transform: "translate(-50%, 0)", opacity: 1 },
         },
       }}
     >

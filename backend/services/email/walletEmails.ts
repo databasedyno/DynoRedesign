@@ -45,6 +45,59 @@ export const sendWalletUpdateOTPEmail = async (
 };
 
 /**
+ * Wallet management "sudo" unlock OTP — one code unlocks 10 minutes of
+ * add/edit/delete. Same branded template + otpBlock as the other wallet OTPs.
+ */
+export const sendWalletSudoOTPEmail = async (
+  email: string,
+  name: string,
+  otpCode: string,
+  _lang?: string
+) => {
+  try {
+    const subject = "Your wallet management code";
+    const content = `${p(name ? `Hi ${escapeHtml(name)},` : "Hi,")}
+    ${p("Use this one-time code to unlock wallet management for 10 minutes. During that window you can add, edit and remove payout wallets without requesting a new code for each network.")}
+    ${otpBlock(otpCode)}
+    ${warnText("This code expires in 5 minutes. If you didn't request it, you can ignore this email — your wallets stay unchanged.")}`;
+    const html = dynoPayEmailTemplate("Unlock wallet management", content);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Wallet sudo OTP email sent to ${email}`);
+  } catch (e) {
+    apiLogger.error("Wallet sudo OTP email error:", e);
+  }
+};
+
+/**
+ * Summary receipt after a bulk wallet change (add/edit/delete in one session).
+ */
+export const sendWalletBatchSummaryEmail = async (
+  email: string,
+  name: string,
+  changes: { companyName?: string | null; added?: string[]; updated?: string[]; removed?: string[] },
+  _lang?: string
+) => {
+  try {
+    const list = (arr?: string[]) => (arr && arr.length ? arr.map(escapeHtml).join(", ") : "");
+    const rows: string[] = [];
+    if (changes.added?.length) rows.push(dataRow("Added", list(changes.added)));
+    if (changes.updated?.length) rows.push(dataRow("Updated", list(changes.updated)));
+    if (changes.removed?.length) rows.push(dataRow("Removed", list(changes.removed), true));
+    const subject = "Your payout wallets were updated";
+    const content = `${p(name ? `Hi ${escapeHtml(name)},` : "Hi,")}
+    ${p(`Your payout wallets for ${escapeHtml(changes.companyName || "your brand")} were just updated.`)}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`)}
+    ${warnText("If you didn't make these changes, contact support immediately.")}`;
+    const html = dynoPayEmailTemplate(subject, content);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Wallet batch summary email sent to ${email}`);
+  } catch (e) {
+    apiLogger.error("Wallet batch summary email error:", e);
+  }
+};
+
+
+/**
  * Template 27: Wallet Deleted
  */
 export const sendWalletDeletedEmail = async (

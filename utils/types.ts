@@ -172,6 +172,7 @@ export interface toastReducer {
   message: string;
   hide?: boolean;
   loading?: boolean;
+  placement?: "bottom-right" | "top-center";
 }
 
 export interface LayoutProps {
@@ -214,6 +215,7 @@ export interface IToastProps {
   message?: string;
   hide?: boolean;
   loading?: boolean;
+  placement?: "bottom-right" | "top-center";
 }
 
 export interface ISavedAddressTypes {

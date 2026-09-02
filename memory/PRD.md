@@ -24,6 +24,102 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-06 (fork, pod 5cde9912): WALLET MANAGER PREMIUM UI/UX REBUILD — DONE + VERIFIED (screenshots light/dark/
+     mobile; reversible LIVE E2E: BTC wallet_name NULL -> "Main" -> NULL via the new UI, DB confirmed back to NULL,
+     company_1 = 13 wallets; test Redis sudo session cleared). FE tsc 0, eslint 0. User: "I hope the UI/UX for wallet
+     actions is clean and usability is premium" -> full rebuild of Components/UI/WalletManagerModal (split into
+     index.tsx orchestrator + useSudoSession.ts + SessionStrip/UnlockGate/SectionLabel/ExistingWalletRow/AddWalletCard/
+     MissingNetworks/ReuseSection/ManagerFooter + types.ts). Now a proper right-side sheet (MUI Dialog, Slide-left,
+     600px, full-screen <md): sticky header (title + X), SESSION STRIP (lock-open/clock icon, "Unlocked · m:ss
+     remaining · no more codes needed", 2px time-progress bar, turns amber <=2min, "Lock now"), SCROLL BODY, GLASS FOOTER.
+     • Existing wallets: table-style compact rows (coin icon, name, mono ticker, truncated mono address, wallet name);
+       tap/pencil expands inline editor (address mono + name + tag; "Reset to saved" + "Done"); trash marks removal
+       (row tints rose, strikethrough, "Removes on save", undo-2 icon to undo); dot+text status (Edited/indigo,
+       Removes/rose, invalid/amber, error/rose). Rows with server errors auto-expand after a partial save.
+     • CLIENT-SIDE FORMAT GUARD: utils/walletAddressType.ts += isPlausibleAddress() (mirrors backend regex per family)
+       + shortAddress(). Invalid edited/new addresses show amber inline hint, footer "N address looks off", and Save is
+       DISABLED until fixed (backend would reject anyway).
+     • Add wallets: "Not set up yet — tap to add" chips (icon + code, prefill a row); numbered cards turn emerald-check
+       when complete; smart paste box ("EVM address detected · works on these networks too" + chips + "Add to all N" /
+       "Also add X"); duplicate-row button; "Every supported network already has a wallet" empty state.
+     • Reuse section restyled (brand card, Select all/Clear, pressed chips, "Copy N wallets").
+     • Footer: change summary dots (N new / N edited / N removed), Discard/Close + "Save N changes" (loading state);
+       closing with pending changes -> inline "Discard N unsaved changes? Keep editing / Discard" (also on backdrop/Esc).
+     • TOAST FIX (root cause found in E2E): global Toast is fixed bottom-right and COVERED the sheet's Save button
+       (a click landed on the toast and the save silently didn't fire). Added additive `placement` to the toast
+       payload/reducer/IToastProps/Toast (top-center variant, slideInDown) + a proper amber "warning" style (was
+       rendering green). Manager dispatches placement:"top-center". Containers/Client passes ToastState.placement.
+     • Icon bundle regenerated (65 icons, +undo-2). All new i18n via tw() defaultValue; interpolation vars use {{n}}
+       (not i18next-reserved `count`). testids: wallet-manager-{modal,body,footer,summary,session-banner,countdown,
+       lock-btn,x-btn,close-btn,save-btn,discard-confirm,keep-editing-btn,discard-btn,existing-list,row-<CUR>,
+       edit-toggle-<CUR>,remove-toggle-<CUR>,undo-remove-<CUR>,editor-<CUR>,address-<CUR>,name-<CUR>,tag-<CUR>,
+       reset-<CUR>,collapse-<CUR>,status-<CUR>,invalid-<CUR>,error-<CUR>,missing,missing-<CUR>,add-row-btn,
+       add-row-btn-bottom,add-row,add-address,add-name,add-tag,add-invalid,add-error,duplicate-row-btn,remove-row-btn,
+       smart-paste,smart-preview,smart-preview-<CUR>,smart-apply-btn,all-set,reuse,reuse-<cid>,reuse-all-<cid>,
+       reuse-chip-<cid>-<CUR>,reuse-copy-<cid>,unlock,send-code-btn,cancel-btn,invalid-count}. -->
+
+<!-- 2026-06 (fork, pod 5cde9912): WALLET MANAGER ENHANCEMENTS — Session Reminder + Bulk Reuse +
+     Smart Paste Preview — DONE + VERIFIED (screenshots on LIVE account via reversible imbalance, restored).
+     All in Components/UI/WalletManagerModal.
+  1) SESSION REMINDER: countdown turns amber ("Ending soon · m:ss", clock icon) at ≤120s left and fires a
+     one-time toast "2 minutes left — save your changes soon" (warnedRef, reset on each unlock). Screenshot-
+     verified (banner + toast at 0:54).
+  2) BULK REUSE: new "Copy from another brand" section in the unlocked editor. Reuses the EXISTING, already-
+     shipped backend (GET /wallet/reusable-wallets + POST /wallet/copyWalletAddresses — no OTP, copies the
+     merchant's own saved addresses). Lists other brands with wallets THIS brand lacks; per-currency toggle
+     chips (default all) + "Copy N wallets". Fetched via fetchReuse() on unlock + after every save/copy.
+     Screenshot-verified (SMADAV · 2 available → ETH/POLYGON chips → Copy 2 wallets) after temporarily
+     unsetting ETH+POLYGON on company 1 (backend/scripts/imbalance_test.cjs remove|restore, snapshot to
+     /tmp/imbalance_snapshot.json) — RESTORED EXACTLY (ETH#2/POLYGON#11 back on company 1, both companies 13).
+  3) SMART PASTE PREVIEW: the "Apply to all N" chip now first shows a tiny chip list of the exact networks it
+     will fill (previewList = compatible EVM/Tron currencies the brand is missing; shown only when ≥2). Copy:
+     "<family> address detected. This will add:" + chips + "Apply to all N". Screenshot-verified: pasting a 0x
+     address on a brand missing ETH/POLYGON/RLUSD-ERC20 → chips [ETH, RLUSD-ERC20, POLYGON] + "Apply to all 3".
+  NOTE: on the Hostbay account both brands are fully stocked (only RLUSD-ERC20 missing) so in normal use the
+  reuse section and smart-paste chip are correctly HIDDEN (nothing to reuse / <2 missing). FE tsc 0. -->
+
+
+<!-- 2026-06 (fork, pod 5cde9912): WALLET "FULL PACKAGE" — 10-min sudo session + BULK add/edit/delete +
+     SMART PASTE — DONE + VERIFIED (backend reversible E2E on LIVE prod DB, fully restored; FE+BE tsc 0;
+     editor screenshot-verified). ADDITIVE — legacy single-action OTP flows untouched. Preview:
+     https://5cde9912-3a46-41e1-8e85-456d471c580a.preview.emergentagent.com
+  WHY: adding N payout wallets (e.g. all EVM chains) used to need one emailed OTP PER network. Now one OTP
+     unlocks a 10-minute security session that authorises many add/edit/delete ops.
+  BACKEND (all NEW, additive) — backend/controller/wallet/walletSudo.ts:
+    • Redis-backed sudo session keyed by user_id (consistent w/ the app's server-side OTP model — NO client
+      token). setRedisItemWithTTL('wallet_sudo_session_<uid>', {issued_at,expires_at}, 600). Absolute expiry
+      (no sliding TTL). Fail-CLOSED on Redis error.
+    • Unlock OTP stored HASHED in Redis ('wallet_sudo_otp_<uid>', HMAC-SHA256(API_SECRET,code)) — NOT in the DB
+      (avoids clobbering the legacy tbl_user.verified_otp used by single flows). 5-min TTL, 5-attempt cap,
+      30s request rate-limit (atomic NX). Single-use: consumed on verify.
+    • Routes (walletRouter.ts): GET /wallet/sudo/status, POST /wallet/sudo/request-otp | verify-otp | revoke;
+      POST /wallet/batch (requireCompanyOwnerBy + requireWalletSudo middleware + auditWallet). CSRF auto-skips
+      for Bearer-token requests (csrfMiddleware L132).
+    • batchWalletMutate: 1-50 ops [{action:add|edit|delete,...}], each scoped by user_id+company_id, per-op
+      results, one summary email. add reuses the verifyOtp path (empty-slot reuse, merchant-pool init,
+      ensureLiveApiKey). ROOT-CAUSE HARDENING: added isPlausibleAddress() strict format guard BEFORE the
+      Tatum call — the single-flow relied only on tatum.getAddressBalance which does NOT throw for a bad RLUSD
+      string (a typo would create a garbage wallet). Regex per family (EVM 0x40hex / Tron T… / XRPL r… /
+      BTC/LTC/DOGE/BCH/SOL). Emails: sendWalletSudoOTPEmail + sendWalletBatchSummaryEmail (walletEmails.ts,
+      same branded template + otpBlock — "Consistent" per user).
+  FRONTEND — NEW Components/UI/WalletManagerModal (right-side panel): unlock gate ("Email me a code") ->
+    OtpDialog -> editor. Editor: session banner + live MM:SS countdown + "Lock now"; existing wallets with
+    editable name/address (+ tag for XRP/RLUSD) + Remove toggle; "Add wallets" multi-row (CryptocurrencySelector
+    + address + optional name); SMART PASTE (utils/walletAddressType.ts detectAddressKind: 0x40hex->EVM,
+    T…->Tron) shows "Apply to all N compatible networks" when >1 missing -> auto-fills rows w/ the same address.
+    "Save N changes" -> POST /wallet/batch, per-op inline errors, 403 SUDO_REQUIRED reopens the gate. Entry:
+    NEW "Manage wallets" button (wallet-manage-btn) on /wallet next to the legacy "Add wallet". api/endpoints.ts
+    += wallet.sudo*/batch. New Icons bundled (shield-check/lock-open/settings-2 — yarn icons:bundle, 64 icons).
+    i18n via t() defaultValue (no locale-file churn).
+  VERIFIED (curl, reversible, LIVE prod DB user_1/company_1): gate 403 SUDO_REQUIRED w/o session; request-otp
+    200; OTP recovered via HMAC (backend/scripts/recover_sudo_otp.cjs) -> wrong 400, correct 200 -> session
+    active; BULK batch = 2 real name edits (id 1,8) + reject dup ETH + reject invalid RLUSD (format guard) +
+    reject delete-not-found; then FULLY RESTORED (names->NULL, scratch RLUSD wallet 144 hard-deleted, 0 pool
+    rows — pool init had failed cleanly on XRP_MASTER). Editor screenshot-verified (banner + 13 rows + add
+    section) via a seeded Redis session (cleared after). company_1 back to exactly 13 wallets. Test harnesses:
+    backend/scripts/{recover_sudo_otp,seed_sudo_session,inspect_rlusd_scratch,cleanup_batch_test}.cjs. -->
+
+
 <!-- 2026-09-02 (fork, pod vault-setup): LANDING "SMALL→BIG" ROOT-CAUSE FIX + STATUS BADGES + WALLET FLOW —
      DONE (testing_agent iteration_114 = 100% frontend; backend edit-OTP flow curl-verified + reverted; FE tsc 0,
      eslint 0 errors). LIVE prod DB, SAFE MODE. Preview: https://5cde9912-3a46-41e1-8e85-456d471c580a.preview.emergentagent.com

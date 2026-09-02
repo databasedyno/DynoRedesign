@@ -303,6 +303,7 @@ const ClientLayout = ({
       message={ToastState.message}
       severity={ToastState.severity || "success"}
       loading={ToastState.loading}
+      placement={ToastState.placement}
     />
     {/* Fee-free welcome (celebratory modal — shown once per user) */}
     <FeeFreeWelcomeModal />

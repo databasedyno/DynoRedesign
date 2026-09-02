@@ -45,6 +45,7 @@ export * from "./wallet/walletOtp";
 export * from "./wallet/walletMutations";
 export * from "./wallet/walletDeleteFlow";
 export * from "./wallet/reusableWallets";
+export * from "./wallet/walletSudo";
 
 import { getWallet, getWalletTransactions } from "./wallet/walletRead";
 import { estimateFees, getConfiguredCurrencies, getNetworkFees, calculatePaymentAmount, encryptPayload } from "./wallet/feesEstimates";
@@ -63,6 +64,13 @@ import { validateWallet, verifyOtp } from "./wallet/walletOtp";
 import { deleteWalletAddress, sendUpdateWalletOTP, updateWalletWithOTP } from "./wallet/walletMutations";
 import { sendDeletePaymentWalletOTP, deletePaymentWalletWithOTP, editWalletAddress } from "./wallet/walletDeleteFlow";
 import { getReusableWallets, copyWalletAddresses } from "./wallet/reusableWallets";
+import {
+  getWalletSudoStatus,
+  requestWalletSudoOtp,
+  verifyWalletSudoOtp,
+  revokeWalletSudo,
+  batchWalletMutate,
+} from "./wallet/walletSudo";
 
 export default {
   getWallet,
@@ -102,4 +110,10 @@ export default {
   // New: reuse wallets across companies
   getReusableWallets,
   copyWalletAddresses,
+  // Full Package: 10-min security session + bulk wallet management
+  getWalletSudoStatus,
+  requestWalletSudoOtp,
+  verifyWalletSudoOtp,
+  revokeWalletSudo,
+  batchWalletMutate,
 };

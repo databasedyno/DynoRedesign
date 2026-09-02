@@ -46,6 +46,12 @@ export const API_ENDPOINTS = {
     updateWallet: (walletId: PathId) => `/wallet/updateWallet/${walletId}`,
     updateWalletSendOtp: "/wallet/wallet/update/send-otp",
     updateWalletWithOtp: "/wallet/wallet/update",
+    // Full Package: 10-min security session (sudo) + bulk management
+    sudoStatus: "/wallet/sudo/status",
+    sudoRequestOtp: "/wallet/sudo/request-otp",
+    sudoVerifyOtp: "/wallet/sudo/verify-otp",
+    sudoRevoke: "/wallet/sudo/revoke",
+    batch: "/wallet/batch",
   },
 
   pay: {

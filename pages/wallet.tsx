@@ -3,6 +3,7 @@ import InfoIcon from "@/assets/Icons/info-icon.svg";
 import Wallet from "@/Components/Page/Wallet";
 import { SetupWarnnigContainer } from "@/Components/Page/Wallet/styled";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
+import WalletManagerModal from "@/Components/UI/WalletManagerModal";
 import { WarningIconContainer } from "@/Components/UI/AddWalletModal/styled";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -49,6 +50,39 @@ const AddWalletAction: React.FC<{ onClick: () => void }> = ({ onClick }) => {
         },
       }}
     />
+  );
+};
+
+const WalletHeaderActions: React.FC<{
+  hasWallets: boolean;
+  canAdd: boolean;
+  onManage: () => void;
+  onAdd: () => void;
+}> = ({ hasWallets, canAdd, onManage, onAdd }) => {
+  const muiTheme = useTheme();
+  const isMobile = useIsMobile("md");
+  const { t } = useTranslation("walletScreen");
+  return (
+    <Box sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}>
+      {hasWallets && (
+        <CustomButton
+          label={t("manageWallets", { defaultValue: "Manage wallets" })}
+          variant="outlined"
+          size="medium"
+          startIcon={<Icon name="settings-2" size={isMobile ? 16 : 18} />}
+          onClick={onManage}
+          data-testid="wallet-manage-btn"
+          sx={{
+            height: isMobile ? 34 : 40,
+            px: isMobile ? 1.25 : 2,
+            fontSize: isMobile ? 13 : 15,
+            whiteSpace: "nowrap",
+            [muiTheme.breakpoints.down("sm")]: { flex: 1 },
+          }}
+        />
+      )}
+      {canAdd && <AddWalletAction onClick={onAdd} />}
+    </Box>
   );
 };
 
@@ -181,6 +215,7 @@ const WalletPage = ({
   );
 
   const [openCreate, setOpenCreate] = useState(false);
+  const [openManage, setOpenManage] = useState(false);
   const [currentCryptocurrency, setCurrentCryptocurrency] = useState("");
 
   useEffect(() => {
@@ -203,9 +238,11 @@ const WalletPage = ({
     sessionStorage.removeItem("walletAction");
   }, []);
 
-  const { walletWarning, cryptocurrencies, walletLoading } = useWalletData();
+  const { walletWarning, cryptocurrencies, walletLoading, walletData } = useWalletData();
   const companyState = useCompanyStore();
   const hasCompany = (companyState.companyList ?? []).length > 0;
+  const hasWallets = walletData.length > 0;
+  const selectedCompanyId = companyState.selectedCompanyId;
   // Hide "Add Wallet" when all supported crypto types already have wallets
   // Also hide during loading to prevent flash of the button
   // Also hide when no company exists (wallet requires company)
@@ -260,6 +297,7 @@ const WalletPage = ({
   }, [setPageWarning, hasCompany, walletWarning]);
 
   const openCreateModal = useCallback(() => setOpenCreate(true), []);
+  const openManageModal = useCallback(() => setOpenManage(true), []);
 
   useEffect(() => {
     if (!setPageAction) return;
@@ -268,10 +306,17 @@ const WalletPage = ({
     // bottom-nav "Create" tab (mobile) + sidebar "Payment Links" nav item (desktop)
     // already give users a fast path to create links.
     setPageAction(
-      canAddMoreWallets ? <AddWalletAction onClick={openCreateModal} /> : null,
+      hasWallets || canAddMoreWallets ? (
+        <WalletHeaderActions
+          hasWallets={hasWallets}
+          canAdd={canAddMoreWallets}
+          onManage={openManageModal}
+          onAdd={openCreateModal}
+        />
+      ) : null,
     );
     return () => setPageAction(null);
-  }, [setPageAction, canAddMoreWallets, openCreateModal]);
+  }, [setPageAction, hasWallets, canAddMoreWallets, openManageModal, openCreateModal]);
 
 
   return (
@@ -290,6 +335,11 @@ const WalletPage = ({
           open={openCreate}
           currentCryptocurrency={currentCryptocurrency}
           onClose={() => setOpenCreate(false)}
+        />
+        <WalletManagerModal
+          open={openManage}
+          companyId={selectedCompanyId}
+          onClose={() => setOpenManage(false)}
         />
       </Box>
     </>
