@@ -22,7 +22,7 @@ from datetime import datetime
 import sys
 
 # Configuration
-BASE_URL = "https://payment-gateway-init-2.preview.emergentagent.com"
+BASE_URL = "https://setup-credentials.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

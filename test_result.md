@@ -15,7 +15,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-01 (fork, pod d4fef0d9): FLICKER FIX + DOCS + LANDING BRANDS
-#   LIVE prod DB, SAFE MODE. Preview: https://d4fef0d9-f3e2-42b2-a3b0-4b3e15a570d4.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://setup-credentials.preview.emergentagent.com
 #   Respond in English. Owner: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   (P0) ISSUE #4 — payment-link "double-load / flicker" — FIXED + VERIFIED.
