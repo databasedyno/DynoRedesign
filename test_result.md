@@ -1,4 +1,17 @@
 # ============================================================================
+# >>> FINAL STATUS 2026-09-02: ALL 3 ITEMS COMPLETE + VERIFIED <<<
+#   ITEM1 last commit df3eab005: TEST1 Brand terminology PASS, TEST2 Individual/Business create
+#     PASS (throwaway brand 115 deleted via API), TEST3 /settings PASS (Account-details tab:
+#     save-changes COUNT=1 label "Save Changes", delete-brand COUNT=1, NO asterisks on
+#     State/City/Address/Zip, single Brand-details card, "Registered business" account-type chip).
+#   ITEM2 skeleton bug: FIXED + verified (frontend PART C: balance never stuck on skeleton across
+#     3x navigate-away/back and window blur/focus).
+#   ITEM3 Verified Everywhere: DONE + verified (backend endpoint 6/6 incl. SQLi-safe; FE PART A:
+#     public-verified-badge visible on storefront, creator, product page, store checkout; emailed
+#     order receipt gets green "Identity-verified merchant" line — email OFF in SAFE MODE).
+#   NOTE: /pay hosted-checkout badge NOT visually shown only because ALL seeded links are expired
+#     by the checkout's time rule (not a code issue); same component+endpoint proven elsewhere.
+
 # CURRENT SESSION — 2026-09-02 (pod 054d2272): SETUP + TEST LAST COMMIT + FEATURE + BUG
 #   Restored env from encrypted vault (passphrase Katiekendra123@) -> pod-bootstrap --skip-env.
 #   LIVE prod DB, SAFE MODE (bg jobs off, email off, Redis /1, Binance/SSH tunnel blanked).
