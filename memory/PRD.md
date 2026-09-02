@@ -25,10 +25,15 @@
 ## Recent sessions (most recent first)
 
 <!-- 2026-09-01 (fork, pod d4fef0d9) follow-up: LANDING FIXES per user.
-  (a) REMOVED the multi-brand card ("One account, every brand", v3.why.c7) from the landing —
-      user does NOT want multi-brand-creation surfaced on the landing page (Components/Page/Home/v3/
-      WhyDynoPayV3.tsx: dropped the 7th CARD + unused StorefrontRoundedIcon import; c7t/c7d i18n keys
-      left in locales, unused/harmless). Dashboard "Brands" switcher + docs note untouched (not landing).
+  (a) MULTI-BRAND CARD MOBILE VISIBILITY (user: "important feature must show on desktop, mobile,
+      tablet"). ROOT CAUSE: Home/index.tsx wrapped <WhyDynoPayV3/> (which holds the "One account,
+      every brand" card, v3.why.c7) in hideOnPhone = {display:{xs:'none',sm:'block'}} — so the whole
+      section was display:none on phones (<600px); it already showed on tablet(sm)/desktop(md). FIX:
+      removed the hideOnPhone wrapper around WhyDynoPayV3 only (other hidden sections untouched). The
+      card + StorefrontRoundedIcon were briefly removed earlier this turn on a MISREAD ("couldn't see
+      it" ≠ "remove it") then RESTORED. Verified via 390px mobile screenshot: section visible=True,
+      card renders with full copy. (An earlier removal edit was reverted — net: card kept + now shows
+      on all breakpoints.)
   (b) FIXED the fabricated API code samples on the landing. User correctly flagged the curl URL was
       wrong. Corrected DeveloperBandV3.tsx (the LIVE terminal proof the user saw) + TryItNowV3.tsx
       (unwired, fixed for consistency) to the AUTHORITATIVE contract from DEVELOPER_INTEGRATION_GUIDE.md
@@ -37,8 +42,8 @@
       200 response {message:"Link Generated!", data:{redirect_url:"…/pay?d=…", available_currencies}}.
       Removed fictional /v1/payments, settlement/settle_to/order_id, cs_live_/pay_01HZ, checkout_url.
       NOTE: Home/v4/ProductPillarsV4.tsx has the same fake snippet but is DEAD (no importers) — left.
-      Verified: FE tsc 0; SSR of localhost:3000/ shows api/user/createPayment + x-api-key, and 0 hits for
-      "v1/payments" and "One account, every brand". -->
+      Verified: FE tsc 0; landing renders end-to-end. -->
+
 
 <!-- 2026-09-01 (fork, pod d4fef0d9): SYSTEMIC SANDBOX-KEY BACKFILL + partial-unique index + full
      sandbox API suite — DONE + VERIFIED. LIVE prod DB, SAFE MODE.

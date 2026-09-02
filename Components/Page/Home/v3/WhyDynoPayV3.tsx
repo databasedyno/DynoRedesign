@@ -8,6 +8,7 @@ import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import SavingsRoundedIcon from "@mui/icons-material/SavingsRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
+import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 import { FONT_BODY, FONT_HERO, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 import { BRAND_ACCENT } from "@/constants/theme";
@@ -32,6 +33,7 @@ const WhyDynoPayV3: React.FC = () => {
     { icon: ReplayRoundedIcon, title: t("v3.why.c4t"), desc: t("v3.why.c4d") },
     { icon: SavingsRoundedIcon, title: t("v3.why.c5t"), desc: t("v3.why.c5d") },
     { icon: CodeRoundedIcon, title: t("v3.why.c6t"), desc: t("v3.why.c6d") },
+    { icon: StorefrontRoundedIcon, title: t("v3.why.c7t"), desc: t("v3.why.c7d") },
   ];
 
   return (

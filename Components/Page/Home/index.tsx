@@ -96,9 +96,7 @@ const HomePage: FC = () => {
         <ProductFeatureCards />
       </Box>
       <ProductShowcaseV3 />
-      <Box sx={hideOnPhone}>
-        <WhyDynoPayV3 />
-      </Box>
+      <WhyDynoPayV3 />
       <Box sx={hideOnPhone}>
         <WaysToGetPaidV3 />
       </Box>
