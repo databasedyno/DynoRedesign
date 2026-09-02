@@ -237,16 +237,43 @@ const NotificationPage = () => {
     : API_ENDPOINTS.notifications.list;
   const { data: notifData, isLoading: notifLoading, mutate: mutateNotifs } = useApiSWR<any[]>(
     [notifListKey, effectiveCompanyId],
-    { select: (raw: any) => (raw?.data?.notifications || []) as any[] }
+    {
+      select: (raw: any) => (raw?.data?.notifications || []) as any[],
+      // Cross-device read-state sync. Bug: a notification read on one browser
+      // stayed unread on another. The list is server-authoritative, but the
+      // global SWRConfig sets revalidateOnFocus:false AND this list wasn't
+      // polled — so a second browser kept rendering stale unread items until a
+      // hard reload. Re-enable focus revalidation + a light 30s poll for JUST
+      // this inbox list so switching to another browser/tab reconciles the read
+      // state within seconds without touching the app-wide SWR defaults.
+      revalidateOnFocus: true,
+      refreshInterval: 30_000,
+    }
   );
   const notifications = notifData ?? [];
 
   useEffect(() => {
     // Shared, TTL-cached fetch (same cache as the sidebar/mobile badges) —
     // no duplicate request when the badge already fetched recently.
-    fetchUnreadCount(effectiveCompanyId)
-      .then((n) => setUnreadCount(n))
-      .catch(() => {});
+    // Cross-device sync: also refresh the Inbox tab count when this tab regains
+    // focus (e.g. after reading on another browser) and via a light 30s poll,
+    // mirroring the list revalidation above so the "(N)" label stays honest.
+    let cancelled = false;
+    const refreshCount = () =>
+      fetchUnreadCount(effectiveCompanyId)
+        .then((n) => {
+          if (!cancelled) setUnreadCount(n);
+        })
+        .catch(() => {});
+    refreshCount();
+    const onFocus = () => refreshCount();
+    window.addEventListener("focus", onFocus);
+    const timer = setInterval(refreshCount, 30_000);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      clearInterval(timer);
+    };
   }, [effectiveCompanyId]);
 
   const markAllAsRead = async () => {

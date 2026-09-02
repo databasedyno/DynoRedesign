@@ -3,7 +3,7 @@
  * mobile-nav badge reasonably fresh WITHOUT hammering the API.
  *
  * Chattiness controls (session 10 UX audit):
- *  - Cache with a 45s TTL, persisted in sessionStorage so it survives BOTH
+ *  - Cache with a 20s TTL, persisted in sessionStorage so it survives BOTH
  *    SPA navigations (module scope) and full page reloads.
  *  - In-flight request dedupe: concurrent consumers (sidebar + mobile nav)
  *    share one HTTP request.
@@ -22,7 +22,11 @@ import { useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
 const POLL_INTERVAL_MS = 60_000;
-const CACHE_TTL_MS = 45_000;
+// Lowered 45s -> 20s so the focus-refresh below actually refetches when a user
+// switches to a SECOND browser/tab after reading elsewhere (cross-device read
+// sync). It's only a COUNT query; the 60s poll is unchanged to keep app-wide
+// badge load low. The focus path is what makes the other browser sync fast.
+const CACHE_TTL_MS = 20_000;
 const INITIAL_FETCH_DELAY_MS = 400;
 const STORAGE_KEY = "unread_count_cache_v1";
 
