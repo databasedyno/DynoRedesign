@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect, memo } from "react";
 import { Box, Typography, useTheme, useMediaQuery, Grid, Divider, Autocomplete, TextField, InputBase, Fab, Fade } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import HomeSectionTitle from "@/Components/UI/SectionTitle";
 import HomeButton from "@/Components/Layout/HomeButton";
@@ -1220,16 +1219,13 @@ const DocumentationPage = () => {
 
   return (
     <>
-      <Head>
-        <meta name="description" content="Integrate crypto payments into your application with the Dynopay API." />
-      </Head>
-
       <PageWrapper>
         {/* ===== HERO ===== */}
         <Container>
           <section style={{ padding: isMobile ? "64px 0 40px" : "112px 0 64px" }}>
             <HomeSectionTitle
               type="large"
+              headingAs="h1"
               badgeText="Developer Documentation"
               title="Dynopay API Reference"
               highlightText="API Reference"

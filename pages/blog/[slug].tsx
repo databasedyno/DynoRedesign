@@ -405,7 +405,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
   return (
     <>
       <Head>
-        <title>{post.title} · Dynopay Blog</title>
+        <title>{`${post.title} · Dynopay`}</title>
         <meta name="description" content={post.excerpt} />
         <meta key="og:title" property="og:title" content={post.title} />
         <meta key="og:description" property="og:description" content={post.excerpt} />

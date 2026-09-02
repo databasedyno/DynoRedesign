@@ -24,6 +24,21 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-06 (fork): SEO TITLE/META AUDIT + FIXES — DONE + VERIFIED (rendered-HTML audit via scripts/seo_audit.py; tsc 0, eslint 0).
+     User shared a Slack preview of the homepage and asked to analyze titles/SEO for clarity + marketing.
+     • Homepage title now matches H1 + OG image: "Accept Crypto Payments — Get Paid Your Way · Dynopay" (was "Sell, tip,
+       fundraise — in crypto"); desc de-jargoned. default_title/desc same. All 6 locales (pageTitles.json + landing.json).
+     • BUG /for/* (15 verticals): SEOLandingPage og:/twitter: tags had no `key`, so _app's generic og:title came FIRST and
+       Slack/LinkedIn/FB showed the homepage headline. Fixed with keys; vertical meta_titles unified to "sentence case · Dynopay".
+     • BUG blog posts: <title> rendered literal "<!-- -->" (two JSX children) + 76–93ch. Now template string, suffix "· Dynopay".
+       Same mixed-children fix in order/[publicRef], _error, [handle]/cart, [handle]/checkout.
+     • /how-to og:description + twitter:* added; /documentation weak description override removed; /blog og:desc = meta desc;
+       about_desc synced with landing.about.metaDescription; stub descriptions removed from wallet/dashboard/create-pay-link/referrals.
+     • Missing <h1> fixed on /fees, /referral-program, /system-status (component="h1"), /documentation (headingAs="h1").
+     • og:locale -> en_US/pt_BR/fr_FR/es_ES/de_DE/nl_NL. Polish: fees_title "Pricing — 1.5% down to 0.5%, no monthly fee",
+       about_title "About Dynopay — making crypto payments simple for every business", blog_title "Crypto payments blog — fees,
+       settlement & integrations". NOTE: the Slack/X link cache for dynopay.com must be refreshed after deploy. -->
+
 <!-- 2026-06 (fork, pod 5cde9912): GIT COMMIT BLOCKER FIXED — DONE + VERIFIED (testing_agent iteration_115 all green).
      User: "blocker preventing commit — 500 line limit or large images?" ROOT CAUSE: husky pre-commit
      (.husky/pre-commit -> backend/scripts/check-file-size.mjs) FAILS on NEW backend .ts > 500 lines;

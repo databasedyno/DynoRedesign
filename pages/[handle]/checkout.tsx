@@ -215,7 +215,7 @@ const CheckoutPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head><title>Checkout · @{handle} · Dynopay</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>{`Checkout · @${handle} · Dynopay`}</title><meta name="robots" content="noindex" /></Head>
       <Container maxWidth="sm" sx={{ py: { xs: 3, md: 5 } }} data-testid="checkout-page">
         {!payRef && (
           <Typography variant="body2" sx={{ mb: 2 }}>

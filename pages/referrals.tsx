@@ -9,7 +9,6 @@ import {
   linearProgressClasses,
 } from "@mui/material";
 import { Icon, MONO } from "@/styles/uiKit";
-import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useApiSWR } from "@/hooks/useApiSWR";
@@ -200,9 +199,6 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
 
   return (
     <>
-      <Head>
-        <meta name="description" content="Referral program" />
-      </Head>
       <Box sx={{ px: isMobile ? "16px" : 0 }} style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}>
         {/* Referral Code Card */}
         <Box

@@ -8,7 +8,7 @@ const Error = ({ statusCode }: any) => {
   return (
     <>
       <Head>
-        <title>{statusCode === 404 ? "Page not available" : "Something went wrong"} · Dynopay</title>
+        <title>{`${statusCode === 404 ? "Page not available" : "Something went wrong"} · Dynopay`}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <PageUnavailable />

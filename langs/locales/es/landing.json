@@ -907,7 +907,7 @@
   "exitIntentClose": "Cerrar",
   "blogReadyCtaBody": "Empieza en minutos con la sencilla integración de la API de Dynopay.",
   "about": {
-    "metaTitle": "Sobre Dynopay — nuestra misión y empresa",
+    "metaTitle": "Sobre Dynopay — pagos cripto simples para cualquier negocio",
     "metaDescription": "Conoce Dynopay: nuestra misión de simplificar los pagos en cripto, cómo funciona la plataforma, los valores sobre los que construimos y cómo contactarnos.",
     "eyebrow": "Sobre Dynopay",
     "heroTitle": "Pagos en cripto, simples para cualquier negocio.",
@@ -943,7 +943,7 @@
     "ctaBody": "Siempre nos alegra saber de comercios, socios y personas que quieren unirse al equipo. Escríbenos cuando quieras — leemos todos los mensajes."
   },
   "blogIndex": {
-    "metaTitle": "Blog — Ideas sobre comercio cripto · Dynopay",
+    "metaTitle": "Blog de pagos cripto — comisiones, liquidación e integraciones · Dynopay",
     "metaDescription": "Guías y estrategias para vender, recibir propinas y recaudar fondos en cripto — reduce comisiones, liquida en stablecoins y crece con los pagos en criptomonedas.",
     "ogDescription": "Guías, estrategias e ideas para comercios que aceptan pagos en criptomonedas.",
     "eyebrow": "Blog",

@@ -120,7 +120,7 @@ const FeesPage = () => {
           <Container sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ pt: { xs: 9, md: 16 }, pb: { xs: 6, md: 9 }, textAlign: "center" }}>
               <Eyebrow tone="coral" sx={{ mb: 3 }}>{t("v3.heroEyebrow")}</Eyebrow>
-              <HeadlineXL sx={{ color: s.ink, maxWidth: 1000, mx: "auto", mb: 3 }}>
+              <HeadlineXL component="h1" sx={{ color: s.ink, maxWidth: 1000, mx: "auto", mb: 3 }}>
                 {t("v3.heroTitleLead")}
                 <br />
                 <AuroraInk>1.5% → 0.5%</AuroraInk> {t("v3.heroTitleTail")}

@@ -325,6 +325,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   const OG_IMAGE = `${SITE_URL}/og/dynopay-og.png`;
   const LOGO_IMAGE = `${SITE_URL}/favicon-512.png`;
   const SUPPORTED_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
+  const OG_LOCALES: Record<string, string> = { en: "en_US", pt: "pt_BR", fr: "fr_FR", es: "es_ES", de: "de_DE", nl: "nl_NL" };
 
   // ─── Private routes that should NOT be indexed ───
   const isPrivatePage = useMemo(() => {
@@ -613,11 +614,11 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta key="og:image" property="og:image" content={OG_IMAGE} />
         <meta key="og:image:width" property="og:image:width" content="1200" />
         <meta key="og:image:height" property="og:image:height" content="630" />
-        <meta property="og:site_name" content="Dynopay" />
-        <meta key="og:locale" property="og:locale" content={i18n.language || "en"} />
+        <meta key="og:site_name" property="og:site_name" content="Dynopay" />
+        <meta key="og:locale" property="og:locale" content={OG_LOCALES[i18n.language] || "en_US"} />
 
         {/* ─── Twitter Cards ─── */}
-        <meta name="twitter:card" content="summary_large_image" />
+        <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
         <meta key="twitter:title" name="twitter:title" content={pageTitle} />
         <meta key="twitter:description" name="twitter:description" content={metaDescription} />
         <meta key="twitter:image" name="twitter:image" content={OG_IMAGE} />

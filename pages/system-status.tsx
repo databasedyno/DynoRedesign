@@ -204,6 +204,7 @@ const StatusPage = () => {
         )}
 
         <Typography
+          component="h1"
           sx={{
             mt: "16px",
             fontWeight: 700,

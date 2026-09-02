@@ -337,7 +337,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
   return (
     <>
       <Head>
-        <title>Order {order.public_ref.slice(0, 8).toUpperCase()} · Dynopay</title>
+        <title>{`Order ${order.public_ref.slice(0, 8).toUpperCase()} · Dynopay`}</title>
         <meta name="robots" content="noindex" />
       </Head>
       <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }} data-testid="order-page">

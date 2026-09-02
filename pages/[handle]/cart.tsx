@@ -155,7 +155,7 @@ const CartPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head><title>{t("cart.store.pageTitle", { defaultValue: "Cart" })} · @{handle} · Dynopay</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>{`${t("cart.store.pageTitle", { defaultValue: "Cart" })} · @${handle} · Dynopay`}</title><meta name="robots" content="noindex" /></Head>
       <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }} data-testid="cart-page">
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>{t("cart.store.title", { defaultValue: "Your cart" })}</Typography>
         {loading && <LinearProgress data-testid="cart-loading" />}

@@ -22,6 +22,8 @@ import FinalCTAAurora from "@/Components/Page/Home/v3/FinalCTAAurora";
 
 const CHAPTER_MS = 4600;
 const SITE_URL = "https://dynopay.com";
+const HOW_TO_DESC =
+  "A quick walkthrough: create a payment link, share it, get paid in Bitcoin, Ethereum or stablecoins, and settle to your own wallet. See how Dynopay works.";
 
 const CHAPTERS = [
   {
@@ -115,12 +117,12 @@ const HowToPage = () => {
     <>
       <Head>
         <title>How Dynopay works — accept crypto in about 2 minutes</title>
-        <meta
-          name="description"
-          content="A quick walkthrough: create a payment link, share it, get paid in Bitcoin, Ethereum or stablecoins, and settle to your own wallet. See how Dynopay works."
-        />
+        <meta name="description" content={HOW_TO_DESC} />
         <link key="canonical" rel="canonical" href={`${SITE_URL}/how-to`} />
         <meta key="og:title" property="og:title" content="How Dynopay works — accept crypto in about 2 minutes" />
+        <meta key="og:description" property="og:description" content={HOW_TO_DESC} />
+        <meta key="twitter:title" name="twitter:title" content="How Dynopay works — accept crypto in about 2 minutes" />
+        <meta key="twitter:description" name="twitter:description" content={HOW_TO_DESC} />
       </Head>
 
       <PageWrapper data-testid="how-to-page">
