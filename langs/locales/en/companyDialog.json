@@ -131,7 +131,8 @@
     "cancel": "Cancel",
     "emailLabelOptional": "Email (optional)",
     "stepBrand": "Brand",
-    "stepWallet": "Wallet"
+    "stepWallet": "Wallet",
+    "nameLockedNotice": "Your name is verified and can't be changed here. Contact support to update it."
   },
   "addCompanyBtn": "Add brand",
   "noCompaniesYet": "No brands yet",

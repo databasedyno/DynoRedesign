@@ -24,6 +24,51 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-09-02 (fork, pod 054d2272 / preview setup-credentials): FIRST+LAST NAME COLLECTION +
+     PREFILL + EDIT + IDENTITY-VERIFIED LOCK — DONE (FE+BE tsc 0; screenshot-verified locked state;
+     backend curl-verified 403 guard). LIVE prod DB, SAFE MODE. Storage: kept single tbl_user.name
+     (split on spaces for first/last, joined to save) — NO schema change (user chose 2a).
+  (1) SIGN-UP NAME STEP (email/phone only): pages/auth/register.tsx — new Step "name" between "otp"
+      and "success". After OTP verify for NEW accounts (not existing-login, not social), collect
+      First+Last (both required) then PUT /user/updateUser {name} -> dispatch USER_LOGIN with the
+      returned {userData,accessToken} (refreshes JWT + redux top-level name) -> success -> onboarding.
+      Existing-account re-login unchanged (straight to /dashboard). Social (Google/GitHub) already
+      capture provider name in backend/controller/user/socialAuth.ts -> they SKIP this step.
+      testids: register-name-step, register-first-name-input, register-last-name-input,
+      register-name-submit, register-name-error.
+  (2) BRAND MODAL (Components/UI/OnboardingFlow/CreateCompanyModal.tsx): the "Your name" First/Last
+      section now shows for BOTH individual AND business (was business-only). Prefill hardened — reads
+      userState.name OR the JWT token (useTokenData) as fallback, because redux resets on hard reload
+      (this was the user's "doesn't prefill" bug). Validation requires first+last for both types
+      (skipped when name is locked). testids: company-first-name-input, company-last-name-input,
+      company-name-locked-notice.
+  (3) PROFILE SETTINGS (Components/Page/Profile/AccountSetting.tsx): First/Last name were READ-ONLY
+      ("contact support"); now EDITABLE with a Save button (PUT /user/updateUser -> USER_LOGIN +
+      USER_PROFILE_FETCH). testids: first-name-input, last-name-input, save-name-btn.
+  (4) IDENTITY-VERIFIED LOCK (user rule): once KYC status === "approved" the legal name can no longer
+      be self-edited. NEW hook hooks/useIdentityVerified.ts (SWR ["kyc/status","self"], reuses badge
+      key). Frontend: brand modal + settings render the name fields DISABLED + a "verified, contact
+      support" notice, no Save. Backend enforcement (defense-in-depth) in backend/controller/user/
+      profile.ts — both updateProfile (PUT /user/profile) AND updateUser (PUT /user/updateUser) reject
+      a NAME CHANGE with 403 "Your name is locked after identity verification..." when
+      isMerchantIdentityVerified(userId) (helper/merchantVerification.ts, account-level company_id IS
+      NULL approved). Photo/email/mobile/language updates are unaffected (guard only trips on a name
+      delta); new unverified signups pass (guard checks verification, they aren't verified yet).
+  i18n: scripts/inject_name_i18n.py injected keys into ALL 6 locales — auth.namePrompt*/nameFirst*/
+      nameLast*/nameSaveContinue/nameSaveFailed, profile.saveName/nameUpdated,
+      companyDialog.createModal.nameLockedNotice.
+  VERIFIED: FE tsc 0, BE tsc 0. Backend curl (user_1 = KYC approved): GET /kyc/status -> approved;
+      PUT /user/profile {name} -> 403 locked; PUT /user/updateUser data={name} -> 403 locked (no write).
+      Screenshots (setup-credentials preview, logged in as verified Hostbay): Settings->Profile shows
+      First/Last disabled + "contact support" notice + NO save btn; Add-brand modal shows First/Last
+      for BOTH individual & business, prefilled "Hostbay" from JWT, disabled + verified notice.
+  NOT E2E-TESTED (live prod DB + email off make it unsafe/infeasible): the register name step
+      happy-path (needs a new prod account + OTP) and the EDITABLE (unverified) path (needs an
+      unverified account). Both are tsc-clean + logic is the inverse of the verified path that WAS
+      screenshot-verified. Preview host: https://setup-credentials.preview.emergentagent.com
+      (the older 054d2272 host returns 502). -->
+
+
 <!-- 2026-09-02 (fork, pod d4fef0d9): KYC TRUTH ALIGNMENT + INDIVIDUAL->BUSINESS UPGRADE + KYC GRACE
      COUNTDOWN — DONE + VERIFIED (backend curl + reversible harness; frontend testing_agent iter_112 100%).
      LIVE prod DB, SAFE MODE. Preview: https://d4fef0d9-...preview.emergentagent.com

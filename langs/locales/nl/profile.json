@@ -106,5 +106,7 @@
   "noActiveSessions": "Geen actieve sessies gevonden.",
   "thisDevice": "Dit apparaat",
   "activeLabel": "actief",
-  "signOut": "Afmelden"
+  "signOut": "Afmelden",
+  "saveName": "Naam opslaan",
+  "nameUpdated": "Je naam is bijgewerkt"
 }

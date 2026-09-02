@@ -9,12 +9,13 @@ import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
 import PanelCard from "@/Components/UI/PanelCard";
 import { getInitials } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
+import useIdentityVerified from "@/hooks/useIdentityVerified";
 import { UserAction } from "@/Redux/Actions";
 import { USER_LOGIN, USER_PROFILE_FETCH, USER_UPDATE } from "@/Redux/Actions/UserAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { TokenData } from "@/utils/types";
 import { Icon } from "@/styles/uiKit";
-import { Box, Grid, IconButton, MenuItem, Select, Tooltip, Typography } from "@mui/material";
+import { Box, Grid, IconButton, MenuItem, Select, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
@@ -44,10 +45,53 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   const [initialPhoto, setInitialPhoto] = useState("");
   const [imageError, setImageError] = useState(false);
 
-  // Name fields (from tokenData)
-  const nameParts = (tokenData.name || "").trim().split(" ").filter(Boolean);
-  const firstName = nameParts[0] || tokenData.email?.charAt(0)?.toUpperCase() || "";
-  const lastName = nameParts.slice(1).join(" ") || "";
+  // Name fields — editable unless the account is identity-verified (then the
+  // legal name is locked and the merchant must contact support). Seeded from
+  // the account name and re-synced whenever it changes upstream.
+  const { verified: nameLocked } = useIdentityVerified();
+  const seedParts = (tokenData.name || "").trim().split(" ").filter(Boolean);
+  const [firstName, setFirstName] = useState(seedParts[0] || "");
+  const [lastName, setLastName] = useState(seedParts.slice(1).join(" ") || "");
+  const [savingName, setSavingName] = useState(false);
+  const avatarInitialSource = firstName || tokenData.email?.charAt(0)?.toUpperCase() || "";
+
+  useEffect(() => {
+    const parts = (tokenData.name || "").trim().split(" ").filter(Boolean);
+    setFirstName(parts[0] || "");
+    setLastName(parts.slice(1).join(" ") || "");
+  }, [tokenData.name]);
+
+  const currentFullName = (tokenData.name || "").trim();
+  const editedFullName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
+  const nameDirty = !!firstName.trim() && editedFullName !== currentFullName;
+
+  const handleSaveName = async () => {
+    const first = firstName.trim();
+    if (!first) {
+      dispatch({ type: TOAST_SHOW, payload: { message: t("firstNameRequired", { ns: "profile" }), severity: "error" } });
+      return;
+    }
+    const fullName = [first, lastName.trim()].filter(Boolean).join(" ");
+    setSavingName(true);
+    try {
+      const fd = new FormData();
+      fd.append("data", JSON.stringify({ name: fullName }));
+      const res = await axiosBaseApi.put("user/updateUser", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const d = res?.data?.data;
+      if (d?.accessToken) {
+        dispatch({ type: USER_LOGIN, payload: { ...(d.userData || {}), accessToken: d.accessToken } });
+      }
+      dispatch(UserAction(USER_PROFILE_FETCH));
+      dispatch({ type: TOAST_SHOW, payload: { message: t("nameUpdated", { ns: "profile", defaultValue: "Your name has been updated" }) } });
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || t("verificationFailed", { ns: "profile" });
+      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   // Email change state
   const [editingEmail, setEditingEmail] = useState(false);
@@ -356,7 +400,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 lineHeight: 1,
               }}
             >
-              {getInitials(firstName, lastName) || "?"}
+              {getInitials(avatarInitialSource, lastName) || "?"}
             </Typography>
           )}
         </Box>
@@ -417,54 +461,61 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
 
       {/* Form Fields */}
       <Box sx={{ display: "flex", flexDirection: "column", rowGap: isMobile ? "12px" : "14px", width: "100%", mt: isMobile ? "16px" : "14px" }}>
-        {/* First Name & Last Name (Read-only) */}
+        {/* First Name & Last Name — editable unless identity-verified */}
         <Grid container columnSpacing={2} rowSpacing={0}>
           <Grid item xs={12} sm={6}>
-            <Tooltip title={t("contactSupportName", { ns: "profile" })} placement="top" arrow>
-              <Box>
-                <InputField
-                  data-testid="first-name-input"
-                  fullWidth
-                  inputHeight={isMobile ? "32px" : "38px"}
-                  label={t("firstName", { ns: "profile" })}
-                  placeholder={t("firstName", { ns: "profile" })}
-                  value={firstName}
-                  name="firstName"
-                  disabled
-                  sx={inputSx}
-                />
-              </Box>
-            </Tooltip>
+            <InputField
+              data-testid="first-name-input"
+              fullWidth
+              inputHeight={isMobile ? "32px" : "38px"}
+              label={t("firstName", { ns: "profile" })}
+              placeholder={t("firstNamePlaceholder", { ns: "profile" })}
+              value={firstName}
+              name="firstName"
+              disabled={nameLocked || savingName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
+              sx={inputSx}
+            />
           </Grid>
           <Grid item xs={12} sm={6} sx={{ marginTop: { xs: "12px", sm: "0px" } }}>
-            <Tooltip title={t("contactSupportName", { ns: "profile" })} placement="top" arrow>
-              <Box>
-                <InputField
-                  data-testid="last-name-input"
-                  fullWidth
-                  inputHeight={isMobile ? "32px" : "38px"}
-                  label={t("lastName", { ns: "profile" })}
-                  placeholder={t("lastName", { ns: "profile" })}
-                  value={lastName}
-                  name="lastName"
-                  disabled
-                  sx={inputSx}
-                />
-              </Box>
-            </Tooltip>
+            <InputField
+              data-testid="last-name-input"
+              fullWidth
+              inputHeight={isMobile ? "32px" : "38px"}
+              label={t("lastName", { ns: "profile" })}
+              placeholder={t("lastNamePlaceholder", { ns: "profile" })}
+              value={lastName}
+              name="lastName"
+              disabled={nameLocked || savingName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
+              sx={inputSx}
+            />
           </Grid>
         </Grid>
 
-        {/* Name restriction notice */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: "6px", px: "2px" }}>
-          <Icon name="info" size={14} color={theme.palette.text.secondary} />
-          <Typography
-            data-testid="name-restriction-notice"
-            sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
-          >
-            {t("updateNameNotice", { ns: "profile" })}
-          </Typography>
-        </Box>
+        {/* Locked (verified) → contact-support notice. Editable → Save button. */}
+        {nameLocked ? (
+          <Box sx={{ display: "flex", alignItems: "center", gap: "6px", px: "2px" }}>
+            <Icon name="info" size={14} color={theme.palette.text.secondary} />
+            <Typography
+              data-testid="name-restriction-notice"
+              sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
+            >
+              {t("updateNameNotice", { ns: "profile" })}
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <CustomButton
+              data-testid="save-name-btn"
+              label={savingName ? t("saving", { ns: "profile", defaultValue: "Saving…" }) : t("saveName", { ns: "profile", defaultValue: "Save name" })}
+              variant="primary"
+              size="small"
+              disabled={savingName || !nameDirty}
+              onClick={handleSaveName}
+            />
+          </Box>
+        )}
 
         {/* Email */}
         <Grid container columnSpacing={2} rowSpacing={0}>

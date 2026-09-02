@@ -131,7 +131,8 @@
     "cancel": "Annuleren",
     "emailLabelOptional": "E-mail (optioneel)",
     "stepBrand": "Merk",
-    "stepWallet": "Portemonnee"
+    "stepWallet": "Portemonnee",
+    "nameLockedNotice": "Je naam is geverifieerd en kan hier niet worden gewijzigd. Neem contact op met support om deze bij te werken."
   },
   "addCompanyBtn": "Merk toevoegen",
   "noCompaniesYet": "Nog geen merken",

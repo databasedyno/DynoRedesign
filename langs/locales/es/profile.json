@@ -106,5 +106,7 @@
   "noActiveSessions": "No se encontraron sesiones activas.",
   "thisDevice": "Este dispositivo",
   "activeLabel": "activo",
-  "signOut": "Desconectar"
+  "signOut": "Desconectar",
+  "saveName": "Guardar nombre",
+  "nameUpdated": "Tu nombre se ha actualizado"
 }

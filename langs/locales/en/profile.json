@@ -106,5 +106,7 @@
   "noActiveSessions": "No active sessions found.",
   "thisDevice": "This device",
   "activeLabel": "active",
-  "signOut": "Sign out"
+  "signOut": "Sign out",
+  "saveName": "Save name",
+  "nameUpdated": "Your name has been updated"
 }

@@ -31,7 +31,13 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { resolveFeeFreeRemaining } from "../../services/feeFreeService";
+import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+
+// Legal name is locked once the account is identity-verified (KYC approved).
+// Shared message so updateUser + updateProfile stay in sync.
+const NAME_LOCKED_MESSAGE =
+  "Your name is locked after identity verification. Please contact support to change it.";
 
 export const updateUser = async (req: express.Request, res: express.Response) => {
   try {
@@ -90,6 +96,18 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
     }
     // Never persist the control flag as a column.
     if (data && "remove_photo" in data) delete data.remove_photo;
+
+    // Name lock: once the account is identity-verified (KYC approved) the legal
+    // name can no longer be self-edited — the merchant must contact support.
+    if (data && typeof data.name === "string") {
+      const newName = data.name.trim();
+      if (newName !== (oldName || "").trim()) {
+        const verified = await isMerchantIdentityVerified(userData.user_id);
+        if (verified) {
+          return errorResponseHelper(res, 403, NAME_LOCKED_MESSAGE);
+        }
+      }
+    }
 
     await userModel.update(
       {
@@ -215,6 +233,11 @@ export const updateProfile = async (req: express.Request, res: express.Response)
     const updatedFields: string[] = [];
     
     if (name !== undefined && name !== currentName) {
+      // Name lock: identity-verified accounts cannot self-edit their legal name.
+      const verified = await isMerchantIdentityVerified(userData.user_id);
+      if (verified) {
+        return errorResponseHelper(res, 403, NAME_LOCKED_MESSAGE);
+      }
       updateData.name = name;
       updatedFields.push(`Name: ${currentName} → ${name}`);
     }

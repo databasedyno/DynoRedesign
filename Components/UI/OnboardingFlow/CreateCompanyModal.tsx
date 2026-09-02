@@ -3,6 +3,8 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import SteppedProgressPanel from "@/Components/UI/SteppedProgressPanel";
 import useIsMobile from "@/hooks/useIsMobile";
+import useIdentityVerified from "@/hooks/useIdentityVerified";
+import useTokenData from "@/hooks/useTokenData";
 import { rootReducer } from "@/utils/types";
 import { fetchGeoDefaults, currencyForCountry } from "@/utils/geoDefaults";
 import {
@@ -67,6 +69,11 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("companyDialog");
   const companyState = useCompanyStore();
+  // Legal name is locked once the account is identity-verified (KYC approved).
+  // When locked we still SHOW the name (prefilled) but disable editing and point
+  // the merchant to support — mirrors the Profile settings rule.
+  const { verified: nameLocked } = useIdentityVerified();
+  const tokenData = useTokenData();
   const userState = useSelector((state: rootReducer) => state.userReducer);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -95,15 +102,21 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const csc = useCountryStateCity();
   const allCountries = useMemo<ICountry[]>(() => csc?.Country.getAllCountries() ?? [], [csc]);
 
-  // A) Prefill business email & mobile from the account the user just created,
-  // so they don't have to re-type details they already provided at signup.
+  // A) Prefill business email & mobile + the account holder's name from the
+  // account they signed up with, so they don't re-type details already given.
+  // Redux (userState) resets on a hard reload, so fall back to the JWT token
+  // (localStorage) which reliably carries name/email/mobile — this is what
+  // makes the name actually prefill after navigation/reload.
   React.useEffect(() => {
     if (!open) return;
-    setEmail((prev) => prev || userState.email || "");
-    setMobile((prev) => prev || userState.mobile || "");
-    // Prefill first/last name from user profile if available
-    if (userState.name) {
-      const parts = (userState.name || "").trim().split(/\s+/);
+    const srcName = (userState.name || tokenData?.name || "").trim();
+    const srcEmail = userState.email || tokenData?.email || "";
+    const srcMobile = userState.mobile || tokenData?.mobile || "";
+    setEmail((prev) => prev || srcEmail);
+    setMobile((prev) => prev || srcMobile);
+    // Prefill first/last name from the account name if available
+    if (srcName) {
+      const parts = srcName.split(/\s+/);
       if (parts.length >= 2) {
         setFirstName((prev) => prev || parts[0]);
         setLastName((prev) => prev || parts.slice(1).join(" "));
@@ -111,7 +124,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         setFirstName((prev) => prev || parts[0]);
       }
     }
-  }, [open, userState.email, userState.mobile, userState.name]);
+  }, [open, userState.email, userState.mobile, userState.name, tokenData?.name, tokenData?.email, tokenData?.mobile]);
 
   // B) Fetch geo-detect once when the modal opens (only if country is still
   // empty — never override a user-chosen value). Silently no-ops on error.
@@ -167,9 +180,11 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const validate = () => {
     const newErrors: Record<string, string> = {};
     // Individual brands only need a display name + country. Business brands also
-    // require a contact name + email for invoices/receipts.
-    if (isBusiness && !firstName.trim()) newErrors.firstName = t("createModal.validation.firstNameRequired");
-    if (isBusiness && !lastName.trim()) newErrors.lastName = t("createModal.validation.lastNameRequired");
+    // require a contact name + email for invoices/receipts. First/last name is
+    // collected for BOTH account types (skipped only when the name is locked by
+    // identity verification, in which case it's prefilled and read-only).
+    if (!nameLocked && !firstName.trim()) newErrors.firstName = t("createModal.validation.firstNameRequired");
+    if (!nameLocked && !lastName.trim()) newErrors.lastName = t("createModal.validation.lastNameRequired");
     if (!companyName.trim()) newErrors.companyName = t("createModal.validation.companyNameRequired");
     if (isBusiness && !email.trim()) newErrors.email = t("createModal.validation.emailRequired");
     else if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
@@ -486,8 +501,10 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
           </Box>
         </Box>
 
-        {/* Your Name Section — contact person, business brands only. */}
-        {isBusiness && (
+        {/* Your Name Section — the person behind this brand. Shown for BOTH
+            individual and business account types; prefilled from the account
+            name and always editable, unless the account is identity-verified
+            (then it's locked — contact support to change). */}
         <Box>
           <Typography
             sx={{
@@ -501,9 +518,11 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
           <Box sx={{ display: "flex", gap: "12px" }}>
             <Box sx={{ flex: 1 }}>
               <InputField
+                data-testid="company-first-name-input"
                 label={t("createModal.firstNameLabel")}
                 placeholder={t("createModal.firstNamePlaceholder")}
                 value={firstName}
+                disabled={nameLocked}
                 onChange={(e) => {
                   setFirstName(e.target.value);
                   if (errors.firstName) setErrors({ ...errors, firstName: "" });
@@ -514,9 +533,11 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             </Box>
             <Box sx={{ flex: 1 }}>
               <InputField
+                data-testid="company-last-name-input"
                 label={t("createModal.lastNameLabel")}
                 placeholder={t("createModal.lastNamePlaceholder")}
                 value={lastName}
+                disabled={nameLocked}
                 onChange={(e) => {
                   setLastName(e.target.value);
                   if (errors.lastName) setErrors({ ...errors, lastName: "" });
@@ -526,8 +547,21 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               />
             </Box>
           </Box>
+          {nameLocked && (
+            <Typography
+              data-testid="company-name-locked-notice"
+              sx={{
+                mt: 0.75, fontSize: "12px", fontFamily: "var(--font-sans)",
+                color: theme.palette.text.secondary, lineHeight: 1.4,
+              }}
+            >
+              {t("createModal.nameLockedNotice", {
+                defaultValue:
+                  "Your name is verified and can't be changed here. Contact support to update it.",
+              })}
+            </Typography>
+          )}
         </Box>
-        )}
 
         {/* Brand Section */}
         <Box>
