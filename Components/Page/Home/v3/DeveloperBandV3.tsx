@@ -22,21 +22,22 @@ import { BRAND_ACCENT } from "@/constants/theme";
  */
 
 // Simplified illustrative request (not translated). See /documentation for the
-// full, authoritative API reference.
-const CODE = `curl https://api.dynopay.com/v1/payments \\
-  -H "x-api-key: dpk_live_..." \\
+// full, authoritative API reference. Mirrors the real userless checkout call.
+const CODE = `curl -X POST https://api.dynopay.com/api/user/createPayment \\
+  -H "x-api-key: your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
     "amount": 49.00,
-    "currency": "USD",
-    "settlement": "USDC",
-    "order_id": "ord_1027",
-    "redirect_url": "https://store.com/thanks"
+    "redirect_uri": "https://store.com/thanks"
   }'
 
 # -> 200 OK
 # {
-#   "checkout_url": "https://checkout.dynopay.com/pay/cs_live_9f2a1c"
+#   "message": "Link Generated!",
+#   "data": {
+#     "redirect_url": "https://checkout.dynopay.com/pay?d=abc123",
+#     "available_currencies": ["BTC", "ETH", "USDT-TRC20", "LTC"]
+#   }
 # }`;
 
 const DeveloperBandV3: React.FC = () => {

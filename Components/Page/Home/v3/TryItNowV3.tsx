@@ -9,17 +9,19 @@ import { Eyebrow, HeadlineL } from "./styled.v3";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT } from "@/constants/theme";
 
-const CURL = `curl https://api.dynopay.com/v1/payments \\
-  -H "Authorization: Bearer sk_test_..." \\
-  -d '{"amount": 25.00, "currency": "USD", "settle_to": "USDC"}'`;
+const CURL = `curl -X POST https://api.dynopay.com/api/user/createPayment \\
+  -H "x-api-key: your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"amount": 25.00, "redirect_uri": "https://store.com/thanks"}'`;
 
-const RESPONSE = `HTTP/1.1 201 Created
+const RESPONSE = `HTTP/1.1 200 OK
 {
-  "id": "pay_01HZ...",
-  "amount": 25.00,
-  "currency": "USD",
-  "checkout_url": "https://checkout.dynopay.com/pay_01HZ...",
-  "status": "pending"
+  "success": true,
+  "message": "Link Generated!",
+  "data": {
+    "redirect_url": "https://checkout.dynopay.com/pay?d=abc123",
+    "available_currencies": ["BTC", "ETH", "USDT-TRC20", "LTC"]
+  }
 }`;
 
 const TryItNowV3: React.FC = () => {
@@ -161,14 +163,18 @@ const TryItNowV3: React.FC = () => {
               }}
             >
               <Box component="span" sx={{ color: "#818CF8" }}>curl</Box>
-              <Box component="span" sx={{ color: "#F5F5F5" }}>{" https://api.dynopay.com/v1/payments \\\n  "}</Box>
+              <Box component="span" sx={{ color: "#F5F5F5" }}>{" -X POST https://api.dynopay.com/api/user/createPayment \\\n  "}</Box>
               <Box component="span" sx={{ color: "#7CB1FF" }}>-H</Box>
               <Box component="span" sx={{ color: "#F5F5F5" }}>{" "}</Box>
-              <Box component="span" sx={{ color: "#FF9E80" }}>{"\"Authorization: Bearer sk_test_...\""}</Box>
+              <Box component="span" sx={{ color: "#FF9E80" }}>{"\"x-api-key: your_api_key\""}</Box>
+              <Box component="span" sx={{ color: "#F5F5F5" }}>{" \\\n  "}</Box>
+              <Box component="span" sx={{ color: "#7CB1FF" }}>-H</Box>
+              <Box component="span" sx={{ color: "#F5F5F5" }}>{" "}</Box>
+              <Box component="span" sx={{ color: "#FF9E80" }}>{"\"Content-Type: application/json\""}</Box>
               <Box component="span" sx={{ color: "#F5F5F5" }}>{" \\\n  "}</Box>
               <Box component="span" sx={{ color: "#7CB1FF" }}>-d</Box>
               <Box component="span" sx={{ color: "#F5F5F5" }}>{" "}</Box>
-              <Box component="span" sx={{ color: "#FF9E80" }}>{"'{\"amount\": 25.00, \"currency\": \"USD\", \"settle_to\": \"USDC\"}'"}</Box>
+              <Box component="span" sx={{ color: "#FF9E80" }}>{"'{\"amount\": 25.00, \"redirect_uri\": \"https://store.com/thanks\"}'"}</Box>
             </Box>
           </Box>
 
