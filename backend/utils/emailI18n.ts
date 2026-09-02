@@ -88,6 +88,17 @@ const interpolate = (template: string, vars?: Record<string, unknown>): string =
 };
 
 /**
+ * Reduce a person's full name to their FIRST name only ("John Davis" -> "John").
+ * Leaves empty strings and email-looking values untouched (callers greet those
+ * with a generic fallback). Used to keep greetings personal + concise everywhere.
+ */
+export const firstNameOnly = (name?: string | null): string => {
+  const clean = String(name ?? "").trim();
+  if (!clean || clean.includes("@")) return clean;
+  return clean.split(/\s+/)[0];
+};
+
+/**
  * Translate a key for a language with {{var}} interpolation.
  * Lookup order: requested language → English → the key itself (so missing keys are obvious).
  */
@@ -98,7 +109,14 @@ export const t = (key: string, lang?: string | null, vars?: Record<string, unkno
     value = getByPath(loadCatalog(DEFAULT_EMAIL_LANGUAGE), key);
   }
   if (typeof value !== "string") return key;
-  return interpolate(value, vars);
+  // Greeting keys (common.greeting / chrome.greeting) always take a person's
+  // name — greet by FIRST name only, everywhere, without touching other keys
+  // that reuse a {{name}} placeholder for non-person values (tiers, subjects).
+  const effVars =
+    vars && key.endsWith(".greeting") && typeof (vars as any).name === "string"
+      ? { ...vars, name: firstNameOnly((vars as any).name as string) }
+      : vars;
+  return interpolate(value, effVars);
 };
 
 // ── Resolvers ────────────────────────────────────────────────────────────────

@@ -102,16 +102,17 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const csc = useCountryStateCity();
   const allCountries = useMemo<ICountry[]>(() => csc?.Country.getAllCountries() ?? [], [csc]);
 
-  // A) Prefill business email & mobile + the account holder's name from the
-  // account they signed up with, so they don't re-type details already given.
-  // Redux (userState) resets on a hard reload, so fall back to the JWT token
-  // (localStorage) which reliably carries name/email/mobile — this is what
-  // makes the name actually prefill after navigation/reload.
+  // A) Prefill business email & mobile + the account holder's name. Priority:
+  //   1) userState.profile (fresh from GET /api/user/profile = the DB truth),
+  //   2) userState.* (set at login), 3) the JWT token (survives hard reloads).
+  // Preferring the fresh profile means a name changed after issuing the session
+  // token (e.g. support-updated legal name) still shows correctly — the login
+  // token/redux can be stale until the next sign-in.
   React.useEffect(() => {
     if (!open) return;
-    const srcName = (userState.name || tokenData?.name || "").trim();
-    const srcEmail = userState.email || tokenData?.email || "";
-    const srcMobile = userState.mobile || tokenData?.mobile || "";
+    const srcName = (userState.profile?.name || userState.name || tokenData?.name || "").trim();
+    const srcEmail = userState.profile?.email || userState.email || tokenData?.email || "";
+    const srcMobile = userState.profile?.mobile || userState.mobile || tokenData?.mobile || "";
     setEmail((prev) => prev || srcEmail);
     setMobile((prev) => prev || srcMobile);
     // Prefill first/last name from the account name if available
@@ -124,7 +125,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         setFirstName((prev) => prev || parts[0]);
       }
     }
-  }, [open, userState.email, userState.mobile, userState.name, tokenData?.name, tokenData?.email, tokenData?.mobile]);
+  }, [open, userState.email, userState.mobile, userState.name, userState.profile?.name, userState.profile?.email, userState.profile?.mobile, tokenData?.name, tokenData?.email, tokenData?.mobile]);
 
   // B) Fetch geo-detect once when the modal opens (only if country is still
   // empty — never override a user-chosen value). Silently no-ops on error.

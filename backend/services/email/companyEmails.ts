@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -119,7 +119,7 @@ export const sendTeamMemberJoinedEmail = async (
   try {
     const who = escapeHtml(memberName || memberEmail);
     const subject = `${memberName || memberEmail} joined ${companyName} on Dynopay`;
-    const content = `${p(ownerName ? `Hi ${escapeHtml(ownerName)},` : `Hi,`)}
+    const content = `${p(ownerName ? `Hi ${escapeHtml(firstNameOnly(ownerName))},` : `Hi,`)}
     ${p(`<strong>${who}</strong> just accepted your invite and joined <strong>${escapeHtml(companyName)}</strong>.`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">

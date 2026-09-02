@@ -242,7 +242,7 @@ const BalanceStrip: React.FC<Props> = ({
       >
         <Eyebrow data-testid="dash2026-greeting">
           {greeting}
-          {name ? `, ${name}` : ""}
+          {name ? `, ${String(name).trim().split(/\s+/)[0]}` : ""}
         </Eyebrow>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>

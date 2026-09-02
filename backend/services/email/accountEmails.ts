@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -267,7 +267,7 @@ export const sendCreatorHandleUpdatedEmail = async (
     const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
     const heading = isNew ? "Your creator handle is live" : "Your creator handle was updated";
     const subject = isNew ? `Your handle @${handle} is reserved` : `Your handle is now @${handle}`;
-    const content = `${p(name ? `Hi ${escapeHtml(name)},` : "Hi there,")}
+    const content = `${p(name ? `Hi ${escapeHtml(firstNameOnly(name))},` : "Hi there,")}
     ${p(isNew
       ? "Your creator handle has been reserved — your public page and storefront are now available at the link below."
       : "Your creator handle has been updated. Your public page and storefront now live at the new link below — remember to update any links you've already shared.")}

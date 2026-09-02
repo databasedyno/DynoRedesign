@@ -120,7 +120,7 @@ const CommandBar: React.FC<Props> = ({
           }}
         >
           {greeting}
-          {name ? `, ${name}` : ""}
+          {name ? `, ${String(name).trim().split(/\s+/)[0]}` : ""}
         </Box>
         <Box
           sx={{

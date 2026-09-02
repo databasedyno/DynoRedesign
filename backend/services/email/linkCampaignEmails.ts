@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -426,7 +426,7 @@ export const sendPaymentLinkReminderEmail = async (
     `.trim();
 
     const recipientName = recipientEmail.split('@')[0] || "there";
-    const htmlBody = dynoPayEmailTemplate(headerText, `${p(`Hey ${recipientName},`)}\n${message}`);
+    const htmlBody = dynoPayEmailTemplate(headerText, `${p(`Hey ${firstNameOnly(recipientName)},`)}\n${message}`);
 
     const info = await mailTransporter({
       to: recipientEmail,

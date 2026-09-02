@@ -914,7 +914,7 @@ const Payment = () => {
 
   // Get subtitle with merchant/campaign name and customer personalization
   const getSubtitle = () => {
-    const greeting = customerName ? `Hi ${customerName}, ` : ''
+    const greeting = customerName ? `Hi ${String(customerName).trim().split(/\s+/)[0]}, ` : ''
     if (isContribution) {
       const campaign = contributionInfo?.campaign_title || merchantInfo?.name || ''
       if (campaign) {

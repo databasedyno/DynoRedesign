@@ -3,6 +3,7 @@ import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { p, infoBox, dataRow } from "../../utils/emailTemplate";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate } from "./emailShared";
+import { firstNameOnly } from "../../utils/emailI18n";
 
 /**
  * Referral revenue-share payout emails (merchant-facing).
@@ -25,7 +26,7 @@ export const sendReferralPayoutReadyEmail = async (
     const isCash = mode === "cash";
     const subject = `You can cash out ${amount} in referral rewards 🎉`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`Nice work — you've earned <strong>${amount}</strong> in Dynopay referral rewards from the merchants you referred.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -57,7 +58,7 @@ export const sendReferralAutoPayEnabledEmail = async (
     const min = `$${Number(autoMinUsd).toFixed(2)}`;
     const subject = `Auto cash-out is on for your referral rewards`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`Automatic cash-out is now <strong>ON</strong>. Whenever your referral balance reaches <strong>${min}</strong>, we'll send it to your USDT (TRC-20) wallet automatically — no action needed.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -89,7 +90,7 @@ export const sendReferralPayoutRequestedEmail = async (
     const amount = `$${Number(amountUsd).toFixed(2)}`;
     const subject = `Your ${amount} referral cash-out is on the way`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`${viaAuto ? `Auto cash-out triggered — we're` : `We're`} sending <strong>${amount}</strong> in referral rewards to your USDT (TRC-20) wallet.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -121,7 +122,7 @@ export const sendReferralPayoutFailedEmail = async (
     const amount = `$${Number(amountUsd).toFixed(2)}`;
     const subject = `Your ${amount} referral cash-out couldn't be sent`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`We tried to send <strong>${amount}</strong> in referral rewards to your USDT (TRC-20) wallet, but the transfer didn't go through.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -156,7 +157,7 @@ export const sendReferralAccrualEmail = async (
     const merchant = escapeHtml(merchantName || 'a merchant you referred');
     const subject = `You just earned ${earned} in referral rewards 🎉`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`Good news — <strong>${merchant}</strong> just processed a payment, so you earned <strong>${earned}</strong> in Dynopay referral rewards (25% of their fees).`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -187,7 +188,7 @@ export const sendReferralActivatedEmail = async (
     const merchant = escapeHtml(merchantName || 'a merchant you referred');
     const subject = `${merchant} just went live — your rewards start now 🚀`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`Great news — <strong>${merchant}</strong>, a merchant you referred, just processed their first qualifying payment and is now <strong>active</strong>.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -225,7 +226,7 @@ export const sendReferralMonthlyDigestEmail = async (
       .join('');
     const subject = `Your referrals earned you ${total} in ${monthLabel} 🎉`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`Here's your Dynopay referral recap for <strong>${escapeHtml(monthLabel)}</strong> — the merchants you referred generated fees, and you earned 25% of them.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -270,7 +271,7 @@ export const sendReferralShareNudgeEmail = async (
     const signupLink = `${FRONTEND_BASE_URL}/signup?ref=${code}`;
     const subject = `Your Dynopay referral link is ready — earn 25% for a year 💸`;
     const content = `
-      ${p(`Hey ${escapeHtml(name)},`)}
+      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`Your Dynopay referral link is set up and ready to share — but it hasn't been used yet. Here's a quick nudge, because it genuinely pays off.`)}
       ${p(`Refer another business. When they take their first payment, <strong>you earn 25% of the Dynopay fee on every payment they make for a full 12 months</strong> — and they get <strong>50% off their own fees for 30 days</strong>, so it's an easy pitch.`)}
       ${infoBox(`

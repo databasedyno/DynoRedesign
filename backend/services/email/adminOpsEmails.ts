@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -74,7 +74,7 @@ export const sendWebhookDisabledEmail = async (
     const displayUrl = String(webhookUrl || '').length > 80 ? String(webhookUrl).substring(0, 77) + '…' : String(webhookUrl || '(none)');
 
     const message = `
-      ${p(name ? `Hey ${escapeHtml(name)},` : `Hey there,`)}
+      ${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : `Hey there,`)}
       ${p(`We had to temporarily <strong>disable webhook delivery</strong> for <strong>${escapeHtml(companyName || 'your company')}</strong> because your endpoint has failed <strong>${failureCount} consecutive delivery attempts</strong> in the past 24 hours.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -162,7 +162,7 @@ export const sendAdminFeeReceivedEmail = async (
       ${noticeBlock}
       ${p(`The fee has been credited to the admin ${currency} wallet.`)}`;
 
-    const htmlBody = dynoPayEmailTemplate("Platform Fee Received", `${p(`Hey ${name},`)}\n${htmlContent}`);
+    const htmlBody = dynoPayEmailTemplate("Platform Fee Received", `${p(`Hey ${firstNameOnly(name)},`)}\n${htmlContent}`);
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: htmlBody });
     return info;
   } catch (e) {

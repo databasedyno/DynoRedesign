@@ -2,7 +2,7 @@ import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
 import { baseEmailTemplate, getCurrencySymbol, p } from "../../utils/emailTemplate";
-import { t as tr } from "../../utils/emailI18n";
+import { t as tr, firstNameOnly } from "../../utils/emailI18n";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
 export const FRONTEND_BASE_URL = (config.frontendUrl || 'https://dynopay.com').replace(/\/$/, '');
@@ -91,7 +91,7 @@ export const sendEmail = async (
   showImage = false
 ) => {
   try {
-    const htmlBody = dynoPayEmailTemplate(subject, `${p(`Hey ${name},`)}\n${message}`);
+    const htmlBody = dynoPayEmailTemplate(subject, `${p(`Hey ${firstNameOnly(name)},`)}\n${message}`);
     const info = await mailTransporter({
       to: recipientEmail,
       name,
