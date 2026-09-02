@@ -5,7 +5,8 @@
     "regards": "Bedankt,",
     "team": "Het Dynopay-team",
     "securedBy": "Deze betaling is veilig verwerkt via Dynopay, een non-custodial crypto-betaalgateway.",
-    "questions": "Als u vragen heeft, staat ons supportteam voor u klaar."
+    "questions": "Als u vragen heeft, staat ons supportteam voor u klaar.",
+    "greetingNoName": "Hoi,"
   },
   "labels": {
     "amount": "Bedrag",
@@ -718,5 +719,42 @@
       "unsubscribe": "Wil je deze installatietips niet?",
       "unsubscribeAction": "Uitschrijven"
     }
+  },
+  "chrome": {
+    "greeting": "Hoi {{name}},",
+    "bestRegards": "Met vriendelijke groet,",
+    "teamSignature": "Het Dynopay-team",
+    "tagline": "Veilige crypto-betaalgateway",
+    "rights": "© Dynopay {{year}}. Alle rechten voorbehouden.",
+    "privacy": "Privacy",
+    "terms": "Voorwaarden",
+    "support": "Support",
+    "greetingNoName": "Hoi,"
+  },
+  "orderReceipt": {
+    "subject": "Je bestelling {{ref}} is bevestigd — Dynopay",
+    "heading": "Bestelling bevestigd",
+    "thanks": "Bedankt voor je aankoop! We hebben je betaling ontvangen en je bestelling is bevestigd.",
+    "orderReference": "Bestelreferentie:",
+    "digitalNote": "De downloadlinks hierboven zijn 24 uur geldig. Heb je een nieuwe link nodig?",
+    "openOrderPage": "Open je bestelpagina",
+    "physicalNote": "De verkoper mailt je een trackingnummer zodra je artikelen worden verzonden.",
+    "viewOrderDetails": "Bestelgegevens bekijken →"
+  },
+  "orderTable": {
+    "product": "Product",
+    "qty": "Aantal",
+    "amount": "Bedrag",
+    "subtotal": "Subtotaal",
+    "shipping": "Verzending",
+    "total": "Totaal",
+    "item": "Item",
+    "download": "Downloaden",
+    "licenseKey": "Licentiesleutel:",
+    "accessPurchase": "Toegang tot je aankoop →",
+    "bookSession": "Boek je sessie →",
+    "inclusive": "incl.",
+    "reverseCharge": "Verlegging (EU B2B). Koper draagt de belasting af.",
+    "merchantTaxId": "{{label}}-ID van verkoper:"
   }
 }

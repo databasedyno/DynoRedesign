@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { t as tr, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -33,8 +33,9 @@ const esc = escapeHtml;
 function renderOrderItemsTable(
   order: any,
   items: any[],
-  opts: { includeDeliveryLinks: boolean; merchantVatId?: string | null }
+  opts: { includeDeliveryLinks: boolean; merchantVatId?: string | null; lang?: string }
 ): string {
+  const L = opts.lang;
   const currency = order.currency || "USD";
   // Per-Country Tax Receipts Label (2026-08-23n): the order row stores the
   // buyer-country acronym (VAT / GST / IVA / TVA / Tax…) via cartController →
@@ -57,22 +58,22 @@ function renderOrderItemsTable(
       const attrText = vSnap && vSnap.attributes
         ? Object.entries(vSnap.attributes).map(([k, v]) => `${esc(k)}: ${esc(String(v))}`).join(", ")
         : "";
-      const productLine = `<strong>${esc(snap.title || "Item")}</strong>${attrText ? ` <span style="color:#6b7280;font-size:13px;"> (${attrText})</span>` : ""}`;
+      const productLine = `<strong>${esc(snap.title || tr('orderTable.item', L))}</strong>${attrText ? ` <span style="color:#6b7280;font-size:13px;"> (${attrText})</span>` : ""}`;
       let deliveryHtml = "";
       if (opts.includeDeliveryLinks && it.delivered_payload) {
         const dp = it.delivered_payload;
         if (Array.isArray(dp.asset_deliveries) && dp.asset_deliveries.length > 0) {
           deliveryHtml = `<div style="margin-top:6px;">` +
             dp.asset_deliveries.map((a: any) =>
-              `<a href="${esc(a.download_url)}" style="color:#05936A;font-weight:600;text-decoration:none;">⬇ Download ${esc(a.filename)}</a>`
+              `<a href="${esc(a.download_url)}" style="color:#05936A;font-weight:600;text-decoration:none;">⬇ ${tr('orderTable.download', L)} ${esc(a.filename)}</a>`
             ).join("<br/>") +
             `</div>`;
         } else if (dp.license_key) {
-          deliveryHtml = `<div style="margin-top:6px;font-family:monospace;background:#f3f4f6;padding:6px 8px;border-radius:6px;font-size:13px;">License key: ${esc(dp.license_key)}</div>`;
+          deliveryHtml = `<div style="margin-top:6px;font-family:monospace;background:#f3f4f6;padding:6px 8px;border-radius:6px;font-size:13px;">${tr('orderTable.licenseKey', L)} ${esc(dp.license_key)}</div>`;
         } else if (dp.access_url) {
-          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.access_url)}" style="color:#05936A;font-weight:600;">Access your purchase →</a></div>`;
+          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.access_url)}" style="color:#05936A;font-weight:600;">${tr('orderTable.accessPurchase', L)}</a></div>`;
         } else if (dp.calendar_url) {
-          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.calendar_url)}" style="color:#05936A;font-weight:600;">Book your session →</a></div>`;
+          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.calendar_url)}" style="color:#05936A;font-weight:600;">${tr('orderTable.bookSession', L)}</a></div>`;
         }
       }
       return `
@@ -88,12 +89,12 @@ function renderOrderItemsTable(
     .join("");
 
   const totals = `
-    <tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Subtotal</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.subtotal_cents, currency)}</td></tr>
-    ${Number(order.shipping_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Shipping</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.shipping_cents, currency)}</td></tr>` : ""}
-    ${Number(order.tax_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">${taxLabelWithRate}${order.tax_inclusive ? " <span style=\"color:#9ca3af;font-size:11px;\">· incl.</span>" : ""}</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.tax_cents, currency)}</td></tr>` : ""}
-    ${reverseCharge ? `<tr><td style="padding:6px 12px;text-align:right;color:#6b7280;font-size:12px;" colspan="3">${esc(rawTaxLabel)} — Reverse-charge (EU B2B). Buyer accounts for tax.</td></tr>` : ""}
-    <tr><td style="padding:12px;text-align:right;font-weight:700;border-top:2px solid #111827;">Total</td><td colspan="2" style="padding:12px;text-align:right;font-family:monospace;font-weight:700;border-top:2px solid #111827;">${formatCents(order.total_cents, currency)}</td></tr>
-    ${opts.merchantVatId ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;font-size:11.5px;" colspan="3">Merchant ${esc(rawTaxLabel)} ID: <span style="font-family:monospace;color:#374151;">${esc(opts.merchantVatId)}</span></td></tr>` : ""}
+    <tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">${tr('orderTable.subtotal', L)}</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.subtotal_cents, currency)}</td></tr>
+    ${Number(order.shipping_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">${tr('orderTable.shipping', L)}</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.shipping_cents, currency)}</td></tr>` : ""}
+    ${Number(order.tax_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">${taxLabelWithRate}${order.tax_inclusive ? ` <span style="color:#9ca3af;font-size:11px;">· ${tr('orderTable.inclusive', L)}</span>` : ""}</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.tax_cents, currency)}</td></tr>` : ""}
+    ${reverseCharge ? `<tr><td style="padding:6px 12px;text-align:right;color:#6b7280;font-size:12px;" colspan="3">${esc(rawTaxLabel)} — ${tr('orderTable.reverseCharge', L)}</td></tr>` : ""}
+    <tr><td style="padding:12px;text-align:right;font-weight:700;border-top:2px solid #111827;">${tr('orderTable.total', L)}</td><td colspan="2" style="padding:12px;text-align:right;font-family:monospace;font-weight:700;border-top:2px solid #111827;">${formatCents(order.total_cents, currency)}</td></tr>
+    ${opts.merchantVatId ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;font-size:11.5px;" colspan="3">${tr('orderTable.merchantTaxId', L, { label: esc(rawTaxLabel) })} <span style="font-family:monospace;color:#374151;">${esc(opts.merchantVatId)}</span></td></tr>` : ""}
   `;
 
   return `
@@ -123,11 +124,11 @@ export const sendOrderReceiptEmail = async (
   merchantVatId?: string | null,
 ) => {
   try {
-    const name = buyerName || buyerEmail || "there";
+    const L = normalizeLang(order?.locale || "en");
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
-    const subject = `Your order ${shortRef} is confirmed — Dynopay`;
+    const subject = tr('orderReceipt.subject', L, { ref: shortRef });
 
-    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: true, merchantVatId });
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: true, merchantVatId, lang: L });
     const hasDigital = items.some((i: any) => (i.product_snapshot?.product_type || "digital") === "digital");
     const hasPhysical = items.some((i: any) => i.product_snapshot?.product_type === "physical");
 
@@ -139,21 +140,23 @@ export const sendOrderReceiptEmail = async (
       order?.company_id ?? null,
     );
     const verifiedLine = merchantVerified
-      ? p(`<span style="display:inline-flex;align-items:center;gap:6px;color:#12B76A;font-weight:600;">&#10003; Identity-verified merchant</span>`)
+      ? p(`<span style="display:inline-flex;align-items:center;gap:6px;color:#12B76A;font-weight:600;">&#10003; ${tr('receipt.verifiedMerchant', L)}</span>`)
       : "";
 
     const message = `
-      ${p(`Thanks for your purchase! Your payment has been received and your order is confirmed.`)}
+      ${p(tr('orderReceipt.thanks', L))}
       ${verifiedLine}
-      ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
+      ${infoBox(`${tr('orderReceipt.orderReference', L)} <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
       ${itemsTable}
-      ${hasDigital ? p(`Download links above are valid for 24 hours. Need a fresh link? <a href="${esc(orderPublicUrl)}" style="color:#05936A;">Open your order page</a>.`) : ""}
-      ${hasPhysical ? p(`Your merchant will email a tracking number once your items ship.`) : ""}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">View order details →</a>`)}
+      ${hasDigital ? p(`${tr('orderReceipt.digitalNote', L)} <a href="${esc(orderPublicUrl)}" style="color:#05936A;">${tr('orderReceipt.openOrderPage', L)}</a>.`) : ""}
+      ${hasPhysical ? p(tr('orderReceipt.physicalNote', L)) : ""}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">${tr('orderReceipt.viewOrderDetails', L)}</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Order confirmed`, false);
-    await mailTransporter({ to: buyerEmail, name, subject, body: html });
+    // Address the buyer by their real name only — never by their raw email
+    // (the greeting template gracefully falls back to a friendly generic).
+    const html = dynoPayGreetingTemplate(buyerName, message, tr('orderReceipt.heading', L), false, L);
+    await mailTransporter({ to: buyerEmail, name: buyerName || buyerEmail, subject, body: html });
     apiLogger.info(`[email] sent order receipt to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
     captureError(e, "email", { extraContext: "sendOrderReceiptEmail", buyerEmail } as any);

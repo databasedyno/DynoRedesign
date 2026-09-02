@@ -5,7 +5,8 @@
     "regards": "Merci,",
     "team": "L'équipe Dynopay",
     "securedBy": "Ce paiement a été traité en toute sécurité via Dynopay, une passerelle de paiement crypto non-custodial.",
-    "questions": "Si vous avez des questions, notre équipe d'assistance est là pour vous aider."
+    "questions": "Si vous avez des questions, notre équipe d'assistance est là pour vous aider.",
+    "greetingNoName": "Bonjour,"
   },
   "labels": {
     "amount": "Montant",
@@ -718,5 +719,42 @@
       "unsubscribe": "Vous ne voulez plus ces conseils de configuration ?",
       "unsubscribeAction": "Se désabonner"
     }
+  },
+  "chrome": {
+    "greeting": "Bonjour {{name}},",
+    "bestRegards": "Cordialement,",
+    "teamSignature": "L'équipe Dynopay",
+    "tagline": "Passerelle de paiement crypto sécurisée",
+    "rights": "© Dynopay {{year}}. Tous droits réservés.",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "support": "Assistance",
+    "greetingNoName": "Bonjour,"
+  },
+  "orderReceipt": {
+    "subject": "Votre commande {{ref}} est confirmée — Dynopay",
+    "heading": "Commande confirmée",
+    "thanks": "Merci pour votre achat ! Votre paiement a été reçu et votre commande est confirmée.",
+    "orderReference": "Référence de commande :",
+    "digitalNote": "Les liens de téléchargement ci-dessus sont valables 24 heures. Besoin d'un nouveau lien ?",
+    "openOrderPage": "Ouvrez la page de votre commande",
+    "physicalNote": "Le marchand vous enverra un numéro de suivi par e-mail dès l'expédition de vos articles.",
+    "viewOrderDetails": "Voir les détails de la commande →"
+  },
+  "orderTable": {
+    "product": "Produit",
+    "qty": "Qté",
+    "amount": "Montant",
+    "subtotal": "Sous-total",
+    "shipping": "Livraison",
+    "total": "Total",
+    "item": "Article",
+    "download": "Télécharger",
+    "licenseKey": "Clé de licence :",
+    "accessPurchase": "Accédez à votre achat →",
+    "bookSession": "Réservez votre séance →",
+    "inclusive": "incl.",
+    "reverseCharge": "Autoliquidation (B2B UE). L'acheteur déclare la taxe.",
+    "merchantTaxId": "N° {{label}} du marchand :"
   }
 }

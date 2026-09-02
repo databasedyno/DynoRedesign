@@ -327,7 +327,8 @@ export const sendPaymentFailedEmail = async (
   merchantLang: string = 'en'
 ) => {
   try {
-    const displayName = customerName || customerEmail.split('@')[0];
+    const hasRealName = !!(customerName && customerName.trim() && !customerName.includes('@'));
+    const displayName = hasRealName ? customerName.trim() : (customerEmail ? customerEmail.split('@')[0] : '');
     const CL = normalizeLang(customerLang);
 
     const reasonKey = `paymentFailed.reason${reason.charAt(0).toUpperCase() + reason.slice(1)}`;
@@ -338,7 +339,7 @@ export const sendPaymentFailedEmail = async (
       ? t('paymentFailed.subjectUnderpaid', CL, { paidAmount, amount, currency })
       : t('paymentFailed.subject', CL, { companyName });
 
-    const customerContent = `${p(t('common.greeting', CL, { name: displayName }))}
+    const customerContent = `${p(hasRealName ? t('common.greeting', CL, { name: displayName }) : t('common.greetingDefault', CL))}
     ${p(t('paymentFailed.customerIntro', CL, { companyName }))}
     ${infoBox(`
       <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentFailed.issue', CL)}</p>
@@ -412,7 +413,8 @@ export const sendCustomerPaymentConfirmationEmail = async (
 ) => {
   try {
     const L = normalizeLang(lang);
-    const displayName = customerName || customerEmail.split('@')[0];
+    const hasRealName = !!(customerName && customerName.trim() && !customerName.includes('@'));
+    const displayName = hasRealName ? customerName.trim() : (customerEmail ? customerEmail.split('@')[0] : '');
     const isContribution = !!(campaignName && campaignName.trim());
     const subject = isContribution
       ? t('contributionThankYou.subject', L, { campaignName })
@@ -450,7 +452,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
       apiLogger.error("[Email] Failed to generate PDF receipt:", pdfError);
     }
 
-    const content = `${p(t('common.greeting', L, { name: displayName }))}
+    const content = `${p(hasRealName ? t('common.greeting', L, { name: displayName }) : t('common.greetingNoName', L))}
     ${p(
       isContribution
         ? t('contributionThankYou.intro', L, { campaignName })

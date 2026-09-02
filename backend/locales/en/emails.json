@@ -5,7 +5,8 @@
     "regards": "Thanks,",
     "team": "The Dynopay Team",
     "securedBy": "This payment was processed securely through Dynopay, a non-custodial crypto payment gateway.",
-    "questions": "If you have any questions, our support team is here to help."
+    "questions": "If you have any questions, our support team is here to help.",
+    "greetingNoName": "Hey there,"
   },
   "labels": {
     "amount": "Amount",
@@ -718,5 +719,42 @@
       "unsubscribe": "Don't want these setup tips?",
       "unsubscribeAction": "Unsubscribe"
     }
+  },
+  "chrome": {
+    "greeting": "Hey {{name}},",
+    "bestRegards": "Best regards,",
+    "teamSignature": "The Dynopay Team",
+    "tagline": "Secure Crypto Payment Gateway",
+    "rights": "© Dynopay {{year}}. All Rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "support": "Support",
+    "greetingNoName": "Hey there,"
+  },
+  "orderReceipt": {
+    "subject": "Your order {{ref}} is confirmed — Dynopay",
+    "heading": "Order confirmed",
+    "thanks": "Thanks for your purchase! Your payment has been received and your order is confirmed.",
+    "orderReference": "Order reference:",
+    "digitalNote": "Download links above are valid for 24 hours. Need a fresh link?",
+    "openOrderPage": "Open your order page",
+    "physicalNote": "Your merchant will email a tracking number once your items ship.",
+    "viewOrderDetails": "View order details →"
+  },
+  "orderTable": {
+    "product": "Product",
+    "qty": "Qty",
+    "amount": "Amount",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "item": "Item",
+    "download": "Download",
+    "licenseKey": "License key:",
+    "accessPurchase": "Access your purchase →",
+    "bookSession": "Book your session →",
+    "inclusive": "incl.",
+    "reverseCharge": "Reverse-charge (EU B2B). Buyer accounts for tax.",
+    "merchantTaxId": "Merchant {{label}} ID:"
   }
 }

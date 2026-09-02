@@ -5,7 +5,8 @@
     "regards": "Danke,",
     "team": "Das Dynopay-Team",
     "securedBy": "Diese Zahlung wurde sicher über Dynopay abgewickelt, einen non-custodial Krypto-Zahlungsdienstleister.",
-    "questions": "Bei Fragen ist unser Support-Team gerne für Sie da."
+    "questions": "Bei Fragen ist unser Support-Team gerne für Sie da.",
+    "greetingNoName": "Hallo,"
   },
   "labels": {
     "amount": "Betrag",
@@ -718,5 +719,42 @@
       "unsubscribe": "Möchten Sie diese Einrichtungstipps nicht?",
       "unsubscribeAction": "Abmelden"
     }
+  },
+  "chrome": {
+    "greeting": "Hallo {{name}},",
+    "bestRegards": "Beste Grüße,",
+    "teamSignature": "Das Dynopay-Team",
+    "tagline": "Sicheres Krypto-Zahlungsgateway",
+    "rights": "© Dynopay {{year}}. Alle Rechte vorbehalten.",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "support": "Support",
+    "greetingNoName": "Hallo,"
+  },
+  "orderReceipt": {
+    "subject": "Deine Bestellung {{ref}} ist bestätigt — Dynopay",
+    "heading": "Bestellung bestätigt",
+    "thanks": "Danke für deinen Einkauf! Deine Zahlung ist eingegangen und deine Bestellung ist bestätigt.",
+    "orderReference": "Bestellreferenz:",
+    "digitalNote": "Die obigen Download-Links sind 24 Stunden gültig. Brauchst du einen neuen Link?",
+    "openOrderPage": "Öffne deine Bestellseite",
+    "physicalNote": "Der Händler sendet dir per E-Mail eine Sendungsnummer, sobald deine Artikel versandt werden.",
+    "viewOrderDetails": "Bestelldetails ansehen →"
+  },
+  "orderTable": {
+    "product": "Produkt",
+    "qty": "Menge",
+    "amount": "Betrag",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versand",
+    "total": "Gesamt",
+    "item": "Artikel",
+    "download": "Herunterladen",
+    "licenseKey": "Lizenzschlüssel:",
+    "accessPurchase": "Auf deinen Kauf zugreifen →",
+    "bookSession": "Buche deine Session →",
+    "inclusive": "inkl.",
+    "reverseCharge": "Reverse-Charge (EU B2B). Der Käufer schuldet die Steuer.",
+    "merchantTaxId": "{{label}}-ID des Händlers:"
   }
 }

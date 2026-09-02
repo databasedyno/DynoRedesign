@@ -6,6 +6,7 @@
 import { getCurrencySymbol as getCurrencySymbolShared } from "./currencyUtils";
 import config from "./config";
 import { EMAIL_TOKENS as T } from "./brandTokens";
+import { t as tr } from "./emailI18n";
 
 // Public CDN-hosted PNG logo for maximum email client compatibility
 const DYNOPAY_LOGO_CDN = "https://files.catbox.moe/9wq2et.png";
@@ -54,11 +55,24 @@ export const baseEmailTemplate = (
     buttonText?: string;
     buttonLink?: string;
     preheader?: string;
+    /** Optional language for the shared chrome (sign-off + footer). Defaults to English. */
+    lang?: string;
   }
 ): string => {
   const LOGO_URL = getDynopayLogoUrl();
   const year = new Date().getFullYear();
-  const { showButton = false, buttonText = '', buttonLink = '', preheader = '' } = options || {};
+  const { showButton = false, buttonText = '', buttonLink = '', preheader = '', lang } = options || {};
+  // Localized chrome strings (English when no lang passed → unchanged for all
+  // existing callers; t() falls back to English for any missing key).
+  const chrome = {
+    bestRegards: tr('chrome.bestRegards', lang),
+    team: tr('chrome.teamSignature', lang),
+    tagline: tr('chrome.tagline', lang),
+    rights: tr('chrome.rights', lang, { year }),
+    privacy: tr('chrome.privacy', lang),
+    terms: tr('chrome.terms', lang),
+    support: tr('chrome.support', lang),
+  };
 
   const buttonBlock = showButton && buttonText && buttonLink
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 28px 0 8px 0;">
@@ -221,7 +235,7 @@ export const baseEmailTemplate = (
               <table role="presentation" class="sep" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 32px; border-top: 1px solid #e5e7eb;">
                 <tr>
                   <td class="sign" style="padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;">
-                    Best regards,<br /><strong style="color: #374151;">The Dynopay Team</strong>
+                    ${chrome.bestRegards}<br /><strong style="color: #374151;">${chrome.team}</strong>
                   </td>
                 </tr>
               </table>
@@ -238,24 +252,24 @@ export const baseEmailTemplate = (
                 </tr>
                 <tr>
                   <td align="center" class="ftr-text" style="color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;">
-                    Secure Crypto Payment Gateway
+                    ${chrome.tagline}
                   </td>
                 </tr>
                 ${socialIconsBlock}
                 <tr>
                   <td align="center" class="ftr-text" style="color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;">
-                    &copy; Dynopay ${year}. All Rights reserved.
+                    ${chrome.rights}
                   </td>
                 </tr>
                 <tr>
                   <td align="center">
                     <table role="presentation" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/privacy-policy" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Privacy</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/privacy-policy" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.privacy}</a></td>
                         <td class="ftr-text" style="color: #4b5563; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/terms-conditions" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Terms</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/terms-conditions" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.terms}</a></td>
                         <td class="ftr-text" style="color: #4b5563; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/help-support" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Support</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/help-support" style="color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.support}</a></td>
                       </tr>
                     </table>
                   </td>

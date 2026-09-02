@@ -5,7 +5,8 @@
     "regards": "Obrigado,",
     "team": "A equipa Dynopay",
     "securedBy": "Este pagamento foi processado de forma segura através da Dynopay, um gateway de pagamentos em cripto sem custódia.",
-    "questions": "Se tiver alguma dúvida, a nossa equipa de apoio está aqui para ajudar."
+    "questions": "Se tiver alguma dúvida, a nossa equipa de apoio está aqui para ajudar.",
+    "greetingNoName": "Olá,"
   },
   "labels": {
     "amount": "Montante",
@@ -718,5 +719,42 @@
       "unsubscribe": "Não quer estas dicas de configuração?",
       "unsubscribeAction": "Cancelar inscrição"
     }
+  },
+  "chrome": {
+    "greeting": "Olá {{name}},",
+    "bestRegards": "Atenciosamente,",
+    "teamSignature": "A equipe da Dynopay",
+    "tagline": "Gateway de pagamento cripto seguro",
+    "rights": "© Dynopay {{year}}. Todos os direitos reservados.",
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "support": "Suporte",
+    "greetingNoName": "Olá,"
+  },
+  "orderReceipt": {
+    "subject": "Seu pedido {{ref}} está confirmado — Dynopay",
+    "heading": "Pedido confirmado",
+    "thanks": "Obrigado pela sua compra! Recebemos o seu pagamento e o seu pedido está confirmado.",
+    "orderReference": "Referência do pedido:",
+    "digitalNote": "Os links de download acima são válidos por 24 horas. Precisa de um novo link?",
+    "openOrderPage": "Abra a página do seu pedido",
+    "physicalNote": "O comerciante enviará um número de rastreamento por e-mail quando os itens forem despachados.",
+    "viewOrderDetails": "Ver detalhes do pedido →"
+  },
+  "orderTable": {
+    "product": "Produto",
+    "qty": "Qtd",
+    "amount": "Valor",
+    "subtotal": "Subtotal",
+    "shipping": "Frete",
+    "total": "Total",
+    "item": "Item",
+    "download": "Baixar",
+    "licenseKey": "Chave de licença:",
+    "accessPurchase": "Acesse sua compra →",
+    "bookSession": "Agende sua sessão →",
+    "inclusive": "incl.",
+    "reverseCharge": "Autoliquidação (B2B UE). O comprador é responsável pelo imposto.",
+    "merchantTaxId": "ID de {{label}} do comerciante:"
   }
 }

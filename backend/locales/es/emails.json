@@ -5,7 +5,8 @@
     "regards": "Gracias,",
     "team": "El equipo de Dynopay",
     "securedBy": "Este pago se procesó de forma segura a través de Dynopay, una pasarela de pagos en cripto sin custodia.",
-    "questions": "Si tienes alguna pregunta, nuestro equipo de soporte está aquí para ayudarte."
+    "questions": "Si tienes alguna pregunta, nuestro equipo de soporte está aquí para ayudarte.",
+    "greetingNoName": "Hola,"
   },
   "labels": {
     "amount": "Importe",
@@ -718,5 +719,42 @@
       "unsubscribe": "¿No quieres estos consejos de configuración?",
       "unsubscribeAction": "Cancelar suscripción"
     }
+  },
+  "chrome": {
+    "greeting": "Hola {{name}},",
+    "bestRegards": "Un saludo,",
+    "teamSignature": "El equipo de Dynopay",
+    "tagline": "Pasarela de pago cripto segura",
+    "rights": "© Dynopay {{year}}. Todos los derechos reservados.",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "support": "Soporte",
+    "greetingNoName": "Hola,"
+  },
+  "orderReceipt": {
+    "subject": "Tu pedido {{ref}} está confirmado — Dynopay",
+    "heading": "Pedido confirmado",
+    "thanks": "¡Gracias por tu compra! Hemos recibido tu pago y tu pedido está confirmado.",
+    "orderReference": "Referencia del pedido:",
+    "digitalNote": "Los enlaces de descarga anteriores son válidos durante 24 horas. ¿Necesitas un enlace nuevo?",
+    "openOrderPage": "Abre la página de tu pedido",
+    "physicalNote": "El comercio te enviará un número de seguimiento por correo cuando se envíen tus artículos.",
+    "viewOrderDetails": "Ver detalles del pedido →"
+  },
+  "orderTable": {
+    "product": "Producto",
+    "qty": "Cant.",
+    "amount": "Importe",
+    "subtotal": "Subtotal",
+    "shipping": "Envío",
+    "total": "Total",
+    "item": "Artículo",
+    "download": "Descargar",
+    "licenseKey": "Clave de licencia:",
+    "accessPurchase": "Accede a tu compra →",
+    "bookSession": "Reserva tu sesión →",
+    "inclusive": "incl.",
+    "reverseCharge": "Inversión del sujeto pasivo (B2B UE). El comprador liquida el impuesto.",
+    "merchantTaxId": "ID de {{label}} del comercio:"
   }
 }

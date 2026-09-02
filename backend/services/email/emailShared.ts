@@ -2,6 +2,7 @@ import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
 import { baseEmailTemplate, getCurrencySymbol, p } from "../../utils/emailTemplate";
+import { t as tr } from "../../utils/emailI18n";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
 export const FRONTEND_BASE_URL = (config.frontendUrl || 'https://dynopay.com').replace(/\/$/, '');
@@ -53,11 +54,21 @@ export const dynoPayGreetingTemplate = (
   name: string,
   message: string,
   heading: string,
-  _showImage: boolean = false
+  _showImage: boolean = false,
+  lang?: string
 ) => {
-  const greeting = p(`Hey ${name || 'there'},`);
+  const cleanName = (name || '').trim();
+  // Never greet someone by their raw email address: if we only know the email
+  // (or the "name" is actually an email), fall back to a friendly generic
+  // greeting ("Hey there," / localized) instead of "Hey buyer@example.com,".
+  const hasRealName = cleanName.length > 0 && !cleanName.includes('@');
+  const greeting = p(
+    hasRealName
+      ? tr('chrome.greeting', lang, { name: cleanName })
+      : tr('chrome.greetingNoName', lang)
+  );
   const bodyContent = `${greeting}<div style="font-size: 15px; color: #374151; line-height: 1.65; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${message}</div>`;
-  return baseEmailTemplate(heading, bodyContent);
+  return baseEmailTemplate(heading, bodyContent, { lang });
 };
 
 export const formatAmountWithCurrency = (amount: number, currency: string = 'USD'): string => {
