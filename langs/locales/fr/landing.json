@@ -749,6 +749,7 @@
   "order": {
     "notFound": "Commande introuvable.",
     "label": "Commande",
+    "soldBy": "Vendu par",
     "status": {
       "paid": "PAYÉE",
       "pending": "EN ATTENTE",

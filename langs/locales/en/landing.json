@@ -749,6 +749,7 @@
   "order": {
     "notFound": "Order not found.",
     "label": "Order",
+    "soldBy": "Sold by",
     "status": {
       "paid": "PAID",
       "pending": "PENDING",

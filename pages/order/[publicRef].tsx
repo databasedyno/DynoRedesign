@@ -13,6 +13,7 @@ import Head from "next/head";
 import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
 import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
+import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
 import { formatDateTimeI18n } from "@/utils/formatDate";
 import { GetServerSideProps } from "next";
 import {
@@ -563,6 +564,14 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             </>
           )}
         </Typography>
+
+        {/* Trust row — same "secured by Dynopay · Verified merchant" reassurance
+            buyers see at checkout, now on the post-purchase receipt too. */}
+        <MerchantTrustRow
+          handle={order.merchant?.handle}
+          orderId={order.public_ref}
+          sx={{ mt: 4 }}
+        />
       </Container>
     </>
   );

@@ -749,6 +749,7 @@
   "order": {
     "notFound": "Bestelling niet gevonden.",
     "label": "Bestelling",
+    "soldBy": "Verkocht door",
     "status": {
       "paid": "BETAALD",
       "pending": "IN AFWACHTING",
