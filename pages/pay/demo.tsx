@@ -1,4 +1,5 @@
 import { BRAND_ACCENT } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 import {
   Box,
   Button,
@@ -204,7 +205,7 @@ const PaymentDemo = () => {
                 Payment successful
               </Typography>
               <Typography sx={{ fontSize: 14, color: muted, mt: 0.75 }}>
-                Paid to {MERCHANT} — {FIAT_SYMBOL}{FIAT_AMOUNT.toFixed(2)} {FIAT_CURRENCY}
+                Paid to {MERCHANT} — {FIAT_SYMBOL}{toFixedStr(FIAT_AMOUNT, 2)} {FIAT_CURRENCY}
               </Typography>
               <Typography sx={{ fontFamily: MONO, fontSize: 12, color: muted, mt: 1 }}>
                 {coin.amount} {coin.symbol} · REFERENCE · {ORDER_REFERENCE}
@@ -248,7 +249,7 @@ const PaymentDemo = () => {
 
               {/* Amount */}
               <Typography sx={{ fontFamily: MONO, fontSize: 18, fontWeight: 500, color: muted, mt: 0.75, mb: 3.5 }} data-testid="demo-amount">
-                {FIAT_SYMBOL}{FIAT_AMOUNT.toFixed(2)} {FIAT_CURRENCY}
+                {FIAT_SYMBOL}{toFixedStr(FIAT_AMOUNT, 2)} {FIAT_CURRENCY}
               </Typography>
 
               {/* Reference row */}

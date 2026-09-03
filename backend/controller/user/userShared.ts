@@ -30,6 +30,7 @@ import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
+import { generateOtpCode } from "../../helper/otpGuard";
 
 // Cache TTL for profile data (60 seconds)
 export const PROFILE_CACHE_TTL = 60;
@@ -325,7 +326,7 @@ export const getAccessToken = async (id: number) => {
  */
 export const sendEmailOTP = async (email: string, name: string): Promise<boolean> => {
   try {
-    const randomNumberOTP = Math.floor(100000 + Math.random() * 900000);
+    const randomNumberOTP = generateOtpCode();
     await sendEmail(
       email,
       name,

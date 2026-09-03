@@ -4,6 +4,7 @@ import { captureError } from "../errorMonitoringService";
 import { p, infoBox, dataRow } from "../../utils/emailTemplate";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate } from "./emailShared";
 import { firstNameOnly } from "../../utils/emailI18n";
+import { toFixedStr } from "../../utils/money";
 
 /**
  * Referral revenue-share payout emails (merchant-facing).
@@ -22,7 +23,7 @@ export const sendReferralPayoutReadyEmail = async (
 ) => {
   try {
     void lang;
-    const amount = `$${Number(unpaidUsd).toFixed(2)}`;
+    const amount = `$${toFixedStr(unpaidUsd, 2)}`;
     const isCash = mode === "cash";
     const subject = `You can cash out ${amount} in referral rewards 🎉`;
     const content = `
@@ -55,7 +56,7 @@ export const sendReferralAutoPayEnabledEmail = async (
 ) => {
   try {
     void lang;
-    const min = `$${Number(autoMinUsd).toFixed(2)}`;
+    const min = `$${toFixedStr(autoMinUsd, 2)}`;
     const subject = `Auto cash-out is on for your referral rewards`;
     const content = `
       ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
@@ -87,7 +88,7 @@ export const sendReferralPayoutRequestedEmail = async (
 ) => {
   try {
     void lang;
-    const amount = `$${Number(amountUsd).toFixed(2)}`;
+    const amount = `$${toFixedStr(amountUsd, 2)}`;
     const subject = `Your ${amount} referral cash-out is on the way`;
     const content = `
       ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
@@ -119,7 +120,7 @@ export const sendReferralPayoutFailedEmail = async (
 ) => {
   try {
     void lang;
-    const amount = `$${Number(amountUsd).toFixed(2)}`;
+    const amount = `$${toFixedStr(amountUsd, 2)}`;
     const subject = `Your ${amount} referral cash-out couldn't be sent`;
     const content = `
       ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
@@ -152,8 +153,8 @@ export const sendReferralAccrualEmail = async (
 ) => {
   try {
     void lang;
-    const earned = `$${Number(newCommissionUsd).toFixed(2)}`;
-    const balance = `$${Number(unpaidBalanceUsd).toFixed(2)}`;
+    const earned = `$${toFixedStr(newCommissionUsd, 2)}`;
+    const balance = `$${toFixedStr(unpaidBalanceUsd, 2)}`;
     const merchant = escapeHtml(merchantName || 'a merchant you referred');
     const subject = `You just earned ${earned} in referral rewards 🎉`;
     const content = `
@@ -218,11 +219,11 @@ export const sendReferralMonthlyDigestEmail = async (
 ) => {
   try {
     void lang;
-    const total = `$${Number(totalUsd).toFixed(2)}`;
+    const total = `$${toFixedStr(totalUsd, 2)}`;
     const isCash = mode === 'cash';
     const top = perMerchant.slice(0, 12);
     const rowsHtml = top
-      .map((m, i) => dataRow(escapeHtml(m.name), `<strong>$${Number(m.usd).toFixed(2)}</strong>`, i === top.length - 1))
+      .map((m, i) => dataRow(escapeHtml(m.name), `<strong>$${toFixedStr(m.usd, 2)}</strong>`, i === top.length - 1))
       .join('');
     const subject = `Your referrals earned you ${total} in ${monthLabel} 🎉`;
     const content = `

@@ -5,6 +5,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
 import { MONO } from "@/styles/uiKit";
+import { toFixedStr } from "@/utils/money";
 
 /**
  * FeeTierCard — the redesigned fee-tier progress module.
@@ -256,7 +257,7 @@ const FeeTierCard: React.FC = () => {
                   color: indigo,
                 }}
               >
-                {pct.toFixed(1)}% {t("complete", { defaultValue: "complete" })}
+                {toFixedStr(pct, 1)}% {t("complete", { defaultValue: "complete" })}
               </Box>
               <Box
                 sx={{
@@ -313,7 +314,7 @@ const FeeTierCard: React.FC = () => {
                 color: indigo,
               }}
             >
-              {pct.toFixed(1)}% {t("complete", { defaultValue: "complete" })}
+              {toFixedStr(pct, 1)}% {t("complete", { defaultValue: "complete" })}
             </Box>
             <Box
               sx={{
@@ -388,7 +389,7 @@ const FeeTierCard: React.FC = () => {
               .replace("{pct}", `${nextTierPercent}%`)
               .replace(
                 "{savings}",
-                `${(currentTierPercent - nextTierPercent).toFixed(2)}%`,
+                `${toFixedStr((currentTierPercent - nextTierPercent), 2)}%`,
               )}
             {projectedSaving > 0 && (
               <Box

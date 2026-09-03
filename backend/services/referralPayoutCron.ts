@@ -8,6 +8,7 @@ import { acquireLock, releaseLock } from "../utils/redisInstance";
 import { sendWithdrawalSuccessEmail, sendReferralPayoutFailedEmail } from "./emailService";
 import binanceService from "./binanceService";
 import { alertTreasuryLow } from "../utils/treasuryAlert";
+import { toFixedStr, toNumber } from "../utils/money";
 
 /**
  * Referral revenue-share PAYOUT EXECUTION (Phase 3). LEADER/PROD cron ONLY —
@@ -15,7 +16,7 @@ import { alertTreasuryLow } from "../utils/treasuryAlert";
  * (setupReferralRewardCron lives inside registerLeaderCronJobs).
  */
 
-const round2 = (n: number): number => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 
 /** Reconcile a completed account-level payout back onto the per-referral totals. */
 const applyPayoutToReferrals = async (userId: number, amountUsd: number, txHash: string): Promise<void> => {
@@ -80,7 +81,7 @@ export const processReferralPayouts = async (): Promise<number> => {
         cronLogger.warn(
           `[ReferralPayout] Insufficient USDT treasury for payout ${payout.payout_id}: have ${balance.free}, need ${amount} — waiting for top-up`
         );
-        await payout.update({ error_message: `Insufficient USDT treasury (have ${balance.free.toFixed(2)}, need ${amount.toFixed(2)}) — awaiting top-up` });
+        await payout.update({ error_message: `Insufficient USDT treasury (have ${toFixedStr(balance.free, 2)}, need ${toFixedStr(amount, 2)}) — awaiting top-up` });
         await alertTreasuryLow({ asset: "USDT", have: balance.free, need: amount, context: `Referral payout #${payout.payout_id}` });
         continue;
       }
@@ -137,7 +138,7 @@ export const monitorReferralPayouts = async (): Promise<number> => {
             await sendWithdrawalSuccessEmail(
               u.email,
               u.name || "there",
-              Number(payout.amount_usd).toFixed(2),
+              toFixedStr(payout.amount_usd, 2),
               "USDT-TRC20",
               payout.trc20_address,
               match.txId,

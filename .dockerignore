@@ -72,3 +72,6 @@ test_*.ts
 .husky
 .github
 .do
+
+# === Archived one-off scripts/reports from past sessions ===
+_archive

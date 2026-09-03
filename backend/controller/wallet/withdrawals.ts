@@ -75,16 +75,15 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { toFixedStr } from "../../utils/money";
 
 export const withdrawAssets = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     const { currency, amount, address, feeType, feeToPay, otp, saveAddress } =
       req.body;
-    walletLogger.info(req.body);
     const storedOtp = await getRedisItem(userData.email + "-withdrawal-otp");
-    walletLogger.info(storedOtp);
-    if (storedOtp.otp != otp) {
+    if (!storedOtp?.otp || String(storedOtp.otp) !== String(otp)) {
       errorResponseHelper(res, 500, "OTP did not match!");
     } else {
       if (new Date().getTime() > Number(storedOtp?.expiresAt)) {
@@ -103,7 +102,7 @@ export const withdrawAssets = async (req: express.Request, res: express.Response
           feeType === "wallet"
             ? amount
             : walletData?.dataValues.wallet_type.includes("USDT")
-              ? Number(amount - feeToPay).toFixed(2)
+              ? toFixedStr(amount - feeToPay, 2)
               : amount - feeToPay;
 
       // Fetch Transaction Information

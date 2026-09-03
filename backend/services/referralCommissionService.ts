@@ -6,6 +6,7 @@ import Referral from '../models/referralModels/referralModel';
 import ReferralReward from '../models/referralModels/referralRewardModel';
 import { PROCESSED_STATUS_SQL } from '../utils/processedVolume';
 import { sendReferralAccrualEmail } from './email/referralEmails';
+import { mul, toFixedStr, toNumber } from "../utils/money";
 
 // ============================================
 // REVENUE-SHARE COMMISSION ACCRUAL (2026-08)
@@ -70,8 +71,8 @@ export const accrueReferralCommission = async (referral: Referral): Promise<numb
   );
 
   const feesUsd = Number(feeRows[0]?.fees_usd || 0);
-  const commissionUsd = Math.round(feesUsd * rate * 100) / 100;
-  const newAccrued = Math.round((Number(referral.commission_accrued_usd || 0) + commissionUsd) * 100) / 100;
+  const commissionUsd = toNumber(mul(feesUsd, rate), 2);
+  const newAccrued = toNumber((Number(referral.commission_accrued_usd || 0) + commissionUsd), 2);
 
   // Advance the watermark regardless (so we never re-scan the same window slice).
   await referral.update({
@@ -107,7 +108,7 @@ export const accrueReferralCommission = async (referral: Referral): Promise<numb
 
   if (commissionUsd > 0 || windowClosed) {
     apiLogger.info(
-      `[Referral] Accrued $${commissionUsd.toFixed(2)} (fees $${feesUsd.toFixed(2)} × ${rate}) ` +
+      `[Referral] Accrued $${toFixedStr(commissionUsd, 2)} (fees $${toFixedStr(feesUsd, 2)} × ${rate}) ` +
       `for referral ${referral.referral_id}${windowClosed ? ' — window CLOSED' : ''}`
     );
   }
@@ -137,11 +138,9 @@ export const accrueActiveReferralCommissions = async (): Promise<number> => {
           if (to) {
             const unpaid = Math.max(
               0,
-              Math.round(
-                (Number(referral.commission_accrued_usd || 0) -
+              toNumber((Number(referral.commission_accrued_usd || 0) -
                   Number(referral.commission_paid_usd || 0) -
-                  Number(referral.commission_credited_usd || 0)) * 100
-              ) / 100
+                  Number(referral.commission_credited_usd || 0)), 2)
             );
             const m = merchant as unknown as { name?: string; email?: string };
             const merchantName = m?.name || m?.email || 'a referred merchant';
@@ -157,7 +156,7 @@ export const accrueActiveReferralCommissions = async (): Promise<number> => {
     }
   }
   if (total > 0) {
-    apiLogger.info(`[Referral] Accrual cycle complete — $${total.toFixed(2)} across ${referrals.length} active referral(s)`);
+    apiLogger.info(`[Referral] Accrual cycle complete — $${toFixedStr(total, 2)} across ${referrals.length} active referral(s)`);
   }
   return total;
 };
@@ -209,7 +208,7 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
     const accrued = Number(r.commission_accrued_usd || 0);
     const paid = Number(r.commission_paid_usd || 0);
     const credited = Number(r.commission_credited_usd || 0);
-    const unpaid = Math.max(0, Math.round((accrued - paid - credited) * 100) / 100);
+    const unpaid = Math.max(0, toNumber((accrued - paid - credited), 2));
     const windowEnds = r.commission_window_ends_at ? new Date(r.commission_window_ends_at) : null;
     const daysRemaining = windowEnds
       ? Math.max(0, Math.ceil((windowEnds.getTime() - now) / (24 * 60 * 60 * 1000)))
@@ -238,10 +237,10 @@ export const getReferrerCommissionSummary = async (userId: number): Promise<{
   return {
     rate_percent: Math.round(rate * 100),
     window_months: 12,
-    total_accrued_usd: Math.round(totalAccrued * 100) / 100,
-    total_paid_usd: Math.round(totalPaid * 100) / 100,
-    total_credited_usd: Math.round(totalCredited * 100) / 100,
-    unpaid_balance_usd: Math.round((totalAccrued - totalPaid - totalCredited) * 100) / 100,
+    total_accrued_usd: toNumber(totalAccrued, 2),
+    total_paid_usd: toNumber(totalPaid, 2),
+    total_credited_usd: toNumber(totalCredited, 2),
+    unpaid_balance_usd: toNumber((totalAccrued - totalPaid - totalCredited), 2),
     active_windows: activeWindows,
     referrals: list,
   };
@@ -293,7 +292,7 @@ export const clawbackReferralCommission = async (referral: Referral): Promise<nu
   );
 
   const currentFeesUsd = Number(feeRows[0]?.fees_usd || 0);
-  const expectedAccrued = Math.round(currentFeesUsd * rate * 100) / 100;
+  const expectedAccrued = toNumber(mul(currentFeesUsd, rate), 2);
 
   // Expected still matches (or exceeds) accrued → nothing was reversed.
   if (expectedAccrued >= accrued - 0.005) return 0;
@@ -302,12 +301,12 @@ export const clawbackReferralCommission = async (referral: Referral): Promise<nu
   // so unpaid_balance = accrued − paid − credited stays >= 0.
   const paid = Number(referral.commission_paid_usd || 0);
   const credited = Number(referral.commission_credited_usd || 0);
-  const floor = Math.round((paid + credited) * 100) / 100;
+  const floor = toNumber((paid + credited), 2);
 
   const target = Math.max(expectedAccrued, floor);
   if (target >= accrued - 0.005) return 0;
 
-  const clawback = Math.round((accrued - target) * 100) / 100;
+  const clawback = toNumber((accrued - target), 2);
 
   await referral.update({ commission_accrued_usd: target });
 
@@ -324,9 +323,9 @@ export const clawbackReferralCommission = async (referral: Referral): Promise<nu
   );
 
   apiLogger.warn(
-    `[Referral] Clawed back $${clawback.toFixed(2)} from referral ${referral.referral_id} ` +
-    `(accrued $${accrued.toFixed(2)} → $${target.toFixed(2)}; reversed/refunded settled fees; ` +
-    `floor paid+credited=$${floor.toFixed(2)})`
+    `[Referral] Clawed back $${toFixedStr(clawback, 2)} from referral ${referral.referral_id} ` +
+    `(accrued $${toFixedStr(accrued, 2)} → $${toFixedStr(target, 2)}; reversed/refunded settled fees; ` +
+    `floor paid+credited=$${toFixedStr(floor, 2)})`
   );
 
   return clawback;
@@ -354,7 +353,7 @@ export const clawbackReversedReferralCommissions = async (): Promise<number> => 
   }
   if (total > 0) {
     apiLogger.info(
-      `[Referral] Clawback cycle complete — $${total.toFixed(2)} reversed across ${referrals.length} referral(s)`
+      `[Referral] Clawback cycle complete — $${toFixedStr(total, 2)} reversed across ${referrals.length} referral(s)`
     );
   }
   return total;

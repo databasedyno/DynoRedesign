@@ -1,7 +1,7 @@
 # ============================================================================
 # 2026-09-03 (pod 55c5e4b0) RE-SETUP from ENCRYPTED VAULT — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
-# - CURRENT Preview URL (THIS POD): https://55c5e4b0-20b3-4168-9a76-e9db5629d58a.preview.emergentagent.com
+# - CURRENT Preview URL (THIS POD): https://vault-setup-3.preview.emergentagent.com
 #   (IGNORE all older *.preview.emergentagent.com URLs below — historical.)
 # - Fresh pod: /app working tree present on branch conflict_280826_1905. BOTH .env files were MISSING (gitignored).
 #   RESTORED from env.vault.enc via: bash scripts/env-vault.sh open 'Katiekendra123@'
@@ -968,3 +968,15 @@
 #   then password (testid password-input) -> Sign in (testid signin-submit-btn).
 #   Password login for this account does NOT trigger step-up 2FA (verified 2026-08-29).
 # ---------------------------------------------------------------------------
+
+# --- 2026-06 fork (pod 55c5e4b0, preview https://vault-setup-3.preview.emergentagent.com) — DEEP AUDIT session ---
+#   Login unchanged: onarrival21@gmail.com / Katiekendra123@ (2-step: email -> Enter -> password -> Enter; /auth/login).
+#   New behaviours to know when testing: OTP verify endpoints lock a code after 5 wrong attempts
+#   ("Too many incorrect attempts..."); /api/user/forgot-password is 20/15min per IP (429 + Retry-After);
+#   unknown /api/* routes return JSON 404; PUT /company/webhook-settings rejects private/metadata URLs (400).
+#   SAFE MODE still active (REDIS_PUBLIC_URL .../1, ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary,
+#   DISABLE_OUTBOUND_EMAIL=true). Boot migrations 0021/0022 were applied to the LIVE DB from this pod.
+#   [follow-up, same session] reset-password bypass CLOSED: POST /api/user/reset-password needs a real verify-otp
+#   session token (body email ignored). Legit flow: forgot-password -> verify-otp (data.resetToken) -> reset-password.
+#   OTP code readable in preview Redis at otp:<email>:json. Security alert dedup key: sec-alert:<event>:<email>:json (1h).
+#   Backend runs via ts-node WITHOUT hot reload: `sudo supervisorctl restart backend` after backend TS edits.

@@ -31,6 +31,7 @@ import { resolveMembership, membershipCan } from "../../utils/permissions";
 import { getCryptoPriceForPayment } from "./paymentHelpers";
 import { getPlatformFeePercent } from "../../utils/volumeTierUtils";
 import { paymentLinkModel as _pl, userModel } from "../../models";
+import { add, pct, toFixedStr, toNumber } from "../../utils/money";
 
 /**
  * Convert a raw blockchain fee result into a plain, JSON-safe object containing
@@ -353,8 +354,8 @@ export const getConfiguredCurrenciesForCheckout = async (
           break;
         }
       }
-      const percentageFee = transactionAmount * (feeInfo.transaction_fee_percent / 100);
-      totalProcessingFee = percentageFee + fixedFee;
+      const percentageFee = pct(transactionAmount, feeInfo.transaction_fee_percent);
+      totalProcessingFee = add(percentageFee, fixedFee).toNumber();
     }
     
     const response: Record<string, unknown> = {
@@ -384,8 +385,8 @@ export const getConfiguredCurrenciesForCheckout = async (
     
     // Include only total processing fee if customer pays fees
     if (feeInfo.fee_payer === 'customer' && transactionAmount > 0) {
-      response.processing_fee = parseFloat(totalProcessingFee.toFixed(2));
-      response.total_amount = parseFloat((transactionAmount + totalProcessingFee).toFixed(2));
+      response.processing_fee = toNumber(totalProcessingFee, 2);
+      response.total_amount = toNumber((transactionAmount + totalProcessingFee), 2);
     }
     
     successResponseHelper(res, 200, "Configured currencies retrieved successfully", response);
@@ -477,7 +478,7 @@ export const calculateCheckoutFees = async (
         });
         amountUSD = Number(usdConversion[0]?.amount || paymentAmount);
         exchangeRate = amountUSD / paymentAmount;
-        cronLogger.info(`[calculateCheckoutFees] Converted ${paymentAmount} ${fiatCurrency} → ${amountUSD.toFixed(2)} USD`);
+        cronLogger.info(`[calculateCheckoutFees] Converted ${paymentAmount} ${fiatCurrency} → ${toFixedStr(amountUSD, 2)} USD`);
       } catch (conversionError) {
         cronLogger.warn(`[calculateCheckoutFees] USD conversion failed, using original amount:`, conversionError);
       }
@@ -518,16 +519,16 @@ export const calculateCheckoutFees = async (
         // Keep the safe 1.5% fallback
       }
     }
-    const platformFeeUSD = parseFloat((amountUSD * platformFeePercent / 100).toFixed(2));
+    const platformFeeUSD = toNumber((amountUSD * platformFeePercent / 100), 2);
     
     // Total fees in USD
-    const totalFeesUSD = parseFloat(totalActualFeesUSD.toFixed(2));
+    const totalFeesUSD = toNumber(totalActualFeesUSD, 2);
     
     // Blockchain fee is the remainder (total - platform fee)
-    const blockchainFeeUSD = parseFloat(Math.max(0, totalFeesUSD - platformFeeUSD).toFixed(2));
+    const blockchainFeeUSD = parseFloat(toFixedStr(Math.max(0, totalFeesUSD - platformFeeUSD), 2));
     
     // Net amount to merchant in USD
-    const netToMerchantUSD = parseFloat((amountUSD - totalFeesUSD).toFixed(2));
+    const netToMerchantUSD = toNumber((amountUSD - totalFeesUSD), 2);
 
     // Convert fees back to original currency if not USD
     let platformFee = platformFeeUSD;
@@ -538,10 +539,10 @@ export const calculateCheckoutFees = async (
     if (fiatCurrency !== 'USD' && exchangeRate > 0) {
       // Convert all fee amounts back to original currency
       const reverseRate = 1 / exchangeRate;
-      platformFee = parseFloat((platformFeeUSD * reverseRate).toFixed(2));
-      blockchainFee = parseFloat((blockchainFeeUSD * reverseRate).toFixed(2));
-      totalFees = parseFloat((totalFeesUSD * reverseRate).toFixed(2));
-      netToMerchant = parseFloat((netToMerchantUSD * reverseRate).toFixed(2));
+      platformFee = toNumber((platformFeeUSD * reverseRate), 2);
+      blockchainFee = toNumber((blockchainFeeUSD * reverseRate), 2);
+      totalFees = toNumber((totalFeesUSD * reverseRate), 2);
+      netToMerchant = toNumber((netToMerchantUSD * reverseRate), 2);
     }
 
     // Build response
@@ -558,14 +559,14 @@ export const calculateCheckoutFees = async (
       net_to_merchant: netToMerchant,
       // USD equivalents for reference (always included)
       usd_equivalents: {
-        payment_amount_usd: parseFloat(amountUSD.toFixed(2)),
+        payment_amount_usd: toNumber(amountUSD, 2),
         total_fees_usd: totalFeesUSD,
         net_to_merchant_usd: netToMerchantUSD,
-        exchange_rate: fiatCurrency !== 'USD' ? parseFloat(exchangeRate.toFixed(6)) : 1,
+        exchange_rate: fiatCurrency !== 'USD' ? toNumber(exchangeRate, 6) : 1,
       },
     };
 
-    cronLogger.info(`[calculateCheckoutFees] ${paymentAmount} ${fiatCurrency} ($${amountUSD.toFixed(2)} USD) in ${crypto}: Total fees=$${totalFeesUSD.toFixed(2)} USD (platform=$${platformFeeUSD}, blockchain=$${blockchainFeeUSD}), Net=$${netToMerchantUSD} USD`);
+    cronLogger.info(`[calculateCheckoutFees] ${paymentAmount} ${fiatCurrency} ($${toFixedStr(amountUSD, 2)} USD) in ${crypto}: Total fees=$${toFixedStr(totalFeesUSD, 2)} USD (platform=$${platformFeeUSD}, blockchain=$${blockchainFeeUSD}), Net=$${netToMerchantUSD} USD`);
 
     return successResponseHelper(res, 200, "Fee calculation successful", response);
   } catch (e) {
@@ -653,21 +654,21 @@ export const getFeePreview = async (req: express.Request, res: express.Response)
     return successResponseHelper(res, 200, "Fee preview retrieved successfully", {
       amount: amountNum,
       currency: currency || 'USD',
-      fee: parseFloat(discountedFeeAmount.toFixed(2)),
+      fee: toNumber(discountedFeeAmount, 2),
       fee_payer: feePayer,
-      you_receive: parseFloat(youReceive.toFixed(2)),
-      customer_pays: parseFloat(customerPays.toFixed(2)),
+      you_receive: toNumber(youReceive, 2),
+      customer_pays: toNumber(customerPays, 2),
       fee_info: {
         base_fee_percent: baseFeePercent,
         final_fee_percent: finalFeePercent,
-        percent_fee_amount: parseFloat(discountedPercentFee.toFixed(2)),
-        fixed_fee: parseFloat(fixedTierFee.toFixed(2)),
-        base_fee_amount: parseFloat(baseFeeAmount.toFixed(2)),
-        discounted_fee_amount: parseFloat(discountedFeeAmount.toFixed(2)),
-        savings: parseFloat(savings.toFixed(2)),
+        percent_fee_amount: toNumber(discountedPercentFee, 2),
+        fixed_fee: toNumber(fixedTierFee, 2),
+        base_fee_amount: toNumber(baseFeeAmount, 2),
+        discounted_fee_amount: toNumber(discountedFeeAmount, 2),
+        savings: toNumber(savings, 2),
         fee_payer: feePayer,
-        you_receive: parseFloat(youReceive.toFixed(2)),
-        customer_pays: parseFloat(customerPays.toFixed(2)),
+        you_receive: toNumber(youReceive, 2),
+        customer_pays: toNumber(customerPays, 2),
         note: "Estimate covers the Dynopay platform fee (percentage + fixed). Network/blockchain fees are shown at checkout once a coin is selected.",
       },
       discount_info: {

@@ -9,6 +9,7 @@ import { Box, Button, Divider, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { toFixedStr } from "@/utils/money";
 
 const AdminWallet = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
@@ -105,7 +106,7 @@ const AdminWallet = ({ setPageName }: pageProps) => {
             <Typography
               sx={{ fontSize: 18, fontWeight: 900, color: "text.secondary" }}
             >
-              $ {totalBalance.toFixed(2)}
+              $ {toFixedStr(totalBalance, 2)}
             </Typography>
           </Box>
           {fiatData.length === 0 && cryptoData.length === 0 ? (
@@ -219,8 +220,8 @@ const AdminWallet = ({ setPageName }: pageProps) => {
                           {getCurrencySymbol(
                             x.wallet_type,
                             countDecimals(x.fee) > 8
-                              ? x.fee.toFixed(8)
-                              : x.fee.toFixed(2)
+                              ? toFixedStr(x.fee, 8)
+                              : toFixedStr(x.fee, 2)
                           )}
                         </Typography>
                         <Typography
@@ -246,8 +247,8 @@ const AdminWallet = ({ setPageName }: pageProps) => {
                           {getCurrencySymbol(
                             x.wallet_type,
                             countDecimals(x.amount) > 8
-                              ? x.amount.toFixed(8)
-                              : x.amount.toFixed(2)
+                              ? toFixedStr(x.amount, 8)
+                              : toFixedStr(x.amount, 2)
                           )}
                         </Typography>
                         <Typography
@@ -325,8 +326,8 @@ const AdminWallet = ({ setPageName }: pageProps) => {
                           {getCurrencySymbol(
                             x.wallet_type,
                             countDecimals(x.fee) > 8
-                              ? x.fee.toFixed(8)
-                              : x.fee.toFixed(2)
+                              ? toFixedStr(x.fee, 8)
+                              : toFixedStr(x.fee, 2)
                           )}
                         </Typography>
                         <Typography
@@ -352,8 +353,8 @@ const AdminWallet = ({ setPageName }: pageProps) => {
                           {getCurrencySymbol(
                             x.wallet_type,
                             countDecimals(x.amount) > 8
-                              ? x.amount.toFixed(8)
-                              : x.amount.toFixed(2)
+                              ? toFixedStr(x.amount, 8)
+                              : toFixedStr(x.amount, 2)
                           )}
                         </Typography>
                         <Typography

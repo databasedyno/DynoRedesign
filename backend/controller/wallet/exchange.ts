@@ -73,6 +73,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { generateOtpCode } from "../../helper/otpGuard";
 
 export const exchangeCreate = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -182,8 +183,8 @@ export const exchangeCreate = async (req: express.Request, res: express.Response
           return;
         }
 
-        const randomNumberOTP1 = Math.floor(100000 + Math.random() * 900000);
-        const randomNumberOTP2 = Math.floor(100000 + Math.random() * 900000);
+        const randomNumberOTP1 = generateOtpCode();
+        const randomNumberOTP2 = generateOtpCode();
         await sendExchangeOTPEmail(
           userData.email,
           userData.name,

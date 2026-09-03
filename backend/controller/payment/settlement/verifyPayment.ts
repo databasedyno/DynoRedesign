@@ -73,6 +73,7 @@ import { notifyOverpayment } from "../../../services/overpaymentNotifier";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 
 import { cryptoVerification } from "./chainVerification";
+import { add, div, mul, sub, toFixedStr, toNumber } from "../../../utils/money";
 
 export const verifyCryptoPayment = async (
   req: express.Request,
@@ -236,20 +237,20 @@ export const verifyCryptoPayment = async (
       const totalReceived = receivedAmount > 0 ? receivedAmount : parseFloat(tempData?.amount || '0');
       const originalExpected = tempData?.originalExpectedAmount ? parseFloat(tempData.originalExpectedAmount) : expectedAmount;
       const isOverpayment = totalReceived > originalExpected && originalExpected > 0;
-      const overpaymentAmount = isOverpayment ? (totalReceived - originalExpected) : 0;
+      const overpaymentAmount = isOverpayment ? sub(totalReceived, originalExpected).toNumber() : 0;
       
       // Calculate overpayment in USD to compare against threshold
       // Only flag as "overpaid" if excess exceeds merchant's overpayment_threshold_usd
       let overpaymentUsd = 0;
       if (isOverpayment && originalExpected > 0 && baseAmount > 0) {
-        overpaymentUsd = (overpaymentAmount / originalExpected) * baseAmount;
+        overpaymentUsd = toNumber(mul(div(overpaymentAmount, originalExpected), baseAmount), 8);
       }
       const isSignificantOverpayment = isOverpayment && overpaymentUsd > merchantOverpaymentThreshold;
       
       // FIXED: Don't re-call cryptoVerification if already processed - just return the status
       // The payment was already distributed when status became "successful"
       cronLogger.info("[verifyCryptoPayment] Payment already successful, returning confirmed status");
-      cronLogger.info(`[verifyCryptoPayment] Overpayment check: excess=${overpaymentAmount.toFixed(8)} ${currency}, excessUsd=$${overpaymentUsd.toFixed(2)}, threshold=$${merchantOverpaymentThreshold}, significant=${isSignificantOverpayment}`);
+      cronLogger.info(`[verifyCryptoPayment] Overpayment check: excess=${toFixedStr(overpaymentAmount, 8)} ${currency}, excessUsd=$${toFixedStr(overpaymentUsd, 2)}, threshold=$${merchantOverpaymentThreshold}, significant=${isSignificantOverpayment}`);
       
       // Get redirect URL from customerData if available
       let redirectUrl = null;
@@ -264,7 +265,7 @@ export const verifyCryptoPayment = async (
       let expectedAmountUsd = actualBaseAmount;
       
       if (totalReceived > 0 && originalExpected > 0 && actualBaseAmount > 0) {
-        paidAmountUsd = actualBaseAmount * (totalReceived / originalExpected);
+        paidAmountUsd = toNumber(mul(actualBaseAmount, div(totalReceived, originalExpected)), 8);
         expectedAmountUsd = actualBaseAmount;
       }
       
@@ -277,15 +278,15 @@ export const verifyCryptoPayment = async (
         message: isSignificantOverpayment ? "Payment confirmed with overpayment" : "Payment confirmed",
         redirect: redirectUrl,
         txId: tempData.txId,
-        paidAmount: parseFloat(totalReceived.toFixed(6)),
-        expectedAmount: parseFloat(originalExpected.toFixed(6)),
+        paidAmount: toNumber(totalReceived, 6),
+        expectedAmount: toNumber(originalExpected, 6),
         currency: currency,
         // XRP/RLUSD: Include destination tag for tag-based chains
         ...(tempData?.destination_tag && { destination_tag: Number(tempData.destination_tag) }),
         ...(tempData?.destination_tag && { memo: String(tempData.destination_tag) }),
         // USD amounts
-        paidAmountUsd: parseFloat(paidAmountUsd.toFixed(2)),
-        expectedAmountUsd: parseFloat(expectedAmountUsd.toFixed(2)),
+        paidAmountUsd: toNumber(paidAmountUsd, 2),
+        expectedAmountUsd: toNumber(expectedAmountUsd, 2),
         baseCurrency: baseCurrency,
         completedAt: tempData.completedAt,
         // Timer and settings (for consistency across all responses)
@@ -295,8 +296,8 @@ export const verifyCryptoPayment = async (
       };
 
       if (isSignificantOverpayment) {
-        responseData.excessAmount = parseFloat(overpaymentAmount.toFixed(6));
-        responseData.excessAmountUsd = parseFloat(overpaymentUsd.toFixed(2));
+        responseData.excessAmount = toNumber(overpaymentAmount, 6);
+        responseData.excessAmountUsd = toNumber(overpaymentUsd, 2);
 
         // Tier-1 item #2: payment.overpaid (opt-in event, deduped per payment —
         // this endpoint is polled, so it must only ever fire once).
@@ -312,10 +313,10 @@ export const verifyCryptoPayment = async (
             payment_id: tempData?.payment_id || tempData?.unique_tx_id,
             address,
             txId: tempData?.txId || null,
-            amount_received: parseFloat(totalReceived.toFixed(8)),
-            amount_expected: parseFloat(originalExpected.toFixed(8)),
-            excess_amount: parseFloat(overpaymentAmount.toFixed(8)),
-            excess_amount_usd: parseFloat(overpaymentUsd.toFixed(2)),
+            amount_received: toNumber(totalReceived, 8),
+            amount_expected: toNumber(originalExpected, 8),
+            excess_amount: toNumber(overpaymentAmount, 8),
+            excess_amount_usd: toNumber(overpaymentUsd, 2),
             currency,
             base_amount: actualBaseAmount,
             base_currency: baseCurrency,
@@ -332,10 +333,10 @@ export const verifyCryptoPayment = async (
           companyId: customerData?.company_id || tempData?.company_id || null,
           txId: tempData?.txId || null,
           currency,
-          amountReceived: parseFloat(totalReceived.toFixed(8)),
-          amountExpected: parseFloat(originalExpected.toFixed(8)),
-          excessAmount: parseFloat(overpaymentAmount.toFixed(8)),
-          excessAmountUsd: parseFloat(overpaymentUsd.toFixed(2)),
+          amountReceived: toNumber(totalReceived, 8),
+          amountExpected: toNumber(originalExpected, 8),
+          excessAmount: toNumber(overpaymentAmount, 8),
+          excessAmountUsd: toNumber(overpaymentUsd, 2),
           baseCurrency,
           linkId: customerData?.link_id || tempData?.link_id || null,
         }).catch(() => { /* notifier never throws; guard for safety */ });
@@ -352,7 +353,7 @@ export const verifyCryptoPayment = async (
     // Redis stores values as strings, so convert to string for comparison
     if (String(tempData?.incomplete) === "true" || parsedState === PaymentState.UNDERPAID) {
       // Use originalExpectedAmount if available (set by webhook), otherwise calculate from previousAmount
-      const originalExpected = parseFloat(tempData?.originalExpectedAmount || '0') || (expectedAmount + previousAmount);
+      const originalExpected = parseFloat(tempData?.originalExpectedAmount || '0') || add(expectedAmount, previousAmount).toNumber();
       const totalPaid = previousAmount > 0 ? previousAmount : receivedAmount;
       const remainingAmount = originalExpected - totalPaid;
       
@@ -365,19 +366,19 @@ export const verifyCryptoPayment = async (
       const actualBaseAmount = baseAmount > 0 ? baseAmount : parseFloat(customerData?.base_amount || "0");
       
       if (totalPaid > 0 && originalExpected > 0 && actualBaseAmount > 0) {
-        const paidRatio = totalPaid / originalExpected;
-        paidAmountUsd = actualBaseAmount * paidRatio;
+        const paidRatio = div(totalPaid, originalExpected).toNumber();
+        paidAmountUsd = toNumber(mul(actualBaseAmount, paidRatio), 8);
         expectedAmountUsd = actualBaseAmount;
-        remainingAmountUsd = actualBaseAmount - paidAmountUsd;
+        remainingAmountUsd = sub(actualBaseAmount, paidAmountUsd).toNumber();
       }
       
       cronLogger.info(`[verifyCryptoPayment] Underpayment detected:
         - Total Paid: ${totalPaid} ${currency}
         - Original Expected: ${originalExpected} ${currency}
         - Remaining: ${remainingAmount} ${currency}
-        - Paid USD: $${paidAmountUsd.toFixed(2)}
-        - Expected USD: $${expectedAmountUsd.toFixed(2)}
-        - Remaining USD: $${remainingAmountUsd.toFixed(2)}
+        - Paid USD: $${toFixedStr(paidAmountUsd, 2)}
+        - Expected USD: $${toFixedStr(expectedAmountUsd, 2)}
+        - Remaining USD: $${toFixedStr(remainingAmountUsd, 2)}
         - Remaining Seconds: ${remainingSeconds}`);
       
       // FIXED: Use "underpaid" status and camelCase fields to match checkout page expectations
@@ -385,14 +386,14 @@ export const verifyCryptoPayment = async (
         status: "underpaid",
         payment_status: "underpaid",
         message: "Partial payment received. Please pay the remaining amount.",
-        paidAmount: parseFloat(totalPaid.toFixed(6)),
-        expectedAmount: parseFloat(originalExpected.toFixed(6)),
-        remainingAmount: parseFloat(remainingAmount.toFixed(6)),
+        paidAmount: toNumber(totalPaid, 6),
+        expectedAmount: toNumber(originalExpected, 6),
+        remainingAmount: toNumber(remainingAmount, 6),
         currency: currency,
         // USD amounts
-        paidAmountUsd: parseFloat(paidAmountUsd.toFixed(2)),
-        expectedAmountUsd: parseFloat(expectedAmountUsd.toFixed(2)),
-        remainingAmountUsd: parseFloat(remainingAmountUsd.toFixed(2)),
+        paidAmountUsd: toNumber(paidAmountUsd, 2),
+        expectedAmountUsd: toNumber(expectedAmountUsd, 2),
+        remainingAmountUsd: toNumber(remainingAmountUsd, 2),
         baseCurrency: baseCurrency || customerData?.base_currency || "USD",
         txId: tempData?.previousTxId || tempData?.txId,
         address: address, // Include address so user can send remaining payment
@@ -415,7 +416,7 @@ export const verifyCryptoPayment = async (
         status: "waiting",
         payment_status: "waiting",
         message: "Payment address generated, waiting for transaction",
-        expected_amount: expectedAmount.toFixed(6),
+        expected_amount: toFixedStr(expectedAmount, 6),
         currency: currency,
         // XRP/RLUSD: Include destination tag for tag-based chains
         ...(tempData?.destination_tag && { destination_tag: Number(tempData.destination_tag) }),
@@ -435,7 +436,7 @@ export const verifyCryptoPayment = async (
         message: "Payment detected, awaiting confirmation",
         txId: tempData.txId,
         amount: tempData.receivedAmount || tempData.amount,
-        expected_amount: expectedAmount.toFixed(6),
+        expected_amount: toFixedStr(expectedAmount, 6),
         currency: currency,
         // XRP/RLUSD: Include destination tag for tag-based chains
         ...(tempData?.destination_tag && { destination_tag: Number(tempData.destination_tag) }),
@@ -455,7 +456,7 @@ export const verifyCryptoPayment = async (
         message: "Payment detected, awaiting confirmation",
         txId: tempData.txId,
         amount: tempData.receivedAmount || tempData.amount,
-        expected_amount: expectedAmount.toFixed(6),
+        expected_amount: toFixedStr(expectedAmount, 6),
         currency: currency,
         // XRP/RLUSD: Include destination tag for tag-based chains
         ...(tempData?.destination_tag && { destination_tag: Number(tempData.destination_tag) }),

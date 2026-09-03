@@ -38,6 +38,8 @@ import { adminUnlockAccount } from "../services/accountLockoutService";
 
 const BCRYPT_ROUNDS = 12;
 import crypto from "crypto";
+import { generateOtpCode } from "../helper/otpGuard";
+import { toFixedStr, toNumber } from "../utils/money";
 
 const getTransactionFee = async (
   _req: express.Request,
@@ -150,8 +152,8 @@ const getWallets = async (_req: express.Request, res: express.Response) => {
       const feeAmount = Number(
         currentWallet.fee / currencyData[i].transferRate
       );
-      const amount_in_usd = Number(finalAmount).toFixed(2);
-      const fee_in_usd = Number(feeAmount).toFixed(2);
+      const amount_in_usd = toFixedStr(finalAmount, 2);
+      const fee_in_usd = toFixedStr(feeAmount, 2);
       returnData.push({
         ...currentWallet,
         amount: userWallet.total_balance,
@@ -399,7 +401,7 @@ const withdrawAssets = async (req: express.Request, res: express.Response) => {
         )
       )?.fast;
 
-      sendAmount = Number(Number(Number(amount) - Number(fees)).toFixed(8));
+      sendAmount = toNumber(Number(amount) - Number(fees), 8);
     }
 
     if (["ETH", "BSC", "USDT-ERC20"].indexOf(adminWallet.wallet_type) !== -1) {
@@ -410,10 +412,8 @@ const withdrawAssets = async (req: express.Request, res: express.Response) => {
         Number(amount)
       );
 
-      sendAmount = Number(
-        Number(amount) -
-        Number(((fees?.gasPrice + 1) * fees?.gasLimit) / 1000000000)
-      ).toFixed(8);
+      sendAmount = toFixedStr(Number(amount) -
+        Number(((fees?.gasPrice + 1) * fees?.gasLimit) / 1000000000), 8);
     }
 
     adminLogger.info(fees);
@@ -578,7 +578,7 @@ const updateEmail = async (req: express.Request, res: express.Response) => {
         { replacements: { adminEmail: adminData?.email }, type: QueryTypes.SELECT }
       );
       if (data.length > 0) {
-        const randomNumberOTP = Math.floor(100000 + Math.random() * 900000);
+        const randomNumberOTP = generateOtpCode();
         await sendEmail(
           email,
           "Admin",
@@ -875,10 +875,8 @@ const getAdminAnalytics = async (
       revenue_performance.push({
         ...totalIncome[i],
         amount_in_usd: currencyData[0].amount,
-        fee_amount: Number(feeAmount).toFixed(8),
-        fee_in_usd: Number(feeAmount * currencyData[0].transferRate).toFixed(
-          2
-        ),
+        fee_amount: toFixedStr(feeAmount, 8),
+        fee_in_usd: toFixedStr(feeAmount * currencyData[0].transferRate, 2),
       });
     }
 
@@ -1104,7 +1102,7 @@ const creditCustomerWallet = async (
       await sequelize.query(
         `UPDATE tbl_customer_wallet SET amount = $1, "updatedAt" = NOW() WHERE customer_id = $2`,
         {
-          bind: [newBalance.toFixed(2), customerId],
+          bind: [toFixedStr(newBalance, 2), customerId],
           type: QueryTypes.UPDATE,
           transaction: t,
         }
@@ -1125,7 +1123,7 @@ const creditCustomerWallet = async (
             txId,
             customer.company_id,
             customerId,
-            creditAmount.toFixed(2),
+            toFixedStr(creditAmount, 2),
             wallet.wallet_type,
             description.trim(),
             txRef,
@@ -1142,9 +1140,9 @@ const creditCustomerWallet = async (
 
     successResponseHelper(res, 200, "Wallet credited successfully", {
       customer_id: customerId,
-      previous_balance: Number(wallet.amount).toFixed(2),
-      amount_credited: creditAmount.toFixed(2),
-      new_balance: newBalance.toFixed(2),
+      previous_balance: toFixedStr(wallet.amount, 2),
+      amount_credited: toFixedStr(creditAmount, 2),
+      new_balance: toFixedStr(newBalance, 2),
       currency: wallet.wallet_type,
     });
   } catch (e) {
@@ -1231,7 +1229,7 @@ const debitCustomerWallet = async (
       return errorResponseHelper(
         res,
         400,
-        `Insufficient balance. Current balance: ${Number(wallet.amount).toFixed(2)} ${wallet.wallet_type}`
+        `Insufficient balance. Current balance: ${toFixedStr(wallet.amount, 2)} ${wallet.wallet_type}`
       );
     }
 
@@ -1243,7 +1241,7 @@ const debitCustomerWallet = async (
       await sequelize.query(
         `UPDATE tbl_customer_wallet SET amount = $1, "updatedAt" = NOW() WHERE customer_id = $2`,
         {
-          bind: [newBalance.toFixed(2), customerId],
+          bind: [toFixedStr(newBalance, 2), customerId],
           type: QueryTypes.UPDATE,
           transaction: t,
         }
@@ -1264,7 +1262,7 @@ const debitCustomerWallet = async (
             txId,
             customer.company_id,
             customerId,
-            debitAmount.toFixed(2),
+            toFixedStr(debitAmount, 2),
             wallet.wallet_type,
             description.trim(),
             txRef,
@@ -1281,9 +1279,9 @@ const debitCustomerWallet = async (
 
     successResponseHelper(res, 200, "Wallet debited successfully", {
       customer_id: customerId,
-      previous_balance: Number(wallet.amount).toFixed(2),
-      amount_debited: debitAmount.toFixed(2),
-      new_balance: newBalance.toFixed(2),
+      previous_balance: toFixedStr(wallet.amount, 2),
+      amount_debited: toFixedStr(debitAmount, 2),
+      new_balance: toFixedStr(newBalance, 2),
       currency: wallet.wallet_type,
     });
   } catch (e) {

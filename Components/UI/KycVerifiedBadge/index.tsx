@@ -1,10 +1,8 @@
 import React from "react";
-import useSWR from "swr";
 import { Tooltip, Box } from "@mui/material";
 import { Icon } from "@iconify/react";
-import axiosBaseApi from "@/axiosConfig";
-import { API_ENDPOINTS } from "@/api/endpoints";
 import { useTranslation } from "react-i18next";
+import { useKycStatus } from "@/hooks/useKycStatus";
 
 /**
  * KycVerifiedBadge — a small "identity verified" check shown next to a
@@ -12,9 +10,8 @@ import { useTranslation } from "react-i18next";
  * (GET /api/kyc/status). Renders NOTHING until verified, so it never adds
  * visual noise for accounts that haven't completed verification.
  *
- * Deliberately read-only + self-contained: fetches its own status via SWR
- * (deduped/cached across the app), keyed by companyId so it updates when the
- * merchant switches business.
+ * Reads the shared useKycStatus SWR entry (one request per dashboard load),
+ * keyed by companyId so it updates when the merchant switches business.
  */
 interface KycVerifiedBadgeProps {
   companyId?: number | string | null;
@@ -23,23 +20,11 @@ interface KycVerifiedBadgeProps {
   ml?: number | string;
 }
 
-const fetchKycStatus = async (companyId?: number | string | null): Promise<string> => {
-  const res: any = await axiosBaseApi.get(API_ENDPOINTS.kyc.status, {
-    params: companyId ? { company_id: companyId } : {},
-  });
-  // successResponseHelper -> { success, message, data:{ status, ... } }
-  return String(res?.data?.data?.status ?? res?.data?.status ?? "");
-};
-
 const KycVerifiedBadge: React.FC<KycVerifiedBadgeProps> = ({ companyId, size = 16, ml = 0.5 }) => {
   const { t } = useTranslation("dashboardLayout");
-  const { data: status } = useSWR(
-    ["kyc/status", companyId ?? "self"],
-    () => fetchKycStatus(companyId),
-    { revalidateOnFocus: false, revalidateIfStale: false, shouldRetryOnError: false, dedupingInterval: 60000 },
-  );
+  const { data } = useKycStatus(companyId);
 
-  if (status !== "approved") return null;
+  if (data?.status !== "approved") return null;
 
   return (
     <Tooltip

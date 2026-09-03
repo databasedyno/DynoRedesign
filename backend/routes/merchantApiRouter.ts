@@ -36,6 +36,7 @@ import { paymentController } from "../controller";
 import { parseState, toExternalStatus, toConversionDisplayStatus } from "../services/paymentStateMachine";
 import { sendSuccess, sendError, asyncHandler } from "../helper/apiResponse";
 import config from "../utils/config";
+import { toFixedStr } from "../utils/money";
 
 const router = express.Router();
 
@@ -752,7 +753,7 @@ router.post("/useWallet", legacyApiAuthMiddleware, asyncHandler(async (req, res)
     return sendError(res, { status: 400, message: "Insufficient Balance!" });
   }
 
-  const newAmount = Number(Number(walletData[0].amount) - Number(amount)).toFixed(2);
+  const newAmount = toFixedStr(Number(walletData[0].amount) - Number(amount), 2);
 
   // Debit wallet
   await sequelize.query(
@@ -789,7 +790,7 @@ router.post("/useWallet", legacyApiAuthMiddleware, asyncHandler(async (req, res)
         txId,
         data.company_id,
         customerId,
-        Number(amount).toFixed(2),
+        toFixedStr(amount, 2),
         data.base_currency || 'USD',
         `wallet transaction on ${companyName}`,
         txRef

@@ -9,6 +9,7 @@ import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p,
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
 import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
+import { toFixedStr } from "../../utils/money";
 
 /**
  * Format a cents integer to a currency-symbol prefixed string.
@@ -17,7 +18,7 @@ import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
 const formatCents = (cents: number | string | null | undefined, currency: string = "USD"): string => {
   const amount = Number(cents || 0) / 100;
   const symbol = getCurrencySymbol(currency);
-  return `${symbol}${amount.toFixed(2)} ${currency}`;
+  return `${symbol}${toFixedStr(amount, 2)} ${currency}`;
 };
 
 /**

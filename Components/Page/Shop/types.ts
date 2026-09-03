@@ -1,3 +1,4 @@
+import { toFixedStr } from "@/utils/money";
 /**
  * Shared types for the storefront components.
  */
@@ -62,6 +63,6 @@ export function formatPrice(cents: number, ccy: string): string {
       maximumFractionDigits: 2,
     }).format(n);
   } catch {
-    return `${n.toFixed(2)} ${ccy}`;
+    return `${toFixedStr(n, 2)} ${ccy}`;
   }
 }

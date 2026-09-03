@@ -32,6 +32,8 @@ import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { redeemUserReferralCode } from "../../services/referralService";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { generateOtpCode, recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
+import { clientIp } from "../../middleware/rateLimitMiddleware";
 
 export const registerUser = async (req: express.Request, res: express.Response) => {
   try {
@@ -97,7 +99,7 @@ export const registerUser = async (req: express.Request, res: express.Response) 
         user_id: createdUser.dataValues.user_id,
       }).catch(err => userLogger.error("Admin notification error:", err));
 
-      const verifyOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      const verifyOtp = generateOtpCode().toString();
       const verifyKey = `email-verify:${createdUser.dataValues.user_id}`;
       await setRedisItem(verifyKey, { otp: verifyOtp, createdAt: new Date().toISOString() });
       await setRedisTTL(verifyKey, 600);
@@ -223,7 +225,8 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
     }
 
     if (otp !== item.otp) {
-      return errorResponseHelper(res, 400, "Invalid verification code.");
+      const locked = await recordOtpFailure(otpKey, item, undefined, { email, ip: clientIp(req), channel: "email_verification" });
+      return errorResponseHelper(res, 400, locked ? otpLockedMessage : "Invalid verification code.");
     }
 
     // OTP verified — delete it

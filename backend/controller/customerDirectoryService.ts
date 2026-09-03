@@ -26,6 +26,7 @@ import {
 } from "../utils/transactionSource";
 import { PROCESSED_STATUSES, PROCESSED_USD_EXPR } from "../utils/processedVolume";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
+import { add, sum, toNumber } from "../utils/money";
 
 const PAID_SET = new Set<string>(PROCESSED_STATUSES as readonly string[]);
 
@@ -312,7 +313,7 @@ export const buildDirectory = async (
     const status = String(row.status || "").toLowerCase();
     if (PAID_SET.has(status)) {
       entry.payments_count += 1;
-      entry.ltv_usd += Number(row.usd_display || 0);
+      entry.ltv_usd = add(entry.ltv_usd, row.usd_display).toNumber();
       entry.last_payment = maxDate(entry.last_payment, row.createdAt);
       entry.first_paid = minDate(entry.first_paid, row.createdAt);
     } else if (deriveTxDisplayStatus(status, row.createdAt) === "pending") {
@@ -357,7 +358,7 @@ export const buildDirectory = async (
     const { _channels, first_paid, ...rest } = e;
     return {
       ...rest,
-      ltv_usd: Math.round(e.ltv_usd * 100) / 100,
+      ltv_usd: toNumber(e.ltv_usd, 2),
       channels: Array.from(_channels),
       segment: e.kind === "anonymous" ? "anonymous" : segmentOf({ ...e, first_paid }),
     };
@@ -376,20 +377,20 @@ export const buildDirectory = async (
   const newThisMonth = personList.filter(
     (p) => p.first_seen && now - new Date(p.first_seen).getTime() <= NEW_WINDOW_DAYS * DAY_MS
   ).length;
-  const identifiedRevenue = personList.reduce((s, p) => s + p.ltv_usd, 0);
-  const anonRevenue = anonList.reduce((s, p) => s + p.ltv_usd, 0);
+  const identifiedRevenue = sum(personList.map((p) => p.ltv_usd)).toNumber();
+  const anonRevenue = sum(anonList.map((p) => p.ltv_usd)).toNumber();
 
   const data: DirectoryData = {
     persons: personList,
     anonymous: anonList,
     aggregates: {
       total_customers: personList.length,
-      revenue_usd: Math.round((identifiedRevenue + anonRevenue) * 100) / 100,
-      identified_revenue_usd: Math.round(identifiedRevenue * 100) / 100,
-      repeat_rate: paidPersons.length ? Math.round((repeatPersons.length / paidPersons.length) * 100) / 100 : 0,
+      revenue_usd: toNumber((identifiedRevenue + anonRevenue), 2),
+      identified_revenue_usd: toNumber(identifiedRevenue, 2),
+      repeat_rate: paidPersons.length ? toNumber((repeatPersons.length / paidPersons.length), 2) : 0,
       new_this_month: newThisMonth,
       anonymous_payments: anonList.reduce((s, p) => s + p.payments_count, 0),
-      anonymous_revenue_usd: Math.round(anonRevenue * 100) / 100,
+      anonymous_revenue_usd: toNumber(anonRevenue, 2),
     },
   };
 

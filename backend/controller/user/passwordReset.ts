@@ -31,6 +31,8 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
+import { clientIp } from "../../middleware/rateLimitMiddleware";
 
 export const forgotPassword = async (req: express.Request, res: express.Response) => {
   try {
@@ -140,7 +142,8 @@ export const forgotPasswordVerifyOtp = async (req: express.Request, res: express
     }
 
     if (otp !== item.otp) {
-      return errorResponseHelper(res, 400, "Invalid OTP. Please try again.");
+      const locked = await recordOtpFailure(otpKey, item, undefined, { email, ip: clientIp(req), channel: "password_reset" });
+      return errorResponseHelper(res, 400, locked ? otpLockedMessage : "Invalid OTP. Please try again.");
     }
 
     // OTP verified — delete it and create a short-lived reset session token
@@ -249,13 +252,18 @@ export const resetPassword = async (req: express.Request, res: express.Response)
       return errorResponseHelper(res, 400, passwordError);
     }
 
-    // Check for OTP-based reset session token in Redis
+    // Check for OTP-based reset session token in Redis.
+    // SECURITY: getRedisItem() returns {} for a missing key, so the session is
+    // only valid when it actually carries the identity written by verify-otp.
+    // Never fall back to the request-body email here — that allowed resetting
+    // ANY account's password with a made-up token.
     const resetSessionKey = `pwd-reset-session:${token}`;
     const session = await getRedisItem(resetSessionKey);
+    const hasOtpSession = !!session && (typeof session.email === "string" || session.userId != null);
 
-    if (session) {
+    if (hasOtpSession) {
       // OTP-based flow — session contains email or userId
-      const userEmail = session.email || email;
+      const userEmail = session.email as string | undefined;
       const userId = session.userId;
 
       let user;

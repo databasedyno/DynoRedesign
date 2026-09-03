@@ -17,6 +17,7 @@ import https from "https";
 import { cronLogger } from "../utils/loggers";
 import axios, { AxiosError } from "axios";
 import { SocksProxyAgent } from "socks-proxy-agent";
+import { mul, toFixedStr } from "../utils/money";
 
 // P3 perf: reuse TCP/TLS connections to Binance on the direct (non-proxy) path.
 // When a SOCKS proxy is active the proxy agent manages its own sockets, so these
@@ -306,7 +307,7 @@ export const getOrderBookDepth = async (
     bestAsk: data.asks[0]?.[0] || "0",
     bestAskQty: data.asks[0]?.[1] || "0",
     spread: data.bids[0] && data.asks[0]
-      ? (parseFloat(data.asks[0][0]) - parseFloat(data.bids[0][0])).toFixed(8)
+      ? toFixedStr((parseFloat(data.asks[0][0]) - parseFloat(data.bids[0][0])), 8)
       : "0",
     bids: data.bids.map(([price, quantity]) => ({ price, quantity })),
     asks: data.asks.map(([price, quantity]) => ({ price, quantity })),
@@ -391,20 +392,20 @@ export const convertViaLimitIOC = async (
 
   // Step 3: If less than 95% filled, try market order for remainder
   if (fillPercent < 95 && fromAmount - executedQty > 0.000001) {
-    cronLogger.info(`[Binance] IOC filled ${fillPercent.toFixed(1)}%, using market order for remainder`);
+    cronLogger.info(`[Binance] IOC filled ${toFixedStr(fillPercent, 1)}%, using market order for remainder`);
     const remaining = fromAmount - executedQty;
     try {
       const marketOrder = await placeMarketSellOrder(symbol, remaining);
       const totalExecuted = executedQty + parseFloat(marketOrder.executedQty);
       const totalQuote = parseFloat(order.cummulativeQuoteQty) + parseFloat(marketOrder.cummulativeQuoteQty);
-      const avgPrice = totalExecuted > 0 ? (totalQuote / totalExecuted).toFixed(8) : "0";
+      const avgPrice = totalExecuted > 0 ? toFixedStr((totalQuote / totalExecuted), 8) : "0";
 
       return {
         orderId: order.orderId,
         fromAsset: from,
         toAsset: to,
-        fromAmount: totalExecuted.toFixed(8),
-        toAmount: totalQuote.toFixed(8),
+        fromAmount: toFixedStr(totalExecuted, 8),
+        toAmount: toFixedStr(totalQuote, 8),
         avgPrice,
         status: "FILLED",
         method: "LIMIT_IOC+MARKET_FALLBACK",
@@ -417,7 +418,7 @@ export const convertViaLimitIOC = async (
   }
 
   const quoteQty = parseFloat(order.cummulativeQuoteQty);
-  const avgPrice = executedQty > 0 ? (quoteQty / executedQty).toFixed(8) : "0";
+  const avgPrice = executedQty > 0 ? toFixedStr((quoteQty / executedQty), 8) : "0";
 
   return {
     orderId: order.orderId,
@@ -475,11 +476,11 @@ export const getExchangeInfo = async (symbol: string): Promise<{
 /** Round quantity to valid step size */
 const roundToStepSize = (quantity: number, stepSize: string): string => {
   const step = parseFloat(stepSize);
-  if (step === 0) return quantity.toFixed(8);
+  if (step === 0) return toFixedStr(quantity, 8);
   const precision = stepSize.indexOf("1") - stepSize.indexOf(".");
   if (precision < 0) return Math.floor(quantity / step) * step + "";
   const rounded = Math.floor(quantity / step) * step;
-  return rounded.toFixed(Math.max(0, precision));
+  return toFixedStr(rounded, Math.max(0, precision));
 };
 
 /** Place a market sell order (convert crypto to stablecoin) */
@@ -539,7 +540,7 @@ export const convertViaSpotTrade = async (
 
   const executedQty = parseFloat(order.executedQty);
   const quoteQty = parseFloat(order.cummulativeQuoteQty);
-  const avgPrice = executedQty > 0 ? (quoteQty / executedQty).toFixed(8) : "0";
+  const avgPrice = executedQty > 0 ? toFixedStr((quoteQty / executedQty), 8) : "0";
 
   return {
     orderId: order.orderId,
@@ -570,12 +571,12 @@ export const getSpotQuote = async (
   const symbol = `${from}${to}`;
 
   const price = await getPrice(symbol);
-  const estimatedToAmount = (fromAmount * price).toFixed(8);
+  const estimatedToAmount = toFixedStr(mul(fromAmount, price), 8);
 
   return {
     fromAsset: from,
     toAsset: to,
-    fromAmount: fromAmount.toFixed(8),
+    fromAmount: toFixedStr(fromAmount, 8),
     estimatedToAmount,
     price: price.toString(),
     symbol,
@@ -626,7 +627,7 @@ export const getConvertQuote = async (
   const data = (await makeSignedRequest("POST", "/sapi/v1/convert/getQuote", {
     fromAsset: toBinanceAsset(fromAsset),
     toAsset: toBinanceAsset(toAsset),
-    fromAmount: fromAmount.toFixed(8),
+    fromAmount: toFixedStr(fromAmount, 8),
     validTime: "30s",
   })) as {
     quoteId: string;
@@ -723,7 +724,7 @@ export const submitWithdrawal = async ({
   const params: Record<string, string | number | boolean | undefined> = {
     coin: coin.toUpperCase(),
     address,
-    amount: amount.toFixed(8),
+    amount: toFixedStr(amount, 8),
     network: toBinanceNetwork(network),
   };
   if (addressTag) {

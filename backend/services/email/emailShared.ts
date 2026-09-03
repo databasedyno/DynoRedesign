@@ -3,6 +3,7 @@ import config from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
 import { baseEmailTemplate, getCurrencySymbol, p } from "../../utils/emailTemplate";
 import { t as tr, firstNameOnly } from "../../utils/emailI18n";
+import { toFixedStr } from "../../utils/money";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
 export const FRONTEND_BASE_URL = (config.frontendUrl || 'https://dynopay.com').replace(/\/$/, '');
@@ -73,7 +74,7 @@ export const dynoPayGreetingTemplate = (
 
 export const formatAmountWithCurrency = (amount: number, currency: string = 'USD'): string => {
   const symbol = getCurrencySymbol(currency);
-  return `${symbol}${amount.toFixed(2)} ${currency}`;
+  return `${symbol}${toFixedStr(amount, 2)} ${currency}`;
 };
 
 // ============================================================

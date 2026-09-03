@@ -22,16 +22,17 @@ import {
   YAxis,
 } from "recharts";
 import { brandFg } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 // Smart value formatter that avoids duplicate labels
 const formatValue = (v: number): string => {
   if (v === 0) return "$0";
   const abs = Math.abs(v);
-  if (abs >= 1_000_000) return `$${+(v / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000_000) return `$${+toFixedStr((v / 1_000_000), 1)}M`;
   if (abs >= 10_000) return `$${Math.round(v / 1000)}k`;
-  if (abs >= 1_000) return `$${+(v / 1000).toFixed(1)}k`;
+  if (abs >= 1_000) return `$${+toFixedStr((v / 1000), 1)}k`;
   if (abs >= 1) return `$${Math.round(v)}`;
-  return `$${v.toFixed(2)}`;
+  return `$${toFixedStr(v, 2)}`;
 };
 
 // Generate nicely spaced Y-axis ticks that never duplicate after formatting

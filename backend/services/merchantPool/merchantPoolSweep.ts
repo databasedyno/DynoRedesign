@@ -45,6 +45,7 @@ import {
 } from "./merchantPoolConfig";
 import { directEvmSweep, isDirectEvmSupported } from "./directEvmTransfer";
 import sequelize from "../../utils/dbInstance";
+import { add, mul, sub, toFixedStr, toNumber } from "../../utils/money";
 
 /**
  * Smart Gas Funding for account-based chains (ETH, TRX)
@@ -195,11 +196,11 @@ export const fundGasIfNeeded = async (
       }
     }
 
-    const requiredGas = estimatedGas * POOL_CONFIG.GAS_SAFETY_BUFFER;
+    const requiredGas = mul(estimatedGas, POOL_CONFIG.GAS_SAFETY_BUFFER).toNumber();
     
-    cronLogger.info(`[SmartGas] Required gas with ${((POOL_CONFIG.GAS_SAFETY_BUFFER - 1) * 100).toFixed(0)}% buffer: ${requiredGas.toFixed(6)} ${gasToken}`);
+    cronLogger.info(`[SmartGas] Required gas with ${toFixedStr(((POOL_CONFIG.GAS_SAFETY_BUFFER - 1) * 100), 0)}% buffer: ${toFixedStr(requiredGas, 6)} ${gasToken}`);
 
-    const deficit = requiredGas - currentBalance;
+    const deficit = sub(requiredGas, currentBalance).toNumber();
     const minDeficit = gasToken === "TRX" ? POOL_CONFIG.TRX_MIN_DEFICIT 
       : gasToken === "XRP" ? POOL_CONFIG.XRP_MIN_DEFICIT
       : gasToken === "POLYGON" ? POOL_CONFIG.POLYGON_MIN_DEFICIT
@@ -213,12 +214,12 @@ export const fundGasIfNeeded = async (
     // Now ONLY skip when balance actually covers the required gas. The minDeficit is still
     // used below for minimum funding amount (preventing micro-transactions).
     if (currentBalance >= requiredGas) {
-      cronLogger.info(`[SmartGas] ✅ Sufficient gas (have: ${currentBalance.toFixed(6)}, need: ${requiredGas.toFixed(6)}) - No funding needed`);
+      cronLogger.info(`[SmartGas] ✅ Sufficient gas (have: ${toFixedStr(currentBalance, 6)}, need: ${toFixedStr(requiredGas, 6)}) - No funding needed`);
       await poolAddress.update({ gas_balance: currentBalance });
       return { funded: false, amount: 0, reason: 'Sufficient balance' };
     }
 
-    cronLogger.info(`[SmartGas] 📊 Gas deficit: ${deficit.toFixed(6)} ${gasToken} (have: ${currentBalance.toFixed(6)}, need: ${requiredGas.toFixed(6)})`);
+    cronLogger.info(`[SmartGas] 📊 Gas deficit: ${toFixedStr(deficit, 6)} ${gasToken} (have: ${toFixedStr(currentBalance, 6)}, need: ${toFixedStr(requiredGas, 6)})`);
 
     // Fund only the deficit (what's actually missing), with a minimum floor to avoid micro-transactions.
     // BUG FIX (2026-04-06): Previously included `requiredGas` in Math.max, which caused funding the
@@ -237,7 +238,7 @@ export const fundGasIfNeeded = async (
       throw new Error(`Fee wallet not found for ${gasToken}`);
     }
 
-    cronLogger.info(`[SmartGas] 🔥 Funding ${fundAmount.toFixed(6)} ${gasToken} to ${tempAddress}`);
+    cronLogger.info(`[SmartGas] 🔥 Funding ${toFixedStr(fundAmount, 6)} ${gasToken} to ${tempAddress}`);
 
     // MEMORY HARDENING: plaintext fee-wallet key exists only inside this callback.
     const txId: string | undefined = await keyCustody.withPrivateKey(
@@ -271,11 +272,11 @@ export const fundGasIfNeeded = async (
       }
     );
 
-    const newBalance = currentBalance + fundAmount;
+    const newBalance = add(currentBalance, fundAmount).toNumber();
     await poolAddress.update({ gas_balance: newBalance });
 
-    cronLogger.info(`[SmartGas] ✅ Gas funded: ${fundAmount.toFixed(6)} ${gasToken} (TX: ${txId})`);
-    cronLogger.info(`[SmartGas]    Old balance: ${currentBalance.toFixed(6)} → New balance: ${newBalance.toFixed(6)} ${gasToken}`);
+    cronLogger.info(`[SmartGas] ✅ Gas funded: ${toFixedStr(fundAmount, 6)} ${gasToken} (TX: ${txId})`);
+    cronLogger.info(`[SmartGas]    Old balance: ${toFixedStr(currentBalance, 6)} → New balance: ${toFixedStr(newBalance, 6)} ${gasToken}`);
 
     return { funded: true, amount: fundAmount, txId: txId, reason: 'Deficit funded' };
     
@@ -318,13 +319,13 @@ export const reclaimExcessGas = async (
     const currentBalance = Number(balanceResult?.balance ?? 0);
 
     if (currentBalance <= threshold) {
-      cronLogger.info(`[GasReclaim] ${poolAddress.substring(0, 12)}... has ${currentBalance.toFixed(4)} ${gasToken} — below threshold (${threshold}), skipping`);
+      cronLogger.info(`[GasReclaim] ${poolAddress.substring(0, 12)}... has ${toFixedStr(currentBalance, 4)} ${gasToken} — below threshold (${threshold}), skipping`);
       return { reclaimed: false, amount: 0 };
     }
 
     // Leave a small dust amount to keep the address activated
     const dustReserve = gasToken === "TRX" ? 1.1 : gasToken === "ETH" ? 0.0001 : 0.001;
-    const reclaimAmount = Math.floor((currentBalance - dustReserve) * 1e6) / 1e6; // Floor to 6 decimals
+    const reclaimAmount = toNumber(sub(currentBalance, dustReserve), 6, "down"); // Floor to 6 decimals
 
     if (reclaimAmount <= 0) {
       return { reclaimed: false, amount: 0 };
@@ -341,7 +342,7 @@ export const reclaimExcessGas = async (
       return { reclaimed: false, amount: 0 };
     }
 
-    cronLogger.info(`[GasReclaim] ♻️ Reclaiming ${reclaimAmount.toFixed(4)} ${gasToken} from ${poolAddress.substring(0, 12)}... → fee wallet`);
+    cronLogger.info(`[GasReclaim] ♻️ Reclaiming ${toFixedStr(reclaimAmount, 4)} ${gasToken} from ${poolAddress.substring(0, 12)}... → fee wallet`);
 
     // MEMORY HARDENING: plaintext pool key exists only inside this callback.
     const txId: string | undefined = await keyCustody.withPrivateKey(
@@ -371,7 +372,7 @@ export const reclaimExcessGas = async (
       }
     );
 
-    cronLogger.info(`[GasReclaim] ✅ Reclaimed ${reclaimAmount.toFixed(4)} ${gasToken} (TX: ${txId})`);
+    cronLogger.info(`[GasReclaim] ✅ Reclaimed ${toFixedStr(reclaimAmount, 4)} ${gasToken} (TX: ${txId})`);
     return { reclaimed: true, amount: reclaimAmount, txId };
 
   } catch (error) {
@@ -445,7 +446,7 @@ const checkSweepProfitability = async (
       return { profitable: true, estimatedFee };
     }
     
-    cronLogger.info(`[MerchantPool] Profitability: ${walletType} balance=$${balanceUSD.toFixed(2)}, gas fee=${estimatedFee} ${feeCurrency} ($${feeUSD.toFixed(2)})`);
+    cronLogger.info(`[MerchantPool] Profitability: ${walletType} balance=$${toFixedStr(balanceUSD, 2)}, gas fee=${estimatedFee} ${feeCurrency} ($${toFixedStr(feeUSD, 2)})`);
     
     const PROFITABILITY_THRESHOLD = 0.5;
     const profitable = feeUSD < (balanceUSD * PROFITABILITY_THRESHOLD);
@@ -557,9 +558,9 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     // Account-based chains (ETH, TRX, XRP, SOL, POLYGON) return {balance}
     let actualBalance: number;
     if (balanceData?.incoming !== undefined && balanceData?.outgoing !== undefined) {
-      actualBalance = parseFloat(balanceData.incoming || "0") - parseFloat(balanceData.outgoing || "0");
+      actualBalance = sub(balanceData.incoming, balanceData.outgoing).toNumber();
       // Round to 8 decimal places to avoid floating point precision issues
-      actualBalance = Math.round(actualBalance * 100000000) / 100000000;
+      actualBalance = toNumber(actualBalance, 8);
       cronLogger.info(`[MerchantPool] UTXO balance: incoming=${balanceData.incoming}, outgoing=${balanceData.outgoing}, net=${actualBalance}`);
     } else {
       actualBalance = parseFloat(balanceData?.balance || "0");
@@ -645,7 +646,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       // stale counters (e.g. DB said 6.39 USDT, chain held 0.12) kept addresses in a
       // permanent unprofitable-deferral loop.
       if (isERC20 && balUSD < 1.0) {
-        cronLogger.warn(`[MerchantPool] 🗑️ ERC20 WRITE-OFF: ${poolAddress.dataValues.wallet_address} — $${balUSD.toFixed(4)} permanently written off (gas always >> balance)`);
+        cronLogger.warn(`[MerchantPool] 🗑️ ERC20 WRITE-OFF: ${poolAddress.dataValues.wallet_address} — $${toFixedStr(balUSD, 4)} permanently written off (gas always >> balance)`);
         await poolAddress.update({ 
           status: "AVAILABLE", 
           admin_fee_balance: 0,
@@ -654,7 +655,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
         return {
           success: true,
           skipped: false,
-          reason: `ERC20 dust written off ($${balUSD.toFixed(4)})`,
+          reason: `ERC20 dust written off ($${toFixedStr(balUSD, 4)})`,
           balanceUSD: balUSD,
           feeUSD: profitabilityResult.feeUSD,
           dustWriteOff: true,
@@ -678,7 +679,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
           // Defer: stop retrying for DEFERRAL_HOURS, then the counter resets and sweeping resumes
           const deferUntil = new Date(Date.now() + DEFERRAL_HOURS * 3600000).toISOString();
           await setRedisItemWithTTL(failCountKey, { count: failCount, deferredUntil: deferUntil }, DEFERRAL_HOURS * 3600);
-          cronLogger.info(`[MerchantPool] ⏸️ SWEEP DEFERRED: ${poolAddress.dataValues.wallet_address} — $${(profitabilityResult.balanceUSD || 0).toFixed(2)} deferred after ${failCount} consecutive unprofitable sweeps. Will retry after ${deferUntil}`);
+          cronLogger.info(`[MerchantPool] ⏸️ SWEEP DEFERRED: ${poolAddress.dataValues.wallet_address} — $${toFixedStr((profitabilityResult.balanceUSD || 0), 2)} deferred after ${failCount} consecutive unprofitable sweeps. Will retry after ${deferUntil}`);
           
           // Keep admin_fee_balance intact (on-chain funds preserved), just release the lock
           await poolAddress.update({ status: "AVAILABLE" });
@@ -754,9 +755,8 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       const utxoFee = typeof feeData === 'object' && feeData !== null
         ? parseFloat(String(feeData.slow || feeData.medium || feeData.fast || "0.00005"))
         : parseFloat(String(feeData || "0.00005"));
-      amountToSend = actualBalance - utxoFee;
-      // Round down to 8 decimal places (UTXO precision)
-      amountToSend = Math.floor(amountToSend * 100000000) / 100000000;
+      // Exact: balance − fee, rounded DOWN to 8 dp (UTXO precision)
+      amountToSend = toNumber(sub(actualBalance, utxoFee), 8, "down");
       
       if (amountToSend <= 0) {
         cronLogger.warn(`[MerchantPool] ⚠️ UTXO balance too low after fee: ${actualBalance} - ${utxoFee} = ${amountToSend}`);
@@ -815,11 +815,9 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
         cronLogger.info(`[MerchantPool] SOL reserve: ${accountReserve} SOL (rent-exempt ${SOL_RENT_EXEMPT_MINIMUM} + tx fee ${SOL_TX_FEE})`);
       }
       
-      amountToSend = actualBalance - gasFee - accountReserve;
-      
-      // Safety buffer: round down to 6 decimal places to avoid edge cases
-      // from balance timing differences between API reads and on-chain state
-      amountToSend = Math.floor(amountToSend * 1000000) / 1000000;
+      // Safety buffer: exact balance − gas − reserve, rounded DOWN to 6 dp to avoid edge
+      // cases from balance timing differences between API reads and on-chain state
+      amountToSend = toNumber(sub(sub(actualBalance, gasFee), accountReserve), 6, "down");
       
       if (amountToSend <= 0) {
         const reserveNote = accountReserve > 0 ? ` + ${accountReserve} reserve` : '';
@@ -920,7 +918,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     }
 
     // Fetch actual on-chain gas cost (TX is confirmed, so this should succeed)
-    let actualGasUsed = isAccountChain ? (actualBalance - amountToSend) : 0;
+    let actualGasUsed = isAccountChain ? sub(actualBalance, amountToSend).toNumber() : 0;
     if (sweepTxId) {
       try {
         const gasCost = await tatumApi.getTransactionGasCost(sweepTxId, walletType);
@@ -1008,11 +1006,11 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
         if (adminEmail) {
           const sweepConfig = getSweepConfig(walletType);
           const gasToken = GAS_TOKEN_MAPPING[walletType] || walletType;
-          const gasDisplay = actualGasUsed > 0 ? `${actualGasUsed.toFixed(8)} ${gasToken}` : 'N/A (token transfer)';
+          const gasDisplay = actualGasUsed > 0 ? `${toFixedStr(actualGasUsed, 8)} ${gasToken}` : 'N/A (token transfer)';
           
           await sendAdminFeeSweepEmail(
             adminEmail,
-            amountToSend.toFixed(8),
+            toFixedStr(amountToSend, 8),
             walletType,
             poolAddress.dataValues.wallet_address,
             adminWallet,
@@ -1041,7 +1039,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
           const incomingTxId = latestPoolTx.dataValues.incoming_tx_id;
           const ownerUserId = poolAddress.dataValues.owner_user_id;
           const merchantAmount = parseFloat(latestPoolTx.dataValues.merchant_amount || '0');
-          const paymentAmount = merchantAmount + parseFloat(latestPoolTx.dataValues.admin_fee_amount || '0');
+          const paymentAmount = add(merchantAmount, latestPoolTx.dataValues.admin_fee_amount).toNumber();
 
           // Check and recover "Payment Pending" notification
           const pendingKey = `pending-notif-${incomingTxId}`;
@@ -1273,7 +1271,7 @@ export const sweepByThreshold = async (): Promise<number> => {
       const usdAmount = await convertToUSD(walletType, cryptoAmount);
       
       if (usdAmount >= (sweepConfig.value || 30)) {
-        cronLogger.info(`[MerchantPool] ✅ ${walletAddress} (${walletType}): $${usdAmount.toFixed(2)} >= $${sweepConfig.value} threshold — sweeping`);
+        cronLogger.info(`[MerchantPool] ✅ ${walletAddress} (${walletType}): $${toFixedStr(usdAmount, 2)} >= $${sweepConfig.value} threshold — sweeping`);
         // Conditional update: only transition if still AVAILABLE, IN_USE, or PRE_RESERVED (not RESERVED/PROCESSING)
         // Prevents race condition where reservation claimed the address between our read and update
         const [updatedRows] = await merchantTempAddressModel.update(
@@ -1292,7 +1290,7 @@ export const sweepByThreshold = async (): Promise<number> => {
           { where: { temp_address_id: address.dataValues.temp_address_id, status: "IN_USE", current_payment_id: null } }
         );
         if (healed > 0) {
-          cronLogger.info(`[MerchantPool] 🔄 Self-heal: ${walletAddress} (${walletType}) IN_USE → AVAILABLE ($${usdAmount.toFixed(2)} < $${sweepConfig.value} threshold, visible for reuse)`);
+          cronLogger.info(`[MerchantPool] 🔄 Self-heal: ${walletAddress} (${walletType}) IN_USE → AVAILABLE ($${toFixedStr(usdAmount, 2)} < $${sweepConfig.value} threshold, visible for reuse)`);
         }
       }
     } catch (error) {
@@ -1397,14 +1395,14 @@ export const sweepByTime = async (): Promise<number> => {
             if (isERC20) {
               // ERC20 permanent write-off: gas will always dwarf the balance.
               // On-chain crypto preserved — swept automatically when address is reused.
-              cronLogger.warn(`[MerchantPool] 🗑️ ERC20 WRITE-OFF: ${address.dataValues.wallet_address} (${walletType}): $${dustUSD.toFixed(4)} dust, idle ${Math.floor(timeSincePayout / 1440)}d — permanently written off`);
+              cronLogger.warn(`[MerchantPool] 🗑️ ERC20 WRITE-OFF: ${address.dataValues.wallet_address} (${walletType}): $${toFixedStr(dustUSD, 4)} dust, idle ${Math.floor(timeSincePayout / 1440)}d — permanently written off`);
               await merchantTempAddressModel.update(
                 { status: "AVAILABLE", admin_fee_balance: 0, last_swept_at: new Date() },
                 { where: { temp_address_id: address.dataValues.temp_address_id } }
               );
             } else {
               // Non-ERC20: defer for 30 days (gas prices may drop or fee wallet topped up)
-              cronLogger.warn(`[MerchantPool] ⏸️ LONG DEFER: ${address.dataValues.wallet_address} (${walletType}): $${dustUSD.toFixed(4)} micro-dust, idle ${Math.floor(timeSincePayout / 1440)}d — deferring sweep for 30 days`);
+              cronLogger.warn(`[MerchantPool] ⏸️ LONG DEFER: ${address.dataValues.wallet_address} (${walletType}): $${toFixedStr(dustUSD, 4)} micro-dust, idle ${Math.floor(timeSincePayout / 1440)}d — deferring sweep for 30 days`);
               const deferKey = `sweep:unprofitable:${address.dataValues.temp_address_id}`;
               const deferUntil = new Date(Date.now() + 30 * 24 * 3600000).toISOString();
               await setRedisItemWithTTL(deferKey, { count: 99, deferredUntil: deferUntil }, 30 * 86400);
@@ -1449,7 +1447,7 @@ export const sweepByTime = async (): Promise<number> => {
             const throttleKey = `sweep:reuse-log:${address.dataValues.temp_address_id}`;
             const lastLogged = await getRedisItem(throttleKey);
             if (!lastLogged) {
-              cronLogger.info(`[MerchantPool] 🔄 FEE CONCENTRATION: ${address.dataValues.wallet_address} (${walletType}): $${balanceUSD.toFixed(2)} < $${minSweepUSD} min sweep — leaving for reuse (idle ${Math.floor(timeSincePayout / 1440)}d)`);
+              cronLogger.info(`[MerchantPool] 🔄 FEE CONCENTRATION: ${address.dataValues.wallet_address} (${walletType}): $${toFixedStr(balanceUSD, 2)} < $${minSweepUSD} min sweep — leaving for reuse (idle ${Math.floor(timeSincePayout / 1440)}d)`);
               await setRedisItemWithTTL(throttleKey, { logged: true }, 3600); // Suppress for 1 hour
             }
             continue; // Skip — address stays AVAILABLE for the next payment

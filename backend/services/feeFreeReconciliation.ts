@@ -20,6 +20,7 @@ import { raw as envRaw } from "../utils/config";
 import sequelize from "../utils/dbInstance";
 import { log, cronLogger } from "../utils/loggers";
 import { processedStatusSql } from "../utils/processedVolume";
+import { toFixedStr } from "../utils/money";
 
 const FREE_TRIAL_VOLUME_USD = parseFloat(envRaw("FREE_TRIAL_VOLUME_USD") || "500");
 
@@ -78,7 +79,7 @@ export async function reconcileFeeFreeBalances(): Promise<void> {
     if (corrected.length > 0) {
       cronLogger.info(`[FeeFreeReconciliation] ✅ Corrected ${corrected.length} user(s):`);
       for (const row of corrected) {
-        cronLogger.info(`  - User ${row.user_id}: actual_volume=$${Number(row.total_volume).toFixed(2)}, remaining=$${Number(row.fee_free_remaining_usd).toFixed(2)}, tier=${row.fee_tier}`);
+        cronLogger.info(`  - User ${row.user_id}: actual_volume=$${toFixedStr(row.total_volume, 2)}, remaining=$${toFixedStr(row.fee_free_remaining_usd, 2)}, tier=${row.fee_tier}`);
       }
     } else {
       cronLogger.info("[FeeFreeReconciliation] ✅ All fee-free balances are correct — no corrections needed.");

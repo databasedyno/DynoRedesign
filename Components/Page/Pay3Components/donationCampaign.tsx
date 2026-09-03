@@ -1,4 +1,5 @@
 import { BRAND_ACCENT } from "@/constants/theme";
+import { toNumber } from "@/utils/money";
 /**
  * DonationCampaign — public checkout view for donation / crowdfunding links.
  *
@@ -217,7 +218,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const effectiveAmount = useMemo(() => {
     if (selectedPreset != null) return selectedPreset
     const n = parseFloat(customAmount)
-    return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : null
+    return Number.isFinite(n) && n > 0 ? toNumber(n, 2) : null
   }, [selectedPreset, customAmount])
 
   const canDonate = effectiveAmount != null && effectiveAmount >= minAmount && !submitting

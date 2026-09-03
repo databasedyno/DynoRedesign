@@ -19,6 +19,8 @@ import { enqueueWebhook } from "../services/webhookQueue";
 import { toRedisStatus, PaymentState } from "../services/paymentStateMachine";
 import { isEventSubscribed, isOptInWebhookEvent } from "../services/webhookEvents";
 import { resolveWebhookTargets } from "./webhookTargets";
+import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
+import { toNumber } from "../utils/money";
 
 // Build a set of all admin/fee wallet addresses for fast lookup (lowercase for case-insensitive match)
 const INTERNAL_WALLETS = new Set(
@@ -173,7 +175,7 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
         if (cryptoAmount > 0 && preferredCurrency) {
           const fiatResult = await convertToFiat(String(eventData.currency), preferredCurrency, cryptoAmount);
           if (fiatResult.amount > 0) {
-            enrichedEventData.base_amount = Number(fiatResult.amount.toFixed(2));
+            enrichedEventData.base_amount = toNumber(fiatResult.amount, 2);
             enrichedEventData.base_currency = preferredCurrency;
             enrichedEventData.exchange_rate = fiatResult.rate;
           }
@@ -190,8 +192,12 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
     // Deliver to every distinct target. A failure on one URL never blocks the others.
     const results: WebhookResult[] = [];
     for (const tgt of targets) {
-      if (tgt.url.includes('localhost') || tgt.url.includes('127.0.0.1')) {
-        const errorMsg = `Webhook URL "${tgt.url}" uses localhost which is unreachable from Dynopay servers. Please use a public URL.`;
+      // SSRF guard: merchant URLs must resolve to public hosts (blocks metadata,
+      // loopback, RFC1918 and *.internal targets). Permanent skip — never retried.
+      try {
+        await assertSafeOutboundUrl(tgt.url);
+      } catch (guardErr) {
+        const errorMsg = guardErr instanceof Error ? guardErr.message : String(guardErr);
         webhookLogs.error(`[callMerchantWebhook] ❌ Skipping ${tgt.source} ${tgt.type}: ${errorMsg}`);
         results.push({ success: false, error: errorMsg, url: tgt.url });
         continue;
@@ -286,6 +292,8 @@ const callUrlWithPayload = async (
         const response = await axios.post(url, webhookPayload, {
           timeout: WEBHOOK_DELIVERY_TIMEOUT_MS,
           headers,
+          maxRedirects: 0, // a redirect could re-target an internal host after the SSRF check
+          maxContentLength: 1024 * 1024,
         });
         
         const responseTimeMs = Date.now() - startTime;

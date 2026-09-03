@@ -9,6 +9,8 @@ import { tatumClient } from "../integrations/tatum/TatumClient";
 import { redis } from "../utils/redisInstance";
 import { sendWithdrawalOTPEmail, sendReferralPayoutRequestedEmail, sendReferralAutoPayEnabledEmail } from "./emailService";
 import { getReferrerCommissionSummary } from "./referralService";
+import { generateOtpCode } from "../helper/otpGuard";
+import { toFixedStr, toNumber } from "../utils/money";
 
 /**
  * Referral revenue-share CASH-OUT (Phase 2). Reward accrues at the ACCOUNT level
@@ -39,7 +41,7 @@ const isValidTronAddress = (address: string): boolean => {
 const maskAddress = (a: string): string =>
   a && a.length > 14 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a;
 
-const round2 = (n: number): number => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 
 // Cross-company reusable TRON wallets
 
@@ -169,7 +171,7 @@ export const sendPayoutOtp = async (
     return { success: false, message: "Enter a valid USDT (TRC-20) address" };
   }
 
-  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const code = String(generateOtpCode());
   await redis.set(OTP_KEY(userId), JSON.stringify({ code, address: addr || null }), { EX: OTP_TTL_SECONDS });
 
   await sendWithdrawalOTPEmail(
@@ -340,7 +342,7 @@ export const requestPayout = async (params: {
     return {
       success: false,
       statusCode: 400,
-      message: `You need at least $${MIN_PAYOUT_USDT.toFixed(2)} to cash out. Current balance: $${unpaid.toFixed(2)}.`,
+      message: `You need at least $${toFixedStr(MIN_PAYOUT_USDT, 2)} to cash out. Current balance: $${toFixedStr(unpaid, 2)}.`,
     };
   }
 
@@ -354,7 +356,7 @@ export const requestPayout = async (params: {
   });
 
   apiLogger.info(
-    `[ReferralPayout] user ${userId} requested $${unpaid.toFixed(2)} → ${maskAddress(address)} (payout ${payout.payout_id})`
+    `[ReferralPayout] user ${userId} requested $${toFixedStr(unpaid, 2)} → ${maskAddress(address)} (payout ${payout.payout_id})`
   );
 
   try {
@@ -438,12 +440,12 @@ export const setAutoPayout = async (params: {
     /* email non-fatal */
   }
 
-  apiLogger.info(`[ReferralPayout] user ${userId} enabled AUTO cash-out at $${min.toFixed(2)}`);
+  apiLogger.info(`[ReferralPayout] user ${userId} enabled AUTO cash-out at $${toFixedStr(min, 2)}`);
   return {
     success: true,
     auto: true,
     auto_min_usd: min,
-    message: `Auto cash-out is on. We'll send your rewards automatically once they reach $${min.toFixed(2)}.`,
+    message: `Auto cash-out is on. We'll send your rewards automatically once they reach $${toFixedStr(min, 2)}.`,
   };
 };
 

@@ -74,6 +74,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { toFixedStr } from "../../utils/money";
 
 export const addFunds = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -355,9 +356,7 @@ export const confirmPayment = async (req: express.Request, res: express.Response
 
         await incrementAdminFee(data.currency, platformCharge + blockchainCharge);
 
-        const userSettledAmount = Number(
-          data.amount_settled - platformCharge - blockchainCharge
-        ).toFixed(2);
+        const userSettledAmount = toFixedStr(data.amount_settled - platformCharge - blockchainCharge, 2);
 
         await incrementUserWallet(walletData.dataValues.wallet_id, Number(userSettledAmount), transaction);
 

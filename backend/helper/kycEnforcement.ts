@@ -8,6 +8,7 @@ import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 import { kycModel } from "../models";
 import { cronLogger } from "../utils/loggers";
+import { toFixedStr } from "../utils/money";
 
 const KYC_THRESHOLD_USD = 10000;
 const KYC_GRACE_PERIOD_DAYS = 90;
@@ -100,7 +101,7 @@ export async function checkKycEnforcement(
   const hasActiveSession = !!(veriffSessionUrl && ["submitted", "pending"].includes(kycStatus));
 
   if (kycStatus === "approved") {
-    cronLogger.info(`${logPrefix} User ${userId} KYC approved. Volume: $${totalVolume.toFixed(2)}`);
+    cronLogger.info(`${logPrefix} User ${userId} KYC approved. Volume: $${toFixedStr(totalVolume, 2)}`);
     return { needsEnforcement: true, totalVolume, kycStatus, blocked: false, veriffSessionUrl, hasActiveSession };
   }
 
@@ -146,9 +147,9 @@ export async function checkKycEnforcement(
   const blocked = now >= gracePeriodEnd;
 
   if (blocked) {
-    cronLogger.info(`${logPrefix} User ${userId} grace period expired. Volume: $${totalVolume.toFixed(2)}, KYC status: ${kycStatus}`);
+    cronLogger.info(`${logPrefix} User ${userId} grace period expired. Volume: $${toFixedStr(totalVolume, 2)}, KYC status: ${kycStatus}`);
   } else {
-    cronLogger.info(`${logPrefix} User ${userId} within grace period. Volume: $${totalVolume.toFixed(2)}, Days remaining: ${daysRemaining}`);
+    cronLogger.info(`${logPrefix} User ${userId} within grace period. Volume: $${toFixedStr(totalVolume, 2)}, Days remaining: ${daysRemaining}`);
   }
 
   return {

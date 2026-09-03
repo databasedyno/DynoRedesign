@@ -24,6 +24,7 @@ import { incrementAdminFee } from "../../helper/walletHelpers";
 import { autoGenerateInvoice } from "../invoiceController";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import { normalizeLang } from "../../utils/emailI18n";
+import { toFixedStr } from "../../utils/money";
 
 const confirmPayment = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -85,12 +86,12 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
             await sendAdminFeeReceivedEmail(
               adminEmail,
               "Dynopay Admin",
-              totalFee.toFixed(2),
+              toFixedStr(totalFee, 2),
               data.currency,
               (data as { transaction_id?: string }).transaction_id || String(data.id),
               linkData?.company_name || "Unknown Company",
-              merchantAmount.toFixed(2),
-              data.amount_settled.toFixed(2)
+              toFixedStr(merchantAmount, 2),
+              toFixedStr(data.amount_settled, 2)
             );
             
             cronLogger.info(`[Admin Fee Notification - Card] Sent email for ${totalFee} ${data.currency} from Company ${linkData?.company_id || 'N/A'}`);
@@ -101,12 +102,10 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
 
         await userWalletModel.update(
           {
-            amount: Number(
-              walletData.dataValues.amount +
+            amount: toFixedStr(walletData.dataValues.amount +
               data.amount_settled -
               platformCharge -
-              blockchainCharge
-            ).toFixed(2),
+              blockchainCharge, 2),
           },
           {
             where: {
@@ -206,9 +205,9 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
             company_id: Number(tempData.company_id),
             customer_id: Number(tempData.customer_id),
             payment_mode: tempData.mode,
-            base_amount: Number(tempData.amount).toFixed(2),
+            base_amount: toFixedStr(tempData.amount, 2),
             base_currency: tempData.base_currency,
-            paid_amount: data.amount.toFixed(2),
+            paid_amount: toFixedStr(data.amount, 2),
             paid_currency: data.currency,
             transaction_reference: data.flw_ref,
             unique_tx_id: tempData.payment_id || tempData.unique_tx_id || tempData.id,
@@ -270,12 +269,12 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
               await sendAdminFeeReceivedEmail(
                 adminEmail,
                 "Dynopay Admin",
-                totalFee.toFixed(2),
+                toFixedStr(totalFee, 2),
                 data.currency,
                 (data as { transaction_id?: string }).transaction_id || String(data.id),
                 companyData?.dataValues?.company_name || "Unknown Company",
-                merchantAmount.toFixed(2),
-                data.amount_settled.toFixed(2)
+                toFixedStr(merchantAmount, 2),
+                toFixedStr(data.amount_settled, 2)
               );
               
               cronLogger.info(`[Admin Fee Notification - CreatePayment] Sent email for ${totalFee} ${data.currency} from Company ${tempData.company_id || 'N/A'}`);
@@ -292,12 +291,10 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
 
           await userWalletModel.update(
             {
-              amount: Number(
-                walletData.dataValues.amount +
+              amount: toFixedStr(walletData.dataValues.amount +
                 data.amount_settled -
                 platformCharge -
-                blockchainCharge
-              ).toFixed(2),
+                blockchainCharge, 2),
             },
             {
               where: {
@@ -312,11 +309,11 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
             wallet_id: walletData.dataValues.wallet_id,
             user_id: walletData.dataValues.user_id,
             payment_mode: tempData.mode,
-            base_amount: (
+            base_amount: toFixedStr((
               data.amount_settled -
               platformCharge -
               blockchainCharge
-            ).toFixed(2),
+            ), 2),
             base_currency: data.currency,
             transaction_reference: data.flw_ref,
             transaction_type: "CREDIT",
@@ -336,9 +333,7 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
           if (tempData?.pathType?.includes("addFund")) {
             await customerWalletModel.update(
               {
-                amount: Number(
-                  customerWalletData.dataValues.amount + Number(tempData.amount)
-                ).toFixed(2),
+                amount: toFixedStr(customerWalletData.dataValues.amount + Number(tempData.amount), 2),
               },
               {
                 where: {
@@ -386,9 +381,9 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
             company_id: Number(tempData.company_id),
             customer_id: Number(tempData.customer_id),
             payment_mode: tempData.mode,
-            base_amount: Number(tempData.amount).toFixed(2),
+            base_amount: toFixedStr(tempData.amount, 2),
             base_currency: tempData.base_currency,
-            paid_amount: Number(tempData.paid_amount).toFixed(2),
+            paid_amount: toFixedStr(tempData.paid_amount, 2),
             paid_currency: tempData.paid_currency,
             transaction_reference: tempData.id,
             unique_tx_id: tempData.payment_id || tempData.unique_tx_id || tempData.id,

@@ -21,6 +21,7 @@ import ShoppingBagOutlined from "@mui/icons-material/ShoppingBagOutlined";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
 import { useTranslation } from "react-i18next";
+import { toFixedStr } from "@/utils/money";
 
 interface NormalizedLine {
   product_id: number;
@@ -39,7 +40,7 @@ function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
   try {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: ccy, maximumFractionDigits: 2 }).format(n);
-  } catch { return `${n.toFixed(2)} ${ccy}`; }
+  } catch { return `${toFixedStr(n, 2)} ${ccy}`; }
 }
 
 const CartPage: NextPageWithLayout = () => {

@@ -23,6 +23,7 @@ import {
   EU_COUNTRIES,
 } from "../../utils/taxData";
 import { TAX_DATA_API_URL, TAX_DATA_API_KEY } from "./paymentConfig";
+import { add, div, pct, sub, toNumber } from "../../utils/money";
 
 // ── VAT ID validation regexes by country (structural only — cross-check with
 //    VIES for real production; MVP does regex + prefix match).
@@ -176,8 +177,8 @@ export const calculateTax = async (
         tax_amount: 0,
         country_code: upperCountryCode,
         country_name: countryName,
-        subtotal: parseFloat(amount.toFixed(2)),
-        total: parseFloat(amount.toFixed(2)),
+        subtotal: toNumber(amount, 2),
+        total: toNumber(amount, 2),
         currency,
         tax_inclusive: taxInclusive,
         reverse_charge: false,
@@ -205,8 +206,8 @@ export const calculateTax = async (
         tax_amount: 0,
         country_code: upperCountryCode,
         country_name: countryName,
-        subtotal: parseFloat(amount.toFixed(2)),
-        total: parseFloat(amount.toFixed(2)),
+        subtotal: toNumber(amount, 2),
+        total: toNumber(amount, 2),
         currency,
         tax_inclusive: taxInclusive,
         reverse_charge: true,
@@ -276,24 +277,26 @@ export const calculateTax = async (
       // Buyer sees the gross figure; back out the VAT portion so accounting
       // (fee % + volume tier) applies to the true subtotal.
       // amount = subtotal * (1 + rate/100)  →  subtotal = amount / (1 + rate/100)
-      subtotal = amount / (1 + taxRate / 100);
-      taxAmount = amount - subtotal;
+      // Exact decimal back-out, rounded to cents; tax is the complement so
+      // subtotal + tax always equals the gross figure the buyer sees.
+      subtotal = toNumber(div(amount, add(1, div(taxRate, 100))), 2);
+      taxAmount = sub(amount, subtotal).toNumber();
       total = amount;
     } else {
       subtotal = amount;
-      taxAmount = (amount * taxRate) / 100;
-      total = amount + taxAmount;
+      taxAmount = toNumber(pct(amount, taxRate), 2);
+      total = add(amount, taxAmount).toNumber();
     }
 
     return {
       tax_enabled: true,
       tax_rate: taxRate,
       tax_acronym: resolvedAcronym,
-      tax_amount: parseFloat(taxAmount.toFixed(2)),
+      tax_amount: toNumber(taxAmount, 2),
       country_code: upperCountryCode,
       country_name: resolvedCountryName,
-      subtotal: parseFloat(subtotal.toFixed(2)),
-      total: parseFloat(total.toFixed(2)),
+      subtotal: toNumber(subtotal, 2),
+      total: toNumber(total, 2),
       currency,
       tax_inclusive: taxInclusive,
       reverse_charge: false,

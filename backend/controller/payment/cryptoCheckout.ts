@@ -48,6 +48,8 @@ import { getClientIP, getCountryFromIP, getCountryFromTimezone } from "../../uti
 import { checkKycEnforcement } from "../../helper/kycEnforcement";
 import { incrementAdminFee } from "../../helper/walletHelpers";
 import { autoGenerateInvoice } from "../invoiceController";
+import { D, add, div, mul, pct, roundTo, splitFee, sum, toFixedStr, toNumber } from "../../utils/money";
+import { computeCheckoutSplit, computeFallbackSplit } from "./checkoutMath";
 
 import {
   userTempAddressModel,
@@ -359,7 +361,7 @@ const getData = async (req: express.Request, res: express.Response) => {
     
     // Calculate total processing fee (internal - details not exposed)
     // Total fees = transaction fee % + fixed fee + network fee
-    const feeAmountPercent = (amount * transactionFeePercent) / 100;
+    const feeAmountPercent = pct(amount, transactionFeePercent).toNumber();
     
     // Include blockchain network fee for consistency with getCurrencyRates
     let networkFeeUSD = 0;
@@ -370,7 +372,7 @@ const getData = async (req: express.Request, res: express.Response) => {
       cronLogger.info('[getData] Could not fetch network fee, using 0');
     }
     
-    const totalProcessingFee = parseFloat((feeAmountPercent + fixedFee + networkFeeUSD).toFixed(2));
+    const totalProcessingFee = toNumber(sum([feeAmountPercent, fixedFee, networkFeeUSD]), 2);
     // totalWithFees calculated but not used - kept for reference
     
     // Calculate expiry countdown
@@ -615,7 +617,7 @@ const getData = async (req: express.Request, res: express.Response) => {
     // Total should ALWAYS include tax, regardless of fee_payer
     // For customer pays fees: Don't include processing fee in total_amount yet
     // The exact fee depends on selected crypto and will be calculated by getCurrencyRates
-    const subtotalWithTax = amount + taxAmount;
+    const subtotalWithTax = add(amount, taxAmount).toNumber();
     // grandTotal calculated but not used - kept for reference: amount + totalProcessingFee + taxAmount
     
     // ── Store calculated tax info back to Redis for addPayment to use ──
@@ -746,15 +748,15 @@ const getData = async (req: express.Request, res: express.Response) => {
         // Simplified fee info - always include subtotal and total with tax
         fee_info: {
           fee_payer: item.fee_payer || 'company',
-          subtotal: parseFloat(amount.toFixed(2)),
-          tax_amount: parseFloat(taxAmount.toFixed(2)),
+          subtotal: toNumber(amount, 2),
+          tax_amount: toNumber(taxAmount, 2),
           // Total always includes tax, regardless of fee_payer
-          total_amount: parseFloat(subtotalWithTax.toFixed(2)),
+          total_amount: toNumber(subtotalWithTax, 2),
           // For customer pays fees: show estimated processing fee
           ...(item.fee_payer === 'customer' && {
             // Processing fee is ESTIMATED - actual fee depends on selected cryptocurrency
             // Frontend should call getCurrencyRates after crypto selection to get exact fee
-            estimated_processing_fee: parseFloat(totalProcessingFee.toFixed(2)),
+            estimated_processing_fee: toNumber(totalProcessingFee, 2),
             fees_pending_crypto_selection: true, // Flag to indicate fee is estimated
           }),
           // For company pays fees: NO processing_fee returned (hidden from customer)
@@ -822,11 +824,11 @@ const getData = async (req: express.Request, res: express.Response) => {
           fee_info: {
             fee_payer: item.fee_payer || 'company',
             ...(item.fee_payer === 'customer' && {
-              estimated_processing_fee: parseFloat(totalProcessingFee.toFixed(2)),
+              estimated_processing_fee: toNumber(totalProcessingFee, 2),
               fees_pending_crypto_selection: true,
-              subtotal: parseFloat(amount.toFixed(2)),
-              tax_amount: parseFloat(taxAmount.toFixed(2)),
-              total_amount: parseFloat(subtotalWithTax.toFixed(2)),
+              subtotal: toNumber(amount, 2),
+              tax_amount: toNumber(taxAmount, 2),
+              total_amount: toNumber(subtotalWithTax, 2),
             })
           },
           expiry: expiryInfo,
@@ -872,11 +874,11 @@ const getData = async (req: express.Request, res: express.Response) => {
           fee_info: {
             fee_payer: item.fee_payer || 'company',
             ...(item.fee_payer === 'customer' && {
-              estimated_processing_fee: parseFloat(totalProcessingFee.toFixed(2)),
+              estimated_processing_fee: toNumber(totalProcessingFee, 2),
               fees_pending_crypto_selection: true,
-              subtotal: parseFloat(amount.toFixed(2)),
-              tax_amount: parseFloat(taxAmount.toFixed(2)),
-              total_amount: parseFloat(subtotalWithTax.toFixed(2)),
+              subtotal: toNumber(amount, 2),
+              tax_amount: toNumber(taxAmount, 2),
+              total_amount: toNumber(subtotalWithTax, 2),
             })
           },
           expiry: expiryInfo,
@@ -1474,11 +1476,11 @@ const createCryptoPayment = async (
             taxAmount = taxInfo.tax_amount;  // Tax in original currency
             // Convert tax to USD for fee calculation if needed
             if (baseCurrency !== 'USD') {
-              taxAmountUSD = taxAmount * (baseAmountUSD / baseAmountOriginal);
+              taxAmountUSD = toNumber(mul(taxAmount, div(baseAmountUSD, baseAmountOriginal)), 8);
             } else {
               taxAmountUSD = taxAmount;
             }
-            cronLogger.info(`[createCryptoPayment] Tax calculated: ${taxInfo.tax_rate}% ${taxInfo.tax_acronym} = ${taxAmount} ${baseCurrency} (${taxAmountUSD.toFixed(2)} USD)`);
+            cronLogger.info(`[createCryptoPayment] Tax calculated: ${taxInfo.tax_rate}% ${taxInfo.tax_acronym} = ${taxAmount} ${baseCurrency} (${toFixedStr(taxAmountUSD, 2)} USD)`);
             cronLogger.info(`[createCryptoPayment] Total with tax: ${taxInfo.total} ${baseCurrency}`);
           }
         } else {
@@ -1487,7 +1489,7 @@ const createCryptoPayment = async (
       }
       
       // Total amount customer should pay in original currency (base + tax if applicable)
-      const totalAmountWithTax = baseAmountOriginal + taxAmount;
+      const totalAmountWithTax = add(baseAmountOriginal, taxAmount).toNumber();
       
       let crypto_amount = 0;           // What customer should pay (includes tax)
       let merchant_amount_crypto = 0;  // What merchant receives (base amount only, no tax)
@@ -1515,7 +1517,7 @@ const createCryptoPayment = async (
           cronLogger.info(`[createCryptoPayment] 💵 Stablecoin 1:1 peg: $${totalAmountWithTax} USD = ${total_crypto_amount} ${requestedCurrency} (exact)`);
         } else if (hasCachedRate) {
           // Use cached rate — same currency, no tax adjustment needed
-          total_crypto_amount = totalAmountWithTax * cachedRate;
+          total_crypto_amount = mul(totalAmountWithTax, cachedRate).toNumber();
           exchange_rate = cachedRate;
           cronLogger.info(`[createCryptoPayment] Using cached exchange rate: 1 ${baseCurrency} = ${cachedRate} ${requestedCurrency} (saved ~200ms)`);
         } else {
@@ -1532,17 +1534,14 @@ const createCryptoPayment = async (
         
         // Calculate base crypto amount (without tax) for merchant amount calculation
         // Use ratio from original currency amounts
-        const base_crypto_amount = taxAmount > 0 
-          ? total_crypto_amount * (baseAmountOriginal / totalAmountWithTax)
-          : total_crypto_amount;
-        
-        // Calculate tax amount in crypto
-        tax_amount_crypto = taxAmount > 0 
-          ? total_crypto_amount * (taxAmount / totalAmountWithTax)
-          : 0;
+        // Exact decimal split (see checkoutMath.ts): tax share is the complement of
+        // the base share so base + tax always ties back to the total.
+        const baseSplit = computeCheckoutSplit({ totalCrypto: total_crypto_amount, baseAmount: baseAmountOriginal, taxAmount, feeFraction: 0, feePayer: 'customer' });
+        const base_crypto_amount = baseSplit.baseAmount;
+        tax_amount_crypto = baseSplit.taxAmount;
         
         cronLogger.info(`[createCryptoPayment] Crypto amount calculated:
-          - Base amount: ${baseAmountOriginal} ${baseCurrency} (${baseAmountUSD.toFixed(2)} USD)
+          - Base amount: ${baseAmountOriginal} ${baseCurrency} (${toFixedStr(baseAmountUSD, 2)} USD)
           - Tax amount: ${taxAmount} ${baseCurrency}
           - Total with tax: ${totalAmountWithTax} ${baseCurrency}
           - Total crypto: ${total_crypto_amount} ${requestedCurrency}
@@ -1564,13 +1563,14 @@ const createCryptoPayment = async (
         }
         
         // Fee percentage for crypto conversion (based on USD fee / USD amount)
-        const feePercentage = totalDeduction / baseAmountUSD;
+        const feePercentageD = div(totalDeduction, baseAmountUSD);
+        const feePercentage = feePercentageD.toNumber();
         
         cronLogger.info(`[createCryptoPayment] Fee calculation (USD-based for tier accuracy):
           - Base original: ${baseAmountOriginal} ${baseCurrency}
-          - Base USD: $${baseAmountUSD.toFixed(2)}
-          - Fee breakdown: 1.5%=$${transactionFee.toFixed(2)} + Fixed=$${fixedFee.toFixed(2)}
-          - Total fee: $${totalDeduction.toFixed(2)} (${(feePercentage * 100).toFixed(2)}% of base)`);
+          - Base USD: $${toFixedStr(baseAmountUSD, 2)}
+          - Fee breakdown: 1.5%=$${toFixedStr(transactionFee, 2)} + Fixed=$${toFixedStr(fixedFee, 2)}
+          - Total fee: $${toFixedStr(totalDeduction, 2)} (${toFixedStr((feePercentage * 100), 2)}% of base)`);
         
         // TAX HANDLING IN FEE CALCULATION:
         // - Admin fees are calculated on BASE amount only (not on tax)
@@ -1583,16 +1583,17 @@ const createCryptoPayment = async (
           // - Merchant receives: full base_amount + tax (what they requested + tax collected)
           // - Admin receives: fees only (swept from temp wallet)
           
-          const merchant_base_crypto = base_crypto_amount;  // Merchant gets full base
-          total_fees_crypto = base_crypto_amount * feePercentage;  // Calculate fees using tier-based percentage
-          merchant_amount_crypto = merchant_base_crypto + tax_amount_crypto;  // Merchant gets base + tax
-          crypto_amount = merchant_base_crypto + total_fees_crypto + tax_amount_crypto;  // Customer pays base + fees + tax
+          // Rounded to 8 dp so merchant + fees ties EXACTLY to what the customer is quoted.
+          const split = computeCheckoutSplit({ totalCrypto: total_crypto_amount, baseAmount: baseAmountOriginal, taxAmount, feeFraction: feePercentageD, feePayer: 'customer' });
+          total_fees_crypto = split.feesAmount;          // tier-based fee on base
+          merchant_amount_crypto = split.merchantAmount; // full base + tax
+          crypto_amount = split.cryptoAmount;            // base + fees + tax
           
           cronLogger.info(`[createCryptoPayment] CUSTOMER PAYS FEES mode (with tax):
-            - Customer pays: ${crypto_amount.toFixed(8)} ${requestedCurrency} (base + fees + tax)
-            - Merchant receives: ${merchant_amount_crypto.toFixed(8)} ${requestedCurrency} (base + tax)
-            - Admin fees: ${total_fees_crypto.toFixed(8)} ${requestedCurrency} (${(feePercentage * 100).toFixed(2)}% of base)
-            - Tax collected: ${tax_amount_crypto.toFixed(8)} ${requestedCurrency} (included in merchant amount)`);
+            - Customer pays: ${toFixedStr(crypto_amount, 8)} ${requestedCurrency} (base + fees + tax)
+            - Merchant receives: ${toFixedStr(merchant_amount_crypto, 8)} ${requestedCurrency} (base + tax)
+            - Admin fees: ${toFixedStr(total_fees_crypto, 8)} ${requestedCurrency} (${toFixedStr((feePercentage * 100), 2)}% of base)
+            - Tax collected: ${toFixedStr(tax_amount_crypto, 8)} ${requestedCurrency} (included in merchant amount)`);
             
         } else {
           // COMPANY (MERCHANT) PAYS FEES:
@@ -1600,24 +1601,26 @@ const createCryptoPayment = async (
           // - Merchant receives: base_amount * (1 - fee_percent) + tax
           // - Admin receives: base_amount * fee_percent (swept from temp wallet)
           
-          crypto_amount = total_crypto_amount;  // Customer pays base + tax
-          const merchant_base_after_fees = base_crypto_amount * (1 - feePercentage);
-          merchant_amount_crypto = merchant_base_after_fees + tax_amount_crypto;
-          total_fees_crypto = base_crypto_amount * feePercentage;
+          // Merchant side rounded DOWN, the fee absorbs the sub-satoshi remainder:
+          // merchant + fees === customer amount exactly and never exceeds it.
+          const split = computeCheckoutSplit({ totalCrypto: total_crypto_amount, baseAmount: baseAmountOriginal, taxAmount, feeFraction: feePercentageD, feePayer: 'company' });
+          crypto_amount = split.cryptoAmount;            // base + tax
+          merchant_amount_crypto = split.merchantAmount;
+          total_fees_crypto = split.feesAmount;
           
           cronLogger.info(`[createCryptoPayment] COMPANY PAYS FEES mode (with tax):
-            - Customer pays: ${crypto_amount.toFixed(8)} ${requestedCurrency} (base + tax)
-            - Merchant receives: ${merchant_amount_crypto.toFixed(8)} ${requestedCurrency} (${((1 - feePercentage) * 100).toFixed(2)}% base + tax)
-            - Admin fees: ${total_fees_crypto.toFixed(8)} ${requestedCurrency} (${(feePercentage * 100).toFixed(2)}% of base)
-            - Tax collected: ${tax_amount_crypto.toFixed(8)} ${requestedCurrency} (included in merchant amount)`);
+            - Customer pays: ${toFixedStr(crypto_amount, 8)} ${requestedCurrency} (base + tax)
+            - Merchant receives: ${toFixedStr(merchant_amount_crypto, 8)} ${requestedCurrency} (${toFixedStr(((1 - feePercentage) * 100), 2)}% base + tax)
+            - Admin fees: ${toFixedStr(total_fees_crypto, 8)} ${requestedCurrency} (${toFixedStr((feePercentage * 100), 2)}% of base)
+            - Tax collected: ${toFixedStr(tax_amount_crypto, 8)} ${requestedCurrency} (included in merchant amount)`);
         }
       } catch (calcError) {
         cronLogger.error('[createCryptoPayment] Crypto/fee calculation error:', calcError);
         // Fallback to simple 2% if calculation fails
         crypto_amount = data.amount || 0;
-        const fallbackFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0') / 100;
-        total_fees_crypto = crypto_amount * fallbackFeePercent;
-        merchant_amount_crypto = crypto_amount - total_fees_crypto;
+        const fallback = computeFallbackSplit(crypto_amount, envRaw("TRANSACTION_FEE_PERCENT") || '2.0');
+        total_fees_crypto = fallback.feesAmount;
+        merchant_amount_crypto = fallback.merchantAmount;
       }
       
       // Add crypto amount and rate to response
@@ -1670,7 +1673,7 @@ const createCryptoPayment = async (
         base_currency: baseCurrency,              // Merchant's currency (e.g., AUD)
         base_amount_usd: baseAmountUSD,           // Converted USD amount (for fee tier)
         total_amount_original: totalAmountWithTax, // Total in original currency (with tax)
-        total_amount_usd: baseAmountUSD + (taxAmountUSD || 0),  // Total USD amount (with tax if applicable)
+        total_amount_usd: add(baseAmountUSD, taxAmountUSD).toNumber(),  // Total USD amount (with tax if applicable)
         status: toRedisStatus(PaymentState.PENDING),
         ref: uniqueRef,
         currency: data.currency,

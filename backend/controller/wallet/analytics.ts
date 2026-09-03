@@ -73,6 +73,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { toFixedStr } from "../../utils/money";
 
 export const getUserAnalytics = async (
   req: express.Request,
@@ -213,9 +214,9 @@ export const getUserAnalytics = async (
         amount_in_fiat: currencyData[0].amount,
         amount_in_usd: currencyData[0].amount, // backward compat
         display_currency: preferredCurrency,
-        fee_amount: Number(feeAmount).toFixed(8),
-        fee_in_fiat: Number(feeAmount * currencyData[0].transferRate).toFixed(2),
-        fee_in_usd: Number(feeAmount * currencyData[0].transferRate).toFixed(2), // backward compat
+        fee_amount: toFixedStr(feeAmount, 8),
+        fee_in_fiat: toFixedStr(feeAmount * currencyData[0].transferRate, 2),
+        fee_in_usd: toFixedStr(feeAmount * currencyData[0].transferRate, 2), // backward compat
       });
     }
 

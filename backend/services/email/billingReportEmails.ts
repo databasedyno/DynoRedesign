@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { toFixedStr } from "../../utils/money";
 
 /**
  * Template 16: Weekly Summary (merchant platform summary)
@@ -95,7 +96,7 @@ export const sendInvoiceGeneratedEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('merchant.labels.invoiceNumber', L), invoiceData.invoice_number)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${invoiceData.transaction_id}</span>`)}
-        ${dataRow(t('merchant.labels.totalAmount', L), `<strong>${currencySymbol}${amount.toFixed(2)} ${currency}</strong>`)}
+        ${dataRow(t('merchant.labels.totalAmount', L), `<strong>${currencySymbol}${toFixedStr(amount, 2)} ${currency}</strong>`)}
         ${dataRow(t('merchant.labels.invoiceDate', L), new Date(invoiceData.invoice_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), true)}
       </table>
     `)}

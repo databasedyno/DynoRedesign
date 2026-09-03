@@ -7,6 +7,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import Sparkline from "@/Components/UI/Sparkline";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { brandFg } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 const MONO = 'ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace';
 
@@ -57,7 +58,7 @@ const StorefrontComparePanel: React.FC = () => {
         maximumFractionDigits: 2,
       });
     } catch {
-      return `$${n.toFixed(2)}`;
+      return `$${toFixedStr(n, 2)}`;
     }
   };
 

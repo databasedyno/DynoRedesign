@@ -25,6 +25,7 @@ import DownloadRounded from "@mui/icons-material/DownloadRounded";
 import RefreshRounded from "@mui/icons-material/RefreshRounded";
 import { NextPageWithLayout } from "@/pages/_app";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { toFixedStr } from "@/utils/money";
 
 interface OrderItem {
   order_item_id: number;
@@ -72,7 +73,7 @@ function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
   try {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: ccy, maximumFractionDigits: 2 }).format(n);
-  } catch { return `${n.toFixed(2)} ${ccy}`; }
+  } catch { return `${toFixedStr(n, 2)} ${ccy}`; }
 }
 
 // Status meta colors — labels are computed inside the component from i18n.

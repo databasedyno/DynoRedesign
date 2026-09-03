@@ -278,7 +278,23 @@
       "detailsTitle": "Detalles de la alerta",
       "wasThisYou": "<strong>¿Fue usted?</strong><br />Si reconoce esta actividad, puede ignorar este mensaje.",
       "didntPerform": "<strong>¿No realizó esta acción?</strong><br />Proteja su cuenta de inmediato:<br />1. Cambie su contraseña<br />2. Revise su actividad reciente<br />3. Contacte con nuestro equipo de soporte",
-      "cta": "Proteger mi cuenta"
+      "cta": "Proteger mi cuenta",
+      "types": {
+        "otp_lockout": "Código de verificación bloqueado tras varios intentos incorrectos",
+        "login_rate_limit": "Demasiados intentos de inicio de sesión fallidos"
+      },
+      "details": {
+        "otpLockout": "Alguien introdujo un código incorrecto 5 veces para: {{channel}}. El código ha sido invalidado.",
+        "loginRateLimit": "Se realizaron {{count}} intentos de inicio de sesión fallidos en 15 minutos y se bloquearon los siguientes."
+      },
+      "channels": {
+        "password_reset": "restablecimiento de contraseña",
+        "login": "verificación de inicio de sesión",
+        "email_change": "cambio de correo electrónico",
+        "password_change": "cambio de contraseña",
+        "email_verification": "verificación de correo",
+        "onboarding": "configuración de la cuenta"
+      }
     },
     "newDeviceLogin": {
       "subject": "Nuevo inicio de sesión en su cuenta de Dynopay",

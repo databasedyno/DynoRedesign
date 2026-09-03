@@ -1,84 +1,33 @@
 import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
-import {
-  FW_API_Response,
-  IFundData,
-  IUserType,
-  IVerifyResponse,
-} from "../../utils/types";
-import sequelize from "../../utils/dbInstance";
-import { Op, QueryTypes } from "sequelize";
-import {
-  decrypt,
-  encrypt,
-  errorResponseHelper,
-  getErrorMessage,
-  sendEmail,
-  successResponseHelper,
-  generateWalletName,
-  generateApiKeyName,
-} from "../../helper";
-import {
-  sendWithdrawalOTPEmail,
-  sendWithdrawalSuccessEmail,
-  sendExchangeOTPEmail,
-  sendWalletUpdatedEmail,
-  sendWalletUpdateOTPEmail,
-  sendWalletDeletedEmail,
-  sendWalletDeleteOTPEmail,
-} from "../../services/emailService";
-import { handleControllerError, handleControllerErrorReturn, asyncController } from "../../helper/controllerErrorHandler";
-import { parseSortAndPagination } from "../../helper/queryHelpers";
+import { IUserType } from "../../utils/types";
+import { Op } from "sequelize";
+import { encrypt, errorResponseHelper, getErrorMessage, successResponseHelper, generateWalletName, generateApiKeyName } from "../../helper";
+import { sendWithdrawalOTPEmail, sendWithdrawalSuccessEmail, sendExchangeOTPEmail, sendWalletUpdatedEmail, sendWalletUpdateOTPEmail, sendWalletDeletedEmail, sendWalletDeleteOTPEmail } from "../../services/emailService";
+import { handleControllerError } from "../../helper/controllerErrorHandler";
 import { incrementAdminFee, incrementUserWallet } from "../../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../../utils/currencyUtils";
-import { resolveTransactionSource } from "../../utils/transactionSource";
-import { deriveTxDisplayStatus } from "../../utils/transactionDisplayStatus";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import crypto from "crypto";
-import flw from "../../apis/flutterwaveApi";
-import {
-  deleteRedisItem,
-  getRedisItem,
-  setRedisItem,
-  setRedisTTL,
-  redis,
-} from "../../utils/redisInstance";
-import { paymentTypes } from "../../utils/enums";
-import axios from "axios";
-import QR_Code from "qrcode";
-import { generateQRCodeWithLogo } from "../../utils/qrCodeWithLogo";
-import { adminWalletModel, userWalletModel, companyModel } from "../../models";
+import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL, redis } from "../../utils/redisInstance";
+import { userWalletModel, companyModel } from "../../models";
 import { apiModel, customerModel, customerWalletModel } from "../../models";
-import { validateCompanyOwnership } from "../../utils/validateCompanyOwnership";
 import { walletLogger } from "../../utils/loggers";
-import {
-  selfTransactionModel,
-  userExchangeModel,
-  userModel,
-  userTransactionModel,
-  userWalletAddressModel,
-  userTempAddressModel,
-} from "../../models/userModels";
+import { userModel } from "../../models/userModels";
 import { tatumClient } from "../../integrations/tatum/TatumClient";
-import blockchairApi from "../../apis/blockchairApi";
 import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
 import mailTransporter from "../../utils/mailTransporter";
-import { getAdminWalletAddress } from "../../utils/adminUtils";
-import WAValidator from "wallet-address-validator";
 import * as merchantPoolService from "../../services/merchantPoolService";
 import { PaymentState, parseState, toRedisStatus } from "../../services/paymentStateMachine";
-import {
-  getBlockchainNetworkFee,
-  getAllBlockchainFees,
-  calculateCustomerPaymentAmount
-} from "../../services/blockchainFeeService";
-import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { getBlockchainNetworkFee, getAllBlockchainFees, calculateCustomerPaymentAmount } from "../../services/blockchainFeeService";
+import { invalidateWalletCache } from "./walletShared";
 import { t, resolveEmailLang } from "../../utils/emailI18n";
 import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
+import { generateOtpCode } from "../../helper/otpGuard";
 
 export async function updateOtp(userData, wallet_address, currency) {
-  const randomNumberOTP = Math.floor(100000 + Math.random() * 900000);
+  const randomNumberOTP = generateOtpCode();
   const lang = await resolveEmailLang(userData.language, userData.email);
 
   // Use branded email template for OTP (localized to the merchant's language)

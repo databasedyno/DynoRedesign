@@ -24,6 +24,7 @@ import {
   isTagBasedChain,
 } from "./merchantPoolConfig";
 import { recordPoolTransaction } from "./merchantPoolTransaction";
+import { sum, toFixedStr } from "../../utils/money";
 
 /**
  * Subscription Health Monitor
@@ -321,7 +322,7 @@ const processAddress = async (addr: any, result: {
         
         // Auto-release if stuck for more than 2 hours with no reserved_until
         if (stuckMinutes > 120) {
-          cronLogger.warn(`[MerchantPool] ⚠️ BUG-6 FIX: ${walletAddress} (${walletType}) stuck IN_USE with no reserved_until for ${stuckMinutes > 1440 ? (stuckMinutes/1440).toFixed(1) + ' days' : stuckMinutes.toFixed(0) + ' min'} — auto-releasing`);
+          cronLogger.warn(`[MerchantPool] ⚠️ BUG-6 FIX: ${walletAddress} (${walletType}) stuck IN_USE with no reserved_until for ${stuckMinutes > 1440 ? toFixedStr((stuckMinutes/1440), 1) + ' days' : toFixedStr(stuckMinutes, 0) + ' min'} — auto-releasing`);
           const MerchantTempAddress = merchantTempAddressModel;
           
           // Clear all reservation fields and set status to AVAILABLE
@@ -340,7 +341,7 @@ const processAddress = async (addr: any, result: {
           cronLogger.info(`[MerchantPool] ✅ BUG-6 FIX: Released stuck address ${walletAddress} — now AVAILABLE`);
           result.released++;
         } else {
-          cronLogger.info(`[MerchantPool] ⏭️ Skipping ${walletAddress} - no reserved_until but updated recently (${stuckMinutes.toFixed(0)} min ago)`);
+          cronLogger.info(`[MerchantPool] ⏭️ Skipping ${walletAddress} - no reserved_until but updated recently (${toFixedStr(stuckMinutes, 0)} min ago)`);
         }
         return;
       }
@@ -363,7 +364,7 @@ const processAddress = async (addr: any, result: {
       if (minutesSinceReserved < WEBHOOK_GRACE_PERIOD_MINUTES) {
         result.skippedTooRecent++;
         if (minutesSinceReserved > 5) {
-          cronLogger.info(`[MerchantPool] ⏭️ ${walletAddress} - reserved ${minutesSinceReserved.toFixed(1)} min ago (waiting for ${WEBHOOK_GRACE_PERIOD_MINUTES} min grace period)`);
+          cronLogger.info(`[MerchantPool] ⏭️ ${walletAddress} - reserved ${toFixedStr(minutesSinceReserved, 1)} min ago (waiting for ${WEBHOOK_GRACE_PERIOD_MINUTES} min grace period)`);
         }
         return;
       }
@@ -399,7 +400,7 @@ const processAddress = async (addr: any, result: {
         if (isTagBasedChain(walletType) && destinationTag) {
           try {
             const taggedTxs = await tatumApi.getIncomingTransactions(walletAddress, walletType, 20, destinationTag);
-            const taggedTotal = taggedTxs.reduce((sum, tx) => sum + tx.amount, 0);
+            const taggedTotal = sum(taggedTxs.map((tx) => tx.amount)).toNumber();
             balance = taggedTotal;
             cronLogger.info(`[MerchantPool] 🏷️ ${walletAddress} tag:${destinationTag} — incoming txs for this tag: ${taggedTxs.length}, total: ${taggedTotal} ${walletType}`);
           } catch (tagErr: unknown) {
@@ -450,7 +451,7 @@ const processAddress = async (addr: any, result: {
         const effectiveBalance = Math.max(0, balance - adminFeeBalance);
         
         if (adminFeeBalance > 0) {
-          cronLogger.info(`[MerchantPool] 📊 ${walletAddress} — on-chain: ${balance} ${walletType}, admin_fee_residual: ${adminFeeBalance}, effective_new_payment: ${effectiveBalance.toFixed(8)}`);
+          cronLogger.info(`[MerchantPool] 📊 ${walletAddress} — on-chain: ${balance} ${walletType}, admin_fee_residual: ${adminFeeBalance}, effective_new_payment: ${toFixedStr(effectiveBalance, 8)}`);
         }
 
         // Skip dust balances — leftover gas residue is not a real payment
@@ -471,7 +472,7 @@ const processAddress = async (addr: any, result: {
         
         // Use effectiveBalance (after admin fee subtraction) for dust check
         if (effectiveBalance < dustThreshold) {
-          cronLogger.info(`[MerchantPool] ⏭️ ${walletAddress} - effective balance ${effectiveBalance.toFixed(8)} ${walletType} is admin fee residual (on-chain: ${balance}, admin_fee: ${adminFeeBalance}), skipping`);
+          cronLogger.info(`[MerchantPool] ⏭️ ${walletAddress} - effective balance ${toFixedStr(effectiveBalance, 8)} ${walletType} is admin fee residual (on-chain: ${balance}, admin_fee: ${adminFeeBalance}), skipping`);
           return;
         }
 
@@ -481,7 +482,7 @@ const processAddress = async (addr: any, result: {
           return;
         }
 
-        cronLogger.info(`[MerchantPool] 💰 ${walletAddress} has balance: ${effectiveBalance.toFixed(8)} ${walletType} (on-chain: ${balance}, admin_fee: ${adminFeeBalance}, reserved ${minutesSinceReserved.toFixed(1)} min ago)`);
+        cronLogger.info(`[MerchantPool] 💰 ${walletAddress} has balance: ${toFixedStr(effectiveBalance, 8)} ${walletType} (on-chain: ${balance}, admin_fee: ${adminFeeBalance}, reserved ${toFixedStr(minutesSinceReserved, 1)} min ago)`);
 
         let redisData = await getRedisItem(cryptoRedisKey);
         
@@ -596,11 +597,11 @@ const processAddress = async (addr: any, result: {
             const minutesSincePartial = (now.getTime() - partialTime.getTime()) / 60000;
             
             if (minutesSincePartial < 20) {
-              cronLogger.info(`[MerchantPool] ⏭️ Waiting for completion - partial received ${minutesSincePartial.toFixed(1)} min ago`);
+              cronLogger.info(`[MerchantPool] ⏭️ Waiting for completion - partial received ${toFixedStr(minutesSincePartial, 1)} min ago`);
               result.skippedTooRecent++;
               return;
             } else {
-              cronLogger.info(`[MerchantPool] ⚠️ Partial payment expired (${minutesSincePartial.toFixed(1)} min) - will process as-is`);
+              cronLogger.info(`[MerchantPool] ⚠️ Partial payment expired (${toFixedStr(minutesSincePartial, 1)} min) - will process as-is`);
             }
           }
         }
@@ -622,7 +623,7 @@ const processAddress = async (addr: any, result: {
             const minutesSincePartial = (now.getTime() - partialTime.getTime()) / 60000;
             
             if (minutesSincePartial < 20) {
-              cronLogger.info(`[MerchantPool] ⏭️ Waiting for completion - DB partial ${minutesSincePartial.toFixed(1)} min ago`);
+              cronLogger.info(`[MerchantPool] ⏭️ Waiting for completion - DB partial ${toFixedStr(minutesSincePartial, 1)} min ago`);
               result.skippedTooRecent++;
               return;
             }
@@ -660,7 +661,7 @@ const processAddress = async (addr: any, result: {
           const hoursSinceTx = (now.getTime() - txCreatedAt.getTime()) / 3600000;
           
           if (hoursSinceTx < 1) {
-            cronLogger.info(`[MerchantPool] ⏭️ ${walletAddress} - Recent pool transaction exists (${hoursSinceTx.toFixed(1)}h ago)`);
+            cronLogger.info(`[MerchantPool] ⏭️ ${walletAddress} - Recent pool transaction exists (${toFixedStr(hoursSinceTx, 1)}h ago)`);
             result.alreadyProcessed++;
             return;
           }
@@ -670,10 +671,10 @@ const processAddress = async (addr: any, result: {
         cronLogger.info(`[MerchantPool] ⚠️ MISSED PAYMENT DETECTED: ${walletAddress}`);
         cronLogger.info(`[MerchantPool]   - On-chain balance: ${balance} ${walletType}`);
         cronLogger.info(`[MerchantPool]   - Admin fee residual: ${adminFeeBalance} ${walletType}`);
-        cronLogger.info(`[MerchantPool]   - Effective new payment: ${effectiveBalance.toFixed(8)} ${walletType}`);
+        cronLogger.info(`[MerchantPool]   - Effective new payment: ${toFixedStr(effectiveBalance, 8)} ${walletType}`);
         cronLogger.info(`[MerchantPool]   - Expected: ${expectedAmount} ${walletType}`);
         cronLogger.info(`[MerchantPool]   - Payment ID: ${currentPaymentId || 'N/A'}`);
-        cronLogger.info(`[MerchantPool]   - Reserved ${minutesSinceReserved.toFixed(1)} min ago`);
+        cronLogger.info(`[MerchantPool]   - Reserved ${toFixedStr(minutesSinceReserved, 1)} min ago`);
         
         const tolerance = expectedAmount * 0.01;
         // Use effectiveBalance (after admin fee subtraction) for underpayment comparison
@@ -681,17 +682,17 @@ const processAddress = async (addr: any, result: {
         
         if (isUnderpayment && minutesSinceReserved < 25) {
           cronLogger.info(`[MerchantPool] ⏸️ UNDERPAYMENT detected - waiting for customer to send remaining`);
-          cronLogger.info(`[MerchantPool]    - Received (effective): ${effectiveBalance.toFixed(8)} ${walletType}`);
+          cronLogger.info(`[MerchantPool]    - Received (effective): ${toFixedStr(effectiveBalance, 8)} ${walletType}`);
           cronLogger.info(`[MerchantPool]    - Expected: ${expectedAmount} ${walletType}`);
-          cronLogger.info(`[MerchantPool]    - Shortfall: ${(expectedAmount - effectiveBalance).toFixed(8)} ${walletType}`);
-          cronLogger.info(`[MerchantPool]    - Reserved ${minutesSinceReserved.toFixed(1)} min ago (waiting until 25 min)`);
+          cronLogger.info(`[MerchantPool]    - Shortfall: ${toFixedStr((expectedAmount - effectiveBalance), 8)} ${walletType}`);
+          cronLogger.info(`[MerchantPool]    - Reserved ${toFixedStr(minutesSinceReserved, 1)} min ago (waiting until 25 min)`);
           result.skippedTooRecent++;
           return;
         }
         
         if (isUnderpayment) {
           cronLogger.info(`[MerchantPool] ⚠️ UNDERPAYMENT - processing as partial (reservation expired)`);
-          cronLogger.info(`[MerchantPool]    - Received (effective): ${effectiveBalance.toFixed(8)} ${walletType} (${((effectiveBalance/expectedAmount)*100).toFixed(1)}% of expected)`);
+          cronLogger.info(`[MerchantPool]    - Received (effective): ${toFixedStr(effectiveBalance, 8)} ${walletType} (${toFixedStr(((effectiveBalance/expectedAmount)*100), 1)}% of expected)`);
         }
         
         cronLogger.info(`[MerchantPool] 🔄 Fetching transaction details from blockchain...`);
@@ -711,7 +712,7 @@ const processAddress = async (addr: any, result: {
             const hasPaymentContext = !!currentPaymentId && effectiveBalance > (dustThreshold * 5); // Well above dust
             
             if (hasPaymentContext) {
-              cronLogger.info(`[MerchantPool] ⚠️ ${walletAddress} - Tatum tx lookup failed ${failCount} times BUT address has payment context and significant effective balance ${effectiveBalance.toFixed(8)} ${walletType} (on-chain: ${balance}, admin_fee: ${adminFeeBalance})`);
+              cronLogger.info(`[MerchantPool] ⚠️ ${walletAddress} - Tatum tx lookup failed ${failCount} times BUT address has payment context and significant effective balance ${toFixedStr(effectiveBalance, 8)} ${walletType} (on-chain: ${balance}, admin_fee: ${adminFeeBalance})`);
               cronLogger.info(`[MerchantPool] 🔄 Attempting to process using payment context (bypassing tx lookup)...`);
               
               // FIRST: Check if valid Redis data already exists for the CURRENT payment
@@ -860,7 +861,7 @@ const processAddress = async (addr: any, result: {
             } // end: hasPaymentContext
             
             // No payment context or effective balance too low — admin fee residual, release
-            cronLogger.info(`[MerchantPool] ⚠️ ${walletAddress} - No incoming txs found after ${failCount} checks. Effective balance ${effectiveBalance.toFixed(8)} ${walletType} (on-chain: ${balance}, admin_fee: ${adminFeeBalance}) is likely pre-existing admin fee. Releasing address.`);
+            cronLogger.info(`[MerchantPool] ⚠️ ${walletAddress} - No incoming txs found after ${failCount} checks. Effective balance ${toFixedStr(effectiveBalance, 8)} ${walletType} (on-chain: ${balance}, admin_fee: ${adminFeeBalance}) is likely pre-existing admin fee. Releasing address.`);
             await merchantTempAddressModel.update(
               { status: 'AVAILABLE', current_payment_id: null, expected_amount: null, reserved_until: null, current_company_id: null },
               { where: { wallet_address: walletAddress } }
@@ -876,7 +877,7 @@ const processAddress = async (addr: any, result: {
 
         const latestTx = incomingTxs[0];
         
-        const totalFromTxs = incomingTxs.reduce((sum, tx) => sum + tx.amount, 0);
+        const totalFromTxs = sum(incomingTxs.map((tx) => tx.amount)).toNumber();
         cronLogger.info(`[MerchantPool] 📝 Found ${incomingTxs.length} transaction(s): latest txId=${latestTx.txId}`);
         cronLogger.info(`[MerchantPool]    - Latest tx amount: ${latestTx.amount} ${walletType}`);
         cronLogger.info(`[MerchantPool]    - Total from all txs: ${totalFromTxs} ${walletType}`);
@@ -947,7 +948,7 @@ const processAddress = async (addr: any, result: {
           incomplete: isPartialPayment ? 'true' : 'false',
           ...(isPartialPayment && {
             partialPaymentTimestamp: new Date().toISOString(),
-            remaining: (expectedAmount - receivedAmount).toFixed(8),
+            remaining: toFixedStr((expectedAmount - receivedAmount), 8),
           }),
         };
         
@@ -1103,7 +1104,7 @@ export const detectOrphanPayments = async (): Promise<{
         if (isTagBasedChain(walletType) && orphanDestTag) {
           try {
             const taggedTxs = await tatumApi.getIncomingTransactions(walletAddress, walletType, 20, orphanDestTag);
-            balance = taggedTxs.reduce((sum, tx) => sum + tx.amount, 0);
+            balance = sum(taggedTxs.map((tx) => tx.amount)).toNumber();
           } catch {
             continue; // Can't determine tag-specific balance, skip
           }
@@ -1185,7 +1186,7 @@ export const detectOrphanPayments = async (): Promise<{
         cronLogger.info(`[OrphanDetect] ⚠️ ORPHAN PAYMENT DETECTED on AVAILABLE address: ${walletAddress}`);
         cronLogger.info(`[OrphanDetect]   - Balance: ${balance} ${walletType}`);
         cronLogger.info(`[OrphanDetect]   - Known admin fees: ${existingAdminBalance}`);
-        cronLogger.info(`[OrphanDetect]   - Excess (orphan amount): ${(balance - existingAdminBalance).toFixed(8)} ${walletType}`);
+        cronLogger.info(`[OrphanDetect]   - Excess (orphan amount): ${toFixedStr((balance - existingAdminBalance), 8)} ${walletType}`);
         cronLogger.info(`[OrphanDetect]   - Owner merchant: ${ownerId}`);
         cronLogger.info(`[OrphanDetect]   - Has saved context: ${!!lastContextRaw}`);
 
@@ -1209,7 +1210,7 @@ export const detectOrphanPayments = async (): Promise<{
           // (e.g., old TXs pruned from their index), but balance is confirmed on-chain.
           const orphanAmount = balance - existingAdminBalance;
           if (orphanAmount > 0) {
-            cronLogger.info(`[OrphanDetect] ⚠️ No incoming TXs from Tatum for ${walletAddress}. Marking for admin sweep (${orphanAmount.toFixed(8)} ${walletType}).`);
+            cronLogger.info(`[OrphanDetect] ⚠️ No incoming TXs from Tatum for ${walletAddress}. Marking for admin sweep (${toFixedStr(orphanAmount, 8)} ${walletType}).`);
             // Store context so scheduled sweep picks it up
             try {
               await setRedisItemWithTTL(`orphan-sweep:${walletAddress}`, {
@@ -1221,7 +1222,7 @@ export const detectOrphanPayments = async (): Promise<{
                 reason: 'no_tatum_txs_but_balance_confirmed',
               }, 86400); // 24 hours
               result.sweptToAdmin++;
-              cronLogger.info(`[OrphanDetect] ✅ Flagged ${walletAddress} for orphan sweep (${orphanAmount.toFixed(8)} ${walletType})`);
+              cronLogger.info(`[OrphanDetect] ✅ Flagged ${walletAddress} for orphan sweep (${toFixedStr(orphanAmount, 8)} ${walletType})`);
             } catch (sweepErr) {
               cronLogger.error(`[OrphanDetect] ❌ Failed to flag orphan sweep for ${walletAddress}:`, sweepErr instanceof Error ? sweepErr.message : sweepErr);
               result.errors.push(`Failed to flag sweep for ${walletAddress}: ${sweepErr instanceof Error ? sweepErr.message : sweepErr}`);

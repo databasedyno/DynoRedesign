@@ -278,7 +278,23 @@
       "detailsTitle": "Warnungsdetails",
       "wasThisYou": "<strong>Waren Sie das?</strong><br />Wenn Sie diese Aktivität wiedererkennen, können Sie diese Nachricht ignorieren.",
       "didntPerform": "<strong>Diese Aktion nicht durchgeführt?</strong><br />Sichern Sie Ihr Konto umgehend:<br />1. Ändern Sie Ihr Passwort<br />2. Überprüfen Sie Ihre letzten Aktivitäten<br />3. Kontaktieren Sie unser Support-Team",
-      "cta": "Mein Konto sichern"
+      "cta": "Mein Konto sichern",
+      "types": {
+        "otp_lockout": "Bestätigungscode nach wiederholten Fehlversuchen gesperrt",
+        "login_rate_limit": "Zu viele fehlgeschlagene Anmeldeversuche"
+      },
+      "details": {
+        "otpLockout": "Jemand hat 5-mal einen falschen Code eingegeben für: {{channel}}. Der Code wurde ungültig gemacht.",
+        "loginRateLimit": "{{count}} fehlgeschlagene Anmeldeversuche in 15 Minuten – weitere Versuche wurden blockiert."
+      },
+      "channels": {
+        "password_reset": "Passwort zurücksetzen",
+        "login": "Anmeldebestätigung",
+        "email_change": "Änderung der E-Mail-Adresse",
+        "password_change": "Passwortänderung",
+        "email_verification": "E-Mail-Bestätigung",
+        "onboarding": "Kontoeinrichtung"
+      }
     },
     "newDeviceLogin": {
       "subject": "Neue Anmeldung bei Ihrem Dynopay-Konto",

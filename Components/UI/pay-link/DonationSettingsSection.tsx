@@ -30,6 +30,7 @@ import {
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
+import { toNumber } from "@/utils/money";
 
 export interface DonationBeneficiary {
   name: string;
@@ -275,7 +276,7 @@ const DonationSettingsSection = ({
   };
 
   const addPreset = () => {
-    const n = Math.round(parseFloat(presetInput) * 100) / 100;
+    const n = toNumber(parseFloat(presetInput), 2);
     if (!Number.isFinite(n) || n <= 0) return;
     if (settings.presets.includes(n)) {
       setPresetInput("");

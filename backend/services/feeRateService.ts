@@ -9,6 +9,7 @@
 import axios from "axios";
 import { cronLogger } from "../utils/loggers";
 import { redis as redisClient } from "../utils/redisInstance";
+import { fromBaseUnits, mul } from "../utils/money";
 
 const LOG_PREFIX = "[FeeRateService]";
 const log = (msg: string) => cronLogger.info(`${LOG_PREFIX} ${msg}`);
@@ -225,20 +226,18 @@ export const estimateSweepCostUSD = async (
     case "BTC": {
       // BTC sweep: ~141 vBytes (SegWit 1-in-1-out)
       const feeSats = 141 * feeRate;
-      const feeBTC = feeSats / 100_000_000;
-      return feeBTC * cryptoPriceUSD;
+      return mul(fromBaseUnits(feeSats), cryptoPriceUSD).toNumber();
     }
     case "ETH":
     case "ERC20": {
       // ETH transfer: 21000 gas
       const feeETH = (21000 * feeRate) / 1_000_000_000;
-      return feeETH * cryptoPriceUSD;
+      return mul(feeETH, cryptoPriceUSD).toNumber();
     }
     case "LTC": {
       // LTC sweep: ~225 bytes
       const feeLitoshi = 225 * feeRate;
-      const feeLTC = feeLitoshi / 100_000_000;
-      return feeLTC * cryptoPriceUSD;
+      return mul(fromBaseUnits(feeLitoshi), cryptoPriceUSD).toNumber();
     }
     default:
       // Near-instant chains: negligible fee

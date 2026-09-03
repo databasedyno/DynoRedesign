@@ -1,0 +1,316 @@
+{
+ "data": [
+  {
+   "base_currency": "USD",
+   "company_id": 1,
+   "company_name": "The Dev Store",
+   "currency_info": {
+    "code": "USD",
+    "display_format": "$ USD",
+    "symbol": "$"
+   },
+   "wallets": [
+    {
+     "amount": 37.9885584371826,
+     "amount_display": {
+      "amount": 1717.2300000000002,
+      "amount_formatted": "1,717.23",
+      "currency_code": "USD",
+      "display_value": "$1,717.23 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "1717.23",
+     "amount_in_usd": "1717.23",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:20:47.352Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 0.01967845,
+     "updatedAt": "2026-08-14T21:32:48.981Z",
+     "user_id": 1,
+     "wallet_address": "LM179QVx32QMtEzkhJZnvMdQgJfkAbf3fm",
+     "wallet_id": 7,
+     "wallet_name": null,
+     "wallet_type": "LTC"
+    },
+    {
+     "amount": 0,
+     "amount_display": {
+      "amount": 0,
+      "amount_formatted": "0.00",
+      "currency_code": "USD",
+      "display_value": "$0.00 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "0.00",
+     "amount_in_usd": "0.00",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:19:59.591Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 1,
+     "updatedAt": "2026-04-18T18:19:59.591Z",
+     "user_id": 1,
+     "wallet_address": "0x9a7221b5e32d5f99e8da95585835442e29afb38f",
+     "wallet_id": 6,
+     "wallet_name": null,
+     "wallet_type": "USDC-ERC20"
+    },
+    {
+     "amount": 0,
+     "amount_display": {
+      "amount": 0,
+      "amount_formatted": "0.00",
+      "currency_code": "USD",
+      "display_value": "$0.00 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "0.00",
+     "amount_in_usd": "0.00",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:20:47.803Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 0.00990786,
+     "updatedAt": "2026-04-18T18:20:47.803Z",
+     "user_id": 1,
+     "wallet_address": "Gjjphdxe26tayH3PBQcqXYt3R2gt7phEdCAFfxZB63U8",
+     "wallet_id": 9,
+     "wallet_name": null,
+     "wallet_type": "SOL"
+    },
+    {
+     "amount": 0,
+     "amount_display": {
+      "amount": 0,
+      "amount_formatted": "0.00",
+      "currency_code": "USD",
+      "display_value": "$0.00 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "0.00",
+     "amount_in_usd": "0.00",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:20:48.027Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 0.72859745,
+     "updatedAt": "2026-04-18T18:20:48.027Z",
+     "user_id": 1,
+     "wallet_address": "rNxp4h8apvRis6mJf9Sh8C6iRxfrDWN7AV",
+     "wallet_id": 10,
+     "wallet_name": null,
+     "wallet_type": "XRP"
+    },
+    {
+     "amount": 0,
+     "amount_display": {
+      "amount": 0,
+      "amount_formatted": "0.00",
+      "currency_code": "USD",
+      "display_value": "$0.00 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "0.00",
+     "amount_in_usd": "0.00",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:46:18.159Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 1,
+     "updatedAt": "2026-04-18T18:46:18.159Z",
+     "user_id": 1,
+     "wallet_address": "0x9a7221b5e32d5f99e8da95585835442e29afb38f",
+     "wallet_id": 12,
+     "wallet_name": null,
+     "wallet_type": "USDT-POLYGON"
+    },
+    {
+     "amount": 0,
+     "amount_display": {
+      "amount": 0,
+      "amount_formatted": "0.00",
+      "currency_code": "USD",
+      "display_value": "$0.00 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "0.00",
+     "amount_in_usd": "0.00",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:46:18.274Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 0.00400753,
+     "updatedAt": "2026-04-18T18:46:18.274Z",
+     "user_id": 1,
+     "wallet_address": "1JH5TnZzjYTf1yYwBDLjWoHgkAcCHc1Do7",
+     "wallet_id": 13,
+     "wallet_name": null,
+     "wallet_type": "BCH"
+    },
+    {
+     "amount": 0,
+     "amount_display": {
+      "amount": 0,
+      "amount_formatted": "0.00",
+      "currency_code": "USD",
+      "display_value": "$0.00 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "0.00",
+     "amount_in_usd": "0.00",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:46:18.042Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 10.79,
+     "updatedAt": "2026-04-18T18:46:18.042Z",
+     "user_id": 1,
+     "wallet_address": "0x9a7221b5e32d5f99e8da95585835442e29afb38f",
+     "wallet_id": 11,
+     "wallet_name": null,
+     "wallet_type": "POLYGON"
+    },
+    {
+     "amount": 1.4638454195013266,
+     "amount_display": {
+      "amount": 3044.5799999999995,
+      "amount_formatted": "3,044.58",
+      "currency_code": "USD",
+      "display_value": "$3,044.58 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "3044.58",
+     "amount_in_usd": "3044.58",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:19:58.684Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 0.00041541,
+     "updatedAt": "2026-09-01T02:54:26.887Z",
+     "user_id": 1,
+     "wallet_address": "0x9a7221b5e32d5f99e8da95585835442e29afb38f",
+     "wallet_id": 2,
+     "wallet_name": null,
+     "wallet_type": "ETH"
+    },
+    {
+     "amount": 0.20149483487278147,
+     "amount_display": {
+      "amount": 14143.490000000014,
+      "amount_formatted": "14,143.49",
+      "currency_code": "USD",
+      "display_value": "$14,143.49 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "14143.49",
+     "amount_in_usd": "14143.49",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:19:58.454Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 1.283e-05,
+     "updatedAt": "2026-09-02T16:43:49.162Z",
+     "user_id": 1,
+     "wallet_address": "1JH5TnZzjYTf1yYwBDLjWoHgkAcCHc1Do7",
+     "wallet_id": 1,
+     "wallet_name": null,
+     "wallet_type": "BTC"
+    },
+    {
+     "amount": 9010.582093760217,
+     "amount_display": {
+      "amount": 9010.582093760217,
+      "amount_formatted": "9,010.58",
+      "currency_code": "USD",
+      "display_value": "$9,010.58 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "9010.58",
+     "amount_in_usd": "9010.58",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:19:59.137Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 1,
+     "updatedAt": "2026-09-02T21:16:06.623Z",
+     "user_id": 1,
+     "wallet_address": "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR",
+     "wallet_id": 4,
+     "wallet_name": "USDT-TRC20",
+     "wallet_type": "USDT-TRC20"
+    },
+    {
+     "amount": 90.20548802,
+     "amount_display": {
+      "amount": 29.44,
+      "amount_formatted": "29.44",
+      "currency_code": "USD",
+      "display_value": "$29.44 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "29.44",
+     "amount_in_usd": "29.44",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:19:58.911Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 3.05,
+     "updatedAt": "2026-07-20T17:23:58.235Z",
+     "user_id": 1,
+     "wallet_address": "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR",
+     "wallet_id": 3,
+     "wallet_name": null,
+     "wallet_type": "TRX"
+    },
+    {
+     "amount": 888.2289074023988,
+     "amount_display": {
+      "amount": 991.4589074023988,
+      "amount_formatted": "991.46",
+      "currency_code": "USD",
+      "display_value": "$991.46 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "991.46",
+     "amount_in_usd": "991.46",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:19:59.364Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 1,
+     "updatedAt": "2026-08-30T13:38:54.282Z",
+     "user_id": 1,
+     "wallet_address": "0x9a7221b5e32d5f99e8da95585835442e29afb38f",
+     "wallet_id": 5,
+     "wallet_name": null,
+     "wallet_type": "USDT-ERC20"
+    },
+    {
+     "amount": 191.19556097565,
+     "amount_display": {
+      "amount": 18.66,
+      "amount_formatted": "18.66",
+      "currency_code": "USD",
+      "display_value": "$18.66 USD",
+      "symbol": "$"
+     },
+     "amount_in_base_currency": "18.66",
+     "amount_in_usd": "18.66",
+     "company_id": 1,
+     "createdAt": "2026-04-18T18:20:47.578Z",
+     "currency_type": "CRYPTO",
+     "destination_tag": null,
+     "transfer_rate": 12.03,
+     "updatedAt": "2026-09-02T15:16:10.214Z",
+     "user_id": 1,
+     "wallet_address": "DEReH1ES1zT8MUtkBQPqLqYGWrJhw2gCUL",
+     "wallet_id": 8,
+     "wallet_name": null,
+     "wallet_type": "DOGE"
+    }
+   ]
+  }
+ ],
+ "message": "Wallets retrieved"
+}

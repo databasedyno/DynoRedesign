@@ -24,6 +24,7 @@ import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
 import axiosBaseApi from "@/axiosConfig";
 import { PRICING_CURRENCIES } from "@/utils/pricingCurrencies";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { toFixedStr } from "@/utils/money";
 
 const CURRENCY_OPTS = PRICING_CURRENCIES;
 const DELIVERY_OPTS: Array<{ v: "url" | "file" | "license_key"; label: string; hint: string }> = [
@@ -1040,7 +1041,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                       {a.filename}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {(a.size_bytes / 1024).toFixed(1)} KB
+                      {toFixedStr((a.size_bytes / 1024), 1)} KB
                     </Typography>
                     <IconButton size="small" onClick={() => removeAsset(a.asset_id)} data-testid={`product-asset-remove-${a.asset_id}`}>
                       <DeleteOutlineRounded fontSize="small" />

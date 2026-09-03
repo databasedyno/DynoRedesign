@@ -14,6 +14,7 @@ import { enqueueWebhook } from "../services/webhookQueue";
 import { sweepExpiredPaymentLinks } from "../services/paymentExpirySweeper";
 import { webhookLogs } from "../utils/loggers";
 import tatumHttp from "../utils/tatumHttp";
+import { toFixedStr, toNumber } from "../utils/money";
 // Audited custody boundary for private keys — do NOT decrypt key material directly.
 import * as keyCustody from "../services/keyCustody/keyCustodyService";
 import fs from "fs";
@@ -367,7 +368,7 @@ router.get("/binance-balances", adminAuthMiddleware, async (_req: express.Reques
         asset: b.asset,
         free: b.free,
         locked: b.locked,
-        total: (parseFloat(b.free) + parseFloat(b.locked)).toFixed(8),
+        total: toFixedStr((parseFloat(b.free) + parseFloat(b.locked)), 8),
       }));
     res.status(200).json({ success: true, balances: nonZero, count: nonZero.length });
   } catch (error: any) {
@@ -500,7 +501,7 @@ router.get("/conversion-email-preview", adminAuthMiddleware, async (req: express
             </tr>
             <tr>
               <td style="font-size: 12px; color: #7f1d1d; font-family: 'Inter', Arial, sans-serif; padding-top: 6px;">
-                BTC moved <strong>${Math.abs(priceMovementPct).toFixed(2)}%</strong> during conversion window &mdash; fast-tracked with priority fees
+                BTC moved <strong>${toFixedStr(Math.abs(priceMovementPct), 2)}%</strong> during conversion window &mdash; fast-tracked with priority fees
               </td>
             </tr>
           </table>
@@ -520,12 +521,12 @@ router.get("/conversion-email-preview", adminAuthMiddleware, async (req: express
             </tr>
             <tr>
               <td style="font-size: 28px; font-weight: 700; color: #15803d; font-family: 'Inter', Arial, sans-serif; padding: 8px 0;">
-                ~$${savedAmount.toFixed(2)} saved
+                ~$${toFixedStr(savedAmount, 2)} saved
               </td>
             </tr>
             <tr>
               <td style="font-size: 13px; color: #166534; font-family: 'Inter', Arial, sans-serif; line-height: 1.5;">
-                BTC has dropped <strong>${Math.abs(priceDiffSinceConversion).toFixed(2)}%</strong> since your conversion<br/>
+                BTC has dropped <strong>${toFixedStr(Math.abs(priceDiffSinceConversion), 2)}%</strong> since your conversion<br/>
                 <span style="color: #6b7280;">Converted at $${priceAtConversion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} &mdash; Now $${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </td>
             </tr>
@@ -540,7 +541,7 @@ router.get("/conversion-email-preview", adminAuthMiddleware, async (req: express
         <td style="padding: 16px 20px; background: #f8f9ff; border-radius: 8px; border-left: 4px solid #1034a6;">
           <p style="margin: 0; font-size: 13px; color: #4a4a4a; font-family: 'Inter', Arial, sans-serif; line-height: 1.5;">
             BTC is currently at <strong>$${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-            (+${priceDiffSinceConversion.toFixed(2)}% since conversion).
+            (+${toFixedStr(priceDiffSinceConversion, 2)}% since conversion).
             Your payout was locked in at <strong>$${priceAtConversion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> for price certainty.
           </p>
         </td>
@@ -654,9 +655,9 @@ router.get("/weekly-conversion-email-preview", adminAuthMiddleware, async (_req:
       <tr>
         <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: 'Inter', Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${c.currency}</td>
         <td style="padding: 10px 0; color: #6b7280; font-size: 14px; font-family: 'Inter', Arial, sans-serif; text-align: center; border-bottom: 1px solid #f3f4f6;">${c.count}</td>
-        <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; font-family: 'Inter', Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">$${c.totalPayoutUsd.toFixed(2)}</td>
+        <td style="padding: 10px 0; color: #1a1a2e; font-size: 14px; font-family: 'Inter', Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">$${toFixedStr(c.totalPayoutUsd, 2)}</td>
         <td style="padding: 10px 0; font-family: 'Inter', Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">
-          <span style="color: ${movementColor}; font-size: 13px; font-weight: 500;">${movementSign}${c.avgMovementPct.toFixed(2)}%</span>
+          <span style="color: ${movementColor}; font-size: 13px; font-weight: 500;">${movementSign}${toFixedStr(c.avgMovementPct, 2)}%</span>
         </td>
       </tr>`;
   }).join('');
@@ -1114,7 +1115,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
         // instead of relying on potentially stale activation cache
         const dynamicFee = await calculateDynamicTRC20Fee(tempAddress, null as any, trc20Contract);
         // Add 30% buffer on top for recovery safety
-        const safeGasEstimate = Math.ceil(dynamicFee.fast * 1.3 * 100) / 100;
+        const safeGasEstimate = toNumber(dynamicFee.fast * 1.3, 2, "up");
         steps.push({ step: "energy_estimation", status: "ok", details: {
           required_trx: safeGasEstimate,
           raw_estimate_trx: dynamicFee.fast,
@@ -1128,7 +1129,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
 
         if (gasBalance < safeGasEstimate) {
           const fundAmount = safeGasEstimate - gasBalance;
-          cronLogger.info(`[RecoverPayment] DIRECT gas funding for ${tempAddress}: sending ${fundAmount.toFixed(6)} TRX (need ${safeGasEstimate}, have ${gasBalance})`);
+          cronLogger.info(`[RecoverPayment] DIRECT gas funding for ${tempAddress}: sending ${toFixedStr(fundAmount, 6)} TRX (need ${safeGasEstimate}, have ${gasBalance})`);
           
           // RECOVERY: Bypass fundGasIfNeeded (it uses stale activation cache) and send TRX directly
           const { adminFeeModel } = await import("../models");
@@ -1294,7 +1295,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
         // RECOVERY: Use null recipient to force NEW recipient energy (130k)
         const dynamicFee = await calculateDynamicTRC20Fee(tempAddress, null as any, trc20Contract);
         // Set feeLimit with 30% buffer for safety
-        fees = { fast: Math.ceil(dynamicFee.fast * 1.3 * 100) / 100 };
+        fees = { fast: toNumber(dynamicFee.fast * 1.3, 2, "up") };
       }
 
       let transferResult: { txId?: string; id?: string } | undefined;
@@ -1770,7 +1771,7 @@ router.post("/recover-excess-trx", adminAuthMiddleware, async (req: express.Requ
           continue;
         }
 
-        const recoverable = Math.floor((balanceTRX - reservePerAddress) * 1000000) / 1000000;
+        const recoverable = toNumber((balanceTRX - reservePerAddress), 6, "down");
 
         if (recoverable <= 0.1) {
           continue; // Skip dust amounts

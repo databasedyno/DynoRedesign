@@ -32,6 +32,7 @@ import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
 
 import type { StaticImageData } from "next/image";
 import { brandFg } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 const CRYPTO_ICON_MAP: Record<string, StaticImageData> = {
   BTC: BitcoinIcon,
@@ -242,7 +243,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
   const symbol = useMemo(() => CURRENCY_SYMBOLS[currency] || currency + " ", [currency]);
 
   const formatAmount = useCallback(
-    (val: number) => `${symbol}${val.toFixed(2)}`,
+    (val: number) => `${symbol}${toFixedStr(val, 2)}`,
     [symbol]
   );
 

@@ -17,6 +17,7 @@ import { Icon, MONO } from "@/styles/uiKit";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { formatNumberWithComma } from "@/helpers";
+import { toFixedStr } from "@/utils/money";
 
 interface Props {
   stats: any;
@@ -339,7 +340,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
               {hasPeriodDelta && (
                 <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
                   <Icon name={positive ? "arrow-up" : "arrow-down"} size={14} />
-                  {Math.abs(periodDelta).toFixed(2)}%
+                  {toFixedStr(Math.abs(periodDelta), 2)}%
                 </DeltaChip>
               )}
               <Box
@@ -364,7 +365,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
             <>
               <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
                 <Icon name={positive ? "arrow-up" : "arrow-down"} size={14} />
-                {Math.abs(activeDelta).toFixed(2)}%
+                {toFixedStr(Math.abs(activeDelta), 2)}%
               </DeltaChip>
               <Box
                 component="span"

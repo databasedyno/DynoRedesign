@@ -11,6 +11,7 @@ import { calculateTransactionFees } from '../controller';
 // getTransactionFee and getBlockchainFee imports removed - not used
 import sequelize from '../utils/dbInstance';
 import { QueryTypes } from 'sequelize';
+import { toFixedStr } from "../utils/money";
 
 const runTests = async () => {
   console.log('========================================');
@@ -160,7 +161,7 @@ const runTests = async () => {
     let allPassed = true;
     for (const tier of tiers) {
       const fees = await calculateTransactionFees('BTC', tier.amount);
-      console.log(`  ${tier.description} ($${tier.amount}): deduction = ${fees.totalDeduction.toFixed(6)}, user receives = ${fees.userReceives.toFixed(6)}`);
+      console.log(`  ${tier.description} ($${tier.amount}): deduction = ${toFixedStr(fees.totalDeduction, 6)}, user receives = ${toFixedStr(fees.userReceives, 6)}`);
       if (fees.userReceives >= fees.totalDeduction) {
         // User should receive more than fees for reasonable amounts
       } else {

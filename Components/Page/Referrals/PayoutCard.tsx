@@ -6,6 +6,7 @@ import { brandFg } from "@/constants/theme";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { toFixedStr } from "@/utils/money";
 
 type PayoutWallet = {
   wallet_id: number;
@@ -280,7 +281,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   {t("payoutAvailableCredit", { defaultValue: "Available fee credit" })}
                 </Typography>
                 <Typography data-testid="payout-credit-available" sx={{ fontSize: "22px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
-                  {`$${Number(data?.available_credit_usd ?? 0).toFixed(2)}`}
+                  {`$${toFixedStr(data?.available_credit_usd ?? 0, 2)}`}
                 </Typography>
                 <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.25 }}>
                   {t("payoutAvailableCreditDesc", { defaultValue: "Automatically lowers your Dynopay fee on your next payments." })}
@@ -291,7 +292,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   {t("payoutCreditedToDate", { defaultValue: "Credited to date" })}
                 </Typography>
                 <Typography data-testid="payout-credited-todate" sx={{ fontSize: "22px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
-                  {`$${Number(data?.credited_balance_usd ?? 0).toFixed(2)}`}
+                  {`$${toFixedStr(data?.credited_balance_usd ?? 0, 2)}`}
                 </Typography>
                 <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.25 }}>
                   {t("payoutCreditedToDateDesc", { defaultValue: "Total fees already covered by your referral rewards." })}
@@ -309,7 +310,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   {t("payoutPendingTitle", { defaultValue: "Payout in progress" })}
                 </Typography>
                 <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                  {t("payoutPendingDesc", { defaultValue: "We're sending {{amount}} to your USDT (TRC-20) wallet.", amount: `$${Number(data.pending_payout.amount_usd).toFixed(2)}` })}
+                  {t("payoutPendingDesc", { defaultValue: "We're sending {{amount}} to your USDT (TRC-20) wallet.", amount: `$${toFixedStr(data.pending_payout.amount_usd, 2)}` })}
                 </Typography>
               </Box>
             </Box>
@@ -337,17 +338,17 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                     {t("payoutBalanceLabel", { defaultValue: "Available to cash out" })}
                   </Typography>
                   <Typography sx={{ fontSize: "22px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
-                    {`$${balance.toFixed(2)}`}
+                    {`$${toFixedStr(balance, 2)}`}
                   </Typography>
                 </Box>
                 {data.can_withdraw && !showWithdraw ? (
                   <Box data-testid="payout-withdraw-btn" onClick={startWithdraw} sx={pillBtn("primary")}>
                     {busy === "start-withdraw" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : <Icon name="arrow-up-right" size={16} />}
-                    {t("payoutWithdraw", { defaultValue: "Cash out {{amount}}", amount: `$${balance.toFixed(2)}` })}
+                    {t("payoutWithdraw", { defaultValue: "Cash out {{amount}}", amount: `$${toFixedStr(balance, 2)}` })}
                   </Box>
                 ) : !data.can_withdraw && !showWithdraw ? (
                   <Typography data-testid="payout-min-notice" sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled, maxWidth: 260 }}>
-                    {t("payoutMinNotice", { defaultValue: "Minimum cash-out is ${{min}}. Keep earning to unlock.", min: min.toFixed(0) })}
+                    {t("payoutMinNotice", { defaultValue: "Minimum cash-out is ${{min}}. Keep earning to unlock.", min: toFixedStr(min, 0) })}
                   </Typography>
                 ) : null}
               </Box>
@@ -385,7 +386,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                           {t("payoutAutoOnTitle", { defaultValue: "Auto cash-out is on" })}
                         </Typography>
                         <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                          {t("payoutAutoOnDesc", { defaultValue: "Sends automatically once you reach ${{min}}", min: Number(data.auto_min_usd ?? min).toFixed(0) })}
+                          {t("payoutAutoOnDesc", { defaultValue: "Sends automatically once you reach ${{min}}", min: toFixedStr(data.auto_min_usd ?? min, 0) })}
                         </Typography>
                       </Box>
                     </Box>
@@ -438,7 +439,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                       </Box>
                     )}
                     <Typography sx={{ mt: 1, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
-                      {t("payoutAutoMinHint", { defaultValue: "Minimum ${{min}}. Higher amounts batch payouts and save on network fees.", min: min.toFixed(0) })}
+                      {t("payoutAutoMinHint", { defaultValue: "Minimum ${{min}}. Higher amounts batch payouts and save on network fees.", min: toFixedStr(min, 0) })}
                     </Typography>
                   </Box>
                 )}
@@ -558,7 +559,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                     <Box key={h.payout_id} data-testid={`payout-history-row-${h.payout_id}`} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, p: 1.25, borderRadius: "8px", bgcolor: theme.palette.secondary.main }}>
                       <Box sx={{ minWidth: 0 }}>
                         <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontWeight: 700, color: theme.palette.text.primary }}>
-                          {`$${Number(h.amount_usd).toFixed(2)}`}
+                          {`$${toFixedStr(h.amount_usd, 2)}`}
                         </Typography>
                         <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                           {h.completed_at

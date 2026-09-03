@@ -19,6 +19,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from 'react-i18next';
 import { formatWithSeparators, formatCryptoAmount } from "@/utils/currencyFormat";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { toFixedStr } from "@/utils/money";
 
 interface UnderPaymentProps {
   paidAmount: number;
@@ -182,7 +183,7 @@ const UnderPayment = ({
                 fontFamily="var(--font-sans)"
                 fontWeight={600}
               >
-                {t('underpayment.complete', { percent: progressPercent.toFixed(1) })}
+                {t('underpayment.complete', { percent: toFixedStr(progressPercent, 1) })}
               </Typography>
             </Box>
             <Box

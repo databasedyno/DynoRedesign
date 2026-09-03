@@ -66,6 +66,7 @@ import {
   ICryptoItem,
 } from "@/utils/types/create-pay-link";
 import { brandFg } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 function truncateByWords(text: string, maxLength: number) {
   if (text.length <= maxLength) return text;
@@ -1205,7 +1206,7 @@ const CreatePaymentLinkPage = ({
           unitCents = Number(sorted[0].price_cents) || 0;
         }
         const amountCents = unitCents * qty;
-        const amountDec = (amountCents / 100).toFixed(2);
+        const amountDec = toFixedStr((amountCents / 100), 2);
         const stripMd = (md: string | null | undefined): string => {
           if (!md) return "";
           return String(md)

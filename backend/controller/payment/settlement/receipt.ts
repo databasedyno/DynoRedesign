@@ -70,6 +70,7 @@ import { isVolatileCrypto } from "../../../services/binanceService";
 import { createConversionRecord } from "../../../services/conversionService";
 import { PaymentState, parseState, toRedisStatus } from "../../../services/paymentStateMachine";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
+import { toFixedStr } from "../../../utils/money";
 
 export const downloadReceipt = async (
   req: express.Request,
@@ -166,7 +167,7 @@ export const downloadReceipt = async (
     const pdfBuffer = await generatePaymentReceipt({
       transactionId,
       transactionReference: blockchainTx,
-      amount: `${Number(baseAmount || 0).toFixed(2)}`,
+      amount: `${toFixedStr(baseAmount || 0, 2)}`,
       currency: baseCurrency,
       cryptoAmount: receivedAmount > 0 ? formatCryptoAmount(receivedAmount, currency) : undefined,
       cryptoCurrency: currency || undefined,

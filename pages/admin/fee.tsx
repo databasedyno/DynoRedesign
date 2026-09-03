@@ -25,6 +25,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { toFixedStr } from "@/utils/money";
 
 const columns = [
   "#",
@@ -342,7 +343,7 @@ const AdminFee = ({ setPageName }: pageProps) => {
                     {getCurrencySymbol(
                       x.wallet_type,
                       countDecimals(x.amount) > 8
-                        ? x.amount.toFixed(8)
+                        ? toFixedStr(x.amount, 8)
                         : x.amount
                     )}
                   </Typography>

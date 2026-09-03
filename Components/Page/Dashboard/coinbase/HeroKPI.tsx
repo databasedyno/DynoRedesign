@@ -14,6 +14,7 @@ import {
   PillButton,
   SurfaceCard,
 } from "./styled";
+import { toFixedStr } from "@/utils/money";
 
 /**
  * HeroKPI — the huge Lifetime Volume headline + delta chip + sparkline +
@@ -205,7 +206,7 @@ const HeroKPI: React.FC = () => {
                 ) : (
                   <ArrowDownwardRounded sx={{ fontSize: 14 }} />
                 )}
-                {Math.abs(volumeChange).toFixed(2)}%
+                {toFixedStr(Math.abs(volumeChange), 2)}%
               </DeltaChip>
               <Box
                 component="span"

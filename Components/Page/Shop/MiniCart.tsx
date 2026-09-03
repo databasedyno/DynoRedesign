@@ -16,6 +16,7 @@ import {
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { useCart } from "@/contexts/CartContext";
+import { toFixedStr } from "@/utils/money";
 
 interface Props { handle: string }
 
@@ -36,7 +37,7 @@ interface Line {
 function fmt(cents: number, ccy: string): string {
   try {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: ccy }).format((cents || 0) / 100);
-  } catch { return `${((cents || 0) / 100).toFixed(2)} ${ccy}`; }
+  } catch { return `${toFixedStr(((cents || 0) / 100), 2)} ${ccy}`; }
 }
 
 const MiniCart: React.FC<Props> = ({ handle }) => {

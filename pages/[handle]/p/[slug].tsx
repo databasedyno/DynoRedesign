@@ -23,6 +23,7 @@ import { Icon } from "@iconify/react";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
 import MiniCart, { OPEN_MINICART_EVENT } from "@/Components/Page/Shop/MiniCart";
+import { toFixedStr } from "@/utils/money";
 
 interface Merchant { handle: string; name: string; avatar?: string | null }
 interface Product {
@@ -43,7 +44,7 @@ function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
   try {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: ccy, maximumFractionDigits: 2 }).format(n);
-  } catch { return `${n.toFixed(2)} ${ccy}`; }
+  } catch { return `${toFixedStr(n, 2)} ${ccy}`; }
 }
 
 const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl, metaLang, verified }) => {

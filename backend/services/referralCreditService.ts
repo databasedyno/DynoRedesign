@@ -4,6 +4,7 @@ import sequelize from "../utils/dbInstance";
 import User from "../models/userModels/userModel";
 import Referral from "../models/referralModels/referralModel";
 import ReferralReward from "../models/referralModels/referralRewardModel";
+import { div, mul, roundTo, sum, toFixedStr, toNumber } from "../utils/money";
 
 /**
  * Referral revenue-share FEE-CREDIT consumption (BLENDED model, default path).
@@ -18,7 +19,7 @@ import ReferralReward from "../models/referralModels/referralRewardModel";
  * is reserved for USDT-TRC20 cash-out).
  */
 
-const round2 = (n: number): number => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 
 /** Account-level referral balance available to spend as FEE CREDIT ($ USD). */
 export const getAvailableCreditForFees = async (userId: number): Promise<number> => {
@@ -65,7 +66,7 @@ export const consumeReferralCreditForTransaction = async (params: {
     attributes: ["amount"],
   });
   if (prior.length > 0) {
-    return round2(prior.reduce((s, r) => s + Number(r.amount || 0), 0));
+    return round2(sum(prior.map((r) => r.amount)).toNumber());
   }
 
   // Mode gate — only 'credit' mode spends the balance as fee credit.
@@ -113,7 +114,7 @@ export const consumeReferralCreditForTransaction = async (params: {
 
   if (consumed > 0) {
     apiLogger.info(
-      `[ReferralCredit] Applied $${consumed.toFixed(2)} referral fee-credit for user ${userId} (tx ${transactionRef})`
+      `[ReferralCredit] Applied $${toFixedStr(consumed, 2)} referral fee-credit for user ${userId} (tx ${transactionRef})`
     );
   }
   return consumed;
@@ -155,16 +156,16 @@ export const computeReferralFeeCreditShift = async (params: {
         const receivedUSD = Number(await params.toUsd(baseCrypto, params.currency)) || 0;
         if (receivedUSD > 0) {
           const rate = receivedUSD / baseCrypto; // USD per unit of this crypto
-          const platformFeeUsd = admin * rate;   // the fee portion, in USD → the cap
+          const platformFeeUsd = mul(admin, rate).toNumber();   // the fee portion, in USD → the cap
           const applyUsd = Math.min(availableCredit, platformFeeUsd);
           if (applyUsd > 0) {
-            let creditCrypto = applyUsd / rate;
+            let creditCrypto = roundTo(div(applyUsd, rate), 8, "down").toNumber();
             if (creditCrypto > admin) creditCrypto = admin; // never drive admin negative
             if (creditCrypto > 0) {
               admin = admin - creditCrypto;
               user = user + creditCrypto;
               if (user > baseCrypto) user = baseCrypto;
-              const actualUsd = creditCrypto * rate;
+              const actualUsd = mul(creditCrypto, rate).toNumber();
               appliedUsd = Math.min(applyUsd, round2(actualUsd)); // never over-consume vs shift
             }
           }

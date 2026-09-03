@@ -1,4 +1,5 @@
 import { BRAND_ACCENT } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 import React, { useMemo } from 'react'
 import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Box, Chip, Skeleton, Typography, useTheme } from '@mui/material'
@@ -330,7 +331,7 @@ const AnalyticsWidget: React.FC<Props> = ({
                 tickLine={false}
                 axisLine={{ stroke: border }}
                 width={44}
-                tickFormatter={(v: number) => (v >= 1000 ? `${symbol}${(v / 1000).toFixed(1)}k` : `${symbol}${v}`)}
+                tickFormatter={(v: number) => (v >= 1000 ? `${symbol}${toFixedStr((v / 1000), 1)}k` : `${symbol}${v}`)}
               />
               <YAxis yAxisId="count" orientation="right" hide />
               <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ fill: areaFill }} />

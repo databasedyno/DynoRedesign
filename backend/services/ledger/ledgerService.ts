@@ -26,13 +26,14 @@ import type { Transaction } from "sequelize";
 import LedgerEntry, { Direction } from "../../models/ledger/ledgerEntryModel";
 import LedgerAccount from "../../models/ledger/ledgerAccountModel";
 import { cronLogger } from "../../utils/loggers";
+import { toFixedStr } from "../../utils/money";
 
 // ─── Decimal helpers (avoid float loss; PG DECIMAL round-trip) ────────────────
 
 function toDec(n: number | string): string {
   if (typeof n === "number") {
     if (!Number.isFinite(n)) throw new Error(`Ledger amount is not finite: ${n}`);
-    return n.toFixed(12);
+    return toFixedStr(n, 12);
   }
   const trimmed = String(n).trim();
   if (!/^-?\d+(\.\d+)?$/.test(trimmed)) throw new Error(`Ledger amount not decimal: ${n}`);

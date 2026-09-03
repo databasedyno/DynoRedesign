@@ -6,6 +6,7 @@ import User from "../models/userModels/userModel";
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { MIN_PAYOUT_USDT } from "./referralPayoutService";
 import { sendReferralPayoutReadyEmail, sendReferralPayoutRequestedEmail } from "./emailService";
+import { toFixedStr, toNumber } from "../utils/money";
 
 /**
  * Referral payout AUTOMATION (leader/prod cron only): the "you can cash out" nudge
@@ -13,7 +14,7 @@ import { sendReferralPayoutReadyEmail, sendReferralPayoutRequestedEmail } from "
  * SAFE-MODE preview (registered inside registerLeaderCronJobs).
  */
 
-const round2 = (n: number): number => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 const maskAddr = (a: string): string => (a && a.length > 14 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
 
 /** Email a referrer once when their unpaid balance first crosses the cash-out minimum. */
@@ -51,7 +52,7 @@ export const processReferralNudges = async (): Promise<number> => {
         row.language || undefined
       );
       await User.update({ referral_payout_nudged_at: new Date() } as never, { where: { user_id: row.user_id } });
-      cronLogger.info(`[ReferralNudge] Notified user ${row.user_id} — $${unpaid.toFixed(2)} ready to cash out`);
+      cronLogger.info(`[ReferralNudge] Notified user ${row.user_id} — $${toFixedStr(unpaid, 2)} ready to cash out`);
       sent++;
     } catch (e) {
       cronLogger.error(`[ReferralNudge] error user ${row.user_id}: ${e instanceof Error ? e.message : String(e)}`);
@@ -116,7 +117,7 @@ export const processAutoPayouts = async (): Promise<number> => {
       } catch {
         /* email non-fatal */
       }
-      cronLogger.info(`[AutoPayout] Created payout ${(payout as { payout_id: number }).payout_id} for user ${row.user_id} ($${amount.toFixed(2)})`);
+      cronLogger.info(`[AutoPayout] Created payout ${(payout as { payout_id: number }).payout_id} for user ${row.user_id} ($${toFixedStr(amount, 2)})`);
       created++;
     } catch (e) {
       cronLogger.error(`[AutoPayout] error user ${row.user_id}: ${e instanceof Error ? e.message : String(e)}`);

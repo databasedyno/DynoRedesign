@@ -9,6 +9,7 @@ import PolicyRoundedIcon from "@mui/icons-material/PolicyRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 interface Stat {
   value: number;
@@ -54,7 +55,7 @@ const CountUp: React.FC<{ end: number; decimals?: number; delayMs?: number }> = 
 
   return (
     <span ref={ref} className="tabular-nums">
-      {decimals > 0 ? val.toFixed(decimals) : Math.round(val).toLocaleString("en-US")}
+      {decimals > 0 ? toFixedStr(val, decimals) : Math.round(val).toLocaleString("en-US")}
     </span>
   );
 };

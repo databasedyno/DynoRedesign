@@ -15,9 +15,14 @@ import {
   sendPaymentPartialEmail,
   sendPaymentPartialExpiredEmail
 } from "../helper";
-import { getRedisItem, setRedisItem } from "../utils/redisInstance";
+import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
+
+// Dedup markers only need to outlive the payment lifecycle; without a TTL they
+// accumulated forever in Redis (hundreds of permanent pending-notif-* keys).
+const NOTIF_MARKER_TTL_SECONDS = 30 * 24 * 60 * 60;
 import { getCompanyBaseCurrency, convertToUSD, convertToFiat, formatCryptoAmount } from "../utils/currencyUtils";
 import { dispatchCompanyEmail } from "./email/companyDispatch";
+import { toFixedStr } from "../utils/money";
 
 /**
  * Convert a received crypto amount into the merchant's fiat display currency
@@ -40,7 +45,7 @@ const computeFiatForEmail = async (
     const fiat = baseCurrency === "USD" ? usd : (await convertToFiat("USD", baseCurrency, usd)).amount;
     if (!fiat || fiat <= 0 || Number.isNaN(fiat)) return fallback;
     return {
-      fiatAmount: fiat.toFixed(2),
+      fiatAmount: toFixedStr(fiat, 2),
       fiatCurrency: baseCurrency,
       cryptoAmount: Number(cryptoAmount).toString(),
       cryptoCurrency,
@@ -98,13 +103,13 @@ export const sendPendingPaymentNotification = async (
     
     // RACE CONDITION FIX: Set flag immediately before doing any work
     // to prevent duplicate notifications from concurrent webhook calls
-    await setRedisItem(pendingKey, {
+    await setRedisItemWithTTL(pendingKey, {
       sent: true,
       sentAt: new Date().toISOString(),
       txId,
       address,
       status: 'sending', // Will be updated to 'completed' after success
-    });
+    }, NOTIF_MARKER_TTL_SECONDS);
 
     // Get user and company details
     // FIX: Filter by company_id to avoid picking wrong company when user owns multiple
@@ -174,15 +179,15 @@ export const sendPendingPaymentNotification = async (
       )
     );
 
-    // Mark notification as completed in Redis (expires in 24 hours)
-    await setRedisItem(pendingKey, {
+    // Mark notification as completed in Redis
+    await setRedisItemWithTTL(pendingKey, {
       sent: true,
       sentAt: new Date().toISOString(),
       txId,
       address,
       userId: user.user_id,
       status: 'completed',
-    });
+    }, NOTIF_MARKER_TTL_SECONDS);
 
     cronLogger.info(`Pending payment notification sent for tx: ${txId}`);
     return true;
@@ -288,11 +293,11 @@ export const sendConfirmationProgressNotification = async (
     }
 
     // Mark milestone as sent
-    await setRedisItem(milestoneKey, {
+    await setRedisItemWithTTL(milestoneKey, {
       sent: true,
       sentAt: new Date().toISOString(),
       milestone: nearestMilestone,
-    });
+    }, NOTIF_MARKER_TTL_SECONDS);
 
     return true;
 
@@ -398,7 +403,7 @@ export const sendPartialPaymentNotification = async (
     }
 
     const user = userResult[0] as { user_id: number; name: string; email: string; language: string; company_name: string; company_id: number };
-    const remainingAmount = (expectedAmount - receivedAmount).toFixed(8);
+    const remainingAmount = toFixedStr((expectedAmount - receivedAmount), 8);
 
     // Create in-app notification
     await createNotification(
@@ -440,8 +445,8 @@ export const sendPartialPaymentNotification = async (
       )
     );
 
-    // Mark notification as sent in Redis (expires in 2 hours)
-    await setRedisItem(partialKey, {
+    // Mark notification as sent in Redis
+    await setRedisItemWithTTL(partialKey, {
       sent: true,
       sentAt: new Date().toISOString(),
       txId,
@@ -449,7 +454,7 @@ export const sendPartialPaymentNotification = async (
       userId: user.user_id,
       receivedAmount,
       expectedAmount,
-    });
+    }, NOTIF_MARKER_TTL_SECONDS);
 
     cronLogger.info(`Partial payment notification sent for address: ${address}`);
     return true;

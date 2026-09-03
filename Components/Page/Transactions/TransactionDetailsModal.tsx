@@ -46,6 +46,7 @@ import {
 import { CryptoIconChip } from "./styled";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { toFixedStr } from "@/utils/money";
 
 const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   open,
@@ -373,7 +374,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   <DetailRow>
                     <TitleLabel>{tTransactions("totalFees")}</TitleLabel>
                     <TitleValue>
-                      {fx.formatFromUsd(Number(transaction.fees) || 0) ?? `$${Number(transaction.fees).toFixed(2)}`}
+                      {fx.formatFromUsd(Number(transaction.fees) || 0) ?? `$${toFixedStr(transaction.fees, 2)}`}
                     </TitleValue>
                   </DetailRow>
                   <DetailRow>
@@ -381,7 +382,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     <TitleValue sx={{ color: "#10B981", fontWeight: 600 }}>
                       {fx.formatFromUsd(
                         (Number(transaction.usdValueRaw) || 0) - (Number(transaction.fees) || 0),
-                      ) ?? `$${((Number(transaction.usdValueRaw) || 0) - (Number(transaction.fees) || 0)).toFixed(2)}`}
+                      ) ?? `$${toFixedStr(((Number(transaction.usdValueRaw) || 0) - (Number(transaction.fees) || 0)), 2)}`}
                     </TitleValue>
                   </DetailRow>
                 </>
@@ -390,7 +391,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 <DetailRow>
                   <TitleLabel>{tTransactions("feeCoveredByCredit", { defaultValue: "Referral credit applied" })}</TitleLabel>
                   <TitleValue sx={{ color: "#10B981", fontWeight: 600 }}>
-                    {`\u2212 ${fx.formatFromUsd(Number(transaction.referralCreditUsd)) ?? `$${Number(transaction.referralCreditUsd).toFixed(2)}`}`}
+                    {`\u2212 ${fx.formatFromUsd(Number(transaction.referralCreditUsd)) ?? `$${toFixedStr(transaction.referralCreditUsd, 2)}`}`}
                   </TitleValue>
                 </DetailRow>
               )}

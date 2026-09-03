@@ -19,8 +19,9 @@ import sequelize from "../utils/dbInstance";
 import { apiLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { sendReferralMonthlyDigestEmail } from "./email/referralEmails";
+import { toFixedStr, toNumber } from "../utils/money";
 
-const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number) => toNumber((Number(n) || 0), 2);
 
 /** Previous calendar month window in UTC: [firstOfPrevMonth, firstOfThisMonth). */
 export const getPrevMonthWindowUTC = (now: Date = new Date()): { start: Date; end: Date; label: string; key: string } => {
@@ -148,7 +149,7 @@ export const sendMonthlyReferralDigests = async (
 
   if (sent > 0 || byReferrer.size > 0) {
     apiLogger.info(
-      `[Referral] Monthly digest (${label}) — ${sent} sent / ${skipped} skipped of ${byReferrer.size} earning referrer(s), $${totalUsd.toFixed(2)} total`
+      `[Referral] Monthly digest (${label}) — ${sent} sent / ${skipped} skipped of ${byReferrer.size} earning referrer(s), $${toFixedStr(totalUsd, 2)} total`
     );
   }
   return { referrers: byReferrer.size, totalUsd, sent, skipped };

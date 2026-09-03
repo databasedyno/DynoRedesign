@@ -16,6 +16,7 @@ import { QueryTypes } from "sequelize";
 import sequelize from "../dbInstance";
 import { log } from "../loggers";
 import { captureError } from "../../services/errorMonitoringService";
+import { toFixedStr } from "../money";
 
 export const setupFirstPaymentMonitorCron = () => {
   // Run every 15 minutes at minute 5, 20, 35, 50
@@ -99,12 +100,12 @@ export const setupFirstPaymentMonitorCron = () => {
           const baseAmt = Number(fp.base_amount) || 0;
           if (baseAmt > 0) {
             if (USD_PEGGED.has(baseCur)) {
-              amountUsd = baseAmt.toFixed(2);
+              amountUsd = toFixedStr(baseAmt, 2);
             } else {
               try {
                 const { convertToUSD } = await import("../currencyUtils");
                 const converted = Number(await convertToUSD(baseCur, baseAmt));
-                if (converted > 0) amountUsd = converted.toFixed(2);
+                if (converted > 0) amountUsd = toFixedStr(converted, 2);
               } catch {
                 amountUsd = null;
               }

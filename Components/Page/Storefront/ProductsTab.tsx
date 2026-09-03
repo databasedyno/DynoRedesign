@@ -22,6 +22,7 @@ import SkeletonList from "@/Components/UI/SkeletonList";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendingCard";
+import { toFixedStr } from "@/utils/money";
 
 interface ProductRow {
   product_id: number;
@@ -244,7 +245,7 @@ const ProductsTab = () => {
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         <Box component="span" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
-                          {(p.base_price_cents / 100).toFixed(2)} {p.currency}
+                          {toFixedStr((p.base_price_cents / 100), 2)} {p.currency}
                         </Box>
                         {" · /"}{p.slug}
                       </Typography>

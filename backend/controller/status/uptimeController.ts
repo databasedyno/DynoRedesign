@@ -3,6 +3,7 @@ import { apiLogger } from "../../utils/loggers";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
 import { successResponseHelper, errorResponseHelper } from "../../helper";
 import monitoringService from "../../services/monitoringService";
+import { toFixedStr } from "../../utils/money";
 
 /**
  * Status Controller — uptime handlers (extracted from statusController.ts to
@@ -55,7 +56,7 @@ export const getServiceUptime = async (req: express.Request, res: express.Respon
       service_id: service.id,
       service_name: service.name,
       period_days: days,
-      uptime_percentage: uptimeData.uptime_percentage.toFixed(2),
+      uptime_percentage: toFixedStr(uptimeData.uptime_percentage, 2),
       total_checks: uptimeData.total_checks,
       failed_checks: uptimeData.failed_checks,
       summary: {
@@ -112,7 +113,7 @@ export const getAllServicesUptime = async (req: express.Request, res: express.Re
           service_id: service.id,
           service_name: service.name,
           period_days: days,
-          uptime_percentage: uptimeData.uptime_percentage.toFixed(2),
+          uptime_percentage: toFixedStr(uptimeData.uptime_percentage, 2),
           total_checks: uptimeData.total_checks,
           summary: {
             operational_days: operational,
@@ -187,7 +188,7 @@ export const getUptimeChart = async (req: express.Request, res: express.Response
 
     const response = {
       period_days: days,
-      uptime_percentage: daysWithData > 0 ? ((operational / daysWithData) * 100).toFixed(2) : "100.00",
+      uptime_percentage: daysWithData > 0 ? toFixedStr(((operational / daysWithData) * 100), 2) : "100.00",
       summary: {
         operational_days: operational,
         degraded_days: degraded,

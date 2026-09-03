@@ -25,6 +25,7 @@ import {
   TRACKED_ASSETS,
   type KlineCandle,
 } from "./binanceWebSocketService";
+import { toFixedStr, toNumber } from "../utils/money";
 
 const LOG_PREFIX = "[VolatilityMonitor]";
 const log = (msg: string) => cronLogger.info(`${LOG_PREFIX} ${msg}`);
@@ -149,8 +150,8 @@ const analyzeAsset = async (asset: string): Promise<MarketState | null> => {
     return {
       asset,
       symbol,
-      roc30m: parseFloat(roc30m.toFixed(4)),
-      volumeRatio: parseFloat(volumeRatio.toFixed(2)),
+      roc30m: toNumber(roc30m, 4),
+      volumeRatio: toNumber(volumeRatio, 2),
       state,
       feeTier,
       currentPrice: livePrice,
@@ -178,9 +179,9 @@ const maybeAlertAdmin = async (state: MarketState) => {
 
   const severity = state.state === "CRASH" ? "CRITICAL" : "WARNING";
   const message = `${severity}: ${state.asset} is in ${state.state} state.\n` +
-    `30-min ROC: ${state.roc30m.toFixed(2)}%\n` +
-    `Current price: $${state.currentPrice.toFixed(2)}\n` +
-    `Volume ratio: ${state.volumeRatio.toFixed(2)}x\n` +
+    `30-min ROC: ${toFixedStr(state.roc30m, 2)}%\n` +
+    `Current price: $${toFixedStr(state.currentPrice, 2)}\n` +
+    `Volume ratio: ${toFixedStr(state.volumeRatio, 2)}x\n` +
     `Recommended fee tier: ${state.feeTier}\n` +
     `${state.state === "CRASH" ? "Consider temporarily pausing new payment acceptance for this currency." : ""}`;
 
@@ -321,7 +322,7 @@ export const startVolatilityMonitor = () => {
       log(`Initial scan: ${results.length}/${MONITORED_ASSETS.length} assets classified | WS connected: ${wsIsConnected()}`);
       const declining = results.filter((r) => r.roc30m < -1.5);
       if (declining.length > 0) {
-        log(`⚠️ Declining: ${declining.map((r) => `${r.asset}(${r.roc30m.toFixed(2)}%)`).join(", ")}`);
+        log(`⚠️ Declining: ${declining.map((r) => `${r.asset}(${toFixedStr(r.roc30m, 2)}%)`).join(", ")}`);
       }
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);

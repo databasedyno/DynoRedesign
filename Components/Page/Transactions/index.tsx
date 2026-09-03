@@ -23,6 +23,7 @@ import TransactionsTable from "./TransactionsTable";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionsTopBar from "./TransactionsTopBar";
 import TransactionsSkeleton from "./TransactionsSkeleton";
+import { toFixedStr, toNumber } from "@/utils/money";
 
 const walletMapping: { [key: string]: string } = {
   all: "all",
@@ -261,8 +262,8 @@ const TransactionPage = () => {
             const raw = Number((item as any).usd_value) || 0;
             if (raw <= 0) return "—";
             if (raw >= 1) return `$${formatWithSeparators(raw, undefined, 2)}`;
-            if (raw >= 0.01) return `$${raw.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
-            return `$${raw.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+            if (raw >= 0.01) return `$${toFixedStr(raw, 4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+            return `$${toFixedStr(raw, 6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
           })(),
           usdValueRaw: Number((item as any).usd_value) || 0,
           dateTime: formatDateTime(item.createdAt),
@@ -295,7 +296,7 @@ const TransactionPage = () => {
             const cryptoAmt = Number((item as any).crypto_amount) || 0;
             const usdVal = Number((item as any).usd_value) || 0;
             const rate = cryptoAmt > 0 ? usdVal / cryptoAmt : 0;
-            return Math.round(totalFeeCrypto * rate * 100) / 100;
+            return toNumber(totalFeeCrypto * rate, 2);
           })(),
           feesBreakdown: {
             platform: (() => {
@@ -303,21 +304,21 @@ const TransactionPage = () => {
               const cryptoAmt = Number((item as any).crypto_amount) || 0;
               const usdVal = Number((item as any).usd_value) || 0;
               const rate = cryptoAmt > 0 ? usdVal / cryptoAmt : 0;
-              return Math.round(fee * rate * 100) / 100;
+              return toNumber(fee * rate, 2);
             })(),
             blockchain: (() => {
               const fee = Number((item as any).blockchain_buffer_fee) || 0;
               const cryptoAmt = Number((item as any).crypto_amount) || 0;
               const usdVal = Number((item as any).usd_value) || 0;
               const rate = cryptoAmt > 0 ? usdVal / cryptoAmt : 0;
-              return Math.round(fee * rate * 100) / 100;
+              return toNumber(fee * rate, 2);
             })(),
             fixed: (() => {
               const fee = Number((item as any).fixed_fee) || 0;
               const cryptoAmt = Number((item as any).crypto_amount) || 0;
               const usdVal = Number((item as any).usd_value) || 0;
               const rate = cryptoAmt > 0 ? usdVal / cryptoAmt : 0;
-              return Math.round(fee * rate * 100) / 100;
+              return toNumber(fee * rate, 2);
             })(),
           },
           confirmations: (() => {

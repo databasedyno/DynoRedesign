@@ -23,6 +23,7 @@ import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL } from "../uti
 import crypto from "crypto";
 import { hmacSha256Hex } from "../utils/hmac";
 import { ensureSandboxApiKey } from "./api/ensureSandboxApiKey";
+import { mul, toFixedStr, toNumber } from "../utils/money";
 
 import axios from "axios";
 import { toConversionDisplayStatus } from "../services/paymentStateMachine";
@@ -1020,7 +1021,7 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         displayAmount = Number(rest.usd_value);
       } else {
         const rate = conversionRates[baseCurrency] || 0;
-        displayAmount = Math.round(baseAmount * rate * 100) / 100;
+        displayAmount = toNumber(mul(baseAmount, rate), 2);
       }
 
       // ── Derive `source` via the shared resolver (single source of truth
@@ -1060,7 +1061,7 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
               source_amount_display: auto_convert_source_amount && auto_convert_source_currency
                 ? (String(auto_convert_source_currency) === preferredCurrency
                   ? Number(auto_convert_source_amount)
-                  : Math.round(Number(auto_convert_source_amount) * (conversionRates[String(auto_convert_source_currency)] || 0) * 100) / 100)
+                  : toNumber(Number(auto_convert_source_amount) * (conversionRates[String(auto_convert_source_currency)] || 0), 2))
                 : null,
               source_amount_display_currency: preferredCurrency,
               target_currency: auto_convert_target_currency,
@@ -1186,15 +1187,12 @@ const updateWebhookSettings = async (req: express.Request, res: express.Response
       return errorResponseHelper(res, 404, "Company not found or unauthorized");
     }
 
-    // Validate webhook URL format if provided
+    // Validate webhook URL (format + SSRF guard) so merchants get immediate feedback
     if (webhook_url) {
       try {
-        const url = new URL(webhook_url);
-        if (!['http:', 'https:'].includes(url.protocol)) {
-          return errorResponseHelper(res, 400, "Webhook URL must use HTTP or HTTPS protocol");
-        }
-      } catch {
-        return errorResponseHelper(res, 400, "Invalid webhook URL format");
+        await assertSafeOutboundUrl(webhook_url);
+      } catch (e) {
+        return errorResponseHelper(res, 400, e instanceof Error ? e.message : "Invalid webhook URL format");
       }
     }
 
@@ -1741,7 +1739,7 @@ const getWebhookStats = async (req: express.Request, res: express.Response) => {
 
     const total = parseInt(String(overallStats.total_deliveries || '0')) || 0;
     const successful = parseInt(String(overallStats.successful || '0')) || 0;
-    const successRate = total > 0 ? ((successful / total) * 100).toFixed(1) : '0';
+    const successRate = total > 0 ? toFixedStr(((successful / total) * 100), 1) : '0';
 
     successResponseHelper(res, 200, "Webhook statistics retrieved", {
       company_id,
@@ -1779,6 +1777,7 @@ import {
   retryConversion,
 } from "./company/autoConvert";
 import { getConversionSavings } from "./company/conversionSavings";
+import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
 
 
 // ── Fee-Free Status ─────────────────────────────────────────────────────────

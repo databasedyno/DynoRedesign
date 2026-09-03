@@ -32,6 +32,7 @@ import {
 import ContentCopyRounded from "@mui/icons-material/ContentCopyRounded";
 import axiosBaseApi from "@/axiosConfig";
 import { RefundStatusTimeline, maskAddress } from "./refundStatus";
+import { toNumber } from "@/utils/money";
 
 export type RefundSourceType = "product_order" | "payment_link";
 
@@ -454,7 +455,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
                   variant={amountPreset === "half" ? "contained" : "outlined"}
                   onClick={() => {
                     setAmountPreset("half");
-                    setAmount(String(Math.floor((preview.max_refundable / 2) * 1e8) / 1e8));
+                    setAmount(String(toNumber((preview.max_refundable / 2), 8, "down")));
                   }}
                   data-testid="refund-preset-half"
                 >

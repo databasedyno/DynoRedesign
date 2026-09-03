@@ -1,4 +1,5 @@
 import type { Migration } from "../utils/migrationRunner";
+import { perfMigrations } from "./perfMigrations";
 
 /**
  * Refactor Item #1 — the tables historically created by ad-hoc `model.sync()`
@@ -472,5 +473,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0018_company_notification_routing", up: addCompanyNotificationRouting },
     { version: "0019_signup_attribution", up: createSignupAttributionTable },
     { version: "0020_api_active_key_unique", up: addApiActiveKeyUniqueIndex },
+    ...perfMigrations,
   ];
 }

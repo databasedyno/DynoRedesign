@@ -3,6 +3,7 @@ import { raw as envRaw } from "../utils/config";
 import axios from "../utils/tatumHttp";
 import { apiLogger } from "../utils/loggers";
 import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
+import { mul, toFixedStr } from "../utils/money";
 
 interface CurrencyRateList {
   currency: string;
@@ -105,7 +106,7 @@ export const refreshBackgroundRateCache = async (): Promise<void> => {
           backgroundRateCache.set(cacheKey, { rate: crossRate, timestamp: Date.now() });
           backgroundRateCache.set(`rate_bg:${fiat}:${crypto}`, { rate: 1 / crossRate, timestamp: Date.now() });
           ratesUpdated += 2;
-          apiLogger.info(`[BackgroundCache] 🔗 Cross-rate recovery: ${crypto}→${fiat} = ${crossRate.toFixed(6)} (via ${crypto}→USD × USD→${fiat})`);
+          apiLogger.info(`[BackgroundCache] 🔗 Cross-rate recovery: ${crypto}→${fiat} = ${toFixedStr(crossRate, 6)} (via ${crypto}→USD × USD→${fiat})`);
         }
       }
     }
@@ -356,7 +357,7 @@ const getCryptoRateViaTatum = async (from: string, to: string): Promise<number |
         const usdtInFiat = await getTatumRate('USDT', to);
         if (usdtInFiat) {
           const crossRate = priceInUSD * usdtInFiat;
-          apiLogger.info(`[currencyConvert] 🔗 Cross-rate: ${from}→${to} = ${crossRate.toFixed(6)} (via ${from}→USD × USDT→${to})`);
+          apiLogger.info(`[currencyConvert] 🔗 Cross-rate: ${from}→${to} = ${toFixedStr(crossRate, 6)} (via ${from}→USD × USDT→${to})`);
           return crossRate;
         }
       }
@@ -374,7 +375,7 @@ const getCryptoRateViaTatum = async (from: string, to: string): Promise<number |
         const usdtInFrom = await getTatumRate('USDT', from);
         if (usdtInFrom) {
           const crossRate = 1 / (priceInUSD * usdtInFrom);
-          apiLogger.info(`[currencyConvert] 🔗 Cross-rate: ${from}→${to} = ${crossRate.toFixed(8)} (via USDT→${from} / ${to}→USD)`);
+          apiLogger.info(`[currencyConvert] 🔗 Cross-rate: ${from}→${to} = ${toFixedStr(crossRate, 8)} (via USDT→${from} / ${to}→USD)`);
           return crossRate;
         }
       }
@@ -403,9 +404,16 @@ const getCryptoRateViaTatum = async (from: string, to: string): Promise<number |
  * Get rate from FastForex API (primary provider — 150-300ms)
  * Uses fetch-one endpoint for optimal speed
  */
+// Circuit breaker: when FastForex rejects us (lapsed subscription, bad key,
+// quota), skip it for a while instead of paying a failed ~300ms round-trip on
+// every fiat conversion. Transient network errors do NOT trip it.
+const FASTFOREX_BREAKER_MS = 30 * 60 * 1000;
+let fastForexDisabledUntil = 0;
+
 const getFastForexRate = async (from: string, to: string, amount: number): Promise<{ rate: number; converted: number } | null> => {
   const apiKey = FASTFOREX_API_KEY || envRaw("FAST_FOREX_KEY");
   if (!apiKey) return null;
+  if (Date.now() < fastForexDisabledUntil) return null;
   
   try {
     const { data } = await axios.get(`https://api.fastforex.io/fetch-one`, {
@@ -423,14 +431,20 @@ const getFastForexRate = async (from: string, to: string, amount: number): Promi
         apiLogger.info(`[currencyConvert] FastForex rate for ${from}→${to}: ${rate} (${data.ms}ms server)`);
         return {
           rate: rate,
-          converted: amount * rate,
+          converted: mul(amount, rate).toNumber(),
         };
       }
     }
   } catch (error: unknown) {
     const err = error as { response?: { data?: { error?: string }; status?: number }; message?: string };
-    const errorMsg = err.response?.data?.error || err.message;
-    apiLogger.warn(`[currencyConvert] FastForex API failed for ${from}→${to}: ${errorMsg}`);
+    const errorMsg = err.response?.data?.error || err.message || "";
+    const status = err.response?.status;
+    if (status === 401 || status === 402 || status === 403 || status === 429 || /subscription|api_key|unauthori/i.test(errorMsg)) {
+      fastForexDisabledUntil = Date.now() + FASTFOREX_BREAKER_MS;
+      apiLogger.warn(`[currencyConvert] FastForex disabled for ${FASTFOREX_BREAKER_MS / 60000}min (${status ?? "n/a"}: ${errorMsg}) — using Tatum/CoinGecko fallbacks`);
+    } else {
+      apiLogger.warn(`[currencyConvert] FastForex API failed for ${from}→${to}: ${errorMsg}`);
+    }
   }
   return null;
 };
@@ -637,21 +651,21 @@ const processSingleCurrency = async (
 
   // Calculate converted amount if not already set by FastForex
   if (convertedAmount === null) {
-    convertedAmount = amount * rate;
+    convertedAmount = mul(amount, rate).toNumber();
   }
 
   // Format the values based on magnitude
   const transferRate = fixedDecimal
-    ? rate.toFixed(2)
+    ? toFixedStr(rate, 2)
     : rate > 1
-    ? rate.toFixed(2)
-    : Number(rate).toFixed(8);
+    ? toFixedStr(rate, 2)
+    : toFixedStr(rate, 8);
 
   const formattedAmount = fixedDecimal
-    ? convertedAmount.toFixed(2)
+    ? toFixedStr(convertedAmount, 2)
     : convertedAmount > 1
-    ? convertedAmount.toFixed(2)
-    : Number(convertedAmount).toFixed(8);
+    ? toFixedStr(convertedAmount, 2)
+    : toFixedStr(convertedAmount, 8);
 
   return {
     currency: defaultCurrency.toUpperCase(),

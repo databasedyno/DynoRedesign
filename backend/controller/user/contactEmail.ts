@@ -31,6 +31,8 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
+import { clientIp } from "../../middleware/rateLimitMiddleware";
 
 export const changeEmail = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -229,7 +231,8 @@ export const verifyAddEmail = async (req: express.Request, res: express.Response
     }
 
     if (otp !== item.otp) {
-      return errorResponseHelper(res, 400, "OTP did not match!");
+      const locked = await recordOtpFailure(otpKey, item, undefined, { email: userData.email, ip: clientIp(req), channel: "email_change" });
+      return errorResponseHelper(res, 400, locked ? otpLockedMessage : "OTP did not match!");
     }
 
     // OTP verified - check email not taken (race condition guard)

@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { toNumber } from "@/utils/money";
 
 /**
  * SystemStatusPill (item E) — tiny always-visible pill that reads live uptime
@@ -56,7 +57,7 @@ const SystemStatusPill: React.FC<{ compact?: boolean }> = ({ compact = false }) 
         const raw = data.overall_uptime_percentage ?? data.uptimePercentage;
         const pct = typeof raw === 'string' ? parseFloat(raw) : (raw as number | undefined);
         if (typeof pct === 'number' && isFinite(pct)) {
-          setUptime(Number(pct.toFixed(2)));
+          setUptime(toNumber(pct, 2));
           setStatus(deriveStatus(pct));
         }
       })

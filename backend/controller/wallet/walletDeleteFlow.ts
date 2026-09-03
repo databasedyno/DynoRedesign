@@ -74,6 +74,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { generateOtpCode } from "../../helper/otpGuard";
 
 export const sendDeletePaymentWalletOTP = async (
   req: express.Request,
@@ -113,7 +114,7 @@ export const sendDeletePaymentWalletOTP = async (
     }
 
     // Generate and send OTP
-    const randomNumberOTP = Math.floor(100000 + Math.random() * 900000);
+    const randomNumberOTP = generateOtpCode();
     
     await userModel.update(
       {

@@ -116,7 +116,7 @@ setInterval(() => {
       ipTracker.delete(ip);
     }
   }
-}, CLEANUP_INTERVAL_MS);
+}, CLEANUP_INTERVAL_MS).unref();
 
 // ============================================
 // Middleware

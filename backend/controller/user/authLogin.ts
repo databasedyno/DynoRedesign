@@ -31,6 +31,8 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { generateOtpCode, recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
+import { clientIp } from "../../middleware/rateLimitMiddleware";
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
@@ -221,7 +223,7 @@ export const resendLoginOTP = async (req: express.Request, res: express.Response
     const otpData = typeof raw === 'string' ? JSON.parse(raw) : raw;
 
     // Generate new OTP and reset attempts
-    const newOtp = String(Math.floor(100000 + Math.random() * 900000));
+    const newOtp = String(generateOtpCode());
     otpData.otp = newOtp;
     otpData.attempts = 0;
     await setRedisItemWithTTL(redisKey, otpData, 300);
@@ -399,7 +401,8 @@ export const confirmOTP = async (req: express.Request, res: express.Response) =>
             const resData = await getAccessToken(userData.dataValues.user_id);
             successResponseHelper(res, 200, "Login Successful!", resData);
           } else {
-            errorResponseHelper(res, 400, "OTP did not match!");
+            const locked = await recordOtpFailure(otpKey, item, undefined, { email, ip: clientIp(req), channel: "login" });
+            errorResponseHelper(res, 400, locked ? otpLockedMessage : "OTP did not match!");
           }
         } else {
           // Delete expired OTP

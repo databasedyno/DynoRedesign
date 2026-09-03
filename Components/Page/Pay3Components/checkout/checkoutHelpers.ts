@@ -3,6 +3,7 @@
  * No React, no side effects beyond the DOM clipboard/localStorage fallbacks.
  */
 import type { PaymentUri } from './checkoutTypes'
+import { toFixedStr } from '@/utils/money'
 
 /** Format a crypto amount with reasonable precision per chain. */
 export function formatCryptoAmount(amt: number, code: string): string {
@@ -10,12 +11,13 @@ export function formatCryptoAmount(amt: number, code: string): string {
     ['USDT', 'USDC', 'RLUSD', 'BUSD', 'DAI'].includes(code) ? 2
       : ['BTC', 'ETH', 'BCH', 'LTC'].includes(code) ? 8
       : 6
-  return amt.toFixed(precision).replace(/\.?0+$/, '')
+  return toFixedStr(amt, precision).replace(/\.?0+$/, '')
 }
 
 /**
  * Build a one-tap "open in wallet" payment URI (deep-link + QR encode).
  * ONLY native-coin chains (BIP-21 for BTC/LTC/DOGE/BCH, Solana Pay for SOL);
+import { toFixedStr } from "@/utils/money";
  * token/EVM/TRON chains return null (their smallest-unit amount encoding is
  * error-prone and a wrong amount could cause an underpayment).
  */

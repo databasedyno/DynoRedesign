@@ -10,6 +10,9 @@ import axios from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { nextSignal } from "@/utils/abortRegistry";
 
+// Stable empty array so consumers' memo/effect deps don't churn while data is undefined.
+const EMPTY_LIST: any[] = [];
+
 /**
  * WalletDataContext — SWR-backed replacement for the old Redux `walletReducer`
  * + `WalletSaga` read path. The wallet list is scoped to the currently selected
@@ -106,7 +109,7 @@ export function WalletDataProvider({ children }: { children: React.ReactNode }) 
 
   const { data, isLoading, mutate } = useSWR(swrKey, walletFetcher);
 
-  const walletList: any[] = Array.isArray(data) ? data : [];
+  const walletList: any[] = useMemo(() => (Array.isArray(data) ? data : EMPTY_LIST), [data]);
   const fetched = data !== undefined;
 
   const refetchWallets = useCallback(() => mutate(), [mutate]);

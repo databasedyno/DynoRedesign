@@ -75,6 +75,7 @@ import {
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
 import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
+import { generateOtpCode } from "../../helper/otpGuard";
 
 export const deleteWalletAddress = async (
   req: express.Request,
@@ -229,7 +230,7 @@ export const sendUpdateWalletOTP = async (
     }
 
     // Generate and send OTP
-    const randomNumberOTP = Math.floor(100000 + Math.random() * 900000);
+    const randomNumberOTP = generateOtpCode();
     
     await userModel.update(
       {

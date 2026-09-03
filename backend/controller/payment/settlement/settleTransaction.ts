@@ -73,6 +73,7 @@ import { isVolatileCrypto } from "../../../services/binanceService";
 import { createConversionRecord } from "../../../services/conversionService";
 import { PaymentState, parseState, toRedisStatus } from "../../../services/paymentStateMachine";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
+import { add, fromBaseUnits, mul, sub, toBaseUnits, toFixedStr, toNumber } from "../../../utils/money";
 
 
 // ============================================
@@ -265,15 +266,15 @@ export const settleCryptoTransaction = async ({
         const utxoFeeToDeduct = Math.max(rawFee, minFee);
         // Use SATOSHI-LEVEL integer arithmetic to avoid floating-point precision dust
         // JavaScript: 0.01879 * 1e8 = 1878999.9999998 (not exact!) → creates 1 sat dust change
-        const inputSats = Math.round(receivedAmount * 1e8);
-        const feeSats = Math.round(utxoFeeToDeduct * 1e8);
+        const inputSats = Number(toBaseUnits(receivedAmount));
+        const feeSats = Number(toBaseUnits(utxoFeeToDeduct));
         const outputSats = inputSats - feeSats;
-        const utxoAmountToSend = outputSats / 1e8;
+        const utxoAmountToSend = fromBaseUnits(outputSats).toNumber();
         // CRITICAL: Round-trip safety — re-derive the actual satoshi value that Tatum will
-        // use after its Math.round(value * 1e8) conversion. Fee absorbs any rounding drift.
-        const actualOutputSats = Math.round(utxoAmountToSend * 1e8);
+        // use after its Number(toBaseUnits(value)) conversion. Fee absorbs any rounding drift.
+        const actualOutputSats = Number(toBaseUnits(utxoAmountToSend));
         const actualFeeSats = inputSats - actualOutputSats;
-        const exactFee = actualFeeSats / 1e8; // Guarantees zero change
+        const exactFee = fromBaseUnits(actualFeeSats).toNumber(); // Guarantees zero change
         
         if (utxoAmountToSend <= 0) {
           cronLogger.warn(`[settleCryptoTransaction] UTXO auto-convert: Amount after fee is non-positive. Balance: ${receivedAmount}, Fee: ${utxoFeeToDeduct}`);
@@ -299,8 +300,8 @@ export const settleCryptoTransaction = async ({
           // Add 1 satoshi tolerance to avoid off-by-one fee rejection
           resolvedFeeSats = actualFeeSats + 1;
           resolvedOutputSats = inputSats - resolvedFeeSats;
-          resolvedUtxoAmount = resolvedOutputSats / 1e8;
-          resolvedExactFee = resolvedFeeSats / 1e8;
+          resolvedUtxoAmount = fromBaseUnits(resolvedOutputSats).toNumber();
+          resolvedExactFee = fromBaseUnits(resolvedFeeSats).toNumber();
         }
         cronLogger.info(`[settleCryptoTransaction] UTXO math (satoshi): input=${inputSats}, output=${resolvedOutputSats}, fee=${resolvedFeeSats}, change=${inputSats - resolvedOutputSats - resolvedFeeSats}, utxoAmountToSend=${resolvedUtxoAmount}, exactFee=${resolvedExactFee}, utxoIndex=${resolvedUtxoIndex}`);
         
@@ -426,14 +427,14 @@ export const settleCryptoTransaction = async ({
         // Skip sweep gas when: (a) admin=merchant wallet, or (b) no admin fee to sweep (fee-free)
         if (isSameWallet) {
           estimatedSweepGasUSD = 0;
-          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Same-wallet mode — sweep gas SKIPPED (admin=merchant wallet). Transfer gas only ≈ $${merchantTransferGasUSD.toFixed(4)}`);
+          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Same-wallet mode — sweep gas SKIPPED (admin=merchant wallet). Transfer gas only ≈ $${toFixedStr(merchantTransferGasUSD, 4)}`);
         } else if (noAdminFeeToSweep) {
           estimatedSweepGasUSD = 0;
-          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Fee-free — sweep gas SKIPPED (no admin fee to sweep). Transfer gas only ≈ $${merchantTransferGasUSD.toFixed(4)}`);
+          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Fee-free — sweep gas SKIPPED (no admin fee to sweep). Transfer gas only ≈ $${toFixedStr(merchantTransferGasUSD, 4)}`);
         } else {
           // Sweep is same type of token transfer on same chain → same gas estimate
           estimatedSweepGasUSD = merchantTransferGasUSD;
-          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Transfer gas ≈ $${merchantTransferGasUSD.toFixed(4)}, Sweep gas ≈ $${estimatedSweepGasUSD.toFixed(4)} (both deducted from merchant)`);
+          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Transfer gas ≈ $${toFixedStr(merchantTransferGasUSD, 4)}, Sweep gas ≈ $${toFixedStr(estimatedSweepGasUSD, 4)} (both deducted from merchant)`);
         }
       } catch (feeErr) {
         // Fallback: convert raw native fee to USD using price lookup
@@ -441,10 +442,10 @@ export const settleCryptoTransaction = async ({
         try {
           const nativePrices: Record<string, number> = { ETH: 2300, TRX: 0.25, XRP: 2.5, POLYGON: 0.5 };
           const nativePrice = nativePrices[wallet_type] || 1;
-          merchantTransferGasUSD = rawFee * nativePrice;
+          merchantTransferGasUSD = toNumber(mul(rawFee, nativePrice), 8);
           // Only charge sweep gas if there's admin fee to sweep
           estimatedSweepGasUSD = (isSameWallet || noAdminFeeToSweep) ? 0 : merchantTransferGasUSD;
-          cronLogger.warn(`[settleCryptoTransaction] Token ${currency}: Fallback gas: ${rawFee} ${wallet_type} × $${nativePrice} = $${merchantTransferGasUSD.toFixed(4)} per tx${estimatedSweepGasUSD > 0 ? ' (×2 for transfer + sweep)' : ' (transfer only, no sweep needed)'}`);
+          cronLogger.warn(`[settleCryptoTransaction] Token ${currency}: Fallback gas: ${rawFee} ${wallet_type} × $${nativePrice} = $${toFixedStr(merchantTransferGasUSD, 4)} per tx${estimatedSweepGasUSD > 0 ? ' (×2 for transfer + sweep)' : ' (transfer only, no sweep needed)'}`);
         } catch {
           merchantTransferGasUSD = rawFee;
           estimatedSweepGasUSD = (isSameWallet || noAdminFeeToSweep) ? 0 : rawFee;
@@ -452,7 +453,7 @@ export const settleCryptoTransaction = async ({
         }
       }
 
-      const totalGasDeductionToken = merchantTransferGasUSD + estimatedSweepGasUSD;
+      const totalGasDeductionToken = add(merchantTransferGasUSD, estimatedSweepGasUSD).toNumber();
 
       // FIX (2026-04-10): In same-wallet mode, combine merchant + admin amounts into a single transfer.
       // Previously only sent userAmount (merchant portion), leaving adminFee (receivedAmount) stranded
@@ -460,18 +461,18 @@ export const settleCryptoTransaction = async ({
       // Since admin wallet = merchant wallet, send everything in one TX.
       let effectiveSendBase: number;
       if (isSameWallet && receivedAmount && receivedAmount > 0) {
-        effectiveSendBase = Number(userAmount) + Number(receivedAmount);
+        effectiveSendBase = add(userAmount, receivedAmount).toNumber();
         cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Same-wallet combined: merchant ${userAmount} + admin ${receivedAmount} = ${effectiveSendBase} (single TX)`);
       } else {
         effectiveSendBase = Number(userAmount);
       }
 
-      merchantSendAmount = Number((effectiveSendBase - totalGasDeductionToken).toFixed(6));
+      merchantSendAmount = toNumber(sub(effectiveSendBase, totalGasDeductionToken), 6, "down");
       if (merchantSendAmount <= 0) {
         throw new Error(`Merchant token amount after gas deduction is non-positive. Amount: ${effectiveSendBase}, TransferGas: ${merchantTransferGasUSD}, SweepGas: ${estimatedSweepGasUSD}`);
       }
 
-      cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Merchant gets ${merchantSendAmount} (was ${effectiveSendBase}${isSameWallet ? ' [combined]' : ''}, transfer gas $${merchantTransferGasUSD.toFixed(4)} + sweep gas $${estimatedSweepGasUSD.toFixed(4)} = $${totalGasDeductionToken.toFixed(4)} total)`);
+      cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Merchant gets ${merchantSendAmount} (was ${effectiveSendBase}${isSameWallet ? ' [combined]' : ''}, transfer gas $${toFixedStr(merchantTransferGasUSD, 4)} + sweep gas $${toFixedStr(estimatedSweepGasUSD, 4)} = $${toFixedStr(totalGasDeductionToken, 4)} total)`);
 
       // === SmartGas: Fund gas (TRX/ETH) to temp address BEFORE token transfer ===
       try {
@@ -616,7 +617,7 @@ export const settleCryptoTransaction = async ({
 
       totalBlockchainFee = Number(fees?.fast ?? 0);
       // Record the total gas deduction (transfer + sweep) for accounting
-      cronLogger.info(`[settleCryptoTransaction] Token ${currency}: totalBlockchainFee (native gas) = ${totalBlockchainFee}, totalGasDeductionFromMerchant (USD) = $${totalGasDeductionToken.toFixed(4)} (includes sweep gas)`);
+      cronLogger.info(`[settleCryptoTransaction] Token ${currency}: totalBlockchainFee (native gas) = ${totalBlockchainFee}, totalGasDeductionFromMerchant (USD) = $${toFixedStr(totalGasDeductionToken, 4)} (includes sweep gas)`);
 
     } else {
       // Native currency transfers
@@ -635,9 +636,9 @@ export const settleCryptoTransaction = async ({
 
         const rawFeeToDeduct = Number(fees?.fast ?? fees?.slow ?? 0);
         // Use satoshi-level arithmetic: multiply to int, compute, divide back
-        const totalInputSats = Math.round((Number(receivedAmount) + Number(userAmount)) * 1e8);
-        const feeSats = Math.round(rawFeeToDeduct * 1e8);
-        const adminSats = Math.round(Number(receivedAmount) * 1e8);
+        const totalInputSats = Number(toBaseUnits(add(receivedAmount, userAmount)));
+        const feeSats = Number(toBaseUnits(rawFeeToDeduct));
+        const adminSats = Number(toBaseUnits(receivedAmount));
         const merchantSats = totalInputSats - adminSats - feeSats;
 
         if (merchantSats <= 0) {
@@ -645,16 +646,16 @@ export const settleCryptoTransaction = async ({
           throw new Error(`Merchant amount after fee is non-positive for ${currency}`);
         }
 
-        const adminAmount = adminSats / 1e8;
-        merchantSendAmount = merchantSats / 1e8;
+        const adminAmount = fromBaseUnits(adminSats).toNumber();
+        merchantSendAmount = fromBaseUnits(merchantSats).toNumber();
 
         // CRITICAL: Round-trip safety — re-derive the actual satoshi values that Tatum will use
-        // after its Math.round(value * 1e8) conversion. If floating-point representation of
+        // after its Number(toBaseUnits(value)) conversion. If floating-point representation of
         // merchantSendAmount or adminAmount drifts by 1 sat, the fee must absorb it.
-        const actualMerchantSats = Math.round(merchantSendAmount * 1e8);
-        const actualAdminSats = Math.round(adminAmount * 1e8);
+        const actualMerchantSats = Number(toBaseUnits(merchantSendAmount));
+        const actualAdminSats = Number(toBaseUnits(adminAmount));
         const actualFeeSats = totalInputSats - actualMerchantSats - actualAdminSats;
-        const exactFee = actualFeeSats / 1e8;
+        const exactFee = fromBaseUnits(actualFeeSats).toNumber();
 
         cronLogger.info(`[settleCryptoTransaction] UTXO multi-output math (satoshi): totalInput=${totalInputSats}, admin=${actualAdminSats}, merchant=${actualMerchantSats}, fee=${actualFeeSats}, change=${totalInputSats - actualAdminSats - actualMerchantSats - actualFeeSats}`);
 
@@ -670,19 +671,19 @@ export const settleCryptoTransaction = async ({
           // Add 1 satoshi to fee to absorb potential off-by-one
           finalFeeSats = actualFeeSats + 1;
           finalMerchantSats = actualMerchantSats - 1;
-          finalMerchantSendAmount = finalMerchantSats / 1e8;
+          finalMerchantSendAmount = fromBaseUnits(finalMerchantSats).toNumber();
         }
-        const exactFeeResolved = finalFeeSats / 1e8;
+        const exactFeeResolved = fromBaseUnits(finalFeeSats).toNumber();
 
         // ── SAME-WALLET MODE: When admin and merchant wallets are the same address,
         // create a SINGLE output with the combined amount instead of two outputs.
         // This avoids potential Tatum API issues with duplicate output addresses.
         if (isSameWallet) {
           const combinedSats = finalMerchantSats + actualAdminSats;
-          const combinedAmount = combinedSats / 1e8;
+          const combinedAmount = fromBaseUnits(combinedSats).toNumber();
           // Recalculate fee to ensure input = output + fee (zero change)
           const sameWalletFeeSats = totalInputSats - combinedSats;
-          const sameWalletFee = sameWalletFeeSats / 1e8;
+          const sameWalletFee = fromBaseUnits(sameWalletFeeSats).toNumber();
 
           cronLogger.info(`[settleCryptoTransaction] UTXO same-wallet mode: Single output ${combinedAmount} ${currency} → ${userAddress} (fee: ${sameWalletFee}, utxoIndex: ${resolvedUtxoIndex})`);
 
@@ -720,7 +721,7 @@ export const settleCryptoTransaction = async ({
           // A 0-value UTXO output violates dust limits (e.g., BTC min 546 sats)
           // So we create a merchant-only output and give all non-fee funds to merchant
           const feeFreeAmount = totalInputSats - feeSats;
-          const feeFreeSendAmount = Number((feeFreeAmount / 1e8).toFixed(8));
+          const feeFreeSendAmount = toNumber((fromBaseUnits(feeFreeAmount).toNumber()), 8);
 
           merchantTransactionDetails = await withRetry(
             () => tatumClient.assetToOtherAddress({
@@ -801,7 +802,7 @@ export const settleCryptoTransaction = async ({
         // FIX (2026-04-10): In same-wallet mode, combine merchant + admin into single transfer
         let effectiveNativeBase: number;
         if (isSameWallet && receivedAmount && receivedAmount > 0) {
-          effectiveNativeBase = Number(userAmount) + Number(receivedAmount);
+          effectiveNativeBase = add(userAmount, receivedAmount).toNumber();
           cronLogger.info(`[settleCryptoTransaction] Account chain ${currency}: Same-wallet combined: merchant ${userAmount} + admin ${receivedAmount} = ${effectiveNativeBase} (single TX)`);
         } else {
           effectiveNativeBase = Number(userAmount);
@@ -820,10 +821,10 @@ export const settleCryptoTransaction = async ({
         // Skip sweep gas when: (a) same-wallet mode, or (b) no admin fee to sweep (fee-free)
         const skipSweepGas = isSameWallet || !receivedAmount || receivedAmount <= 0;
         const estimatedSweepGas = skipSweepGas ? 0 : merchantTransferGas;
-        const totalGasDeduction = merchantTransferGas + estimatedSweepGas;
+        const totalGasDeduction = add(merchantTransferGas, estimatedSweepGas).toNumber();
 
         // Deduct both gas costs from merchant payout — merchant pays for gas (consistent with UTXO)
-        merchantSendAmount = Number((effectiveNativeBase - totalGasDeduction).toFixed(8));
+        merchantSendAmount = toNumber(sub(effectiveNativeBase, totalGasDeduction), 8, "down");
 
         if (merchantSendAmount <= 0) {
           throw new Error(`Merchant amount after gas deduction is non-positive. Amount: ${effectiveNativeBase}, TransferGas: ${merchantTransferGas}, SweepGas: ${estimatedSweepGas}`);
@@ -877,7 +878,7 @@ export const settleCryptoTransaction = async ({
           event: 'settlement_tx_broadcast',
           fromState: 'settling',
           toState: 'payout_pending_confirmation',
-          amount: merchantSendAmount + Number(receivedAmount),
+          amount: add(merchantSendAmount, receivedAmount).toNumber(),
           metadata: { settlementTxHash, merchantAmount: merchantSendAmount, adminAmount: Number(receivedAmount) },
         });
       } catch (reliabilityErr) {

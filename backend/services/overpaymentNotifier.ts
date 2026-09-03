@@ -8,6 +8,7 @@ import { claimEmitOnce } from "./webhookEvents";
 import { createNotification, NOTIFICATION_TYPES } from "../controller/notificationController";
 import { companyModel, userModel } from "../models";
 import { t, normalizeLang } from "../utils/emailI18n";
+import { toFixedStr } from "../utils/money";
 
 export interface OverpaymentInfo {
   paymentId: string;
@@ -22,8 +23,8 @@ export interface OverpaymentInfo {
   linkId?: number | string | null;
 }
 
-const fmtCrypto = (n: number) => Number(n ?? 0).toFixed(8).replace(/\.?0+$/, "");
-const fmtFiat = (n: number) => Number(n ?? 0).toFixed(2);
+const fmtCrypto = (n: number) => toFixedStr(n ?? 0, 8).replace(/\.?0+$/, "");
+const fmtFiat = (n: number) => toFixedStr(n ?? 0, 2);
 
 /**
  * Notify the MERCHANT and the platform ADMIN that a customer OVERPAID a

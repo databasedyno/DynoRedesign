@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import useApiSWR from "@/hooks/useApiSWR";
+import { toFixedStr } from "@/utils/money";
 
 /**
  * useDisplayFx — resolves the merchant's chosen DISPLAY currency
@@ -77,9 +78,9 @@ export function useDisplayFx() {
         })}`;
       }
       if (abs >= 0.01) {
-        return `${sym}${val.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+        return `${sym}${toFixedStr(val, 4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
       }
-      return `${sym}${val.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+      return `${sym}${toFixedStr(val, 6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
     },
     [state.rate, state.symbol],
   );

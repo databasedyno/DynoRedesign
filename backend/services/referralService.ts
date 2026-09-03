@@ -5,6 +5,7 @@ import sequelize from '../utils/dbInstance';
 import User from '../models/userModels/userModel';
 import RefereeCode from '../models/referralModels/refereeCodeModel';
 import Referral from '../models/referralModels/referralModel';
+import { toFixedStr } from "../utils/money";
 
 // ============================================
 // REFEREE CODE SERVICE (Type 2 - Payment Link)
@@ -381,7 +382,7 @@ export const processReferrerReward = async (params: {
 
   apiLogger.info(
     `[Referral] Activated referral ${referral.referral_id} (referrer ${referral.referrer_user_id}); ` +
-    `${(currentRate * 100).toFixed(0)}% revenue-share window open until ${windowEndsAt.toISOString()}`
+    `${toFixedStr((currentRate * 100), 0)}% revenue-share window open until ${windowEndsAt.toISOString()}`
   );
 
   // Milestone nudge: tell the REFERRER their merchant just went live. Best-effort —

@@ -76,6 +76,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { toFixedStr } from "../../utils/money";
 
 export const estimateFees = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -149,23 +150,17 @@ export const estimateFees = async (req: express.Request, res: express.Response) 
     for (let i = 0; i < keys.length; i++) {
       if (currency === "USDT-ERC20") {
         if (["fast"].indexOf(keys[i]) !== -1) {
-          tempFees[keys[i] + "_in_usd"] = Number(
-            batchFees[keys[i]] * currentAmount[0].amount
-          ).toFixed(2);
-          tempFees[keys[i]] = Number(
-            batchFees[keys[i]] * currentAmount[0].amount
-          ).toFixed(2);
+          tempFees[keys[i] + "_in_usd"] = toFixedStr(batchFees[keys[i]] * currentAmount[0].amount, 2);
+          tempFees[keys[i]] = toFixedStr(batchFees[keys[i]] * currentAmount[0].amount, 2);
         } else {
           tempFees[keys[i]] = batchFees[keys[i]];
         }
       } else if (currency === "USDT-TRC20") {
-        tempFees[keys[i] + "_in_usd"] = Number(batchFees[keys[i]]).toFixed(2);
-        tempFees[keys[i]] = Number(batchFees[keys[i]]).toFixed(2);
+        tempFees[keys[i] + "_in_usd"] = toFixedStr(batchFees[keys[i]], 2);
+        tempFees[keys[i]] = toFixedStr(batchFees[keys[i]], 2);
       } else {
         if (["fast", "medium", "slow"].indexOf(keys[i]) !== -1) {
-          tempFees[keys[i] + "_in_usd"] = Number(
-            batchFees[keys[i]] * currentAmount[0].amount
-          ).toFixed(2);
+          tempFees[keys[i] + "_in_usd"] = toFixedStr(batchFees[keys[i]] * currentAmount[0].amount, 2);
         }
         tempFees[keys[i]] = batchFees[keys[i]];
       }

@@ -15,6 +15,7 @@
 import { feesModel } from "../models";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
 import { log } from "../utils/loggers";
+import { D, div, pct, toFixedStr, toNumber } from "../utils/money";
 import { getBlockchainThreshold, getTransactionFeePercent, getFeeTiers } from "../utils/feeConfigUtils";
 import { getPlatformFeePercent } from "../utils/volumeTierUtils";
 import { userModel } from "../models";
@@ -87,7 +88,7 @@ export const getDiscountedTransactionFee = async (userId: number) => {
     base_fee: baseFee,
     discount_percent: discountPercent,
     discount_reason: reason,
-    final_fee: parseFloat(finalFee.toFixed(2)),
+    final_fee: toNumber(finalFee, 2),
     discount_expires_at: expiresAt,
   };
 };
@@ -195,15 +196,19 @@ export const calculateTransactionFees = async (
   const tiers = (config.tiers || []) as FeeTier[];
   const effectiveTier = findMatchingTier(tiers, amount, 'calculateTransactionFees');
 
-  const fixedFee = effectiveTier.fixed_fee;
-  const transactionFee = (amount * config.transaction_fee_percent) / 100;
-  const totalDeduction = fixedFee + transactionFee;
-  let userReceives = amount - totalDeduction;
+  // Exact decimal math (amounts are USD); rounded to 8 dp at the boundary so
+  // downstream crypto conversions keep full precision.
+  const grossD = D(amount);
+  const fixedFeeD = D(effectiveTier.fixed_fee);
+  const transactionFeeD = pct(grossD, config.transaction_fee_percent);
+  let totalDeductionD = fixedFeeD.plus(transactionFeeD);
+  let userReceivesD = grossD.minus(totalDeductionD);
 
   // Phase 2: Fee-free override for trial users
   let feeFreeApplied = false;
-  let feeFreeDiscount = 0;
+  let feeFreeDiscountD = D(0);
   let feeFreeRemaining = 0;
+  let scale = D(1); // share of the nominal fee that is still charged
 
   if (userId) {
     try {
@@ -211,13 +216,15 @@ export const calculateTransactionFees = async (
       const discount = await calculateFeeFreeDiscount(userId, amount);
       
       if (discount.fee_free_amount > 0) {
-        const freeRatio = discount.fee_free_amount / amount;
-        feeFreeDiscount = totalDeduction * freeRatio;
+        const freeRatio = div(discount.fee_free_amount, grossD);
+        feeFreeDiscountD = totalDeductionD.times(freeRatio);
         feeFreeApplied = true;
         feeFreeRemaining = discount.remaining_after;
-        userReceives = amount - (totalDeduction - feeFreeDiscount);
+        scale = totalDeductionD.isZero() ? D(1) : D(1).minus(div(feeFreeDiscountD, totalDeductionD));
+        totalDeductionD = totalDeductionD.minus(feeFreeDiscountD);
+        userReceivesD = grossD.minus(totalDeductionD);
         
-        log(`[FeeFree] User ${userId}: $${discount.fee_free_amount}/$${amount} fee-free, discount $${feeFreeDiscount.toFixed(2)}`, 'info');
+        log(`[FeeFree] User ${userId}: $${discount.fee_free_amount}/$${amount} fee-free, discount $${toFixedStr(feeFreeDiscountD, 2)}`, 'info');
       }
     } catch (e: any) {
       log(`[FeeFree] Fee-free check failed (non-critical): ${e.message}`, 'warn');
@@ -225,14 +232,14 @@ export const calculateTransactionFees = async (
   }
 
   return {
-    fixedFee: feeFreeApplied ? fixedFee * (1 - (feeFreeDiscount / totalDeduction)) : fixedFee,
-    transactionFee: feeFreeApplied ? transactionFee * (1 - (feeFreeDiscount / totalDeduction)) : transactionFee,
-    totalDeduction: totalDeduction - feeFreeDiscount,
-    userReceives,
+    fixedFee: toNumber(fixedFeeD.times(scale), 8),
+    transactionFee: toNumber(transactionFeeD.times(scale), 8),
+    totalDeduction: toNumber(totalDeductionD, 8),
+    userReceives: toNumber(userReceivesD, 8),
     tierId: effectiveTier.id ?? 0,
     minForwarding: config.min_forwarding_amount,
     feeFreeApplied,
-    feeFreeDiscount,
+    feeFreeDiscount: toNumber(feeFreeDiscountD, 8),
     feeFreeRemaining,
   };
 };
@@ -256,31 +263,30 @@ export const calculateTransactionFeesWithDiscount = async (
   const discountInfo = await getDiscountedTransactionFee(userId);
   const discountPercent = discountInfo.discount_percent || 0;
 
-  const fixedFee = effectiveTier.fixed_fee;
+  const grossD = D(amount);
+  const fixedFeeD = D(effectiveTier.fixed_fee);
   const baseTransactionFeePercent = config.transaction_fee_percent;
 
   const discountedFeePercent = discountPercent > 0
-    ? baseTransactionFeePercent * (1 - discountPercent / 100)
-    : baseTransactionFeePercent;
+    ? D(baseTransactionFeePercent).times(D(1).minus(div(discountPercent, 100)))
+    : D(baseTransactionFeePercent);
 
-  const transactionFee = (amount * discountedFeePercent) / 100;
-  const totalDeduction = fixedFee + transactionFee;
-  const userReceives = amount - totalDeduction;
+  const transactionFeeD = pct(grossD, discountedFeePercent);
+  const transactionFeeOriginalD = pct(grossD, baseTransactionFeePercent);
+  const totalDeductionD = fixedFeeD.plus(transactionFeeD);
 
   return {
-    fixedFee,
-    transactionFee,
-    transactionFeeOriginal: (amount * baseTransactionFeePercent) / 100,
-    totalDeduction,
-    userReceives,
+    fixedFee: toNumber(fixedFeeD, 8),
+    transactionFee: toNumber(transactionFeeD, 8),
+    transactionFeeOriginal: toNumber(transactionFeeOriginalD, 8),
+    totalDeduction: toNumber(totalDeductionD, 8),
+    userReceives: toNumber(grossD.minus(totalDeductionD), 8),
     tierId: effectiveTier.id ?? 0,
     minForwarding: config.min_forwarding_amount,
     discountApplied: discountPercent > 0,
     discountPercent,
     discountReason: discountInfo.discount_reason,
     discountExpiresAt: discountInfo.discount_expires_at,
-    savings: discountPercent > 0
-      ? (amount * baseTransactionFeePercent / 100) - transactionFee
-      : 0,
+    savings: discountPercent > 0 ? toNumber(transactionFeeOriginalD.minus(transactionFeeD), 8) : 0,
   };
 };

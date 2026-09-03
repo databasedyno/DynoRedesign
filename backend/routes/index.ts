@@ -43,6 +43,7 @@ import teamRouter from "./teamRouter"; // Team Members / RBAC
 import walletSecurityRouter from "./walletSecurityRouter"; // PUBLIC "this wasn't me" revert
 import { logWebhookValidationFailure } from "../utils/securityLogger";
 import { verifyTatumSignature } from "../utils/webhookSignature";
+import { toNumber } from "../utils/money";
 
 /**
  * Tatum webhook HMAC signature verification middleware.
@@ -284,7 +285,7 @@ router.get("/public/fx-rates", async (_req: express.Request, res: express.Respon
     );
     for (const { cur, r } of results) {
       // r === 1 for a non-USD currency is the helper's failure sentinel → omit
-      if (r > 0 && r !== 1) rates[cur] = Number(r.toFixed(6));
+      if (r > 0 && r !== 1) rates[cur] = toNumber(r, 6);
     }
     fxRatesCache = { rates, updatedAt: now };
     res.status(200).json({

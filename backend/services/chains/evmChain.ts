@@ -7,6 +7,7 @@
 
 import { raw as envRaw } from "../../utils/config";
 import { FeeEstimate, ChainStrategy, IncomingTx } from './chainTypes';
+import { toFixedStr } from "../../utils/money";
 
 const EVM_CURRENCIES = ['ETH', 'USDT-ERC20', 'USDC-ERC20', 'RLUSD-ERC20', 'BSC'];
 
@@ -42,7 +43,7 @@ export const calculateEvmGasFee = (
   const effectiveGasLimit = isToken ? gasLimit : Math.max(gasLimit, 21000);
 
   const result: { fast: string; medium?: string; slow?: string; gasPrice: number; gasLimit: number } = {
-    fast: Number(Number((bufferedGasPrice * effectiveGasLimit) / 1e9)).toFixed(8),
+    fast: toFixedStr(Number((bufferedGasPrice * effectiveGasLimit) / 1e9), 8),
     gasPrice: bufferedGasPrice,
     gasLimit: effectiveGasLimit,
   };
@@ -51,8 +52,8 @@ export const calculateEvmGasFee = (
     // Speed tiers: vary gas price buffer (not gas limit) for native transfers
     const mediumGasPrice = Math.ceil(gasPrice * 1.0 + priorityTip * 0.5); // Base price + half tip
     const slowGasPrice = Math.ceil(gasPrice * 0.9); // 10% below market, no tip
-    result.medium = Number(Number((mediumGasPrice * effectiveGasLimit) / 1e9)).toFixed(8);
-    result.slow = Number(Number((slowGasPrice * effectiveGasLimit) / 1e9)).toFixed(8);
+    result.medium = toFixedStr(Number((mediumGasPrice * effectiveGasLimit) / 1e9), 8);
+    result.slow = toFixedStr(Number((slowGasPrice * effectiveGasLimit) / 1e9), 8);
   }
 
   return result;

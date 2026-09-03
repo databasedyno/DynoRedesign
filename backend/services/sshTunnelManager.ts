@@ -18,6 +18,7 @@ import { spawn, ChildProcess } from "child_process";
 import net from "net";
 import { cronLogger } from "../utils/loggers";
 import { detectBinanceAccess } from "./binanceService";
+import { toFixedStr } from "../utils/money";
 
 // ── Configuration (from environment) ────────────────────────────────────────
 
@@ -265,7 +266,7 @@ const scheduleReconnect = (): void => {
     BASE_RECONNECT_DELAY_MS * Math.pow(2, Math.min(consecutiveFailures - 1, 5)),
     MAX_RECONNECT_DELAY_MS
   );
-  cronLogger.info(`[SSHTunnel] Scheduling reconnect in ${(delay / 1000).toFixed(0)}s...`);
+  cronLogger.info(`[SSHTunnel] Scheduling reconnect in ${toFixedStr((delay / 1000), 0)}s...`);
 
   reconnectTimeout = setTimeout(() => {
     reconnectTimeout = null;

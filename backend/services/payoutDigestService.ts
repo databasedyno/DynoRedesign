@@ -19,6 +19,7 @@ import {
 } from "../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../utils/brandTokens";
 import { dispatchCompanyEmail } from "./email/companyDispatch";
+import { mul, sum, toFixedStr, toNumber } from "../utils/money";
 
 /**
  * Payout Digest Service (Session 97, 2026-08-02)
@@ -102,7 +103,7 @@ async function usdToDisplay(
     const { getUsdToFiatRate } = await import("../utils/currencyUtils");
     const rate = await getUsdToFiatRate(displayCurrency);
     if (!rate || rate <= 0) return usd;
-    return Math.round(usd * rate * 100) / 100;
+    return toNumber(mul(usd, rate), 2);
   } catch {
     return usd;
   }
@@ -340,7 +341,7 @@ export async function sendPayoutDigestEmail(
     const deltaBg = positive ? EMAIL_TOKENS.greenSurface : "#f1f5f9";
     const deltaArrow = positive ? "▲" : "▼";
     const deltaText = d.hasPriorActivity
-      ? `${deltaArrow} ${Math.abs(d.volumeDeltaPct).toFixed(1)}%`
+      ? `${deltaArrow} ${toFixedStr(Math.abs(d.volumeDeltaPct), 1)}%`
       : t("payoutDigest.newThisWeek", lang);
     const deltaChip = `<span style="display:inline-block; background:${deltaBg}; color:${deltaColor}; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">${deltaText}</span>`;
 
@@ -375,7 +376,7 @@ export async function sendPayoutDigestEmail(
       const totalRow = feeTotalRow(
         t("payoutDigest.totalTopCoins", lang),
         fmtMoney(
-          d.topCoins.reduce((s, c) => s + c.volumeDisplay, 0),
+          sum(d.topCoins.map((c) => c.volumeDisplay)).toNumber(),
           d.currencySymbol,
           d.displayCurrency,
         ),

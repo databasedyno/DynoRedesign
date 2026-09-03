@@ -6,6 +6,7 @@
  */
 
 import { FeeEstimate, ChainStrategy, IncomingTx } from './chainTypes';
+import { toFixedStr } from "../../utils/money";
 
 const POLYGON_CURRENCIES = ['POLYGON', 'USDT-POLYGON'];
 
@@ -39,7 +40,7 @@ export const calculatePolygonGasFee = (
   const bufferedPrice = Math.ceil(gasPrice * POLYGON_GAS_CONSTANTS.BUFFER_MULTIPLIER + POLYGON_GAS_CONSTANTS.PRIORITY_TIP_GWEI);
 
   return {
-    fast: Number(Number((bufferedPrice * effectiveGasLimit) / 1e9)).toFixed(8),
+    fast: toFixedStr(Number((bufferedPrice * effectiveGasLimit) / 1e9), 8),
     gasPrice: bufferedPrice,
     gasLimit: effectiveGasLimit,
   };

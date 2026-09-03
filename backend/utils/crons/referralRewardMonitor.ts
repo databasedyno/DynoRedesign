@@ -23,6 +23,7 @@ import { QueryTypes } from "sequelize";
 import sequelize from "../dbInstance";
 import { log } from "../loggers";
 import { captureError } from "../../services/errorMonitoringService";
+import { toFixedStr } from "../money";
 
 export const setupReferralRewardCron = () => {
   cron.schedule("10,25,40,55 * * * *", async () => {
@@ -90,7 +91,7 @@ export const setupReferralRewardCron = () => {
       if (!locked) return;
       const { sendMonthlyReferralDigests } = await import("../../services/referralDigestService");
       const r = await sendMonthlyReferralDigests();
-      log(`Referral monthly digest: ${r.sent} sent / ${r.skipped} skipped ($${r.totalUsd.toFixed(2)} total)`, "info");
+      log(`Referral monthly digest: ${r.sent} sent / ${r.skipped} skipped ($${toFixedStr(r.totalUsd, 2)} total)`, "info");
     } catch (e) {
       log(`Referral Monthly Digest error: ${e}`, "error");
       captureError(e, "cron", { extraContext: "referralRewardMonitor:monthlyDigest" });
@@ -203,7 +204,7 @@ export const processPendingReferrerRewards = async () => {
       });
       if (rewarded) {
         log(
-          `Referral Reward Monitor: referrer of merchant ${referredUserId} rewarded (first payment ≈ $${maxUsd.toFixed(2)} USD)`,
+          `Referral Reward Monitor: referrer of merchant ${referredUserId} rewarded (first payment ≈ $${toFixedStr(maxUsd, 2)} USD)`,
           "info"
         );
       }

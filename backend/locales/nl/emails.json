@@ -278,7 +278,23 @@
       "detailsTitle": "Details van de waarschuwing",
       "wasThisYou": "<strong>Was u dit?</strong><br />Als u deze activiteit herkent, kunt u dit bericht negeren.",
       "didntPerform": "<strong>Heeft u deze actie niet uitgevoerd?</strong><br />Beveilig uw account onmiddellijk:<br />1. Wijzig uw wachtwoord<br />2. Bekijk uw recente activiteit<br />3. Neem contact op met ons supportteam",
-      "cta": "Mijn account beveiligen"
+      "cta": "Mijn account beveiligen",
+      "types": {
+        "otp_lockout": "Verificatiecode geblokkeerd na herhaalde foutieve pogingen",
+        "login_rate_limit": "Te veel mislukte inlogpogingen"
+      },
+      "details": {
+        "otpLockout": "Iemand heeft 5 keer een onjuiste code ingevoerd voor: {{channel}}. De code is ongeldig gemaakt.",
+        "loginRateLimit": "{{count}} mislukte inlogpogingen in 15 minuten; verdere pogingen zijn geblokkeerd."
+      },
+      "channels": {
+        "password_reset": "wachtwoord opnieuw instellen",
+        "login": "inlogverificatie",
+        "email_change": "wijziging e-mailadres",
+        "password_change": "wachtwoordwijziging",
+        "email_verification": "e-mailverificatie",
+        "onboarding": "accountinstelling"
+      }
     },
     "newDeviceLogin": {
       "subject": "Nieuwe aanmelding op uw Dynopay-account",

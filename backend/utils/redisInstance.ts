@@ -1,4 +1,5 @@
 import { createClient } from "redis";
+import os from "os";
 import { cronLogger } from "../utils/loggers";
 import { log } from "./loggers";
 import config from "./config";
@@ -125,9 +126,8 @@ const softDeleteRedisItem = async (key: string, ttlSeconds: number = 1800) => {
 // ============================================
 // These are kept for backward compatibility but now just use Redis
 
-const setMemoryCache = (key: string, value: unknown, ttlSeconds: number) => {
-  // Now just calls setRedisItemWithTTL
-  setRedisItemWithTTL(key, value, ttlSeconds);
+const setMemoryCache = (key: string, value: unknown, ttlSeconds: number): Promise<void> => {
+  return setRedisItemWithTTL(key, value, ttlSeconds);
 };
 
 const getMemoryCache = async (key: string): Promise<unknown | null> => {
@@ -157,6 +157,34 @@ const lockOwners = new Map<string, string>();
 // Active renewal timers (cleared on release)
 const lockRenewTimers = new Map<string, NodeJS.Timeout>();
 
+// Lock values are `host:pid:timestamp` so stale-lock cleanup can tell a dead
+// LOCAL process from a live peer on another instance sharing this Redis.
+const LOCK_HOST = os.hostname();
+const newLockValue = () => `${LOCK_HOST}:${process.pid}:${Date.now()}`;
+
+/** Heartbeat that extends the lock at 50% of TTL while we still own it. */
+const startLockRenewal = (fullKey: string, lockKey: string, lockValue: string, ttlSeconds: number, silent: boolean) => {
+  const timer = setInterval(async () => {
+    try {
+      const extended = await redisClient.eval(EXTEND_LOCK_SCRIPT, {
+        keys: [fullKey],
+        arguments: [lockValue, String(ttlSeconds)],
+      });
+      if (extended === 1) {
+        if (!silent) cronLogger.info(`[Lock] Renewed: ${lockKey} (+${ttlSeconds}s)`);
+        return;
+      }
+      if (!silent) cronLogger.warn(`[Lock] Renewal failed (lost): ${lockKey}`);
+    } catch {
+      // Redis error — stop renewing to avoid noise
+    }
+    clearInterval(timer);
+    lockRenewTimers.delete(fullKey);
+  }, Math.floor(ttlSeconds * 500));
+  timer.unref();
+  lockRenewTimers.set(fullKey, timer);
+};
+
 /**
  * Acquire a distributed lock with optional auto-renewal.
  *
@@ -173,7 +201,14 @@ const acquireLock = async (
   silent: boolean = false
 ): Promise<boolean> => {
   const fullKey = `lock:${lockKey}`;
-  const lockValue = `${process.pid}:${Date.now()}`;
+  const lockValue = newLockValue();
+
+  const onAcquired = (how: string) => {
+    lockOwners.set(fullKey, lockValue);
+    if (!silent) cronLogger.info(`[Lock] ${how}: ${lockKey} (TTL: ${ttlSeconds}s, autoRenew: ${autoRenew})`);
+    if (autoRenew) startLockRenewal(fullKey, lockKey, lockValue, ttlSeconds, silent);
+    return true;
+  };
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -182,39 +217,7 @@ const acquireLock = async (
         EX: ttlSeconds
       });
       
-      if (result === 'OK') {
-        lockOwners.set(fullKey, lockValue);
-        if (!silent) cronLogger.info(`[Lock] Acquired: ${lockKey} (TTL: ${ttlSeconds}s, autoRenew: ${autoRenew})`);
-        
-        // Start heartbeat renewal at 50% of TTL
-        if (autoRenew) {
-          const renewInterval = Math.floor(ttlSeconds * 500); // ms, 50% of TTL
-          const timer = setInterval(async () => {
-            try {
-              // Only extend if we still own the lock (atomic check via Lua)
-              const extended = await redisClient.eval(EXTEND_LOCK_SCRIPT, {
-                keys: [fullKey],
-                arguments: [lockValue, String(ttlSeconds)],
-              });
-              if (extended === 1) {
-                if (!silent) cronLogger.info(`[Lock] Renewed: ${lockKey} (+${ttlSeconds}s)`);
-              } else {
-                // Lock was lost (expired or stolen) — stop renewing
-                clearInterval(timer);
-                lockRenewTimers.delete(fullKey);
-                if (!silent) cronLogger.warn(`[Lock] Renewal failed (lost): ${lockKey}`);
-              }
-            } catch {
-              // Redis error — stop renewing to avoid noise
-              clearInterval(timer);
-              lockRenewTimers.delete(fullKey);
-            }
-          }, renewInterval);
-          lockRenewTimers.set(fullKey, timer);
-        }
-        
-        return true;
-      }
+      if (result === 'OK') return onAcquired('Acquired');
       
       if (attempt === 0) {
         const holder = await redisClient.get(fullKey);
@@ -229,32 +232,7 @@ const acquireLock = async (
           cronLogger.warn(`[Lock] Stealing stale lock ${lockKey} (TTL: ${ttl}s, old holder: ${holder})`);
           // Force-set the lock with our value and TTL (overwrites stale key)
           const stealResult = await redisClient.set(fullKey, lockValue, { EX: ttlSeconds });
-          if (stealResult === 'OK') {
-            lockOwners.set(fullKey, lockValue);
-            if (!silent) cronLogger.info(`[Lock] Stolen & acquired: ${lockKey} (TTL: ${ttlSeconds}s, autoRenew: ${autoRenew})`);
-            if (autoRenew) {
-              const renewInterval = Math.floor(ttlSeconds * 500);
-              const timer = setInterval(async () => {
-                try {
-                  const extended = await redisClient.eval(EXTEND_LOCK_SCRIPT, {
-                    keys: [fullKey],
-                    arguments: [lockValue, String(ttlSeconds)],
-                  });
-                  if (extended === 1) {
-                    if (!silent) cronLogger.info(`[Lock] Renewed: ${lockKey} (+${ttlSeconds}s)`);
-                  } else {
-                    clearInterval(timer);
-                    lockRenewTimers.delete(fullKey);
-                  }
-                } catch {
-                  clearInterval(timer);
-                  lockRenewTimers.delete(fullKey);
-                }
-              }, renewInterval);
-              lockRenewTimers.set(fullKey, timer);
-            }
-            return true;
-          }
+          if (stealResult === 'OK') return onAcquired('Stolen & acquired');
         }
       }
     } catch (err) {
@@ -349,22 +327,24 @@ const withLock = async <T>(
 };
 
 /**
- * Cleanup stale locks from dead processes on startup.
- * Scans all lock:cron:* keys and removes any owned by PIDs that no longer exist.
- * This prevents the "stuck cron" scenario after an unclean restart.
+ * Cleanup stale locks left by dead processes ON THIS HOST at startup.
+ * Lock values are `host:pid:ts`; we only ever touch locks whose host matches
+ * ours — a lock held by a live peer instance (web/worker replica) must never be
+ * removed just because its PID doesn't exist locally. Legacy `pid:ts` values
+ * (no host) are left to their TTL. Uses SCAN so a large keyspace never blocks Redis.
  */
 const cleanupStaleLocks = async (): Promise<number> => {
   let cleaned = 0;
   try {
-    const lockKeys = await redisClient.keys('lock:cron:*');
-    for (const key of lockKeys) {
+    for await (const key of redisClient.scanIterator({ MATCH: 'lock:cron:*', COUNT: 200 })) {
       const value = await redisClient.get(key);
       if (!value) continue;
-      
-      const [pidStr] = value.split(':');
-      const pid = parseInt(pidStr, 10);
-      
-      // Check if the PID is still alive
+
+      const parts = value.split(':');
+      if (parts.length < 3 || parts[0] !== LOCK_HOST) continue;
+      const pid = parseInt(parts[1], 10);
+      if (!Number.isFinite(pid) || pid === process.pid) continue;
+
       let alive = false;
       try {
         process.kill(pid, 0); // Signal 0 = existence check, no actual signal
@@ -372,7 +352,7 @@ const cleanupStaleLocks = async (): Promise<number> => {
       } catch {
         alive = false; // Process doesn't exist
       }
-      
+
       if (!alive) {
         await redisClient.del(key);
         cleaned++;

@@ -278,7 +278,23 @@
       "detailsTitle": "Détails de l'alerte",
       "wasThisYou": "<strong>Était-ce vous ?</strong><br />Si vous reconnaissez cette activité, vous pouvez ignorer ce message.",
       "didntPerform": "<strong>Vous n'avez pas effectué cette action ?</strong><br />Sécurisez immédiatement votre compte :<br />1. Changez votre mot de passe<br />2. Vérifiez votre activité récente<br />3. Contactez notre équipe d'assistance",
-      "cta": "Sécuriser mon compte"
+      "cta": "Sécuriser mon compte",
+      "types": {
+        "otp_lockout": "Code de vérification verrouillé après plusieurs tentatives incorrectes",
+        "login_rate_limit": "Trop de tentatives de connexion échouées"
+      },
+      "details": {
+        "otpLockout": "Quelqu'un a saisi un code incorrect 5 fois pour : {{channel}}. Le code a été invalidé.",
+        "loginRateLimit": "{{count}} tentatives de connexion ont échoué en 15 minutes et les suivantes ont été bloquées."
+      },
+      "channels": {
+        "password_reset": "réinitialisation du mot de passe",
+        "login": "vérification de connexion",
+        "email_change": "changement d'adresse e-mail",
+        "password_change": "changement de mot de passe",
+        "email_verification": "vérification de l'e-mail",
+        "onboarding": "configuration du compte"
+      }
     },
     "newDeviceLogin": {
       "subject": "Nouvelle connexion à votre compte Dynopay",

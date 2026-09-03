@@ -18,6 +18,7 @@ import axios from "../utils/tatumHttp";
 import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisItemWithTTL, setRedisTTL } from "../utils/redisInstance";
 import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
+import { toFixedStr, toNumber } from "../utils/money";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -454,7 +455,7 @@ export const calculateOptimalFeeLimit = async (
     `[TronEnergy] 💡 Fee optimization: ` +
     `Energy needed=${energyNeeded}, available=${senderResources.availableEnergy}, deficit=${energyDeficit} | ` +
     `DEM max=${demMultiplier}x, effectivePrice=${effectiveEnergyPrice} SUN/unit | ` +
-    `Est. cost=${estimatedCostTRX.toFixed(2)} TRX | feeLimit=${finalFeeLimit} TRX (max=${maxFeeLimit})`
+    `Est. cost=${toFixedStr(estimatedCostTRX, 2)} TRX | feeLimit=${finalFeeLimit} TRX (max=${maxFeeLimit})`
   );
 
   return {
@@ -533,11 +534,11 @@ export const calculateDynamicTRC20Fee = async (
 
   // FIX: Reduced buffer from 40% to 20%. SmartGas adds its own 20% buffer on top.
   // Combined ~44% buffer is sufficient (was 110% before).
-  const fastFee = Math.max(Math.ceil(totalCostTRX * 1.20 * 10) / 10, 1);
+  const fastFee = Math.max(toNumber(totalCostTRX * 1.20, 1, "up"), 1);
 
   cronLogger.info(
     `[TronEnergy] 📊 Dynamic TRC20 fee: ${fastFee} TRX ` +
-    `(energy: ${energyNeeded} needed [${isNewRecipient ? 'NEW' : 'ACTIVATED'}], ${availableEnergy} available, ${energyDeficit} deficit @ ${Math.round(effectiveEnergyPrice)} effective SUN/unit [DEM ${demFundingMultiplier.toFixed(1)}x])`
+    `(energy: ${energyNeeded} needed [${isNewRecipient ? 'NEW' : 'ACTIVATED'}], ${availableEnergy} available, ${energyDeficit} deficit @ ${Math.round(effectiveEnergyPrice)} effective SUN/unit [DEM ${toFixedStr(demFundingMultiplier, 1)}x])`
   );
 
   return {
@@ -561,12 +562,12 @@ export const logCostSavings = (
   details?: Record<string, unknown>
 ): void => {
   const savedTRX = oldFeeTRX - newFeeTRX;
-  const savedPercent = oldFeeTRX > 0 ? ((savedTRX / oldFeeTRX) * 100).toFixed(1) : "0";
+  const savedPercent = oldFeeTRX > 0 ? toFixedStr(((savedTRX / oldFeeTRX) * 100), 1) : "0";
 
   cronLogger.info(
     `[TronEnergy] 💰 COST SAVINGS [${context}]: ` +
-    `Old=${oldFeeTRX} TRX → New=${newFeeTRX.toFixed(2)} TRX | ` +
-    `Saved=${savedTRX.toFixed(2)} TRX (${savedPercent}%)` +
+    `Old=${oldFeeTRX} TRX → New=${toFixedStr(newFeeTRX, 2)} TRX | ` +
+    `Saved=${toFixedStr(savedTRX, 2)} TRX (${savedPercent}%)` +
     (details ? ` | ${JSON.stringify(details)}` : "")
   );
 };
@@ -607,7 +608,7 @@ export const calculateDynamicTRXNativeFee = async (
   const networkParams = await getTronNetworkParams();
   const costSun = TRX_NATIVE_BANDWIDTH * networkParams.bandwidthPriceSun;
   const costTRX = costSun / 1_000_000;
-  const fee = Math.max(Math.ceil(costTRX * 1.1 * 10) / 10, 0.5); // 10% buffer, min 0.5 TRX
+  const fee = Math.max(toNumber(costTRX * 1.1, 1, "up"), 0.5); // 10% buffer, min 0.5 TRX
 
   cronLogger.info(
     `[TronEnergy] 📊 TRX native fee: ${fee} TRX (${TRX_NATIVE_BANDWIDTH} bandwidth @ ${networkParams.bandwidthPriceSun} SUN/point)`
@@ -667,7 +668,7 @@ export const getOptimizationDiagnostics = async (
       costEstimate: {
         worstCaseTRX: Math.ceil(newTRC20CostTRX * 1.2),
         oldHardcodedTRX: oldTRC20FeeTRX,
-        savingsPercent: (((oldTRC20FeeTRX - newTRC20CostTRX) / oldTRC20FeeTRX) * 100).toFixed(1),
+        savingsPercent: toFixedStr((((oldTRC20FeeTRX - newTRC20CostTRX) / oldTRC20FeeTRX) * 100), 1),
       },
       feeLimit: {
         oldHardcodedTRX: oldFeeLimitTRX,
@@ -679,9 +680,9 @@ export const getOptimizationDiagnostics = async (
       bandwidthRequired: TRX_NATIVE_BANDWIDTH,
       costEstimate: {
         withBandwidthTRX: 0,
-        withoutBandwidthTRX: Math.ceil(newNativeCostTRX * 1.1 * 10) / 10,
+        withoutBandwidthTRX: toNumber(newNativeCostTRX * 1.1, 1, "up"),
         oldHardcodedTRX: oldNativeTRXFee,
-        savingsPercent: (((oldNativeTRXFee - newNativeCostTRX) / oldNativeTRXFee) * 100).toFixed(1),
+        savingsPercent: toFixedStr((((oldNativeTRXFee - newNativeCostTRX) / oldNativeTRXFee) * 100), 1),
       },
     },
     accountResources: accountResources,

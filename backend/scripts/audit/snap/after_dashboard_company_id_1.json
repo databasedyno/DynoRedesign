@@ -1,0 +1,149 @@
+{
+ "data": {
+  "active_wallets": {
+   "count": 13,
+   "details": [
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "TRX"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "LTC"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "USDT-ERC20"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "ETH"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "USDC-ERC20"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "POLYGON"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "BTC"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "DOGE"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "SOL"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "XRP"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": "USDT-TRC20",
+     "wallet_type": "USDT-TRC20"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "USDT-POLYGON"
+    },
+    {
+     "company_id": 1,
+     "wallet_name": null,
+     "wallet_type": "BCH"
+    }
+   ],
+   "wallets": [
+    "TRX",
+    "LTC",
+    "USDT-ERC20",
+    "ETH",
+    "USDC-ERC20",
+    "POLYGON",
+    "BTC",
+    "DOGE",
+    "SOL",
+    "XRP",
+    "USDT-TRC20",
+    "USDT-POLYGON",
+    "BCH"
+   ]
+  },
+  "fee_tier": {
+   "amount_to_next_tier": 71044.56,
+   "amount_to_next_tier_formatted": "$71,044.56 USD",
+   "currency": "USD",
+   "current_tier": "Growth",
+   "current_tier_key": "growth",
+   "monthly_volume": 28955.44,
+   "monthly_volume_usd": 28955.44,
+   "next_tier": "Scale",
+   "next_tier_key": "scale",
+   "next_tier_percent": 0.7,
+   "percent_complete": 29,
+   "tier_description": "For growing businesses",
+   "tier_percent": 1,
+   "tier_threshold": 100000,
+   "tier_threshold_formatted": "$100,000 USD"
+  },
+  "pending_transactions": {
+   "count": 1
+  },
+  "tax_collected": {
+   "amount": 0,
+   "amount_formatted": "$0.00 USD",
+   "currency": "USD",
+   "current_month": 0,
+   "current_month_formatted": "$0.00 USD"
+  },
+  "today_summary": {
+   "currency": "USD",
+   "pending_count": 1,
+   "transactions_change_percent": -100,
+   "transactions_today": 0,
+   "transactions_yesterday": 4,
+   "volume_change_percent": -100,
+   "volume_today": 0,
+   "volume_today_formatted": "$0.00 USD",
+   "volume_yesterday": 278.15,
+   "volume_yesterday_formatted": "$278.15 USD"
+  },
+  "total_transactions": {
+   "change_percent": -90.7,
+   "comparison_period": "last_month",
+   "count": 441,
+   "current_month": 8
+  },
+  "total_volume": {
+   "amount": 28955.44,
+   "amount_formatted": "$28,955.44 USD",
+   "change_percent": -91.1,
+   "comparison_period": "last_month",
+   "currency": "USD",
+   "currency_info": {
+    "code": "USD",
+    "display_format": "$ USD",
+    "symbol": "$"
+   },
+   "current_month": 566.68,
+   "current_month_formatted": "$566.68 USD"
+  }
+ },
+ "message": "Dashboard data retrieved successfully"
+}

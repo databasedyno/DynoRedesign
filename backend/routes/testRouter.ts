@@ -19,6 +19,7 @@ import { authMiddleware } from "../middleware";
 import sequelize from "../utils/dbInstance";
 import tatumApi from "../apis/tatumApi";
 import { ethers } from "ethers";
+import { toFixedStr, toNumber } from "../utils/money";
 
 const testRouter = express.Router();
 
@@ -92,10 +93,10 @@ testRouter.post("/calculate-fees", authMiddleware, async (req, res) => {
       amount: Number(amount),
       threshold,
       is_below_threshold: isBelowThreshold,
-      processing_fee: parseFloat(feeResult.totalDeduction.toFixed(2)),
+      processing_fee: toNumber(feeResult.totalDeduction, 2),
       distribution: {
-        admin_receives: isBelowThreshold ? Number(amount) : parseFloat(feeResult.totalDeduction.toFixed(2)),
-        merchant_receives: isBelowThreshold ? 0 : parseFloat(feeResult.userReceives.toFixed(2)),
+        admin_receives: isBelowThreshold ? Number(amount) : toNumber(feeResult.totalDeduction, 2),
+        merchant_receives: isBelowThreshold ? 0 : toNumber(feeResult.userReceives, 2),
       },
       explanation: isBelowThreshold
         ? `Amount $${amount} is below the $${threshold} threshold. ALL funds will be sent to admin wallet.`
@@ -237,7 +238,7 @@ testRouter.post("/threshold-test", authMiddleware, async (req, res) => {
       const fees = await calculateTransactionFees(blockchain, Number(amount));
       adminReceives = fees.totalDeduction;
       merchantReceives = fees.userReceives;
-      explanation = `ABOVE THRESHOLD: Amount $${amount} >= $${threshold}. Admin receives processing fees ($${adminReceives.toFixed(2)}). Merchant receives ($${merchantReceives.toFixed(2)}).`;
+      explanation = `ABOVE THRESHOLD: Amount $${amount} >= $${threshold}. Admin receives processing fees ($${toFixedStr(adminReceives, 2)}). Merchant receives ($${toFixedStr(merchantReceives, 2)}).`;
     }
     
     successResponseHelper(res, 200, "Threshold test complete", {
@@ -248,9 +249,9 @@ testRouter.post("/threshold-test", authMiddleware, async (req, res) => {
         is_below_threshold: isBelowThreshold,
       },
       expected_distribution: {
-        admin_wallet: parseFloat(adminReceives.toFixed(2)),
-        merchant_wallet: parseFloat(merchantReceives.toFixed(2)),
-        total: parseFloat((adminReceives + merchantReceives).toFixed(2)),
+        admin_wallet: toNumber(adminReceives, 2),
+        merchant_wallet: toNumber(merchantReceives, 2),
+        total: toNumber((adminReceives + merchantReceives), 2),
       },
       explanation,
       test_passed: true,
@@ -332,7 +333,7 @@ testRouter.post("/full-payment-flow", authMiddleware, async (req, res) => {
         merchant_receives: expectedMerchant,
         explanation: isBelowThreshold
           ? `ALL funds go to admin (below $${threshold} threshold)`
-          : `Fees ($${expectedAdmin.toFixed(2)}) to admin, remainder ($${expectedMerchant.toFixed(2)}) to merchant`,
+          : `Fees ($${toFixedStr(expectedAdmin, 2)}) to admin, remainder ($${toFixedStr(expectedMerchant, 2)}) to merchant`,
       },
       next_step: {
         description: "Send webhook to simulate incoming payment",
@@ -447,7 +448,7 @@ testRouter.post("/manual-transfer", authMiddleware, async (req, res) => {
     
     // Calculate send amount (deduct gas)
     const gasFee = Number((fees as { slow?: string | number })?.slow ?? 0);
-    const sendAmount = Number((Number(amount) - gasFee).toFixed(6));
+    const sendAmount = toNumber((Number(amount) - gasFee), 6);
     
     if (sendAmount <= 0) {
       return errorResponseHelper(res, 400, `Insufficient balance after gas. Amount: ${amount}, Gas: ${gasFee}`);

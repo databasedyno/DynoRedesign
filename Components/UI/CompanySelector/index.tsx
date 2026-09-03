@@ -211,7 +211,7 @@ export default function CompanySelector() {
                   : companies[0].company_name)
                 : ""}
           </TriggerText>
-          <KycVerifiedBadge companyId={selected?.company_id ?? companies[0]?.company_id} size={16} />
+          <KycVerifiedBadge companyId={selected?.company_id} size={16} />
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: { xs: "0px", sm: "8px" } }}>

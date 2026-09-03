@@ -74,6 +74,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { toFixedStr, toNumber } from "../../utils/money";
 
 export const getWallet = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -221,8 +222,8 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
       walletsWithCompanyName.push({
         ...currentWallet,
         company_name: companyMap.get(currentWallet.company_id) || 'Unknown',
-        amount_in_usd: Number(amountInUSD).toFixed(2),
-        amount_in_base_currency: Number(amountInBaseCurrency).toFixed(2),
+        amount_in_usd: toFixedStr(amountInUSD, 2),
+        amount_in_base_currency: toFixedStr(amountInBaseCurrency, 2),
         amount_display: amountDisplay, // Full display object with symbol + code
         base_currency: preferredCurrency,
         transfer_rate: transferRate,
@@ -337,7 +338,7 @@ export const getWalletTransactions = async (
       const baseAmount = Number(rest.base_amount || 0);
       return {
         ...rest,
-        display_amount: Math.round(baseAmount * conversionRate * 100) / 100,
+        display_amount: toNumber(baseAmount * conversionRate, 2),
         display_currency: preferredCurrency,
       };
     });

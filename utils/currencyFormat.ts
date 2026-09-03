@@ -1,3 +1,4 @@
+import { formatExact, toFixedStr, trimZeros } from "@/utils/money";
 interface CurrencyFormat {
   symbol: string;
   decimals: number;
@@ -53,19 +54,15 @@ const currencyFormats: Record<string, CurrencyFormat> = {
   CDF: { symbol: 'FC', decimals: 2, locale: 'fr-CD' },
 };
 
-export const formatCurrency = (amount: number, currency: string): string => {
+export const formatCurrency = (amount: number | string, currency: string): string => {
   const format = currencyFormats[currency?.toUpperCase()] || { symbol: '', decimals: 2, locale: 'en-US' };
   
   try {
-    return new Intl.NumberFormat(format.locale, {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: format.decimals,
-      maximumFractionDigits: format.decimals
-    }).format(amount);
+    // Exact decimal rounding first (see utils/money) so Intl never rounds a double
+    return formatExact(amount, format.decimals, { style: 'currency', currency }, format.locale);
   } catch {
     // Fallback for unsupported currencies
-    return `${format.symbol} ${amount.toFixed(format.decimals)}`;
+    return `${format.symbol} ${toFixedStr(amount, format.decimals)}`;
   }
 };
 
@@ -97,10 +94,7 @@ export const formatWithSeparators = (
   const locale = format?.locale || 'en-US';
   const fractionDigits = decimals ?? format?.decimals ?? 2;
   
-  return new Intl.NumberFormat(locale, {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(numAmount);
+  return formatExact(amount, fractionDigits, {}, locale);
 };
 
 /**
@@ -155,12 +149,9 @@ export const formatCryptoAmount = (amount: number | string, currency: string): s
   if (isNaN(numAmount)) return '0';
 
   if (isCryptoCurrency(currency)) {
-    // Format with up to 8 decimal places, then trim trailing zeros.
-    // toFixed(8) → "25.00000000"  →  trim /(\.\d*?)0+$/ → "25."  →  trim /\.$/ → "25"
-    // toFixed(8) → "0.00100000"   →  trim → "0.001"
-    // toFixed(8) → "0.5"          →  trim → "0.5"
-    const formatted = numAmount.toFixed(8);
-    const trimmed = formatted.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+    // Exact 8-dp rounding on the decimal string, then trim trailing zeros:
+    // "25.00000000" → "25", "0.00100000" → "0.001"
+    const trimmed = trimZeros(toFixedStr(amount, 8));
 
     // Add thousand separators to the integer part (locale-neutral en-US style)
     const parts = trimmed.split('.');
@@ -184,7 +175,7 @@ export const roundLongDecimalsInText = (text?: string | null): string => {
   return text.replace(/\d+\.\d{9,}/g, (match) => {
     const num = parseFloat(match);
     if (!isFinite(num)) return match;
-    return num.toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+    return toFixedStr(num, 8).replace(/0+$/, "").replace(/\.$/, "");
   });
 };
 

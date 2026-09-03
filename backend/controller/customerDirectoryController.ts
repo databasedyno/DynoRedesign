@@ -31,6 +31,7 @@ import {
   DirectoryEntry,
   TxRow,
 } from "./customerDirectoryService";
+import { toNumber } from "../utils/money";
 
 /**
  * GET /api/userApi/customers/directory
@@ -159,7 +160,7 @@ const getCustomerDirectoryDetail = async (req: express.Request, res: express.Res
     const payments = matches.slice(0, 50).map((row) => ({
       id: row.id,
       transaction_id: row.transaction_id,
-      usd_value: Math.round(Number(row.usd_display || 0) * 100) / 100,
+      usd_value: toNumber(Number(row.usd_display || 0), 2),
       base_amount: row.base_amount,
       base_currency: row.base_currency,
       crypto_amount: row.crypto_amount,

@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { toFixedStr } from "../../utils/money";
 
 
 // ============================================================
@@ -72,7 +73,7 @@ export const sendVolumeTierUpgradeEmail = async (
       newTier, newPercent, totalVolumeUsd, language,
     } = opts;
     const L = await resolveEmailLang(language, email);
-    const savingsPct = Math.max(0, previousPercent - newPercent).toFixed(2);
+    const savingsPct = toFixedStr(Math.max(0, previousPercent - newPercent), 2);
     const volumeStr = `$${totalVolumeUsd.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
     const subject = t('merchant.volumeTierUpgrade.subject', L, { newTier, newPercent });
 

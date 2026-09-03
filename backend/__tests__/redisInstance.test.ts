@@ -1,3 +1,4 @@
+import os from 'os';
 /**
  * Unit Tests: Redis Instance (Phase 4)
  *
@@ -21,6 +22,7 @@ const mockRedisClient: Record<string, jest.Mock> = {
   hSet: jest.fn(),
   hGetAll: jest.fn(),
   keys: jest.fn(),
+  scanIterator: jest.fn(),
   expire: jest.fn(),
   ttl: jest.fn(),
   eval: jest.fn(),
@@ -217,7 +219,7 @@ describe('Distributed Locking', () => {
       expect(result).toBe(true);
       expect(mockRedisClient.set).toHaveBeenCalledWith(
         'lock:payment:process:123',
-        expect.stringMatching(/^\d+:\d+$/), // PID:timestamp
+        expect.stringMatching(/^.+:\d+:\d+$/), // host:PID:timestamp
         { NX: true, EX: 30 }
       );
     });
@@ -244,12 +246,12 @@ describe('Distributed Locking', () => {
       );
     });
 
-    it('includes current process PID in lock value', async () => {
+    it('includes hostname and current process PID in lock value', async () => {
       mockRedisClient.set.mockResolvedValueOnce('OK');
       await acquireLock('pid-lock', 30);
 
       const lockValue = mockRedisClient.set.mock.calls[0][1];
-      expect(lockValue).toMatch(new RegExp(`^${process.pid}:\\d+$`));
+      expect(lockValue).toMatch(new RegExp(`^${os.hostname()}:${process.pid}:\\d+$`));
     });
 
     it('succeeds on later retry after initial failure', async () => {
@@ -334,7 +336,7 @@ describe('Distributed Locking', () => {
         expect.stringContaining('redis.call("del"'),
         expect.objectContaining({
           keys: ['lock:rel-test'],
-          arguments: [expect.stringMatching(/^\d+:\d+$/)],
+          arguments: [expect.stringMatching(/^.+:\d+:\d+$/)],
         })
       );
     });
@@ -451,11 +453,15 @@ describe('Distributed Locking', () => {
   });
 
   describe('cleanupStaleLocks', () => {
-    it('removes locks from dead PIDs', async () => {
-      mockRedisClient.keys.mockResolvedValueOnce(['lock:cron:sweep', 'lock:cron:convert']);
+    const host = os.hostname();
+    const scanOf = (keys: string[]) =>
+      mockRedisClient.scanIterator.mockReturnValueOnce((async function* () { for (const k of keys) yield k; })());
+
+    it('removes locks from dead PIDs on this host', async () => {
+      scanOf(['lock:cron:sweep', 'lock:cron:convert']);
       mockRedisClient.get
-        .mockResolvedValueOnce('99999:1234567890')
-        .mockResolvedValueOnce('99998:1234567890');
+        .mockResolvedValueOnce(`${host}:99999:1234567890`)
+        .mockResolvedValueOnce(`${host}:99998:1234567890`);
       mockRedisClient.del.mockResolvedValue(1);
 
       const origKill = process.kill;
@@ -472,10 +478,27 @@ describe('Distributed Locking', () => {
       process.kill = origKill;
     });
 
+    it('never touches locks held by other hosts (peer instances)', async () => {
+      scanOf(['lock:cron:sweep']);
+      mockRedisClient.get.mockResolvedValueOnce('other-host:99999:1234567890');
+
+      const cleaned = await cleanupStaleLocks();
+
+      expect(cleaned).toBe(0);
+      expect(mockRedisClient.del).not.toHaveBeenCalled();
+    });
+
+    it('leaves legacy pid:ts locks to their TTL', async () => {
+      scanOf(['lock:cron:sweep']);
+      mockRedisClient.get.mockResolvedValueOnce('99999:1234567890');
+
+      expect(await cleanupStaleLocks()).toBe(0);
+      expect(mockRedisClient.del).not.toHaveBeenCalled();
+    });
+
     it('keeps locks from alive PIDs', async () => {
-      const currentPid = `${process.pid}:${Date.now()}`;
-      mockRedisClient.keys.mockResolvedValueOnce(['lock:cron:active']);
-      mockRedisClient.get.mockResolvedValueOnce(currentPid);
+      scanOf(['lock:cron:active']);
+      mockRedisClient.get.mockResolvedValueOnce(`${host}:${process.pid}:${Date.now()}`);
 
       const cleaned = await cleanupStaleLocks();
 
@@ -484,14 +507,14 @@ describe('Distributed Locking', () => {
     });
 
     it('returns 0 when no stale locks exist', async () => {
-      mockRedisClient.keys.mockResolvedValueOnce([]);
+      scanOf([]);
 
       const cleaned = await cleanupStaleLocks();
       expect(cleaned).toBe(0);
     });
 
     it('handles Redis errors gracefully', async () => {
-      mockRedisClient.keys.mockRejectedValueOnce(new Error('ECONNRESET'));
+      mockRedisClient.scanIterator.mockImplementationOnce(() => { throw new Error('ECONNRESET'); });
 
       const cleaned = await cleanupStaleLocks();
       expect(cleaned).toBe(0);

@@ -26,6 +26,7 @@ import {
   Body,
   HeadlineL,
 } from "@/Components/Page/Home/v3/styled.v3";
+import { toFixedStr } from "@/utils/money";
 
 /* ==================== TYPES ==================== */
 type StepStatus = "pending" | "pass" | "fail";
@@ -1614,7 +1615,7 @@ const QAPage = () => {
                   Overall Progress
                 </Typography>
                 <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.primary" }}>
-                  {testedSteps} / {totalSteps} steps ({progressPercent.toFixed(0)}%)
+                  {testedSteps} / {totalSteps} steps ({toFixedStr(progressPercent, 0)}%)
                 </Typography>
               </Box>
               <LinearProgress

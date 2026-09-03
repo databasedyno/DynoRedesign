@@ -36,6 +36,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { toFixedStr } from "@/utils/money";
 
 // Product row shape returned by GET /api/product/products (subset we need)
 interface ProductSummary {
@@ -125,7 +126,7 @@ const formatMoney = (cents: number, currency: string): string => {
       maximumFractionDigits: 2,
     }).format(amt);
   } catch {
-    return `${amt.toFixed(2)} ${currency}`;
+    return `${toFixedStr(amt, 2)} ${currency}`;
   }
 };
 
@@ -210,7 +211,7 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
         }
       }
 
-      const amountDec = (amountCents / 100).toFixed(2);
+      const amountDec = toFixedStr((amountCents / 100), 2);
       const desc = mdToPlain(p.description_md || p.subtitle || "").slice(0, 500);
       onPick({
         product_id: p.product_id,
@@ -236,7 +237,7 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
       const v = picked.variants.find((x) => String(x.variant_id) === String(variantId));
       if (!v) return;
       const qty = Math.max(1, Number(picked.qty) || 1);
-      const amountDec = ((Number(v.price_cents) || 0) * qty / 100).toFixed(2);
+      const amountDec = toFixedStr(((Number(v.price_cents) || 0) * qty / 100), 2);
       if (onVariantChange) {
         onVariantChange(variantId, amountDec);
       }

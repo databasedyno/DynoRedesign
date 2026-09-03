@@ -207,7 +207,7 @@ setInterval(() => {
       alertHistory.delete(key);
     }
   }
-}, 10 * 60 * 1000);
+}, 10 * 60 * 1000).unref();
 
 /**
  * Send alert with retry (exponential backoff, max 2 retries)

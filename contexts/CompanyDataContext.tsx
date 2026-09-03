@@ -18,6 +18,9 @@ import {
 } from "@/Redux/Sagas/helpers/mapBackendErrorToField";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
+// Stable empty array so consumers' memo/effect deps don't churn while data is undefined.
+const EMPTY_LIST: any[] = [];
+
 /**
  * CompanyDataContext — SWR-backed replacement for the old Redux `companyReducer`
  * + `CompanySaga`. Owns the company list (server cache via SWR), the currently
@@ -149,7 +152,7 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
     companyFetcher
   );
 
-  const companyList: any[] = Array.isArray(data) ? data : [];
+  const companyList: any[] = useMemo(() => (Array.isArray(data) ? data : EMPTY_LIST), [data]);
   const fetched = data !== undefined || !!error;
   const fetchError = !!error;
 

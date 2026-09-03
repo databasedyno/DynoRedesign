@@ -193,6 +193,8 @@ import { QueryTypes } from "sequelize";
 import sequelizeInstance from "./dbInstance";
 import { log } from "./loggers";
 import { getRedisItem, setRedisItemWithTTL } from "./redisInstance";
+import { toFixedStr } from "./money";
+import { mul } from "./money";
 
 /**
  * Get a company's preferred base currency from their API key config.
@@ -343,7 +345,7 @@ export const convertUsdForDisplay = async (
   const cur = String(target || 'USD').toUpperCase();
   if (!usd || cur === 'USD') return usd || 0;
   const rate = await getUsdToFiatRate(cur);
-  return usd * rate;
+  return mul(usd, rate).toNumber();
 };
 
 /**
@@ -439,7 +441,7 @@ export const formatCryptoAmount = (
   const upper = String(currency || '').toUpperCase();
   const isStableOrFiat = /USDT|USDC|BUSD|DAI|USD|EUR|GBP|BRL/.test(upper);
   const decimals = isStableOrFiat ? 2 : 8;
-  const fixed = num.toFixed(decimals);
+  const fixed = toFixedStr(num, decimals);
   // toFixed(>0) always contains '.', so trimming trailing zeros is safe
   return fixed.replace(/0+$/, '').replace(/\.$/, '');
 };

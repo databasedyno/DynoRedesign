@@ -20,6 +20,7 @@ import { useCart } from "@/contexts/CartContext";
 import InlineTipCheckout from "@/Components/Page/Creator/InlineTipCheckout";
 import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
+import { toFixedStr } from "@/utils/money";
 
 // Platform floor: minimum order total is $10 (matches tips / donations).
 const MIN_TOTAL_CENTS = 1000;
@@ -28,7 +29,7 @@ function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
   try {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: ccy, maximumFractionDigits: 2 }).format(n);
-  } catch { return `${n.toFixed(2)} ${ccy}`; }
+  } catch { return `${toFixedStr(n, 2)} ${ccy}`; }
 }
 
 const CheckoutPage: NextPageWithLayout = () => {

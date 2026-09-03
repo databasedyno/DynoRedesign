@@ -1,6 +1,7 @@
 import express from "express";
 import crypto from "crypto";
 import { apiLogger } from "../utils/loggers";
+import { toFixedStr } from "../utils/money";
 
 /**
  * Request-level logging middleware with correlation IDs.
@@ -54,7 +55,7 @@ const requestLoggerMiddleware = (
         : "\u2705";
 
     apiLogger.info(
-      `${statusEmoji} ${method} ${url} ${statusCode} ${duration.toFixed(1)}ms [${requestId.substring(0, 8)}] ${ip}`
+      `${statusEmoji} ${method} ${url} ${statusCode} ${toFixedStr(duration, 1)}ms [${requestId.substring(0, 8)}] ${ip}`
     );
   });
 

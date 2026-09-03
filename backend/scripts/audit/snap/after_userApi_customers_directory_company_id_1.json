@@ -1,0 +1,125 @@
+{
+ "data": {
+  "aggregates": {
+   "anonymous_payments": 441,
+   "anonymous_revenue_usd": 28955.43,
+   "identified_revenue_usd": 0,
+   "new_this_month": 2,
+   "repeat_rate": 0,
+   "revenue_usd": 28955.43,
+   "total_customers": 2
+  },
+  "customers": [
+   {
+    "channels": [
+     "api"
+    ],
+    "customer_ids": [],
+    "email": null,
+    "first_seen": "2026-04-18T22:28:08.519Z",
+    "has_wallet": false,
+    "key": "anon:api",
+    "kind": "anonymous",
+    "last_payment": "2026-09-02T21:03:59.952Z",
+    "links_count": 0,
+    "ltv_usd": 27765.48,
+    "mobile": null,
+    "name": null,
+    "payments_count": 434,
+    "pending_count": 1,
+    "segment": "anonymous",
+    "wallet_balance": 0,
+    "wallet_currency": null
+   },
+   {
+    "channels": [
+     "payment_link"
+    ],
+    "customer_ids": [],
+    "email": null,
+    "first_seen": "2026-06-28T09:24:30.451Z",
+    "has_wallet": false,
+    "key": "anon:payment_link",
+    "kind": "anonymous",
+    "last_payment": "2026-08-31T10:22:39.680Z",
+    "links_count": 0,
+    "ltv_usd": 1180.52,
+    "mobile": null,
+    "name": null,
+    "payments_count": 6,
+    "pending_count": 0,
+    "segment": "anonymous",
+    "wallet_balance": 0,
+    "wallet_currency": null
+   },
+   {
+    "channels": [
+     "product"
+    ],
+    "customer_ids": [],
+    "email": "qa.tester+dyno@example.com",
+    "first_seen": "2026-08-26T00:35:08.498Z",
+    "has_wallet": false,
+    "key": "qa.tester+dyno@example.com",
+    "kind": "person",
+    "last_payment": null,
+    "links_count": 2,
+    "ltv_usd": 0,
+    "mobile": null,
+    "name": null,
+    "payments_count": 0,
+    "pending_count": 0,
+    "segment": "prospect",
+    "wallet_balance": 0,
+    "wallet_currency": null
+   },
+   {
+    "channels": [
+     "product"
+    ],
+    "customer_ids": [],
+    "email": "dayh@dyno.pt",
+    "first_seen": "2026-08-25T22:00:08.832Z",
+    "has_wallet": false,
+    "key": "dayh@dyno.pt",
+    "kind": "person",
+    "last_payment": null,
+    "links_count": 1,
+    "ltv_usd": 0,
+    "mobile": null,
+    "name": null,
+    "payments_count": 0,
+    "pending_count": 0,
+    "segment": "prospect",
+    "wallet_balance": 0,
+    "wallet_currency": null
+   },
+   {
+    "channels": [
+     "tip"
+    ],
+    "customer_ids": [],
+    "email": null,
+    "first_seen": "2026-08-12T13:42:37.554Z",
+    "has_wallet": false,
+    "key": "anon:tip",
+    "kind": "anonymous",
+    "last_payment": "2026-08-12T13:42:37.554Z",
+    "links_count": 0,
+    "ltv_usd": 9.43,
+    "mobile": null,
+    "name": null,
+    "payments_count": 1,
+    "pending_count": 0,
+    "segment": "anonymous",
+    "wallet_balance": 0,
+    "wallet_currency": null
+   }
+  ],
+  "limit": 20,
+  "page": 1,
+  "pages": 1,
+  "total": 5
+ },
+ "message": "Retrieved 5 customers"
+}

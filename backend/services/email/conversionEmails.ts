@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { toFixedStr } from "../../utils/money";
 
 /**
  * Auto-conversion payout email (complex layout with volatility, savings, fee breakdown)
@@ -77,15 +78,15 @@ export const sendAutoConversionPayoutEmail = async (
         </tr>
       </table>
       <p style="margin: 0; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-        ${sourceCurrency} moved <strong>${Math.abs(priceMovementPct).toFixed(2)}%</strong> during conversion window &mdash; ${feeTierUsed === 'fast' || feeTierUsed === 'fastest' ? 'fast-tracked with priority fees' : 'processed with standard fees'}
+        ${sourceCurrency} moved <strong>${toFixedStr(Math.abs(priceMovementPct), 2)}%</strong> during conversion window &mdash; ${feeTierUsed === 'fast' || feeTierUsed === 'fastest' ? 'fast-tracked with priority fees' : 'processed with standard fees'}
       </p>
     `) : '';
 
     const savingsBlock = priceDroppedSinceConversion ? successBox(`
       <p style="margin: 0 0 4px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Auto-Conversion Protected You</p>
-      <p class="stat-value-green" style="font-size: 28px; font-weight: 700; margin: 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center;">~$${savedAmount.toFixed(2)} saved</p>
+      <p class="stat-value-green" style="font-size: 28px; font-weight: 700; margin: 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center;">~$${toFixedStr(savedAmount, 2)} saved</p>
       <p style="margin: 0; font-size: 13px; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-        ${sourceCurrency} has dropped <strong>${Math.abs(priceDiffSinceConversion).toFixed(2)}%</strong> since your conversion<br/>
+        ${sourceCurrency} has dropped <strong>${toFixedStr(Math.abs(priceDiffSinceConversion), 2)}%</strong> since your conversion<br/>
         Converted at $${priceAtConversion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} &mdash; Now $${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </p>
     `) : '';
@@ -93,7 +94,7 @@ export const sendAutoConversionPayoutEmail = async (
     const priceUpBlock = !priceDroppedSinceConversion && Math.abs(priceDiffSinceConversion) > 0.1 ? infoBox(`
       <p style="margin: 0; font-size: 13px; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
         ${sourceCurrency} is currently at <strong>$${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-        (${priceDiffSinceConversion > 0 ? '+' : ''}${priceDiffSinceConversion.toFixed(2)}% since conversion).
+        (${priceDiffSinceConversion > 0 ? '+' : ''}${toFixedStr(priceDiffSinceConversion, 2)}% since conversion).
         Your payout was locked in at <strong>$${priceAtConversion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> for price certainty.
       </p>
     `) : '';
@@ -106,16 +107,16 @@ export const sendAutoConversionPayoutEmail = async (
         ? (platformFeeUsd / grossSaleUsd) * 100
         : 0;
     const platformPctLabel = effectivePlatformPct > 0
-      ? effectivePlatformPct.toFixed(effectivePlatformPct < 1 ? 2 : 1) + "%"
+      ? toFixedStr(effectivePlatformPct, effectivePlatformPct < 1 ? 2 : 1) + "%"
       : "";
 
     const feeRows = [
-      feeRow('Gross Conversion', `$${grossSaleUsd.toFixed(2)} ${targetCurrency}`),
-      platformFeeUsd > 0 ? feeRow(`Platform Fee${platformPctLabel ? ` (${platformPctLabel})` : ''}`, `-$${platformFeeUsd.toFixed(4)}`, true) : '',
-      sweepGasFeeUsd > 0 ? feeRow('Network Gas Fee (sweep)', `-$${sweepGasFeeUsd.toFixed(4)}`, true) : '',
-      tradeFeeUsd > 0 ? feeRow('Exchange Fee (0.1%)', `-$${tradeFeeUsd.toFixed(4)}`, true) : '',
+      feeRow('Gross Conversion', `$${toFixedStr(grossSaleUsd, 2)} ${targetCurrency}`),
+      platformFeeUsd > 0 ? feeRow(`Platform Fee${platformPctLabel ? ` (${platformPctLabel})` : ''}`, `-$${toFixedStr(platformFeeUsd, 4)}`, true) : '',
+      sweepGasFeeUsd > 0 ? feeRow('Network Gas Fee (sweep)', `-$${toFixedStr(sweepGasFeeUsd, 4)}`, true) : '',
+      tradeFeeUsd > 0 ? feeRow('Exchange Fee (0.1%)', `-$${toFixedStr(tradeFeeUsd, 4)}`, true) : '',
       binanceWithdrawalFeeUsd > 0
-        ? feeRow('Withdrawal Fee (on-chain)', `-$${binanceWithdrawalFeeUsd.toFixed(4)}`, true)
+        ? feeRow('Withdrawal Fee (on-chain)', `-$${toFixedStr(binanceWithdrawalFeeUsd, 4)}`, true)
         : feeRow('Withdrawal Fee', '$0.00 (off-chain)'),
       feeTotalRow('Net Payout', `${payoutAmount} ${targetCurrency}`),
     ].filter(Boolean).join('');
@@ -123,7 +124,7 @@ export const sendAutoConversionPayoutEmail = async (
     const htmlContent = `
       ${p(t('merchant.autoConversion.intro', L))}
       ${twoColumnStats(
-        statCard('Received', `${sourceAmount} ${sourceCurrency}`, `~$${parseFloat(sourceAmountUsd).toFixed(2)} USD`),
+        statCard('Received', `${sourceAmount} ${sourceCurrency}`, `~$${toFixedStr(sourceAmountUsd, 2)} USD`),
         statCard('Payout', `${payoutAmount} ${targetCurrency}`, 'Sent to your wallet', 'green')
       )}
       ${volatilityVisual}
@@ -198,7 +199,7 @@ export const sendWeeklyConversionSummaryEmail = async (
 
     if (totalConversions === 0) return;
 
-    const subject = `Weekly Conversion Report — ${totalConversions} conversion${totalConversions !== 1 ? 's' : ''}, $${totalPayoutUsd.toFixed(2)} paid out`;
+    const subject = `Weekly Conversion Report — ${totalConversions} conversion${totalConversions !== 1 ? 's' : ''}, $${toFixedStr(totalPayoutUsd, 2)} paid out`;
 
     const maxDailyVolume = Math.max(...dailyVolume.map(d => d.payoutUsd), 1);
     const chartRows = dailyVolume.map(d => {
@@ -215,7 +216,7 @@ export const sendWeeklyConversionSummaryEmail = async (
               </tr>
             </table>
           </td>
-          <td style="padding: 4px 0 4px 8px; font-size: 12px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; white-space: nowrap; text-align: right; width: 60px; font-weight: ${hasActivity ? '600' : '400'};">${hasActivity ? '$' + d.payoutUsd.toFixed(0) : '-'}</td>
+          <td style="padding: 4px 0 4px 8px; font-size: 12px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; white-space: nowrap; text-align: right; width: 60px; font-weight: ${hasActivity ? '600' : '400'};">${hasActivity ? '$' + toFixedStr(d.payoutUsd, 0) : '-'}</td>
         </tr>`;
     }).join('');
 
@@ -226,16 +227,16 @@ export const sendWeeklyConversionSummaryEmail = async (
         <tr class="fee-row">
           <td style="padding: 10px 0; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${c.currency}</td>
           <td style="padding: 10px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center; border-bottom: 1px solid #f3f4f6;">${c.count}</td>
-          <td style="padding: 10px 0; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">$${c.totalPayoutUsd.toFixed(2)}</td>
+          <td style="padding: 10px 0; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">$${toFixedStr(c.totalPayoutUsd, 2)}</td>
           <td style="padding: 10px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">
-            <span style="color: ${movementColor}; font-size: 13px; font-weight: 500;">${movementSign}${c.avgMovementPct.toFixed(2)}%</span>
+            <span style="color: ${movementColor}; font-size: 13px; font-weight: 500;">${movementSign}${toFixedStr(c.avgMovementPct, 2)}%</span>
           </td>
         </tr>`;
     }).join('');
 
     const savingsBlock = totalSavedUsd > 0.01 ? successBox(`
       <p style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; margin: 0 0 4px;">Total Protected This Week</p>
-      <p class="stat-value-green" style="font-size: 32px; font-weight: 700; margin: 8px 0; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">~$${totalSavedUsd.toFixed(2)}</p>
+      <p class="stat-value-green" style="font-size: 32px; font-weight: 700; margin: 8px 0; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">~$${toFixedStr(totalSavedUsd, 2)}</p>
       <p style="font-size: 13px; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center;">
         saved by converting before further price drops<br/>
         ${totalVolatileConversions} of ${totalConversions} conversions occurred during volatile markets
@@ -251,10 +252,10 @@ export const sendWeeklyConversionSummaryEmail = async (
             ${statCard('Conversions', `${totalConversions}`, '', 'blue')}
           </td>
           <td style="padding: 0 4px 8px 4px; width: 34%;">
-            ${statCard('Total Payout', `$${totalPayoutUsd.toFixed(0)}`, '', 'green')}
+            ${statCard('Total Payout', `$${toFixedStr(totalPayoutUsd, 0)}`, '', 'green')}
           </td>
           <td style="padding: 0 0 8px 4px; width: 33%;">
-            ${statCard('Avg Movement', `${avgPriceMovementPct >= 0 ? '+' : ''}${avgPriceMovementPct.toFixed(1)}%`, '', avgPriceMovementPct < -0.5 ? 'green' : 'blue')}
+            ${statCard('Avg Movement', `${avgPriceMovementPct >= 0 ? '+' : ''}${toFixedStr(avgPriceMovementPct, 1)}%`, '', avgPriceMovementPct < -0.5 ? 'green' : 'blue')}
           </td>
         </tr>
       </table>

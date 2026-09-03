@@ -10,8 +10,9 @@ import { IUserType } from "../../utils/types";
 import { userLogger } from "../../utils/loggers";
 import { redis } from "../../utils/redisInstance";
 import { STOREFRONT_PER_COMPANY, resolveActiveCompanyId, resolveLegacyStorefrontHolder } from "../storefrontScope";
+import { toNumber } from "../../utils/money";
 
-const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+const round2 = (n: number) => toNumber((Number(n) || 0), 2);
 
 /**
  * GET /api/user/creator/analytics/split — "Compare storefronts".

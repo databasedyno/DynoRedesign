@@ -26,6 +26,7 @@ import {
   sendKYCStartedEmail,
   sendKYCResubmissionRequiredEmail,
 } from "../services/emailService";
+import { toFixedStr } from "../utils/money";
 
 /**
  * Get KYC status for authenticated user
@@ -559,7 +560,7 @@ export const checkVolumeAndTriggerKYC = async (
             userId,
             NOTIFICATION_TYPES.KYC_REQUIRED,
             "KYC Verification Required - Monthly Reminder",
-            `Your transaction volume ($${totalVolume.toFixed(2)}) has exceeded the $${volumeThreshold.toLocaleString()} threshold. ${urgencyMessage} Please complete KYC verification to continue processing payments.`,
+            `Your transaction volume ($${toFixedStr(totalVolume, 2)}) has exceeded the $${volumeThreshold.toLocaleString()} threshold. ${urgencyMessage} Please complete KYC verification to continue processing payments.`,
             {
               total_volume: totalVolume,
               threshold: volumeThreshold,
@@ -570,9 +571,9 @@ export const checkVolumeAndTriggerKYC = async (
           );
 
           // Send KYC required email with urgency based on remaining days
-          await sendKYCRequiredEmail(userEmail, userName, totalVolume.toFixed(2));
+          await sendKYCRequiredEmail(userEmail, userName, toFixedStr(totalVolume, 2));
           
-          apiLogger.info(`[KYC NOTIFICATION] Sent monthly reminder to user ${userId}. Volume: $${totalVolume.toFixed(2)}, Days remaining: ${daysRemaining}`);
+          apiLogger.info(`[KYC NOTIFICATION] Sent monthly reminder to user ${userId}. Volume: $${toFixedStr(totalVolume, 2)}, Days remaining: ${daysRemaining}`);
         }
       }
     }

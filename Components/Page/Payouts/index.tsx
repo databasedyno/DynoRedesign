@@ -46,6 +46,7 @@ import {
   WARNING_AMBER,
   ERROR_RED,
 } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 /**
  * Balances & Payouts (prototype) — a single "where's my money" surface that
@@ -134,8 +135,8 @@ const fiatLabel = (tx: any): string | null => {
   if (v <= 0) return null;
   if (v >= 1)
     return `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  if (v >= 0.01) return `$${v.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
-  return `$${v.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+  if (v >= 0.01) return `$${toFixedStr(v, 4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+  return `$${toFixedStr(v, 6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
 };
 
 const formatDate = (v?: string) => {

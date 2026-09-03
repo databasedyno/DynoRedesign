@@ -20,6 +20,7 @@ import { ShopClient } from "@/Components/Page/Shop";
 import type { ShopMerchant, ShopProduct } from "@/Components/Page/Shop/types";
 import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
 import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
+import { toFixedStr } from "@/utils/money";
 
 interface ShopPageProps {
   merchant: ShopMerchant;
@@ -78,7 +79,7 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
         description: p.subtitle || undefined,
         offers: {
           "@type": "Offer",
-          price: ((p.base_price_cents || 0) / 100).toFixed(2),
+          price: toFixedStr(((p.base_price_cents || 0) / 100), 2),
           priceCurrency: (p.currency || "USD").toUpperCase(),
           availability: "https://schema.org/InStock",
         },

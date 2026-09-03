@@ -3,6 +3,7 @@ import crypto from "crypto";
 import config from "../utils/config";
 import { apiLogger } from "../utils/loggers";
 import { sandboxRateLimiter } from "../middleware/rateLimitMiddleware";
+import { toNumber } from "../utils/money";
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
@@ -36,7 +37,7 @@ publicSandboxRouter.post("/payment-links", sandboxRateLimiter, async (req: expre
     let amountRaw = Number(body.amount);
     if (!isFinite(amountRaw) || amountRaw <= 0) amountRaw = 49.99;
     if (amountRaw > 100000) amountRaw = 100000; // sandbox cap
-    const amount = Math.round(amountRaw * 100) / 100;
+    const amount = toNumber(amountRaw, 2);
 
     const currency = typeof body.currency === "string" && /^[A-Za-z]{3,10}$/.test(body.currency)
       ? body.currency.toUpperCase()

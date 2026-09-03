@@ -21,6 +21,7 @@ import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 import { getTierForVolume, getTierByName } from "../utils/volumeTierUtils";
 import emailService from "./emailService";
+import { toFixedStr } from "../utils/money";
 
 interface UserRow {
   user_id: number;
@@ -102,7 +103,7 @@ export const reconcileVolumeTiers = async (): Promise<{
         cronLogger.info(
           `[volumeTierReconciliation] UPGRADE user=${user.user_id} ` +
             `(${current.displayName} ${current.percent}% → ${target.displayName} ${target.percent}%) ` +
-            `volume=$${volumeUSD.toFixed(2)}`,
+            `volume=$${toFixedStr(volumeUSD, 2)}`,
         );
         // Fire-and-forget upgrade email (best-effort, does not block reconciliation)
         try {
@@ -127,7 +128,7 @@ export const reconcileVolumeTiers = async (): Promise<{
         cronLogger.info(
           `[volumeTierReconciliation] DOWNGRADE user=${user.user_id} ` +
             `(${current.displayName} ${current.percent}% → ${target.displayName} ${target.percent}%) ` +
-            `volume=$${volumeUSD.toFixed(2)}`,
+            `volume=$${toFixedStr(volumeUSD, 2)}`,
         );
       }
     } catch (err) {

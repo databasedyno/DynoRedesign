@@ -21,6 +21,7 @@ import { rootReducer } from "@/utils/types";
 
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
 import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
+import { toFixedStr } from "@/utils/money";
 
 const DEFAULT_MONTHLY_LIMIT = 10000;
 const DEFAULT_USED_AMOUNT = 0;
@@ -329,7 +330,7 @@ const DashboardRightSection = () => {
               {tDashboard("nextTierHint")
                 .replace("{next}", nextTier)
                 .replace("{pct}", `${nextTierPercent}%`)
-                .replace("{savings}", `${(currentTierPercent - nextTierPercent).toFixed(2)}%`)}
+                .replace("{savings}", `${toFixedStr((currentTierPercent - nextTierPercent), 2)}%`)}
             </Typography>
           )}
 

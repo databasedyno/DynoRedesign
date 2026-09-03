@@ -29,6 +29,7 @@ import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfi
 import { PaymentState, parseState } from "../../services/paymentStateMachine";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { STOREFRONT_PER_COMPANY, resolveStorefrontByHandle } from "../storefrontScope";
+import { toFixedStr, toNumber } from "../../utils/money";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHORT PAYMENT REFERENCE — the `d` in /pay?d=<ref>
@@ -299,12 +300,12 @@ export const getCreatorAnalyticsData = async (
   }
 
   // Round chart amounts to 2 dp (fiat) so recharts doesn't render 12.79999999
-  for (const b of chart) b.amount = Math.round(b.amount * 100) / 100;
+  for (const b of chart) b.amount = toNumber(b.amount, 2);
 
   const top_supporters = Array.from(supMap.values())
     .sort((a, b) => b.amount - a.amount || b.count - a.count)
     .slice(0, 5)
-    .map((s) => ({ ...s, amount: Math.round(s.amount * 100) / 100 }));
+    .map((s) => ({ ...s, amount: toNumber(s.amount, 2) }));
 
   // Lifetime totals (only computed for the merchant's own view)
   let amount_lifetime = 0;
@@ -321,7 +322,7 @@ export const getCreatorAnalyticsData = async (
           AND p.link_type = 'donation'`,
       { replacements: { uid: userId, statuses: DONATION_COMPLETED_STATUSES }, type: QueryTypes.SELECT }
     )) as Array<{ amount: number; count: number }>;
-    amount_lifetime = Math.round((Number(life?.amount) || 0) * 100) / 100;
+    amount_lifetime = toNumber((Number(life?.amount) || 0), 2);
     supporters_lifetime = Number(life?.count) || 0;
   }
 
@@ -329,7 +330,7 @@ export const getCreatorAnalyticsData = async (
     chart,
     top_supporters,
     totals: {
-      amount_30d: Math.round(amount30d * 100) / 100,
+      amount_30d: toNumber(amount30d, 2),
       count_30d: count30d,
       supporters_30d: distinctSupporters30d.size,
       amount_lifetime,
@@ -434,7 +435,7 @@ const validateDonationInput = (
       const g = Number(input.goal_amount);
       if (!Number.isFinite(g) || g <= 0) return { error: "goal_amount must be a positive number.", fields };
       if (g > 999999999) return { error: "goal_amount is too large.", fields };
-      fields.goal_amount = Math.round(g * 100) / 100;
+      fields.goal_amount = toNumber(g, 2);
     }
   }
 
@@ -457,7 +458,7 @@ const validateDonationInput = (
       return { error: "preset_amounts must contain only positive numbers.", fields };
     }
     if (arr.length > 6) return { error: "A maximum of 6 preset amounts is allowed.", fields };
-    const unique = [...new Set(arr.map((n) => Math.round(n * 100) / 100))].sort((a, b) => a - b);
+    const unique = [...new Set(arr.map((n) => toNumber(n, 2)))].sort((a, b) => a - b);
     fields.preset_amounts = unique.length ? unique.join(",") : null;
   }
 
@@ -468,7 +469,7 @@ const validateDonationInput = (
       const m = Number(input.min_amount);
       if (!Number.isFinite(m) || m <= 0) return { error: "min_amount must be a positive number.", fields };
       if (m > 999999999) return { error: "min_amount is too large.", fields };
-      fields.min_amount = Math.round(m * 100) / 100;
+      fields.min_amount = toNumber(m, 2);
     }
   }
 
@@ -756,7 +757,7 @@ export const createPaymentLink = async (
       return errorResponseHelper(
         res,
         403,
-        `KYC verification required. Your transaction volume ($${kycResult.totalVolume.toFixed(2)}) exceeded the $${KYC_THRESHOLD_USD.toLocaleString()} threshold on ${kycResult.thresholdDate?.toLocaleDateString()}. Your 90-day grace period has expired. Please complete KYC verification to continue creating payment links. Current KYC status: ${kycResult.kycStatus}. [KYC_REQUIRED]`
+        `KYC verification required. Your transaction volume ($${toFixedStr(kycResult.totalVolume, 2)}) exceeded the $${KYC_THRESHOLD_USD.toLocaleString()} threshold on ${kycResult.thresholdDate?.toLocaleDateString()}. Your 90-day grace period has expired. Please complete KYC verification to continue creating payment links. Current KYC status: ${kycResult.kycStatus}. [KYC_REQUIRED]`
       );
     } else if (kycResult.needsEnforcement && kycResult.kycStatus !== 'approved' && kycResult.daysRemaining !== undefined) {
       // Within grace period - set in-app warning
@@ -2155,7 +2156,7 @@ export const startDonation = async (
     if (!Number.isFinite(rawAmt) || rawAmt <= 0) {
       return errorResponseHelper(res, 400, "Please enter a valid donation amount.");
     }
-    const amt = Math.round(rawAmt * 100) / 100;
+    const amt = toNumber(rawAmt, 2);
     const minAmt = Number(p.min_amount) > 0 ? Number(p.min_amount) : 1;
     if (amt < minAmt) {
       return errorResponseHelper(res, 400, `Minimum donation is ${minAmt} ${p.base_currency || "USD"}.`);
@@ -2283,7 +2284,7 @@ export const startTip = async (
     if (!Number.isFinite(rawAmt) || rawAmt <= 0) {
       return errorResponseHelper(res, 400, "Please enter a valid amount.");
     }
-    const amt = Math.round(rawAmt * 100) / 100;
+    const amt = toNumber(rawAmt, 2);
     const minAmt = Number(u.support_widget_min_amount) > 0 ? Number(u.support_widget_min_amount) : 1;
     const widgetCurrency = String(u.support_widget_currency || "USD").toUpperCase();
     if (amt < minAmt) {

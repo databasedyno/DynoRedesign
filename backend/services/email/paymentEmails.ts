@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { toFixedStr } from "../../utils/money";
 
 /**
  * Template 6: Payment Received
@@ -52,7 +53,7 @@ export const sendPaymentReceivedEmail = async (
       </table>
     `, '#12B76A')}
     ${Number(referralCreditAppliedUsd) > 0
-        ? p(t('paymentReceived.referralCredit', L, { amount: `$${Number(referralCreditAppliedUsd).toFixed(2)}` }))
+        ? p(t('paymentReceived.referralCredit', L, { amount: `$${toFixedStr(referralCreditAppliedUsd, 2)}` }))
         : ''}
     ${p(
       isContribution

@@ -76,6 +76,7 @@ import { getAvailableCreditForFees, consumeReferralCreditForTransaction } from "
 import { dispatchCompanyEmail } from "../../../services/email/companyDispatch";
 
 import { settleCryptoTransaction } from "./settleTransaction";
+import { D, add, div, mul, roundTo, sub, toFixedStr, toNumber } from "../../../utils/money";
 
 export const cryptoVerification = async (address, webhook = true, overrideRedisKey?: string) => {
   const transaction = await sequelize.transaction();
@@ -262,9 +263,9 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         company_id: Number(customerData.company_id || tempData?.company_id),
         customer_id: resolvedCustomerId,
         payment_mode: "CRYPTO",
-        base_amount: Number(finalAmount[0].amount).toFixed(2),
+        base_amount: toFixedStr(finalAmount[0].amount, 2),
         base_currency: baseCurrency,
-        paid_amount: Number(receivedAmount).toFixed(6),
+        paid_amount: toFixedStr(receivedAmount, 6),
         paid_currency: tempCurrency,
         transaction_reference: transactionId,
         unique_tx_id: tempData?.payment_id || tempData?.unique_tx_id || customerData?.payment_id,
@@ -362,7 +363,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
       const isPartialPayment = Number(receivedAmount) < Number(tempData?.amount) && !webhook;
 
       if (isPartialPayment) {
-        const pendingAmount = (Number(tempData?.amount) - Number(receivedAmount)).toFixed(8);
+        const pendingAmount = toFixedStr(sub(tempData?.amount, receivedAmount), 8);
         const expectedAmount = Number(tempData?.amount) + (tempData?.previousAmount ? Number(tempData.previousAmount) : 0);
 
         // ENHANCED LOGGING: Partial payment accumulation tracking
@@ -432,7 +433,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         const customerRef = tempData.ref;
         if (customerRef) {
           const customerData = await getRedisItem("customer-" + customerRef);
-          if (customerData) {
+          if (customerData && Object.keys(customerData).length > 0) {
             // Generate QR code with currency logo — include destination tag for XRP/RLUSD
             let qrCode;
             try {
@@ -500,7 +501,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           - Total Received: ${totalAmountReceived} ${tempCurrency}
           - Previous Payments: ${tempData?.previousAmount || 0} ${tempCurrency}
           - Was Partial: ${wasPartialPayment ? 'YES' : 'NO'}
-          - Original Expected: ${originalExpected} ${tempCurrency}${isUnderpaid ? `\n          - Underpayment Shortfall: ${underpaymentDelta.toFixed(8)} ${tempCurrency} (${((underpaymentDelta / originalExpected) * 100).toFixed(2)}%)` : ''}`);
+          - Original Expected: ${originalExpected} ${tempCurrency}${isUnderpaid ? `\n          - Underpayment Shortfall: ${toFixedStr(underpaymentDelta, 8)} ${tempCurrency} (${toFixedStr(((underpaymentDelta / originalExpected) * 100), 2)}%)` : ''}`);
 
         // Check fee_payer mode
         const fee_payer = tempData?.fee_payer || 'company';
@@ -546,21 +547,22 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         }
         
         // Fee percentage based on BASE amount (excludes tax)
-        const feePercentage = feeCalcBasisUSD > 0 ? totalDeduction / feeCalcBasisUSD : 0;
+        const feePercentageD = div(totalDeduction, feeCalcBasisUSD); // 0 when basis is 0
+        const feePercentage = feePercentageD.toNumber();
 
         cronLogger.info(`[cryptoVerification] Fee calculation (fee_payer=${fee_payer}):
             - Total received (crypto): ${totalAmountReceived} ${tempCurrency}
-            - Total received (USD): $${receivedUSD.toFixed(2)}
-            - Stored base_amount_usd: $${storedBaseAmountUSD.toFixed(2)}
-            - Stored tax_amount_usd: $${storedTaxAmountUSD.toFixed(2)}
-            - Fee calc basis (USD): $${feeCalcBasisUSD.toFixed(2)}
+            - Total received (USD): $${toFixedStr(receivedUSD, 2)}
+            - Stored base_amount_usd: $${toFixedStr(storedBaseAmountUSD, 2)}
+            - Stored tax_amount_usd: $${toFixedStr(storedTaxAmountUSD, 2)}
+            - Fee calc basis (USD): $${toFixedStr(feeCalcBasisUSD, 2)}
             - Pre-calculated merchant_amount: ${merchant_amount || 'N/A'} ${tempCurrency}
             - Fee Breakdown:
               • Fixed Fee: $${fixedFee?.toFixed(2) || 'N/A'} (Tier-based)
               • Transaction Fee (1.5%): $${transactionFee?.toFixed(2) || 'N/A'}
             - Total deduction (USD): $${totalDeduction}
             - Min forwarding threshold: $${minForwarding}
-            - Effective Fee %: ${(feePercentage * 100).toFixed(2)}% (on base, not total)`);
+            - Effective Fee %: ${toFixedStr((feePercentage * 100), 2)}% (on base, not total)`);
 
         if (receivedUSD < Number(minForwarding)) {
           // Under threshold - all to admin
@@ -581,37 +583,39 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             // from an overpayment therefore flows entirely to the admin. Underpayments
             // (ratio < 1) still settle proportionally to the merchant (unchanged).
             const merchantRatio = Math.min(paymentRatio, 1);
-            userAmountToSend = preCalcMerchantAmount * merchantRatio;
-            adminAmountToSend = Number(totalAmountReceived) - userAmountToSend;
+            // Exact split: merchant rounded DOWN to 8 dp, admin takes the remainder,
+            // so admin + merchant === received with no sub-satoshi residue.
+            userAmountToSend = roundTo(mul(preCalcMerchantAmount, merchantRatio), 8, "down").toNumber();
+            adminAmountToSend = sub(totalAmountReceived, userAmountToSend).toNumber();
             
             cronLogger.info(`[cryptoVerification] ${fee_payer === 'customer' ? 'CUSTOMER' : 'COMPANY'} PAYS FEES — RATIO-BASED DISTRIBUTION:
-              - Expected: ${expectedCrypto.toFixed(8)} ${tempCurrency}
-              - Payment ratio: ${paymentRatio.toFixed(4)} (${paymentRatio > 1 ? 'overpaid → excess to admin' : paymentRatio === 1 ? 'exact' : 'underpaid'})
-              - Merchant ratio (capped at 1.0): ${merchantRatio.toFixed(4)}
-              - Merchant: ${userAmountToSend.toFixed(8)} ${tempCurrency} (scaled from pre-calc ${preCalcMerchantAmount.toFixed(8)})
-              - Admin (fees${paymentRatio > 1 ? ' + overpayment excess' : ''}): ${adminAmountToSend.toFixed(8)} ${tempCurrency}`);
+              - Expected: ${toFixedStr(expectedCrypto, 8)} ${tempCurrency}
+              - Payment ratio: ${toFixedStr(paymentRatio, 4)} (${paymentRatio > 1 ? 'overpaid → excess to admin' : paymentRatio === 1 ? 'exact' : 'underpaid'})
+              - Merchant ratio (capped at 1.0): ${toFixedStr(merchantRatio, 4)}
+              - Merchant: ${toFixedStr(userAmountToSend, 8)} ${tempCurrency} (scaled from pre-calc ${toFixedStr(preCalcMerchantAmount, 8)})
+              - Admin (fees${paymentRatio > 1 ? ' + overpayment excess' : ''}): ${toFixedStr(adminAmountToSend, 8)} ${tempCurrency}`);
           } else {
             // Fallback: expected amount not available, use fee percentage on non-tax portion
-            const taxRatio = storedTaxAmountUSD > 0 ? storedTaxAmountUSD / (storedBaseAmountUSD + storedTaxAmountUSD) : 0;
-            const receivedTaxPortion = Number(totalAmountReceived) * taxRatio;
-            const receivedNonTaxPortion = Number(totalAmountReceived) - receivedTaxPortion;
-            adminAmountToSend = receivedNonTaxPortion * feePercentage;
-            userAmountToSend = Number(totalAmountReceived) - adminAmountToSend;
+            const taxRatio = div(storedTaxAmountUSD, add(storedBaseAmountUSD, storedTaxAmountUSD));
+            const receivedNonTaxPortion = mul(totalAmountReceived, D(1).minus(taxRatio));
+            adminAmountToSend = roundTo(receivedNonTaxPortion.times(feePercentageD), 8, "up").toNumber();
+            userAmountToSend = sub(totalAmountReceived, adminAmountToSend).toNumber();
             
             cronLogger.info(`[cryptoVerification] ${fee_payer === 'customer' ? 'CUSTOMER' : 'COMPANY'} PAYS FEES — FALLBACK DISTRIBUTION:
-              - Admin (fees): ${adminAmountToSend.toFixed(8)} ${tempCurrency} (${(feePercentage * 100).toFixed(2)}% of non-tax portion)
-              - Merchant: ${userAmountToSend.toFixed(8)} ${tempCurrency}`);
+              - Admin (fees): ${toFixedStr(adminAmountToSend, 8)} ${tempCurrency} (${toFixedStr((feePercentage * 100), 2)}% of non-tax portion)
+              - Merchant: ${toFixedStr(userAmountToSend, 8)} ${tempCurrency}`);
           }
         } else {
           // ── LEGACY FALLBACK: No stored data, use simple percentage on full amount ──
           // This handles older payments or edge cases where base_amount_usd wasn't stored
-          const simpleFeePercentage = receivedUSD > 0 ? totalDeduction / receivedUSD : 0;
-          adminAmountToSend = Number(totalAmountReceived) * simpleFeePercentage;
-          userAmountToSend = Number(totalAmountReceived) - adminAmountToSend;
+          const simpleFeePercentageD = div(totalDeduction, receivedUSD);
+          const simpleFeePercentage = simpleFeePercentageD.toNumber();
+          adminAmountToSend = roundTo(mul(totalAmountReceived, simpleFeePercentageD), 8, "up").toNumber();
+          userAmountToSend = sub(totalAmountReceived, adminAmountToSend).toNumber();
           
           cronLogger.info(`[cryptoVerification] ${fee_payer === 'customer' ? 'CUSTOMER' : 'COMPANY'} PAYS FEES — LEGACY DISTRIBUTION (no stored base):
-            - Admin (fees): ${adminAmountToSend.toFixed(8)} ${tempCurrency} (${(simpleFeePercentage * 100).toFixed(2)}%)
-            - Merchant: ${userAmountToSend.toFixed(8)} ${tempCurrency} (${((1 - simpleFeePercentage) * 100).toFixed(2)}%)`);
+            - Admin (fees): ${toFixedStr(adminAmountToSend, 8)} ${tempCurrency} (${toFixedStr((simpleFeePercentage * 100), 2)}%)
+            - Merchant: ${toFixedStr(userAmountToSend, 8)} ${tempCurrency} (${toFixedStr(((1 - simpleFeePercentage) * 100), 2)}%)`);
         }
 
         // ── DUST GUARD: Clamp sub-satoshi floating-point residuals to exactly 0 ──
@@ -662,17 +666,17 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const adminWalletAddr = getAdminWalletAddress(tempCurrency);
           if (adminWalletAddr) {
             cronLogger.info(`[AutoConvert] ✅ ACTIVE for company ${customerData.company_id}:
-              - Source: ${userAmountToSend.toFixed(8)} ${tempCurrency}
+              - Source: ${toFixedStr(userAmountToSend, 8)} ${tempCurrency}
               - Target: ${autoConvertTargetCurrency} on ${autoConvertSettlementChain}
               - Redirecting merchant portion to admin wallet: ${adminWalletAddr.substring(0, 12)}...
               - Merchant settlement address: ${autoConvertSettlementAddress.substring(0, 12)}...`);
 
             // Add merchant portion to admin portion (all goes to admin/Binance)
-            adminAmountToSend = adminAmountToSend + userAmountToSend;
+            adminAmountToSend = add(adminAmountToSend, userAmountToSend).toNumber();
             userAmountToSend = 0; // Nothing goes directly to merchant
 
             cronLogger.info(`[AutoConvert] Updated distribution:
-              - Admin total (fees + merchant): ${adminAmountToSend.toFixed(8)} ${tempCurrency}
+              - Admin total (fees + merchant): ${toFixedStr(adminAmountToSend, 8)} ${tempCurrency}
               - Merchant direct: 0 (will receive ${autoConvertTargetCurrency} after conversion)`);
           } else {
             cronLogger.warn(`[AutoConvert] ⚠️ No admin wallet for ${tempCurrency}, falling back to normal settlement`);
@@ -700,12 +704,12 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               const applyUsd = Math.min(availableCredit, Number(totalDeduction) || 0);
               if (applyUsd > 0) {
                 // Convert the USD credit to crypto at THIS payment's realized rate.
-                let creditCrypto = applyUsd * (Number(totalAmountReceived) / receivedUSD);
+                let creditCrypto = roundTo(mul(applyUsd, div(totalAmountReceived, receivedUSD)), 8, "down").toNumber();
                 // Belt-and-suspenders: never drive the admin fee negative.
                 if (creditCrypto > adminAmountToSend) creditCrypto = adminAmountToSend;
                 if (creditCrypto > 0) {
-                  adminAmountToSend = adminAmountToSend - creditCrypto;
-                  userAmountToSend = userAmountToSend + creditCrypto;
+                  adminAmountToSend = sub(adminAmountToSend, creditCrypto).toNumber();
+                  userAmountToSend = add(userAmountToSend, creditCrypto).toNumber();
                   if (userAmountToSend > Number(totalAmountReceived)) {
                     userAmountToSend = Number(totalAmountReceived);
                   }
@@ -713,9 +717,9 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                   // to USD), never more than the fee cap — so a clamp can't over-consume
                   // the balance relative to the merchant's realized benefit. In the normal
                   // (no-clamp) case this equals applyUsd exactly.
-                  const actualUsd = creditCrypto * (receivedUSD / Number(totalAmountReceived));
-                  referralCreditAppliedUsd = Math.min(applyUsd, Math.round(actualUsd * 100) / 100);
-                  cronLogger.info(`[ReferralCredit] Applying $${referralCreditAppliedUsd.toFixed(2)} fee-credit for user ${verifyUserId}: admin=${adminAmountToSend.toFixed(8)} merchant=${userAmountToSend.toFixed(8)} ${tempCurrency} (shifted ${creditCrypto.toFixed(8)})`);
+                  const actualUsd = mul(creditCrypto, div(receivedUSD, totalAmountReceived)).toNumber();
+                  referralCreditAppliedUsd = Math.min(applyUsd, toNumber(actualUsd, 2));
+                  cronLogger.info(`[ReferralCredit] Applying $${toFixedStr(referralCreditAppliedUsd, 2)} fee-credit for user ${verifyUserId}: admin=${toFixedStr(adminAmountToSend, 8)} merchant=${toFixedStr(userAmountToSend, 8)} ${tempCurrency} (shifted ${toFixedStr(creditCrypto, 8)})`);
                 }
               }
             }
@@ -751,7 +755,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               
               if (feeWalletBalance < requiredTRX && poolResources.availableEnergy < 65000) {
                 // WARNING ONLY - Let SmartGas attempt to fund
-                cronLogger.warn(`[cryptoVerification] ⚠️ TRX fee wallet low for USDT-TRC20 settlement. Balance: ${feeWalletBalance} TRX, Estimated: ~${requiredTRX.toFixed(1)} TRX. SmartGas will attempt funding. Payment: ${tempAddressData.payment_id || 'unknown'}`);
+                cronLogger.warn(`[cryptoVerification] ⚠️ TRX fee wallet low for USDT-TRC20 settlement. Balance: ${feeWalletBalance} TRX, Estimated: ~${toFixedStr(requiredTRX, 1)} TRX. SmartGas will attempt funding. Payment: ${tempAddressData.payment_id || 'unknown'}`);
                 
                 // Only abort if fee wallet is CRITICALLY low (< 5 TRX) AND no energy
                 if (feeWalletBalance < 5 && poolResources.availableEnergy < 65000) {
@@ -771,7 +775,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                   throw new Error(`DEFERRED: Fee wallet critically low (${feeWalletBalance} TRX < 5 TRX). Needs urgent top-up.`);
                 }
               } else if (feeWalletBalance >= requiredTRX) {
-                cronLogger.info(`[cryptoVerification] ✅ Fee wallet sufficient: ${feeWalletBalance} TRX >= ${requiredTRX.toFixed(1)} TRX`);
+                cronLogger.info(`[cryptoVerification] ✅ Fee wallet sufficient: ${feeWalletBalance} TRX >= ${toFixedStr(requiredTRX, 1)} TRX`);
               }
             }
           } catch (preCheckError: any) {
@@ -796,8 +800,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           try {
             const feeFreeResult = await recordTransactionVolume(feeFreeUserId, feeFreeAmountUsd);
             feeFreeRecorded = true;
-            cronLogger.info(`[cryptoVerification] ✅ Fee-free volume recorded (pre-settlement): user ${feeFreeUserId}, $${feeFreeAmountUsd.toFixed(2)} USD. Remaining: $${feeFreeResult?.fee_free_remaining_usd ?? 'N/A'}`);
-            log(`[cryptoVerification] 💰 Fee-free recorded (pre-settlement): user=${feeFreeUserId}, amount=$${feeFreeAmountUsd.toFixed(2)}, remaining=$${feeFreeResult?.fee_free_remaining_usd ?? 'N/A'}`);
+            cronLogger.info(`[cryptoVerification] ✅ Fee-free volume recorded (pre-settlement): user ${feeFreeUserId}, $${toFixedStr(feeFreeAmountUsd, 2)} USD. Remaining: $${feeFreeResult?.fee_free_remaining_usd ?? 'N/A'}`);
+            log(`[cryptoVerification] 💰 Fee-free recorded (pre-settlement): user=${feeFreeUserId}, amount=$${toFixedStr(feeFreeAmountUsd, 2)}, remaining=$${feeFreeResult?.fee_free_remaining_usd ?? 'N/A'}`);
           } catch (feeFreeError: any) {
             cronLogger.warn(`[cryptoVerification] Fee-free volume recording failed (non-critical): ${feeFreeError.message}`);
             log(`[cryptoVerification] ⚠️ Fee-free recording FAILED: user=${feeFreeUserId}, err=${feeFreeError.message}`, "warn");
@@ -825,9 +829,9 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           if (feeFreeRecorded && feeFreeUserId && feeFreeAmountUsd > 0) {
             try {
               const reverseResult = await reverseTransactionVolume(feeFreeUserId, feeFreeAmountUsd);
-              cronLogger.info(`[cryptoVerification] ↩️ Fee-free volume REVERSED after settlement failure: user ${feeFreeUserId}, +$${feeFreeAmountUsd.toFixed(2)}. Remaining: $${reverseResult?.fee_free_remaining_usd ?? 'N/A'}`);
+              cronLogger.info(`[cryptoVerification] ↩️ Fee-free volume REVERSED after settlement failure: user ${feeFreeUserId}, +$${toFixedStr(feeFreeAmountUsd, 2)}. Remaining: $${reverseResult?.fee_free_remaining_usd ?? 'N/A'}`);
             } catch (reverseError: any) {
-              cronLogger.error(`[cryptoVerification] ❌ Fee-free reversal FAILED: user=${feeFreeUserId}, amount=$${feeFreeAmountUsd.toFixed(2)}, err=${reverseError.message}`);
+              cronLogger.error(`[cryptoVerification] ❌ Fee-free reversal FAILED: user=${feeFreeUserId}, amount=$${toFixedStr(feeFreeAmountUsd, 2)}, err=${reverseError.message}`);
             }
           }
           throw settlementError; // Re-throw so existing error handling continues
@@ -1001,7 +1005,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
 
             cronLogger.info(`[AutoConvert] 📝 Conversion record created:
               - TX: ${transactionId}
-              - Source: ${originalUserAmount.toFixed(8)} ${tempCurrency}
+              - Source: ${toFixedStr(originalUserAmount, 8)} ${tempCurrency}
               - Target: ${autoConvertTargetCurrency} on ${autoConvertSettlementChain}
               - Immediate sweep will be triggered after address release`);
           } catch (convErr) {
@@ -1039,24 +1043,24 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 await sendAdminFeeReceivedEmail(
                   adminEmail,
                   "Dynopay Admin",
-                  Number(adminAmountToSend - originalUserAmount).toFixed(8), // actual admin fee only
+                  toFixedStr(sub(adminAmountToSend, originalUserAmount), 8), // actual admin fee only
                   tempCurrency,
                   transactionId,
                   company_data?.company_name || "Unknown Company",
-                  Number(originalUserAmount).toFixed(8), // merchant portion pending conversion
-                  Number(totalAmountReceived).toFixed(8)
+                  toFixedStr(originalUserAmount, 8), // merchant portion pending conversion
+                  toFixedStr(totalAmountReceived, 8)
                 );
-                cronLogger.info(`[Admin Fee Notification - AUTO-CONVERT] Sent email: fee=${(adminAmountToSend - originalUserAmount).toFixed(8)} ${tempCurrency}, merchant_for_conversion=${originalUserAmount.toFixed(8)} ${tempCurrency} from Company ${company_data?.company_id || 'N/A'}`);
+                cronLogger.info(`[Admin Fee Notification - AUTO-CONVERT] Sent email: fee=${toFixedStr((adminAmountToSend - originalUserAmount), 8)} ${tempCurrency}, merchant_for_conversion=${toFixedStr(originalUserAmount, 8)} ${tempCurrency} from Company ${company_data?.company_id || 'N/A'}`);
               } else {
                 await sendAdminFeeReceivedEmail(
                   adminEmail,
                   "Dynopay Admin",
-                  Number(adminAmountToSend).toFixed(8),
+                  toFixedStr(adminAmountToSend, 8),
                   tempCurrency,
                   transactionId,
                   company_data?.company_name || "Unknown Company",
-                  Number(userAmountToSend).toFixed(8),
-                  Number(totalAmountReceived).toFixed(8)
+                  toFixedStr(userAmountToSend, 8),
+                  toFixedStr(totalAmountReceived, 8)
                 );
                 
                 if (isUnderThreshold) {
@@ -1149,12 +1153,12 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               if (adminEmail) {
                 const gasToken = tempCurrency; // UTXO chains use native coin for gas
                 const gasDisplay = adminTransferResult.blockchainFee
-                  ? `${Number(adminTransferResult.blockchainFee).toFixed(8)} ${gasToken}`
+                  ? `${toFixedStr(adminTransferResult.blockchainFee, 8)} ${gasToken}`
                   : 'Included in TX';
                 
                 await sendAdminFeeSweepEmail(
                   adminEmail,
-                  Number(adminAmountToSend).toFixed(8),
+                  toFixedStr(adminAmountToSend, 8),
                   tempCurrency,
                   tempAddressData.wallet_address || 'Pool Address',
                   getAdminWalletAddress(tempCurrency) || 'Admin Wallet',
@@ -1213,7 +1217,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             user_id: customerData.adm_id,
             company_id: customerData.company_id ? Number(customerData.company_id) : null,  // Multi-tenant: Include company_id
             payment_mode: tempData.mode,
-            base_amount: Number(userAmountToSend).toFixed(8),
+            base_amount: toFixedStr(userAmountToSend, 8),
             base_currency: tempCurrency,
             transaction_reference: allTxIds,
             transaction_type: "CREDIT",
@@ -1302,7 +1306,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               ...(autoConvertEnabled
                 ? {
                     transaction_fee: Number(adminFeeForConversion),
-                    base_amount: Number(originalUserAmount).toFixed(8),
+                    base_amount: toFixedStr(originalUserAmount, 8),
                     usd_value: (await convertToUSD(Number(originalUserAmount), tempCurrency)) || 0,
                   }
                 : {}),
@@ -1317,7 +1321,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
 
         let overPayment = false;
         let newAmount = [{ amount: 0 }];
-        const tempAmount = Number(receivedAmount) - Number(tempData?.amount);
+        const tempAmount = sub(receivedAmount, tempData?.amount).toNumber();
         if (tempAmount > 0) {
           // Convert overpayment to API key's base currency (not hardcoded USD)
           newAmount = await currencyConvert({
@@ -1499,7 +1503,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               maxUsd: referralCreditAppliedUsd,
               transactionRef: referralTxRef,
             });
-            cronLogger.info(`[ReferralCredit] Consumed $${consumed.toFixed(2)} referral credit for user ${verifyUserId} (tx ${referralTxRef})`);
+            cronLogger.info(`[ReferralCredit] Consumed $${toFixedStr(consumed, 2)} referral credit for user ${verifyUserId} (tx ${referralTxRef})`);
           } catch (consumeErr: any) {
             cronLogger.error(`[ReferralCredit] consume failed (non-fatal, credit stays available): ${consumeErr?.message || consumeErr}`);
           }
@@ -1569,7 +1573,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const settledPaymentId = tempData?.payment_id || tempData?.unique_tx_id || tempData?.ref || "unknown";
           const settledDedupKey = `confirmed-webhook-sent-${settledPaymentId}`;
           const merchantAmountFinal = autoConvertEnabled ? originalUserAmount : userAmountToSend;
-          const totalFeeFinal = autoConvertEnabled ? (adminAmountToSend - originalUserAmount) : adminAmountToSend;
+          const totalFeeFinal = autoConvertEnabled ? sub(adminAmountToSend, originalUserAmount).toNumber() : adminAmountToSend;
 
           // Merge webhook routing from customerData + tempData (either may hold it).
           const settledCustomerData: Record<string, unknown> = { ...(customerData || {}) };
@@ -1742,7 +1746,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           
           // When auto-convert is ON, show the original merchant amount (before redirect to admin)
           // Merchant will receive USDT equivalent, not 0 ETH
-          const emailAmount = autoConvertEnabled ? originalUserAmount.toFixed(8) : Number(userAmountToSend).toFixed(8);
+          const emailAmount = autoConvertEnabled ? toFixedStr(originalUserAmount, 8) : toFixedStr(userAmountToSend, 8);
 
           // Issue #6: show the amount in the merchant's fiat currency (primary) with
           // the crypto amount received as a secondary line. Fall back to crypto-primary

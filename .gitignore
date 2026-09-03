@@ -84,3 +84,6 @@ backend/dynopay.json
 backend/.jest-cache/
 backend/test-run.log
 .next-prod
+
+# audit helper tokens
+backend/scripts/audit/.tok

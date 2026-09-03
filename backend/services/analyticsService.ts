@@ -9,6 +9,7 @@ import { QueryTypes } from "sequelize";
 import { apiLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import { processedStatusSql } from "../utils/processedVolume";
+import { toNumber } from "../utils/money";
 
 const CACHE_TTL = 300; // 5 minutes
 
@@ -78,11 +79,11 @@ export const getRevenueAnalytics = async (period: "7d" | "30d" | "90d" | "1y" = 
     total_volume: currentVolume,
     total_transactions: parseInt(volumeData?.total_transactions || "0"),
     total_fees_collected: parseFloat(volumeData?.total_fees || "0"),
-    volume_growth_pct: Math.round(volumeGrowth * 100) / 100,
+    volume_growth_pct: toNumber(volumeGrowth, 2),
     active_merchants: parseInt(activeMerchants?.count || "0"),
     daily_trend: dailyRevenue,
     avg_transaction_value: parseInt(volumeData?.total_transactions || "0") > 0
-      ? Math.round((currentVolume / parseInt(volumeData.total_transactions)) * 100) / 100
+      ? toNumber((currentVolume / parseInt(volumeData.total_transactions)), 2)
       : 0,
   };
 

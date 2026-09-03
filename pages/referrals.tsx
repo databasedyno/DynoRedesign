@@ -19,6 +19,7 @@ import { pageProps } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import PayoutCard from "@/Components/Page/Referrals/PayoutCard";
+import { toFixedStr } from "@/utils/money";
 
 type ReferralStats = {
   referral_code: string;
@@ -671,7 +672,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                         color: theme.palette.text.primary,
                       }}
                     >
-                      ${typeof row.value === "number" ? row.value.toFixed(2) : row.value}
+                      ${typeof row.value === "number" ? toFixedStr(row.value, 2) : row.value}
                     </Typography>
                   </Box>
                 ))}
@@ -736,7 +737,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     {t("availableBalance", { defaultValue: "Available balance" })}
                   </Typography>
                   <Typography sx={{ fontSize: isMobile ? "24px" : "28px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary, lineHeight: 1.2 }}>
-                    {`$${(earnings?.commission?.unpaid_balance_usd ?? 0).toFixed(2)}`}
+                    {`$${toFixedStr((earnings?.commission?.unpaid_balance_usd ?? 0), 2)}`}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -749,7 +750,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                         {row.label}
                       </Typography>
                       <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: theme.palette.text.primary }}>
-                        {`$${row.value.toFixed(2)}`}
+                        {`$${toFixedStr(row.value, 2)}`}
                       </Typography>
                     </Box>
                   ))}
@@ -778,7 +779,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                           </Typography>
                         </Box>
                         <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: theme.palette.text.primary }}>
-                          {`$${(r.accrued_usd ?? 0).toFixed(2)}`}
+                          {`$${toFixedStr((r.accrued_usd ?? 0), 2)}`}
                         </Typography>
                       </Box>
                     ))}

@@ -57,6 +57,7 @@ import {
 } from "./styled";
 import TransactionDetailsModal from "./TransactionDetailsModal";
 import { brandFg } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   transactions,
@@ -272,19 +273,19 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
     // Stablecoins: 2 decimals
     if (upperUnit.includes("USDT") || upperUnit.includes("USDC") || upperUnit === "USD" || upperUnit.includes("BUSD") || upperUnit.includes("DAI")) {
-      return `${value.toFixed(2)} ${unit}`;
+      return `${toFixedStr(value, 2)} ${unit}`;
     }
 
     // Crypto: up to 8 decimals for BTC, 6 for others, trim trailing zeros
     const maxDecimals = upperUnit === "BTC" ? 8 : 6;
-    const formatted = value.toFixed(maxDecimals).replace(/\.?0+$/, "");
+    const formatted = toFixedStr(value, maxDecimals).replace(/\.?0+$/, "");
     // Ensure at least 2 decimals for readability
     const dotIndex = formatted.indexOf(".");
     const currentDecimals = dotIndex >= 0 ? formatted.length - dotIndex - 1 : 0;
     const result = currentDecimals < 2 && dotIndex >= 0
-      ? value.toFixed(2)
+      ? toFixedStr(value, 2)
       : currentDecimals === 0
-        ? value.toFixed(2)
+        ? toFixedStr(value, 2)
         : formatted;
     return `${result} ${unit}`;
   };

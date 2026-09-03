@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 import { getCurrencySymbol as getCurrencySymbolShared } from "../utils/currencyUtils";
 import { t, normalizeLang } from "../utils/emailI18n";
+import { toFixedStr } from "../utils/money";
 
 interface InvoiceData {
   invoice_number: string;
@@ -105,7 +106,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       useDisplay && currency.toUpperCase() === displayCurrency.toUpperCase()
         ? numAmount * fxRate
         : numAmount;
-    return `${symbol}${finalAmount.toFixed(2)} ${currency}`;
+    return `${symbol}${toFixedStr(finalAmount, 2)} ${currency}`;
   };
 
   // Helper function to format date
@@ -432,7 +433,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       .fillColor("#666666")
       .text(t("invoice.cryptoEquivalent", L), 360, yPosition, { width: 90, align: "right" })
       .text(
-        `${numTotalCrypto.toFixed(8)} ${invoiceData.crypto_currency}`,
+        `${toFixedStr(numTotalCrypto, 8)} ${invoiceData.crypto_currency}`,
         460,
         yPosition,
         { width: 90, align: "right" }

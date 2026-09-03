@@ -10,6 +10,7 @@ import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
+import { toFixedStr } from "@/utils/money";
 
 const walletInitial = {
   currency: "ETH",
@@ -157,8 +158,8 @@ const AdminWithdraw = ({ setPageName }: pageProps) => {
                     {getCurrencySymbol(
                       values.currency,
                       countDecimals(cryptoData[currentIndex].fee) > 8
-                        ? cryptoData[currentIndex].fee.toFixed(8)
-                        : cryptoData[currentIndex].fee.toFixed(2)
+                        ? toFixedStr(cryptoData[currentIndex].fee, 8)
+                        : toFixedStr(cryptoData[currentIndex].fee, 2)
                     )}
                   </Typography>
                 </Box>

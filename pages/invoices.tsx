@@ -41,6 +41,7 @@ import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 import { formatDateI18n } from "@/utils/formatDate";
+import { toFixedStr } from "@/utils/money";
 
 interface Invoice {
   invoice_id: number;
@@ -959,7 +960,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       rate:
                         typeof taxReport.summary.usd_to_display_rate ===
                         "number"
-                          ? taxReport.summary.usd_to_display_rate.toFixed(4)
+                          ? toFixedStr(taxReport.summary.usd_to_display_rate, 4)
                           : "1.0000",
                     })}
                   </Typography>

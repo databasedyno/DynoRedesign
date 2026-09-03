@@ -1657,9 +1657,17 @@ const startServer = async () => {
     });
   }
 
+  // ─── JSON 404 for unknown API routes (Express would otherwise send HTML) ────
+  app.use("/api", (_req: express.Request, res: express.Response) => {
+    res.status(404).json({ success: false, message: "Not found", statusCode: 404 });
+  });
+
   // ─── Global Error Handler (must be AFTER all routes) ─────────────────────────
   // Catches unhandled errors in route handlers and prevents stack trace leakage
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    // A handler that already streamed/sent a response then threw: let Express
+    // close the socket instead of raising "Cannot set headers after they are sent".
+    if (res.headersSent) return _next(err);
     const isProduction = config.str("NODE_ENV") === 'production';
     log(`[GlobalErrorHandler] Unhandled error: ${err.message}${!isProduction ? `\n${err.stack}` : ''}`, 'error');
     captureError(err, 'api', {

@@ -31,6 +31,8 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
+import { clientIp } from "../../middleware/rateLimitMiddleware";
 
 export const changePassword = async (req: express.Request, res: express.Response) => {
   try {
@@ -202,7 +204,8 @@ export const setPasswordWithOtp = async (req: express.Request, res: express.Resp
         return errorResponseHelper(res, 400, "OTP expired. Please request a new one.");
       }
       if (otp !== item.otp) {
-        return errorResponseHelper(res, 400, "Invalid OTP");
+        const locked = await recordOtpFailure(otpKey, item, undefined, { email: user.dataValues.email, ip: clientIp(req), channel: "password_change" });
+        return errorResponseHelper(res, 400, locked ? otpLockedMessage : "Invalid OTP");
       }
       await deleteRedisItem(otpKey);
       otpValid = true;

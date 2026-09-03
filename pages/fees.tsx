@@ -12,6 +12,7 @@ import { AURORA_GRADIENT, FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/C
 import { AuroraInk, Eyebrow, HeadlineL, HeadlineXL } from "@/Components/Page/Home/v3/styled.v3";
 import FinalCTAAurora from "@/Components/Page/Home/v3/FinalCTAAurora";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 /* ── Aurora restyle of the public /fees page (2026-07-18) ── */
 
@@ -361,7 +362,7 @@ const FeesPage = () => {
                       {tier.pct}% (${pctFee.toLocaleString("en-US", { maximumFractionDigits: 2 })}) + $1 × {payments.toLocaleString("en-US")}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: tier.accent, mt: 0.25 }}>
-                      ≈ {effectiveRate.toFixed(2)}% {t("v3.effectiveRate")}
+                      ≈ {toFixedStr(effectiveRate, 2)}% {t("v3.effectiveRate")}
                     </Typography>
                   </Box>
                 </Box>

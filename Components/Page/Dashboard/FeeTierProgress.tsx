@@ -5,6 +5,7 @@ import { FeeTierProgressProps } from "@/utils/types/dashboard";
 import { Box, Typography, useTheme } from "@mui/material";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toFixedStr, toNumber } from "@/utils/money";
 
 const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
   monthlyLimit = 50000,
@@ -71,7 +72,7 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
 
   const percentage = useMemo(() => {
     if (monthlyLimit <= 0) return 0;
-    return Number(((usedAmount / monthlyLimit) * 100).toFixed(1));
+    return toNumber(((usedAmount / monthlyLimit) * 100), 1);
   }, [usedAmount, monthlyLimit]);
 
   const filledBars = useMemo(() => {
@@ -184,7 +185,7 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
             letterSpacing: 0,
           }}
         >
-          {percentage.toFixed(1)}% {tDashboard("complete")}
+          {toFixedStr(percentage, 1)}% {tDashboard("complete")}
         </Typography>
         <Typography
           sx={{

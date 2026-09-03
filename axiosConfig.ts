@@ -3,7 +3,6 @@ import { setAuthNotice } from "@/helpers/authNotice";
 import axios from "axios";
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
-console.log("url for base", apiBaseUrl);
 
 const axiosBaseApi = axios.create({
   baseURL: apiBaseUrl + "/api/",

@@ -26,6 +26,7 @@ import {
 } from "../coinbase/styled";
 import { GhostIconButton } from "./styled";
 import { RangeId } from "./CommandBar";
+import { toFixedStr } from "@/utils/money";
 
 const RANGES: Array<{ id: RangeId; label: string }> = [
   { id: "7d", label: "7D" },
@@ -416,7 +417,7 @@ const BalanceStrip: React.FC<Props> = ({
                 {(metric !== "period" || hasPeriodDelta) && (
                   <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
                     <Icon name={positive ? "arrow-up" : "arrow-down"} size={13} />
-                    {Math.abs(activeDelta).toFixed(2)}%
+                    {toFixedStr(Math.abs(activeDelta), 2)}%
                   </DeltaChip>
                 )}
                 <Box

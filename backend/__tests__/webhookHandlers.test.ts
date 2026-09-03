@@ -410,7 +410,7 @@ describe('callMerchantWebhook', () => {
     expect(axios.post).toHaveBeenCalledWith(
       'https://merchant.com/hook',
       expect.objectContaining({ event: 'payment.confirmed' }),
-      expect.objectContaining({ timeout: 15000 })
+      expect.objectContaining({ timeout: 20000, maxRedirects: 0 })
     );
   });
 
@@ -446,7 +446,15 @@ describe('callMerchantWebhook', () => {
     );
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain('localhost');
+    expect(result.error).toMatch(/private or local address/);
+  });
+
+  it('rejects cloud-metadata and RFC1918 webhook URLs (SSRF guard)', async () => {
+    for (const url of ['http://169.254.169.254/latest/meta-data', 'http://10.0.0.5/hook', 'http://[::1]/hook', 'ftp://merchant.com/hook']) {
+      const result = await callMerchantWebhook({ webhook_url: url, company_id: 1 }, { event: 'payment.confirmed' });
+      expect(result.success).toBe(false);
+      expect(axios.post).not.toHaveBeenCalled();
+    }
   });
 
   it('includes HMAC signature header when webhook_secret is set', async () => {

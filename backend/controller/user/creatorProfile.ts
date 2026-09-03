@@ -32,6 +32,7 @@ import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 import { STOREFRONT_PER_COMPANY, STOREFRONT_COLUMNS, isHandleTaken, resolveActiveCompanyId, resolveLegacyStorefrontHolder } from "../storefrontScope";
+import { toNumber } from "../../utils/money";
 
 export const updateCreatorProfile = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -225,7 +226,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       const nums = (arr as unknown[])
         .map((v) => Number(v))
         .filter((n) => Number.isFinite(n) && n > 0)
-        .map((n) => Math.round(n * 100) / 100);
+        .map((n) => toNumber(n, 2));
       if (nums.length > 5) {
         return errorResponseHelper(res, 400, "You can set at most 5 preset amounts.");
       }
@@ -246,7 +247,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       if (!Number.isFinite(min) || min < 10 || min > 1000000) {
         return errorResponseHelper(res, 400, "Minimum amount must be at least 10.");
       }
-      updates.support_widget_min_amount = Math.round(min * 100) / 100;
+      updates.support_widget_min_amount = toNumber(min, 2);
     }
     if (support_widget_allow_message !== undefined) {
       updates.support_widget_allow_message = Boolean(support_widget_allow_message);

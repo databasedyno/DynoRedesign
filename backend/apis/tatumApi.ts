@@ -7,6 +7,7 @@ import {
 } from "@tatumio/api-client";
 import { cronLogger } from "../utils/loggers";
 import { IGenerateUserAddressParams, virtualAccount } from "../utils/types";
+import { toAmountStr, toBaseUnits, toFixedStr, toNumber } from "../utils/money";
 // Phase 4: route Tatum/blockchain HTTP through the shared resilient client
 // (auto-retries transient GET failures; writes are never retried). See utils/tatumHttp.ts.
 import axios from "../utils/tatumHttp";
@@ -1135,13 +1136,11 @@ const feeEstimation = async (
           const tatumMediumBtc = Number(fees?.medium ?? 0);
           if (tatumFastBtc < minFeeBtc) {
             cronLogger.warn(
-              `[feeEstimation] 🚨 BTC Tatum fast=${tatumFastBtc} BTC (${Math.round(
-                tatumFastBtc * 1e8
-              )} sat) is BELOW mempool.space target ${targetSatPerVB} sat/vB × ${ESTIMATED_VSIZE} vB = ${minFeeSats} sat — flooring to ${minFeeBtc} BTC to prevent stuck settlement.`
+              `[feeEstimation] 🚨 BTC Tatum fast=${tatumFastBtc} BTC (${Number(toBaseUnits(tatumFastBtc))} sat) is BELOW mempool.space target ${targetSatPerVB} sat/vB × ${ESTIMATED_VSIZE} vB = ${minFeeSats} sat — flooring to ${minFeeBtc} BTC to prevent stuck settlement.`
             );
-            (fees as { fast?: string | number }).fast = minFeeBtc.toFixed(8);
+            (fees as { fast?: string | number }).fast = toFixedStr(minFeeBtc, 8);
             if (tatumMediumBtc < minFeeBtc) {
-              (fees as { medium?: string | number }).medium = minFeeBtc.toFixed(8);
+              (fees as { medium?: string | number }).medium = toFixedStr(minFeeBtc, 8);
             }
           } else {
             cronLogger.info(
@@ -1160,8 +1159,7 @@ const feeEstimation = async (
     const localAmount: number = Number(amount);
     // ERC-20 tokens (USDT/USDC/RLUSD) have 6 decimals; ETH has 18 — truncate to avoid BigNumber parse errors
     const decimals = isERC20 ? 6 : 8;
-    const factor = Math.pow(10, decimals);
-    const safeEstimateAmount = (Math.floor(localAmount * factor) / factor).toString();
+    const safeEstimateAmount = toAmountStr(localAmount, decimals);
     if (isERC20) {
       cronLogger.info(`[getGasFee] ${currency} amount for gas estimation: ${localAmount} → truncated to ${decimals} decimals: ${safeEstimateAmount}`);
     }
@@ -1207,9 +1205,9 @@ const feeEstimation = async (
     const { calculateUtxoTxSizeKb } = require('../services/chains/utxoChain');
     const bytes = calculateUtxoTxSizeKb(bchInputs, 2);
     fees = {
-      slow: (bytes * result).toFixed(8),
-      medium: (bytes * result).toFixed(8),
-      fast: (bytes * result * 1.2).toFixed(8), // 20% buffer on fast tier
+      slow: toFixedStr((bytes * result), 8),
+      medium: toFixedStr((bytes * result), 8),
+      fast: toFixedStr((bytes * result * 1.2), 8), // 20% buffer on fast tier
     };
   } else if (currency === "TRX") {
     // Dynamic TRX native fee: free with bandwidth, ~0.3 TRX otherwise (was hardcoded 10)
@@ -1279,7 +1277,7 @@ const feeEstimation = async (
         const totalFast = baseFee + priorityFeeSol * 2; // 2x median for fast
         const totalMedium = baseFee + priorityFeeSol;
         
-        cronLogger.info(`[feeEstimation] SOL dynamic: base=0.000005, priorityMedian=${medianPriorityFee} µ-lamports/CU, fast=${totalFast.toFixed(9)}, medium=${totalMedium.toFixed(9)}`);
+        cronLogger.info(`[feeEstimation] SOL dynamic: base=0.000005, priorityMedian=${medianPriorityFee} µ-lamports/CU, fast=${toFixedStr(totalFast, 9)}, medium=${toFixedStr(totalMedium, 9)}`);
         fees = {
           fast: Math.max(totalFast, 0.00001),    // Floor at 10k lamports
           medium: Math.max(totalMedium, 0.000005), // Floor at base fee
@@ -1308,8 +1306,7 @@ const feeEstimation = async (
     const isToken = currency === "USDT-POLYGON";
     const localAmount: number = Number(amount);
     const decimals = isToken ? 6 : 8;
-    const factor = Math.pow(10, decimals);
-    const safeEstimateAmount = (Math.floor(localAmount * factor) / factor).toString();
+    const safeEstimateAmount = toAmountStr(localAmount, decimals);
     try {
       // Get gas price from both Tatum SDK and RPC, use the higher one
       // Use withSdkFallback for Polygon gas estimation (SDK + RPC)
@@ -1420,8 +1417,7 @@ const batchFeeEstimation = async ({
       fromAddresses.map(async (fromAddress) => {
         // ERC-20 tokens (USDT/USDC/RLUSD) have 6 decimals — truncate to avoid BigNumber parse errors
         const sweepDecimals = isERC20 ? 6 : 8;
-        const sweepFactor = Math.pow(10, sweepDecimals);
-        const safeSweepAmount = (Math.floor(Number(amount) * sweepFactor) / sweepFactor).toString();
+        const safeSweepAmount = toAmountStr(amount, sweepDecimals);
         const gasFees = (await tatumSdk.fee.estimateFeeBlockchain({
           chain: chainId,
           type: isERC20 ? "TRANSFER_ERC20" : "TRANSFER_NFT",
@@ -1477,20 +1473,14 @@ const batchFeeEstimation = async ({
     cronLogger.info(`[EVM Gas] ⛽ Batch price: SDK=${gasFees?.gasPrice}, RPC=${rpcGasPrice}, used=${gasPrice}, buffered=${batchGasBuffer} Gwei (chain=${currency}, max=${maxBatchGas})`);
 
     fees = {
-      fast: Number(
-        Number(((batchGasBuffer) * gasFees?.gasLimit) / 1000000000) * totalAddress
-      ).toFixed(8),
+      fast: toFixedStr(Number(((batchGasBuffer) * gasFees?.gasLimit) / 1000000000) * totalAddress, 8),
       ...(!isERC20 && {
-        medium: Number(
-          Number(
+        medium: toFixedStr(Number(
             ((batchGasBuffer) * ((gasFees?.gasLimit * 50) / 100)) / 1000000000
-          ) * totalAddress
-        ).toFixed(8),
-        slow: Number(
-          Number(
+          ) * totalAddress, 8),
+        slow: toFixedStr(Number(
             ((batchGasBuffer) * ((gasFees?.gasLimit * 25) / 100)) / 1000000000
-          ) * totalAddress
-        ).toFixed(8),
+          ) * totalAddress, 8),
       }),
       gasPrice,
       gasLimit: isERC20
@@ -1513,9 +1503,9 @@ const batchFeeEstimation = async ({
     );
     const bytes = ((bchInputs + 1) * 148 + 2 * 34 + 10) / 1000;
     fees = {
-      slow: (bytes * result).toFixed(8),
-      medium: (bytes * result).toFixed(8),
-      fast: (bytes * result).toFixed(8),
+      slow: toFixedStr((bytes * result), 8),
+      medium: toFixedStr((bytes * result), 8),
+      fast: toFixedStr((bytes * result), 8),
     };
   } else if (currency === "TRX") {
     // Dynamic TRX native batch fee: free with bandwidth, ~0.3 TRX/tx otherwise (was 3.5/tx)
@@ -1569,10 +1559,7 @@ const assetToOtherAddress = async ({
   // CRITICAL: Uses Math.round (NOT Math.floor) to prevent off-by-one satoshi errors.
   // Math.floor truncates DOWN, which can lose 1 sat when JS floating-point represents
   // e.g. 34338/1e8 as 0.000343379999... → floor gives 34337 sats instead of 34338.
-  const truncateDecimals = (n: number, places: number = 8): number => {
-    const factor = Math.pow(10, places);
-    return Math.round(n * factor) / factor;
-  };
+  const truncateDecimals = (n: number, places: number = 8): number => toNumber(n, places);
   if (currency === "BTC") {
     // When toUTXO is provided (merchant + admin split), use multi-output; otherwise single output
     const btcOutputs = toUTXO.length > 0
@@ -1582,7 +1569,7 @@ const assetToOtherAddress = async ({
     const btcFee = typeof fee === 'object' && fee !== null
       ? (fee.slow || fee.medium || fee.fast || "0.00005")
       : fee;
-    const btcFeeStr = typeof btcFee === 'string' ? btcFee : String(Number(btcFee).toFixed(8));
+    const btcFeeStr = typeof btcFee === 'string' ? btcFee : String(toFixedStr(btcFee, 8));
     transaction = await tatumSdk.blockchain.bitcoin.btcTransferBlockchain({
       fromAddress: [{ address: fromAddress, privateKey }],
       to: btcOutputs,
@@ -1597,8 +1584,7 @@ const assetToOtherAddress = async ({
     // USDT/USDC ERC-20 have 6 decimals; ETH has 18 — truncate accordingly
     const isERC20Token = currency === "USDT-ERC20" || currency === "USDC-ERC20" || currency === "RLUSD-ERC20";
     const decimals = isERC20Token ? 6 : 8;
-    const factor = Math.pow(10, decimals);
-    const safeAmount = (Math.floor(Number(amount) * factor) / factor).toString();
+    const safeAmount = toAmountStr(amount, decimals);
     if (isERC20Token) {
       cronLogger.info(`[assetToOtherAddress] ${currency} amount: ${amount} → truncated to ${decimals} decimals: ${safeAmount}`);
     }
@@ -1632,11 +1618,11 @@ const assetToOtherAddress = async ({
     transaction = await tatumSdk.blockchain.tron.tronTransfer({
       fromPrivateKey: privateKey,
       to: toAddress,
-      amount: Number(amount).toFixed(8).toString(),
+      amount: toAmountStr(amount, 8),
     });
   } else if (currency === "USDT-TRC20") {
     // USDT TRC-20 has 6 decimals — truncate (not round) to avoid "callback is not defined" Tatum error
-    const truncatedAmount = (Math.floor(Number(amount) * 1e6) / 1e6).toString();
+    const truncatedAmount = toAmountStr(amount, 6);
     cronLogger.info(`[assetToOtherAddress] USDT-TRC20 amount: ${amount} → truncated to 6 decimals: ${truncatedAmount}`);
 
     // Dynamic feeLimit based on sender's Energy & current network price
@@ -1683,7 +1669,7 @@ const assetToOtherAddress = async ({
     cronLogger.warn(`[assetToOtherAddress] ⚠️ DEPRECATION: Using Tatum SDK for BSC transfer. For sweeps, use directEvmSweep().`);
     transaction = await tatumSdk.blockchain.bsc.bscBlockchainTransfer({
       currency,
-      amount: Number(amount).toFixed(8).toString(),
+      amount: toAmountStr(amount, 8),
       fromPrivateKey: privateKey,
       to: toAddress,
       fee: {
@@ -1700,7 +1686,7 @@ const assetToOtherAddress = async ({
     const dogeFee = typeof fee === 'object' && fee !== null
       ? (fee.slow || fee.medium || fee.fast || "0.00100")
       : fee;
-    const dogeFeeStr = typeof dogeFee === 'string' ? dogeFee : String(Number(dogeFee).toFixed(8));
+    const dogeFeeStr = typeof dogeFee === 'string' ? dogeFee : String(toFixedStr(dogeFee, 8));
     transaction = await tatumSdk.blockchain.doge.dogeTransferBlockchain({
       fromAddress: [{ address: fromAddress, privateKey }],
       to: dogeOutputs,
@@ -1717,7 +1703,7 @@ const assetToOtherAddress = async ({
       ? (fee.slow || fee.medium || fee.fast || "0.00005")
       : fee;
     // Ensure max 8 decimal places
-    const ltcFeeStr = typeof ltcFee === 'string' ? ltcFee : String(Number(ltcFee).toFixed(8));
+    const ltcFeeStr = typeof ltcFee === 'string' ? ltcFee : String(toFixedStr(ltcFee, 8));
     cronLogger.info(`[assetToOtherAddress] LTC fee: ${JSON.stringify(fee)} → resolved: ${ltcFeeStr}`);
     transaction = await tatumSdk.blockchain.ltc.ltcTransferBlockchain({
       fromAddress: [{ address: fromAddress, privateKey }],
@@ -1748,7 +1734,7 @@ const assetToOtherAddress = async ({
       : typeof fee === 'object' && fee !== null
         ? (fee.slow || fee.medium || fee.fast || "0.00001")
         : fee;
-    const bchFeeStr = typeof bchFee === 'string' ? bchFee : String(Number(bchFee).toFixed(8));
+    const bchFeeStr = typeof bchFee === 'string' ? bchFee : String(toFixedStr(bchFee, 8));
     cronLogger.info(`[assetToOtherAddress] BCH: changeAddress=${bchChangeAddress}, fee=${bchFeeStr}, fromUTXO=${normalizedFromUTXO.length}, toUTXO=${normalizedToUTXO.length}, toAddr=${normalizedToUTXO[0]?.address}`);
     // Try without fee+changeAddress first (let Tatum auto-calculate)
     // If that fails with dust, provide both
@@ -1761,7 +1747,7 @@ const assetToOtherAddress = async ({
     transaction = await tatumSdk.blockchain.solana.solanaBlockchainTransfer({
       from: fromAddress,
       to: toAddress,
-      amount: Number(amount).toFixed(9).toString(),
+      amount: toAmountStr(amount, 9),
       fromPrivateKey: privateKey,
     });
   } else if (currency === "XRP") {
@@ -1780,7 +1766,7 @@ const assetToOtherAddress = async ({
     transaction = await tatumSdk.blockchain.xrp.xrpTransferBlockchain({
       fromAccount: fromAddress,
       to: toAddress,
-      amount: Number(amount).toFixed(6).toString(),
+      amount: toAmountStr(amount, 6),
       fromSecret: privateKey,
       ...(resolvedDestTag !== undefined && { destinationTag: resolvedDestTag }),
     } as any);
@@ -1802,7 +1788,7 @@ const assetToOtherAddress = async ({
     transaction = await tatumSdk.blockchain.xrp.xrpTransferBlockchain({
       fromAccount: fromAddress,
       to: toAddress,
-      amount: Number(amount).toFixed(6).toString(),
+      amount: toAmountStr(amount, 6),
       fromSecret: privateKey,
       issuerAccount: rlusdIssuer,
       token: rlusdCurrencyHex,
@@ -1815,7 +1801,7 @@ const assetToOtherAddress = async ({
     transaction = await tatumSdk.blockchain.polygon.polygonBlockchainTransfer({
       fromPrivateKey: privateKey,
       to: toAddress,
-      amount: Number(amount).toFixed(8).toString(),
+      amount: toAmountStr(amount, 8),
       currency: "MATIC",
       fee: fee ? {
         gasPrice: Math.ceil(fee?.gasPrice).toString(),
@@ -1827,9 +1813,9 @@ const assetToOtherAddress = async ({
     // USDT on Polygon — use contract-address-based smart contract invocation
     // This is more reliable than currency-name-based transfer (no dependency on SDK naming)
     const usdtPolygonContract = process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-    const truncatedAmount = (Math.floor(Number(amount) * 1e6) / 1e6).toString();
+    const truncatedAmount = toAmountStr(amount, 6);
     // USDT on Polygon has 6 decimals
-    const amountInSmallestUnit = String(Math.floor(Number(truncatedAmount) * 1e6));
+    const amountInSmallestUnit = toBaseUnits(truncatedAmount, 6).toString();
     
     try {
       transaction = await tatumSdk.blockchain.polygon.polygonBlockchainSmartContractInvocation({
@@ -1883,7 +1869,7 @@ const assetBatchAddressesToOtherAddress = async ({
       })),
       to: toAddress.map((address) => ({
         ...address,
-        value: Number(Number(address.value).toFixed(8)),
+        value: toNumber(address.value, 8),
       })),
       fee,
       changeAddress: permanentUserWalletAddress
@@ -1900,7 +1886,7 @@ const assetBatchAddressesToOtherAddress = async ({
         })),
         to: toAddress.map((address) => ({
           ...address,
-          value: Number(Number(address.value).toFixed(8)),
+          value: toNumber(address.value, 8),
         })),
         fee,
         changeAddress: permanentUserWalletAddress
@@ -1928,7 +1914,7 @@ const assetBatchAddressesToOtherAddress = async ({
           cronLogger.info("####ETH Paylaod:", {
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
-            amount: Number(fromAddr.value).toFixed(8).toString(),
+            amount: toAmountStr(fromAddr.value, 8),
             fee: {
               gasPrice: Math.ceil(fee?.gasPrice).toString(),
               gasLimit: fee?.gasLimit.toString(),
@@ -1942,7 +1928,7 @@ const assetBatchAddressesToOtherAddress = async ({
               chain: "ETH",
               to: destinationAddress,
               contractAddress: process.env.RLUSD_ERC20_CONTRACT || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
-              amount: (Math.floor(Number(fromAddr.value) * 1e6) / 1e6).toString(),
+              amount: (toNumber(Number(fromAddr.value), 6, "down")).toString(),
               digits: 6,
               fromPrivateKey: fromAddr.privateKey,
               fee: {
@@ -1954,7 +1940,7 @@ const assetBatchAddressesToOtherAddress = async ({
             result = await tatumSdk.blockchain.eth.ethBlockchainTransfer({
               fromPrivateKey: fromAddr.privateKey,
               to: destinationAddress,
-              amount: Number(fromAddr.value).toFixed(8).toString(),
+              amount: toAmountStr(fromAddr.value, 8),
               fee: {
                 gasPrice: Math.ceil(fee?.gasPrice).toString(),
                 gasLimit: fee?.gasLimit.toString(),
@@ -1995,12 +1981,12 @@ const assetBatchAddressesToOtherAddress = async ({
           cronLogger.info("###TRX PAYLOAD: ", {
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
-            amount: Number(fromAddr.value).toFixed(8).toString(),
+            amount: toAmountStr(fromAddr.value, 8),
           });
           const result = await tatumSdk.blockchain.tron.tronTransfer({
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
-            amount: Number(fromAddr.value).toFixed(8).toString(),
+            amount: toAmountStr(fromAddr.value, 8),
           });
           cronLogger.info("###result", result);
           const ethTxId = isTransactionHash(result) ? result.txId : (result as SignatureId).signatureId;
@@ -2053,14 +2039,14 @@ const assetBatchAddressesToOtherAddress = async ({
       fromAddress.map(async (fromAddr) => {
         try {
           cronLogger.info("###USDT-TRC20 PAYLOAD: ", {
-            amount: Number(fromAddr.value).toFixed(2).toString(),
+            amount: toAmountStr(fromAddr.value, 2),
             feeLimit: batchFeeLimit,
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
             tokenAddress: process.env.TRX_CONTRACT,
           });
           const result = await tatumSdk.blockchain.tron.tronTransferTrc20({
-            amount: Number(fromAddr.value).toFixed(2).toString(),
+            amount: toAmountStr(fromAddr.value, 2),
             feeLimit: batchFeeLimit,
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
@@ -2099,7 +2085,7 @@ const assetBatchAddressesToOtherAddress = async ({
         try {
           cronLogger.info("#######BSC PAYLOAD ####", {
             currency,
-            amount: Number(fromAddr.value).toFixed(8).toString(),
+            amount: toAmountStr(fromAddr.value, 8),
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
             fee: {
@@ -2109,7 +2095,7 @@ const assetBatchAddressesToOtherAddress = async ({
           });
           const result = await tatumSdk.blockchain.bsc.bscBlockchainTransfer({
               currency,
-              amount: Number(fromAddr.value).toFixed(8).toString(),
+              amount: toAmountStr(fromAddr.value, 8),
               fromPrivateKey: fromAddr.privateKey,
               to: destinationAddress,
               fee: {
@@ -2151,7 +2137,7 @@ const assetBatchAddressesToOtherAddress = async ({
       })),
       to: toAddress.map((address) => ({
         ...address,
-        value: Number(Number(address.value).toFixed(8)),
+        value: toNumber(address.value, 8),
       })),
       fee,
       changeAddress: permanentUserWalletAddress
@@ -2165,7 +2151,7 @@ const assetBatchAddressesToOtherAddress = async ({
       })),
       to: toAddress.map((address) => ({
         ...address,
-        value: Number(Number(address.value).toFixed(8)),
+        value: toNumber(address.value, 8),
       })),
       fee,
       changeAddress: permanentUserWalletAddress
@@ -2189,7 +2175,7 @@ const assetBatchAddressesToOtherAddress = async ({
       })),
       to: toAddress.map((address) => ({
         ...address,
-        value: Number(Number(address.value).toFixed(8)),
+        value: toNumber(address.value, 8),
       })),
       fee,
       changeAddress: permanentUserWalletAddress
@@ -2203,7 +2189,7 @@ const assetBatchAddressesToOtherAddress = async ({
       })),
       to: toAddress.map((address) => ({
         ...address,
-        value: Number(Number(address.value).toFixed(8)),
+        value: toNumber(address.value, 8),
       })),
       fee,
       changeAddress: permanentUserWalletAddress

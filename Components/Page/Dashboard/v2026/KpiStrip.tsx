@@ -8,6 +8,7 @@ import { DeltaChip, CB_TOKENS } from "../coinbase/styled";
 import { StatCard } from "./styled";
 import { Icon, MONO } from "@/styles/uiKit";
 import useEdgeFade from "@/hooks/useEdgeFade";
+import { toFixedStr } from "@/utils/money";
 
 interface Props {
   stats: any;
@@ -173,7 +174,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
     : Number(stats?.todaySummary?.transactionsChangePercent ?? 0);
   const paymentsDeltaText = lowBaseline
     ? `${paymentsDiff > 0 ? "+" : ""}${paymentsDiff}`
-    : `${Math.abs(Number(stats?.todaySummary?.transactionsChangePercent ?? 0)).toFixed(1)}%`;
+    : `${toFixedStr(Math.abs(Number(stats?.todaySummary?.transactionsChangePercent ?? 0)), 1)}%`;
 
   const cards: Array<{
     key: string;
@@ -299,7 +300,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
             >
               <DeltaChip positive={c.delta >= 0} data-testid={`dash2026-kpi-${c.key}-delta`}>
                 <Icon name={c.delta >= 0 ? "arrow-up" : "arrow-down"} size={12} />
-                {c.deltaText ?? `${Math.abs(c.delta).toFixed(1)}%`}
+                {c.deltaText ?? `${toFixedStr(Math.abs(c.delta), 1)}%`}
               </DeltaChip>
               {c.deltaCaption && (
                 <Box

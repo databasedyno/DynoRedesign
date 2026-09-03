@@ -23,6 +23,7 @@ import { setRedisItemWithTTL, getRedisItem } from "../utils/redisInstance";
 import { captureError } from "./errorMonitoringService";
 import { getEffectiveProxyAgent, detectBinanceAccess, setProxyStateChangeCallback } from "./binanceService";
 import { cronLogger } from "../utils/loggers";
+import { toFixedStr, toNumber } from "../utils/money";
 
 // SOCKS5 proxy for bypassing geo-blocks — uses smart detection from binanceService
 // getEffectiveProxyAgent() returns the agent ONLY when proxy is actually needed (US deployment)
@@ -167,7 +168,7 @@ const connect = () => {
         pongTimeoutTimer = setTimeout(() => {
           if (ws && ws.readyState === WebSocket.OPEN) {
             const silenceMs = Date.now() - lastPongTime;
-            logWarn(`⏱️ Pong timeout (${(silenceMs / 1000).toFixed(0)}s since last pong) — forcing reconnect`);
+            logWarn(`⏱️ Pong timeout (${toFixedStr((silenceMs / 1000), 0)}s since last pong) — forcing reconnect`);
             ws.terminate(); // Force close, will trigger 'close' event → scheduleReconnect
           }
         }, 10000);
@@ -181,7 +182,7 @@ const connect = () => {
       if (ws && ws.readyState === WebSocket.OPEN && lastMessageTime > 0) {
         const silenceMs = Date.now() - lastMessageTime;
         if (silenceMs > 90 * 1000) {
-          logWarn(`📡 No data for ${(silenceMs / 1000).toFixed(0)}s — forcing reconnect (stale connection)`);
+          logWarn(`📡 No data for ${toFixedStr((silenceMs / 1000), 0)}s — forcing reconnect (stale connection)`);
           ws.terminate();
         }
       }
@@ -250,7 +251,7 @@ const scheduleReconnect = () => {
 
   if (!geoBlocked || reconnectAttempts % 5 === 1) {
     // Only log every 5th attempt when geo-blocked to reduce noise
-    log(`Reconnecting in ${(delay / 1000).toFixed(0)}s (attempt #${reconnectAttempts}${geoBlocked ? ", geo-blocked" : ""})...`);
+    log(`Reconnecting in ${toFixedStr((delay / 1000), 0)}s (attempt #${reconnectAttempts}${geoBlocked ? ", geo-blocked" : ""})...`);
   }
 
   reconnectTimer = setTimeout(() => {
@@ -290,7 +291,7 @@ const handleMiniTicker = (data: Record<string, unknown>) => {
     symbol,
     asset,
     price,
-    priceChangePercent: parseFloat(changePercent.toFixed(4)),
+    priceChangePercent: toNumber(changePercent, 4),
     volume: parseFloat(data.v as string || "0"),
     quoteVolume: parseFloat(data.q as string || "0"),
     updatedAt: Date.now(),
@@ -524,7 +525,7 @@ const restFetchPricesKraken = async (): Promise<void> => {
         symbol: `${asset}USDT`,
         asset,
         price,
-        priceChangePercent: parseFloat(changePercent.toFixed(4)),
+        priceChangePercent: toNumber(changePercent, 4),
         volume: priceCache[asset]?.volume || 0,
         quoteVolume: priceCache[asset]?.quoteVolume || 0,
         updatedAt: Date.now(),
@@ -564,7 +565,7 @@ const restFetchPricesCoinbase = async (): Promise<void> => {
       priceCache[asset] = {
         symbol: `${asset}USDT`,
         asset,
-        price: parseFloat(price.toFixed(8)),
+        price: toNumber(price, 8),
         priceChangePercent: priceCache[asset]?.priceChangePercent || 0,
         volume: priceCache[asset]?.volume || 0,
         quoteVolume: priceCache[asset]?.quoteVolume || 0,

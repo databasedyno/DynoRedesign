@@ -290,8 +290,15 @@ export const getCurrencyRates = async (
 ) => {
   try {
     const { source, amount, currencyList, fixedDecimal = true } = req.body;
+    if (typeof source !== "string" || !source.trim() || !Array.isArray(currencyList) || currencyList.length === 0 || currencyList.length > 50) {
+      return errorResponseHelper(res, 400, "source (string) and currencyList (1-50 currency codes) are required");
+    }
+    const numericAmount = Number(amount);
+    if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+      return errorResponseHelper(res, 400, "amount must be a non-negative number");
+    }
 
-    const currencyRateList = await convertToMultiple(source, currencyList, amount, fixedDecimal);
+    const currencyRateList = await convertToMultiple(source, currencyList, numericAmount, fixedDecimal);
 
     successResponseHelper(res, 200, "Currency rates retrieved successfully", currencyRateList);
   } catch (e) {

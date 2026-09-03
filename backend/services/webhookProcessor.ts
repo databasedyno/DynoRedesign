@@ -27,6 +27,7 @@ import { deliverMerchantWebhook } from "./outbox/merchantWebhookOutbox";
 import { WebhookJobData } from "./webhookQueue";
 import { validateTransition, parseState, PaymentState } from "./paymentStateMachine";
 import { Op } from "sequelize";
+import { toBaseUnits, toFixedStr } from "../utils/money";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ASSET VALIDATION — Prevent spam/scam token webhooks from corrupting payments
@@ -958,14 +959,14 @@ async function handleNewTransaction(
   // Bitcoin network fee rounding at the sender's wallet (e.g., 17 sats = $0.002).
   const shortfallRaw = expectedAmount - totalReceivedAmount;
   const shortfallPercentage = expectedAmount > 0 ? (shortfallRaw / expectedAmount) * 100 : 0;
-  const shortfallBaseUnits = Math.round(shortfallRaw * 1e8);
+  const shortfallBaseUnits = Number(toBaseUnits(shortfallRaw));
   const DUST_THRESHOLD_PERCENT = 0.1;   // 0.1% of expected amount
   const DUST_THRESHOLD_UNITS = 100;     // 100 satoshis/litoshis (≈$0.07 at $68k BTC)
   const isDustShortfall = shortfallRaw > 0
     && (shortfallPercentage <= DUST_THRESHOLD_PERCENT || shortfallBaseUnits <= DUST_THRESHOLD_UNITS);
 
   if (isDustShortfall) {
-    webhookLogs.info(`[WebhookProcessor] Dust shortfall accepted: ${shortfallBaseUnits} base units (${shortfallPercentage.toFixed(4)}%) — treating as full payment`);
+    webhookLogs.info(`[WebhookProcessor] Dust shortfall accepted: ${shortfallBaseUnits} base units (${toFixedStr(shortfallPercentage, 4)}%) — treating as full payment`);
   }
 
   const isUnderpayment = totalReceivedAmount < expectedAmount && expectedAmount > 0 && !isDustShortfall;
@@ -1070,7 +1071,7 @@ async function handleNewTransaction(
   }
 
   if (isMinorUnderpayment) {
-    webhookLogs.info(`[WebhookProcessor] Minor underpayment ($${underpaymentAmountUsd.toFixed(2)}) within threshold - accepting`);
+    webhookLogs.info(`[WebhookProcessor] Minor underpayment ($${toFixedStr(underpaymentAmountUsd, 2)}) within threshold - accepting`);
   }
 
   // ── CryptoVerification with retries ─────────────────────────────────────────

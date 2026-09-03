@@ -27,6 +27,7 @@ import { userModel } from "../../models/userModels";
 import { walletLogger } from "../../utils/loggers";
 import { sendWalletSudoOTPEmail } from "../../services/emailService";
 import { assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
+import { generateOtpCode } from "../../helper/otpGuard";
 
 // Bulk add/edit/delete lives in walletBatch.ts (kept separate for the 500-line budget).
 export { batchWalletMutate } from "./walletBatch";
@@ -122,7 +123,7 @@ export const requestWalletSudoOtp = async (
       );
     }
 
-    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const code = String(generateOtpCode());
     await setRedisItemWithTTL(
       sudoOtpKey(user_id),
       { hash: hashOtp(code), attempts: 0 },

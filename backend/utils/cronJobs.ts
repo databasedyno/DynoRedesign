@@ -103,7 +103,7 @@ export const setupWeeklySummaryCron = () => {
 
           const title = "Your Weekly Summary";
           const totalVolume = parseFloat(String(typedStats.total_volume));
-          const message = `This week you had ${typedStats.transaction_count} transactions with a total volume of $${totalVolume.toFixed(2)}. ${typedStats.completed_count} completed, ${typedStats.pending_count} pending.`;
+          const message = `This week you had ${typedStats.transaction_count} transactions with a total volume of $${toFixedStr(totalVolume, 2)}. ${typedStats.completed_count} completed, ${typedStats.pending_count} pending.`;
 
           await createNotification(
             Number(user.user_id),
@@ -127,7 +127,7 @@ export const setupWeeklySummaryCron = () => {
               periodStart,
               periodEnd,
               Number(typedStats.transaction_count || 0),
-              totalVolume.toFixed(2),
+              toFixedStr(totalVolume, 2),
               Number(typedStats.completed_count || 0),
               Number(typedStats.pending_count || 0),
               String(typedStats.top_currency || "None")
@@ -252,7 +252,7 @@ export const triggerWeeklySummary = async (userId?: number, options?: { dryRun?:
             Number(user.user_id),
             NOTIFICATION_TYPES.WEEKLY_SUMMARY,
             "Your Weekly Summary",
-            `This week you had ${typedStats.transaction_count} transactions with a total volume of $${totalVolume.toFixed(2)}.`,
+            `This week you had ${typedStats.transaction_count} transactions with a total volume of $${toFixedStr(totalVolume, 2)}.`,
             notificationData,
             Number(user.company_id)
           );
@@ -705,6 +705,7 @@ export { setupOnboardingMonitorCron, triggerOnboardingWalletNudge };
 import {
   setupFirstPaymentMonitorCron,
 } from "./crons/firstPaymentMonitor";
+import { toFixedStr } from "./money";
 export { setupFirstPaymentMonitorCron };
 
 export default {

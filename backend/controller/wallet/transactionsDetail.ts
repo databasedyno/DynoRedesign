@@ -73,6 +73,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { mul, toFixedStr } from "../../utils/money";
 
 export const getTransactionDetails = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -293,14 +294,14 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
         }
       }
       const rate = perUnitUsd.get(cur) || 0;
-      return rate > 0 ? amt * rate : null;
+      return rate > 0 ? mul(amt, rate).toNumber() : null;
     };
 
     const csvRowsArr: string[] = [];
     for (const tx of transactions as Array<Record<string, unknown>>) {
       const usd = await usdForRow(tx);
       const fiatValue =
-        usd != null ? (usd * fiatConversionRate).toFixed(2) : '';
+        usd != null ? toFixedStr((usd * fiatConversionRate), 2) : '';
       csvRowsArr.push(
         [
           tx.transaction_id || '',

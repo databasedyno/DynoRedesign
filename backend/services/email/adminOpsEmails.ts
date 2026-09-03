@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { toFixedStr } from "../../utils/money";
 
 /**
  * Template 28: Large Transaction Alert
@@ -240,14 +241,14 @@ export const sendTreasuryLowAlertEmail = async (
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow('Asset', `<strong>${escapeHtml(asset)}</strong>`)}
-          ${dataRow('Available', `${have.toFixed(2)} ${escapeHtml(asset)}`)}
-          ${dataRow('Required', `${need.toFixed(2)} ${escapeHtml(asset)}`)}
-          ${dataRow('Shortfall', `<strong style="color:#b91c1c;">${shortfall.toFixed(2)} ${escapeHtml(asset)}</strong>`)}
+          ${dataRow('Available', `${toFixedStr(have, 2)} ${escapeHtml(asset)}`)}
+          ${dataRow('Required', `${toFixedStr(need, 2)} ${escapeHtml(asset)}`)}
+          ${dataRow('Shortfall', `<strong style="color:#b91c1c;">${toFixedStr(shortfall, 2)} ${escapeHtml(asset)}</strong>`)}
           ${dataRow('Context', escapeHtml(context), true)}
         </table>
       `, '#f59e0b')}
       ${p(`The affected payout is <strong>safely waiting</strong> and will retry automatically once the Binance ${escapeHtml(asset)} balance is topped up. No funds were lost and nothing was marked failed.`)}
-      ${p(`<strong>Action:</strong> top up the Binance ${escapeHtml(asset)} balance to at least ${need.toFixed(2)} ${escapeHtml(asset)}.`)}`;
+      ${p(`<strong>Action:</strong> top up the Binance ${escapeHtml(asset)} balance to at least ${toFixedStr(need, 2)} ${escapeHtml(asset)}.`)}`;
 
     const html = dynoPayEmailTemplate(`Low ${asset} treasury`, `${p(`Hey Dynopay Admin,`)}\n${content}`);
     await mailTransporter({ to: recipientEmail, name: "Dynopay Admin", subject, body: html });

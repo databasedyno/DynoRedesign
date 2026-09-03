@@ -24,6 +24,34 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-06 (fork, pod 55c5e4b0): DEEP AUDIT — BUGS / SECURITY / PERF / CLEANUP — DONE + VERIFIED
+     (testing_agent iteration_119: backend 18/18 pass; frontend dashboard renders, kyc/status 3x -> 1x confirmed via
+     Playwright network capture after follow-up fix; BE tsc 0, FE tsc 0, eslint 0, jest redisInstance 42/42 +
+     webhookHandlers 26/26). Full ranked findings + "found but not changed" list: memory/AUDIT_2026-06.md.
+  P0 security: helper/otpGuard.ts (crypto.randomInt codes; 5-strike lockout via recordOtpFailure) wired into
+     passwordReset, registrationEmail (passwordless login!), contactEmail, profileSecurity, onboarding, authLogin;
+     12 Math.random OTP sites replaced. utils/outboundUrlGuard.ts SSRF guard (private/metadata/DNS-resolved) in
+     webhooks/index.ts (+maxRedirects:0) and PUT /company/webhook-settings. withdrawals.ts no longer logs OTPs.
+  P1 reliability: redisInstance cleanupStaleLocks was deleting PEER instances' cron locks (PID check on wrong host) ->
+     lock value now host:pid:ts, same-host-only cleanup, SCAN not KEYS. rateLimitMiddleware rewritten as atomic Lua
+     sliding window with TTL (old keys were permanent + racy), API keys hashed in key names. pending-notif markers
+     30d TTL (customer-* sessions intentionally NOT expired — they ARE the payment-link store). server.ts: JSON 404
+     for /api/*, headersSent guard in error handler. currencyConvert: FastForex circuit breaker (subscription lapsed).
+  P1 DB perf (boot migrations 0021/0022 in migrations/perfMigrations.ts, applied to prod): dropped 1,093 duplicate
+     unique indexes (tbl_publishable_key x789 etc., Sequelize alter:true bug) 1,323 -> 230; added hot-path indexes
+     on tbl_user_transaction/customer_transaction/notification/user_wallet/payment_link/company/kyc/api/user.email.
+  P2 FE: hooks/useKycStatus.ts single SWR entry (gate/badge/identity), waits for company store; contexts stable
+     EMPTY_LIST memo; axiosConfig console.log removed.
+  Cleanup: ~140 stray root/backend files -> /app/_archive (excluded in tsconfig/.dockerignore).
+  Audit tooling: backend/scripts/audit/*.cjs (redis TTL audit, db RTT/indexes, per-endpoint query counter).
+  FOLLOW-UP (same fork, user-approved): CRITICAL reset-password bypass fixed (getRedisItem `{}` truthiness →
+     any account resettable with bogus token) — see AUDIT_2026-06.md; prod Redis cleanup applied (−276 legacy
+     ratelimit, 445 pending-notif now expire); suspicious-activity emails (OTP lockout + login rate-limit trip,
+     6 locales, 1h dedup) via services/securityAlertService.ts; EXACT MONEY MATH everywhere: backend utils/money.ts
+     (decimal.js) + frontend utils/money.ts (BigInt), 778 rounding sites codemodded, core arithmetic hand-refactored,
+     checkout split extracted to controller/payment/checkoutMath.ts with property tests; before/after API snapshots
+     byte-identical. OPEN for user: FastForex subscription lapsed (renew or drop key). -->
+
 <!-- 2026-06 (fork): BLOG COVER REFRESH — DONE + VERIFIED (screenshots /blog + /blog/[slug]; 4/4 covers loaded, post
      cover 1200x630; tsc 0, eslint 0). utils/blogData.ts += getBlogCover(post) = coverImage || /og/blog-<slug>.png (the
      same branded share card). pages/blog/index.tsx: each card gets a 1200/630 cover on top (rounded 14px, lazy, hover

@@ -28,6 +28,7 @@ import {
   getUsdToFiatRate,
 } from "../utils/currencyUtils";
 import { EU_COUNTRIES, FALLBACK_TAX_RATES } from "../utils/taxData";
+import { add, mul, pct, sub, sum, toFixedStr, toNumber } from "../utils/money";
 
 /**
  * Resolve the flat (fixed) fee for a USD amount from the configured fee tiers.
@@ -130,7 +131,7 @@ export const computeInvoiceFigures = async (
   // `transaction_fee`). Both the crypto `base_amount` bug and the tier-gap
   // bug previously produced fixed_fee = $0.00 here.
   const fixedFeeUSD = resolveFixedFee(feeTiers, usdAmount);
-  const transactionFeeUSD = (usdAmount * transactionFeePercent) / 100;
+  const transactionFeeUSD = pct(usdAmount, transactionFeePercent).toNumber();
 
   // Calculate VAT (if applicable) — computed in USD, on Dynopay's SERVICE
   // revenue (fixed + %fee), unless INVOICE_VAT_ON_GROSS=true (legacy mode).
@@ -167,8 +168,8 @@ export const computeInvoiceFigures = async (
       const vatBaseUSD =
         envRaw("INVOICE_VAT_ON_GROSS") === "true"
           ? usdAmount
-          : fixedFeeUSD + transactionFeeUSD;
-      vatAmountUSD = (vatBaseUSD * vatRate) / 100;
+          : add(fixedFeeUSD, transactionFeeUSD).toNumber();
+      vatAmountUSD = pct(vatBaseUSD, vatRate).toNumber();
     }
   }
 
@@ -194,18 +195,20 @@ export const computeInvoiceFigures = async (
     }
   }
 
-  const displayBaseAmount = usdAmount * rate;
-  const displayFixedFee = fixedFeeUSD * rate;
-  const displayTransactionFee = transactionFeeUSD * rate;
-  const displayVatAmount = vatAmountUSD * rate;
+  // Exact fiat math, rounded to cents so the invoice lines always foot:
+  // service fee = fixed + %fee, total = service fee + VAT.
+  const displayBaseAmount = toNumber(mul(usdAmount, rate), 2);
+  const displayFixedFee = toNumber(mul(fixedFeeUSD, rate), 2);
+  const displayTransactionFee = toNumber(mul(transactionFeeUSD, rate), 2);
+  const displayVatAmount = toNumber(mul(vatAmountUSD, rate), 2);
 
   // v2 SEMANTICS:
   //   transaction_amount = the GROSS transaction amount (context, not summed)
   //   unit_price         = Dynopay's SERVICE REVENUE = fixed_fee + %fee
   //   total_usd          = unit_price + vat_amount (proper service-invoice math)
-  const displayServiceFee = displayFixedFee + displayTransactionFee;
+  const displayServiceFee = add(displayFixedFee, displayTransactionFee).toNumber();
   const unitPrice = displayServiceFee;
-  const totalAmount = displayServiceFee + displayVatAmount;
+  const totalAmount = add(displayServiceFee, displayVatAmount).toNumber();
 
   return {
     usdAmount,
@@ -269,7 +272,7 @@ const sanitizeInvoice = (invoiceData: Record<string, unknown>) => {
     invoice_version: version,
     vat_rate: invoiceData.vat_rate,
     vat_amount: invoiceData.vat_amount,
-    processing_fee: parseFloat(processingFee.toFixed(2)),
+    processing_fee: toNumber(processingFee, 2),
     total_usd: invoiceData.total_usd,
     total_crypto: invoiceData.total_crypto,
     crypto_currency: invoiceData.crypto_currency,
@@ -853,7 +856,7 @@ const downloadInvoicePDF = async (
           }
           if (recalcAmount > 0) {
             pdfData.unit_price = recalcAmount;
-            pdfData.total_usd = recalcAmount + parseFloat(pdfData.fixed_fee as string || "0") + parseFloat(pdfData.vat_amount as string || "0");
+            pdfData.total_usd = sum([recalcAmount, pdfData.fixed_fee as string, pdfData.vat_amount as string]).toNumber();
             // Also set crypto info from transaction if missing
             if (parseFloat((pdfData.total_crypto as string) || "0") === 0 && txData.crypto_amount) {
               pdfData.total_crypto = parseFloat(txData.crypto_amount);
@@ -1078,8 +1081,8 @@ const getTaxReport = async (
       .map(([key, val]) => ({
         period: key,
         period_label: val.period_label,
-        revenue: parseFloat((val.revenue * rate).toFixed(2)),
-        tax_collected: parseFloat((val.tax * rate).toFixed(2)),
+        revenue: toNumber(mul(val.revenue, rate), 2),
+        tax_collected: toNumber(mul(val.tax, rate), 2),
         invoice_count: val.count,
       }));
 
@@ -1088,15 +1091,15 @@ const getTaxReport = async (
       .map(([country, val]) => ({
         country,
         tax_rate: val.rate,
-        revenue: parseFloat((val.revenue * rate).toFixed(2)),
-        tax_collected: parseFloat((val.tax * rate).toFixed(2)),
+        revenue: toNumber(mul(val.revenue, rate), 2),
+        tax_collected: toNumber(mul(val.tax, rate), 2),
         invoice_count: val.count,
       }));
 
     successResponseHelper(res, 200, "Tax report generated", {
       summary: {
-        total_revenue: parseFloat((totalRevenue * rate).toFixed(2)),
-        total_tax: parseFloat((totalTax * rate).toFixed(2)),
+        total_revenue: toNumber(mul(totalRevenue, rate), 2),
+        total_tax: toNumber(mul(totalTax, rate), 2),
         total_invoices: invoiceData.length,
         period: {
           start: start_date || "all time",
@@ -1218,7 +1221,7 @@ const exportTaxReportCSV = async (
         // `unit_price` (service revenue); math check: total_usd - vat_amount
         // = (unit_price + vat_amount) - vat_amount = unit_price. For v1 it
         // stays the legacy `total_usd - vat_amount` semantic.
-        const subtotalUsd = totalUsd - vatUsd;
+        const subtotalUsd = sub(totalUsd, vatUsd).toNumber();
 
         return [
           d.invoice_number,
@@ -1226,11 +1229,11 @@ const exportTaxReportCSV = async (
           `"${companyName}"`,
           `"${d.customer_name || ""}"`,
           `"${(d.description || "").replace(/"/g, '""')}"`,
-          (subtotalUsd * rate).toFixed(2),
-          parseFloat(d.vat_rate || 0).toFixed(2),
-          (vatUsd * rate).toFixed(2),
-          (feeUsd * rate).toFixed(2),
-          (totalUsd * rate).toFixed(2),
+          toFixedStr(mul(subtotalUsd, rate), 2),
+          toFixedStr(d.vat_rate || 0, 2),
+          toFixedStr(mul(vatUsd, rate), 2),
+          toFixedStr(mul(feeUsd, rate), 2),
+          toFixedStr(mul(totalUsd, rate), 2),
           displayCurrency,
           d.crypto_currency || "USD",
         ].join(",");

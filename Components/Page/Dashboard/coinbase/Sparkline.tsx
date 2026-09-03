@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { CB_TOKENS } from "./styled";
+import { toFixedStr } from "@/utils/money";
 
 /**
  * Sparkline — Coinbase-style thin area chart used inside the KPI hero.
@@ -26,10 +27,10 @@ interface SparklineProps {
 const formatValue = (v: number, symbol = "$"): string => {
   if (!Number.isFinite(v)) return `${symbol}0`;
   const abs = Math.abs(v);
-  if (abs >= 1_000_000) return `${symbol}${(v / 1_000_000).toFixed(2)}M`;
-  if (abs >= 1_000) return `${symbol}${(v / 1_000).toFixed(2)}k`;
-  if (abs >= 1) return `${symbol}${v.toFixed(2)}`;
-  return `${symbol}${v.toFixed(4)}`;
+  if (abs >= 1_000_000) return `${symbol}${toFixedStr((v / 1_000_000), 2)}M`;
+  if (abs >= 1_000) return `${symbol}${toFixedStr((v / 1_000), 2)}k`;
+  if (abs >= 1) return `${symbol}${toFixedStr(v, 2)}`;
+  return `${symbol}${toFixedStr(v, 4)}`;
 };
 
 const CustomTooltip: React.FC<any> = ({ active, payload, label, currencySymbol }) => {

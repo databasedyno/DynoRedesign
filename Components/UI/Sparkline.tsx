@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
+import { toFixedStr } from "@/utils/money";
 
 interface SparklineProps {
   /** Daily datapoints, oldest → newest. Falsy / non-numeric entries render as 0. */
@@ -67,12 +68,12 @@ const Sparkline: React.FC<SparklineProps> = ({
       return [x, y] as const;
     });
     const p = coords
-      .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`)
+      .map(([x, y], i) => `${i === 0 ? "M" : "L"}${toFixedStr(x, 2)},${toFixedStr(y, 2)}`)
       .join(" ");
     // Area path: line + close to baseline for the subtle fill under the line.
     const a =
-      `${p} L${(coords[coords.length - 1][0]).toFixed(2)},${(height - yPad).toFixed(2)}` +
-      ` L${coords[0][0].toFixed(2)},${(height - yPad).toFixed(2)} Z`;
+      `${p} L${toFixedStr((coords[coords.length - 1][0]), 2)},${toFixedStr((height - yPad), 2)}` +
+      ` L${toFixedStr(coords[0][0], 2)},${toFixedStr((height - yPad), 2)} Z`;
     return { path: p, area: a, max: maxV, allZero: maxV === 0 };
   }, [safe, width, height]);
 

@@ -1,3 +1,4 @@
+import { toNumber } from "../../utils/money";
 /**
  * Refund chain metadata + PURE helper functions.
  *
@@ -18,7 +19,7 @@ export type RefundStatus =
 
 /** Round to 8 decimal places (crypto precision), avoiding FP drift. */
 export const round8 = (n: number): number =>
-  Math.round((Number(n) + Number.EPSILON) * 1e8) / 1e8;
+  toNumber((Number(n) + Number.EPSILON), 8);
 
 /**
  * Chain metadata for every asset the checkout/sweep rails support.

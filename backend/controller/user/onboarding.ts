@@ -31,6 +31,8 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { generateOtpCode, recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
+import { clientIp } from "../../middleware/rateLimitMiddleware";
 
 export const getOnboardingStatus = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -317,7 +319,8 @@ export const verifyEmail = async (req: express.Request, res: express.Response) =
     const storedOtp = (storedData as Record<string, unknown>).otp;
     if (String(storedOtp) !== String(otp)) {
       await deleteRedisItem(verifyLockKey);
-      return errorResponseHelper(res, 400, "Invalid verification code. Please try again.");
+      const locked = await recordOtpFailure(verifyKey, storedData as Record<string, unknown>, undefined, { email: userData.email, ip: clientIp(req), channel: "onboarding" });
+      return errorResponseHelper(res, 400, locked ? otpLockedMessage : "Invalid verification code. Please try again.");
     }
 
     // OTP matches — mark email as verified
@@ -382,7 +385,7 @@ export const resendVerification = async (req: express.Request, res: express.Resp
     // Generate new OTP
     const email = user.dataValues.email;
     const name = user.dataValues.name || "User";
-    const verifyOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyOtp = generateOtpCode().toString();
 
     // Store OTP with 10 min TTL
     const verifyKey = `email-verify:${userId}`;

@@ -18,6 +18,7 @@ import {
   convertToFiat,
   convertToUSD,
 } from "./currencyUtils";
+import { toFixedStr } from "./money";
 
 // Crypto currency codes handled by the platform. Anything matching these (or
 // containing a network suffix like "-TRC20"/"-ERC20", or a conversion arrow)
@@ -102,7 +103,7 @@ export const buildPaymentReceivedDisplay = async (params: {
 
   if (usd > 0) {
     const { amount, currency } = await toMerchantCurrency(usd, merchantCurrency);
-    return { fiatAmount: amount.toFixed(2), fiatCurrency: currency, cryptoAmount, cryptoCurrency };
+    return { fiatAmount: toFixedStr(amount, 2), fiatCurrency: currency, cryptoAmount, cryptoCurrency };
   }
 
   // 3) LAST RESORT: the priced fiat base amount (never a crypto value).
@@ -121,7 +122,7 @@ export const buildPaymentReceivedDisplay = async (params: {
         /* keep original */
       }
     }
-    return { fiatAmount: amt.toFixed(2), fiatCurrency: cur, cryptoAmount, cryptoCurrency };
+    return { fiatAmount: toFixedStr(amt, 2), fiatCurrency: cur, cryptoAmount, cryptoCurrency };
   }
 
   // Nothing reliable — never surface a bogus fiat number.

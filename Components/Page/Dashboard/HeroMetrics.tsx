@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { brandFg } from "@/constants/theme";
+import { toFixedStr } from "@/utils/money";
 
 /**
  * Stagger animation config (added 2026-07-09).
@@ -158,10 +159,10 @@ const Sparkline: React.FC<SparklineProps> = ({
 
   const points = values.map((v, i) => [i * stepX, toY(v)] as const);
   const pathD = points
-    .map(([x, y], i) => (i === 0 ? `M${x.toFixed(2)},${y.toFixed(2)}` : `L${x.toFixed(2)},${y.toFixed(2)}`))
+    .map(([x, y], i) => (i === 0 ? `M${toFixedStr(x, 2)},${toFixedStr(y, 2)}` : `L${toFixedStr(x, 2)},${toFixedStr(y, 2)}`))
     .join(" ");
   // Fill path continues down to the baseline and back to start
-  const areaD = `${pathD} L${((values.length - 1) * stepX).toFixed(2)},${height} L0,${height} Z`;
+  const areaD = `${pathD} L${toFixedStr(((values.length - 1) * stepX), 2)},${height} L0,${height} Z`;
 
   const trending = values[values.length - 1] - values[0];
   const isUp = trending > 0;
@@ -194,8 +195,8 @@ const Sparkline: React.FC<SparklineProps> = ({
       />
       {/* Trailing dot on the last point — anchors the eye to "now" */}
       <circle
-        cx={((values.length - 1) * stepX).toFixed(2)}
-        cy={toY(values[values.length - 1]).toFixed(2)}
+        cx={toFixedStr(((values.length - 1) * stepX), 2)}
+        cy={toFixedStr(toY(values[values.length - 1]), 2)}
         r={2.25}
         fill={resolvedStroke}
       />
@@ -251,7 +252,7 @@ const DeltaChip: React.FC<{ change: number }> = ({ change }) => {
       }}
     >
       <Arrow sx={{ fontSize: 12 }} />
-      {Math.abs(change).toFixed(1)}%
+      {toFixedStr(Math.abs(change), 1)}%
     </Box>
   );
 };

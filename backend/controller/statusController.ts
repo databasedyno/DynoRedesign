@@ -8,6 +8,7 @@ import monitoringService from "../services/monitoringService";
 // serviceHealthModel import removed - not used
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import { getServiceUptime, getAllServicesUptime, getUptimeChart } from "./status/uptimeController";
+import { toFixedStr } from "../utils/money";
 
 // Cache TTL for status data (60 seconds - health checks run in background)
 const STATUS_CACHE_TTL = 60;
@@ -117,7 +118,7 @@ const getServicesStatus = async (_req: express.Request, res: express.Response) =
           id: service.id,
           name: service.name,
           status: current?.status || "unknown",
-          uptime: `${uptimeData.uptime_percentage.toFixed(2)}%`,
+          uptime: `${toFixedStr(uptimeData.uptime_percentage, 2)}%`,
           uptime_value: uptimeData.uptime_percentage,
           latency_ms: current?.latency_ms || 0,
           degraded_ms: service.degraded_ms,
@@ -158,7 +159,7 @@ const getServiceStatus = async (req: express.Request, res: express.Response) => 
       id: service.id,
       name: service.name,
       status: current?.status || "unknown",
-      uptime: `${uptimeData.uptime_percentage.toFixed(2)}%`,
+      uptime: `${toFixedStr(uptimeData.uptime_percentage, 2)}%`,
       uptime_value: uptimeData.uptime_percentage,
       latency_ms: current?.latency_ms || 0,
       total_checks: uptimeData.total_checks,

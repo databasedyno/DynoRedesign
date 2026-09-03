@@ -15,6 +15,7 @@ import { ethers } from "ethers";
 import { cronLogger } from "../../utils/loggers";
 import { TOKEN_CONTRACTS } from "./merchantPoolConfig";
 import { TATUM_V3_URL, getTatumApiKey } from "../../utils/tatumAuth";
+import { toNumber } from "../../utils/money";
 
 const LOG_PREFIX = "[DirectEvmSweep]";
 
@@ -304,7 +305,7 @@ export async function directEvmSweep(params: {
       } else {
         // Native transfer (ETH or POLYGON/POL)
         const truncatedAmount =
-          Math.floor(params.amount * 1e8) / 1e8;
+          toNumber(params.amount, 8, "down");
         const value = ethers.parseEther(truncatedAmount.toString());
 
         tx = {

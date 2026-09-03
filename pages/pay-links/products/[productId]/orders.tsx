@@ -27,6 +27,7 @@ import { pageProps } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
 import { useRefundMap, RefundStatusChip } from "@/Components/Page/Refund/refundStatus";
+import { toFixedStr } from "@/utils/money";
 
 const CRYPTO_REFUNDS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS === "true";
@@ -186,7 +187,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
                       </Typography>
                     </Box>
                     <Typography sx={{ fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>
-                      {(o.total_cents / 100).toFixed(2)} {o.currency}
+                      {toFixedStr((o.total_cents / 100), 2)} {o.currency}
                     </Typography>
                     <Chip
                       size="small"

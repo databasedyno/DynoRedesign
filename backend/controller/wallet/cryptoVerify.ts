@@ -74,6 +74,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { toFixedStr, toNumber } from "../../utils/money";
 
 export const verifyCryptoPayment = async (
   req: express.Request,
@@ -135,9 +136,7 @@ export const verifyCryptoPayment = async (
 
       await incrementAdminFee(tempData.currency, platformCharge + blockchainCharge);
 
-      const userSettledAmount = Number(
-        Number(receivedAmount) - platformCharge - blockchainCharge
-      ).toFixed(8);
+      const userSettledAmount = toFixedStr(Number(receivedAmount) - platformCharge - blockchainCharge, 8);
 
       walletLogger.info("settled amount", { userSettledAmount });
 
@@ -155,9 +154,7 @@ export const verifyCryptoPayment = async (
             )
           )?.slow;
 
-          sendAmount = Number(
-            Number(Number(receivedAmount) - Number(fees)).toFixed(8)
-          );
+          sendAmount = toNumber(Number(receivedAmount) - Number(fees), 8);
         }
 
         if (["ETH", "BSC", "USDT-ERC20"].indexOf(tempData.currency) !== -1) {
@@ -168,9 +165,7 @@ export const verifyCryptoPayment = async (
             Number(receivedAmount)
           ) as { slow?: string | number };
 
-          sendAmount = Number(
-            Number(receivedAmount) - Number((fees as { slow?: string | number })?.slow || 0)
-          ).toFixed(8);
+          sendAmount = toFixedStr(Number(receivedAmount) - Number((fees as { slow?: string | number })?.slow || 0), 8);
         }
 
         if (tempData.currency === "BCH") {
@@ -180,11 +175,11 @@ export const verifyCryptoPayment = async (
             adminWalletAddress,
             Number(receivedAmount)
           ) as { slow?: string | number };
-          sendAmount = (
+          sendAmount = toFixedStr((
             Number(receivedAmount) -
             Number((fees as { slow?: string | number })?.slow || 0) -
             0.00005
-          ).toFixed(8);
+          ), 8);
         }
 
         walletLogger.info(fees);

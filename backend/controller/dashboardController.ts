@@ -18,6 +18,7 @@ import { resolveTransactionSource } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { deriveTxDisplayStatus, isPaymentDetected, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";
 import { getVolumeTiers } from "../utils/volumeTierUtils";
+import { add, mul, toNumber } from "../utils/money";
 
 /**
  * Convert per-currency volume rows to a single target fiat amount.
@@ -42,7 +43,7 @@ async function convertVolumesToFiat(
       apiLogger.warn(`[Dashboard] convertToFiat failed for ${currency} -> ${targetCurrency}, skipping ${rawVolume}`);
     }
   }
-  return Math.round(total * 100) / 100;
+  return toNumber(total, 2);
 }
 
 // Cache TTL for dashboard data (30 seconds)
@@ -79,9 +80,9 @@ const getFeeTier = (monthlyVolumeUSD: number, displayCurrency: string = 'USD', c
   const nextTier = tiers.find(t => t.min > monthlyVolumeUSD);
   
   // Convert thresholds to display currency
-  const displayVolume = Math.round(monthlyVolumeUSD * conversionRate * 100) / 100;
+  const displayVolume = toNumber(monthlyVolumeUSD * conversionRate, 2);
   const displayThreshold = tier.max === Number.POSITIVE_INFINITY ? null : Math.round(tier.max * conversionRate);
-  const displayAmountToNext = nextTier ? Math.round((nextTier.min - monthlyVolumeUSD) * conversionRate * 100) / 100 : 0;
+  const displayAmountToNext = nextTier ? toNumber((nextTier.min - monthlyVolumeUSD) * conversionRate, 2) : 0;
   const currencySymbol = getCurrencySymbol(displayCurrency);
   
   return {
@@ -93,7 +94,7 @@ const getFeeTier = (monthlyVolumeUSD: number, displayCurrency: string = 'USD', c
     monthly_volume_usd: monthlyVolumeUSD, // Always include USD for reference
     tier_threshold: displayThreshold,
     tier_threshold_formatted: displayThreshold ? `${currencySymbol}${displayThreshold.toLocaleString()} ${displayCurrency}` : 'Unlimited',
-    percent_complete: tier.max === Number.POSITIVE_INFINITY ? 100 : Math.round((monthlyVolumeUSD / tier.max) * 100 * 10) / 10,
+    percent_complete: tier.max === Number.POSITIVE_INFINITY ? 100 : toNumber((monthlyVolumeUSD / tier.max) * 100, 1),
     amount_to_next_tier: displayAmountToNext,
     amount_to_next_tier_formatted: nextTier ? `${currencySymbol}${displayAmountToNext.toLocaleString()} ${displayCurrency}` : null,
     next_tier: nextTier?.displayName || null,
@@ -108,7 +109,7 @@ const getFeeTier = (monthlyVolumeUSD: number, displayCurrency: string = 'USD', c
  */
 const calculateChange = (current: number, previous: number): number => {
   if (previous === 0) return current > 0 ? 100 : 0;
-  return Math.round(((current - previous) / previous) * 100 * 10) / 10;
+  return toNumber(((current - previous) / previous) * 100, 1);
 };
 
 /**
@@ -246,14 +247,14 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     let todayVolumeUSD = parseFloat(String(volumeRow.today_usd_value || '0'));
     let yesterdayVolumeUSD = parseFloat(String(volumeRow.yesterday_usd_value || '0'));
     // Session 57: tax collected (stored in transaction currency; best-effort glance figure)
-    const totalTaxCollected = Math.round(parseFloat(String(volumeRow.total_tax || '0')) * 100) / 100;
-    const currentMonthTaxCollected = Math.round(parseFloat(String(volumeRow.current_month_tax || '0')) * 100) / 100;
+    const totalTaxCollected = toNumber(parseFloat(String(volumeRow.total_tax || '0')), 2);
+    const currentMonthTaxCollected = toNumber(parseFloat(String(volumeRow.current_month_tax || '0')), 2);
     
-    totalVolumeUSD = Math.round(totalVolumeUSD * 100) / 100;
-    currentVolumeUSD = Math.round(currentVolumeUSD * 100) / 100;
-    lastVolumeUSD = Math.round(lastVolumeUSD * 100) / 100;
-    todayVolumeUSD = Math.round(todayVolumeUSD * 100) / 100;
-    yesterdayVolumeUSD = Math.round(yesterdayVolumeUSD * 100) / 100;
+    totalVolumeUSD = toNumber(totalVolumeUSD, 2);
+    currentVolumeUSD = toNumber(currentVolumeUSD, 2);
+    lastVolumeUSD = toNumber(lastVolumeUSD, 2);
+    todayVolumeUSD = toNumber(todayVolumeUSD, 2);
+    yesterdayVolumeUSD = toNumber(yesterdayVolumeUSD, 2);
     
     // Convert from USD to preferred currency if needed
     let totalVolume = totalVolumeUSD;
@@ -264,11 +265,11 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     
     if (preferredCurrency !== 'USD' && totalVolumeUSD > 0) {
       const { rate } = await convertToFiat('USD', preferredCurrency, 1);
-      totalVolume = Math.round(totalVolumeUSD * rate * 100) / 100;
-      currentVolume = Math.round(currentVolumeUSD * rate * 100) / 100;
-      lastVolume = Math.round(lastVolumeUSD * rate * 100) / 100;
-      todayVolume = Math.round(todayVolumeUSD * rate * 100) / 100;
-      yesterdayVolume = Math.round(yesterdayVolumeUSD * rate * 100) / 100;
+      totalVolume = toNumber(mul(totalVolumeUSD, rate), 2);
+      currentVolume = toNumber(mul(currentVolumeUSD, rate), 2);
+      lastVolume = toNumber(mul(lastVolumeUSD, rate), 2);
+      todayVolume = toNumber(mul(todayVolumeUSD, rate), 2);
+      yesterdayVolume = toNumber(mul(yesterdayVolumeUSD, rate), 2);
     }
 
     // Fee tier needs USD volume — use stored usd_value total (already in USD)
@@ -539,7 +540,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
 
     const formattedChartData = Object.entries(dateAgg).map(([date, d]) => ({
       date,
-      volume: Math.round(d.volume * 100) / 100,
+      volume: toNumber(d.volume, 2),
       transaction_count: d.transaction_count,
     })).sort((a, b) => a.date.localeCompare(b.date));
 
@@ -555,21 +556,21 @@ const getChartData = async (req: express.Request, res: express.Response) => {
       return {
         currency: cur,
         count: parseInt(String(c.count || '0')),
-        volume: Math.round(convertedVol * 100) / 100,
+        volume: toNumber(convertedVol, 2),
       };
     });
 
     // ── Period summary + previous-period comparison (in preferred currency) ──
     const currentUsd = (currencyBreakdownRaw as Array<Record<string, unknown>>)
-      .reduce((s, c) => s + parseFloat(String(c.usd_volume || '0')), 0);
+      .reduce((s, c) => add(s, String(c.usd_volume || 0)).toNumber(), 0);
     const currentCount = (currencyBreakdownRaw as Array<Record<string, unknown>>)
       .reduce((s, c) => s + parseInt(String(c.count || '0')), 0);
     const prevRow = (previousSummaryRaw as Array<Record<string, unknown>>)[0] || {};
     const prevUsd = parseFloat(String(prevRow.usd_volume || '0'));
     const prevCount = parseInt(String(prevRow.count || '0'));
 
-    const currentVolPref = Math.round(currentUsd * chartUsdToPreferredRate * 100) / 100;
-    const prevVolPref = Math.round(prevUsd * chartUsdToPreferredRate * 100) / 100;
+    const currentVolPref = toNumber(currentUsd * chartUsdToPreferredRate, 2);
+    const prevVolPref = toNumber(prevUsd * chartUsdToPreferredRate, 2);
     const pctChange = (cur: number, prev: number): number => {
       if (prev > 0) return Math.round(((cur - prev) / prev) * 10000) / 100;
       if (cur > 0) return 100;
@@ -750,7 +751,7 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
       }
     ) as Array<Record<string, unknown>>;
 
-    const allTimeVolumeUSD = Math.round(parseFloat(String(volumeResult[0]?.total_usd_volume || '0')) * 100) / 100;
+    const allTimeVolumeUSD = toNumber(parseFloat(String(volumeResult[0]?.total_usd_volume || '0')), 2);
     
     // Get conversion rate if not USD
     if (preferredCurrency !== 'USD') {
@@ -1434,7 +1435,7 @@ const getPendingSummary = async (req: express.Request, res: express.Response) =>
         }
       }
       const rate = perUnitUsd.get(cur) || 0;
-      return rate > 0 ? amt * rate : 0;
+      return rate > 0 ? mul(amt, rate).toNumber() : 0;
     };
 
     let total = 0;
@@ -1452,13 +1453,13 @@ const getPendingSummary = async (req: express.Request, res: express.Response) =>
         customer_name: tx.customer_name,
         customer_email: tx.customer_email,
         createdAt: tx.createdAt,
-        usd_value: usd > 0 ? Math.round(usd * 100) / 100 : null,
+        usd_value: usd > 0 ? toNumber(usd, 2) : null,
       });
     }
 
     successResponseHelper(res, 200, "Pending summary retrieved", {
       count: transactions.length,
-      total_usd: Math.round(total * 100) / 100,
+      total_usd: toNumber(total, 2),
       transactions,
     });
   } catch (e) {

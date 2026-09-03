@@ -10,6 +10,7 @@ import {
   MERCHANT_POOL_CRYPTO_TYPES,
 } from "../../models";
 import { POOL_CONFIG, getSweepConfig } from "./merchantPoolConfig";
+import { sum } from "../../utils/money";
 
 /**
  * Record pool transaction for audit
@@ -82,7 +83,7 @@ export const getPoolStatus = async (userId?: number): Promise<unknown> => {
 
   const result: Record<string, unknown> = {};
   for (const [type, addrs] of Object.entries(byType)) {
-    const totalFees = addrs.reduce((sum, a) => sum + parseFloat(String(a.admin_fee_balance || 0)), 0);
+    const totalFees = sum(addrs.map((a) => String(a.admin_fee_balance || 0))).toNumber();
     result[type] = {
       addresses: addrs,
       totalAddresses: addrs.length,

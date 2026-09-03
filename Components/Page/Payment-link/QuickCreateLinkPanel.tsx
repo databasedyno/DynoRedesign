@@ -38,6 +38,7 @@ import { copyToClipboard } from "@/helpers/copyToClipboard";
 import { toShortPayLink, extractPayRef } from "@/helpers/payLinkUrl";
 import { downloadQrPng } from "@/helpers/downloadQrPng";
 import { MONO } from "@/styles/uiKit";
+import { toFixedStr } from "@/utils/money";
 
 const FIAT_OPTIONS = ["USD", "EUR", "GBP"] as const;
 
@@ -47,7 +48,7 @@ const fmtAmount = (value: string, currency: string) => {
   try {
     return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(n);
   } catch {
-    return `${currency} ${n.toFixed(2)}`;
+    return `${currency} ${toFixedStr(n, 2)}`;
   }
 };
 

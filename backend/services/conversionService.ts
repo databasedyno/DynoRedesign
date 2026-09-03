@@ -23,6 +23,7 @@ import companyModel from "../models/companyModels/companyModel";
 import { sendAutoConversionPayoutEmail, sendWeeklyConversionSummaryEmail } from "../helper/sendEmail";
 import { alertTreasuryLow } from "../utils/treasuryAlert";
 import { dispatchCompanyEmail } from "./email/companyDispatch";
+import { add, mul, pct, sub, sum, toFixedStr, toNumber } from "../utils/money";
 
 const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours of patience for slow chains (BTC)
 
@@ -205,24 +206,24 @@ const processPendingDeposits = async (): Promise<number> => {
         } else {
           // Increment retry counter if deposit not found at all after some time
           const ageMinutes = (Date.now() - new Date(data.createdAt).getTime()) / 60000;
-          log(`[DEBUG] No deposit found for #${data.conversion_id}, age=${ageMinutes.toFixed(1)}min, pendingDeposits=${pendingDeposits.length}`);
+          log(`[DEBUG] No deposit found for #${data.conversion_id}, age=${toFixedStr(ageMinutes, 1)}min, pendingDeposits=${pendingDeposits.length}`);
 
           // FIX BUG-1: Detect stuck conversions where sweep failed (balance is dust)
           // If conversion is old enough and no deposit found on Binance, check if sweep failed
           if (ageMinutes > 60 && data.retry_count >= 5) {
-            log(`⚠️ BUG-1 FIX: Conversion #${data.conversion_id} stuck for ${ageMinutes.toFixed(0)}min with ${data.retry_count} retries — likely sweep failure (funds never reached Binance)`);
+            log(`⚠️ BUG-1 FIX: Conversion #${data.conversion_id} stuck for ${toFixedStr(ageMinutes, 0)}min with ${data.retry_count} retries — likely sweep failure (funds never reached Binance)`);
             // Mark with descriptive error so admin can investigate
             await record.update({
               retry_count: data.retry_count + 1,
               last_retry_at: new Date(),
-              error_message: `Sweep likely failed: deposit not found on Binance after ${ageMinutes.toFixed(0)} minutes and ${data.retry_count + 1} retries. Check if source address was swept successfully.`,
+              error_message: `Sweep likely failed: deposit not found on Binance after ${toFixedStr(ageMinutes, 0)} minutes and ${data.retry_count + 1} retries. Check if source address was swept successfully.`,
             });
           } else if (ageMinutes > 30) {
             await record.update({
               retry_count: data.retry_count + 1,
               last_retry_at: new Date(),
             });
-            log(`⚠️ Deposit not found for conversion #${data.conversion_id} after ${ageMinutes.toFixed(0)}min (retry ${data.retry_count + 1}/${MAX_RETRIES})`);
+            log(`⚠️ Deposit not found for conversion #${data.conversion_id} after ${toFixedStr(ageMinutes, 0)}min (retry ${data.retry_count + 1}/${MAX_RETRIES})`);
           }
         }
       }
@@ -306,10 +307,10 @@ const processConversions = async (): Promise<number> => {
       // Execute conversion via Limit IOC (best price with instant fill)
       const result = await binanceService.convertViaLimitIOC(fromAsset, toAsset, sourceAmount);
       const actualSaleUsd = parseFloat(result.toAmount);
-      const tradeFeeUsd = actualSaleUsd * 0.001; // Binance 0.1% taker fee (already deducted in fill)
+      const tradeFeeUsd = pct(actualSaleUsd, 0.1).toNumber(); // Binance 0.1% taker fee (already deducted in fill)
       const conversionRate = parseFloat(result.avgPrice); // price per 1 source_currency in USDT
 
-      log(`✅ ${result.method} executed: order #${result.orderId}, ${result.fromAmount} ${fromAsset} → ${result.toAmount} ${toAsset} (avg price: ${result.avgPrice}, fill: ${result.fillPercent.toFixed(1)}%)`);
+      log(`✅ ${result.method} executed: order #${result.orderId}, ${result.fromAmount} ${fromAsset} → ${result.toAmount} ${toAsset} (avg price: ${result.avgPrice}, fill: ${toFixedStr(result.fillPercent, 1)}%)`);
 
       // Calculate sweep gas fee in USD using the actual conversion rate
       let sweepFeeUsd = 0;
@@ -328,7 +329,7 @@ const processConversions = async (): Promise<number> => {
       // Calculate platform fee in USD using the actual conversion rate
       // conversion_fee stores the platform fee crypto amount (set at creation)
       const platformFeeCrypto = parseFloat(data.conversion_fee || "0");
-      const platformFeeUsd = platformFeeCrypto > 0 ? platformFeeCrypto * conversionRate : 0;
+      const platformFeeUsd = platformFeeCrypto > 0 ? toNumber(mul(platformFeeCrypto, conversionRate), 8) : 0;
 
       // Payout calculation: locked rate vs actual sale
       const lockedMerchantUsd = parseFloat(data.source_amount_usd || data.locked_merchant_usd || "0");
@@ -341,17 +342,17 @@ const processConversions = async (): Promise<number> => {
 
       if (actualSaleUsd >= lockedMerchantUsd && lockedMerchantUsd > 0) {
         // Price went up: merchant gets locked amount, platform keeps surplus
-        platformSurplus = actualSaleUsd - lockedMerchantUsd;
+        platformSurplus = sub(actualSaleUsd, lockedMerchantUsd).toNumber();
         merchantPayoutPreFees = lockedMerchantUsd;
-        log(`📈 Price went up ${priceMovementPct.toFixed(2)}%: platform surplus $${platformSurplus.toFixed(4)}`);
+        log(`📈 Price went up ${toFixedStr(priceMovementPct, 2)}%: platform surplus $${toFixedStr(platformSurplus, 4)}`);
       } else if (lockedMerchantUsd > 0) {
         // Price dropped: merchant absorbs the loss
         platformSurplus = 0;
         merchantPayoutPreFees = actualSaleUsd;
-        log(`📉 Price dropped ${priceMovementPct.toFixed(2)}%: merchant absorbs, gets $${merchantPayoutPreFees.toFixed(2)}`);
+        log(`📉 Price dropped ${toFixedStr(priceMovementPct, 2)}%: merchant absorbs, gets $${toFixedStr(merchantPayoutPreFees, 2)}`);
       }
 
-      log(`💰 Fee breakdown for #${data.conversion_id}: platform=$${platformFeeUsd.toFixed(4)}, sweepGas=$${sweepFeeUsd.toFixed(4)}, tradeFee=$${tradeFeeUsd.toFixed(4)}, surplus=$${platformSurplus.toFixed(4)}`);
+      log(`💰 Fee breakdown for #${data.conversion_id}: platform=$${toFixedStr(platformFeeUsd, 4)}, sweepGas=$${toFixedStr(sweepFeeUsd, 4)}, tradeFee=$${toFixedStr(tradeFeeUsd, 4)}, surplus=$${toFixedStr(platformSurplus, 4)}`);
 
       await record.update({
         binance_order_id: String(result.orderId),
@@ -427,7 +428,7 @@ const processWithdrawals = async (): Promise<number> => {
         log(`Warning: Withdrawal amount too small for conversion #${data.conversion_id}: payout $${merchantPayout}`);
         await record.update({
           status: "FAILED",
-          error_message: `Withdrawal amount ($${withdrawalAmount.toFixed(2)}) too small`,
+          error_message: `Withdrawal amount ($${toFixedStr(withdrawalAmount, 2)}) too small`,
         });
         continue;
       }
@@ -446,7 +447,7 @@ const processWithdrawals = async (): Promise<number> => {
         continue;
       }
 
-      log(`Withdrawing ${withdrawalAmount.toFixed(2)} ${coin} (${network}) to ${address.substring(0, 10)}... (full payout, Binance deducts fee)`);
+      log(`Withdrawing ${toFixedStr(withdrawalAmount, 2)} ${coin} (${network}) to ${address.substring(0, 10)}... (full payout, Binance deducts fee)`);
       await record.update({ status: "WITHDRAWING" });
 
       const withdrawal = await binanceService.submitWithdrawal({
@@ -525,7 +526,7 @@ const sendConversionPayoutNotification = async (data: any, withdrawalTxHash: str
   const sweepGasFeeUsd = parseFloat(fullRecord?.sweep_fee_usd || "0");
   const tradeFeeUsd = parseFloat(fullRecord?.trade_fee_usd || "0");
   const grossSaleUsd = parseFloat(fullRecord?.actual_sale_usd || data.target_amount || "0");
-  const totalReceivedUsd = grossSaleUsd + platformFeeUsd + sweepGasFeeUsd;
+  const totalReceivedUsd = sum([grossSaleUsd, platformFeeUsd, sweepGasFeeUsd]).toNumber();
 
   await dispatchCompanyEmail(
     data.company_id,
@@ -543,7 +544,7 @@ const sendConversionPayoutNotification = async (data: any, withdrawalTxHash: str
         sourceAmount: parseFloat(data.source_amount).toString(),
         sourceAmountUsd: data.source_amount_usd || data.locked_merchant_usd || "0",
         targetCurrency: data.target_currency,
-        payoutAmount: netPayout > 0 ? netPayout.toFixed(2) : parseFloat(data.merchant_payout_usd || data.target_amount || "0").toFixed(2),
+        payoutAmount: netPayout > 0 ? toFixedStr(netPayout, 2) : toFixedStr(data.merchant_payout_usd || data.target_amount || "0", 2),
         conversionRate: priceAtConversion.toString(),
         priceAtConversion,
         currentPrice,
@@ -564,7 +565,7 @@ const sendConversionPayoutNotification = async (data: any, withdrawalTxHash: str
     )
   );
 
-  log(`📧 Payout email sent to ${user.email} for conversion #${data.conversion_id} (net: $${netPayout.toFixed(2)})`);
+  log(`📧 Payout email sent to ${user.email} for conversion #${data.conversion_id} (net: $${toFixedStr(netPayout, 2)})`);
 };
 
 // ============================================
@@ -604,9 +605,9 @@ const monitorWithdrawals = async (): Promise<number> => {
         // Completed — calculate actual net payout after Binance withdrawal fee
         const actualFee = parseFloat(match.transactionFee || "0");
         const submittedAmount = parseFloat(data.merchant_payout_usd || data.target_amount || "0");
-        const netPayout = submittedAmount - actualFee;
+        const netPayout = sub(submittedAmount, actualFee).toNumber();
         
-        log(`🎉 Withdrawal complete for conversion #${data.conversion_id}: TX ${match.txId} (submitted: $${submittedAmount.toFixed(2)}, binanceFee: $${actualFee.toFixed(2)}, net: $${netPayout.toFixed(2)})`);
+        log(`🎉 Withdrawal complete for conversion #${data.conversion_id}: TX ${match.txId} (submitted: $${toFixedStr(submittedAmount, 2)}, binanceFee: $${toFixedStr(actualFee, 2)}, net: $${toFixedStr(netPayout, 2)})`);
         
         await record.update({
           status: "COMPLETED",
@@ -928,7 +929,7 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
         const movement = parseFloat(c.price_movement_pct || "0");
         const isVol = ["VOLATILE", "DECLINING"].includes(c.market_state_at_sweep || "");
 
-        totalSourceUsd += srcUsd;
+        totalSourceUsd = add(totalSourceUsd, srcUsd).toNumber();
         totalPayoutUsd += payout;
         movementSum += movement;
         if (isVol) totalVolatile++;
@@ -937,7 +938,7 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
         const curr = c.source_currency;
         if (!cryptoMap[curr]) cryptoMap[curr] = { count: 0, totalAmount: 0, totalPayout: 0, movementSum: 0 };
         cryptoMap[curr].count++;
-        cryptoMap[curr].totalAmount += parseFloat(c.source_amount || "0");
+        cryptoMap[curr].totalAmount = add(cryptoMap[curr].totalAmount, c.source_amount).toNumber();
         cryptoMap[curr].totalPayout += payout;
         cryptoMap[curr].movementSum += movement;
 
@@ -950,7 +951,7 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
       const cryptoBreakdown = Object.entries(cryptoMap).map(([currency, data]) => ({
         currency,
         count: data.count,
-        totalAmount: data.totalAmount.toFixed(8),
+        totalAmount: toFixedStr(data.totalAmount, 8),
         totalPayoutUsd: data.totalPayout,
         avgMovementPct: data.count > 0 ? data.movementSum / data.count : 0,
       })).sort((a, b) => b.totalPayoutUsd - a.totalPayoutUsd);
@@ -1017,7 +1018,7 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
         )
       );
 
-      log(`📧 Weekly summary sent to ${user.email} (${conversions.length} conversions, $${totalPayoutUsd.toFixed(2)} payout)`);
+      log(`📧 Weekly summary sent to ${user.email} (${conversions.length} conversions, $${toFixedStr(totalPayoutUsd, 2)} payout)`);
       sent++;
     } catch (err) {
       logError(`Error sending weekly summary for company #${entry.company_id}`, err);

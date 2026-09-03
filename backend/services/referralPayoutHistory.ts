@@ -1,4 +1,5 @@
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
+import { toFixedStr } from "../utils/money";
 
 /** Referral payout history + CSV export (read-only). Split from referralPayoutService (R2 file-size). */
 
@@ -64,11 +65,11 @@ export const getPayoutHistoryCsv = async (userId: number): Promise<string> => {
     lines.push(
       [
         p.payout_id,
-        Number(p.amount_usd).toFixed(2),
+        toFixedStr(p.amount_usd, 2),
         p.status,
         p.trc20_address,
         p.tx_hash || "",
-        p.withdrawal_fee_usdt != null ? Number(p.withdrawal_fee_usdt).toFixed(6) : "",
+        p.withdrawal_fee_usdt != null ? toFixedStr(p.withdrawal_fee_usdt, 6) : "",
         p.requested_at ? new Date(p.requested_at).toISOString() : "",
         p.completed_at ? new Date(p.completed_at).toISOString() : "",
         p.error_message || "",

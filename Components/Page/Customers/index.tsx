@@ -69,6 +69,7 @@ import { StatusDot, StatusTone } from "@/Components/UI/StatusDot";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
+import { toFixedStr } from "@/utils/money";
 
 /* ------------------------------------------------------------------ types */
 
@@ -364,7 +365,7 @@ const CustomersPage: React.FC = () => {
             esc(r.channels.join("|")),
             r.payments_count,
             r.pending_count,
-            r.ltv_usd.toFixed(2),
+            toFixedStr(r.ltv_usd, 2),
             esc(r.first_seen ? r.first_seen.slice(0, 10) : ""),
             esc(r.last_payment ? r.last_payment.slice(0, 10) : ""),
           ].join(",")
@@ -396,7 +397,7 @@ const CustomersPage: React.FC = () => {
       {
         id: "revenue",
         label: t("customers.statRevenue", { defaultValue: "Revenue" }),
-        value: fx.formatFromUsd(aggregates.revenue_usd) || `$${aggregates.revenue_usd.toFixed(2)}`,
+        value: fx.formatFromUsd(aggregates.revenue_usd) || `$${toFixedStr(aggregates.revenue_usd, 2)}`,
         icon: <PaymentsRounded sx={{ fontSize: 18 }} />,
       },
       {
@@ -767,7 +768,7 @@ const CustomersPage: React.FC = () => {
                       className="tabular-nums"
                       sx={{ fontWeight: 700, fontSize: "14.5px", fontFamily: MONO, color: theme.palette.text.primary }}
                     >
-                      {fx.formatFromUsd(c.ltv_usd) || `$${c.ltv_usd.toFixed(2)}`}
+                      {fx.formatFromUsd(c.ltv_usd) || `$${toFixedStr(c.ltv_usd, 2)}`}
                     </Typography>
                     <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
                       {t("customers.paymentsShort", { count: c.payments_count, defaultValue: "{{count}} payments" })}
@@ -923,7 +924,7 @@ const CustomersPage: React.FC = () => {
                         className="tabular-nums"
                         sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO, color: theme.palette.text.primary }}
                       >
-                        {fx.formatFromUsd(c.ltv_usd) || `$${c.ltv_usd.toFixed(2)}`}
+                        {fx.formatFromUsd(c.ltv_usd) || `$${toFixedStr(c.ltv_usd, 2)}`}
                       </Typography>
                     </TableCell>
                     {!isMobile && (
@@ -1234,7 +1235,7 @@ const DetailPanel: React.FC<{
       >
         {kpi(
           t("customers.kpiLifetime", { defaultValue: "Lifetime" }),
-          fx.formatFromUsd(c.ltv_usd) || `$${c.ltv_usd.toFixed(2)}`
+          fx.formatFromUsd(c.ltv_usd) || `$${toFixedStr(c.ltv_usd, 2)}`
         )}
         {kpi(t("customers.kpiPayments", { defaultValue: "Payments" }), c.payments_count)}
         {kpi(t("customers.kpiFirstSeen", { defaultValue: "First seen" }), fmtDate(c.first_seen))}
@@ -1301,7 +1302,7 @@ const DetailPanel: React.FC<{
               <Box sx={{ textAlign: "right", flexShrink: 0 }}>
                 <Typography className="tabular-nums" sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO }}>
                   {p.usd_value > 0
-                    ? fx.formatFromUsd(p.usd_value) || `$${p.usd_value.toFixed(2)}`
+                    ? fx.formatFromUsd(p.usd_value) || `$${toFixedStr(p.usd_value, 2)}`
                     : `${formatCryptoAmount(Number(p.crypto_amount || p.base_amount || 0), p.crypto_currency || p.base_currency || "USD")} ${p.crypto_currency || p.base_currency || ""}`}
                 </Typography>
                 <StatusDot tone={statusTone(p.status)}>{t(`customers.status_${p.status}`, { defaultValue: p.status })}</StatusDot>
@@ -1337,7 +1338,7 @@ const DetailPanel: React.FC<{
               </Box>
               <Box sx={{ textAlign: "right" }}>
                 <Typography className="tabular-nums" sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO }}>
-                  {(Number(o.total_cents || 0) / 100).toFixed(2)} {String(o.currency || "USD")}
+                  {toFixedStr((Number(o.total_cents || 0) / 100), 2)} {String(o.currency || "USD")}
                 </Typography>
                 <StatusDot tone={statusTone(String(o.payment_status))}>
                   {t(`customers.status_${o.payment_status}`, { defaultValue: String(o.payment_status || "") })}
@@ -1385,7 +1386,7 @@ const DetailPanel: React.FC<{
               <Box sx={{ textAlign: "right" }}>
                 {Number(l.base_amount) > 0 && (
                   <Typography className="tabular-nums" sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO }}>
-                    {Number(l.base_amount).toFixed(2)} {String(l.base_currency || "")}
+                    {toFixedStr(l.base_amount, 2)} {String(l.base_currency || "")}
                   </Typography>
                 )}
                 <StatusDot tone={statusTone(String(l.status))}>

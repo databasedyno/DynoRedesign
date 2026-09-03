@@ -10,6 +10,7 @@ import USDC from "@/assets/Icons/coins/USDC";
 import BNB from "@/assets/Icons/coins/BNB";
 import POLYGON from "@/assets/Icons/coins/POLYGON";
 import RLUSD from "@/assets/Icons/coins/RLUSD";
+import { toFixedStr } from "@/utils/money";
 
 /**
  * LivePriceStrip — auto-scrolling marquee of real BTC/ETH/USDT/etc. prices.
@@ -40,7 +41,7 @@ const PREFERRED_ORDER = ["BTC", "ETH", "USDT", "USDC", "SOL", "BNB", "XRP", "POL
 
 const formatPrice = (sym: string, price: number): string => {
   if (price <= 0) return "—";
-  if (STABLE.has(sym)) return `$${price.toFixed(2)}`;
+  if (STABLE.has(sym)) return `$${toFixedStr(price, 2)}`;
   if (price >= 1000) return `$${price.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
   if (price >= 1) return `$${price.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
   return `$${price.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 6 })}`;
@@ -243,7 +244,7 @@ const LivePriceStrip: React.FC = () => {
                     }}
                   >
                     {up ? "+" : ""}
-                    {t.change24h.toFixed(2)}%
+                    {toFixedStr(t.change24h, 2)}%
                   </Typography>
                 </Box>
               )}

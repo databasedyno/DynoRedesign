@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { Icon } from "@iconify/react";
+import { toFixedStr } from "@/utils/money";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 
@@ -26,7 +27,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 const price = (cents: number, currency: string): string => {
   const cur = (currency || "USD").toUpperCase();
   const symbol = CURRENCY_SYMBOLS[cur];
-  const value = (Number(cents || 0) / 100).toFixed(2);
+  const value = toFixedStr((Number(cents || 0) / 100), 2);
   return symbol ? `${symbol}${value}` : `${value} ${cur}`;
 };
 

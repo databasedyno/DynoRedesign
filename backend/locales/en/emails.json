@@ -278,7 +278,23 @@
       "detailsTitle": "Alert Details",
       "wasThisYou": "<strong>Was this you?</strong><br />If you recognize this activity, you can ignore this message.",
       "didntPerform": "<strong>Didn't perform this action?</strong><br />Please secure your account immediately by:<br />1. Changing your password<br />2. Reviewing your recent activity<br />3. Contacting our support team",
-      "cta": "Secure My Account"
+      "cta": "Secure My Account",
+      "types": {
+        "otp_lockout": "Verification code locked after repeated wrong attempts",
+        "login_rate_limit": "Too many failed login attempts"
+      },
+      "details": {
+        "otpLockout": "Someone entered an incorrect code 5 times for: {{channel}}. The code has been invalidated.",
+        "loginRateLimit": "{{count}} failed sign-in attempts were made in 15 minutes and further attempts were blocked."
+      },
+      "channels": {
+        "password_reset": "password reset",
+        "login": "sign-in verification",
+        "email_change": "email address change",
+        "password_change": "password change",
+        "email_verification": "email verification",
+        "onboarding": "account setup"
+      }
     },
     "newDeviceLogin": {
       "subject": "New login to your Dynopay account",

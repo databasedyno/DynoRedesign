@@ -9,6 +9,7 @@ import User from '../models/userModels/userModel';
 import { redeemUserReferralCode as svcRedeemUserReferral, redeemRefereeCode as svcRedeemReferee, getReferrerCommissionSummary } from '../services/referralService';
 import { Op } from 'sequelize';
 import { IUserType } from '../utils/types';
+import { add, sum } from "../utils/money";
 
 // Set up associations (only if not already set)
 if (!(Referral as unknown as { associations?: Record<string, unknown> }).associations?.referrer) {
@@ -341,16 +342,16 @@ export const getReferralEarnings = async (_req: Request, res: Response) => {
     });
 
     const summary = {
-      total_earnings: rewards.reduce((sum, r) => sum + Number(r.amount), 0),
+      total_earnings: sum(rewards.map((r) => r.amount)).toNumber(),
       pending_earnings: rewards
         .filter(r => r.status === 'pending')
-        .reduce((sum, r) => sum + Number(r.amount), 0),
+        .reduce((acc, r) => add(acc, r.amount).toNumber(), 0),
       credited_earnings: rewards
         .filter(r => r.status === 'credited')
-        .reduce((sum, r) => sum + Number(r.amount), 0),
+        .reduce((acc, r) => add(acc, r.amount).toNumber(), 0),
       withdrawn_earnings: rewards
         .filter(r => r.status === 'withdrawn')
-        .reduce((sum, r) => sum + Number(r.amount), 0),
+        .reduce((acc, r) => add(acc, r.amount).toNumber(), 0),
     };
 
     // Revenue-share commission summary (25% of referred merchants' fees, 12-mo window).

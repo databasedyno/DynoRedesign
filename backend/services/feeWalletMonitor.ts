@@ -24,6 +24,7 @@ import { cronLogger } from "../utils/loggers";
 import { dynoPayGreetingTemplate } from "./emailService";
 import mailTransporter from "../utils/mailTransporter";
 import config from "../utils/config";
+import { toFixedStr } from "../utils/money";
 
 const ALERT_EMAIL =
   config.adminEmail || config.str("BREVO_SENDER_EMAIL") || "admin@dynopay.com";
@@ -219,9 +220,9 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
   };
 
   const emoji = { healthy: '✅', warning: '⚠️', critical: '🚨', empty: '❌' }[status];
-  const frozenNote = bal.frozen > 0 ? ` (liquid ${bal.liquid.toFixed(6)} + frozen ${bal.frozen.toFixed(6)})` : '';
+  const frozenNote = bal.frozen > 0 ? ` (liquid ${toFixedStr(bal.liquid, 6)} + frozen ${toFixedStr(bal.frozen, 6)})` : '';
   const precision = cfg.chain === 'TRX' ? 2 : 6; // TRX values are whole numbers, EVM native is fractional
-  cronLogger.info(`[FeeWalletMonitor][${cfg.chain}] ${emoji} ${cfg.displayName} Fee Wallet: ${balance.toFixed(precision)} ${cfg.displayName}${frozenNote} (${status.toUpperCase()})`);
+  cronLogger.info(`[FeeWalletMonitor][${cfg.chain}] ${emoji} ${cfg.displayName} Fee Wallet: ${toFixedStr(balance, precision)} ${cfg.displayName}${frozenNote} (${status.toUpperCase()})`);
 
   // Alerting
   if (shouldSendAlert(cfg, currentStatus, lastStatus)) {
@@ -278,7 +279,7 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
   // Show liquid/frozen breakdown when the wallet has staked funds (TRX Stake 2.0).
   // Eliminates "the alert says X but TronScan shows Y" confusion.
   const breakdown = (frozen && frozen > 0)
-    ? `<p style="color:#6b7280;font-size:13px;">Breakdown: <strong>${(liquid ?? 0).toFixed(6)} ${label}</strong> liquid + <strong>${frozen.toFixed(6)} ${label}</strong> frozen (staked for energy)</p>`
+    ? `<p style="color:#6b7280;font-size:13px;">Breakdown: <strong>${toFixedStr((liquid ?? 0), 6)} ${label}</strong> liquid + <strong>${toFixedStr(frozen, 6)} ${label}</strong> frozen (staked for energy)</p>`
     : '';
 
   const precision = cfg.chain === 'TRX' ? 2 : 6;
@@ -286,7 +287,7 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
   const message = {
     empty: `
       <h2 style="color: #dc2626;">🚨 ${label} Fee Wallet is EMPTY!</h2>
-      <p><strong>Current Balance:</strong> ${balance.toFixed(precision)} ${label} (total)</p>
+      <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
       ${breakdown}
       <p><strong>Impact:</strong> ${impactLabel(cfg, 'empty')}</p>
       <p><strong>Action Required:</strong> Send at least ${cfg.healthyThreshold} ${label} to:<br/>
@@ -294,7 +295,7 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
     `,
     critical: `
       <h2 style="color: #ea580c;">🚨 ${label} Fee Wallet Critically Low</h2>
-      <p><strong>Current Balance:</strong> ${balance.toFixed(precision)} ${label} (total)</p>
+      <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
       ${breakdown}
       <p><strong>Threshold:</strong> &lt; ${cfg.criticalThreshold} ${label}</p>
       <p><strong>Impact:</strong> ${impactLabel(cfg, 'critical')}</p>
@@ -303,7 +304,7 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
     `,
     warning: `
       <h2 style="color: #f59e0b;">⚠️ ${label} Fee Wallet Low</h2>
-      <p><strong>Current Balance:</strong> ${balance.toFixed(precision)} ${label} (total)</p>
+      <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
       ${breakdown}
       <p><strong>Threshold:</strong> &lt; ${cfg.warningThreshold} ${label}</p>
       <p><strong>Recommendation:</strong> Top up to ${cfg.healthyThreshold}+ ${label} soon:<br/>

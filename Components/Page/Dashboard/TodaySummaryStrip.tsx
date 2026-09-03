@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, TrendingFlat, AccessTime, PendingActions } fr
 import { Box, Typography, useTheme, Skeleton } from "@mui/material";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { toFixedStr } from "@/utils/money";
 
 interface TodaySummaryProps {
   todaySummary?: {
@@ -145,7 +146,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
                   <>
                     <TrendIcon value={card.change} />
                     <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", fontWeight: 500 }}>
-                      {card.change > 0 ? "+" : ""}{card.change.toFixed(1)}%
+                      {card.change > 0 ? "+" : ""}{toFixedStr(card.change, 1)}%
                     </Typography>
                   </>
                 )}

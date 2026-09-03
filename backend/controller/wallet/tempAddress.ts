@@ -74,6 +74,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { generateOtpCode } from "../../helper/otpGuard";
 
 export const sendConfirmationOTP = async (
   req: express.Request,
@@ -92,7 +93,7 @@ export const sendConfirmationOTP = async (
       .then((token) => token !== null)
       .then((isExists) => isExists);
     if (isExists) {
-      const randomNumberOTP = Math.floor(100000 + Math.random() * 900000);
+      const randomNumberOTP = generateOtpCode();
       const maskAddr = (a: string) => a ? `${a.substring(0, 8)}...${a.substring(a.length - 6)}` : address;
       await sendWithdrawalOTPEmail(
         email,

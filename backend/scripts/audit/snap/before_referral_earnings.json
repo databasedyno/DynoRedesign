@@ -1,0 +1,22 @@
+{
+ "data": {
+  "commission": {
+   "active_windows": 0,
+   "rate_percent": 25,
+   "referrals": [],
+   "total_accrued_usd": 0,
+   "total_credited_usd": 0,
+   "total_paid_usd": 0,
+   "unpaid_balance_usd": 0,
+   "window_months": 12
+  },
+  "rewards": [],
+  "summary": {
+   "credited_earnings": 0,
+   "pending_earnings": 0,
+   "total_earnings": 0,
+   "withdrawn_earnings": 0
+  }
+ },
+ "message": "Earnings retrieved successfully"
+}

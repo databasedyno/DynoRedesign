@@ -73,6 +73,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { toFixedStr } from "../../utils/money";
 
 export const confirmExchange = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -80,7 +81,8 @@ export const confirmExchange = async (req: express.Request, res: express.Respons
   try {
     const { otp1, otp2, id } = req.body;
     const data = await getRedisItem("exchange-" + id);
-    if (data) {
+    // getRedisItem() yields {} for a missing key — require the real session fields
+    if (data && data.otp1 && data.otp2 && data.expiresAt) {
       if (new Date().getTime() > Number(data.expiresAt)) {
         await userExchangeModel.update(
           {
@@ -106,7 +108,7 @@ export const confirmExchange = async (req: express.Request, res: express.Respons
           user2_name,
         } = data;
 
-        if (otp1 == data.otp1 && otp2 == data.otp2) {
+        if (otp1 && otp2 && String(otp1) === String(data.otp1) && String(otp2) === String(data.otp2)) {
           const user1_exchange_wallet = await userWalletModel.findOne({
             where: {
               user_id: userData.user_id,
@@ -158,13 +160,13 @@ export const confirmExchange = async (req: express.Request, res: express.Respons
           const decimal2 =
             user2_exchange_wallet.dataValues.currency_type === "FIAT" ? 2 : 8;
 
-          const req_amount = (
+          const req_amount = toFixedStr((
             Number(amount_in_usd) / wallet2_balance[0].transferRate
-          ).toFixed(decimal2);
+          ), decimal2);
 
-          const exchange_amount = (
+          const exchange_amount = toFixedStr((
             Number(amount_in_usd) / wallet1_balance[0].transferRate
-          ).toFixed(decimal1);
+          ), decimal1);
 
           /**
            *

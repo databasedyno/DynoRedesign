@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import useCountry from './useCountry';
+import { toFixedStr } from "@/utils/money";
 
 /**
  * useLocalPrice — country-aware price formatter for landing showcases.
@@ -82,7 +83,7 @@ const formatAmount = (usd: number, p: CurrencyPreset): string => {
   // Indian lakh convention for large values (≥1 lakh = 100k)
   if (p.useLakh && abs >= 100000) {
     const lakhs = local / 100000;
-    const shown = lakhs >= 10 ? Math.round(lakhs).toString() : lakhs.toFixed(1);
+    const shown = lakhs >= 10 ? Math.round(lakhs).toString() : toFixedStr(lakhs, 1);
     return `${p.symbol}${shown}L`;
   }
 
@@ -91,7 +92,7 @@ const formatAmount = (usd: number, p: CurrencyPreset): string => {
 
   // Small/fractional values keep 2 decimals (fee strip: $0.30, €0.28)
   const shouldShowCents = abs < 100 && !skipDecimals;
-  const fixed = shouldShowCents ? local.toFixed(2) : Math.round(local).toString();
+  const fixed = shouldShowCents ? toFixedStr(local, 2) : Math.round(local).toString();
 
   let [whole, decimals] = fixed.split('.');
   const isNegative = whole.startsWith('-');
