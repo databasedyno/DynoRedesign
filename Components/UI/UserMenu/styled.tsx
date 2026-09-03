@@ -19,6 +19,10 @@ export const UserTrigger = styled("div")(({ theme }) => ({
     background: "transparent",
     minHeight: 44,
     minWidth: 44,
+    justifyContent: "center",
+  },
+  [theme.breakpoints.down("sm")]: {
+    minWidth: 40,
   },
 }));
 

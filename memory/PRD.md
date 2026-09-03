@@ -24,6 +24,27 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-09-03 (fork, pod ca6c51ad) PART 2: CORS ALERT NOISE + MOBILE HEADER BRAND NAME + COLUMN SORTING + SITEMAP AUDIT — DONE + VERIFIED
+     (testing_agent iteration_123: backend 12/12, frontend 100%, 0 issues; regression suite backend/tests/test_iter123_cors_sitemap.py)
+     - PROD BUG: HIGH-severity email "CORS: Origin https://dynopay.me/api/rsc not allowed" — a bot POST /api/rsc with a malformed
+       Origin (path in it) fell through the cors callback into the global error handler → captureError(high) + 500. Fix: typed
+       CorsOriginError (statusCode 403) in backend/server.ts; global handler answers 403 {message:'Origin not allowed'} and skips
+       captureError (WARN log 'CORS blocked origin' remains). NOTE for user: if dynopay.me actually serves pages that call the API,
+       add it to prod CORS_ALLOWED_ORIGINS / CORS_TRUSTED_DOMAINS (a REAL browser Origin would be https://dynopay.me with no path).
+     - BUG: business name in the mobile header pill truncated to "T." (5 x 44px controls on the right ate the width). Fix at <600px:
+       briefcase icon + company-selector chevron + user-menu chevron hidden, standalone theme toggle hidden (lives in user menu
+       user-menu-theme-toggle; still shown 600-1199px), search/bell/+New/hamburger 40px wide (44 tall), tighter gaps; name
+       flex-shrinks with ellipsis (data-testid=company-selector-name). Full "The Dev Store" at 390/375, ellipsis at 360/320.
+     - FEATURE: /transactions column sorting (desktop headers Amount / USD Value / Date & Time; testids tx-sort-<key>, aria-sort,
+       data-sort-dir). First click desc, second asc; default Date desc; page resets to 1. ExtendedTransaction gained
+       cryptoAmountRaw + createdAtTs (also filled in NotificationPage's synthetic tx).
+     - SITEMAP AUDIT: pages/sitemap.xml.tsx adds /how-to, /help-support, published KB articles (/api/kb/articles, 0 today),
+       public creator pages /{handle} (new `creators` array in GET /api/shop-sitemap: creator_page_enabled=true); static pages no
+       longer emit a fabricated <lastmod> (blog/products/articles keep real dates). robots.txt: help-support now ALLOWED
+       (public docs), added Disallow for /payment/, /order/, /pay/*-demo, /qa, /QA, /kyc/, /wallet-security, /unsubscribe, /payouts.
+       64 URLs, XML well-formed, all spot-checked 200. GOTCHA: /api/shop/*, /api/pay/creator/* share paymentRateLimiter
+       (30/min/IP) → probing many SSR pages in parallel yields false 429→404s; probe serially. -->
+
 <!-- 2026-09-03 (fork, pod ca6c51ad): TRANSACTIONS TABLE — STATUS CHIPS + SCOPED EXPORT + STICKY HEADER — DONE + VERIFIED
      (testing_agent iteration_122: frontend 10/10, backend 10/11 → the 1 miss (export ignored the crypto/amount part of
      `search`) fixed + curl-verified: search=LTC → 68 rows == grid). Closes REFACTOR_STATUS item #7 (P3).

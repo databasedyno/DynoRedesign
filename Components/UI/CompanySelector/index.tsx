@@ -192,15 +192,22 @@ export default function CompanySelector() {
     >
       {/* Trigger */}
       <SelectorTrigger onClick={handleOpen} data-testid="company-selector-trigger">
-        <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, flex: "1 1 auto" }}>
+          {/* Phones: drop the briefcase glyph so the business NAME gets the room. */}
           <BusinessCenterIcon
             sx={{
+              display: { xs: "none", sm: "inline-flex" },
               color: brandFg(theme.palette.mode === "dark"),
               fontSize: isMobile ? "16.5px" : "19px",
               mt: "-3px",
+              flexShrink: 0,
             }}
           />
-          <TriggerText sx={{ color: brandFg(theme.palette.mode === "dark") }}>
+          <TriggerText
+            data-testid="company-selector-name"
+            title={selected?.company_name || companies[0]?.company_name || ""}
+            sx={{ color: brandFg(theme.palette.mode === "dark") }}
+          >
             {selected?.company_name
               ? (windowWidth < 600
                 ? truncateByWords(selected.company_name, count)
@@ -214,7 +221,7 @@ export default function CompanySelector() {
           <KycVerifiedBadge companyId={selected?.company_id} size={16} />
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: "0px", sm: "8px" } }}>
+        <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center", gap: { xs: "0px", sm: "8px" } }}>
           <HeaderDivider sx={{ display: { xs: "none", sm: "block" } }} />
           {!anchorEl ? (
             <ExpandMoreIcon

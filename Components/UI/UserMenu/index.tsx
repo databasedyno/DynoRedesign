@@ -180,17 +180,20 @@ export default function UserMenu() {
               clean + consistent across devices. */}
         </Box>
 
-        {anchorEl ? (
-          <ExpandLessIcon
-            fontSize="small"
-            sx={{ color: theme.palette.text.secondary }}
-          />
-        ) : (
-          <ExpandMoreIcon
-            fontSize="small"
-            sx={{ color: theme.palette.text.secondary }}
-          />
-        )}
+        {/* Chevron hidden on phones — the avatar alone is the trigger there. */}
+        <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
+          {anchorEl ? (
+            <ExpandLessIcon
+              fontSize="small"
+              sx={{ color: theme.palette.text.secondary }}
+            />
+          ) : (
+            <ExpandMoreIcon
+              fontSize="small"
+              sx={{ color: theme.palette.text.secondary }}
+            />
+          )}
+        </Box>
       </UserTrigger>
 
       {/* Dropdown */}

@@ -36,11 +36,15 @@ export interface ExtendedTransaction {
   id: string;
   crypto: string;
   amount: string;
+  /** Numeric crypto amount (for sorting). */
+  cryptoAmountRaw: number;
   usdValue: string;
   /** Raw authoritative USD value (number) so the UI can convert to the
    *  merchant's display currency (EUR/GBP/…) via useDisplayFx. */
   usdValueRaw: number;
   dateTime: string;
+  /** Epoch ms of createdAt (for sorting). */
+  createdAtTs: number;
   status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid" | "awaiting_payment";
   fees?: number | string;
   feesBreakdown?: {
@@ -101,6 +105,10 @@ export interface TransactionDetailsModalProps {
   onClose: () => void;
   transaction: ExtendedTransaction | null;
 }
+
+/** Sortable transaction table columns. */
+export type TxSortKey = "amount" | "usdValue" | "dateTime";
+export type TxSortDir = "asc" | "desc";
 
 export interface TransactionsTableProps {
   transactions: ExtendedTransaction[];

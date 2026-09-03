@@ -18,7 +18,7 @@ import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CryptoIcon from "@/assets/Icons/crypto-icon.svg";
@@ -31,6 +31,9 @@ import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 
 import KeyboardArrowLeftRoundedIcon from "@mui/icons-material/KeyboardArrowLeftRounded";
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
+import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
+import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 
 import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
@@ -39,6 +42,8 @@ import { useDisplayFx } from "@/hooks/useDisplayFx";
 import {
   ExtendedTransaction,
   TransactionsTableProps,
+  TxSortDir,
+  TxSortKey,
 } from "@/utils/types/transaction";
 import { TransactionAction } from "@/Redux/Actions";
 import { TRANSACTION_DETAIL_FETCH } from "@/Redux/Actions/TransactionAction";
@@ -110,7 +115,34 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const totalPages = Math.ceil(transactions.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const currentTransactions = transactions.slice(startIndex, endIndex);
+
+  // Column sorting (desktop headers). Default mirrors the backend order —
+  // newest first. Stable sort, so equal keys keep their incoming order.
+  const [sort, setSort] = useState<{ key: TxSortKey; dir: TxSortDir }>({
+    key: "dateTime",
+    dir: "desc",
+  });
+  const sortedTransactions = useMemo(() => {
+    const value = (tx: ExtendedTransaction): number =>
+      sort.key === "amount"
+        ? tx.cryptoAmountRaw
+        : sort.key === "usdValue"
+          ? tx.usdValueRaw
+          : tx.createdAtTs;
+    const sign = sort.dir === "asc" ? 1 : -1;
+    return [...transactions].sort((a, b) => sign * (value(a) - value(b)));
+  }, [transactions, sort]);
+  const handleSort = (key: TxSortKey) => {
+    setSort((prev) =>
+      prev.key === key
+        ? { key, dir: prev.dir === "asc" ? "desc" : "asc" }
+        // Fresh column: dates newest-first, money largest-first.
+        : { key, dir: "desc" },
+    );
+    setCurrentPage(1);
+  };
+
+  const currentTransactions = sortedTransactions.slice(startIndex, endIndex);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -203,6 +235,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   };
 
   const MONETARY_KEYS = new Set(["amount", "usdValue", "vat"]);
+  const SORTABLE_KEYS = new Set<string>(["amount", "usdValue", "dateTime"]);
 
   const HeaderData = [
     {
@@ -452,25 +485,73 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               ...(toolbar ? { borderRadius: 0 } : {}),
             }}
           >
-            {HeaderData.map((item, idx) => (
-              <TransactionsTableHeaderItem
-                key={item.key}
-                sx={{
-                  ...(idx === 0 ? stickyFirstHeaderSx : {}),
-                  ...(MONETARY_KEYS.has(item.key)
-                    ? { justifyContent: "flex-end" }
-                    : {}),
-                }}
-              >
-                <Image
-                  src={item.icon}
-                  alt={item.label}
-                  className="themed-icon"
-                  draggable={false}
-                />
-                <span>{item.label}</span>
-              </TransactionsTableHeaderItem>
-            ))}
+            {HeaderData.map((item, idx) => {
+              const sortable = SORTABLE_KEYS.has(item.key);
+              const active = sortable && sort.key === item.key;
+              const SortIcon = !sortable
+                ? null
+                : !active
+                  ? UnfoldMoreRoundedIcon
+                  : sort.dir === "asc"
+                    ? ArrowUpwardRoundedIcon
+                    : ArrowDownwardRoundedIcon;
+              return (
+                <TransactionsTableHeaderItem
+                  key={item.key}
+                  {...(sortable
+                    ? {
+                        role: "button",
+                        tabIndex: 0,
+                        "aria-sort": active ? (sort.dir === "asc" ? "ascending" : "descending") : "none",
+                        "data-testid": `tx-sort-${item.key}`,
+                        "data-sort-dir": active ? sort.dir : undefined,
+                        onClick: () => handleSort(item.key as TxSortKey),
+                        onKeyDown: (e: React.KeyboardEvent) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleSort(item.key as TxSortKey);
+                          }
+                        },
+                      }
+                    : {})}
+                  sx={{
+                    ...(idx === 0 ? stickyFirstHeaderSx : {}),
+                    ...(MONETARY_KEYS.has(item.key)
+                      ? { justifyContent: "flex-end" }
+                      : {}),
+                    ...(sortable
+                      ? {
+                          cursor: "pointer",
+                          userSelect: "none",
+                          borderRadius: "6px",
+                          transition: "color 120ms ease",
+                          "& .sort-icon": {
+                            fontSize: 16,
+                            flexShrink: 0,
+                            color: active ? theme.palette.text.primary : theme.palette.text.disabled,
+                            opacity: active ? 1 : 0.55,
+                            transition: "opacity 120ms ease, color 120ms ease",
+                          },
+                          "&:hover .sort-icon": { opacity: 1, color: theme.palette.text.primary },
+                          "&:focus-visible": {
+                            outline: `2px solid ${theme.palette.primary.main}`,
+                            outlineOffset: 2,
+                          },
+                        }
+                      : {}),
+                  }}
+                >
+                  <Image
+                    src={item.icon}
+                    alt={item.label}
+                    className="themed-icon"
+                    draggable={false}
+                  />
+                  <span>{item.label}</span>
+                  {SortIcon && <SortIcon className="sort-icon" aria-hidden />}
+                </TransactionsTableHeaderItem>
+              );
+            })}
           </TransactionsTableHeader>
 
           {/* Body Section — no inner scroll; the single outer container scrolls

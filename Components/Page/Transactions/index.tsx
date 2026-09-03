@@ -276,6 +276,7 @@ const TransactionPage = () => {
           id: String((item as any).transaction_id || item.id || `TX-${Math.random().toString(36).substr(2, 9)}`),
           crypto: cryptoCurrency,
           amount: `${cryptoAmount} ${cryptoCurrency}`,
+          cryptoAmountRaw: cryptoAmount,
           usdValue: (() => {
             // Only show a USD figure when the backend has an actual stored
             // usd_value. Pending / unvalued crypto rows (no stored value) show
@@ -289,6 +290,10 @@ const TransactionPage = () => {
           })(),
           usdValueRaw: Number((item as any).usd_value) || 0,
           dateTime: formatDateTime(item.createdAt),
+          createdAtTs: (() => {
+            const ts = item.createdAt ? new Date(item.createdAt).getTime() : NaN;
+            return Number.isFinite(ts) ? ts : 0;
+          })(),
           status: (() => {
             const s = (item.status || "").toLowerCase().trim();
             if (s === "success" || s === "successful" || s === "completed" || s === "payout_complete" || s === "converted" || s === "recovered" || s === "done" || s === "settled")

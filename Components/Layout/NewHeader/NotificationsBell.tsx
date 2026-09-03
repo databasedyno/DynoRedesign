@@ -32,7 +32,7 @@ const NotificationsBell: React.FC = () => {
         <IconButton
           size="small"
           aria-label={label}
-          sx={{ position: "relative", width: 44, height: 44, color: theme.palette.text.secondary }}
+          sx={{ position: "relative", width: { xs: 40, sm: 44 }, height: 44, color: theme.palette.text.secondary }}
         >
           <NotificationsNoneRounded sx={{ fontSize: 21 }} />
           {unread > 0 && (

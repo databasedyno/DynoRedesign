@@ -188,6 +188,16 @@ const safePatterns: RegExp[] = [
   ...[...trustedBaseDomains].map((d) => new RegExp(`^https?:\\/\\/(.*\\.)?${escapeRe(d)}$`)),
 ];
 
+/** Rejected browser origin — answered 403 by the global handler, never a 500
+ *  and never a HIGH-severity alert (bots probe with random / malformed origins). */
+class CorsOriginError extends Error {
+  statusCode = 403;
+  constructor(origin: string) {
+    super(`CORS: Origin ${origin} not allowed`);
+    this.name = "CorsOriginError";
+  }
+}
+
 const corsOriginHandler = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
   // Allow non-browser / same-origin requests (no Origin header)
   if (!origin) return callback(null, true);
@@ -196,7 +206,7 @@ const corsOriginHandler = (origin: string | undefined, callback: (err: Error | n
   // Unknown origin — block. Log at warn (not captureError) to avoid digest spam
   // from bots probing with random origins.
   log(`CORS blocked origin: ${origin}`, 'warn');
-  callback(new Error(`CORS: Origin ${origin} not allowed`));
+  callback(new CorsOriginError(origin));
 };
 
 app.use(cors({
@@ -1668,6 +1678,11 @@ const startServer = async () => {
     // A handler that already streamed/sent a response then threw: let Express
     // close the socket instead of raising "Cannot set headers after they are sent".
     if (res.headersSent) return _next(err);
+    // Blocked CORS origin: a client-side rejection, not a server fault. Already
+    // logged at warn by corsOriginHandler — answer 403 and skip the alert email.
+    if (err instanceof CorsOriginError) {
+      return res.status(403).json({ success: false, message: "Origin not allowed", statusCode: 403 });
+    }
     const isProduction = config.str("NODE_ENV") === 'production';
     log(`[GlobalErrorHandler] Unhandled error: ${err.message}${!isProduction ? `\n${err.stack}` : ''}`, 'error');
     captureError(err, 'api', {

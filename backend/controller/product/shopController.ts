@@ -209,6 +209,20 @@ export const getSitemapEntries = async (
     let shops: Array<{ handle: string }>;
     let products: Array<{ handle: string; slug: string; updated_at: string | null }>;
 
+    // Public creator pages (/{handle}) — visible only when the page is enabled
+    // (same rule as resolveStorefrontByHandle(handle, true)).
+    const creatorTable = STOREFRONT_PER_COMPANY ? "tbl_company" : "tbl_user";
+    const creators = (await sequelize.query(
+      `SELECT LOWER(handle) AS handle
+         FROM ${creatorTable}
+        WHERE handle IS NOT NULL AND handle <> ''
+          AND creator_page_enabled = true
+        GROUP BY LOWER(handle)
+        ORDER BY LOWER(handle)
+        LIMIT :lim`,
+      { replacements: { lim: SHOP_LIMIT }, type: QueryTypes.SELECT }
+    )) as Array<{ handle: string }>;
+
     if (STOREFRONT_PER_COMPANY) {
       shops = (await sequelize.query(
         `SELECT LOWER(handle) AS handle
@@ -260,6 +274,7 @@ export const getSitemapEntries = async (
     // Sitemaps don't need to be real-time — cache 15 min at the edge.
     res.setHeader("Cache-Control", "public, s-maxage=900, stale-while-revalidate=3600");
     return successResponseHelper(res, 200, "Sitemap entries", {
+      creators: creators.map((c) => ({ handle: c.handle })),
       shops: shops.map((s) => ({ handle: s.handle })),
       products: products.map((p) => ({
         handle: p.handle,

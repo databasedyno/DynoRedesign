@@ -4,10 +4,13 @@ User-agent: *
 Allow: /
 Allow: /fees
 Allow: /documentation
+Allow: /how-to
 Allow: /system-status
 Allow: /blog
 Allow: /about
 Allow: /press
+Allow: /referral-program
+Allow: /help-support
 Allow: /for/
 
 # Private / Authenticated Pages
@@ -16,6 +19,7 @@ Disallow: /transactions
 Disallow: /pay-links
 Disallow: /create-pay-link
 Disallow: /wallet
+Disallow: /payouts
 Disallow: /customers
 Disallow: /developer-keys
 Disallow: /invoices
@@ -24,13 +28,27 @@ Disallow: /profile
 Disallow: /notifications
 Disallow: /referrals
 Disallow: /settings
-Disallow: /help-support
 Disallow: /admin
 Disallow: /admin/*
 Disallow: /auth/*
 Disallow: /reset-password
-Disallow: /payment/verify
+Disallow: /kyc/
+Disallow: /wallet-security
+Disallow: /unsubscribe
 Disallow: /api/
+
+# Checkout, order & payment flows (transactional, never indexable)
+Disallow: /payment/
+Disallow: /order/
+Disallow: /pay/demo
+Disallow: /pay/donation-demo
+Disallow: /pay/success-demo
+Disallow: /pay/payment-states-demo
+Disallow: /pay/state-demo
+
+# Internal QA harnesses
+Disallow: /qa
+Disallow: /QA
 
 # Sitemap
 Sitemap: https://dynopay.com/sitemap.xml

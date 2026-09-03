@@ -53,7 +53,7 @@ Small live status strip on the dashboard (rates fresh? chains available?) so mer
 One tap on a settled transaction regenerates the same link/product. Reuses link duplication.
 
 ### P3 — Storefront SEO / OG polish _(audit §7 I6, effort M)_
-Per-product OG images, structured data, sitemap entries for live `{handle}` pages. Its SSR prerequisite (INTERNAL_API_URL in getServerSideProps) is already fixed.
+Per-product OG images, structured data. (Sitemap entries for live `{handle}` creator pages DONE 2026-09-03.)
 
 ---
 

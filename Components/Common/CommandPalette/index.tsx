@@ -422,7 +422,7 @@ const GlobalSearchButton = () => {
         onClick={() => setOpen(true)}
         data-testid="header-global-search"
         aria-label={t("search.open", { defaultValue: "Search" })}
-        sx={{ minWidth: 44, minHeight: 44, color: theme.palette.text.primary }}
+        sx={{ minWidth: { xs: 40, sm: 44 }, minHeight: 44, px: { xs: 0.75, sm: 1 }, color: theme.palette.text.primary }}
       >
         <SearchRoundedIcon sx={{ fontSize: 21 }} />
       </IconButton>

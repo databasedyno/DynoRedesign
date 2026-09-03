@@ -1,3 +1,10 @@
+# SESSION 2026-09-03 (fork, pod ca6c51ad) PART 2 — CORS alert noise + mobile header brand name + column sorting + sitemap audit
+- CORS: blocked/malformed Origin → 403 JSON quietly (CorsOriginError), no more HIGH alert emails / 500s for bot probes.
+- Mobile header: business name fully visible at 390/375 (theme toggle moved into user menu on phones, chevrons/briefcase hidden xs).
+- Transactions: sortable Amount / USD Value / Date headers (desc→asc toggle, arrow indicator, page reset).
+- Sitemap: +/how-to, +/help-support (+KB articles), +creator pages /{handle}; no fabricated lastmod; robots.txt allows help-support,
+  disallows demo/transactional routes. testing_agent iteration_123: 100% BE+FE.
+
 # SESSION 2026-09-03 (fork, pod ca6c51ad) — Transactions table: status chips + scoped Export + sticky header — SAFE MODE, prod DB
 - New toolbar strip inside the table card (status chips w/ live counts, Export + Settled only); Export removed from top bar.
 - Export honours every filter incl. status chip / source / wallet / search / whole-day dates; backend export endpoint extended

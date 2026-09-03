@@ -84,13 +84,13 @@ const CreateNewButton: React.FC = () => {
         disableElevation
         variant="contained"
         sx={{
-          minWidth: { xs: 44, sm: 0 },
+          minWidth: { xs: 40, sm: 0 },
           textTransform: "none",
           fontFamily: "var(--font-sans)",
           fontWeight: 700,
           fontSize: "13.5px",
           borderRadius: "10px",
-          px: { xs: 1, sm: 1.25 },
+          px: { xs: 0.75, sm: 1.25 },
           py: 0.65,
           minHeight: 44,
           gap: 0.25,

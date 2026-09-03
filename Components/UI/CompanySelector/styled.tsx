@@ -33,10 +33,16 @@ export const TriggerText = styled("span")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",
     display: "inline-block",
-    maxWidth: "34vw",
+    // Shrink with the flex row (never a hard vw cap) so the name uses every
+    // pixel the header can spare before it ellipsises.
+    flex: "0 1 auto",
+    minWidth: 0,
     overflow: "hidden",
     textOverflow: "ellipsis",
     verticalAlign: "middle",
+  },
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "12.5px",
   },
 }));
 

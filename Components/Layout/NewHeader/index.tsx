@@ -113,9 +113,9 @@ const NewHeader = () => {
           sx={{
             display: "inline-flex",
             "@media (min-width:768px)": { display: "none" },
-            width: 44,
+            width: { xs: 40, sm: 44 },
             height: 44,
-            mr: 0.5,
+            mr: { xs: 0, sm: 0.5 },
             color: muiTheme.palette.text.primary,
             backgroundColor: "transparent",
             // STICKY-HOVER FIX (matches the public header): on touch, :hover /
@@ -186,8 +186,10 @@ const NewHeader = () => {
           <GlobalSearchButton />
           <CreateNewButton />
           <NotificationsBell />
-          {/* Mobile theme toggle - visible only on mobile */}
-          <Box sx={{ display: { xs: "flex", lg: "none" } }}>
+          {/* Tablet theme toggle. Hidden on phones (<600px) — it is duplicated
+              inside the user menu (user-menu-theme-toggle) and the header pill
+              needs the width for the business name. */}
+          <Box sx={{ display: { xs: "none", sm: "flex", lg: "none" } }}>
             <ThemeToggle size="small" data-testid="theme-toggle-mobile" />
           </Box>
           <Box sx={{ display: { xs: "none", lg: "flex" }, gap: "20px" }}>

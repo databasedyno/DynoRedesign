@@ -10,7 +10,7 @@ export const HeaderContainer = styled("div")(({ theme }) => ({
   display: "flex",
   gap: "24px",
   [theme.breakpoints.down("sm")]: {
-    gap: "6px",
+    gap: "4px",
   },
 }));
 
@@ -53,8 +53,8 @@ export const MainContainer = styled("div")(({ theme }) => ({
     padding: "8px 10px",
   },
   [theme.breakpoints.down("sm")]: {
-    padding: "6px",
-    gap: "6px",
+    padding: "6px 3px",
+    gap: "4px",
   },
 }));
 
@@ -64,7 +64,7 @@ export const RightSection = styled("div")(({ theme }) => ({
   gap: "6px",
   flexShrink: 0,
   [theme.breakpoints.down("sm")]: {
-    gap: "4px",
+    gap: "2px",
   },
 }));
 
