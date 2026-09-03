@@ -1,0 +1,29 @@
+{
+  "summary": "Iteration 120 read-only regression on live prod DB (SAFE MODE) after walletOtp.ts was trimmed 501→448 lines. 20/20 pytest cases PASS: login OK; wallet verifyOtp/verifyCode/validateWalletAddress return correct 4xx (never 500) for missing otp, missing company_id, invalid otp on owned company_id=1, foreign company_id=999999 (403 access), and unauth (401/403); wallet/sudo/status returns 200 with auth and 401/403 without; reset-password bypass regression holds (bogus, empty, missing token all 400; login with real password still works); wallet/getCurrencyRates and payment/getCurrencyRates return 200 finite numbers on valid body, clean 4xx on empty/unknown currency, never 500; public tickers 200 with BTC/ETH finite. Static gates: walletOtp.ts=448 (<=500), check-file-size.mjs exit 0, tsc --noEmit exit 0. Backend logs show only pre-existing benign warnings (Binance geo-block 451, Tatum ZZZ unknown-currency fallback) — no new stack traces from the trim.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "static_gate_status": "PASS — walletOtp.ts 448 lines; check-file-size.mjs exit 0 (57 legacy files grandfathered, none new over 500); tsc --noEmit exit 0.",
+  "wallet_otp_regression_status": "PASS — verifyOtp missing-otp/missing-company/invalid-own/foreign-company all correct; verifyCode alias behaves identically for missing-otp; validateWalletAddress 4xx or 200 never 500; all unauth variants 401/403.",
+  "wallet_sudo_regression_status": "PASS — GET /api/wallet/sudo/status returns 200 with Bearer, 401/403 without. request-otp intentionally skipped as instructed.",
+  "reset_password_security_status": "PASS — POST /api/user/reset-password rejects bogus/empty/missing token with 400; login with Katiekendra123@ still returns 200 (password unchanged).",
+  "currency_rates_status": "PASS — /api/wallet/getCurrencyRates with {source,amount,currencyList[]} returns 200 finite; empty body returns 400 (the iteration_119 minor issue is now handled with a proper 400 'source (string) and currencyList (1-50 currency codes) are required'); ZZZ unknown currency yields clean 4xx via provider fallback (no 500). /api/payment/getCurrencyRates same shape returns 200 finite with the merchant Bearer.",
+  "public_tickers_status": "PASS — GET /api/public/tickers 200 with BTC & ETH present and all values finite.",
+  "test_report_links": [
+    "/app/backend/tests/test_iter120_regression.py",
+    "/app/test_reports/pytest/iter120.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "iteration_119 minor issue about /api/wallet/getCurrencyRates 500 on empty body is now resolved — fundingMethods.getCurrencyRates validates source/currencyList/amount and returns 400 with a descriptive message.",
+    "walletOtp.ts trim (501→448) removed only unused imports; all four surface behaviors (verifyOtp, verifyCode alias, validateWalletAddress, updateOtp path indirectly via unauth checks) still respond as documented — safe change.",
+    "Backend log noise: BinanceWS 451 (geo-blocked, expected on this pod using REST fallback) and Tatum ZZZ 400 (expected on unknown-currency probe) — no action needed."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter120_regression.py (new)"],
+  "success_rate": {"backend": "100% (20/20)", "frontend": "N/A (skipped per request)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (verified — login still 200 after all bypass attempts)",
+  "seed_data_creation": "None. Read-only. Only Redis side effects: 1 invalid-OTP attempt per company (well under the 5-strike lockout).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "walletOtp.ts is now 448 lines. Focused regression harness lives at /app/backend/tests/test_iter120_regression.py — reruns cleanly in ~15s. If backend proxy returns 503 'Backend starting, please retry' on first hit after an idle period, wait ~10s and retry. /api/wallet/getCurrencyRates required body shape: {source:string, amount:number>=0, currencyList:string[1..50], fixedDecimal?:bool}. /api/payment/getCurrencyRates accepts the same shape and works with the merchant Bearer token (customerAuthMiddleware accepts it in this pod).",
+  "rca of the issue": "N/A — no regression detected from the 501→448 line trim of backend/controller/wallet/walletOtp.ts."
+}

@@ -53,8 +53,13 @@
      byte-identical. OPEN for user: FastForex subscription lapsed (renew or drop key).
   GIT COMMIT BLOCKER (user: "won't commit, fix any file over 500 lines"): controller/wallet/walletOtp.ts was 501 ->
      trimmed to 448 (unused imports). Full .husky/pre-commit run exit 0 (preflight-tsc BE+FE, file-size, secrets,
-     contrast warn-only). COMMITTED via hook: 1ae1436b31ffa6ca50a1f07bf7238231311f03c1 (391 files). Backend
-     regression testing_agent run still PENDING (user chose to commit first). -->
+     contrast warn-only). COMMITTED via hook: 1ae1436b31ffa6ca50a1f07bf7238231311f03c1 (391 files).
+  REGRESSION (testing_agent iteration_120, backend read-only on LIVE DB): 20/20 PASS — wallet verifyOtp/verifyCode/
+     validateWalletAddress 4xx-never-500 (missing otp/company_id, invalid otp, foreign company 403, unauth); sudo/status;
+     reset-password bogus/empty/missing token all 400 + login still works; wallet+payment getCurrencyRates finite numbers,
+     clean 4xx on unknown/empty; public tickers; walletOtp.ts 448, file-size gate 0, tsc 0; no new stack traces.
+     Suite kept at backend/tests/test_iter120_regression.py — HARDENED to env vars (TEAM_TEST_BASE_URL/OWNER_EMAIL/
+     OWNER_PASSWORD, skips when unset; no hardcoded live password). Wallet-OTP fix is fully closed. -->
 
 <!-- 2026-06 (fork): BLOG COVER REFRESH — DONE + VERIFIED (screenshots /blog + /blog/[slug]; 4/4 covers loaded, post
      cover 1200x630; tsc 0, eslint 0). utils/blogData.ts += getBlogCover(post) = coverImage || /og/blog-<slug>.png (the
