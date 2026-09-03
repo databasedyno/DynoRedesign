@@ -16,7 +16,7 @@ import os
 from typing import Dict, Any, Optional
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://vault-setup-3.preview.emergentagent.com"
+BACKEND_URL = "https://zen-panini-8.preview.emergentagent.com"
 
 class CompanyIdTester:
     def __init__(self):

@@ -3,7 +3,7 @@
 **Status:** Living document. Update as items ship.  
 **Created:** Session 38 (2026-07-13)  
 **Owner:** Main agent (Dynopay)  
-**Preview URL (this session):** https://vault-setup-3.preview.emergentagent.com
+**Preview URL (this session):** https://zen-panini-8.preview.emergentagent.com
 
 ---
 

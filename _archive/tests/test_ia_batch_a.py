@@ -17,7 +17,7 @@ import subprocess
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://vault-setup-3.preview.emergentagent.com"
+BASE_URL = "https://zen-panini-8.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 LOGIN_EMAIL = "hostbay@moxx.co"
 LOGIN_PASSWORD = "Katiekendra123@"
