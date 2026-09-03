@@ -50,7 +50,11 @@
      6 locales, 1h dedup) via services/securityAlertService.ts; EXACT MONEY MATH everywhere: backend utils/money.ts
      (decimal.js) + frontend utils/money.ts (BigInt), 778 rounding sites codemodded, core arithmetic hand-refactored,
      checkout split extracted to controller/payment/checkoutMath.ts with property tests; before/after API snapshots
-     byte-identical. OPEN for user: FastForex subscription lapsed (renew or drop key). -->
+     byte-identical. OPEN for user: FastForex subscription lapsed (renew or drop key).
+  GIT COMMIT BLOCKER (user: "won't commit, fix any file over 500 lines"): controller/wallet/walletOtp.ts was 501 ->
+     trimmed to 448 (unused imports). Full .husky/pre-commit run exit 0 (preflight-tsc BE+FE, file-size, secrets,
+     contrast warn-only). COMMITTED via hook: 1ae1436b31ffa6ca50a1f07bf7238231311f03c1 (391 files). Backend
+     regression testing_agent run still PENDING (user chose to commit first). -->
 
 <!-- 2026-06 (fork): BLOG COVER REFRESH — DONE + VERIFIED (screenshots /blog + /blog/[slug]; 4/4 covers loaded, post
      cover 1200x630; tsc 0, eslint 0). utils/blogData.ts += getBlogCover(post) = coverImage || /og/blog-<slug>.png (the
