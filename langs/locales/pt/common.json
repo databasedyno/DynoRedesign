@@ -950,5 +950,6 @@
     "tooltip": "A identidade deste comerciante foi verificada pela Dynopay",
     "securedBy": "Pagamentos protegidos pela Dynopay",
     "merchantLabel": "Comerciante verificado"
-  }
+  },
+  "referAndEarn": "Indique e ganhe"
 }

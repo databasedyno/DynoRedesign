@@ -1,8 +1,10 @@
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
+import { useCollapsedSections } from "@/hooks/useCollapsedSections";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import ChevronLeftRounded from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
+import HelpOutlineRounded from "@mui/icons-material/HelpOutlineRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, Button, ClickAwayListener, Divider, Fade, IconButton, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -13,28 +15,15 @@ import { TransactionAction, TRANSACTION_FETCH } from "@/Redux/Actions/Transactio
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useAccountProfile from "@/hooks/useAccountProfile";
-import ReferralAndKnowledge from "../ReferralAndKnowledge";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import {
   IconBox,
   Menu,
   MenuItem,
-  SectionLabel,
   SidebarWrapper,
 } from "./styled";
-
-interface SidebarItem {
-  label: string;
-  icon: string;
-  path: string;
-  isNew?: boolean;
-  permission?: string;
-}
-
-interface SidebarSection {
-  label: string;
-  items: SidebarItem[];
-}
+import { SectionHeader } from "./SectionHeader";
+import { buildNavSections, type SidebarItem } from "./navSections";
 
 const NewSidebar = ({
   forceCollapsed = false,
@@ -145,124 +134,22 @@ const NewSidebar = ({
     ];
     paths.forEach((p) => router.prefetch(p));
   }, []);
-  const { t } = useTranslation("dashboardLayout");
+  const { t } = useTranslation(["dashboardLayout", "common"]);
 
-  // ── Persona nav + reveal-on-relevance (audit F13 / N1) ─────────────────────
-  // A creator opens on the thing that makes them money (their page); a business
-  // opens on reconciliation. Three rows are revealed only once they mean
-  // something (see hooks/useNavReveal.ts) — replacing the old "Soon" badge,
-  // which law 5 of the audit forbids. Referrals and Notifications left the nav
-  // (F9/F8): Referrals keeps its footer card + a Settings home, Notifications
-  // lives in the header bell. Fees has no row (F6) — it is Settings → Payments.
+  // ── Sell / Money / Grow / Settings ──────────────────────────────────────────
+  // Dashboard pinned on top; four collapsible groups below (Components/Layout/
+  // NewSidebar/navSections.ts). Reveal-on-relevance rows (receipts, customers,
+  // developers) still come from hooks/useNavReveal.ts. Refer & earn and Help
+  // moved from the old footer cards into normal rows so the whole nav fits at
+  // 768px tall without scrolling.
   const { isIndividual, reveal } = useAccountProfile();
+  const sections = useMemo(
+    () => buildNavSections({ t, isIndividual, hasClaimedCreator, reveal }),
+    [t, isIndividual, hasClaimedCreator, reveal],
+  );
+  const { isSectionCollapsed, toggle: toggleSection, expand: expandSection } = useCollapsedSections();
 
-  const sections: SidebarSection[] = useMemo(() => {
-    const dashboard: SidebarItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard", permission: "view_dashboard" };
-    const payLinks: SidebarItem = { label: t("payLinks"), icon: "payment-links", path: "/pay-links", permission: "manage_payment_links" };
-    // Storefront = the merchant's ONE public page: look & bio, products and the
-    // share tools. Same object, two names: it is the PRODUCT for a creator and
-    // the CHECKOUT PAGE for a business (audit Q1).
-    const publicPage: SidebarItem = {
-      // One name everywhere: the page's own H1 says "Storefront", so the nav
-      // row matches it for BOTH personas (UI/UX audit consistency fix).
-      label: t("storefront", { defaultValue: "Your page" }),
-      icon: "creator",
-      path: "/storefront",
-      isNew: !hasClaimedCreator,
-      permission: "manage_products",
-    };
-    const transactions: SidebarItem = { label: t("transactions"), icon: "transactions", path: "/transactions", permission: "view_transactions" };
-    // F4: honest naming — every row in tbl_invoice is a RECEIPT for money already
-    // received, never a receivable.
-    const receipts: SidebarItem = {
-      label: t("receiptsTax", { defaultValue: "Receipts & Tax" }),
-      icon: "invoices",
-      path: "/invoices",
-      permission: "manage_invoices",
-    };
-    const wallets: SidebarItem = {
-      label: t("payoutWallets", { defaultValue: "Payout wallets" }),
-      icon: "wallets",
-      path: "/wallet",
-      permission: "view_wallets",
-    };
-    const balances: SidebarItem = {
-      label: t("balancesPayouts", { defaultValue: "Balances" }),
-      icon: "balances",
-      path: "/payouts",
-      isNew: true,
-      permission: "view_wallets",
-    };
-    const customers: SidebarItem = { label: t("customers"), icon: "customers", path: "/customers", permission: "manage_customers" };
-    const settings: SidebarItem = { label: t("settings"), icon: "settings", path: "/settings", permission: "manage_company_settings" };
-    const developers: SidebarItem = {
-      label: t("developers", { defaultValue: "Developers" }),
-      icon: "api",
-      path: "/developer-keys",
-      permission: "manage_api_keys",
-    };
-
-    const grow: SidebarSection[] = [];
-    const account: SidebarSection = {
-      label: t("sidebarSectionAccount"),
-      items: reveal.developers ? [settings, developers] : [settings],
-    };
-
-    if (isIndividual) {
-      // Storefront · Payment links · Dashboard · Transactions · [Receipts] · Payout wallets · [Customers]
-      return [
-        {
-          label: t("sidebarSectionGetPaid", { defaultValue: "Get paid" }),
-          items: [publicPage, payLinks],
-        },
-        {
-          label: t("sidebarSectionMoney", { defaultValue: "Money" }),
-          items: [
-            dashboard,
-            balances,
-            transactions,
-            ...(reveal.receipts ? [receipts] : []),
-            wallets,
-            ...(reveal.customers ? [customers] : []),
-          ],
-        },
-        ...grow,
-        account,
-      ];
-    }
-
-    // Business: Dashboard · Payment links · Transactions · [Receipts] · [Customers] · Checkout page · Payout wallets
-    return [
-      // Dashboard leads with NO group label: a single self-evident row does not
-      // need a heading, and the audit's whole point is less chrome, not more.
-      { label: "", items: [dashboard] },
-      {
-        label: t("sidebarSectionGetPaid", { defaultValue: "Get paid" }),
-        items: [payLinks],
-      },
-      {
-        label: t("sidebarSectionMoney", { defaultValue: "Money" }),
-        items: [
-          balances,
-          transactions,
-          ...(reveal.receipts ? [receipts] : []),
-          // Customers is the "who paid me" surface, so it belongs with the money
-          // rather than under a one-row GROW heading that costs a whole header.
-          ...(reveal.customers ? [customers] : []),
-        ],
-      },
-      {
-        // For a business both of these are set-once surfaces: where the money is
-        // taken, and where it lands.
-        label: t("sidebarSectionSetup", { defaultValue: "Your setup" }),
-        items: [publicPage, wallets],
-      },
-      ...grow,
-      account,
-    ];
-  }, [t, isIndividual, hasClaimedCreator, reveal.receipts, reveal.customers, reveal.developers]);
-
-  const isActiveRoute = (path: string) => {
+  const isActiveRoute = useCallback((path: string) => {
     if (path === "/") return router.pathname === "/";
     // Session 47: with nested /pay-links/products, both `/pay-links` and
     // `/pay-links/products` used to highlight together via startsWith.
@@ -273,7 +160,16 @@ const NewSidebar = ({
     // Special-case /pay-links: NOT active when inside /pay-links/products
     if (path === "/pay-links" && p.startsWith("/pay-links/products")) return false;
     return p.startsWith(path + "/");
-  };
+  }, [router.pathname]);
+
+  // The group holding the current page always stays open.
+  const activeSectionKey = useMemo(
+    () => sections.find((s) => s.items.some((i) => isActiveRoute(i.path)))?.key,
+    [sections, isActiveRoute],
+  );
+  useEffect(() => {
+    if (activeSectionKey) expandSection(activeSectionKey);
+  }, [activeSectionKey, expandSection]);
 
   // Quiet Money (design_guidelines.json): nav icons are neutral when inactive
   // and indigo when active — NO per-item "rainbow" accents. Keeps the nav calm
@@ -284,14 +180,18 @@ const NewSidebar = ({
   return (
     <SidebarWrapper data-collapsed={isCollapsed ? "true" : "false"} sx={isCollapsed ? { padding: "12px 8px" } : undefined}>
       <Menu>
-        {sections.map((section, sectionIdx) => (
-          <React.Fragment key={section.label || `section-${sectionIdx}`}>
+        {sections.map((section, sectionIdx) => {
+          const hasHeader = !isCollapsed && !!section.label;
+          // Folded groups only exist in the labelled (expanded / drawer) nav;
+          // the icon rail always shows every row. The active group never folds.
+          const folded = hasHeader && section.key !== activeSectionKey && isSectionCollapsed(section.key);
+          return (
+          <React.Fragment key={section.key}>
             {/* The group LABEL is the separation now. The old divider-per-section
                 doubled up on it and cost ~13px each — with 4 groups that is a
                 whole nav row of vertical space, and this sidebar's height is the
-                scarce resource (the referral card + Help already own ~240px).
-                In the COLLAPSED rail there are no labels, so the divider is the
-                only grouping cue and is kept there. */}
+                scarce resource. In the COLLAPSED rail there are no labels, so
+                the divider is the only grouping cue and is kept there. */}
             {!isMobile && isCollapsed && sectionIdx > 0 && (
               <Divider
                 flexItem
@@ -302,11 +202,22 @@ const NewSidebar = ({
                 }}
               />
             )}
-            <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              {!isCollapsed && !!section.label && (
-                <SectionLabel>{section.label}</SectionLabel>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: "2px" }}
+              data-testid={`sidebar-section-${section.key}`}
+              data-folded={folded ? "true" : "false"}
+            >
+              {hasHeader && (
+                <SectionHeader
+                  sectionKey={section.key}
+                  label={section.label}
+                  open={!folded}
+                  count={section.items.length}
+                  onToggle={() => toggleSection(section.key)}
+                />
               )}
 
+              {!folded && <Box id={`sidebar-section-${section.key}`} sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
               {section.items.map((item) => {
                 const isActive = isActiveRoute(item.path);
                 const denied = !!(isMember && item.permission && !can(item.permission));
@@ -340,6 +251,8 @@ const NewSidebar = ({
                         <SettingsRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : item.icon === "creator" ? (
                         <AutoAwesomeRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
+                      ) : item.icon === "help" ? (
+                        <HelpOutlineRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : (
                         <SidebarIcon
                           name={item.icon}
@@ -402,13 +315,12 @@ const NewSidebar = ({
                   <React.Fragment key={item.path}>{menuItemNode}</React.Fragment>
                 );
               })}
+              </Box>}
             </Box>
           </React.Fragment>
-        ))}
+          );
+        })}
       </Menu>
-      {/* Referral and Knowledge Base Section — hidden when the sidebar is
-          collapsed so nothing overflows the 72px icon rail. */}
-      {!isCollapsed && <ReferralAndKnowledge isMobile={isMobile} />}
 
       {/* Collapse toggle — sits at the very bottom of the sidebar. Chevron
           points inward (left) when expanded, outward (right) when collapsed.

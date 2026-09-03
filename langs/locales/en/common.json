@@ -951,5 +951,6 @@
     "tooltip": "This merchant's identity has been verified by Dynopay",
     "securedBy": "Payments secured by Dynopay",
     "merchantLabel": "Verified merchant"
-  }
+  },
+  "referAndEarn": "Refer & earn"
 }

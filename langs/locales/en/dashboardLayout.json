@@ -356,5 +356,6 @@
   "heroInsightBusier": "Busier than yesterday — {{count}} more payments",
   "heroInsightQuieter": "Quieter than yesterday — {{count}} fewer payments",
   "heroInsightSteady": "Steady — same number of payments as yesterday",
-  "statusAwaiting": "Awaiting payment"
+  "statusAwaiting": "Awaiting payment",
+  "sidebarSectionSell": "Sell"
 }

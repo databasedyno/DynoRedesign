@@ -950,5 +950,6 @@
     "tooltip": "L'identité de ce marchand a été vérifiée par Dynopay",
     "securedBy": "Paiements sécurisés par Dynopay",
     "merchantLabel": "Marchand vérifié"
-  }
+  },
+  "referAndEarn": "Parrainez et gagnez"
 }

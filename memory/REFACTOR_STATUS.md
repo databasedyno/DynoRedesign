@@ -31,8 +31,11 @@
 #     the "you pay / merchant receives / platform fee" breakdown on the hosted checkout
 #     and the receipt/confirmation email. Data already returned by the checkout split.
 #
-#  6. SIDEBAR DENSITY (P2) — 14+ top-level items. Group into Sell / Money / Grow /
-#     Settings with collapsible sections (remember open state per user).
+#  6. SIDEBAR DENSITY (P2) — ✅ DONE 2026-06. Sell / Money / Grow / Settings, Dashboard pinned,
+#     click-to-fold headers (chevron + row count), per-device memory (localStorage
+#     `sidebar_sections_collapsed`), active group auto-expands; Refer & earn + Help & Support moved
+#     from footer cards into rows. Files: NewSidebar/{navSections.ts,SectionHeader.tsx,index.tsx,
+#     styled.tsx}, hooks/useCollapsedSections.ts, scripts/inject_sidebar_i18n.py.
 #
 #  7. TRANSACTIONS TABLE (P3) — sticky header, right-aligned monetary columns (tabular
 #     numerals), status filter chips, move Export into the table header.

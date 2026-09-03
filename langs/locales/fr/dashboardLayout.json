@@ -356,5 +356,6 @@
   "heroInsightBusier": "Plus actif qu'hier — {{count}} paiements de plus",
   "heroInsightQuieter": "Plus calme qu'hier — {{count}} paiements de moins",
   "heroInsightSteady": "Stable — autant de paiements qu'hier",
-  "statusAwaiting": "En attente"
+  "statusAwaiting": "En attente",
+  "sidebarSectionSell": "Vendre"
 }

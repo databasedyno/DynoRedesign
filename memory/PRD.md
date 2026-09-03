@@ -82,7 +82,18 @@
      checkoutMath tests, testing_agent iteration_121 13/13 PASS (backend API/unit/PDF/i18n). All QA artifacts cleaned
      (3 pending tx rows deleted, temp addresses 11/20/71 released, Redis keys cleared, throwaway links 318/319/320 deleted).
      Hook gates green. KNOWN: getData pre-quote estimate (est.) uses feeTiers path (~$1.08) vs exact $1.05 — replaced
-     within ~2s by exact figures; success-screen rows verified by code + unit only (no real payment made). -->
+     within ~2s by exact figures; success-screen rows verified by code + unit only (no real payment made).
+  SIDEBAR REGROUP — DONE (user: Sell/Money/Grow/Settings; collapsible per device, all open by default, active group
+     auto-expands; same in mobile drawer). Dashboard pinned; Sell=[Payment Links, Your page] (creator: page first);
+     Money=[Balances, Transactions, (Receipts), Payout wallets]; Grow=[(Customers), Refer & earn]; Settings=[Settings,
+     (Developers), Help & Support]. Footer cards (ReferralAndKnowledge) REMOVED from the sidebar (component still used on
+     Dashboard). New: NewSidebar/navSections.ts (pure builder), NewSidebar/SectionHeader.tsx (SectionToggle styled button,
+     data-testid sidebar-section-toggle-{key}, count badge when folded), hooks/useCollapsedSections.ts (localStorage
+     `sidebar_sections_collapsed` JSON array). Section wrapper data-testid sidebar-section-{key} data-folded. Icon rail
+     ignores folding. Row padding 10->8px, group gap 14->10px. i18n: dashboardLayout.sidebarSectionSell + common.referAndEarn
+     x6 via scripts/inject_sidebar_i18n.py. Self-tested via screenshots (fold/unfold, count badge, persist across reload,
+     auto-expand on /transactions un-persists, 390px drawer). Hook gates green. KNOWN: at 768px tall with every group open
+     the last ~2 rows scroll (Menu is the scroll region) — folding any group fixes it. -->
 
 <!-- 2026-06 (fork): BLOG COVER REFRESH — DONE + VERIFIED (screenshots /blog + /blog/[slug]; 4/4 covers loaded, post
      cover 1200x630; tsc 0, eslint 0). utils/blogData.ts += getBlogCover(post) = coverImage || /og/blog-<slug>.png (the

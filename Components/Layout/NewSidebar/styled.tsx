@@ -18,7 +18,9 @@ export const SidebarWrapper = styled("aside")(({ theme }) => ({
 export const Menu = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  gap: "14px",
+  // 10px between groups: with Sell / Money / Grow / Settings all open the full
+  // 12-row nav fits a 768px-tall laptop without scrolling.
+  gap: "10px",
   background: theme.palette.background.paper,
   borderRadius: "12px",
   // Fill the free space and become the ONLY scroll region when the nav list is
@@ -47,6 +49,35 @@ export const SectionLabel = styled("div")(({ theme }) => ({
   userSelect: "none",
 }));
 
+/** Clickable group caption — same type as SectionLabel, folds its rows. */
+export const SectionToggle = styled("button")(({ theme }) => ({
+  all: "unset",
+  boxSizing: "border-box",
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
+  fontSize: "10.5px",
+  fontFamily: "var(--font-sans)",
+  fontWeight: 700,
+  letterSpacing: "1.4px",
+  textTransform: "uppercase",
+  color: theme.palette.text.secondary,
+  padding: "4px 10px 4px 14px",
+  marginBottom: "2px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  userSelect: "none",
+  transition: "background-color 140ms ease, color 140ms ease",
+  "&:hover": {
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(15,15,20,0.04)",
+    color: theme.palette.text.primary,
+  },
+  "&:focus-visible": {
+    outline: `2px solid ${brandFg(theme.palette.mode === "dark")}`,
+    outlineOffset: "1px",
+  },
+}));
+
 export const MenuItem = styled("div", {
   shouldForwardProp: (prop) => prop !== "active",
 })<{ active?: boolean }>(
@@ -60,7 +91,7 @@ export const MenuItem = styled("div", {
       alignItems: "center",
       gap: "10px",
       maxHeight: "44px",
-      padding: "10px 14px",
+      padding: "8px 14px",
       borderRadius: "10px",
       cursor: "pointer",
       background: active ? activeTint : "transparent",
