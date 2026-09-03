@@ -9,7 +9,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const API_BASE = 'https://vault-setup-1.preview.emergentagent.com/api';
+const API_BASE = 'https://vault-setup-3.preview.emergentagent.com/api';
 
 interface TestResult {
   test: string;

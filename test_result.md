@@ -15,7 +15,7 @@
 # CURRENT SESSION — 2026-09-02 (pod 054d2272): SETUP + TEST LAST COMMIT + FEATURE + BUG
 #   Restored env from encrypted vault (passphrase Katiekendra123@) -> pod-bootstrap --skip-env.
 #   LIVE prod DB, SAFE MODE (bg jobs off, email off, Redis /1, Binance/SSH tunnel blanked).
-#   Preview: https://vault-setup-1.preview.emergentagent.com
+#   Preview: https://vault-setup-3.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
 #
 #   PLAN (user-approved):
@@ -97,7 +97,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-01 (fork, pod d4fef0d9): FLICKER FIX + DOCS + LANDING BRANDS
-#   LIVE prod DB, SAFE MODE. Preview: https://vault-setup-1.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://vault-setup-3.preview.emergentagent.com
 #   Respond in English. Owner: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   (P0) ISSUE #4 — payment-link "double-load / flicker" — FIXED + VERIFIED.
