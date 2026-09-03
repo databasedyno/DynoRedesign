@@ -64,7 +64,10 @@ import MerchantTrustRow from '@/Components/UI/MerchantTrustRow'
 import type { CheckoutState } from '@/Components/UI/CheckoutShell'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 // ─── Extracted checkout modules (Session refactor) ───────────────────────
-import type { Meta, CryptoInfo, Phase } from './checkout/checkoutTypes'
+import type { Meta, CryptoInfo, Phase, CryptoSplit } from './checkout/checkoutTypes'
+import { PriceBreakdown } from './checkout/PriceBreakdown'
+import { buildFiatRows, buildCryptoRows, buildSuccessRows } from './checkout/breakdownRows'
+import { toNumber } from '@/utils/money'
 import {
   MONO, LIME, INK, ON_BRAND, PREF_NET_KEY, PREF_CUR_KEY, CRYPTO_INFO,
 } from './checkout/checkoutConstants'
@@ -120,7 +123,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   // Exact fee + total (in base_currency) for the SELECTED coin, captured from
   // getCurrencyRates after reservation. Null until a coin is reserved → the
   // header shows the getData estimate first, then the exact figure.
-  const [feeExact, setFeeExact] = useState<{ fee: number; total: number } | null>(null)
+  const [feeExact, setFeeExact] = useState<{ fee: number; total: number; platformFee: number; networkFee: number } | null>(null)
+  // Exact crypto split (customer / merchant / Dynopay fee) from /pay/addPayment —
+  // the authoritative figures once an address is reserved.
+  const [split, setSplit] = useState<CryptoSplit | null>(null)
   const [timeLeft, setTimeLeft] = useState<number>(0)
   // Total reservation window (seconds) — the denominator for the countdown
   // progress bar (§5.12). Tracks the largest window seen so the bar never
@@ -143,6 +149,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     crypto: number
     fiat: number
     fiatCurrency: string
+    merchant?: number
+    fee?: number
+    feePayer?: 'customer' | 'company'
   } | null>(null)
   // Partial-payment (underpaid) details so the buyer is told exactly how much
   // MORE to send to the SAME address to complete the payment.
@@ -254,6 +263,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       fee_payer: raw.fee_payer || raw.fee_info?.fee_payer || 'company',
       tax_amount: Number(raw.tax_info?.tax_amount ?? raw.fee_info?.tax_amount ?? 0) || 0,
       estimated_fee: Number(raw.fee_info?.estimated_processing_fee ?? 0) || 0,
+      estimated_platform_fee: Number(raw.fee_info?.estimated_platform_fee ?? 0) || 0,
       available_currencies: filtered,
       token: String(raw.token || ''),
       link_type: raw.link_type,
@@ -393,6 +403,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     }
     setPhase('creating_payment')
     setErrorMsg('')
+    setSplit(null)
 
     const token = meta_.token
 
@@ -449,7 +460,16 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     if (feePayer === 'customer') {
       const exactFee = Number(rateRow.processing_fee) || 0
       const exactTotal = Number(rateRow.total_amount_source ?? rateRow.total_amount_usd) || (baseAmount + taxAmount + exactFee)
-      setFeeExact({ fee: exactFee, total: exactTotal })
+      // Backend splits the processing fee into Dynopay tier fee + network buffer (source currency).
+      const platformFee = Number(rateRow.platform_fee)
+      const networkFee = Number(rateRow.network_fee)
+      const hasParts = Number.isFinite(platformFee) && Number.isFinite(networkFee)
+      setFeeExact({
+        fee: exactFee,
+        total: exactTotal,
+        platformFee: hasParts ? platformFee : exactFee,
+        networkFee: hasParts ? Math.max(networkFee, 0) : 0,
+      })
     }
 
     // 2. encrypt payload
@@ -487,6 +507,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       crypto_base: info.symbol,
       network: info.network,
     })
+    // Exact split (merchant + fee === customer at 8 dp) — powers the breakdown rows.
+    const merchantAmt = Number(r.merchant_amount)
+    const feeAmt = Number(r.fees)
+    setSplit(
+      Number.isFinite(merchantAmt) && merchantAmt > 0 && Number.isFinite(feeAmt) && feeAmt >= 0
+        ? { customer: Number(r.amount) || cryptoAmount, merchant: merchantAmt, fee: feeAmt, feePayer: r.fee_payer === 'customer' ? 'customer' : 'company' }
+        : null,
+    )
     // Keep this payment id so a post-settlement email catch (success screen) can
     // be linked to THIS transaction for the referral invite.
     paymentIdRef.current = String(r.transaction_id || '')
@@ -537,10 +565,16 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       setDetected(false)
     }
     if (s === 'confirmed' || s === 'overpaid') {
+      const settledMerchant = Number(d_.merchantAmount)
+      const settledFee = Number(d_.feeAmount)
+      const hasSettled = Number.isFinite(settledMerchant) && settledMerchant > 0 && Number.isFinite(settledFee) && settledFee >= 0
       setConfirmedAmount({
         crypto: Number(d_.paidAmount || d_.expectedAmount || cryptoInfo.expected_amount),
         fiat: Number(d_.paidAmountUsd || meta_.amount),
         fiatCurrency: String(d_.baseCurrency || meta_.base_currency),
+        merchant: hasSettled ? settledMerchant : split?.merchant,
+        fee: hasSettled ? settledFee : split?.fee,
+        feePayer: d_.feePayer === 'customer' || d_.feePayer === 'company' ? d_.feePayer : split?.feePayer,
       })
       setPhase('confirmed')
       if (pollRef.current) clearInterval(pollRef.current)
@@ -554,7 +588,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       if (timerRef.current) clearInterval(timerRef.current)
       return
     }
-  }, [cryptoInfo, meta_, onSuccess])
+  }, [cryptoInfo, meta_, onSuccess, split])
 
   // Legacy path (flag OFF): setInterval polling every 10s.
   useEffect(() => {
@@ -716,16 +750,28 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   const fiatSymbol = meta_ ? getCurrencySymbolFromFormat(meta_.base_currency) : '$'
   const fiatAmount = meta_ ? formatWithSeparators(Number(meta_.amount || 0), meta_.base_currency) : '0.00'
 
-  // ── Transparent fee/total breakdown (customer-pays links + tax) ──
-  // Shows "Amount + Network fee = Total" so customer-pays totals are explicit.
+  // ── Transparent price breakdown (you pay / merchant receives / Dynopay fee) ──
+  // Always shown. Fiat figures are estimates until a coin is reserved, then the
+  // exact addPayment split drives every row.
   const feePayerIsCustomer = (meta_?.fee_payer || 'company') === 'customer'
   const baseAmt = Number(meta_?.amount) || 0
   const taxAmt = Number(meta_?.tax_amount) || 0
-  const feeAmt = feeExact ? feeExact.fee : (Number(meta_?.estimated_fee) || 0)
-  const totalAmt = feeExact ? feeExact.total : (baseAmt + taxAmt + feeAmt)
+  const platformFeeEst = Number(meta_?.estimated_platform_fee) || 0
+  // Customer-pays quote = Dynopay tier fee + network buffer; getData's estimate lumps them.
+  const processingFeeEst = Number(meta_?.estimated_fee) || 0
+  const platformFeeAmt = feePayerIsCustomer ? (feeExact ? feeExact.platformFee : platformFeeEst) : platformFeeEst
+  const networkFeeAmt = feePayerIsCustomer
+    ? (feeExact ? feeExact.networkFee : Math.max(toNumber(processingFeeEst - platformFeeEst, 2), 0))
+    : 0
+  const feeAmt = feePayerIsCustomer ? (feeExact ? feeExact.fee : processingFeeEst) : platformFeeEst
+  const totalAmt = feePayerIsCustomer
+    ? (feeExact ? feeExact.total : (baseAmt + taxAmt + feeAmt))
+    : baseAmt + taxAmt
   const feeIsEstimate = feePayerIsCustomer && !feeExact
-  const showBreakdown = !!meta_ && (feePayerIsCustomer || taxAmt > 0)
   const fmtFiat = (n: number) => `${fiatSymbol}${formatWithSeparators(n, meta_?.base_currency || 'USD')}`
+  const fiatRows = meta_
+    ? buildFiatRows({ t, fmtFiat, baseAmt, taxAmt, feePayerIsCustomer, feeFiat: platformFeeAmt, networkFeeFiat: networkFeeAmt, feeIsEstimate, totalFiat: totalAmt, split })
+    : []
 
   // Fire the opt-in browser alert the instant the payment confirms so a buyer
   // who switched tabs is pinged. Ref-guarded so it fires exactly once.
@@ -843,9 +889,36 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           <Box sx={{ mt: 1 }}>
             <PublicVerifiedBadge linkRef={d} showLabel size={15} ml={0} />
           </Box>
-          <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
-            {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
-          </Typography>
+          {confirmedAmount.merchant != null && confirmedAmount.fee != null ? (
+            <Box
+              data-testid="clean-checkout-success-breakdown"
+              sx={{ mt: 1.5, p: 1.5, borderRadius: '10px', border: `1px solid ${border}`, width: '100%', textAlign: 'left' }}
+            >
+              <PriceBreakdown
+                compact
+                title={t('checkout.breakdownTitle', { defaultValue: 'Payment breakdown' })}
+                rows={buildSuccessRows({
+                  t,
+                  fmtFiat,
+                  code: cryptoInfo?.crypto_base || 'BTC',
+                  paidCrypto: confirmedAmount.crypto,
+                  paidFiat: feePayerIsCustomer ? totalAmt : confirmedAmount.fiat,
+                  merchant: confirmedAmount.merchant,
+                  fee: confirmedAmount.fee,
+                  feePayer: confirmedAmount.feePayer || (feePayerIsCustomer ? 'customer' : 'company'),
+                  networkFeeFiat: networkFeeAmt,
+                })}
+                muted={muted}
+                border={border}
+                textColor={theme.palette.text.primary}
+                mono={MONO}
+              />
+            </Box>
+          ) : (
+            <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
+              {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
+            </Typography>
+          )}
 
           {/* Download receipt — proof of payment the customer can keep */}
           <Button
@@ -1031,76 +1104,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         <PublicVerifiedBadge linkRef={d} showLabel size={16} ml={0} />
       </Box>
 
-      {/* Amount subheadline — single line, OR a transparent breakdown when the
-          customer pays fees / tax applies (Amount + Network fee = Total). */}
-      {showBreakdown ? (
-        <Box
-          data-testid="clean-checkout-fee-breakdown"
-          sx={{ mt: 0.75, mb: 3.5, display: 'flex', flexDirection: 'column', gap: 0.6 }}
-        >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Typography sx={{ fontSize: 13, color: muted }}>
-              {t('checkout.amount', { defaultValue: 'Amount' })}
-            </Typography>
-            <Typography data-testid="clean-checkout-breakdown-base" sx={{ fontFamily: MONO, fontSize: 13.5, color: muted }}>
-              {fmtFiat(baseAmt)}
-            </Typography>
-          </Box>
-          {taxAmt > 0 && (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <Typography sx={{ fontSize: 13, color: muted }}>
-                {t('checkout.tax', { defaultValue: 'Tax' })}
-              </Typography>
-              <Typography data-testid="clean-checkout-breakdown-tax" sx={{ fontFamily: MONO, fontSize: 13.5, color: muted }}>
-                +{fmtFiat(taxAmt)}
-              </Typography>
-            </Box>
-          )}
-          {feePayerIsCustomer && (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <Typography sx={{ fontSize: 13, color: muted }}>
-                {t('checkout.processingFee', { defaultValue: 'Processing fee' })}
-                {feeIsEstimate && (
-                  <Typography component="span" sx={{ fontSize: 11, color: muted, ml: 0.5, opacity: 0.75 }}>
-                    ({t('checkout.estimated', { defaultValue: 'est.' })})
-                  </Typography>
-                )}
-              </Typography>
-              <Typography data-testid="clean-checkout-breakdown-fee" sx={{ fontFamily: MONO, fontSize: 13.5, color: muted }}>
-                +{fmtFiat(feeAmt)}
-              </Typography>
-            </Box>
-          )}
-          <Box sx={{ height: '1px', backgroundColor: border, my: 0.4 }} />
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Typography sx={{ fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>
-              {feePayerIsCustomer
-                ? t('checkout.totalYouPay', { defaultValue: 'Total you pay' })
-                : t('checkout.total', { defaultValue: 'Total' })}
-            </Typography>
-            <Typography
-              data-testid="clean-checkout-amount"
-              sx={{ fontFamily: MONO, fontSize: 18, fontWeight: 700, color: theme.palette.text.primary }}
-            >
-              {fmtFiat(totalAmt)} {meta_?.base_currency || ''}
-            </Typography>
-          </Box>
-        </Box>
-      ) : (
-        <Typography
-          data-testid="clean-checkout-amount"
-          sx={{
-            fontFamily: MONO,
-            fontSize: 18,
-            fontWeight: 500,
-            color: muted,
-            mt: 0.75,
-            mb: 3.5,
-          }}
-        >
-          {fiatSymbol}{fiatAmount} {meta_?.base_currency || ''}
-        </Typography>
-      )}
+      {/* Amount subheadline — transparent breakdown (Amount [+ Tax] [+ fee] =
+          Total you pay · Merchant receives · Dynopay fee). */}
+      <Box data-testid="clean-checkout-fee-breakdown" sx={{ mt: 0.75, mb: 3.5 }}>
+        <PriceBreakdown rows={fiatRows} muted={muted} border={border} textColor={theme.palette.text.primary} mono={MONO} />
+      </Box>
 
       {/* Reference row (invoice / campaign / description) */}
       {(meta_?.order_reference || meta_?.description) && (
@@ -1140,6 +1148,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               // Changing network resets any in-flight address reservation.
               // The child currency select will auto-pick the first available.
               setCryptoInfo(null)
+              setSplit(null)
               setSelectedCurrency('')
               setSelectedNetwork(String(e.target.value))
               setPhase('currency_select')
@@ -1178,6 +1187,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             value={selectedCurrency || ''}
             onChange={(e) => {
               setCryptoInfo(null)
+              setSplit(null)
               const code = String(e.target.value)
               setSelectedCurrency(code)
               setPhase('currency_select')
@@ -1449,6 +1459,23 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             </Box>
           </Box>
           <RateFreshness updatedAt={rateFetchedAt} color={muted} />
+          {/* Exact split for the reserved coin — merchant credit vs Dynopay fee */}
+          {split && (
+            <Box
+              data-testid="clean-checkout-crypto-split"
+              sx={{ mt: 1.25, p: 1.25, borderRadius: '8px', border: `1px dashed ${border}` }}
+            >
+              <PriceBreakdown
+                compact
+                title={t('checkout.breakdownTitle', { defaultValue: 'Payment breakdown' })}
+                rows={buildCryptoRows({ t, fmtFiat, split, code: cryptoInfo.crypto_base, totalFiat: totalAmt, networkFeeFiat: networkFeeAmt })}
+                muted={muted}
+                border={border}
+                textColor={theme.palette.text.primary}
+                mono={MONO}
+              />
+            </Box>
+          )}
         </Box>
       )}
 

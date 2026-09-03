@@ -701,7 +701,16 @@
       "body": "Ihre Zahlung an {{name}} ist bestätigt.",
       "cta": "Benachrichtige mich bei Bestätigung",
       "enabled": "Sie erhalten eine Browser-Benachrichtigung bei Bestätigung."
-    }
+    },
+    "breakdownTitle": "Zahlungsaufschlüsselung",
+    "youPay": "Du zahlst",
+    "youPaid": "Du hast bezahlt",
+    "merchantReceives": "Händler erhält",
+    "dynopayFee": "Dynopay-Gebühr",
+    "feePaidByMerchant": "vom Händler bezahlt",
+    "feePaidByCustomer": "zu deinem Gesamtbetrag addiert",
+    "plusNetworkCover": "+ Netzwerkgebühr-Deckung",
+    "inclNetworkCover": "inkl. Netzwerkgebühr-Deckung"
   },
   "creator": {
     "card": {

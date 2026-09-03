@@ -701,7 +701,16 @@
       "body": "Your payment to {{name}} is confirmed.",
       "cta": "Notify me when it confirms",
       "enabled": "You'll get a browser alert when it confirms."
-    }
+    },
+    "breakdownTitle": "Payment breakdown",
+    "youPay": "You pay",
+    "youPaid": "You paid",
+    "merchantReceives": "Merchant receives",
+    "dynopayFee": "Dynopay fee",
+    "feePaidByMerchant": "paid by the merchant",
+    "feePaidByCustomer": "added to your total",
+    "plusNetworkCover": "+ network fee cover",
+    "inclNetworkCover": "incl. network fee cover"
   },
   "creator": {
     "card": {

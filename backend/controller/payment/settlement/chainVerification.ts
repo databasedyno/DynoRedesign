@@ -37,6 +37,7 @@ import {
 } from "../../../models";
 import { createNotification, NOTIFICATION_TYPES } from "../../notificationController";
 import { formatCryptoAmount } from "../../../utils/currencyUtils";
+import { resolveSettledBreakdown } from "./settledBreakdown";
 import { buildPaymentReceivedDisplay } from "../../../utils/paymentAmountDisplay";
 import {
   sendPartialPaymentNotification,
@@ -1542,18 +1543,21 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           }
         }
         
+        // Final settled split (merchant credit vs Dynopay fee) — read back by
+        // verifyCryptoPayment / PDF receipt so the customer sees the exact figures.
+        const merchantAmountFinal = autoConvertEnabled ? originalUserAmount : userAmountToSend;
+        const totalFeeFinal = autoConvertEnabled ? sub(adminAmountToSend, originalUserAmount).toNumber() : adminAmountToSend;
         // FIXED: Use soft delete with 30-min TTL to allow checkout polling for status
         // Update status to successful before soft delete
-        await setRedisItem(tempData.ref, {
+        const settledPayload = {
           ...tempData,
           status: toRedisStatus(PaymentState.PAYOUT_COMPLETE),
           completedAt: new Date().toISOString(),
-        });
-        await setRedisItem(cryptoKey, {
-          ...tempData,
-          status: toRedisStatus(PaymentState.PAYOUT_COMPLETE),
-          completedAt: new Date().toISOString(),
-        });
+          settled_merchant_amount: merchantAmountFinal,
+          settled_fee_amount: totalFeeFinal,
+        };
+        await setRedisItem(tempData.ref, settledPayload);
+        await setRedisItem(cryptoKey, settledPayload);
         // Direct console.log — critical settlement milestone, must appear in Railway logs
         log(`[cryptoVerification] ✅ PAYOUT_COMPLETE: addr=${address}, ref=${tempData.ref}, receivedUSD=$${receivedUSD?.toFixed(2) || 'N/A'}`);
         await softDeleteRedisItem(tempData.ref, PAYMENT_TIMING.REDIS_SOFT_DELETE_TTL_SECONDS); // 30 minutes TTL
@@ -1572,8 +1576,6 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           // gets a terminal event and re-verifies at a point where the status is final.
           const settledPaymentId = tempData?.payment_id || tempData?.unique_tx_id || tempData?.ref || "unknown";
           const settledDedupKey = `confirmed-webhook-sent-${settledPaymentId}`;
-          const merchantAmountFinal = autoConvertEnabled ? originalUserAmount : userAmountToSend;
-          const totalFeeFinal = autoConvertEnabled ? sub(adminAmountToSend, originalUserAmount).toNumber() : adminAmountToSend;
 
           // Merge webhook routing from customerData + tempData (either may hold it).
           const settledCustomerData: Record<string, unknown> = { ...(customerData || {}) };
@@ -1885,7 +1887,11 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                   checkoutLang: customerData?.language || tempData?.language,
                   merchantLang: (userData as { language?: string })?.language,
                 }), // customer language
-                campaignName // Phase 3.3 P1: when set, sends "Thank you for supporting" copy
+                campaignName, // Phase 3.3 P1: when set, sends "Thank you for supporting" copy
+                resolveSettledBreakdown(
+                  { ...tempData, settled_merchant_amount: merchantAmountFinal, settled_fee_amount: totalFeeFinal },
+                  tempCurrency
+                )
               );
               cronLogger.info(`[cryptoVerification] Customer payment confirmation email sent to ${customerEmail} with PDF receipt`);
             }

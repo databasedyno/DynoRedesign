@@ -701,7 +701,16 @@
       "body": "Je betaling aan {{name}} is bevestigd.",
       "cta": "Waarschuw mij bij bevestiging",
       "enabled": "Je krijgt een browsermelding zodra deze is bevestigd."
-    }
+    },
+    "breakdownTitle": "Betalingsoverzicht",
+    "youPay": "Je betaalt",
+    "youPaid": "Je hebt betaald",
+    "merchantReceives": "Verkoper ontvangt",
+    "dynopayFee": "Dynopay-kosten",
+    "feePaidByMerchant": "betaald door de verkoper",
+    "feePaidByCustomer": "opgeteld bij je totaal",
+    "plusNetworkCover": "+ dekking netwerkkosten",
+    "inclNetworkCover": "incl. dekking netwerkkosten"
   },
   "creator": {
     "card": {

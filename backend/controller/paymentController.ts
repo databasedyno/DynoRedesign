@@ -42,6 +42,7 @@ import {
   deleteRedisItem,
   getRedisItem,
   setRedisItem,
+  setRedisItemWithTTL,
 } from "../utils/redisInstance";
 import sequelize from "../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
@@ -109,7 +110,24 @@ import { getData, getPaymentMeta, Crypto, createCryptoPayment, confirmPayment } 
 
 
 import { getLinkAccessToken, getAccessToken } from "./payment/paymentTokens";
-import { toFixedStr, toNumber } from "../utils/money";
+import { toFixedStr, toNumber, D, div } from "../utils/money";
+import { computeInclusiveSplit, computeFallbackSplit } from "./payment/checkoutMath";
+
+// Checkout currency aliases → internal wallet types (shared by quote cache + addPayment)
+const CHECKOUT_CRYPTO_ALIASES: Record<string, string> = {
+  'USDC': 'USDC-ERC20',
+  'RLUSD-XRPL': 'RLUSD',
+};
+// Fee chain lookup key for getBlockchainNetworkFee (mirrors getCurrencyRates mapping)
+const feeChainFor = (currency: string): string => {
+  const c = currency.replace('-', '_').toUpperCase();
+  return ({ USDT: 'USDT_TRC20', USDC: 'USDC_ERC20' } as Record<string, string>)[c] || c;
+};
+// Customer-pays quote cache: what the customer was actually charged for (tier + network buffer).
+// Read back by addPayment so the settlement split matches the quote to the cent.
+const QUOTE_TTL_SECONDS = 30 * 60;
+const quoteKey = (ref: string, currency: string): string =>
+  `quote-${ref}-${(CHECKOUT_CRYPTO_ALIASES[currency] || currency).toUpperCase()}`;
 
 const addPayment = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -251,13 +269,9 @@ const addPayment = async (req: express.Request, res: express.Response) => {
         if (value.paymentType === paymentTypes.CRYPTO) {
           // Normalize checkout currency aliases to internal wallet types
           // Checkout sends "USDC" but wallets are "USDC-ERC20", "RLUSD-XRPL" but wallets are "RLUSD"
-          const cryptoAliasMap: Record<string, string> = {
-            'USDC': 'USDC-ERC20',
-            'RLUSD-XRPL': 'RLUSD',
-          };
-          if (cryptoAliasMap[value.currency]) {
-            cronLogger.info(`[addPayment] Normalizing currency: ${value.currency} → ${cryptoAliasMap[value.currency]}`);
-            value.currency = cryptoAliasMap[value.currency];
+          if (CHECKOUT_CRYPTO_ALIASES[value.currency]) {
+            cronLogger.info(`[addPayment] Normalizing currency: ${value.currency} → ${CHECKOUT_CRYPTO_ALIASES[value.currency]}`);
+            value.currency = CHECKOUT_CRYPTO_ALIASES[value.currency];
           }
           
           // Pass pre-reserved pool address from Direct Pay (if any) so Crypto uses the same address
@@ -306,6 +320,8 @@ const addPayment = async (req: express.Request, res: express.Response) => {
           // Calculate fees using tier-based structure (2% + fixed + buffer)
           let merchant_amount_crypto = 0;
           let total_fees_crypto = 0;
+          let platformFeeUSD = 0;
+          let networkFeeUSD = 0;
           const crypto_amount = Number(value.amount);
           
           // Check if tax applies
@@ -337,11 +353,9 @@ const addPayment = async (req: express.Request, res: express.Response) => {
             }
             
             if (taxAmount > 0) {
-              // Calculate tax portion in crypto
-              // For customer-pays: crypto_amount includes base + tax + fees
-              // For company-pays: crypto_amount includes base + tax only
+              // Provisional tax share (overwritten by the exact split below; kept for the fallback path)
               const totalWithTax = baseAmountUSD + taxAmount;
-              taxAmountCrypto = totalWithTax > 0 ? crypto_amount * (taxAmount / totalWithTax) : 0;
+              taxAmountCrypto = toNumber(D(crypto_amount).times(div(taxAmount, totalWithTax)), 8);
             }
           }
           
@@ -354,50 +368,70 @@ const addPayment = async (req: express.Request, res: express.Response) => {
               Number(items.adm_id) || undefined  // Pass userId for fee-free discount
             );
             
-            // Convert fee percentage to crypto
-            const feePercentage = totalDeduction / baseAmountUSD;
+            const feePercentage = baseAmountUSD > 0 ? toNumber(div(totalDeduction, baseAmountUSD), 8) : 0;
             
             if (feeFreeApplied) {
               cronLogger.info(`[addPayment] 🎉 Fee-free promotion applied for user ${items.adm_id}`);
             }
             
+            // Customer-pays: the quote also charged a network-fee buffer. It rides with the
+            // merchant share (forwarding gas is deducted from the merchant transfer), so read
+            // the cached quote first and fall back to a live estimate if it expired.
             if (fee_payer === 'customer') {
-              // Customer pays fees - fees are added on top, merchant gets full base + tax
-              // crypto_amount already includes fees (customer paid more)
-              const baseWithTax = baseAmountUSD + taxAmount;
-              const baseCryptoRatio = baseWithTax / (baseWithTax + totalDeduction);
-              merchant_amount_crypto = crypto_amount * baseCryptoRatio;
-              total_fees_crypto = crypto_amount - merchant_amount_crypto;
-            } else {
-              // Company pays fees - fees deducted from BASE amount only (not from tax)
-              // This matches createCryptoPayment (Direct API) behavior
-              if (taxAmount > 0) {
-                const totalWithTax = baseAmountUSD + taxAmount;
-                const baseCryptoRatio = baseAmountUSD / totalWithTax;
-                const baseCrypto = crypto_amount * baseCryptoRatio;
-                const taxCrypto = crypto_amount - baseCrypto;
-                // Apply fees only to the base crypto portion
-                total_fees_crypto = baseCrypto * feePercentage;
-                // Merchant gets: base after fees + full tax (tax passes through untouched)
-                merchant_amount_crypto = (baseCrypto - total_fees_crypto) + taxCrypto;
+              const quote = await getRedisItem(quoteKey(userData.ref, value.currency));
+              if (quote && Number.isFinite(Number(quote.network_fee_usd))) {
+                networkFeeUSD = Number(quote.network_fee_usd) || 0;
               } else {
-                total_fees_crypto = crypto_amount * feePercentage;
-                merchant_amount_crypto = crypto_amount - total_fees_crypto;
+                try {
+                  networkFeeUSD = toNumber(Number((await getBlockchainNetworkFee(feeChainFor(value.currency))).feeInUSD) || 0, 2);
+                } catch (nfErr) {
+                  cronLogger.warn(`[addPayment] network fee lookup failed (${value.currency}): ${(nfErr as Error).message}`);
+                }
               }
             }
+            platformFeeUSD = toNumber(totalDeduction, 2);
+            
+            // Exact split (decimal.js): merchant + fees === crypto_amount at 8 dp.
+            // customer pays → merchant gets base+tax+network share, Dynopay fee is the complement
+            // company pays  → fee taken from the base share only (tax passes through)
+            const split = computeInclusiveSplit({
+              cryptoAmount: crypto_amount,
+              baseAmount: baseAmountUSD,
+              taxAmount,
+              feeFiat: totalDeduction,
+              networkFeeFiat: networkFeeUSD,
+              feePayer: fee_payer === 'customer' ? 'customer' : 'company',
+            });
+            merchant_amount_crypto = split.merchantAmount;
+            total_fees_crypto = split.feesAmount;
+            taxAmountCrypto = split.taxAmount;
             
             cronLogger.info(`[addPayment] Fee calculation:
               - Base USD: $${baseAmountUSD}
               - Fee breakdown: $${toFixedStr(transactionFee, 2)} (pct) + $${toFixedStr(fixedFee, 2)} (fixed)
               - Total fee: $${toFixedStr(totalDeduction, 2)} (${toFixedStr((feePercentage * 100), 2)}%)
+              - Network buffer (customer-pays): $${toFixedStr(networkFeeUSD, 2)}
               - Fee payer: ${fee_payer}`);
           } catch (feeError) {
             cronLogger.error('[addPayment] Fee calculation error, using fallback:', feeError);
             // Fallback to simple 2% if tier calculation fails
-            const fallbackFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0') / 100;
-            total_fees_crypto = crypto_amount * fallbackFeePercent;
-            merchant_amount_crypto = crypto_amount - total_fees_crypto;
+            const fallbackFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0');
+            const fallback = computeFallbackSplit(crypto_amount, fallbackFeePercent);
+            total_fees_crypto = fallback.feesAmount;
+            merchant_amount_crypto = fallback.merchantAmount;
           }
+          
+          // Expose the exact split to the checkout so it can render
+          // "you pay / merchant receives / Dynopay fee" from the same numbers we settle on.
+          finalRes = {
+            ...finalRes,
+            amount: crypto_amount,
+            merchant_amount: merchant_amount_crypto,
+            fees: total_fees_crypto,
+            fee_payer,
+            platform_fee_usd: platformFeeUSD,
+            network_fee_usd: networkFeeUSD,
+          };
           
           // Clear any existing data for this address before setting new payment data
           const cryptoRedisKey = getCryptoRedisKey(paymentRes.address, paymentRes.destination_tag);
@@ -415,6 +449,8 @@ const addPayment = async (req: express.Request, res: express.Response) => {
             fee_payer: fee_payer,                     // Who pays fees
             base_amount_usd: baseAmountUSD,           // Original USD amount
             total_amount_usd: baseAmountUSD + taxAmount, // Total USD with tax
+            platform_fee_usd: platformFeeUSD,         // Dynopay tier fee (USD) behind total_fees
+            network_fee_usd: networkFeeUSD,           // Network buffer quoted to the customer (customer-pays)
             status: toRedisStatus(PaymentState.PENDING),
             ref: uniqueRef,
             currency: value.currency,
@@ -910,6 +946,10 @@ const getCurrencyRates = async (
     // If customer pays fees, calculate total amounts including all fees
     if (fee_payer === 'customer') {
       cronLogger.info(`[getCurrencyRates] Customer pays fees - calculating enhanced rates with fees`);
+      const quoteRef = (jwt.decode(res.locals.token) as { ref?: string } | null)?.ref;
+      // Quote with the merchant's own fee config (tier / fee-free promo) so it matches addPayment exactly.
+      const session = quoteRef ? await getRedisItem("customer-" + quoteRef) : null;
+      const merchantUserId = Number(session?.adm_id) || undefined;
       
       // Pre-fetch all blockchain fees in parallel for better performance
       const allBlockchainFees = await getAllBlockchainFees();
@@ -929,7 +969,7 @@ const getCurrencyRates = async (
               // Use pre-fetched fees instead of individual API call
               const networkFee = allBlockchainFees[chain] || await getBlockchainNetworkFee(chain);
               // Use USD amount for fee tier calculation
-              const feeResult = await calculateTransactionFees(chain, amountUSD);
+              const feeResult = await calculateTransactionFees(chain, amountUSD, merchantUserId);
               
               const fixedFee = Number(feeResult.fixedFee) || 0;
               const transactionFee = Number(feeResult.transactionFee) || 0;
@@ -1000,7 +1040,8 @@ const getCurrencyRates = async (
             // Use USD amount for fee tier calculation
             const feeResult = await calculateTransactionFees(
               chain,
-              amountUSD
+              amountUSD,
+              merchantUserId
             );
             
             // Ensure all fee values are valid numbers (protection against NaN/undefined)
@@ -1009,8 +1050,11 @@ const getCurrencyRates = async (
             const networkFeeUSD = Number(networkFee.feeInUSD) || 0;
             
             // Calculate totals including tax - round USD amounts to 2 decimals for consistency
+            const platformFeeUSD = toNumber(fixedFee + transactionFee, 2);
             const totalFeesUSD = fixedFee + transactionFee + networkFeeUSD;
             const roundedTotalFeesUSD = toNumber(totalFeesUSD, 2);
+            // Network buffer = exact complement so platform + network === processing fee
+            const networkBufferUSD = toNumber(roundedTotalFeesUSD - platformFeeUSD, 2);
             const taxAmountRaw = Number(tax_amount) || 0;
             // Convert tax from source currency to USD (tax_amount arrives in source currency)
             const sourceToUSDRate = (amount > 0 && Math.abs(amountUSD - amount) > 0.01) ? (amountUSD / amount) : 1;
@@ -1026,9 +1070,23 @@ const getCurrencyRates = async (
             const usdToSourceRate = amountUSD > 0 ? amount / amountUSD : 1;
             const totalAmountSource = toNumber((roundedTotalAmountUSD * usdToSourceRate), 2);
             const processingFeeSource = toNumber((roundedTotalFeesUSD * usdToSourceRate), 2);
+            const platformFeeSource = toNumber((platformFeeUSD * usdToSourceRate), 2);
+            const networkFeeSource = toNumber(processingFeeSource - platformFeeSource, 2);
             const taxAmountSource = toNumber((taxAmountRaw * 1), 2); // tax_amount is already in source currency
             
             cronLogger.info(`[getCurrencyRates] ${rate.currency}: base=${amount} ${source} ($${toFixedStr(amountUSD, 2)} USD), tax=${taxAmountRaw} ${source} ($${toFixedStr(taxAmountUSD, 2)} USD), fees=$${toFixedStr(roundedTotalFeesUSD, 2)}, total=$${toFixedStr(roundedTotalAmountUSD, 2)} USD (=${toFixedStr(totalAmountSource, 2)} ${source})`);
+            
+            // Cache the quote so addPayment splits exactly what the customer was charged.
+            if (quoteRef) {
+              setRedisItemWithTTL(quoteKey(quoteRef, rate.currency), {
+                base_amount_usd: toNumber(amountUSD, 2),
+                tax_amount_usd: taxAmountUSD,
+                platform_fee_usd: platformFeeUSD,
+                network_fee_usd: networkBufferUSD,
+                total_amount_usd: roundedTotalAmountUSD,
+                quoted_at: new Date().toISOString(),
+              }, QUOTE_TTL_SECONDS).catch((qErr: unknown) => cronLogger.warn(`[getCurrencyRates] quote cache failed: ${(qErr as Error).message}`));
+            }
             
             return {
               ...rate,
@@ -1038,9 +1096,13 @@ const getCurrencyRates = async (
               // Include tax in breakdown (in source currency as received)
               tax_amount: taxAmountSource,
               tax_amount_usd: taxAmountUSD,
-              // Simplified - only show total processing fee (converted to source currency)
+              // Total processing fee (converted to source currency) + its two parts
               processing_fee: processingFeeSource,
               processing_fee_usd: roundedTotalFeesUSD,
+              platform_fee: platformFeeSource,
+              platform_fee_usd: platformFeeUSD,
+              network_fee: networkFeeSource,
+              network_fee_usd: networkBufferUSD,
               total_amount: fixedDecimal ? toFixedStr(totalAmountCrypto, 8) : totalAmountCrypto,
               // IMPORTANT: Checkout reads total_amount_usd first and multiplies by transferRate (1 for same currency)
               // So total_amount_usd MUST be in source currency for correct display

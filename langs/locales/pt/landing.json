@@ -701,7 +701,16 @@
       "body": "O seu pagamento para {{name}} foi confirmado.",
       "cta": "Avise-me quando confirmar",
       "enabled": "Você receberá um alerta do navegador quando confirmar."
-    }
+    },
+    "breakdownTitle": "Detalhe do pagamento",
+    "youPay": "Você paga",
+    "youPaid": "Você pagou",
+    "merchantReceives": "O comerciante recebe",
+    "dynopayFee": "Taxa Dynopay",
+    "feePaidByMerchant": "paga pelo comerciante",
+    "feePaidByCustomer": "adicionada ao seu total",
+    "plusNetworkCover": "+ cobertura da taxa de rede",
+    "inclNetworkCover": "incl. cobertura da taxa de rede"
   },
   "creator": {
     "card": {

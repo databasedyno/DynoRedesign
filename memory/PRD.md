@@ -62,7 +62,27 @@
      OWNER_PASSWORD, skips when unset; no hardcoded live password). Wallet-OTP fix is fully closed.
   UI/UX RECOMMENDATIONS (7 items, prioritized, NOT implemented) documented at top of memory/REFACTOR_STATUS.md:
      rate-limit countdown UX, security activity panel, instant dashboard (SWR->localStorage), single-step login,
-     checkout fee breakdown, sidebar grouping, transactions table polish. -->
+     checkout fee breakdown, sidebar grouping, transactions table polish.
+  CHECKOUT BREAKDOWN — DONE (user choices: always show, even merchant-pays; checkout + success + PDF + email; real E2E).
+     Frontend: checkout/PriceBreakdown.tsx + checkout/breakdownRows.ts (pure row builders), CleanCheckoutV2 header rows
+     (Amount / [Tax] / Dynopay fee / [Network fee] / Total you pay / Merchant receives [+ network fee cover]) always shown,
+     est. until coin reserved then exact from addPayment split; crypto split card (data-testid clean-checkout-crypto-split)
+     under the amount; success card rows (clean-checkout-success-breakdown). i18n 9 keys x6 locales via
+     scripts/inject_breakdown_i18n.py. Meta.estimated_platform_fee, CryptoSplit type.
+     Backend: getData fee_info.estimated_platform_fee (all 3 sites); /pay/addPayment (paymentController) split moved from
+     FLOAT math to computeInclusiveSplit (checkoutMath.ts) and now RETURNS amount/merchant_amount/fees/fee_payer/
+     platform_fee_usd/network_fee_usd; MONEY FIX (user picked option a): customer-pays split now matches the quote —
+     getCurrencyRates quotes with the merchant's userId (tier/promo parity), returns platform_fee/network_fee parts and
+     caches quote-{ref}-{CUR} in Redis (30 min); addPayment reads it so the network buffer rides with the merchant share
+     and Dynopay gets exactly its tier fee (was: ~$0.15 skew to Dynopay on a $5 link). chainVerification writes
+     settled_merchant_amount/settled_fee_amount at PAYOUT_COMPLETE; verifyCryptoPayment returns merchantAmount/feeAmount/
+     feePayer; PDF receipt "Payment breakdown" block; customer confirmation email rows (sendCustomerPaymentConfirmationEmail
+     moved to services/email/customerReceiptEmail.ts to stay under the 500-line gate). settledBreakdown.ts helper.
+     Verified: real E2E both fee payers (0.00006762 + 0.00001285 = 0.00008047 BTC; $5.00+$1.05+$0.53=$6.58), 12 jest
+     checkoutMath tests, testing_agent iteration_121 13/13 PASS (backend API/unit/PDF/i18n). All QA artifacts cleaned
+     (3 pending tx rows deleted, temp addresses 11/20/71 released, Redis keys cleared, throwaway links 318/319/320 deleted).
+     Hook gates green. KNOWN: getData pre-quote estimate (est.) uses feeTiers path (~$1.08) vs exact $1.05 — replaced
+     within ~2s by exact figures; success-screen rows verified by code + unit only (no real payment made). -->
 
 <!-- 2026-06 (fork): BLOG COVER REFRESH — DONE + VERIFIED (screenshots /blog + /blog/[slug]; 4/4 covers loaded, post
      cover 1200x630; tsc 0, eslint 0). utils/blogData.ts += getBlogCover(post) = coverImage || /og/blog-<slug>.png (the

@@ -18,6 +18,9 @@ export type Meta = {
   // Estimated processing fee (base_currency) returned by getData for customer-pays
   // links, shown before the exact per-coin fee is known after crypto selection.
   estimated_fee?: number
+  // Estimated Dynopay tier fee (base_currency, no network fee) — the merchant-side
+  // deduction shown in the breakdown for merchant-pays links until a coin is reserved.
+  estimated_platform_fee?: number
   available_currencies: string[]
   token: string
   link_type?: string
@@ -60,3 +63,11 @@ export type Phase =
   | 'error'
 
 export type PaymentUri = { uri: string } | null
+
+/** Exact crypto split returned by /pay/addPayment (merchant + fee === customer, 8 dp). */
+export type CryptoSplit = {
+  customer: number
+  merchant: number
+  fee: number
+  feePayer: 'customer' | 'company'
+}

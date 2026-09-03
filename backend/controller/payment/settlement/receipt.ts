@@ -36,6 +36,7 @@ import {
 } from "../../../models";
 import { createNotification, NOTIFICATION_TYPES } from "../../notificationController";
 import { formatCryptoAmount } from "../../../utils/currencyUtils";
+import { formatBreakdown, resolveSettledBreakdown } from "./settledBreakdown";
 import { buildPaymentReceivedDisplay } from "../../../utils/paymentAmountDisplay";
 import {
   sendPartialPaymentNotification,
@@ -180,6 +181,7 @@ export const downloadReceipt = async (
       paymentMethod: currency ? `Cryptocurrency (${currency})` : "Cryptocurrency",
       status: undefined, // pdfReceiptService renders localized "Completed" by default
       lang: L,
+      breakdown: formatBreakdown(resolveSettledBreakdown(tempData, currency)),
     });
 
     const filename = getReceiptFilename(transactionId);

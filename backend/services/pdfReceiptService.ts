@@ -50,6 +50,8 @@ interface ReceiptData {
   status?: string;
   // Locale for receipt labels/date formatting (ISO 639-1)
   lang?: string;
+  // Exact "merchant receives / Dynopay fee" split (crypto strings, already formatted)
+  breakdown?: { merchantReceives: string; platformFee: string; feePayer: "customer" | "company" };
 }
 
 /**
@@ -189,6 +191,32 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       });
 
       yPos += details.length * 30 + 20;
+
+      // ============================================
+      // PAYMENT BREAKDOWN (you paid / merchant receives / Dynopay fee)
+      // ============================================
+      if (data.breakdown) {
+        doc.moveTo(50, yPos).lineTo(50 + pageWidth, yPos).stroke(BRAND_COLORS.border);
+        yPos += 20;
+        doc.fontSize(14).fillColor(BRAND_COLORS.primary).text(t("receipt.breakdown", L), 50, yPos);
+        yPos += 25;
+        const feeNote = t(data.breakdown.feePayer === "customer" ? "receipt.feePaidByCustomer" : "receipt.feePaidByMerchant", L);
+        const paidValue = data.cryptoAmount && data.cryptoCurrency
+          ? `${data.cryptoAmount} ${data.cryptoCurrency}`
+          : `${data.amount} ${data.currency}`;
+        const rows = [
+          { label: t("receipt.youPaid", L), value: paidValue },
+          { label: t("receipt.merchantReceives", L), value: data.breakdown.merchantReceives },
+          { label: t("receipt.platformFee", L), value: `${data.breakdown.platformFee}  (${feeNote})` },
+        ];
+        rows.forEach((item, index) => {
+          const rowY = yPos + index * 30;
+          if (index % 2 === 0) doc.rect(50, rowY - 5, pageWidth, 28).fill("#fafafa");
+          doc.fontSize(11).fillColor(BRAND_COLORS.text).text(item.label, 60, rowY + 3);
+          doc.fontSize(11).fillColor(BRAND_COLORS.dark).text(item.value, 250, rowY + 3, { width: 280, align: "left" });
+        });
+        yPos += rows.length * 30 + 20;
+      }
 
       // ============================================
       // MERCHANT & CUSTOMER INFO

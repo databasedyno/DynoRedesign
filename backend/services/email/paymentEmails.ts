@@ -2,7 +2,6 @@ import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
-import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
 import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
@@ -393,102 +392,4 @@ export const sendPaymentFailedEmail = async (
   }
 };
 
-/**
- * Template 19: Customer Payment Confirmation with PDF Receipt
- */
-export const sendCustomerPaymentConfirmationEmail = async (
-  customerEmail: string,
-  customerName: string | null,
-  companyName: string,
-  amount: string,
-  currency: string,
-  transactionId: string,
-  description: string | null,
-  date: string,
-  time: string,
-  cryptoAmount?: string,
-  cryptoCurrency?: string,
-  transactionReference?: string,
-  lang: string = 'en',
-  campaignName?: string
-) => {
-  try {
-    const L = normalizeLang(lang);
-    const hasRealName = !!(customerName && customerName.trim() && !customerName.includes('@'));
-    const displayName = hasRealName ? customerName.trim() : (customerEmail ? customerEmail.split('@')[0] : '');
-    const isContribution = !!(campaignName && campaignName.trim());
-    const subject = isContribution
-      ? t('contributionThankYou.subject', L, { campaignName })
-      : t('customerPaymentConfirmation.subject', L, { companyName });
-
-    let pdfAttachment: { name: string; content: string; contentType: string } | undefined;
-    try {
-      const receiptData = {
-        transactionId,
-        transactionReference,
-        amount,
-        currency,
-        cryptoAmount,
-        cryptoCurrency,
-        companyName,
-        customerEmail,
-        customerName: displayName,
-        paymentDate: new Date(`${date} ${time}`),
-        description: description || undefined,
-        paymentMethod: cryptoCurrency ? `${t('receipt.cryptocurrency', L)} (${cryptoCurrency})` : t('receipt.cryptocurrency', L),
-        status: t('receipt.completed', L),
-        lang: L,
-      };
-
-      const pdfBuffer = await generatePaymentReceipt(receiptData);
-      const filename = getReceiptFilename(transactionId);
-
-      pdfAttachment = {
-        name: filename,
-        content: pdfBuffer.toString('base64'),
-        contentType: 'application/pdf',
-      };
-      apiLogger.info(`[Email] Generated PDF receipt: ${filename}`);
-    } catch (pdfError) {
-      apiLogger.error("[Email] Failed to generate PDF receipt:", pdfError);
-    }
-
-    const content = `${p(hasRealName ? t('common.greeting', L, { name: displayName }) : t('common.greetingNoName', L))}
-    ${p(
-      isContribution
-        ? t('contributionThankYou.intro', L, { campaignName })
-        : t('customerPaymentConfirmation.intro', L, { companyName })
-    )}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.complete', L), 'success'))}
-        ${dataRow(t('labels.amountPaid', L), `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
-        ${description ? dataRow(t('labels.description', L), description) : ''}
-        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
-        ${transactionReference ? dataRow(t('labels.reference', L), transactionReference) : ''}
-        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
-      </table>
-    `, '#12B76A')}
-    ${pdfAttachment ? p(t('customerPaymentConfirmation.pdfAttached', L)) : ''}
-    ${p(
-      isContribution
-        ? t('contributionThankYou.contact', L, { campaignName })
-        : t('customerPaymentConfirmation.contact', L, { companyName })
-    )}
-    ${isContribution ? p(t('contributionThankYou.outro', L)) : ''}
-    ${p(`<span style="font-size: 13px; color: #6b7280;">${t('common.securedBy', L)}</span>`)}`;
-
-    const html = dynoPayEmailTemplate(
-      isContribution
-        ? t('contributionThankYou.heading', L, { campaignName })
-        : t('customerPaymentConfirmation.heading', L),
-      content
-    );
-    await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
-    apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);
-  } catch (e) {
-    apiLogger.error("Customer payment confirmation email error:", e);
-  }
-};
-
+export { sendCustomerPaymentConfirmationEmail } from "./customerReceiptEmail";

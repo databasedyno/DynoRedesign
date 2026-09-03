@@ -27,7 +27,7 @@
 #     email -> password flow collapses to password-only on return visits ("Not you?" to
 #     switch). Later: passkeys (WebAuthn) as a second option.
 #
-#  5. CHECKOUT TRUST CUE (P2) — amounts now tie exactly (checkoutMath.ts split), so show
+#  5. CHECKOUT TRUST CUE (P2) — ✅ DONE 2026-06 (see PRD.md CHECKOUT BREAKDOWN). Was: show
 #     the "you pay / merchant receives / platform fee" breakdown on the hosted checkout
 #     and the receipt/confirmation email. Data already returned by the checkout split.
 #

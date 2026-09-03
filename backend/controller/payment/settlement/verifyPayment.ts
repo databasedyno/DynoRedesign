@@ -36,6 +36,7 @@ import {
 } from "../../../models";
 import { createNotification, NOTIFICATION_TYPES } from "../../notificationController";
 import { formatCryptoAmount } from "../../../utils/currencyUtils";
+import { resolveSettledBreakdown } from "./settledBreakdown";
 import { buildPaymentReceivedDisplay } from "../../../utils/paymentAmountDisplay";
 import {
   sendPartialPaymentNotification,
@@ -288,6 +289,11 @@ export const verifyCryptoPayment = async (
         paidAmountUsd: toNumber(paidAmountUsd, 2),
         expectedAmountUsd: toNumber(expectedAmountUsd, 2),
         baseCurrency: baseCurrency,
+        // Exact settled split for the success screen ("merchant receives / Dynopay fee")
+        ...(() => {
+          const b = resolveSettledBreakdown(tempData, currency);
+          return b ? { merchantAmount: b.merchantAmount, feeAmount: b.feeAmount, feePayer: b.feePayer } : {};
+        })(),
         completedAt: tempData.completedAt,
         // Timer and settings (for consistency across all responses)
         remaining_seconds: 0, // Payment complete, no time remaining

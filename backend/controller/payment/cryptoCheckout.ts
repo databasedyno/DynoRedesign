@@ -373,7 +373,8 @@ const getData = async (req: express.Request, res: express.Response) => {
     }
     
     const totalProcessingFee = toNumber(sum([feeAmountPercent, fixedFee, networkFeeUSD]), 2);
-    // totalWithFees calculated but not used - kept for reference
+    // Tier fee only (no network fee) — the merchant-side deduction shown in the checkout breakdown.
+    const estimatedPlatformFee = toNumber(sum([feeAmountPercent, fixedFee]), 2);
     
     // Calculate expiry countdown
     let expiryInfo: Record<string, unknown> | null = null;
@@ -748,6 +749,7 @@ const getData = async (req: express.Request, res: express.Response) => {
         // Simplified fee info - always include subtotal and total with tax
         fee_info: {
           fee_payer: item.fee_payer || 'company',
+          estimated_platform_fee: estimatedPlatformFee,
           subtotal: toNumber(amount, 2),
           tax_amount: toNumber(taxAmount, 2),
           // Total always includes tax, regardless of fee_payer
@@ -823,6 +825,7 @@ const getData = async (req: express.Request, res: express.Response) => {
           // Simplified fee info - no internal breakdown exposed
           fee_info: {
             fee_payer: item.fee_payer || 'company',
+            estimated_platform_fee: estimatedPlatformFee,
             ...(item.fee_payer === 'customer' && {
               estimated_processing_fee: toNumber(totalProcessingFee, 2),
               fees_pending_crypto_selection: true,
@@ -873,6 +876,7 @@ const getData = async (req: express.Request, res: express.Response) => {
           // Simplified fee info - no internal breakdown exposed
           fee_info: {
             fee_payer: item.fee_payer || 'company',
+            estimated_platform_fee: estimatedPlatformFee,
             ...(item.fee_payer === 'customer' && {
               estimated_processing_fee: toNumber(totalProcessingFee, 2),
               fees_pending_crypto_selection: true,

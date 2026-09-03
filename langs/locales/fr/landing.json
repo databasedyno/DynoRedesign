@@ -701,7 +701,16 @@
       "body": "Votre paiement à {{name}} est confirmé.",
       "cta": "Prévenez-moi lors de la confirmation",
       "enabled": "Vous recevrez une alerte du navigateur lors de la confirmation."
-    }
+    },
+    "breakdownTitle": "Détail du paiement",
+    "youPay": "Vous payez",
+    "youPaid": "Vous avez payé",
+    "merchantReceives": "Le marchand reçoit",
+    "dynopayFee": "Frais Dynopay",
+    "feePaidByMerchant": "payés par le marchand",
+    "feePaidByCustomer": "ajoutés à votre total",
+    "plusNetworkCover": "+ couverture des frais de réseau",
+    "inclNetworkCover": "incl. couverture des frais de réseau"
   },
   "creator": {
     "card": {
