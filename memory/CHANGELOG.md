@@ -1,3 +1,10 @@
+# SESSION 2026-09-03 (fork, pod ca6c51ad) — Transactions table: status chips + scoped Export + sticky header — SAFE MODE, prod DB
+- New toolbar strip inside the table card (status chips w/ live counts, Export + Settled only); Export removed from top bar.
+- Export honours every filter incl. status chip / source / wallet / search / whole-day dates; backend export endpoint extended
+  (status bucket, source, wallet, RBAC parity). Search parity bug from testing agent fixed (id/hash/currency/amount).
+- Sticky opaque header on desktop; Amount / USD Value / VAT right-aligned. ?status= deep links + URL sync.
+- testing_agent iteration_122 (FE 10/10, BE 10/11 → fixed), curl-verified counts match grid exactly.
+
 # SESSION 2026-09-02 (fork, pod vault-setup) — Landing reflow ROOT CAUSE + status badges + wallet edit flow — SAFE MODE, prod DB
 - Landing "small then big": React escaped quotes inside <style>{`…`}</style> in _app.tsx -> font vars invalid pre-hydration
   (Times New Roman first paint). Fixed via dangerouslySetInnerHTML; header/footer logo no longer forced white pre-mount.

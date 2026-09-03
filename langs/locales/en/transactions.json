@@ -62,5 +62,13 @@
   "statusTipUnpaid": "The buyer opened the checkout but has not paid yet.",
   "awaiting_payment": "awaiting payment",
   "statusTipAwaiting": "No payment received yet — this address is waiting for the buyer to send funds.",
-  "autoConvertedShort": "Converted"
+  "autoConvertedShort": "Converted",
+  "statusAll": "All",
+  "awaitingShort": "Awaiting",
+  "settledOnly": "Settled only",
+  "statusFilterLabel": "Filter by status",
+  "exportScoped": "Export {{count}}",
+  "exportScopedHint": "Exports the {{count}} rows matching your filters and the active status chip.",
+  "exportSettledHint": "Exports only settled payments matching your filters.",
+  "exportAllHint": "Exports every row matching your filters as CSV."
 }

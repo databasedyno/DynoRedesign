@@ -1,5 +1,17 @@
+import type { ReactNode } from "react";
 import { menuItem } from "../types";
 import { DateRange } from "./dashboard";
+
+/** Status chips on the transactions table toolbar ("all" = no status filter). */
+export type TxStatusFilter =
+  | "all"
+  | "settled"
+  | "confirmed"
+  | "processing"
+  | "pending"
+  | "awaiting_payment"
+  | "unpaid"
+  | "failed";
 
 export type TransactionSourceType =
   | "payment_link"
@@ -93,15 +105,14 @@ export interface TransactionDetailsModalProps {
 export interface TransactionsTableProps {
   transactions: ExtendedTransaction[];
   rowsPerPage?: number;
+  /** Strip rendered inside the table card, above the column headers. */
+  toolbar?: ReactNode;
 }
 export interface TransactionsTopBarProps {
   onSearch?: (searchTerm: string) => void;
   onDateRangeChange?: (dateRange: DateRange) => void;
   onWalletChange?: (wallet: string) => void;
   onSourceChange?: (source: TransactionSourceType | "all") => void;
-  onExport?: () => void;
-  settledOnly?: boolean;
-  onSettledOnlyChange?: (value: boolean) => void;
   initialSource?: TransactionSourceType | "all";
 }
 

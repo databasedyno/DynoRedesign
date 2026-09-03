@@ -62,5 +62,13 @@
   "statusTipUnpaid": "L'acheteur a ouvert le paiement mais n'a pas encore payé.",
   "awaiting_payment": "en attente de paiement",
   "statusTipAwaiting": "Aucun paiement reçu pour le moment — cette adresse attend que l'acheteur envoie les fonds.",
-  "autoConvertedShort": "Converti"
+  "autoConvertedShort": "Converti",
+  "statusAll": "Tous",
+  "awaitingShort": "En attente",
+  "settledOnly": "Réglés uniquement",
+  "statusFilterLabel": "Filtrer par statut",
+  "exportScoped": "Exporter {{count}}",
+  "exportScopedHint": "Exporte les {{count}} lignes correspondant à vos filtres et au statut actif.",
+  "exportSettledHint": "Exporte uniquement les paiements réglés correspondant à vos filtres.",
+  "exportAllHint": "Exporte toutes les lignes correspondant à vos filtres en CSV."
 }

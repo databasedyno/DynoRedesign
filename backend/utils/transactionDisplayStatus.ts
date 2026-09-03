@@ -57,6 +57,59 @@ export function deriveTxDisplayStatus(
   return paymentDetected === false ? "awaiting_payment" : s;
 }
 
+/** UI status buckets — mirrors the /transactions page normaliser
+ *  (Components/Page/Transactions/index.tsx) so a status chip + Export yields
+ *  exactly the rows the merchant is looking at. */
+export const TX_STATUS_BUCKETS = [
+  "settled",
+  "confirmed",
+  "processing",
+  "pending",
+  "awaiting_payment",
+  "unpaid",
+  "failed",
+] as const;
+export type TxStatusBucket = (typeof TX_STATUS_BUCKETS)[number];
+
+const SETTLED_RAW = ["success", "successful", "completed", "payout_complete", "converted", "recovered", "done", "settled"];
+const FAILED_RAW = ["failed", "expired", "refunded", "settlement_failed"];
+
+export function isTxStatusBucket(v: unknown): v is TxStatusBucket {
+  return typeof v === "string" && (TX_STATUS_BUCKETS as readonly string[]).includes(v);
+}
+
+/** Collapse a raw/derived status string into its UI bucket. */
+export function toTxStatusBucket(displayStatus: unknown): TxStatusBucket {
+  const s = String(displayStatus ?? "").toLowerCase().trim();
+  if (SETTLED_RAW.includes(s)) return "settled";
+  if (s === "confirmed") return "confirmed";
+  if (s === "processing") return "processing";
+  if (s === "unpaid") return "unpaid";
+  if (s === "awaiting_payment" || s === "awaiting") return "awaiting_payment";
+  if (FAILED_RAW.includes(s)) return "failed";
+  return "pending";
+}
+
+/** Raw DB statuses that can resolve to a bucket (cheap SQL pre-filter).
+ *  null = no safe pre-filter ('pending' is the catch-all) — rely on the JS post-filter. */
+export function rawStatusesForBucket(bucket: TxStatusBucket): string[] | null {
+  switch (bucket) {
+    case "settled":
+      return SETTLED_RAW;
+    case "confirmed":
+      return ["confirmed"];
+    case "processing":
+      return ["processing"];
+    case "failed":
+      return FAILED_RAW;
+    case "awaiting_payment":
+    case "unpaid":
+      return ["pending"];
+    default:
+      return null;
+  }
+}
+
 /**
  * Has any on-chain payment been observed for this transaction row? Used to
  * pick between 'pending' (confirming) and 'awaiting_payment' (nothing yet).

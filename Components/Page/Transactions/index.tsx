@@ -9,6 +9,7 @@ import {
   ExtendedTransaction,
   TransactionSource,
   TransactionSourceType,
+  TxStatusFilter,
 } from "@/utils/types/transaction";
 import { Box, Dialog, IconButton, Typography, useTheme } from "@mui/material";
 import { Icon, MONO } from "@/styles/uiKit";
@@ -22,6 +23,7 @@ import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionsTopBar from "./TransactionsTopBar";
+import TransactionsToolbar, { STATUS_FILTERS } from "./TransactionsToolbar";
 import TransactionsSkeleton from "./TransactionsSkeleton";
 import { toFixedStr, toNumber } from "@/utils/money";
 
@@ -66,8 +68,25 @@ const TransactionPage = () => {
   const [selectedSource, setSelectedSource] = useState<TransactionSourceType | "all">(
     "all",
   );
+  const [selectedStatus, setSelectedStatus] = useState<TxStatusFilter>("all");
   // Bumped by "Clear filters" so the top bar's internal search/date state resets too.
   const [filterResetKey, setFilterResetKey] = useState(0);
+
+  // Read status filter from query parameter (e.g., /transactions?status=unpaid —
+  // the dashboard's "pending" tile deep-links here).
+  useEffect(() => {
+    if (!router.isReady || !router.query.status) return;
+    const raw = String(router.query.status).toLowerCase();
+    const aliases: Record<string, TxStatusFilter> = {
+      all: "all",
+      awaiting: "awaiting_payment",
+      success: "settled",
+      successful: "settled",
+      completed: "settled",
+    };
+    const mapped = aliases[raw] ?? ((STATUS_FILTERS as string[]).includes(raw) ? (raw as TxStatusFilter) : null);
+    if (mapped) setSelectedStatus(mapped);
+  }, [router.isReady, router.query.status]);
 
   // Read wallet filter from query parameter (e.g., /transactions?wallet=ETH)
   useEffect(() => {
@@ -190,7 +209,9 @@ const TransactionPage = () => {
   // and API Keys (UI/UX audit date-format unification).
   const formatDateTime = (isoString: string) => formatDisplayDateTime(isoString);
 
-  const processedTransactions: ExtendedTransaction[] = useMemo(() => {
+  // Every filter EXCEPT status — the status chips count against this slice so
+  // the numbers stay live as search / date / wallet / source change.
+  const baseTransactions: ExtendedTransaction[] = useMemo(() => {
     if (!transactionState?.customers_transactions) return [];
 
     return transactionState.customers_transactions
@@ -198,6 +219,7 @@ const TransactionPage = () => {
         if (searchTerm) {
           const lowerSearch = searchTerm.toLowerCase();
           const matchesId = item.id?.toLowerCase().includes(lowerSearch);
+          const matchesHash = item.transaction_reference?.toLowerCase().includes(lowerSearch);
           const matchesAmount = item.base_amount
             ?.toString()
             .includes(lowerSearch);
@@ -205,7 +227,7 @@ const TransactionPage = () => {
             ?.toLowerCase()
             .includes(lowerSearch);
 
-          if (!matchesId && !matchesAmount && !matchesCrypto) return false;
+          if (!matchesId && !matchesHash && !matchesAmount && !matchesCrypto) return false;
         }
 
         if (selectedWallet !== "all") {
@@ -364,6 +386,21 @@ const TransactionPage = () => {
     dateRange.endDate,
   ]);
 
+  const statusCounts = useMemo(() => {
+    const counts = { all: baseTransactions.length } as Record<TxStatusFilter, number>;
+    for (const s of STATUS_FILTERS) counts[s] = 0;
+    for (const tx of baseTransactions) counts[tx.status] = (counts[tx.status] || 0) + 1;
+    return counts;
+  }, [baseTransactions]);
+
+  const processedTransactions: ExtendedTransaction[] = useMemo(
+    () =>
+      selectedStatus === "all"
+        ? baseTransactions
+        : baseTransactions.filter((tx) => tx.status === selectedStatus),
+    [baseTransactions, selectedStatus],
+  );
+
   // Session 57: "Tax collected" running total across the currently-filtered rows.
   const taxSummary = useMemo(() => {
     let total = 0;
@@ -404,28 +441,45 @@ const TransactionPage = () => {
     );
   };
 
+  const handleStatusChange = (status: TxStatusFilter) => {
+    setSelectedStatus(status);
+    const query: Record<string, string> = { ...(router.query as any) };
+    if (status === "all") delete query.status;
+    else query.status = status;
+    router.replace({ pathname: router.pathname, query }, undefined, { shallow: true });
+  };
+
   const clearFilters = () => {
     setSearchTerm("");
     setDateRange({ startDate: null, endDate: null });
     setSelectedWallet("all");
     setSelectedSource("all");
+    setSelectedStatus("all");
     setFilterResetKey((k) => k + 1);
     const query: Record<string, string> = { ...(router.query as any) };
     delete query.source;
     delete query.wallet;
+    delete query.status;
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,
     });
   };
 
   const [settledExport, setSettledExport] = useState(false);
-  const handleExport = () => {    dispatch(TransactionAction(TRANSACTION_EXPORT, {
+  // Export honours EVERY active filter — search, date range (whole days, like
+  // the on-screen filter), wallet, source and the status chip. A status chip
+  // supersedes "Settled only".
+  const handleExport = () => {
+    const hasDates = !!(dateRange.startDate && dateRange.endDate);
+    dispatch(TransactionAction(TRANSACTION_EXPORT, {
       wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
-      date_from: dateRange.startDate?.toISOString(),
-      date_to: dateRange.endDate?.toISOString(),
+      source: selectedSource !== "all" ? selectedSource : undefined,
+      status: selectedStatus !== "all" ? selectedStatus : undefined,
+      date_from: hasDates ? startOfDay(dateRange.startDate as Date).toISOString() : undefined,
+      date_to: hasDates ? endOfDay(dateRange.endDate as Date).toISOString() : undefined,
       search: searchTerm || undefined,
       company_id: selectedCompanyId || undefined,
-      settled_only: settledExport,
+      settled_only: selectedStatus === "all" && settledExport,
     }));
   };
 
@@ -467,9 +521,6 @@ const TransactionPage = () => {
         onDateRangeChange={handleDateRangeChange}
         onWalletChange={handleWalletChange}
         onSourceChange={handleSourceChange}
-        onExport={handleExport}
-        settledOnly={settledExport}
-        onSettledOnlyChange={setSettledExport}
         initialWallet={selectedWallet}
         initialSource={selectedSource}
         initialSearch={searchTerm}
@@ -503,15 +554,31 @@ const TransactionPage = () => {
           </Typography>
         </Box>
       )}
-      {processedTransactions.length === 0 ? (
-        <EmptyDataModel
-          pageName="transactions"
-          variant="no-results"
-          onClearFilters={clearFilters}
-        />
-      ) : (
-        <TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
-      )}
+      {(() => {
+        const renderToolbar = (standalone?: boolean) => (
+          <TransactionsToolbar
+            counts={statusCounts}
+            selected={selectedStatus}
+            onChange={handleStatusChange}
+            onExport={handleExport}
+            settledOnly={settledExport}
+            onSettledOnlyChange={setSettledExport}
+            standalone={standalone}
+          />
+        );
+        return processedTransactions.length === 0 ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {baseTransactions.length > 0 && renderToolbar(true)}
+            <EmptyDataModel
+              pageName="transactions"
+              variant="no-results"
+              onClearFilters={clearFilters}
+            />
+          </Box>
+        ) : (
+          <TransactionsTable transactions={processedTransactions} rowsPerPage={10} toolbar={renderToolbar()} />
+        );
+      })()}
 
       {/* First-payment celebration modal — one-time per company. */}
       <Dialog

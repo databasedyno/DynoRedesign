@@ -62,6 +62,7 @@ import { toFixedStr } from "@/utils/money";
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   transactions,
   rowsPerPage: initialRowsPerPage = 10,
+  toolbar,
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -200,6 +201,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       });
     }
   };
+
+  const MONETARY_KEYS = new Set(["amount", "usdValue", "vat"]);
 
   const HeaderData = [
     {
@@ -394,7 +397,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       position: "sticky" as const,
       left: 0,
       zIndex: 4,
-      backgroundColor: theme.palette.primary.light,
+      backgroundColor: theme.palette.background.paper,
+      backgroundImage: `linear-gradient(${theme.palette.primary.light}, ${theme.palette.primary.light})`,
       boxShadow: frozenEdgeShadow,
       transition: "box-shadow 160ms ease",
     };
@@ -436,13 +440,24 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         <Box sx={{ minWidth: "max-content" }}>
           {/* Header Section — sticky top (stays on vertical scroll); the first
               item is also sticky left so it freezes with the ID column. */}
-          <TransactionsTableHeader sx={{ position: "sticky", top: 0, zIndex: 3 }}>
+          <TransactionsTableHeader
+            sx={{
+              position: "sticky",
+              top: 0,
+              zIndex: 3,
+              // primary.light is a translucent tint — composite it over the
+              // paper colour so scrolled rows never bleed through the header.
+              backgroundColor: theme.palette.background.paper,
+              backgroundImage: `linear-gradient(${theme.palette.primary.light}, ${theme.palette.primary.light})`,
+              ...(toolbar ? { borderRadius: 0 } : {}),
+            }}
+          >
             {HeaderData.map((item, idx) => (
               <TransactionsTableHeaderItem
                 key={item.key}
                 sx={{
                   ...(idx === 0 ? stickyFirstHeaderSx : {}),
-                  ...(item.key === "amount" || item.key === "usdValue"
+                  ...(MONETARY_KEYS.has(item.key)
                     ? { justifyContent: "flex-end" }
                     : {}),
                 }}
@@ -564,7 +579,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {displayValue(transaction)}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell>
+                  <TransactionsTableCell sx={{ justifyContent: "flex-end", fontVariantNumeric: "tabular-nums" }}>
                     {transaction.reverseCharge ? (
                       <Typography
                         component="span"
@@ -579,10 +594,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         {tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })}
                       </Typography>
                     ) : Number(transaction.taxAmount) > 0 ? (
-                      <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
                         <Typography
                           component="span"
-                          sx={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary }}
+                          sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary }}
                         >
                           {formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}
                         </Typography>
@@ -621,15 +636,23 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
   return (
     <Box
+      data-testid="transactions-table-card"
       sx={{
         display: "flex",
         flexDirection: "column",
-        flex: 1,
         minHeight: 0,
-        maxHeight: "fit-content",
-        p: isMobile ? 0 : "0px",
+        p: 0,
+        // Desktop: the card shrinks to the space left under the top bar (never
+        // taller than the viewport) so the inner scroll box scrolls vertically
+        // and the column header genuinely sticks. Mobile keeps content flow —
+        // the cards scroll with the page.
+        flex: isMobile ? 1 : "0 1 auto",
+        maxHeight: isMobile ? "fit-content" : undefined,
+        backgroundColor: isMobile ? "transparent" : theme.palette.background.paper,
+        borderRadius: "14px",
       }}
     >
+      {toolbar}
       {isMobile ? renderMobileCards() : renderDesktopTable()}
 
       {/* Footer Section */}

@@ -24,6 +24,23 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-09-03 (fork, pod ca6c51ad): TRANSACTIONS TABLE — STATUS CHIPS + SCOPED EXPORT + STICKY HEADER — DONE + VERIFIED
+     (testing_agent iteration_122: frontend 10/10, backend 10/11 → the 1 miss (export ignored the crypto/amount part of
+     `search`) fixed + curl-verified: search=LTC → 68 rows == grid). Closes REFACTOR_STATUS item #7 (P3).
+     - New toolbar strip INSIDE the table card above the column headers (Components/Page/Transactions/TransactionsToolbar.tsx):
+       status chips w/ live counts (All · Settled · Confirmed · Processing · Pending · Awaiting · Unpaid · Failed; zero-count
+       chips hidden) on the left, Export (+ "Settled only") on the right. Export/Settled-only REMOVED from the top bar
+       (top bar keeps source chips, search, date, wallet). Chip → ?status= URL sync; /transactions?status=pending|unpaid deep
+       links now work (dashboard tile already linked there). Export label "Export <n>" when a chip is active, disabled at 0.
+     - Export honours EVERY active filter: backend POST /api/wallet/transactions/export now accepts status (UI bucket),
+       source, wallet, search (id/hash/currency/amount parity), whole-day date range, company_id (RBAC parity via
+       validateCompanyOwnership); status chip supersedes settled_only; settled_only == settled bucket.
+       Shared bucket helpers in backend/utils/transactionDisplayStatus.ts (TX_STATUS_BUCKETS, toTxStatusBucket, rawStatusesForBucket).
+     - Sticky header genuinely sticks on desktop (card is flex 0 1 auto → inner box scrolls); header composited opaque
+       (primary.light is rgba). Amount / USD Value / VAT-Tax right-aligned with tabular numerals.
+     - i18n keys added to all 6 locales (statusAll, awaitingShort, settledOnly, exportScoped*, statusFilterLabel).
+     - Backend regression suite from testing agent: backend/tests/test_transactions_export.py (read-only, live DB). -->
+
 <!-- 2026-06 (fork, pod 55c5e4b0): DEEP AUDIT — BUGS / SECURITY / PERF / CLEANUP — DONE + VERIFIED
      (testing_agent iteration_119: backend 18/18 pass; frontend dashboard renders, kyc/status 3x -> 1x confirmed via
      Playwright network capture after follow-up fix; BE tsc 0, FE tsc 0, eslint 0, jest redisInstance 42/42 +

@@ -1,8 +1,6 @@
 import InputField from "@/Components/UI/AuthLayout/InputFields";
-import CustomButton from "@/Components/UI/Buttons";
 import CustomDatePicker, { DatePickerRef } from "@/Components/UI/DatePicker";
 import CalendarIcon from "@/assets/Icons/calendar-icon.svg";
-import ExportIcon from "@/assets/Icons/export-icon.svg";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
 import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -24,7 +22,7 @@ import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LinkRounded from "@mui/icons-material/LinkRounded";
 import PublicRounded from "@mui/icons-material/PublicRounded";
-import { Box, Checkbox, FormControlLabel, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { format } from "date-fns";
 import Image from "next/image";
 import React, {
@@ -39,7 +37,6 @@ import {
   CryptoIconChip,
   DatePickerTriggerButton,
   DatePickerWrapper,
-  ExportButtonWrapper,
   FiltersContainer,
   SearchContainer,
   SearchIconButton,
@@ -56,16 +53,12 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
   onDateRangeChange,
   onWalletChange,
   onSourceChange,
-  onExport,
-  settledOnly,
-  onSettledOnlyChange,
   initialWallet,
   initialSource,
   initialSearch,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
-  const isLgMobile = useIsMobile("lg");
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
     (key: string, options?: any): string =>
@@ -445,54 +438,6 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
             </WalletDropdownContainer>
           )}
         </Box>
-
-        <ExportButtonWrapper>
-          {!isLgMobile && onSettledOnlyChange && (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  size="small"
-                  checked={!!settledOnly}
-                  onChange={(e) => onSettledOnlyChange(e.target.checked)}
-                  data-testid="transactions-export-settled-only"
-                />
-              }
-              label="Settled only"
-              sx={{
-                m: 0,
-                mr: 0.5,
-                whiteSpace: "nowrap",
-                "& .MuiFormControlLabel-label": { fontSize: 13 },
-              }}
-            />
-          )}
-          <CustomButton
-            label={tTransactions("export")}
-            startIcon={
-              <Image
-                src={ExportIcon}
-                alt="export"
-                width={isMobile ? 13 : 17}
-                height={isMobile ? 13 : 17}
-              />
-            }
-            hideLabel={isLgMobile}
-            variant="secondary"
-            onClick={onExport}
-            sx={{
-              padding: isMobile
-                ? "15px 10px"
-                : isLgMobile
-                  ? "18px 16px"
-                  : "10px 60px",
-              minWidth: "auto",
-              height: isLgMobile ? "32px" : "40px",
-              fontSize: isLgMobile ? "13px" : "15px",
-              fontFamily: "var(--font-sans)",
-              fontWeight: 500,
-            }}
-          />
-        </ExportButtonWrapper>
       </FiltersContainer>
     </TransactionsTopBarContainer>
   );

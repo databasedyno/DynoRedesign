@@ -62,5 +62,13 @@
   "statusTipUnpaid": "El comprador abrió el checkout pero aún no ha pagado.",
   "awaiting_payment": "esperando pago",
   "statusTipAwaiting": "Aún no se ha recibido ningún pago: esta dirección está esperando que el comprador envíe los fondos.",
-  "autoConvertedShort": "Convertido"
+  "autoConvertedShort": "Convertido",
+  "statusAll": "Todos",
+  "awaitingShort": "En espera",
+  "settledOnly": "Solo liquidados",
+  "statusFilterLabel": "Filtrar por estado",
+  "exportScoped": "Exportar {{count}}",
+  "exportScopedHint": "Exporta las {{count}} filas que coinciden con tus filtros y el estado activo.",
+  "exportSettledHint": "Exporta solo los pagos liquidados que coinciden con tus filtros.",
+  "exportAllHint": "Exporta todas las filas que coinciden con tus filtros en CSV."
 }

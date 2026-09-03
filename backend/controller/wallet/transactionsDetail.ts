@@ -33,7 +33,14 @@ import { parseSortAndPagination } from "../../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../../utils/currencyUtils";
 import { resolveTransactionSource } from "../../utils/transactionSource";
-import { deriveTxDisplayStatus, isPaymentDetected } from "../../utils/transactionDisplayStatus";
+import {
+  deriveTxDisplayStatus,
+  isPaymentDetected,
+  isTxStatusBucket,
+  rawStatusesForBucket,
+  toTxStatusBucket,
+  TxStatusBucket,
+} from "../../utils/transactionDisplayStatus";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import crypto from "crypto";
 import flw from "../../apis/flutterwaveApi";
@@ -220,21 +227,49 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
       date_to,
       status,
       currency,
+      wallet,
+      source,
       search,
       company_id,
       settled_only,
     } = req.body;
 
-    // Build parameterized WHERE conditions
-    const { whereConditions, replacements } = buildTransactionFilters(userData.user_id, {
-      date_from, date_to, status, currency, search, company_id
+    // RBAC parity with getAllTransactions: a team member exports the OWNER's rows.
+    let effectiveUserId = userData.user_id;
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, String(company_id), userData.user_id);
+      if (!companyData) return; // 403 already sent
+      effectiveUserId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
+
+    // `status` is either a UI bucket (settled / unpaid / awaiting_payment / …
+    // — what the status chips send) or a raw DB status for legacy callers.
+    // "Settled only" is shorthand for the settled bucket.
+    const bucket: TxStatusBucket | null = isTxStatusBucket(status)
+      ? status
+      : settled_only && !status
+        ? "settled"
+        : null;
+    const { whereConditions, replacements } = buildTransactionFilters(effectiveUserId, {
+      date_from, date_to, status: bucket ? undefined : status, currency, company_id
     });
-    // "Settled only" export (accounting) — restrict to confirmed payouts. Only
-    // applied when the caller didn't already pass an explicit status filter.
-    const finalWhere =
-      settled_only && !status
-        ? `${whereConditions} AND ut.status IN ('successful','completed')`
-        : whereConditions;
+    let finalWhere = whereConditions;
+    // Search parity with the on-screen filter (id / amount / currency) plus the
+    // tx hash, so a search + Export yields the rows the merchant is looking at.
+    if (search) {
+      finalWhere += ` AND (ut.id ILIKE :search OR ut.transaction_reference ILIKE :search OR ut.base_currency ILIKE :search OR uw.wallet_type ILIKE :search OR CAST(ut.base_amount AS TEXT) ILIKE :search)`;
+      replacements.search = `%${String(search)}%`;
+    }
+    const rawStatuses = bucket ? rawStatusesForBucket(bucket) : null;
+    if (rawStatuses) {
+      finalWhere += ` AND ut.status IN (:bucket_statuses)`;
+      replacements.bucket_statuses = rawStatuses;
+    }
+    // Wallet chip — same key the on-screen filter matches (settlement wallet type, else base currency).
+    if (wallet && wallet !== "all") {
+      finalWhere += ` AND COALESCE(uw.wallet_type, ut.base_currency) = :wallet`;
+      replacements.wallet = String(wallet);
+    }
     const transactions = await sequelize.query(
       `
       SELECT 
@@ -245,20 +280,66 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
         ut.base_currency,
         ut.usd_value as usd_value,
         ut.status,
+        ut.incoming_tx_hash,
+        ut.confirmations,
         c.customer_name,
+        c.email as customer_email,
         cm.company_name,
         ut.payment_mode,
         ut.transaction_type,
-        ut.transaction_reference
+        ut.transaction_reference,
+        pl.link_id           as source_link_id,
+        pl.link_type         as source_link_type,
+        pl.title             as source_link_title,
+        pl.parent_link_id    as source_parent_link_id,
+        parent_pl.title      as source_parent_title,
+        parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        po.order_id          as source_order_id,
+        po.public_ref        as source_order_ref
       FROM tbl_user_transaction ut 
       LEFT JOIN tbl_customer c ON c.customer_id=ut.customer_id
       LEFT JOIN tbl_company cm ON cm.company_id=c.company_id
       LEFT JOIN tbl_user_wallet uw ON uw.wallet_id=ut.wallet_id
+      LEFT JOIN (
+        SELECT DISTINCT ON (transaction_reference)
+          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar
+        FROM tbl_payment_link
+        WHERE transaction_reference IS NOT NULL AND transaction_reference <> ''
+        ORDER BY transaction_reference, link_id DESC
+      ) pl ON pl.transaction_reference = ut.transaction_reference
+        AND ut.transaction_reference IS NOT NULL AND ut.transaction_reference <> ''
+      LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
+      LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
       WHERE ${finalWhere}
       ORDER BY ut."createdAt" DESC
       `,
       { type: QueryTypes.SELECT, replacements }
     );
+
+    // Exact parity with the on-screen list: derive the display status the same
+    // way getAllTransactions does, then post-filter by status bucket / source.
+    const rows: Array<Record<string, unknown>> = (transactions as Array<Record<string, unknown>>)
+      .map((tx): Record<string, unknown> => ({
+        ...tx,
+        display_status: deriveTxDisplayStatus(tx.status, tx.date_time, isPaymentDetected(tx as any)),
+      }))
+      .filter((tx) => !bucket || toTxStatusBucket(tx.display_status) === bucket)
+      .filter((tx) => {
+        if (!source || source === "all") return true;
+        return (
+          resolveTransactionSource({
+            source_order_id: tx.source_order_id as string | number | null,
+            source_order_ref: tx.source_order_ref as string | null,
+            source_link_id: tx.source_link_id as string | number | null,
+            source_link_type: tx.source_link_type as string | null,
+            source_link_title: tx.source_link_title as string | null,
+            source_parent_link_id: tx.source_parent_link_id as string | number | null,
+            source_parent_title: tx.source_parent_title as string | null,
+            source_parent_is_tip_jar: tx.source_parent_is_tip_jar as boolean | number | null,
+            customer_email: (tx.customer_email as string) ?? null,
+          }).type === source
+        );
+      });
 
     // Get company's preferred currency for the value column
     const preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id);
@@ -298,7 +379,7 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
     };
 
     const csvRowsArr: string[] = [];
-    for (const tx of transactions as Array<Record<string, unknown>>) {
+    for (const tx of rows) {
       const usd = await usdForRow(tx);
       const fiatValue =
         usd != null ? toFixedStr((usd * fiatConversionRate), 2) : '';
@@ -310,7 +391,7 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
           tx.amount || 0,
           tx.base_currency || '',
           fiatValue,
-          deriveTxDisplayStatus(tx.status, tx.date_time) || '',
+          tx.display_status || '',
           tx.customer_name || '',
           tx.company_name || '',
           tx.payment_mode || '',

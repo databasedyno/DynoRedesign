@@ -37,8 +37,9 @@
 #     from footer cards into rows. Files: NewSidebar/{navSections.ts,SectionHeader.tsx,index.tsx,
 #     styled.tsx}, hooks/useCollapsedSections.ts, scripts/inject_sidebar_i18n.py.
 #
-#  7. TRANSACTIONS TABLE (P3) — sticky header, right-aligned monetary columns (tabular
-#     numerals), status filter chips, move Export into the table header.
+#  7. TRANSACTIONS TABLE (P3) — DONE 2026-09-03 (pod ca6c51ad): sticky header, right-aligned monetary
+#     columns (tabular numerals), status filter chips w/ live counts, Export moved into the table toolbar
+#     and scoped to every active filter (backend status/source/wallet/search params). testing_agent iter_122.
 #
 #  Suggested order if approved: 1 -> 5 -> 2 -> 3 -> 4 -> 6 -> 7 (security-facing first,
 #  then the cheap transparency win, then the heavier data/caching work).

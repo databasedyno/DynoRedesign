@@ -62,5 +62,13 @@
   "statusTipUnpaid": "De koper heeft de checkout geopend maar nog niet betaald.",
   "awaiting_payment": "wacht op betaling",
   "statusTipAwaiting": "Nog geen betaling ontvangen — dit adres wacht tot de koper geld verstuurt.",
-  "autoConvertedShort": "Omgezet"
+  "autoConvertedShort": "Omgezet",
+  "statusAll": "Alle",
+  "awaitingShort": "Wachtend",
+  "settledOnly": "Alleen afgewikkeld",
+  "statusFilterLabel": "Filteren op status",
+  "exportScoped": "{{count}} exporteren",
+  "exportScopedHint": "Exporteert de {{count}} rijen die overeenkomen met je filters en de actieve status.",
+  "exportSettledHint": "Exporteert alleen afgewikkelde betalingen die overeenkomen met je filters.",
+  "exportAllHint": "Exporteert alle rijen die overeenkomen met je filters als CSV."
 }

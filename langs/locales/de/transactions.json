@@ -62,5 +62,13 @@
   "statusTipUnpaid": "Der Käufer hat den Checkout geöffnet, aber noch nicht bezahlt.",
   "awaiting_payment": "warten auf zahlung",
   "statusTipAwaiting": "Noch keine Zahlung eingegangen – diese Adresse wartet darauf, dass der Käufer die Gelder sendet.",
-  "autoConvertedShort": "Umgewandelt"
+  "autoConvertedShort": "Umgewandelt",
+  "statusAll": "Alle",
+  "awaitingShort": "Wartend",
+  "settledOnly": "Nur abgerechnete",
+  "statusFilterLabel": "Nach Status filtern",
+  "exportScoped": "{{count}} exportieren",
+  "exportScopedHint": "Exportiert die {{count}} Zeilen, die Ihren Filtern und dem aktiven Status-Chip entsprechen.",
+  "exportSettledHint": "Exportiert nur abgerechnete Zahlungen, die Ihren Filtern entsprechen.",
+  "exportAllHint": "Exportiert alle Zeilen, die Ihren Filtern entsprechen, als CSV."
 }

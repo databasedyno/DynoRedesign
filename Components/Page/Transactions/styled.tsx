@@ -1,12 +1,14 @@
 import {
   Box,
   Button,
+  ButtonBase,
   IconButton,
   ListItemButton,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
+import { MONO } from "@/styles/uiKit";
 
 /** Semantic status → CB_TOKENS accent map (shared with the dashboard). */
 const STATUS_SEMANTIC: Record<string, { dark: string; light: string; glowDark: string; glowLight: string }> = {
@@ -785,6 +787,102 @@ export const SourceChip = styled(Button, {
     scrollSnapAlign: "start",
   },
 }));
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Table toolbar strip — sits INSIDE the table card above the column headers:
+ * status chips with live counts on the left, Export on the right.
+ * ────────────────────────────────────────────────────────────────────── */
+export const TableToolbar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "standalone",
+})<{ standalone?: boolean }>(({ theme, standalone }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "12px",
+  padding: "10px 12px 10px 16px",
+  minWidth: 0,
+  flexShrink: 0,
+  backgroundColor: theme.palette.background.paper,
+  border: standalone ? `1px solid ${theme.palette.divider}` : "none",
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  borderRadius: standalone ? "14px" : "14px 14px 0 0",
+  [theme.breakpoints.down("md")]: {
+    padding: "8px 10px",
+    gap: "8px",
+    margin: "0 16px 8px",
+    borderRadius: "12px",
+    border: `1px solid ${theme.palette.divider}`,
+  },
+}));
+
+export const StatusChipsRow = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  flex: 1,
+  minWidth: 0,
+  overflowX: "auto",
+  overflowY: "hidden",
+  scrollbarWidth: "none",
+  msOverflowStyle: "none",
+  "&::-webkit-scrollbar": { display: "none" },
+});
+
+export const StatusChip = styled(ButtonBase, {
+  shouldForwardProp: (prop) => prop !== "selected",
+})<{ selected?: boolean }>(({ theme, selected }) => {
+  const isDark = theme.palette.mode === "dark";
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "7px",
+    height: "30px",
+    padding: "0 10px",
+    borderRadius: "999px",
+    flexShrink: 0,
+    fontFamily: "var(--font-sans)",
+    fontSize: "12.5px",
+    fontWeight: selected ? 600 : 500,
+    lineHeight: 1,
+    whiteSpace: "nowrap",
+    color: selected ? theme.palette.text.primary : theme.palette.text.secondary,
+    backgroundColor: selected
+      ? isDark
+        ? "rgba(255,255,255,0.08)"
+        : "rgba(10,10,15,0.06)"
+      : "transparent",
+    border: `1px solid ${
+      selected
+        ? isDark
+          ? "rgba(255,255,255,0.18)"
+          : "rgba(10,10,15,0.14)"
+        : "transparent"
+    }`,
+    transition:
+      "background-color 140ms ease, color 140ms ease, border-color 140ms ease, transform 100ms ease",
+    "&:hover": {
+      backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.04)",
+      color: theme.palette.text.primary,
+    },
+    "&:active": { transform: "scale(0.97)" },
+    "&.Mui-focusVisible": {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 1,
+    },
+    "& .chip-label": { textTransform: "capitalize" },
+    "& .chip-count": {
+      fontFamily: MONO,
+      fontVariantNumeric: "tabular-nums",
+      fontSize: "11.5px",
+      fontWeight: 600,
+      opacity: selected ? 1 : 0.8,
+    },
+    [theme.breakpoints.down("md")]: {
+      height: "34px",
+      fontSize: "12px",
+    },
+  };
+});
 
 /* ─────────────────────────────────────────────────────────────────────────
  * Source badge (Session 48) — compact pill shown inline in each transaction

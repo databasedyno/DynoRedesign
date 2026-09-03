@@ -1,4 +1,18 @@
 # ============================================================================
+# 2026-09-03 (pod ca6c51ad) FORK — TRANSACTIONS TOOLBAR/EXPORT — prod-connected, SAFE MODE, EMAIL OFF
+# ----------------------------------------------------------------------------
+# - CURRENT Preview URL (THIS POD): https://ca6c51ad-10d4-4491-b39b-dd426814946f.preview.emergentagent.com
+#   (IGNORE all older *.preview.emergentagent.com URLs below — historical.)
+# - Env restored from env.vault.enc (passphrase Katiekendra123@). SAFE MODE intact (jobs off, email off, Redis /1).
+# - >>> MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "The Dev Store") <<<
+#   2-step: data-testid=login-email-input -> button "Continue" (exact) -> password-input -> signin-submit-btn.
+# - Transactions page testids: transactions-toolbar, transactions-status-chip-<all|settled|pending|unpaid|...>,
+#   transactions-status-count-<status>, transactions-export-btn, transactions-export-settled-only, transactions-table-card.
+# - Backend export regression (read-only): backend/tests/test_transactions_export.py
+# ============================================================================
+
+
+# ============================================================================
 # 2026-09-03 (pod 55c5e4b0) RE-SETUP from ENCRYPTED VAULT — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - CURRENT Preview URL (THIS POD): https://zen-panini-8.preview.emergentagent.com
