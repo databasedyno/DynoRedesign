@@ -1,4 +1,48 @@
 # ============================================================================
+# 2026-06 (pod 55c5e4b0) — POST-AUDIT UI/UX RECOMMENDATIONS  [PRIORITIZED — NOT IMPLEMENTED]
+# ----------------------------------------------------------------------------
+# Context: deep audit + exact money math (decimal.js) + OTP lockout / login rate-limit
+# security emails shipped and regression-verified (testing_agent iteration_119 + 120,
+# commit 1ae1436b). Details in memory/AUDIT_2026-06.md. The items below are the UX
+# follow-ups those changes unlock. Recommendations only — user has NOT approved build.
+#
+#  1. RATE-LIMIT UX (P1) — a 429 on login / OTP currently surfaces as a generic error.
+#     Read the Retry-After header (rateLimitMiddleware Lua sliding window already sets it)
+#     and show "Too many attempts, try again in 12:34" with a live countdown; disable the
+#     submit until it hits zero. Files: pages/auth/login.tsx, Components/UI/OtpDialog,
+#     api/axiosConfig (surface retryAfter on the error object).
+#
+#  2. SECURITY ACTIVITY PANEL (P1) — Settings -> Security: recent logins (ip/device/time),
+#     OTP lockouts, security-alert history (the new securityAlertService emails), and a
+#     "Sign out everywhere" action. Gives the suspicious-activity emails an in-app home.
+#     Backend needs a small read endpoint over the existing audit rows + sec-alert Redis
+#     markers; "sign out everywhere" = bump a per-user token version checked in authMiddleware.
+#
+#  3. INSTANT DASHBOARD (P2) — /dashboard fires ~20 API calls on load and shows spinners.
+#     Persist the SWR cache to localStorage (SWR provider w/ cache map hydrated from
+#     storage, scoped by user_id+company_id) so returning merchants see last-known figures
+#     immediately while fresh data revalidates; swap remaining spinners for skeletons.
+#
+#  4. SINGLE-STEP LOGIN (P2) — remember the last email (localStorage) so the 2-step
+#     email -> password flow collapses to password-only on return visits ("Not you?" to
+#     switch). Later: passkeys (WebAuthn) as a second option.
+#
+#  5. CHECKOUT TRUST CUE (P2) — amounts now tie exactly (checkoutMath.ts split), so show
+#     the "you pay / merchant receives / platform fee" breakdown on the hosted checkout
+#     and the receipt/confirmation email. Data already returned by the checkout split.
+#
+#  6. SIDEBAR DENSITY (P2) — 14+ top-level items. Group into Sell / Money / Grow /
+#     Settings with collapsible sections (remember open state per user).
+#
+#  7. TRANSACTIONS TABLE (P3) — sticky header, right-aligned monetary columns (tabular
+#     numerals), status filter chips, move Export into the table header.
+#
+#  Suggested order if approved: 1 -> 5 -> 2 -> 3 -> 4 -> 6 -> 7 (security-facing first,
+#  then the cheap transparency win, then the heavier data/caching work).
+# ============================================================================
+
+
+# ============================================================================
 # 2026-06 (pod 5cde9912) — SETTLEMENT FREEZE ON ACCOUNT LOCK  [PLAN — NOT YET BUILT]
 # ----------------------------------------------------------------------------
 # REQUEST (verbatim intent): when an account is frozen (today only via the

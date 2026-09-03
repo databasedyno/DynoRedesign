@@ -59,7 +59,10 @@
      reset-password bogus/empty/missing token all 400 + login still works; wallet+payment getCurrencyRates finite numbers,
      clean 4xx on unknown/empty; public tickers; walletOtp.ts 448, file-size gate 0, tsc 0; no new stack traces.
      Suite kept at backend/tests/test_iter120_regression.py — HARDENED to env vars (TEAM_TEST_BASE_URL/OWNER_EMAIL/
-     OWNER_PASSWORD, skips when unset; no hardcoded live password). Wallet-OTP fix is fully closed. -->
+     OWNER_PASSWORD, skips when unset; no hardcoded live password). Wallet-OTP fix is fully closed.
+  UI/UX RECOMMENDATIONS (7 items, prioritized, NOT implemented) documented at top of memory/REFACTOR_STATUS.md:
+     rate-limit countdown UX, security activity panel, instant dashboard (SWR->localStorage), single-step login,
+     checkout fee breakdown, sidebar grouping, transactions table polish. -->
 
 <!-- 2026-06 (fork): BLOG COVER REFRESH — DONE + VERIFIED (screenshots /blog + /blog/[slug]; 4/4 covers loaded, post
      cover 1200x630; tsc 0, eslint 0). utils/blogData.ts += getBlogCover(post) = coverImage || /og/blog-<slug>.png (the
