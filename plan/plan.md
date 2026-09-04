@@ -1,86 +1,46 @@
-# Landing Page Improvement — Analysis & Plan
+# SEO audit of dynopay.com — findings and fixes
 
-## Goal
-Make the DynoPay landing page convert better and stand out against crypto‑payment
-competitors (benchmarked against BlockBee, plus NOWPayments / Cryptomus / CoinGate).
-This is a targeted improvement of the existing landing page, not a full rebuild, and
-it uses only claims we can substantiate (no fabricated stats or testimonials).
+Audit run against the live domain (sitemap, robots.txt, home, /fees, /for/saas, a blog post, /help-support, /fees?lang=fr, /dashboard) plus the code that generates the `<head>` tags.
 
-## What the current page already does (and should keep)
-The landing today is already fairly complete: an interactive hero with a live checkout
-demo, a 3‑step "how it works", audience doors (Merchants / Fundraisers / Creators /
-Developers), feature cards (Checkout / Auto‑convert / API), a "ways to get paid" band,
-a "who pays the fee" explainer, a supported‑coins showcase, a refunds/non‑custodial
-trust block, a stats + compliance band, a docs/learn band, an FAQ, a referral band, and
-a final CTA.
+## What passed
 
-Genuine strengths vs BlockBee worth amplifying, not replacing:
-- An **interactive** hero demo (BlockBee uses static screenshots).
-- **Multi‑audience** positioning (BlockBee is merchant‑only B2B).
-- **One‑click on‑chain refunds** and **non‑custodial + auto‑convert to stablecoin**.
-- **Fee transparency** (who pays, customer vs merchant).
+- `https://dynopay.com/sitemap.xml` — 200, valid XML, ~75 URLs, all absolute, no private routes. Storefront/creator/product entries are present, so the backend is reachable at render time.
+- `https://dynopay.com/robots.txt` — the correct (newer) file is live; declares the sitemap; blocks dashboard/auth/checkout/API.
+- Home, /fees, /for/* and blog posts each have a unique title, meta description and canonical; blog posts also ship Article JSON-LD and OG images.
+- `/dashboard` and other in-app routes carry `noindex, nofollow`.
 
-## Where competitors are stronger (the gaps this plan closes)
-1. **Quantified trust, high on the page.** BlockBee leads with "$100M+ processed,
-   10K+ merchants, 70+ coins," a Trustpilot score, and award/press badges. Our stats
-   band is present but modest and lower down.
-2. **Real customer testimonials with sources.** BlockBee shows many; our landing shows
-   **none** (a testimonials section exists in the codebase but is currently switched off).
-3. **A pain → solution narrative.** BlockBee opens the mid‑page with "Frustrated by slow
-   transactions, clunky UX, unreliable support?" then answers it. We have no such framing.
-4. **Real product screenshots** (checkout, API, plugins, payouts) instead of abstract cards.
-5. **An explicit security & compliance block** (2FA, KYC, AML, custody model) — expected by
-   higher‑ticket merchants; competitors call this out, we don't clearly.
-6. **A clear "why us vs the alternatives" moment.**
-7. **Developer credibility**: a real code snippet, sandbox/test mode, webhook signature
-   verification, SDKs/plugins. We link to docs but don't *show* developer proof.
-8. **Fee framing.** Competitors advertise very low headline fees (BlockBee "as low as
-   0.25%"). Ours is higher (1.5% down to 0.5% at scale), so leading on price is a race we
-   lose — we should lead on differentiators + "first payment free / no monthly or setup fees."
+## What Google will flag (to be fixed)
 
-## Proposed improvements (scope — approve or trim per group)
-**A. Trust & social proof**
-- Turn on a testimonials/reviews section, populated only with real quotes you provide
-  (and a rating/badge if you have a public review profile).
-- Tighten the stats band to only defensible metrics, and add a compact **security &
-  compliance strip** (2FA, KYC, AML policy, non‑custodial by design).
+**1. Help Center is submitted in the sitemap but marked `noindex`.** `/help-support` and every `/help-support/{slug}` article is in the sitemap and allowed by robots.txt, yet the global head marks the whole `/help-support` prefix as private → Search Console error "Submitted URL marked noindex". Fix: stop treating `/help-support` as private.
 
-**B. Messaging & narrative**
-- Add a short **pain → solution** section (speed, clarity, refunds, custody).
-- Sharpen the hero promise and CTAs; keep the interactive demo. Optionally add a
-  secondary "Book a demo / Contact sales" CTA for larger merchants.
-- Add a concise **"Why DynoPay"** differentiator moment (value‑led, not price‑led).
+**2. Help articles are missing from the sitemap and invisible to crawlers.** The live Help Center lists 8 articles, but the sitemap has zero `/help-support/{slug}` entries, and the article pages fetch their content in the browser only (server sends a spinner). Fix: (a) correct the article fetch used by the sitemap so the 8 articles are listed with real `lastmod`, (b) render article content, title, description and canonical on the server so Google indexes the actual text.
 
-**C. Product & developer proof**
-- Replace/augment abstract feature cards with **real product visuals** (checkout,
-  dashboard, pay link, storefront).
-- Add a **developer band**: a real code snippet + callouts for test/sandbox mode,
-  webhook signature verification, and available SDKs/plugins — only for what exists today.
+**3. hreflang alternates point at pages that don't exist as translations.** Every page (and the sitemap) advertises `?lang=pt|fr|es|de|nl` alternates, but the server always renders English regardless of `?lang=` (language is applied in the browser from localStorage). `/fees?lang=fr` is byte-for-byte English with `<html lang="en">`. Google will report hreflang errors and treat the six URLs as duplicates. Two ways to resolve — **decision needed**:
+   - **A (recommended now, small):** remove the hreflang alternates from the head and the sitemap; keep English as the single indexable version. Zero risk, immediately clean report. Translated pages remain available to users via the language switcher exactly as today.
+   - **B (larger, later):** make `?lang=xx` render server-side in that language with its own canonical and `<html lang>`, so the alternates become real. Requires server-side locale loading and hydration changes across the app. Proposed as a follow-up, not part of this fix.
 
-**D. Fee positioning**
-- Reframe the fee section to lead with "first payment free + no monthly/setup fees +
-  non‑custodial + auto‑convert," and present the % inside the volume‑tier context rather
-  than as a headline number.
+**4. Blog posts inherit wrong hreflang.** Because of (3), a post such as `/blog/how-to-accept-crypto-payments-on-your-website` declares alternates for `/blog?lang=fr` (the index page). Resolved automatically by fix 3A.
 
-## Decisions needed from you
-1. **Testimonials & hard numbers:** Can you provide real customer quotes and any metrics
-   we're allowed to publish (volume processed, # of merchants, uptime)? If not, we drop
-   testimonials for now and lean on technical/trust claims only.
-2. **Sales path:** Add a "Book a demo / Contact sales" CTA for larger merchants? (yes/no)
-3. **Comparison framing:** A named side‑by‑side table vs BlockBee/others, or a generic
-   "why us"? (Default: generic — many brands avoid naming rivals.)
-4. **Plugins/integrations:** Do e‑commerce plugins (WooCommerce/Shopify/etc.) exist or are
-   they roadmap only? This decides whether we can claim "no‑code plugins."
-5. **Fee display:** OK to keep the 1.5%→0.5% tiers but present them value‑first as above?
-6. **Ambition:** Targeted improvements to the current design, or open to a bolder visual
-   refresh? (An alternate landing design already exists in the codebase and could be A/B'd in.)
+**5. Creator pages emit two canonical tags.** `/{handle}` pages (e.g. `/tuhin`) output their own canonical plus the global fallback (`https://dynopay.com/`), so Google may pick the homepage as canonical and drop the creator page. Fix: one-line dedupe on the creator page.
 
-## Assumptions if you don't weigh in
-- Improve the existing landing (no full redesign); no fabricated stats/testimonials; lead on
-  differentiators, not price; keep the interactive hero; add "Book a demo" as a secondary CTA;
-  generic "why us" (no named competitor table); every claim limited to features that exist today.
+**6. Stale duplicate robots.txt in the repo** (`assets/public-runtime/robots.txt`, older rules that block the Help Center). Not served, but a future build-config change could pick it up. Fix: delete it.
 
-## Out of scope
-- Pricing/fee *logic* changes, new product capabilities (e.g., building plugins or recurring
-  billing), and any checkout/auth flow changes. This work is landing‑page presentation and copy
-  only.
+**7. Legacy IndexNow script lists only 7 URLs.** Refresh it to read the live sitemap so Bing/Yandex get the full page list. (Low priority; only relevant if Bing coverage is wanted.)
+
+## Not changed (deliberately)
+
+- Blog has only 4 posts and the country landing pages (`/accept-crypto-payments-in/*`) are not in the sitemap — content decisions, not SEO defects.
+- JSON-LD is only on the homepage and blog; adding FAQ/Product schema to /fees and /for/* is a separate enhancement.
+- Google Analytics / Tag Manager — out of scope.
+
+## After the fix is deployed (user, in Search Console)
+
+1. Sitemaps → submit `sitemap.xml` (or "resubmit" if already added).
+2. URL Inspection → `https://dynopay.com/help-support` → Request indexing; repeat for `/`, `/fees`, `/blog`.
+3. Expect the "Pages" report to show the Help Center and creator pages as indexed within 1–2 weeks; hreflang/duplicate warnings should not appear.
+
+## Assumptions
+
+- Fix 3 is implemented as option **A** (remove alternates) unless told otherwise.
+- The Help Center is meant to be public and indexable (it is linked from the homepage FAQ and marketing footer).
+- Changes ship on the next "Save to GitHub" push, which triggers the DigitalOcean deploy; the live re-check happens after that deploy.

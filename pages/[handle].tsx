@@ -28,7 +28,7 @@ const CreatorPage = ({ creator, links, siteUrl, supportWidget, analytics, produc
       <Head>
         <title>{title}</title>
         <meta name='description' content={description} />
-        <link rel='canonical' href={url} />
+        <link key='canonical' rel='canonical' href={url} />
         <meta key='og:title' property='og:title' content={title} />
         <meta key='og:description' property='og:description' content={description} />
         <meta key='og:url' property='og:url' content={url} />

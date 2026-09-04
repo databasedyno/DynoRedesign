@@ -11,6 +11,7 @@
 
 SITE_URL="https://dynopay.com"
 INDEXNOW_KEY_FILE="/app/public/indexnow-key.txt"
+FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 
 # ── Read the IndexNow key ──
 if [ ! -f "$INDEXNOW_KEY_FILE" ]; then
@@ -25,22 +26,36 @@ echo "Notifying search engines via IndexNow..."
 echo "Key: ${INDEXNOW_KEY:0:8}..."
 echo ""
 
-# ── Public pages to submit ──
-PAGES=(
-  "/"
-  "/fees"
-  "/documentation"
-  "/system-status"
-  "/terms-conditions"
-  "/privacy-policy"
-  "/aml-policy"
-)
+# ── Pull the FULL live URL list from the running sitemap ──
+# The sitemap is the single source of truth (static pages + SEO landing pages +
+# blog posts + help articles + creator/shop/product URLs), so this always
+# submits every indexable page instead of a stale hardcoded handful.
+# Prefer the public production sitemap; fall back to the locally running one.
+SITEMAP_XML=$(curl -s --max-time 20 "${SITE_URL}/sitemap.xml")
+if ! echo "$SITEMAP_XML" | grep -q "<loc>"; then
+  echo "Public sitemap unavailable — falling back to http://localhost:${FRONTEND_PORT}/sitemap.xml"
+  SITEMAP_XML=$(curl -s --max-time 20 "http://localhost:${FRONTEND_PORT}/sitemap.xml")
+fi
 
-# ── Submit all pages in one batch via IndexNow API ──
+# Extract every <loc> that belongs to our host.
+LOCS=$(echo "$SITEMAP_XML" \
+  | grep -oE "<loc>[^<]+</loc>" \
+  | sed -E 's#</?loc>##g' \
+  | grep "^${SITE_URL}")
+
+if [ -z "$LOCS" ]; then
+  echo "✗ Could not read any URLs from the sitemap. Aborting."
+  exit 1
+fi
+
+# ── Build the JSON urlList from the sitemap locs ──
 URL_LIST=""
-for page in "${PAGES[@]}"; do
-  URL_LIST="${URL_LIST}\"${SITE_URL}${page}\","
-done
+COUNT=0
+while IFS= read -r loc; do
+  [ -z "$loc" ] && continue
+  URL_LIST="${URL_LIST}\"${loc}\","
+  COUNT=$((COUNT + 1))
+done <<< "$LOCS"
 URL_LIST="[${URL_LIST%,}]"  # Remove trailing comma, wrap in array
 
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -54,7 +69,7 @@ HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   }")
 
 if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
-  echo "✓ IndexNow: ${#PAGES[@]} URLs submitted successfully (HTTP $HTTP_CODE)"
+  echo "✓ IndexNow: ${COUNT} URLs submitted successfully (HTTP $HTTP_CODE)"
   echo "  Bing, Yandex, Seznam, and Naver will re-crawl within minutes."
 else
   echo "✗ IndexNow: Failed (HTTP $HTTP_CODE)"

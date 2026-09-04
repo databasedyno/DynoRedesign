@@ -19,7 +19,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { ShopClient } from "@/Components/Page/Shop";
 import type { ShopMerchant, ShopProduct } from "@/Components/Page/Shop/types";
 import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
-import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
+import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
 import { toFixedStr } from "@/utils/money";
 
 interface ShopPageProps {
@@ -44,11 +44,9 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
   const url = `${siteUrl}/${merchant.handle}/shop`;
   const ogImage =
     merchant.avatar || `${siteUrl}/og/default-shop.png`;
-  // hreflang / canonical: English is the default (bare URL); every other locale
-  // is served under ?lang=xx. Each variant is self-canonical and lists the full
-  // alternate cluster so Google indexes every localized shop cleanly.
-  const altHref = (lng: string) => (lng === "en" ? url : `${url}?lang=${lng}`);
-  const canonical = altHref(metaLang);
+  // canonical: English is the single indexable version. Non-English is a
+  // client-side ?lang= translation, not a distinct URL — so no hreflang cluster.
+  const canonical = url;
 
   // ── SEO JSON-LD ──
   const storeJsonLd = {
@@ -93,13 +91,6 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
         <title>{title}</title>
         <meta name="description" content={socialDescription} />
         <link key="canonical" rel="canonical" href={canonical} />
-        {/* hreflang alternates — one per supported ?lang= variant + x-default.
-            Keys match _app's fallback cluster so these (correct, per-handle) tags
-            dedupe/override the app-shell defaults. */}
-        {SEO_SUPPORTED.map((lng) => (
-          <link key={lng} rel="alternate" hrefLang={lng} href={altHref(lng)} />
-        ))}
-        <link key="x-default" rel="alternate" hrefLang="x-default" href={url} />
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />

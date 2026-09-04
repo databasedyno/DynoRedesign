@@ -332,7 +332,6 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   };
   const OG_IMAGE = ROUTE_OG_IMAGE[pathname] || DEFAULT_OG_IMAGE;
   const LOGO_IMAGE = `${SITE_URL}/favicon-512.png`;
-  const SUPPORTED_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
   const OG_LOCALES: Record<string, string> = { en: "en_US", pt: "pt_BR", fr: "fr_FR", es: "es_ES", de: "de_DE", nl: "nl_NL" };
 
   // ─── Private routes that should NOT be indexed ───
@@ -341,7 +340,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/dashboard", "/transactions", "/pay-links", "/create-pay-link",
       "/wallet", "/customers", "/developer-keys", "/invoices",
       "/company", "/profile", "/notifications", "/referrals",
-      "/settings", "/help-support", "/admin", "/auth",
+      "/settings", "/admin", "/auth",
       "/reset-password", "/payment/verify", "/storefront",
       "/payouts",
     ];
@@ -632,17 +631,11 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta key="twitter:image" name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:site" content="@Dynopaycom" />
 
-        {/* ─── hreflang tags for i18n — each language points at its REAL ?lang=
-             variant (matches the sitemap's alternates); EN + x-default = bare URL ─── */}
-        {SUPPORTED_LANGS.map((lang) => (
-          <link
-            key={`alt-${lang}`}
-            rel="alternate"
-            hrefLang={lang}
-            href={lang === "en" ? canonicalUrl : `${canonicalUrl}?lang=${lang}`}
-          />
-        ))}
-        <link key="x-default" rel="alternate" hrefLang="x-default" href={canonicalUrl} />
+        {/* ─── hreflang alternates intentionally omitted ───
+             Non-English pages are client-side translations served at ?lang=xx,
+             not distinct server-rendered URLs, so emitting hreflang here made
+             Google report invalid alternates and treat them as duplicates.
+             English is the single indexable version until real SSR locales ship. */}
 
         {/* ─── JSON-LD Structured Data ─── */}
         {pathname === "/" && (

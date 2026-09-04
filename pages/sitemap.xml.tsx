@@ -1,17 +1,15 @@
 import { GetServerSideProps } from "next";
 import { getAllSEOPagesIndex } from "@/utils/seoContent";
 import { blogPosts } from "@/utils/blogData";
+import helpArticles from "@/hooks/useHelpAndSupportData";
 
 const SITE_URL = "https://dynopay.com";
-const SUPPORTED_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
 
 interface SitemapEntry {
   path: string;
   changefreq: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority: number;
   lastmod?: string;
-  /** Blog content is EN-only — skip the ?lang= hreflang alternates for it. */
-  hreflang?: boolean;
 }
 
 /**
@@ -38,9 +36,7 @@ const PUBLIC_PAGES: SitemapEntry[] = [
   { path: "/aml-policy",        changefreq: "yearly",   priority: 0.4 },
 ];
 
-/** English is the default (bare URL); every other language is served at ?lang=xx. */
-const altHref = (loc: string, lang: string): string =>
-  lang === "en" ? loc : `${loc}?lang=${lang}`;
+/** English is the only server-rendered, indexable version (no ?lang= alternates). */
 
 function staticEntries(): SitemapEntry[] {
   const seoEntries: SitemapEntry[] = getAllSEOPagesIndex().map((p) => ({
@@ -54,34 +50,24 @@ function staticEntries(): SitemapEntry[] {
     changefreq: "monthly",
     priority: 0.6,
     lastmod: toDateOnly(p.publishedAt),
-    hreflang: false,
   }));
   return [...PUBLIC_PAGES, ...seoEntries, ...blogEntries];
 }
 
 /**
- * One <url> per canonical page, with hreflang alternates pointing at the REAL
- * ?lang= variants (+ x-default) so Google can discover and index every
- * localized version. English is self-canonical at the bare URL.
+ * One <url> per canonical page. hreflang alternates are intentionally omitted —
+ * non-English variants are client-side translations (?lang=xx), not distinct
+ * server-rendered URLs, so English is the single indexable version.
  * <lastmod> is emitted ONLY when we know the real date (blog posts, products,
  * help articles) — never a fabricated "today".
  */
 function renderUrl(entry: SitemapEntry): string {
   const loc = `${SITE_URL}${entry.path}`;
-  const includeHreflang = entry.hreflang !== false;
-  const hreflangs = includeHreflang
-    ? SUPPORTED_LANGS.map(
-        (lang) =>
-          `    <xhtml:link rel="alternate" hreflang="${lang}" href="${altHref(loc, lang)}" />`
-      ).join("\n")
-    : "";
   return `  <url>
     <loc>${loc}</loc>${entry.lastmod ? `
     <lastmod>${entry.lastmod}</lastmod>` : ""}
     <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority}</priority>${includeHreflang ? `
-${hreflangs}
-    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />` : ""}
+    <priority>${entry.priority}</priority>
   </url>`;
 }
 
@@ -157,30 +143,54 @@ async function fetchStorefrontEntries(): Promise<SitemapEntry[]> {
   }
 }
 
-/** Published help-center articles (/help-support/{slug}). EN-only content → no hreflang. */
+/**
+ * Published help-center articles (/help-support/{slug}). The published list is
+ * static (hooks/useHelpAndSupportData); any DB-backed articles are merged in and
+ * carry a real <lastmod>. EN-only content → no hreflang. Static entries omit
+ * <lastmod> (no real modification date to report).
+ */
 async function fetchHelpArticleEntries(): Promise<SitemapEntry[]> {
-  const base = internalApiBase();
-  if (!base) return [];
-  try {
-    const r = await fetch(`${base}/api/kb/articles?limit=500`, {
-      headers: { Accept: "application/json" },
-    });
-    if (!r.ok) return [];
-    const json = await r.json();
-    const articles: Array<{ slug?: string; updatedAt?: string; updated_at?: string }> =
-      Array.isArray(json?.data?.articles) ? json.data.articles : [];
-    return articles
-      .filter((a) => a && a.slug)
-      .map((a) => ({
+  const bySlug = new Map<string, SitemapEntry>();
+
+  // 1. Static, always-present articles from the published help-center list.
+  for (const a of helpArticles as Array<{ slug: string }>) {
+    if (a?.slug) {
+      bySlug.set(a.slug, {
         path: `/help-support/${a.slug}`,
         changefreq: "monthly",
         priority: 0.5,
-        lastmod: toDateOnly(a.updatedAt || a.updated_at),
-        hreflang: false,
-      }));
-  } catch {
-    return [];
+      });
+    }
   }
+
+  // 2. Merge/override with any published DB articles (adds a real <lastmod>).
+  const base = internalApiBase();
+  if (base) {
+    try {
+      const r = await fetch(`${base}/api/kb/articles?limit=500`, {
+        headers: { Accept: "application/json" },
+      });
+      if (r.ok) {
+        const json = await r.json();
+        const articles: Array<{ slug?: string; updatedAt?: string; updated_at?: string }> =
+          Array.isArray(json?.data?.articles) ? json.data.articles : [];
+        for (const a of articles) {
+          if (a?.slug) {
+            bySlug.set(a.slug, {
+              path: `/help-support/${a.slug}`,
+              changefreq: "monthly",
+              priority: 0.5,
+              lastmod: toDateOnly(a.updatedAt || a.updated_at),
+            });
+          }
+        }
+      }
+    } catch {
+      // static list already populated — ignore DB failures
+    }
+  }
+
+  return [...bySlug.values()];
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {

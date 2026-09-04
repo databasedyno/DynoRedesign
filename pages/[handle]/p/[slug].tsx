@@ -11,7 +11,7 @@ import ProductImage from "@/Components/UI/ProductImage";
 import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
-import { resolveMetaLang, shopSeoStrings, SEO_SUPPORTED } from "@/helpers/shopSeoMeta";
+import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
 import {
   Box, Container, Typography, Stack, Chip, TextField, IconButton, Divider,
   MenuItem, Select, FormControl, InputLabel, Button, Alert,
@@ -99,9 +99,8 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
   const socialTitle = verified ? `✅ ${title}` : title;
   const socialDescription = verified ? `${shopSeoStrings(metaLang).verifiedPrefix} · ${description}` : description;
   const url = `${siteUrl}/${merchant.handle}/p/${product.slug}`;
-  // hreflang / canonical: English default = bare URL; other locales = ?lang=xx.
-  const altHref = (lng: string) => (lng === "en" ? url : `${url}?lang=${lng}`);
-  const canonical = altHref(metaLang);
+  // canonical: English is the single indexable version (no ?lang= hreflang cluster).
+  const canonical = url;
   const cover = product.cover_image_url;
 
   return (
@@ -110,11 +109,6 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
         <title>{title}</title>
         <meta name="description" content={socialDescription} />
         <link key="canonical" rel="canonical" href={canonical} />
-        {/* hreflang alternates — keys match _app's cluster so these override it */}
-        {SEO_SUPPORTED.map((lng) => (
-          <link key={lng} rel="alternate" hrefLang={lng} href={altHref(lng)} />
-        ))}
-        <link key="x-default" rel="alternate" hrefLang="x-default" href={url} />
         <meta key="og:title" property="og:title" content={socialTitle} />
         <meta key="og:description" property="og:description" content={socialDescription} />
         <meta property="og:url" content={canonical} key="og:url" />

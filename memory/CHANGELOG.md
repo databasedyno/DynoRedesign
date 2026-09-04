@@ -1,3 +1,17 @@
+# SESSION 2026-06 (fork, pod 8b63f71b) — SEO audit fixes for dynopay.com (Google Search Console) — SAFE MODE, prod DB
+Executed the approved SEO plan (/app/plan/plan.md). All 7 items done; verified via raw HTML/XML curl + tsc (0 errors) + clean console. Ships on next Save-to-GitHub → DO deploy.
+- #1 Help Center indexable: removed "/help-support" from the private-route prefixes in pages/_app.tsx (was emitting robots noindex,nofollow). Verified: /help-support and /help-support/* no longer emit a robots noindex.
+- #2 Help articles SSR + sitemap:
+  * pages/help-support/[slug].tsx rewritten from client SWR (spinner) to getServerSideProps. Content source order: KB DB → hand-authored static article → published-list stub. Unknown slug → 404. Per-page <Head> with title/description + key="canonical".
+  * IMPORTANT REALITY: the KB DB (tbl_kb_article, Sequelize) is EMPTY in prod. The 8 help articles live as hardcoded stubs in hooks/useHelpAndSupportData.ts (title+desc+slug); only "getting-started-with-dynopay" has a full authored body (Components/Page/HelpAndSupport/Slugs/getting-started-with-dynopay.tsx, previously orphaned — now wired via RICH_ARTICLES registry). getting-started SSRs full content; the other 7 SSR title+description (200, indexable, thin). Auto-upgrades to full DB content if KB is ever populated.
+  * Sitemap (pages/sitemap.xml.tsx) fetchHelpArticleEntries now lists the 8 static slugs (no fabricated lastmod) merged with any DB articles (real lastmod). Verified: 8 /help-support/{slug} <loc>s.
+- #3 hreflang removed (Option A): dropped the SUPPORTED_LANGS ?lang= alternates + x-default from _app.tsx head and from the sitemap generator; also removed the self-authored hreflang clusters on [handle]/shop.tsx and [handle]/p/[slug].tsx (canonical now = bare English URL). Verified: 0 hreflang on home/blog/shop/sitemap.
+- #4 Creator double-canonical fixed: added key="canonical" to pages/[handle].tsx so it dedupes the _app fallback. Verified: exactly 1 canonical on /{handle}. (Blog's inherited-hreflang issue resolved automatically by #3.)
+- #5 Deleted stale assets/public-runtime/robots.txt.
+- #6 scripts/ping-search-engines.sh now reads the full live sitemap (was 7 hardcoded URLs). Both node IndexNow scripts already read the sitemap. NOT run live (would submit pre-deploy prod sitemap).
+- Follow-ups (deliberately not done): Option 3B (true SSR per-locale ?lang= with own canonical/<html lang>); FAQ/Product JSON-LD on /fees + /for/*; authoring full bodies for the other 7 help articles (currently thin title+description SSR).
+
+
 # SESSION 2026-06 (fork, pod ca6c51ad) — i18n: Checkout shopper surfaces + Help Center KB article — SAFE MODE, prod DB
 - Verified already-translated (t() + en/de/es/fr/pt/nl present): CheckoutShell, CheckoutStatusStrip, FeeCalculator (checkout.strip.* / fees.* keys) — no work needed.
 - Completed the broader SHOPPER checkout flow (t() + 6-lang translations):

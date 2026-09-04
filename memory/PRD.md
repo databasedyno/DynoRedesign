@@ -1,3 +1,9 @@
+# STATUS 2026-06 (pod 8b63f71b): SEO audit fixes SHIPPED to code (see memory/CHANGELOG.md top entry + /app/plan/plan.md).
+# Help Center now indexable + SSR; hreflang alternates removed (Option A); creator canonical deduped; stale robots.txt removed; IndexNow script reads live sitemap.
+# KNOWN GAP: KB DB (tbl_kb_article) is empty — 7 of 8 help articles SSR only title+description (thin); "getting-started-with-dynopay" has full authored body. Backlog: author the other 7 (or seed the KB DB), then they auto-render full content via existing SSR.
+# Deploy: next Save-to-GitHub → DigitalOcean. Post-deploy: user resubmits sitemap.xml + requests indexing in Search Console.
+
+
 # DynoPay — Product Requirements (living doc)
 
 > **Product:** DynoPay is a multi-tenant crypto payment gateway. Merchants accept
