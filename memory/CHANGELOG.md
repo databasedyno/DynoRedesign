@@ -1,3 +1,17 @@
+# SESSION 2026-06 (fork, pod ca6c51ad) — i18n: Checkout shopper surfaces + Help Center KB article — SAFE MODE, prod DB
+- Verified already-translated (t() + en/de/es/fr/pt/nl present): CheckoutShell, CheckoutStatusStrip, FeeCalculator (checkout.strip.* / fees.* keys) — no work needed.
+- Completed the broader SHOPPER checkout flow (t() + 6-lang translations):
+  * cryptoTransfer.tsx  — "Go back" (crypto.goBack); coin proper-noun labels left as-is.
+  * CleanCheckoutV2.tsx — QR aria/alt + copy address (checkout.tapToCopyAddress/qrAlt/copyAddress).
+  * InlineTipCheckout.tsx — "Try again" x2 (checkout.tryAgain).
+  * campaign/CampaignShareTray.tsx — added useTranslation; share buttons X/Threads/WhatsApp/LinkedIn + copy + snackbar + composed share text (campaignShare.*).
+  * campaign/RewardTierShelf.tsx — added hook; heading, scroll arrows, "Most popular", "Pledge {{amount}}" (rewardTiers.*).
+  * campaign/DonorWallV2.tsx — added hook; medal ranks + "Organizer replied" (donorWall.*); MEDALS refactored to emoji-only.
+  * Pay3Components/verify.tsx — added hook; "Verifying...." (verify.verifying).
+- Help Center: HelpAndSupport/index.tsx already fully i18n'd (helpAndSupport ns, article data from KB API). Translated the one hardcoded KB article Slugs/getting-started-with-dynopay.tsx end-to-end (36 keys: 7 steps + What's Next + bullet lists + footers + related-article cards + intro/title) under gettingStarted.*.
+- New keys: 58 (helpAndSupport 38 + landing 19 + common 1) x6 langs. check-i18n.mjs green. Hardcoded scan 671 -> 625. next dev compiles clean.
+- NOTE: coin/currency proper-noun labels (Bitcoin/ETH/XRP Ledger…) and example placeholders (you@example.com) intentionally left untranslated.
+
 # SESSION 2026-06 (fork, pod ca6c51ad) — i18n Sweep Part 2: P0 dashboard/checkout tier + 74 missing-EN keys — SAFE MODE, prod DB
 - Fixed 74 keys used in code (t + defaultValue) that were missing from EN -> backfilled EN + machine-translated to de/es/fr/pt/nl
   via scripts/extract_missing_i18n.py -> i18n_manifest.json -> scripts/translate_missing_i18n.py (OpenAI). check-i18n.mjs: all 5 locales complete.

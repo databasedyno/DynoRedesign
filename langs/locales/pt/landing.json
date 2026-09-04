@@ -763,7 +763,9 @@
       "sendPrefix": "Enviar",
       "sameAddressTail": "mais para o mesmo endereço abaixo para completar o seu pagamento.",
       "graceTimer": "Tempo restante para completar"
-    }
+    },
+    "tryAgain": "Tente novamente",
+    "tapToCopyAddress": "Toque para copiar o endereço de pagamento"
   },
   "creator": {
     "card": {
@@ -1085,5 +1087,30 @@
       "gdpr": "Em conformidade com RGPD / AML",
       "noChargebacks": "Sem chargebacks"
     }
+  },
+  "verify": {
+    "verifying": "A verificar...."
+  },
+  "donorWall": {
+    "rankTop": "Principal apoiador",
+    "rank2": "2º",
+    "rank3": "3º",
+    "organizerReplied": "O organizador respondeu"
+  },
+  "campaignShare": {
+    "shareCampaign": "Partilhar esta campanha",
+    "shareOnX": "Partilhar no X",
+    "shareOnThreads": "Partilhar nos Threads",
+    "shareOnWhatsApp": "Partilhar no WhatsApp",
+    "shareOnLinkedIn": "Partilhar no LinkedIn",
+    "copyLink": "Copiar link",
+    "copyCampaignLink": "Copiar link da campanha",
+    "linkCopied": "Link copiado"
+  },
+  "rewardTiers": {
+    "heading": "Níveis de recompensa",
+    "scrollLeft": "Deslizar níveis para a esquerda",
+    "scrollRight": "Deslizar níveis para a direita",
+    "mostPopular": "Mais popular"
   }
 }

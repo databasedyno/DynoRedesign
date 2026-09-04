@@ -148,7 +148,8 @@
     "trustNote": "Os fundos vão diretamente para o comerciante · montante bloqueado até o temporizador terminar",
     "openInWallet": "Abrir na app de carteira",
     "humanWaiting": "Envie o valor exato acima — esta página atualiza sozinha assim que o seu pagamento aparecer.",
-    "humanConfirming": "Já vemos o seu pagamento — a aguardar confirmações da rede (normalmente 5–15 min). Pode manter esta página aberta ou voltar mais tarde."
+    "humanConfirming": "Já vemos o seu pagamento — a aguardar confirmações da rede (normalmente 5–15 min). Pode manter esta página aberta ou voltar mais tarde.",
+    "goBack": "Voltar"
   },
   "underpayment": {
     "title": "Pagamento Parcial Recebido",

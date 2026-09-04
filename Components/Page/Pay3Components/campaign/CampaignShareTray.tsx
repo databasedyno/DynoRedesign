@@ -8,6 +8,7 @@
  * Keep it visually restrained — the page's main CTAs are pledge/donate.
  */
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   IconButton,
@@ -52,8 +53,9 @@ export default function CampaignShareTray({ title, url, ariaLabel }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [copied, setCopied] = useState(false);
+  const { t } = useTranslation("landing");
 
-  const shareText = `Back "${title}" on Dynopay — help this campaign hit its goal.`;
+  const shareText = t("campaignShare.shareText", { defaultValue: 'Back "{{title}}" on Dynopay — help this campaign hit its goal.', title });
   const encoded = encodeURIComponent(`${shareText} ${url}`);
   const encodedText = encodeURIComponent(shareText);
   const encodedUrl = encodeURIComponent(url);
@@ -89,7 +91,7 @@ export default function CampaignShareTray({ title, url, ariaLabel }: Props) {
 
   return (
     <Box
-      aria-label={ariaLabel || "Share this campaign"}
+      aria-label={ariaLabel || t("campaignShare.shareCampaign", { defaultValue: "Share this campaign" })}
       data-testid="campaign-share-tray"
       sx={{
         display: "inline-flex",
@@ -97,67 +99,67 @@ export default function CampaignShareTray({ title, url, ariaLabel }: Props) {
         gap: 0.75,
       }}
     >
-      <Tooltip title="Share on X">
+      <Tooltip title={t("campaignShare.shareOnX", { defaultValue: "Share on X" })}>
         <IconButton
           size="small"
           component="a"
           href={links.x}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share on X"
+          aria-label={t("campaignShare.shareOnX", { defaultValue: "Share on X" })}
           sx={btnSx}
           data-testid="campaign-share-x"
         >
           {X_ICON}
         </IconButton>
       </Tooltip>
-      <Tooltip title="Share on Threads">
+      <Tooltip title={t("campaignShare.shareOnThreads", { defaultValue: "Share on Threads" })}>
         <IconButton
           size="small"
           component="a"
           href={links.threads}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share on Threads"
+          aria-label={t("campaignShare.shareOnThreads", { defaultValue: "Share on Threads" })}
           sx={btnSx}
           data-testid="campaign-share-threads"
         >
           {THREADS_ICON}
         </IconButton>
       </Tooltip>
-      <Tooltip title="Share on WhatsApp">
+      <Tooltip title={t("campaignShare.shareOnWhatsApp", { defaultValue: "Share on WhatsApp" })}>
         <IconButton
           size="small"
           component="a"
           href={links.whatsapp}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share on WhatsApp"
+          aria-label={t("campaignShare.shareOnWhatsApp", { defaultValue: "Share on WhatsApp" })}
           sx={btnSx}
           data-testid="campaign-share-whatsapp"
         >
           {WHATSAPP_ICON}
         </IconButton>
       </Tooltip>
-      <Tooltip title="Share on LinkedIn">
+      <Tooltip title={t("campaignShare.shareOnLinkedIn", { defaultValue: "Share on LinkedIn" })}>
         <IconButton
           size="small"
           component="a"
           href={links.linkedin}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share on LinkedIn"
+          aria-label={t("campaignShare.shareOnLinkedIn", { defaultValue: "Share on LinkedIn" })}
           sx={btnSx}
           data-testid="campaign-share-linkedin"
         >
           {LINKEDIN_ICON}
         </IconButton>
       </Tooltip>
-      <Tooltip title="Copy link">
+      <Tooltip title={t("campaignShare.copyLink", { defaultValue: "Copy link" })}>
         <IconButton
           size="small"
           onClick={handleCopy}
-          aria-label="Copy campaign link"
+          aria-label={t("campaignShare.copyCampaignLink", { defaultValue: "Copy campaign link" })}
           sx={btnSx}
           data-testid="campaign-share-copy"
         >
@@ -168,7 +170,7 @@ export default function CampaignShareTray({ title, url, ariaLabel }: Props) {
         open={copied}
         autoHideDuration={2200}
         onClose={() => setCopied(false)}
-        message="Link copied"
+        message={t("campaignShare.linkCopied", { defaultValue: "Link copied" })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
     </Box>

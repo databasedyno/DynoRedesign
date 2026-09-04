@@ -1694,7 +1694,7 @@ const CryptoTransfer = ({
           <IconButton
             onClick={() => setActiveStep(activeStep - 1)}
             size="small"
-            aria-label="Go back"
+            aria-label={t('crypto.goBack', { defaultValue: 'Go back' })}
             sx={{
               backgroundColor: theme.palette.action.hover,
               color: theme.palette.text.primary,

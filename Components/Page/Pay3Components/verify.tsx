@@ -4,10 +4,12 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const Verify = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t } = useTranslation("landing");
   useEffect(() => {
     if (router.query && router.query.response) {
       try {
@@ -48,7 +50,7 @@ const Verify = () => {
       });
     }
   };
-  return <div>Verifying....</div>;
+  return <div>{t("verify.verifying", { defaultValue: "Verifying...." })}</div>;
 };
 
 export default Verify;

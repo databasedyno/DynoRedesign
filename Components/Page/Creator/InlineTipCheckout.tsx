@@ -621,7 +621,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           data-testid="inline-tip-retry-btn"
           sx={{ mt: 2, textTransform: 'none', borderRadius: '10px', fontWeight: 700 }}
         >
-          Try again
+          {t('checkout.tryAgain', { defaultValue: 'Try again' })}
         </Button>
       </Box>
     )
@@ -1277,7 +1277,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
             }}
           >
-            Try again
+            {t('checkout.tryAgain', { defaultValue: 'Try again' })}
           </Button>
         </Box>
       </Box>

@@ -1347,7 +1347,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             component="button"
             type="button"
             onClick={() => doCopy(cryptoInfo.address, 'addr')}
-            aria-label="Tap to copy payment address"
+            aria-label={t('checkout.tapToCopyAddress', { defaultValue: 'Tap to copy payment address' })}
             data-testid="clean-checkout-qr-panel"
             sx={{
               p: 2, borderRadius: '16px',
@@ -1376,7 +1376,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               <Box
                 component="img"
                 src={cryptoInfo.qr_code.startsWith('data:') ? cryptoInfo.qr_code : `data:image/png;base64,${cryptoInfo.qr_code}`}
-                alt="Payment QR code"
+                alt={t('checkout.qrAlt', { defaultValue: 'Payment QR code' })}
                 sx={{
                   width: '100%', maxWidth: 220, height: 'auto',
                   aspectRatio: '1 / 1', objectFit: 'contain',
@@ -1689,7 +1689,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               <Button
                 data-testid="checkout-sticky-copy-address"
                 onClick={() => doCopy(cryptoInfo.address, 'addr')}
-                aria-label="Copy address"
+                aria-label={t('checkout.copyAddress', { defaultValue: 'Copy address' })}
                 disableElevation
                 variant="outlined"
                 sx={{

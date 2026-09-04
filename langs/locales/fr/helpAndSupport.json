@@ -13,5 +13,69 @@
   "articleNotFound": "Article introuvable",
   "backToHelpSupport": "Retour à l'aide et au support",
   "feedbackThanks": "Merci pour votre retour !",
-  "wasArticleHelpful": "Cet article vous a-t-il été utile ?"
+  "wasArticleHelpful": "Cet article vous a-t-il été utile ?",
+  "gettingStarted": {
+    "step1": {
+      "title": "Étape 1. Créez votre compte Dynopay",
+      "desc": "Inscrivez-vous avec votre adresse e-mail professionnelle et complétez la configuration initiale du compte. Une fois enregistré, vous aurez accès au tableau de bord Dynopay où tous les paiements, portefeuilles et paramètres sont gérés."
+    },
+    "step2": {
+      "title": "Étape 2. Complétez la configuration de base de votre entreprise",
+      "desc": "Ajoutez les détails de votre entreprise, tels que le nom de la société et le pays d'exploitation. En fonction de votre cas d'utilisation et de votre volume, Dynopay peut demander une vérification supplémentaire plus tard, mais vous pouvez commencer à tester les paiements immédiatement."
+    },
+    "step3": {
+      "title": "Étape 3. Choisissez les cryptomonnaies prises en charge",
+      "desc": "Sélectionnez les cryptomonnaies et les réseaux que vous souhaitez accepter. Dynopay prend en charge plusieurs actifs et chaînes, vous permettant de choisir les options qui conviennent le mieux à vos clients et aux frais de transaction."
+    },
+    "step4": {
+      "title": "Étape 4. Configurez votre premier paiement",
+      "heading": "Vous pouvez accepter des paiements de plusieurs manières :",
+      "point1": "Créer un lien de paiement",
+      "point2": "Générer une facture",
+      "point3": "Utiliser une page de paiement hébergée",
+      "point4": "Intégrer Dynopay via API",
+      "footer": "Pour la plupart des entreprises, les liens de paiement ou les factures sont le moyen le plus rapide de commencer."
+    },
+    "step5": {
+      "title": "Étape 5. Recevez et suivez les paiements",
+      "desc": "Une fois qu'un client a effectué un paiement, la transaction apparaît dans votre tableau de bord avec des mises à jour de statut en temps réel. Vous pouvez suivre les confirmations, les montants et les détails du réseau en un seul endroit."
+    },
+    "step6": {
+      "title": "Étape 6. Configurez les paiements",
+      "heading": "Décidez où vos fonds doivent aller :",
+      "point1": "Conservez les fonds dans votre portefeuille crypto connecté",
+      "point2": "Configurez des paiements automatiques ou manuels",
+      "footer": "La disponibilité des paiements dépend de la devise et du réseau sélectionnés."
+    },
+    "step7": {
+      "title": "Étape 7. Testez avant de passer en direct",
+      "desc": "Nous vous recommandons d'effectuer une petite transaction de test pour vous assurer que tout fonctionne comme prévu avant de partager des liens de paiement avec les clients."
+    },
+    "next": {
+      "title": "Quelles sont les prochaines étapes",
+      "desc": "Après que votre premier paiement soit complété, vous pouvez :",
+      "point1": "Personnaliser l'expérience de paiement",
+      "point2": "Ajouter des membres de l'équipe",
+      "point3": "Activer les intégrations API",
+      "point4": "Examiner les frais et les options de règlement",
+      "footer": "Si vous avez besoin d'aide à n'importe quelle étape, le support Dynopay est toujours disponible via le tableau de bord."
+    },
+    "related": {
+      "supported": {
+        "title": "Cryptomonnaies et réseaux pris en charge",
+        "desc": "Découvrez quelles cryptomonnaies et réseaux blockchain Dynopay prend en charge et comment choisir le bon."
+      },
+      "howItWorks": {
+        "title": "Comment fonctionnent les paiements crypto pour les commerçants",
+        "desc": "Une explication claire de ce qui se passe depuis le moment où un client paie jusqu'à ce que les fonds soient réglés."
+      },
+      "fees": {
+        "title": "Frais, taux et logique de conversion",
+        "desc": "Comprenez les frais de transaction, les taux de change et comment les montants des paiements sont calculés."
+      }
+    },
+    "pageTitle": "Commencer avec Dynopay",
+    "intro": "Dynopay aide les entreprises à accepter des paiements en crypto sans avoir à gérer des mécanismes blockchain complexes. Ce guide vous accompagne à travers les étapes de base pour démarrer.",
+    "relatedArticles": "Articles connexes"
+  }
 }

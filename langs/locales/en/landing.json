@@ -763,7 +763,9 @@
       "sendPrefix": "Send",
       "sameAddressTail": "more to the same address below to complete your payment.",
       "graceTimer": "Time left to complete"
-    }
+    },
+    "tryAgain": "Try again",
+    "tapToCopyAddress": "Tap to copy payment address"
   },
   "creator": {
     "card": {
@@ -1085,5 +1087,30 @@
       "gdpr": "GDPR / AML aligned",
       "noChargebacks": "No chargebacks"
     }
+  },
+  "verify": {
+    "verifying": "Verifying...."
+  },
+  "donorWall": {
+    "rankTop": "Top supporter",
+    "rank2": "2nd",
+    "rank3": "3rd",
+    "organizerReplied": "Organizer replied"
+  },
+  "campaignShare": {
+    "shareCampaign": "Share this campaign",
+    "shareOnX": "Share on X",
+    "shareOnThreads": "Share on Threads",
+    "shareOnWhatsApp": "Share on WhatsApp",
+    "shareOnLinkedIn": "Share on LinkedIn",
+    "copyLink": "Copy link",
+    "copyCampaignLink": "Copy campaign link",
+    "linkCopied": "Link copied"
+  },
+  "rewardTiers": {
+    "heading": "Reward tiers",
+    "scrollLeft": "Scroll tiers left",
+    "scrollRight": "Scroll tiers right",
+    "mostPopular": "Most popular"
   }
 }

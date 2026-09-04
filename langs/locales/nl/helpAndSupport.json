@@ -13,5 +13,69 @@
   "articleNotFound": "Artikel niet gevonden",
   "backToHelpSupport": "Terug naar Hulp & Ondersteuning",
   "feedbackThanks": "Bedankt voor uw feedback!",
-  "wasArticleHelpful": "Was dit artikel nuttig?"
+  "wasArticleHelpful": "Was dit artikel nuttig?",
+  "gettingStarted": {
+    "step1": {
+      "title": "Stap 1. Maak uw Dynopay-account aan",
+      "desc": "Meld u aan met uw zakelijke e-mailadres en voltooi de initiële accountinstellingen. Zodra u geregistreerd bent, krijgt u toegang tot het Dynopay-dashboard waar alle betalingen, portemonnees en instellingen worden beheerd."
+    },
+    "step2": {
+      "title": "Stap 2. Voltooi de basisinstellingen voor uw bedrijf",
+      "desc": "Voeg uw bedrijfsgegevens toe, zoals bedrijfsnaam en land van vestiging. Afhankelijk van uw gebruiksdoel en volume kan Dynopay later om aanvullende verificatie vragen, maar u kunt direct beginnen met het testen van betalingen."
+    },
+    "step3": {
+      "title": "Stap 3. Kies ondersteunde cryptocurrencies",
+      "desc": "Selecteer welke cryptocurrencies en netwerken u wilt accepteren. Dynopay ondersteunt meerdere activa en ketens, zodat u opties kunt kiezen die het beste passen bij uw klanten en transactiekosten."
+    },
+    "step4": {
+      "title": "Stap 4. Stel uw eerste betaling in",
+      "heading": "U kunt betalingen op verschillende manieren accepteren:",
+      "point1": "Maak een betalingslink aan",
+      "point2": "Genereer een factuur",
+      "point3": "Gebruik een gehoste afrekenpagina",
+      "point4": "Integreer Dynopay via API",
+      "footer": "Voor de meeste bedrijven zijn betalingslinks of facturen de snelste manier om te beginnen."
+    },
+    "step5": {
+      "title": "Stap 5. Ontvang en volg betalingen",
+      "desc": "Zodra een klant een betaling voltooit, verschijnt de transactie in uw dashboard met realtime statusupdates. U kunt bevestigingen, bedragen en netwerkinformatie op één plek volgen."
+    },
+    "step6": {
+      "title": "Stap 6. Configureer uitbetalingen",
+      "heading": "Bepaal waar uw fondsen naartoe moeten gaan:",
+      "point1": "Houd fondsen in uw verbonden crypto-portemonnee",
+      "point2": "Stel automatische of handmatige uitbetalingen in",
+      "footer": "De beschikbaarheid van uitbetalingen hangt af van de geselecteerde valuta en het netwerk."
+    },
+    "step7": {
+      "title": "Stap 7. Test voordat u live gaat",
+      "desc": "We raden aan om een kleine testtransactie uit te voeren om ervoor te zorgen dat alles werkt zoals verwacht voordat u betalingslinks met klanten deelt."
+    },
+    "next": {
+      "title": "Wat is de volgende stap",
+      "desc": "Nadat uw eerste betaling is voltooid, kunt u:",
+      "point1": "De afrekenervaring aanpassen",
+      "point2": "Teamleden toevoegen",
+      "point3": "API-integraties inschakelen",
+      "point4": "Vergoedingen en afrekenopties bekijken",
+      "footer": "Als u hulp nodig heeft bij een stap, is de ondersteuning van Dynopay altijd beschikbaar via het dashboard."
+    },
+    "related": {
+      "supported": {
+        "title": "Ondersteunde cryptocurrencies & netwerken",
+        "desc": "Bekijk welke cryptocurrencies en blockchain-netwerken Dynopay ondersteunt en hoe u de juiste kunt kiezen."
+      },
+      "howItWorks": {
+        "title": "Hoe crypto-betalingen werken voor handelaren",
+        "desc": "Een duidelijke uitleg van wat er gebeurt vanaf het moment dat een klant betaalt tot het moment dat de fondsen zijn verrekend."
+      },
+      "fees": {
+        "title": "Vergoedingen, tarieven & conversielogica",
+        "desc": "Begrijp transactiekosten, wisselkoersen en hoe uitbetalingsbedragen worden berekend."
+      }
+    },
+    "pageTitle": "Aan de slag met Dynopay",
+    "intro": "Dynopay helpt bedrijven crypto-betalingen te accepteren zonder te maken te hebben met complexe blockchain-mechanica. Deze gids leidt u door de basisstappen om aan de slag te gaan.",
+    "relatedArticles": "Gerelateerde artikelen"
+  }
 }

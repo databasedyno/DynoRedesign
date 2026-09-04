@@ -763,7 +763,9 @@
       "sendPrefix": "Stuur",
       "sameAddressTail": "meer naar hetzelfde adres hieronder om je betaling te voltooien.",
       "graceTimer": "Tijd over om te voltooien"
-    }
+    },
+    "tryAgain": "Probeer opnieuw",
+    "tapToCopyAddress": "Tik om het betalingsadres te kopiëren"
   },
   "creator": {
     "card": {
@@ -1085,5 +1087,30 @@
       "gdpr": "AVG- / AML-conform",
       "noChargebacks": "Geen chargebacks"
     }
+  },
+  "verify": {
+    "verifying": "Bezig met verifiëren...."
+  },
+  "donorWall": {
+    "rankTop": "Top supporter",
+    "rank2": "2e",
+    "rank3": "3e",
+    "organizerReplied": "Organisator heeft gereageerd"
+  },
+  "campaignShare": {
+    "shareCampaign": "Deel deze campagne",
+    "shareOnX": "Deel op X",
+    "shareOnThreads": "Deel op Threads",
+    "shareOnWhatsApp": "Deel op WhatsApp",
+    "shareOnLinkedIn": "Deel op LinkedIn",
+    "copyLink": "Kopieer link",
+    "copyCampaignLink": "Kopieer campagne link",
+    "linkCopied": "Link gekopieerd"
+  },
+  "rewardTiers": {
+    "heading": "Beloningsniveaus",
+    "scrollLeft": "Scroll naar links",
+    "scrollRight": "Scroll naar rechts",
+    "mostPopular": "Meest populair"
   }
 }

@@ -13,5 +13,69 @@
   "articleNotFound": "Artículo no encontrado",
   "backToHelpSupport": "Volver a Ayuda y Soporte",
   "feedbackThanks": "¡Gracias por tus comentarios!",
-  "wasArticleHelpful": "¿Te resultó útil este artículo?"
+  "wasArticleHelpful": "¿Te resultó útil este artículo?",
+  "gettingStarted": {
+    "step1": {
+      "title": "Paso 1. Crea tu cuenta de Dynopay",
+      "desc": "Regístrate usando tu correo electrónico empresarial y completa la configuración inicial de la cuenta. Una vez registrado, tendrás acceso al panel de control de Dynopay donde se gestionan todos los pagos, billeteras y configuraciones."
+    },
+    "step2": {
+      "title": "Paso 2. Completa la configuración básica del negocio",
+      "desc": "Agrega los detalles de tu negocio, como el nombre de la empresa y el país de operación. Dependiendo de tu caso de uso y volumen, Dynopay puede solicitar verificación adicional más adelante, pero puedes comenzar a probar pagos de inmediato."
+    },
+    "step3": {
+      "title": "Paso 3. Elige las criptomonedas soportadas",
+      "desc": "Selecciona qué criptomonedas y redes deseas aceptar. Dynopay admite múltiples activos y cadenas, lo que te permite elegir las opciones que mejor se adapten a tus clientes y tarifas de transacción."
+    },
+    "step4": {
+      "title": "Paso 4. Configura tu primer pago",
+      "heading": "Puedes aceptar pagos de varias maneras:",
+      "point1": "Crea un enlace de pago",
+      "point2": "Genera una factura",
+      "point3": "Usa una página de pago alojada",
+      "point4": "Integra Dynopay a través de API",
+      "footer": "Para la mayoría de los negocios, los enlaces de pago o las facturas son la forma más rápida de comenzar."
+    },
+    "step5": {
+      "title": "Paso 5. Recibe y rastrea pagos",
+      "desc": "Una vez que un cliente completa un pago, la transacción aparece en tu panel de control con actualizaciones de estado en tiempo real. Puedes rastrear confirmaciones, montos y detalles de la red en un solo lugar."
+    },
+    "step6": {
+      "title": "Paso 6. Configura los pagos",
+      "heading": "Decide a dónde deben ir tus fondos:",
+      "point1": "Mantén los fondos en tu billetera de criptomonedas conectada",
+      "point2": "Configura pagos automáticos o manuales",
+      "footer": "La disponibilidad de pagos depende de la moneda y la red seleccionadas."
+    },
+    "step7": {
+      "title": "Paso 7. Prueba antes de ir en vivo",
+      "desc": "Recomendamos realizar una pequeña transacción de prueba para asegurarte de que todo funcione como se espera antes de compartir enlaces de pago con los clientes."
+    },
+    "next": {
+      "title": "Qué sigue",
+      "desc": "Después de que se complete tu primer pago, puedes:",
+      "point1": "Personalizar la experiencia de pago",
+      "point2": "Agregar miembros del equipo",
+      "point3": "Habilitar integraciones de API",
+      "point4": "Revisar tarifas y opciones de liquidación",
+      "footer": "Si necesitas ayuda en cualquier paso, el soporte de Dynopay siempre está disponible a través del panel de control."
+    },
+    "related": {
+      "supported": {
+        "title": "Criptomonedas y redes soportadas",
+        "desc": "Consulta qué criptomonedas y redes blockchain admite Dynopay y cómo elegir la adecuada."
+      },
+      "howItWorks": {
+        "title": "Cómo funcionan los pagos en criptomonedas para comerciantes",
+        "desc": "Una explicación clara de lo que sucede desde el momento en que un cliente paga hasta que los fondos se liquidan."
+      },
+      "fees": {
+        "title": "Tarifas, tasas y lógica de conversión",
+        "desc": "Entiende las tarifas de transacción, los tipos de cambio y cómo se calculan los montos de los pagos."
+      }
+    },
+    "pageTitle": "Comenzando con Dynopay",
+    "intro": "Dynopay ayuda a las empresas a aceptar pagos en criptomonedas sin lidiar con la mecánica compleja de blockchain. Esta guía te lleva a través de los pasos básicos para comenzar.",
+    "relatedArticles": "Artículos relacionados"
+  }
 }

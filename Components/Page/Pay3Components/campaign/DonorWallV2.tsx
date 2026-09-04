@@ -13,6 +13,7 @@
  * whole section in that case.
  */
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
@@ -47,11 +48,7 @@ function hueFromName(name: string | null): number {
   return h;
 }
 
-const MEDALS: Array<{ emoji: string; label: string }> = [
-  { emoji: "🥇", label: "Top supporter" },
-  { emoji: "🥈", label: "2nd" },
-  { emoji: "🥉", label: "3rd" },
-];
+const MEDALS: string[] = ["🥇", "🥈", "🥉"];
 
 export default function DonorWallV2({
   supporters,
@@ -64,6 +61,12 @@ export default function DonorWallV2({
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const rel = useRelativeTime();
+  const { t } = useTranslation("landing");
+  const rankLabels = [
+    t("donorWall.rankTop", { defaultValue: "Top supporter" }),
+    t("donorWall.rank2", { defaultValue: "2nd" }),
+    t("donorWall.rank3", { defaultValue: "3rd" }),
+  ];
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -146,7 +149,7 @@ export default function DonorWallV2({
               {/* Medal ribbon (top-right, only for top-3) */}
               {medal && (
                 <Box
-                  aria-label={medal.label}
+                  aria-label={rankLabels[medalIdx] ?? ""}
                   sx={{
                     position: "absolute",
                     top: 6,
@@ -158,7 +161,7 @@ export default function DonorWallV2({
                   }}
                   data-testid={`donation-supporter-medal-${i}`}
                 >
-                  {medal.emoji}
+                  {medal}
                 </Box>
               )}
 
@@ -248,7 +251,7 @@ export default function DonorWallV2({
                           color: accent,
                         }}
                       >
-                        Organizer replied
+                        {t("donorWall.organizerReplied", { defaultValue: "Organizer replied" })}
                       </Typography>
                     </Box>
                     <Typography

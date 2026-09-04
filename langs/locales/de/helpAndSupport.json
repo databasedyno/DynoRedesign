@@ -13,5 +13,69 @@
   "articleNotFound": "Artikel nicht gefunden",
   "backToHelpSupport": "Zurück zu Hilfe & Support",
   "feedbackThanks": "Vielen Dank für Ihr Feedback!",
-  "wasArticleHelpful": "War dieser Artikel hilfreich?"
+  "wasArticleHelpful": "War dieser Artikel hilfreich?",
+  "gettingStarted": {
+    "step1": {
+      "title": "Schritt 1. Erstellen Sie Ihr Dynopay-Konto",
+      "desc": "Melden Sie sich mit Ihrer geschäftlichen E-Mail-Adresse an und schließen Sie die erste Kontoeinrichtung ab. Nach der Registrierung erhalten Sie Zugriff auf das Dynopay-Dashboard, in dem alle Zahlungen, Wallets und Einstellungen verwaltet werden."
+    },
+    "step2": {
+      "title": "Schritt 2. Grundlegende Geschäftseinrichtung abschließen",
+      "desc": "Fügen Sie Ihre Geschäftsdaten hinzu, wie z. B. den Firmennamen und das Betriebsland. Je nach Anwendungsfall und Volumen kann Dynopay später zusätzliche Verifizierungen anfordern, aber Sie können sofort mit dem Testen von Zahlungen beginnen."
+    },
+    "step3": {
+      "title": "Schritt 3. Wählen Sie unterstützte Kryptowährungen",
+      "desc": "Wählen Sie aus, welche Kryptowährungen und Netzwerke Sie akzeptieren möchten. Dynopay unterstützt mehrere Vermögenswerte und Chains, sodass Sie Optionen auswählen können, die am besten zu Ihren Kunden und Transaktionsgebühren passen."
+    },
+    "step4": {
+      "title": "Schritt 4. Richten Sie Ihre erste Zahlung ein",
+      "heading": "Sie können Zahlungen auf verschiedene Arten akzeptieren:",
+      "point1": "Erstellen Sie einen Zahlungslink",
+      "point2": "Generieren Sie eine Rechnung",
+      "point3": "Verwenden Sie eine gehostete Checkout-Seite",
+      "point4": "Integrieren Sie Dynopay über die API",
+      "footer": "Für die meisten Unternehmen sind Zahlungslinks oder Rechnungen der schnellste Weg, um zu starten."
+    },
+    "step5": {
+      "title": "Schritt 5. Zahlungen empfangen und verfolgen",
+      "desc": "Sobald ein Kunde eine Zahlung abgeschlossen hat, erscheint die Transaktion in Ihrem Dashboard mit Echtzeit-Statusaktualisierungen. Sie können Bestätigungen, Beträge und Netzwerkdetails an einem Ort verfolgen."
+    },
+    "step6": {
+      "title": "Schritt 6. Auszahlungen konfigurieren",
+      "heading": "Entscheiden Sie, wohin Ihre Gelder gehen sollen:",
+      "point1": "Halten Sie Gelder in Ihrem verbundenen Krypto-Wallet",
+      "point2": "Richten Sie automatische oder manuelle Auszahlungen ein",
+      "footer": "Die Verfügbarkeit von Auszahlungen hängt von der gewählten Währung und dem Netzwerk ab."
+    },
+    "step7": {
+      "title": "Schritt 7. Testen, bevor Sie live gehen",
+      "desc": "Wir empfehlen, eine kleine Testtransaktion durchzuführen, um sicherzustellen, dass alles wie erwartet funktioniert, bevor Sie Zahlungslinks mit Kunden teilen."
+    },
+    "next": {
+      "title": "Was kommt als Nächstes",
+      "desc": "Nachdem Ihre erste Zahlung abgeschlossen ist, können Sie:",
+      "point1": "Das Checkout-Erlebnis anpassen",
+      "point2": "Teammitglieder hinzufügen",
+      "point3": "API-Integrationen aktivieren",
+      "point4": "Gebühren und Abrechnungsoptionen überprüfen",
+      "footer": "Wenn Sie bei einem Schritt Hilfe benötigen, steht der Dynopay-Support jederzeit über das Dashboard zur Verfügung."
+    },
+    "related": {
+      "supported": {
+        "title": "Unterstützte Kryptowährungen & Netzwerke",
+        "desc": "Sehen Sie, welche Kryptowährungen und Blockchain-Netzwerke Dynopay unterstützt und wie Sie die richtige auswählen."
+      },
+      "howItWorks": {
+        "title": "Wie Krypto-Zahlungen für Händler funktionieren",
+        "desc": "Eine klare Erklärung, was passiert, vom Moment der Zahlung durch den Kunden bis zur Abwicklung der Gelder."
+      },
+      "fees": {
+        "title": "Gebühren, Sätze & Umrechnungslogik",
+        "desc": "Verstehen Sie die Transaktionsgebühren, Wechselkurse und wie die Auszahlungsbeträge berechnet werden."
+      }
+    },
+    "pageTitle": "Erste Schritte mit Dynopay",
+    "intro": "Dynopay hilft Unternehmen, Krypto-Zahlungen zu akzeptieren, ohne sich mit komplexen Blockchain-Mechanismen auseinandersetzen zu müssen. Dieser Leitfaden führt Sie durch die grundlegenden Schritte, um loszulegen.",
+    "relatedArticles": "Verwandte Artikel"
+  }
 }

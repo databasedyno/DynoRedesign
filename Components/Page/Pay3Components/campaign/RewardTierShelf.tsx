@@ -10,6 +10,7 @@
  *   • Empty state omitted — parent decides whether to render.
  */
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Typography, useTheme, Button, IconButton } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
@@ -41,6 +42,7 @@ export default function RewardTierShelf({
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = BRAND_ACCENT;
+  const { t } = useTranslation("landing");
   const onAccent = "#0A0A0B";
   const border = theme.palette.divider;
   // Public-surfaces pass: visible edge fade = honest scroll affordance
@@ -94,11 +96,11 @@ export default function RewardTierShelf({
             color: theme.palette.text.secondary,
           }}
         >
-          Reward tiers
+          {t("rewardTiers.heading", { defaultValue: "Reward tiers" })}
         </Typography>
         <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 0.75 }}>
           <IconButton
-            aria-label="Scroll tiers left"
+            aria-label={t("rewardTiers.scrollLeft", { defaultValue: "Scroll tiers left" })}
             onClick={() => scroll(-1)}
             sx={navBtnSx}
             data-testid="donation-tiers-scroll-left"
@@ -106,7 +108,7 @@ export default function RewardTierShelf({
             <Icon icon="mdi:chevron-left" width={20} />
           </IconButton>
           <IconButton
-            aria-label="Scroll tiers right"
+            aria-label={t("rewardTiers.scrollRight", { defaultValue: "Scroll tiers right" })}
             onClick={() => scroll(1)}
             sx={navBtnSx}
             data-testid="donation-tiers-scroll-right"
@@ -189,7 +191,7 @@ export default function RewardTierShelf({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  ★ Most popular
+                  ★ {t("rewardTiers.mostPopular", { defaultValue: "Most popular" })}
                 </Box>
               )}
 
@@ -313,7 +315,7 @@ export default function RewardTierShelf({
                     },
                   }}
                 >
-                  Pledge {currencySymbol}{formatAmount(tier.min_amount)}
+                  {t("rewardTiers.pledge", { defaultValue: "Pledge {{amount}}", amount: `${currencySymbol}${formatAmount(tier.min_amount)}` })}
                 </Button>
               </Box>
             </Box>
