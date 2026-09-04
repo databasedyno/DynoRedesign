@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
@@ -85,12 +85,9 @@ const WaysToGetPaidV3: React.FC = () => {
           {METHODS.map((m, idx) => {
             const Icon = m.icon;
             return (
-              <motion.div
+              <Reveal
                 key={m.key}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: (idx % 3) * 0.06 }}
+                delay={(idx % 3) * 0.06}
                 style={{ height: "100%" }}
               >
                 <Box
@@ -162,7 +159,7 @@ const WaysToGetPaidV3: React.FC = () => {
                     }}
                   />
                 </Box>
-              </motion.div>
+              </Reveal>
             );
           })}
         </Box>

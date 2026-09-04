@@ -41,6 +41,8 @@
   "cryptoConversionUsdtTrc20": "USDT (TRC20)",
   "cryptoConversionUsdtErc20": "USDT (ERC20)",
   "cryptoConversionUsdcErc20": "USDC (ERC20)",
+  "cryptoConversionEnabledToast": "A conversão automática está ativa — as moedas voláteis passam a ser liquidadas em {{currency}} ({{chain}}).",
+  "cryptoConversionSaveFailed": "Não foi possível guardar a conversão automática. Adicione primeiro uma carteira de stablecoin compatível e tente novamente.",
   "actions": {
     "cancel": "Cancelar",
     "saveChanges": "Salvar alterações",

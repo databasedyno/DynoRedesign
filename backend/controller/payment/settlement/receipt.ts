@@ -115,12 +115,14 @@ export const downloadReceipt = async (
     // Merchant (company) name — read-only lookup
     let companyName = "Merchant";
     let companyOwnerUserId: number | null = null;
+    let companyLogo: string | null = null;
     const companyId = customerData?.company_id || tempData?.company_id;
     if (companyId) {
       try {
         const company = await companyModel.findOne({ where: { company_id: companyId } });
         if (company?.dataValues?.company_name) companyName = company.dataValues.company_name;
         if (company?.dataValues?.user_id) companyOwnerUserId = Number(company.dataValues.user_id);
+        if (company?.dataValues?.photo) companyLogo = String(company.dataValues.photo);
       } catch {
         /* keep fallback name */
       }
@@ -173,6 +175,7 @@ export const downloadReceipt = async (
       cryptoAmount: receivedAmount > 0 ? formatCryptoAmount(receivedAmount, currency) : undefined,
       cryptoCurrency: currency || undefined,
       companyName,
+      companyLogo: companyLogo || undefined,
       merchantVerified,
       customerEmail: customerEmail || "-",
       customerName,

@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography, Button } from "@mui/material";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import ScienceRoundedIcon from "@mui/icons-material/ScienceRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
@@ -145,12 +145,7 @@ const DeveloperBandV3: React.FC = () => {
           </Box>
 
           {/* Right: terminal-style code card */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          >
+          <Reveal>
             <Box
               sx={{
                 background: s.dark ? "#17171F" : "#0B0B0F",
@@ -199,7 +194,7 @@ const DeveloperBandV3: React.FC = () => {
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, mt: 1.5, lineHeight: 1.5, textAlign: { xs: "left", md: "right" } }}>
               {t("v3.developer.snippetNote")}
             </Typography>
-          </motion.div>
+          </Reveal>
         </Box>
       </Box>
     </Box>

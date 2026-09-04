@@ -1473,3 +1473,69 @@ dashboard surfaces and the screenshot tool renders this app blank (systemic;
 even `/` is blank in the tool). Reachable end-to-end only after login + link
 creation, which writes to the LIVE prod DB (SAFE MODE) — left for the user to
 eyeball on the dashboard / after deploy.
+
+────────────────────────────────────────────────────────────────────────────
+## 2026-09-04 — BRAND LOGO v3 ("conversion coin" wordmark) + LANDING SCROLL REVEALS + AUTO-CONVERT SAVE BUG (session 30)
+User feedback: "logo is not clear / not memorable" + "more transitional animation as we
+scroll up and down". User picked (after 2 AI concept rounds) Concept C refined: bold
+Manrope-ExtraBold lowercase wordmark "dynopay" where the "o" is an INDIGO COIN (#4338CA)
+carrying two white swap arrows (crypto → stablecoin conversion loop). Wordmark ink #0A0A0B
+(light) / #FFFFFF (dark); coin stays indigo in both.
+
+### Logo — single source of truth
+- NEW `scripts/brand/generate-logo.mjs` (node, uses backend fontkit + root sharp). Re-run it
+  to regenerate EVERY asset from the font + geometry: `node scripts/brand/generate-logo.mjs`.
+  Emits: assets/Icons/home/dynopay-{black,white}Logo.svg (134×45 frame kept so all callers
+  are untouched), assets/Icons/logoMarkPaths.ts (paths for <Logo/>), public/favicon.svg
+  (prefers-color-scheme aware), favicon-16/32(-light)/512.png, favicon.ico (16/32/48 PNG-ICO),
+  dynopay-favicon(-light).png (180 apple-touch indigo tile), press/dynopay-logo-{black,white}.svg
+  + dynopay-icon-512.png, assets/Images/auth/dynopay-{logo,white-logo,mobile-logo}.png +
+  dynopay-logo.svg, backend/assets/dynopay-logo.png (invoice PDF), dynopay-white-logo.png
+  (receipt PDF), dynopay-logo2.png, backend/public/dynopay-white-logo.png +
+  dynopay-email-logo.png (480×160 chip, 3:1 to match the email <img 120×40>).
+- `assets/Icons/Logo.tsx` rewritten: square coin mark (viewBox 0 0 64 64), indigo coin +
+  white arrows by default; `color` prop → monochrome coin with the arrows cut out (evenodd),
+  used on the dark checkout header. data-testid="dynopay-logo".
+- OG images regenerated via `python3 scripts/generate-og-images.py` (needs `pip install
+  fonttools brotli`) — they embed the white lockup PNG.
+
+### Landing scroll animations
+- NEW `Components/Page/Home/v3/Reveal.tsx`: bidirectional scroll reveal. Outer div is the
+  IntersectionObserver target (framer `useInView`, margin -12%/-12%) and exposes
+  `data-reveal="in|out"`; inner motion.div animates opacity/y — observer never transforms so
+  no flapping at the viewport edge. SSR renders VISIBLE (`initial={false}`, no hydration
+  mismatch, crawler-safe); after mount the client parks off-screen blocks hidden (duration 0)
+  and keeps already-on-screen blocks visible (no flash). prefers-reduced-motion → always shown.
+- `Components/Page/Home/index.tsx`: every section below the hero wrapped in <Reveal>.
+- All 14 sections that had one-shot `whileInView once:true` card animations now use
+  <Reveal delay=…> (stagger preserved, replays both directions). `motion` imports dropped.
+  NumbersTrustBand stat cell got height:100% (was display:contents hack).
+- HeroPlayground: CSS-only staggered load-in `heroIn(delay)` on the copy column (eyebrow,
+  h1, body, CTAs, badge, trust row, creator line) — paints before hydration.
+
+### BUG FIXED (the long-standing "auto-converted icon missing" P0) — REAL ROOT CAUSE
+- The icon code (TransactionStatusBadge autoConverted + backend LEFT JOIN
+  tbl_stablecoin_conversion) was correct all along. Prod facts: tbl_stablecoin_conversion has
+  0 rows; The Dev Store (company 1) has auto_convert_enabled=false (with USDC/ERC20 saved).
+- CAUSE: CompanySettingsDialog sent `{auto_convert_enabled:true, target_stablecoin:"usdt_trc20"}`
+  but backend PUT /api/company/auto-convert/:id needs `settlement_currency` + `settlement_chain`;
+  without them it answers 200 `action_required:"select_wallet"` and leaves auto-convert OFF.
+  Frontend fire-and-forgot with `.catch(()=>{})` → merchant saw "saved", payments kept settling
+  in the raw coin → never a conversion row → never an icon.
+- FIX (Components/UI/CompanySettingsDialog/index.tsx): STABLECOIN_OPTIONS map
+  usdt_trc20|usdt_erc20|usdc_erc20 ↔ [currency, chain]; GET pre-selects the saved pair; PUT is
+  awaited and sends the pair; non-enabled/400 → error toast (backend message) and dialog stays
+  open; success → GLOBAL Redux TOAST_SHOW (local <Toast> unmounts with the dialog). i18n keys
+  companySettings.cryptoConversionEnabledToast / cryptoConversionSaveFailed (6 locales).
+  testids: auto-convert-toggle-group, auto-convert-yes/no, convert-to-group,
+  convert-to-usdt-trc20 / usdt-erc20 / usdc-erc20.
+- Verified against live backend on company 71 (SMADAV, zero transactions): old payload → 200
+  select_wallet, enabled stays false (repro); new payload → enabled true USDT/TRC20; then
+  disabled and SQL-restored to exact original NULLs. Company 1 untouched.
+
+### Testing
+- testing_agent iteration_125 (frontend): logo rollout (header light/dark swap, footer, auth,
+  favicons, press, email chip), scroll reveals (bidirectional, no flicker, layout, anchors,
+  reduced motion), dashboard/transactions regression, settings read-only preselect (USDC ERC20)
+  and SMADAV write flow — all PASS. Its 2 findings (toast unmount, SSR opacity-0 hydration
+  warning) fixed above and self-verified (0 console errors, 0 hydration errors, in/out toggles).

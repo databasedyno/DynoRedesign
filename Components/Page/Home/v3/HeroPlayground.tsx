@@ -30,6 +30,15 @@ const heroAmountIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 `;
+const heroCopyIn = keyframes`
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+// Staggered load-in for the hero copy column (CSS-only: paints before hydration).
+const heroIn = (delay: number) => ({
+  animation: `${heroCopyIn} 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s both`,
+  "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+});
 
 const HeroPlayground: React.FC = () => {
   const s = useAurora();
@@ -106,7 +115,7 @@ const HeroPlayground: React.FC = () => {
       >
         {/* LEFT — one clear promise + one primary action */}
         <Box>
-          <Eyebrow tone="coral" sx={{ mb: 3, display: "inline-flex", alignItems: "center", gap: 1 }}>
+          <Eyebrow tone="coral" sx={{ mb: 3, display: "inline-flex", alignItems: "center", gap: 1, ...heroIn(0) }}>
             <Box
               component="span"
               sx={{
@@ -121,18 +130,18 @@ const HeroPlayground: React.FC = () => {
             {t("v3.hero.eyebrow")}
           </Eyebrow>
 
-          <HeadlineXL component="h1" sx={{ color: s.ink, mb: 3 }}>
+          <HeadlineXL component="h1" sx={{ color: s.ink, mb: 3, ...heroIn(0.08) }}>
             {t("v3.hero.headline1")}
             <br />
             <AuroraInk>{t("v3.hero.headlineHighlight")}</AuroraInk> {t("v3.hero.headline2")}
           </HeadlineXL>
 
-          <Body sx={{ color: s.ink2, maxWidth: 520, mb: 4.5, fontSize: { xs: 16, md: 18 } }}>
+          <Body sx={{ color: s.ink2, maxWidth: 520, mb: 4.5, fontSize: { xs: 16, md: 18 }, ...heroIn(0.16) }}>
             <Trans i18nKey="v3.hero.body" ns="landing" components={{ b: <b style={{ color: s.ink }} /> }} />
           </Body>
 
           {/* ONE primary action + a quiet secondary */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap", ...heroIn(0.24) }}>
             <Button
               data-testid="hero-primary-cta"
               onClick={() => router.push("/auth/register?ref=hero_primary")}
@@ -189,6 +198,7 @@ const HeroPlayground: React.FC = () => {
               borderRadius: "999px",
               background: s.dark ? "rgba(79, 70, 229,0.14)" : "rgba(79, 70, 229,0.09)",
               border: "1px solid rgba(79, 70, 229,0.35)",
+              ...heroIn(0.32),
             }}
           >
             <CardGiftcardRoundedIcon sx={{ fontSize: 17, color: BRAND_ACCENT }} />
@@ -197,14 +207,14 @@ const HeroPlayground: React.FC = () => {
             </Typography>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mt: 3, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mt: 3, flexWrap: "wrap", ...heroIn(0.38) }}>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, color: s.ink3, letterSpacing: "0.12em", textTransform: "uppercase" }}>
               {t("v3.hero.bullets")}
             </Typography>
           </Box>
 
           {/* Trust microcopy — honest legitimacy signals */}
-          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, mt: 1.75 }}>
+          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, mt: 1.75, ...heroIn(0.42) }}>
             <ShieldRoundedIcon sx={{ fontSize: 14, color: s.ink3 }} />
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, letterSpacing: "0.1em" }}>
               {t("v3.hero.trustLine")}
@@ -223,6 +233,7 @@ const HeroPlayground: React.FC = () => {
               cursor: "pointer",
               "&:hover": { color: BRAND_ACCENT },
               "& span": { color: BRAND_ACCENT, fontWeight: 600 },
+              ...heroIn(0.46),
             }}
           >
             <Trans i18nKey="v3.hero.creatorLink" ns="landing" components={{ s: <span /> }} />

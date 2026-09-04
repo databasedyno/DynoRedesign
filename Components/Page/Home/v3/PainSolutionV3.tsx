@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -44,12 +44,9 @@ const PainSolutionV3: React.FC = () => {
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 2, md: 3 } }}>
           {ROWS.map((row, i) => (
-            <motion.div
+            <Reveal
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+              delay={i * 0.06}
             >
               <Box
                 sx={{
@@ -97,7 +94,7 @@ const PainSolutionV3: React.FC = () => {
                   </Typography>
                 </Box>
               </Box>
-            </motion.div>
+            </Reveal>
           ))}
         </Box>
       </Box>

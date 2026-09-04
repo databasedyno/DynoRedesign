@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
@@ -74,12 +74,9 @@ const SolutionsGridV3: React.FC = () => {
           {SOLUTIONS.map((sol, idx) => {
             const Icon = sol.icon;
             return (
-              <motion.div
+              <Reveal
                 key={sol.key}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: (idx % 3) * 0.06 }}
+                delay={(idx % 3) * 0.06}
                 style={{ height: "100%" }}
               >
                 <Box
@@ -138,7 +135,7 @@ const SolutionsGridV3: React.FC = () => {
                     sx={{ fontSize: 18, color: s.dark ? "#818CF8" : BRAND_ACCENT, transition: "transform .3s cubic-bezier(.16,1,.3,1)" }}
                   />
                 </Box>
-              </motion.div>
+              </Reveal>
             );
           })}
         </Box>

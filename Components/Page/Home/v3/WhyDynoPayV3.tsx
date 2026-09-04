@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import SwapHorizRoundedIcon from "@mui/icons-material/SwapHorizRounded";
@@ -59,12 +59,9 @@ const WhyDynoPayV3: React.FC = () => {
           {CARDS.map((c, i) => {
             const Icon = c.icon;
             return (
-              <motion.div
+              <Reveal
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: (i % 3) * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                delay={(i % 3) * 0.06}
                 style={{ height: "100%" }}
               >
                 <Box
@@ -98,7 +95,7 @@ const WhyDynoPayV3: React.FC = () => {
                     {c.desc}
                   </Typography>
                 </Box>
-              </motion.div>
+              </Reveal>
             );
           })}
         </Box>

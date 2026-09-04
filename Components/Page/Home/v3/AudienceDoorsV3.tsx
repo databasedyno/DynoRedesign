@@ -6,7 +6,7 @@ import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
 import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
@@ -52,12 +52,9 @@ const AudienceDoorsV3: React.FC = () => {
           {DOORS.map((d, idx) => {
             const Icon = d.icon;
             return (
-              <motion.div
+              <Reveal
                 key={d.key}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: idx * 0.06 }}
+                delay={idx * 0.06}
               >
                 <Box
                   onClick={() => router.push(d.href)}
@@ -180,7 +177,7 @@ const AudienceDoorsV3: React.FC = () => {
                     </Typography>
                   </Box>
                 </Box>
-              </motion.div>
+              </Reveal>
             );
           })}
         </Box>

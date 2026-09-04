@@ -1891,7 +1891,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 resolveSettledBreakdown(
                   { ...tempData, settled_merchant_amount: merchantAmountFinal, settled_fee_amount: totalFeeFinal },
                   tempCurrency
-                )
+                ),
+                company_data?.photo || null
               );
               cronLogger.info(`[cryptoVerification] Customer payment confirmation email sent to ${customerEmail} with PDF receipt`);
             }

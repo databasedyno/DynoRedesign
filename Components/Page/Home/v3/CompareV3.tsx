@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
@@ -43,12 +43,7 @@ const CompareV3: React.FC = () => {
           </Typography>
         </Box>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <Reveal>
           <Box
             sx={{
               background: s.surface,
@@ -141,7 +136,7 @@ const CompareV3: React.FC = () => {
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, mt: 2, textAlign: "center" }}>
             {t("v3.compare.note")}
           </Typography>
-        </motion.div>
+        </Reveal>
       </Box>
     </Box>
   );

@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { motion, useInView } from "framer-motion";
+import { useInView } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
@@ -106,16 +107,13 @@ const NumbersTrustBand: React.FC = () => {
           }}
         >
           {STATS.map((stat, idx) => (
-            <motion.div
+            <Reveal
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              style={{ display: "contents" }}
+              delay={idx * 0.08}
             >
               <Box
                 sx={{
+                  height: "100%",
                   p: { xs: 3, md: 4.5 },
                   borderRight: {
                     xs: idx % 2 === 0 ? `1px solid ${s.line}` : "none",
@@ -161,7 +159,7 @@ const NumbersTrustBand: React.FC = () => {
                   {stat.sub}
                 </Typography>
               </Box>
-            </motion.div>
+            </Reveal>
           ))}
         </Box>
 

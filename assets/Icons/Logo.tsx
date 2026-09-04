@@ -1,5 +1,6 @@
 import React from 'react'
 import { useTheme } from '@mui/material'
+import { LOGO_MARK_ARROWS, LOGO_MARK_COIN, LOGO_MARK_VIEWBOX } from './logoMarkPaths'
 
 interface LogoProps {
   width?: number
@@ -7,27 +8,30 @@ interface LogoProps {
   color?: string
 }
 
-const Logo = ({ width = 65, height = 78, color }: LogoProps) => {
+// Dynopay mark — the indigo "conversion coin" (crypto in → stablecoin out).
+// Default: indigo coin with white arrows in both themes. `color` switches to a
+// monochrome coin whose arrows are cut out (e.g. white on the dark checkout bar).
+const Logo = ({ width = 64, height = 64, color }: LogoProps) => {
   const theme = useTheme()
-  const isDark = theme.palette.mode === 'dark'
-  
-  // Swiss brand: ink logo in light mode, white in dark mode.
-  // `color` prop overrides both (e.g. white logo on the dark checkout header bar).
-  const fillColor = color || (isDark ? '#F5F5F5' : '#0A0A0A')
-  
+  const coin = color || (theme.palette.mode === 'dark' ? '#6366F1' : '#4338CA')
+
   return (
-    <svg 
-      width={width} 
-      height={height} 
-      viewBox="0 0 65 78" 
-      fill="none" 
+    <svg
+      width={width}
+      height={height}
+      viewBox={LOGO_MARK_VIEWBOX}
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       data-testid="dynopay-logo"
     >
-      <path 
-        d="M59.0239 9.97412C56.6927 9.97412 54.6891 17.0833 53.8125 27.2552C53.7932 27.4916 53.4464 27.4867 53.4319 27.2456C52.4686 11.9419 49.6413 0.85368 46.3035 0.85368C43.6062 0.85368 41.2413 8.09313 39.9264 18.9451C39.8397 19.6733 38.7801 19.6733 38.6982 18.9451C37.364 7.59635 34.9172 0 32.1236 0C29.9562 0 28.0006 4.56262 26.6087 11.8985C26.3582 13.2104 24.4653 13.2104 24.2197 11.8985C22.8277 4.56262 20.8722 0 18.7047 0C17.1634 0 15.7281 2.31507 14.5288 6.29411C14.1242 7.63975 12.2313 7.63975 11.8267 6.29411C10.6274 2.31507 9.19207 0 7.65078 0C3.42186 0 -0.00268555 17.3824 -0.00268555 38.821C-0.00268555 60.2595 3.42186 77.6419 7.65078 77.6419C9.19207 77.6419 10.6274 75.3268 11.8267 71.3478C12.2313 70.0022 14.1242 70.0022 14.5288 71.3478C15.7281 75.3268 17.1634 77.6419 18.7047 77.6419C20.8722 77.6419 22.8277 73.0793 24.2197 65.7434C24.4701 64.4315 26.363 64.4315 26.6087 65.7434C28.0006 73.0793 29.9562 77.6419 32.1236 77.6419C34.9172 77.6419 37.364 70.0407 38.6982 58.692C38.7849 57.9638 39.8397 57.9638 39.9312 58.692C41.2461 69.5488 43.611 76.7834 46.3083 76.7834C49.6461 76.7834 52.4735 65.7 53.4368 50.3915C53.4512 50.1552 53.798 50.1455 53.8173 50.3819C54.6939 60.5537 56.6976 67.663 59.0288 67.663C62.0006 67.663 64.4377 56.1117 64.693 41.3868C64.7364 38.5557 64.7171 38.5364 64.693 36.2454C64.4377 21.5206 62.0006 9.9693 59.0288 9.9693L59.0239 9.97412Z" 
-        fill={fillColor}
-      />
+      {color ? (
+        <path d={`${LOGO_MARK_COIN}${LOGO_MARK_ARROWS}`} fill={coin} fillRule="evenodd" />
+      ) : (
+        <>
+          <path d={LOGO_MARK_COIN} fill={coin} />
+          <path d={LOGO_MARK_ARROWS} fill="#FFFFFF" />
+        </>
+      )}
     </svg>
   )
 }

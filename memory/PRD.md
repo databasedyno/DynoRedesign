@@ -738,6 +738,16 @@ low-risk mechanical change). Files: see REFACTOR_STATUS.md "Next Actions" checkb
 - Verified prod dynopay.com build last-modified = 2026-08-29 14:11 GMT (deployed ~30 min before this session).
 
 
+# BRAND LOGO v3 + LANDING SCROLL REVEALS + AUTO-CONVERT SAVE FIX (2026-09-04, session 30) — DONE (tsc 0, testing_agent iteration_125 PASS, follow-ups self-verified)
+- Logo: "dynopay" wordmark with indigo conversion-coin "o" (2 white swap arrows). ONE generator:
+  `node scripts/brand/generate-logo.mjs` → header/footer/auth SVGs, <Logo/> mark paths, favicons (+.ico),
+  apple-touch tile, press kit, PDF + email PNGs. OG images regenerated. Design intent: clear, memorable,
+  says "crypto → stablecoin" at a glance; legible at 134×45 and 16px.
+- Landing: <Reveal/> bidirectional scroll reveals on every section below the hero (in AND out, replays on
+  scroll-up), staggered cards, CSS hero load-in, SSR-visible/hydration-safe, reduced-motion aware.
+- Auto-convert "icon missing" P0: root cause was Settings never enabling auto-convert (payload mismatch,
+  silent). Fixed + verified on live backend (company 71 test, restored). Details in CHANGELOG 2026-09-04.
+
 # WALLET SECURITY + ONBOARDING PREMIUM WALLET (2026-06 fork, pod 5cde9912) — DONE (backend curl-verified, frontend testing_agent iteration_116 PASS)
 
 ## Scope (user-approved 1a/2a/3a/4a)

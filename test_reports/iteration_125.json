@@ -1,0 +1,62 @@
+{
+  "summary": "Frontend-only session on https://zen-panini-8.preview.emergentagent.com covering (1) new dynopay coin wordmark rollout, (2) landing bidirectional scroll-reveal, (3) Company Settings > Crypto conversion auto-convert bug fix. 9/9 requested scenarios executed. Logo rollout, favicon/press/email assets, scroll-reveal (bidirectional, no flicker, reduced-motion, layout integrity), dashboard/transactions regression, company-1 read-only pre-selection and the SMADAV (company 71) write test all PASS at network + DOM level. Two real defects found: the auto-convert success toast is never rendered (dialog unmounts before the toast mounts) and a React hydration mismatch console error from the Reveal wrapper on the landing page. SMADAV auto-convert was toggled on/off for the write test and is VERIFIED back to 'No' (GET /api/company/auto-convert/71 -> auto_convert_enabled:false).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "CompanySettingsDialog (auto-convert save)",
+        "issue": "Success toast 'Auto-convert is on — volatile coins now settle as USDT (TRC20)' NEVER appears. handleSubmit calls showToast() (which defers with setTimeout(...,0)) and then handleClose() -> provider (Components/UI/CompanySettingsDialog/context.tsx renders `{open && company && <CompanySettingsDialog/>}`) unmounts the dialog AND its <Toast>, so the deferred toast state update lands on an unmounted tree. Verified with 100ms DOM polling for 9s after Save: only the generic 'Company updated successfully' toast appears. Error toasts still work (they `return` before handleClose).",
+        "selector": "[data-testid='settings-save-changes-btn'] -> Toast",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "Reveal (Components/Page/Home/v3/Reveal.tsx)",
+        "issue": "React hydration mismatch console error on landing page: 'Prop `style` did not match. Server: height:100%;opacity:0;transform:translateY(28px) Client: height:100%;opacity:1;transform:none'. Dev-only warning, but it also means the SSR HTML ships every below-hero section at opacity 0 (invisible without JS / to non-JS crawlers). Suggest rendering initial=false on SSR (mounted flag) or keeping SSR markup visible.",
+        "selector": "[data-reveal] > div",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "Reveal (prefers-reduced-motion)",
+        "issue": "Under prefers-reduced-motion: reduce all 71 wrappers keep data-reveal='out' although the inner motion div is opacity 1 / transform none (content IS visible, acceptance met). The attribute contradicts `show = reduced || inView`, so the test hook is misleading; expected data-reveal='in'.",
+        "selector": "[data-reveal]",
+        "priority": "LOW"
+      },
+      {
+        "component": "Company switcher brand row / CryptoConversionSection",
+        "issue": "Testability gap: the per-brand pencil (the only entry point to Company Settings from the header switcher) has no data-testid and is not exposed as a button/aria-label, so it had to be clicked by computed coordinates. The Crypto conversion accordion header and the auto_convert_volatile_crypto / convert_to_stablecoin radios also have no data-testid.",
+        "selector": ".MuiPopover-paper brand row pencil, input[name='auto_convert_volatile_crypto']",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Company Settings dialog footer",
+        "issues": ["Disabled 'Save Changes' label is light grey on a light grey pill (very low contrast, looks like a rendering glitch rather than a disabled control)"]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix the missing auto-convert success toast: raise the toast from a provider-level/global toaster (or delay handleClose until after the toast is shown) — dialog + Toast are unmounted by CompanySettingsDialogProvider on close.",
+    "Fix the Reveal SSR/hydration mismatch (server renders opacity:0 for all landing sections) — gate the initial hidden state on a mounted flag so SSR HTML stays visible.",
+    "Set data-reveal='in' when prefers-reduced-motion is active (attribute currently stays 'out' while content is visible).",
+    "Add data-testid to the brand-row 'edit brand' pencil in the company switcher and to the Crypto conversion accordion + its radios."
+  ],
+  "critical_code_review_comments": [
+    "Components/UI/CompanySettingsDialog/index.tsx: showToast() -> setTimeout(...,0) followed by synchronous handleClose() is unsafe because the provider only mounts the dialog while open; success feedback is guaranteed to be dropped.",
+    "Reveal.tsx: initial={{opacity:0,y}} is applied during SSR, so all below-hero content is hidden in the server HTML — bad for no-JS/crawlers and the source of the hydration warning.",
+    "Components/UI/CompanySettingsDialog/index.tsx is 759 lines — consider splitting the auto-convert save logic into a hook."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request; auto-convert GET/PUT observed 200 via UI)", "frontend": "90%"},
+  "seed_data_creation": "None. Live prod DB used read-only except the sanctioned SMADAV (company 71) auto-convert toggle, which was enabled (USDT/TRC20) and disabled again; final verified state via GET /api/company/auto-convert/71 = auto_convert_enabled:false and UI radio = 'No'. The Dev Store (company 1) settings were opened read-only and closed with Escape — no PUT was issued.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step login worked; /app/memory/test_credentials.md is current)",
+  "context_for_next_testing_agent": "Verified PASS this session: header logo swaps dynopay-blackLogo <-> dynopay-whiteLogo on theme toggle (data-testid='theme-toggle-button'), renders 134x45 naturalWidth 134; footer alt='Dynopay logo' and /auth/login + /auth/register logos render; /favicon.svg (contains <circle>), /favicon.ico, /favicon-16|32|512.png, /dynopay-favicon.png, /api/static/dynopay-email-logo.png (480x160), /press/dynopay-logo-black.svg, -white.svg, -icon-512.png all 200 with correct content types; 71 [data-reveal] wrappers, all 'out' at scrollY 0, flip 'in'/'out' bidirectionally, 0 attribute toggles during a 2.2s boundary pause (no flicker), 0 console errors during the scroll run; no horizontal overflow at 1440px or 390px; #features/#use-cases/#how-it-works ids exist and hero-secondary-cta scrolls to 1322px; stats-band border cells equal height; dashboard header logo + /transactions OK. Company 1 crypto conversion loads No + USDC(ERC20) (bug fix confirmed). SMADAV write test: PUT /api/company/auto-convert/71 body {auto_convert_enabled:true,settlement_currency:'USDT',settlement_chain:'TRC20'} -> 200 auto_convert_enabled:true; reopen pre-selects Yes+USDT(TRC20); PUT {auto_convert_enabled:false} -> 200. To reach Company Settings: click header company name text, then click the pencil at (rowRight-20, rowCenterY) of the target brand row inside .MuiPopover-paper (no testid available).",
+  "rca_of_the_issue": "Missing success toast: CompanySettingsDialogProvider renders the dialog only while `open` is true. handleSubmit schedules the toast via setTimeout(...,0) and then immediately calls handleClose() -> onClose() -> setOpen(false), unmounting CompanySettingsDialog and the <Toast> it owns before the deferred setOpenToast(true) can render. Reproduce: header company switcher -> brand pencil -> Crypto conversion -> Yes + USDT (TRC20) -> Save; the PUT succeeds (200, auto_convert_enabled:true) but only the generic 'Company updated successfully' toast is seen. Mitigation: move the toast to a provider/global toaster, or await a short display before closing."
+}

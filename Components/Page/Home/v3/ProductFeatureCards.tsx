@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
@@ -115,12 +115,9 @@ const ProductFeatureCards: React.FC = () => {
           {FEATURES.map((f, idx) => {
             const Icon = f.icon;
             return (
-              <motion.div
+              <Reveal
                 key={f.key}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: idx * 0.07 }}
+                delay={idx * 0.07}
                 style={{ height: "100%" }}
               >
                 <Box
@@ -274,7 +271,7 @@ const ProductFeatureCards: React.FC = () => {
                     />
                   </Box>
                 </Box>
-              </motion.div>
+              </Reveal>
             );
           })}
         </Box>

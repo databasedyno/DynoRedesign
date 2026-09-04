@@ -1,3 +1,16 @@
+# CURRENT PRIORITIES (2026-09-04, session 30) — top of stack
+
+DONE: new "conversion coin" wordmark logo everywhere (regenerate with `node scripts/brand/generate-logo.mjs`),
+bidirectional landing scroll reveals (<Reveal/>), and the REAL fix for "auto-converted icon missing"
+(Settings never actually enabled auto-convert — payload mismatch; now mapped/awaited/toasted). See CHANGELOG.
+
+NEXT / BACKLOG:
+- 🔴 DEPLOY: logo + animations + auto-convert fix are PREVIEW-only until deployed. Note the merchant must
+  re-save Settings → Crypto conversion → "Yes" once after deploy for auto-convert to actually turn on.
+- P1 Brute-force / OTP lockout UI: "Too many attempts, try again in X:XX" live timer on login + OTP screens.
+- P2 Security Activity panel (Settings → Security): recent logins, lockouts, alert history, "sign out everywhere".
+- P2 Optional: apply <Reveal/> to other public pages (fees, docs, about) for the same scroll feel.
+
 # CURRENT PRIORITIES (2026-07-11, session 28) — top of stack
 
 ✅ VERIFIED this session: crypto-checkout network-switch race fix (P0) — stale-address-on-switch, double-address-on-rapid-select, and superseded-response-overwrite all confirmed fixed via Playwright request-interception against the real `CryptoTransfer` component (no live data touched). See CHANGELOG session 28. Theme-flicker already verified prior session. NOTHING left on the last-working-item.

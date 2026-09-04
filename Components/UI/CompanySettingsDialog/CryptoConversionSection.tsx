@@ -71,6 +71,7 @@ export default function CryptoConversionSection({
           </Typography>
           <RadioGroup
             name="auto_convert_volatile_crypto"
+            data-testid="auto-convert-toggle-group"
             value={value ?? "no"}
             onChange={(e) =>
               onFieldsChange({
@@ -81,6 +82,7 @@ export default function CryptoConversionSection({
           >
             <FormControlLabel
               value="yes"
+              data-testid="auto-convert-yes"
               control={<CustomRadio sx={{ mr: 1 }} />}
               label={tSettings("cryptoConversionYes")}
               sx={{
@@ -93,6 +95,7 @@ export default function CryptoConversionSection({
             />
             <FormControlLabel
               value="no"
+              data-testid="auto-convert-no"
               control={<CustomRadio sx={{ mr: 1 }} />}
               label={tSettings("cryptoConversionNo")}
               sx={{
@@ -132,6 +135,7 @@ export default function CryptoConversionSection({
           </Typography>
           <RadioGroup
             name="convert_to_stablecoin"
+            data-testid="convert-to-group"
             value={convertTo ?? "usdt_trc20"}
             onChange={(e) =>
               onFieldsChange({
@@ -142,6 +146,7 @@ export default function CryptoConversionSection({
           >
             <FormControlLabel
               value="usdt_trc20"
+              data-testid="convert-to-usdt-trc20"
               control={<CustomRadio sx={{ mr: 1 }} />}
               label={tSettings("cryptoConversionUsdtTrc20")}
               sx={{
@@ -154,6 +159,7 @@ export default function CryptoConversionSection({
             />
             <FormControlLabel
               value="usdt_erc20"
+              data-testid="convert-to-usdt-erc20"
               control={<CustomRadio sx={{ mr: 1 }} />}
               label={tSettings("cryptoConversionUsdtErc20")}
               sx={{
@@ -166,6 +172,7 @@ export default function CryptoConversionSection({
             />
             <FormControlLabel
               value="usdc_erc20"
+              data-testid="convert-to-usdc-erc20"
               control={<CustomRadio sx={{ mr: 1 }} />}
               label={tSettings("cryptoConversionUsdcErc20")}
               sx={{

@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/router";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
@@ -53,12 +53,9 @@ const HowItWorksV3: React.FC = () => {
           {STEPS.map((step, idx) => {
             const Icon = step.icon;
             return (
-              <motion.div
+              <Reveal
                 key={step.n}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.55, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                delay={idx * 0.1}
               >
                 <Box
                   sx={{
@@ -119,7 +116,7 @@ const HowItWorksV3: React.FC = () => {
                     {step.desc}
                   </Typography>
                 </Box>
-              </motion.div>
+              </Reveal>
             );
           })}
         </Box>

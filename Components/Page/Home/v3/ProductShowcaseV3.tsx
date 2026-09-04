@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
@@ -78,16 +79,12 @@ const ProductShowcaseV3: React.FC = () => {
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <motion.div
-            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: reduced ? 0.3 : 0.6, ease: [0.16, 1, 0.3, 1] }}
-            style={{ width: "100%", maxWidth: 320 }}
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-          >
+        <Box
+          sx={{ display: "flex", justifyContent: "center" }}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <Reveal style={{ width: "100%", maxWidth: 320 }}>
             {/* Phone frame */}
             <Box
               data-testid="showcase-phone"
@@ -359,7 +356,7 @@ const ProductShowcaseV3: React.FC = () => {
                 {t("v3.showcase.captionSub")}
               </Typography>
             </Box>
-          </motion.div>
+          </Reveal>
         </Box>
       </Box>
     </Box>

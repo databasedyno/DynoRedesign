@@ -22,6 +22,20 @@ import CryptoConversionSection from "./CryptoConversionSection";
 import PaymentToleranceSection from "./PaymentToleranceSection";
 import WebhookNotificationsSection from "./WebhookNotificationsSection";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+
+// Settings radio value ↔ backend settlement pair. The auto-convert endpoint
+// needs the concrete currency + chain; a bare `target_stablecoin` key used to be
+// ignored (200 "select_wallet"), leaving auto-convert OFF while the UI said saved.
+const STABLECOIN_OPTIONS: Record<string, [string, string]> = {
+  usdt_trc20: ["USDT", "TRC20"],
+  usdt_erc20: ["USDT", "ERC20"],
+  usdc_erc20: ["USDC", "ERC20"],
+};
+const toStablecoinOption = (currency?: string | null, chain?: string | null) =>
+  Object.keys(STABLECOIN_OPTIONS).find(
+    (k) => STABLECOIN_OPTIONS[k][0] === currency && STABLECOIN_OPTIONS[k][1] === chain,
+  ) ?? null;
 
 export type CompanySettingsDialogProps = {
   open: boolean;
@@ -263,7 +277,10 @@ export default function CompanySettingsDialog({
                     ? "no"
                     : data.auto_convert_volatile_crypto ?? "no",
               convert_to_stablecoin:
-                data.target_stablecoin ?? data.convert_to_stablecoin ?? "usdt_trc20",
+                toStablecoinOption(data.settlement_currency, data.settlement_chain) ??
+                data.target_stablecoin ??
+                data.convert_to_stablecoin ??
+                "usdt_trc20",
             });
           }
         })
@@ -415,16 +432,6 @@ export default function CompanySettingsDialog({
       }
     }
 
-    // Save auto-convert settings via dedicated endpoint
-    axiosBaseApi
-      .put(API_ENDPOINTS.company.autoConvert(company.company_id), {
-        auto_convert_enabled: values.auto_convert_volatile_crypto === "yes",
-        target_stablecoin: values.convert_to_stablecoin,
-      })
-      .catch(() => {
-        // Silently fail — company update is the primary action
-      });
-
     // Save webhook settings via dedicated endpoint
     const webhookUrl = values.webhook_notification_url || webhookData?.webhook_url;
     if (webhookUrl) {
@@ -435,6 +442,38 @@ export default function CompanySettingsDialog({
         .catch(() => {
           // Silently fail — company update is the primary action
         });
+    }
+
+    // Save auto-convert settings via dedicated endpoint (awaited: a failure here
+    // must be visible — otherwise payments silently keep settling in the raw coin).
+    const enableAutoConvert = values.auto_convert_volatile_crypto === "yes";
+    const [settlementCurrency, settlementChain] =
+      STABLECOIN_OPTIONS[String(values.convert_to_stablecoin)] ?? STABLECOIN_OPTIONS.usdt_trc20;
+    try {
+      const res = await axiosBaseApi.put(
+        API_ENDPOINTS.company.autoConvert(company.company_id),
+        enableAutoConvert
+          ? { auto_convert_enabled: true, settlement_currency: settlementCurrency, settlement_chain: settlementChain }
+          : { auto_convert_enabled: false },
+      );
+      if (enableAutoConvert && res?.data?.data?.auto_convert_enabled !== true) {
+        showToast(res?.data?.message || tSettings("cryptoConversionSaveFailed"), "error");
+        return;
+      }
+      if (enableAutoConvert) {
+        // Global toast: this dialog unmounts on close, so its local <Toast/> would never show.
+        dispatch({
+          type: TOAST_SHOW,
+          payload: {
+            message: tSettings("cryptoConversionEnabledToast", { currency: settlementCurrency, chain: settlementChain }),
+            severity: "success",
+          },
+        });
+      }
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      showToast(msg || tSettings("cryptoConversionSaveFailed"), "error");
+      return;
     }
 
     handleClose();

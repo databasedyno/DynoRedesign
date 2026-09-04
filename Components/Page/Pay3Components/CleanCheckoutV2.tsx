@@ -892,10 +892,12 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           {confirmedAmount.merchant != null && confirmedAmount.fee != null ? (
             <Box
               data-testid="clean-checkout-success-breakdown"
-              sx={{ mt: 1.5, p: 1.5, borderRadius: '10px', border: `1px solid ${border}`, width: '100%', textAlign: 'left' }}
+              sx={{ mt: 1.5, width: '100%', textAlign: 'left' }}
             >
               <PriceBreakdown
                 compact
+                framed
+                surface={surface}
                 title={t('checkout.breakdownTitle', { defaultValue: 'Payment breakdown' })}
                 rows={buildSuccessRows({
                   t,
@@ -912,6 +914,12 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                 border={border}
                 textColor={theme.palette.text.primary}
                 mono={MONO}
+                trustNote={
+                  <>
+                    <Icon icon="mdi:shield-check" width={13} />
+                    {t('checkout.breakdownTrustPaid', { defaultValue: "Amounts verified — here's exactly how your payment was split." })}
+                  </>
+                }
               />
             </Box>
           ) : (
@@ -1107,7 +1115,21 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       {/* Amount subheadline — transparent breakdown (Amount [+ Tax] [+ fee] =
           Total you pay · Merchant receives · Dynopay fee). */}
       <Box data-testid="clean-checkout-fee-breakdown" sx={{ mt: 0.75, mb: 3.5 }}>
-        <PriceBreakdown rows={fiatRows} muted={muted} border={border} textColor={theme.palette.text.primary} mono={MONO} />
+        <PriceBreakdown
+          rows={fiatRows}
+          muted={muted}
+          border={border}
+          textColor={theme.palette.text.primary}
+          mono={MONO}
+          framed
+          surface={surface}
+          trustNote={
+            <>
+              <Icon icon="mdi:shield-check" width={13} />
+              {t('checkout.breakdownTrust', { defaultValue: 'These amounts tie out exactly — your payment is split transparently between the merchant and the Dynopay fee.' })}
+            </>
+          }
+        />
       </Box>
 
       {/* Reference row (invoice / campaign / description) */}

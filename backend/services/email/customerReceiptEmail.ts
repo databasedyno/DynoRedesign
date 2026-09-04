@@ -24,7 +24,8 @@ export const sendCustomerPaymentConfirmationEmail = async (
   transactionReference?: string,
   lang: string = 'en',
   campaignName?: string,
-  breakdown?: { merchantAmount: number; feeAmount: number; feePayer: 'customer' | 'company'; currency: string } | null
+  breakdown?: { merchantAmount: number; feeAmount: number; feePayer: 'customer' | 'company'; currency: string } | null,
+  companyLogo?: string | null
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -52,6 +53,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
         cryptoAmount,
         cryptoCurrency,
         companyName,
+        companyLogo: companyLogo || undefined,
         customerEmail,
         customerName: displayName,
         paymentDate: new Date(`${date} ${time}`),

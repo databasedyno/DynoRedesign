@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useInView, useReducedMotion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import BusinessCenterRoundedIcon from "@mui/icons-material/BusinessCenterRounded";
@@ -58,12 +59,6 @@ const BrandSpotlightV3: React.FC = () => {
     return () => clearInterval(id);
   }, [inView, reduceMotion, brands.length]);
 
-  const enter = {
-    initial: { opacity: 0, y: 24 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-60px" },
-  } as const;
-
   return (
     <Box component="section" data-testid="brand-spotlight" sx={{ background: s.bg, py: { xs: 10, md: 18 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
@@ -76,7 +71,7 @@ const BrandSpotlightV3: React.FC = () => {
           }}
         >
           {/* LEFT — value copy */}
-          <motion.div {...enter} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
+          <Reveal>
             <Eyebrow sx={{ mb: 2 }}>
               {t("v3.brandSpotlight.eyebrow", { defaultValue: "Multi-brand" })}
             </Eyebrow>
@@ -142,12 +137,11 @@ const BrandSpotlightV3: React.FC = () => {
               {t("v3.brandSpotlight.cta", { defaultValue: "Start your first brand" })}
               <ArrowForwardRoundedIcon className="arw" sx={{ fontSize: 18 }} />
             </Box>
-          </motion.div>
+          </Reveal>
 
           {/* RIGHT — brand switcher mock */}
-          <motion.div
-            {...enter}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          <Reveal
+            delay={0.1}
             style={{ position: "relative" }}
           >
             <Box
@@ -314,7 +308,7 @@ const BrandSpotlightV3: React.FC = () => {
                 Add brand
               </Box>
             </Box>
-          </motion.div>
+          </Reveal>
         </Box>
       </Box>
     </Box>

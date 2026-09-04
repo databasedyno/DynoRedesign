@@ -5,10 +5,65 @@
 
 import PDFDocument from "pdfkit";
 import path from "path";
+import fs from "fs";
 import { t, normalizeLang } from "../utils/emailI18n";
 
-// Logo configuration - using local asset
-// LOGO_PATH and LOGO_URL removed - not used
+// Resolve the white Dynopay logo (used on the dark header/footer bands) once.
+const DYNOPAY_LOGO_PATH: string = (() => {
+  const candidates = [
+    path.join(__dirname, "../assets/dynopay-white-logo.png"),
+    path.join(__dirname, "../../assets/dynopay-white-logo.png"),
+    path.resolve("/app/backend/assets/dynopay-white-logo.png"),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch {
+      /* ignore */
+    }
+  }
+  return "";
+})();
+
+// PNG (89 50 4E 47) / JPEG (FF D8 FF) are the only raster formats pdfkit embeds.
+const isPngOrJpeg = (buf: Buffer): boolean =>
+  buf.length > 3 &&
+  ((buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) ||
+    (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff));
+
+/**
+ * Load a merchant brand logo into a Buffer (remote URL, data URL, or local path).
+ * Never throws — returns null on any failure so the receipt falls back to a
+ * monogram badge. Remote fetches are capped at 4s so a slow CDN can't hang the PDF.
+ */
+const loadImageBuffer = async (src?: string | null): Promise<Buffer | null> => {
+  if (!src || typeof src !== "string") return null;
+  try {
+    if (src.startsWith("data:")) {
+      const buf = Buffer.from(src.split(",")[1] || "", "base64");
+      return isPngOrJpeg(buf) ? buf : null;
+    }
+    if (/^https?:\/\//i.test(src)) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 4000);
+      try {
+        const resp = await fetch(src, { signal: ctrl.signal });
+        if (!resp.ok) return null;
+        const buf = Buffer.from(await resp.arrayBuffer());
+        return isPngOrJpeg(buf) ? buf : null;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    if (fs.existsSync(src)) {
+      const buf = fs.readFileSync(src);
+      return isPngOrJpeg(buf) ? buf : null;
+    }
+  } catch {
+    /* fall through to null */
+  }
+  return null;
+};
 
 // Brand colors — aligned with the refreshed email template (indigo / near-black)
 const BRAND_COLORS = {
@@ -59,6 +114,8 @@ interface ReceiptData {
  * Returns a Buffer containing the PDF data
  */
 export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer> => {
+  // Resolve the merchant brand logo up-front (best-effort) so rendering stays sync.
+  const merchantLogoBuf = await loadImageBuffer(data.companyLogo);
   return new Promise((resolve, reject) => {
     try {
       const L = normalizeLang(data.lang);
@@ -90,17 +147,28 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // Header background (near-black, matches the email header band)
       doc.rect(0, 6, doc.page.width, 114).fill(BRAND_COLORS.dark);
 
-      // Dynopay Logo/Text
-      doc.fontSize(28)
-        .fillColor("#ffffff")
-        .text("Dyno", 50, 45, { continued: true })
-        .fillColor(BRAND_COLORS.accent)
-        .text("Pay", { continued: false });
+      // Dynopay logo (white wordmark on the dark band) — falls back to text.
+      let headerLogoDrawn = false;
+      if (DYNOPAY_LOGO_PATH) {
+        try {
+          doc.image(DYNOPAY_LOGO_PATH, 50, 40, { fit: [150, 38] });
+          headerLogoDrawn = true;
+        } catch {
+          /* fall back to the text wordmark below */
+        }
+      }
+      if (!headerLogoDrawn) {
+        doc.fontSize(28)
+          .fillColor("#ffffff")
+          .text("Dyno", 50, 45, { continued: true })
+          .fillColor(BRAND_COLORS.accent)
+          .text("Pay", { continued: false });
+      }
 
       // Receipt label
       doc.fontSize(12)
         .fillColor("#ffffff")
-        .text(t("receipt.title", L), 50, 80);
+        .text(t("receipt.title", L), 50, 88);
 
       // Receipt number on right
       doc.fontSize(10)
@@ -119,9 +187,24 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // STATUS BANNER
       // ============================================
       doc.rect(0, 120, doc.page.width, 40).fill("#10b981"); // Green for success
-      doc.fontSize(14)
-        .fillColor("#ffffff")
-        .text(`\u2713 ${t("receipt.successful", L)}`, 50, 132, { align: "center", width: pageWidth });
+      // Draw a crisp vector check + centered label (pdfkit's core font can't
+      // render a ✓ glyph — the old \u2713 rendered as a stray apostrophe).
+      const bannerLabel = t("receipt.successful", L);
+      doc.fontSize(14).font("Helvetica-Bold").fillColor("#ffffff");
+      const bannerLabelW = doc.widthOfString(bannerLabel);
+      const bannerGap = 13;
+      const bannerStartX = (doc.page.width - (bannerLabelW + bannerGap)) / 2;
+      const bannerTextY = 132;
+      doc.save();
+      doc.lineWidth(2).strokeColor("#ffffff").lineJoin("round").lineCap("round");
+      doc
+        .moveTo(bannerStartX, bannerTextY + 8)
+        .lineTo(bannerStartX + 4, bannerTextY + 12)
+        .lineTo(bannerStartX + 10, bannerTextY + 3)
+        .stroke();
+      doc.restore();
+      doc.fillColor("#ffffff").text(bannerLabel, bannerStartX + bannerGap, bannerTextY);
+      doc.font("Helvetica");
 
       // ============================================
       // MAIN CONTENT
@@ -227,27 +310,64 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // Two columns
       const colWidth = (pageWidth - 30) / 2;
 
-      // Merchant column
+      // Merchant column — brand logo badge + name (premium "Paid to" block)
       doc.fontSize(12)
         .fillColor(BRAND_COLORS.primary)
         .text(t("receipt.paidTo", L), 50, yPos);
-      
+
+      const badgeSize = 42;
+      const badgeX = 50;
+      const badgeY = yPos + 18;
+      const nameX = badgeX + badgeSize + 12;
+      const nameW = colWidth - badgeSize - 12;
+
+      let brandDrawn = false;
+      if (merchantLogoBuf) {
+        try {
+          doc.save();
+          doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 11).clip();
+          doc.image(merchantLogoBuf, badgeX, badgeY, {
+            cover: [badgeSize, badgeSize],
+            align: "center",
+            valign: "center",
+          });
+          doc.restore();
+          doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 11)
+            .lineWidth(1)
+            .stroke(BRAND_COLORS.border);
+          brandDrawn = true;
+        } catch {
+          brandDrawn = false;
+        }
+      }
+      if (!brandDrawn) {
+        // Monogram fallback — first letter of the brand on a soft indigo tile.
+        const letter = ((data.companyName || "M").trim().charAt(0) || "M").toUpperCase();
+        doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 11)
+          .fillAndStroke(BRAND_COLORS.lightBg, BRAND_COLORS.border);
+        doc.fontSize(21)
+          .font("Helvetica-Bold")
+          .fillColor(BRAND_COLORS.primary)
+          .text(letter, badgeX, badgeY + 11, { width: badgeSize, align: "center" })
+          .font("Helvetica");
+      }
+
       doc.fontSize(14)
         .fillColor(BRAND_COLORS.dark)
-        .text(data.companyName, 50, yPos + 20);
+        .text(data.companyName, nameX, badgeY + 8, { width: nameW });
 
       // Identity-verified marker — a small drawn green check (pdfkit's default
       // font can't render a ✓ glyph) + localized label, matching the on-screen
       // and email receipts. Only shown for a KYC-verified merchant.
       if (data.merchantVerified) {
-        const vy = yPos + 42;
+        const vy = badgeY + 27;
         doc.save();
         doc.lineWidth(1.6).strokeColor("#12B76A").lineJoin("round").lineCap("round");
-        doc.moveTo(50, vy + 4).lineTo(53.5, vy + 7.5).lineTo(59, vy).stroke();
+        doc.moveTo(nameX, vy + 4).lineTo(nameX + 3.5, vy + 7.5).lineTo(nameX + 9, vy).stroke();
         doc.restore();
         doc.fontSize(10)
           .fillColor("#12B76A")
-          .text(t("receipt.verifiedMerchant", L), 64, vy);
+          .text(t("receipt.verifiedMerchant", L), nameX + 14, vy);
         doc.fillColor(BRAND_COLORS.text);
       }
 
@@ -293,11 +413,22 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
 
       doc.rect(0, footerY, doc.page.width, 120).fill(BRAND_COLORS.dark);
 
-      doc.fontSize(16)
-        .fillColor("#ffffff")
-        .text("Dyno", 50, footerY + 25, { continued: true })
-        .fillColor(BRAND_COLORS.accent)
-        .text("Pay", { continued: false });
+      let footerLogoDrawn = false;
+      if (DYNOPAY_LOGO_PATH) {
+        try {
+          doc.image(DYNOPAY_LOGO_PATH, 50, footerY + 22, { fit: [112, 30] });
+          footerLogoDrawn = true;
+        } catch {
+          /* fall back to the text wordmark */
+        }
+      }
+      if (!footerLogoDrawn) {
+        doc.fontSize(16)
+          .fillColor("#ffffff")
+          .text("Dyno", 50, footerY + 25, { continued: true })
+          .fillColor(BRAND_COLORS.accent)
+          .text("Pay", { continued: false });
+      }
 
       doc.fontSize(10)
         .fillColor("#9ca3af")

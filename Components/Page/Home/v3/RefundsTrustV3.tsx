@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
+import { Reveal } from "./Reveal";
 import { useTranslation } from "react-i18next";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
@@ -47,12 +47,9 @@ const RefundsTrustV3: React.FC = () => {
           {ITEMS.map((item, idx) => {
             const Icon = item.icon;
             return (
-              <motion.div
+              <Reveal
                 key={item.key}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay: idx * 0.08 }}
+                delay={idx * 0.08}
                 style={{ height: "100%" }}
               >
                 <Box
@@ -92,7 +89,7 @@ const RefundsTrustV3: React.FC = () => {
                     {t(`v3.refunds.${item.key}Desc`)}
                   </Typography>
                 </Box>
-              </motion.div>
+              </Reveal>
             );
           })}
         </Box>

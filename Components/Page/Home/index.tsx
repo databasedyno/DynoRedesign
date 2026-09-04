@@ -2,6 +2,7 @@ import { FC, memo, useEffect } from "react";
 import { Box } from "@mui/material";
 import dynamic from "next/dynamic";
 import HeroPlayground from "./v3/HeroPlayground";
+import { Reveal } from "./v3/Reveal";
 import { HomeWrapper } from "./styled";
 
 /* HYDRATION BUDGET (2026-08 — "hamburger tap does nothing on mobile"):
@@ -79,43 +80,45 @@ const HomePage: FC = () => {
   // engines still see them — this is a CSS visibility trim, not a content cut.
   const hideOnPhone = { display: { xs: "none", sm: "block" } } as const;
 
+  // Every section below the hero sits in a <Reveal/> — a bidirectional
+  // scroll-linked fade/slide (replays on the way back up, reduced-motion aware).
   return (
     <HomeWrapper>
       <HeroPlayground />
-      <TrustLogosV3 />
-      <HowItWorksV3 />
+      <Reveal><TrustLogosV3 /></Reveal>
+      <Reveal><HowItWorksV3 /></Reveal>
       <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
-        <AudienceDoorsV3 />
+        <Reveal><AudienceDoorsV3 /></Reveal>
       </Box>
       <Box sx={hideOnPhone}>
-        <PainSolutionV3 />
+        <Reveal><PainSolutionV3 /></Reveal>
       </Box>
       <Box sx={hideOnPhone}>
-        <SolutionsGridV3 />
+        <Reveal><SolutionsGridV3 /></Reveal>
       </Box>
       <Box id="features" component="div" sx={{ scrollMarginTop: "88px" }}>
-        <ProductFeatureCards />
+        <Reveal><ProductFeatureCards /></Reveal>
       </Box>
-      <ProductShowcaseV3 />
-      <WhyDynoPayV3 />
-      <BrandSpotlightV3 />
+      <Reveal><ProductShowcaseV3 /></Reveal>
+      <Reveal><WhyDynoPayV3 /></Reveal>
+      <Reveal><BrandSpotlightV3 /></Reveal>
       <Box sx={hideOnPhone}>
-        <WaysToGetPaidV3 />
+        <Reveal><WaysToGetPaidV3 /></Reveal>
       </Box>
       <Box sx={hideOnPhone}>
-        <WhoPaysFeeV3 />
+        <Reveal><WhoPaysFeeV3 /></Reveal>
       </Box>
-      <CompareV3 />
-      <CoinShowcaseV3 />
+      <Reveal><CompareV3 /></Reveal>
+      <Reveal><CoinShowcaseV3 /></Reveal>
       <Box sx={hideOnPhone}>
-        <RefundsTrustV3 />
+        <Reveal><RefundsTrustV3 /></Reveal>
       </Box>
-      <NumbersTrustBand />
-      <DeveloperBandV3 />
-      <LearnDocsCards />
-      <FAQCompact />
-      <ReferralCtaBandV3 />
-      <FinalCTAAurora />
+      <Reveal><NumbersTrustBand /></Reveal>
+      <Reveal><DeveloperBandV3 /></Reveal>
+      <Reveal><LearnDocsCards /></Reveal>
+      <Reveal><FAQCompact /></Reveal>
+      <Reveal><ReferralCtaBandV3 /></Reveal>
+      <Reveal><FinalCTAAurora /></Reveal>
     </HomeWrapper>
   );
 };
