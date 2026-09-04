@@ -16,6 +16,7 @@ import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded";
 import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
 import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatisfiedAltRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
+import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { formatDateTimeI18n } from "@/utils/formatDate";
@@ -99,25 +100,32 @@ const formatTime = (iso?: string): string => {
   return formatDateTimeI18n(iso, { hour: "2-digit", minute: "2-digit" });
 };
 
-const GREETING =
-  "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.";
-
-// One-tap starter questions shown under the greeting so first-time visitors get
-// value instantly (and are more likely to engage / convert).
-const QUICK_REPLIES = [
-  "How are fees calculated?",
-  "Which coins are supported?",
-  "How do payment links work?",
-  "How do payouts & settlement work?",
-];
-
 interface SupportChatWidgetProps {
   layout?: "home" | "client";
 }
 
 const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }) => {
   const theme = useTheme();
+  const { t } = useTranslation("helpAndSupport");
   const isDark = theme.palette.mode === "dark";
+
+  const GREETING = t("supportChat.greeting", {
+    defaultValue:
+      "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.",
+  });
+  // One-tap starter questions shown under the greeting so first-time visitors get
+  // value instantly (and are more likely to engage / convert).
+  const QUICK_REPLIES = [
+    t("supportChat.quickFees", { defaultValue: "How are fees calculated?" }),
+    t("supportChat.quickCoins", { defaultValue: "Which coins are supported?" }),
+    t("supportChat.quickLinks", { defaultValue: "How do payment links work?" }),
+    t("supportChat.quickPayouts", { defaultValue: "How do payouts & settlement work?" }),
+  ];
+  const emojiGroupLabel = (id: string): string => {
+    if (id === "Smileys") return t("supportChat.emojiSmileys", { defaultValue: "Smileys" });
+    if (id === "Gestures") return t("supportChat.emojiGestures", { defaultValue: "Gestures" });
+    return t("supportChat.emojiObjects", { defaultValue: "Objects" });
+  };
 
   const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
@@ -241,7 +249,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         ...prev,
         {
           role: "assistant",
-          content: reply || "Sorry — I could not generate a reply. Please try again.",
+          content: reply || t("supportChat.replyError", { defaultValue: "Sorry — I could not generate a reply. Please try again." }),
           at: repliedAt,
           error: !reply,
         },
@@ -250,8 +258,8 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
       const status = (err as { response?: { status?: number } })?.response?.status;
       const friendly =
         status === 429
-          ? "You're sending messages a little fast — please wait a moment and try again."
-          : "Sorry, something went wrong reaching support. Please try again in a moment.";
+          ? t("supportChat.rateLimit", { defaultValue: "You're sending messages a little fast — please wait a moment and try again." })
+          : t("supportChat.sendError", { defaultValue: "Sorry, something went wrong reaching support. Please try again in a moment." });
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: friendly, at: new Date().toISOString(), error: true },
@@ -260,7 +268,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [input, sending, sessionId, pendingAttachment, uploading]);
+  }, [input, sending, sessionId, pendingAttachment, uploading, t]);
 
   const handleFileSelected = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -269,7 +277,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     if (!file) return;
     setUploadError("");
     if (file.size > MAX_FILE_BYTES) {
-      setUploadError("File too large (max 5MB).");
+      setUploadError(t("supportChat.fileTooLarge", { defaultValue: "File too large (max 5MB)." }));
       return;
     }
     setUploading(true);
@@ -283,15 +291,15 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
       if (data?.url) {
         setPendingAttachment({ url: data.url, name: data.name || file.name, type: data.type || file.type });
       } else {
-        setUploadError("Upload failed. Please try again.");
+        setUploadError(t("supportChat.uploadFailed", { defaultValue: "Upload failed. Please try again." }));
       }
     } catch (err: unknown) {
       const apiMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      setUploadError(apiMsg || "Upload failed. Please try again.");
+      setUploadError(apiMsg || t("supportChat.uploadFailed", { defaultValue: "Upload failed. Please try again." }));
     } finally {
       setUploading(false);
     }
-  }, []);
+  }, [t]);
 
   const insertEmoji = useCallback((emoji: string) => {
     const el = inputRef.current;
@@ -329,7 +337,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         {
           role: "assistant",
           content:
-            "Done — your conversation has been forwarded to our support team. A human will get back to you by email as soon as possible.",
+            t("supportChat.escalated", { defaultValue: "Done — your conversation has been forwarded to our support team. A human will get back to you by email as soon as possible." }),
           at: new Date().toISOString(),
         },
       ]);
@@ -346,7 +354,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
           content:
             status === 400 && apiMsg
               ? apiMsg
-              : "Sorry, the escalation could not be sent right now. Please try again shortly.",
+              : t("supportChat.escalateError", { defaultValue: "Sorry, the escalation could not be sent right now. Please try again shortly." }),
           at: new Date().toISOString(),
           error: true,
         },
@@ -354,7 +362,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     } finally {
       setEscalating(false);
     }
-  }, [escalating, sessionId, escalateEmail, escalateNote]);
+  }, [escalating, sessionId, escalateEmail, escalateNote, t]);
 
   const resetConversation = useCallback(() => {
     const fresh = makeSessionId();
@@ -619,7 +627,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
 
   const visibleMessages = useMemo<ChatMsg[]>(
     () => (messages.length === 0 ? [{ role: "assistant", content: GREETING }] : messages),
-    [messages]
+    [messages, GREETING]
   );
 
   const composerIconSx = {
@@ -705,26 +713,26 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
               </Typography>
               <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: "rgba(255,255,255,0.65)", display: "flex", alignItems: "center", gap: 0.6 }}>
                 <Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: GREEN, display: "inline-block" }} />
-                Active
+                {t("supportChat.active", { defaultValue: "Active" })}
               </Typography>
             </Box>
-            <Tooltip title="Talk to a human">
+            <Tooltip title={t("supportChat.talkToHuman", { defaultValue: "Talk to a human" })}>
               <IconButton
                 size="small"
                 data-testid="support-chat-escalate"
                 onClick={() => setEscalateOpen((v) => !v)}
                 sx={{ color: escalateOpen ? "#818CF8" : "rgba(255,255,255,0.75)" }}
-                aria-label="Talk to a human"
+                aria-label={t("supportChat.talkToHuman", { defaultValue: "Talk to a human" })}
               >
                 <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title="New conversation">
-              <IconButton size="small" onClick={resetConversation} sx={{ color: "rgba(255,255,255,0.75)" }} aria-label="New conversation">
+            <Tooltip title={t("supportChat.newConversation", { defaultValue: "New conversation" })}>
+              <IconButton size="small" onClick={resetConversation} sx={{ color: "rgba(255,255,255,0.75)" }} aria-label={t("supportChat.newConversation", { defaultValue: "New conversation" })}>
                 <RestartAltRoundedIcon sx={{ fontSize: 20 }} />
               </IconButton>
             </Tooltip>
-            <IconButton size="small" onClick={() => setOpen(false)} sx={{ color: "rgba(255,255,255,0.75)" }} aria-label="Close chat">
+            <IconButton size="small" onClick={() => setOpen(false)} sx={{ color: "rgba(255,255,255,0.75)" }} aria-label={t("supportChat.closeChat", { defaultValue: "Close chat" })}>
               <CloseRoundedIcon sx={{ fontSize: 20 }} />
             </IconButton>
           </Box>
@@ -866,27 +874,27 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             {escalateOpen && (
               <Box sx={{ border: `1px solid ${panelBorder}`, borderRadius: "12px", p: 1.5, display: "flex", flexDirection: "column", gap: 1 }}>
                 <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 600, color: theme.palette.text.primary }}>
-                  Talk to a human
+                  {t("supportChat.talkToHuman", { defaultValue: "Talk to a human" })}
                 </Typography>
                 <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: theme.palette.text.secondary }}>
-                  We&apos;ll email this conversation to our support team and reply to you by email.
+                  {t("supportChat.escalateIntro", { defaultValue: "We'll email this conversation to our support team and reply to you by email." })}
                 </Typography>
                 <InputBase
                   data-testid="support-chat-escalate-email"
-                  placeholder="Your email (optional if signed in)"
+                  placeholder={t("supportChat.emailPlaceholder", { defaultValue: "Your email (optional if signed in)" })}
                   value={escalateEmail}
                   onChange={(e) => setEscalateEmail(e.target.value)}
                   sx={inputSx}
-                  inputProps={{ maxLength: 120, "aria-label": "Contact email" }}
+                  inputProps={{ maxLength: 120, "aria-label": t("supportChat.contactEmailAria", { defaultValue: "Contact email" }) }}
                 />
                 <InputBase
-                  placeholder="Anything to add? (optional)"
+                  placeholder={t("supportChat.notePlaceholder", { defaultValue: "Anything to add? (optional)" })}
                   value={escalateNote}
                   onChange={(e) => setEscalateNote(e.target.value)}
                   multiline
                   maxRows={3}
                   sx={inputSx}
-                  inputProps={{ maxLength: 1000, "aria-label": "Note for support" }}
+                  inputProps={{ maxLength: 1000, "aria-label": t("supportChat.noteAria", { defaultValue: "Note for support" }) }}
                 />
                 <Box
                   component="button"
@@ -907,7 +915,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                     opacity: escalating ? 0.6 : 1,
                   }}
                 >
-                  {escalating ? "Sending…" : "Send to support team"}
+                  {escalating ? t("supportChat.sending", { defaultValue: "Sending…" }) : t("supportChat.sendToTeam", { defaultValue: "Send to support team" })}
                 </Box>
               </Box>
             )}
@@ -930,7 +938,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
               {EMOJI_GROUPS.map((group) => (
                 <Box key={group.label} sx={{ mb: 0.5 }}>
                   <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 600, color: theme.palette.text.disabled, textTransform: "uppercase", letterSpacing: "0.06em", mb: 0.25 }}>
-                    {group.label}
+                    {emojiGroupLabel(group.label)}
                   </Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                     {group.emojis.map((emoji) => (
@@ -967,7 +975,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 <>
                   <CircularProgress size={16} sx={{ color: theme.palette.text.secondary }} />
                   <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.text.secondary }}>
-                    Uploading…
+                    {t("supportChat.uploading", { defaultValue: "Uploading…" })}
                   </Typography>
                 </>
               )}
@@ -999,7 +1007,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                   <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.text.primary, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {pendingAttachment.name}
                   </Typography>
-                  <IconButton size="small" onClick={() => setPendingAttachment(null)} aria-label="Remove attachment" sx={{ p: 0.25 }}>
+                  <IconButton size="small" onClick={() => setPendingAttachment(null)} aria-label={t("supportChat.removeAttachment", { defaultValue: "Remove attachment" })} sx={{ p: 0.25 }}>
                     <CloseRoundedIcon sx={{ fontSize: 15 }} />
                   </IconButton>
                 </Box>
@@ -1014,23 +1022,23 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
 
           {/* Input */}
           <Box sx={{ display: "flex", alignItems: "flex-end", gap: 0.5, px: 1.5, py: 1.25, borderTop: (pendingAttachment || uploading || uploadError) ? "none" : `1px solid ${panelBorder}`, flexShrink: 0 }}>
-            <Tooltip title="Emoji">
+            <Tooltip title={t("supportChat.emoji", { defaultValue: "Emoji" })}>
               <IconButton
                 data-testid="support-chat-emoji"
                 onClick={() => setEmojiOpen((v) => !v)}
-                aria-label="Insert emoji"
+                aria-label={t("supportChat.insertEmoji", { defaultValue: "Insert emoji" })}
                 sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#818CF8" : BRAND_ACCENT) : theme.palette.text.secondary }}
               >
                 <SentimentSatisfiedAltRoundedIcon sx={{ fontSize: 20 }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Attach image or PDF (max 5MB)">
+            <Tooltip title={t("supportChat.attachTooltip", { defaultValue: "Attach image or PDF (max 5MB)" })}>
               <span>
                 <IconButton
                   data-testid="support-chat-attach"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  aria-label="Attach a file"
+                  aria-label={t("supportChat.attachFile", { defaultValue: "Attach a file" })}
                   sx={composerIconSx}
                 >
                   <AttachFileRoundedIcon sx={{ fontSize: 19 }} />
@@ -1049,20 +1057,20 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             <InputBase
               data-testid="support-chat-input"
               inputRef={inputRef}
-              placeholder="Ask about fees, coins, API…"
+              placeholder={t("supportChat.inputPlaceholder", { defaultValue: "Ask about fees, coins, API…" })}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
               multiline
               maxRows={4}
               sx={{ ...inputSx, flex: 1 }}
-              inputProps={{ maxLength: MAX_CHARS, "aria-label": "Message" }}
+              inputProps={{ maxLength: MAX_CHARS, "aria-label": t("supportChat.messageAria", { defaultValue: "Message" }) }}
             />
             <IconButton
               data-testid="support-chat-send"
               onClick={() => void send()}
               disabled={sending || uploading || (input.trim().length === 0 && !pendingAttachment)}
-              aria-label="Send message"
+              aria-label={t("supportChat.sendMessage", { defaultValue: "Send message" })}
               sx={{
                 width: 40,
                 height: 40,
@@ -1087,11 +1095,11 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
           away as the user scrolls a Save/CTA button under it, and slides
           back in once the button leaves the FAB region. */}
       {!suppressed && (
-      <Tooltip title={open ? "Close support chat" : "Chat with support"}>
+      <Tooltip title={open ? t("supportChat.closeSupportChat", { defaultValue: "Close support chat" }) : t("supportChat.chatWithSupport", { defaultValue: "Chat with support" })}>
         <IconButton
           data-testid="support-chat-button"
           onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close support chat" : "Open support chat"}
+          aria-label={open ? t("supportChat.closeSupportChat", { defaultValue: "Close support chat" }) : t("supportChat.openSupportChat", { defaultValue: "Open support chat" })}
           aria-hidden={occluding ? "true" : "false"}
           tabIndex={occluding ? -1 : 0}
           sx={{

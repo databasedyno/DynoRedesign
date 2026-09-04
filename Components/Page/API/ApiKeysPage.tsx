@@ -570,6 +570,7 @@ const SnippetBlock = ({
   onCopy: (v: string) => void;
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation("apiScreen");
   return (
     <Box sx={{ mt: 1.5 }}>
       <Box
@@ -611,8 +612,8 @@ const SnippetBlock = ({
             "&:hover": { color: theme.palette.text.primary },
           }}
         >
-          <Image src={CopyIcon.src} alt="Copy" width={14} height={14} />
-          Copy
+          <Image src={CopyIcon.src} alt={t("snippet.copy", { defaultValue: "Copy" })} width={14} height={14} />
+          {t("snippet.copy", { defaultValue: "Copy" })}
         </Box>
       </Box>
       <Box
@@ -645,6 +646,7 @@ const EmbeddedCheckoutCard = ({
   docsUrl: string;
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation("apiScreen");
   // Snippet base URL: shown to merchants for copy-paste into their OWN site.
   // Must always be a canonical Dynopay URL — never fall back to
   // window.location.origin (which would leak the preview/dev host).
@@ -704,21 +706,19 @@ Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
           fontFamily: "var(--font-sans)",
         }}
       >
-        Embedded Checkout
+        {t("embedded.title", { defaultValue: "Embedded Checkout" })}
       </Typography>
       <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
-        Accept crypto directly on your site — no redirect. Your server creates a
-        session with your secret key, then the browser mounts the checkout in an
-        iframe. Always confirm payments via webhooks, not the browser event.
+        {t("embedded.description", { defaultValue: "Accept crypto directly on your site — no redirect. Your server creates a session with your secret key, then the browser mounts the checkout in an iframe. Always confirm payments via webhooks, not the browser event." })}
       </Typography>
 
-      <SnippetBlock label="1 · Server — create session" code={serverSnippet} onCopy={onCopy} />
-      <SnippetBlock label="2 · Client — mount checkout" code={clientSnippet} onCopy={onCopy} />
-      <SnippetBlock label="Optional — modal" code={modalSnippet} onCopy={onCopy} />
+      <SnippetBlock label={t("embedded.snippetServer", { defaultValue: "1 · Server — create session" })} code={serverSnippet} onCopy={onCopy} />
+      <SnippetBlock label={t("embedded.snippetClient", { defaultValue: "2 · Client — mount checkout" })} code={clientSnippet} onCopy={onCopy} />
+      <SnippetBlock label={t("embedded.snippetModal", { defaultValue: "Optional — modal" })} code={modalSnippet} onCopy={onCopy} />
 
       <Box sx={{ mt: 2 }}>
         <CustomButton
-          label="View full guide"
+          label={t("embedded.viewGuide", { defaultValue: "View full guide" })}
           endIcon={<Icon name="arrow-up-right" size={16} />}
           variant="outlined"
           sx={{
@@ -748,6 +748,7 @@ const ElementsWidgetCard = ({
   docsUrl: string;
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation("apiScreen");
   const dispatch = useDispatch();
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
@@ -849,7 +850,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
     setPreviewError("");
     if (!hasRealPk) {
       setPreviewError(
-        "You need at least one active publishable key. Scroll to the Publishable Keys section below and create one — then come back and try the preview."
+        t("elements.errorNoPk", { defaultValue: "You need at least one active publishable key. Scroll to the Publishable Keys section below and create one — then come back and try the preview." })
       );
       return;
     }
@@ -873,19 +874,19 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
       inst.on("error", (e: { message: string }) => {
         setPreviewError(
           e?.message ||
-          "Preview failed. If your publishable key is domain-locked, add this dashboard's origin to its allowed_domains and retry."
+          t("elements.errorDomainLocked", { defaultValue: "Preview failed. If your publishable key is domain-locked, add this dashboard's origin to its allowed_domains and retry." })
         );
       });
       inst.on("succeeded", () => {
         dispatch({
           type: TOAST_SHOW,
-          payload: { message: "Preview payment succeeded (confirm via webhook)", severity: "success" },
+          payload: { message: t("elements.previewSucceeded", { defaultValue: "Preview payment succeeded (confirm via webhook)" }), severity: "success" },
         });
       });
       inst.mount(previewRef.current);
       elementInstanceRef.current = inst;
     } catch (err: any) {
-      setPreviewError(err?.message || "Failed to mount preview");
+      setPreviewError(err?.message || t("elements.errorMountFailed", { defaultValue: "Failed to mount preview" }));
     }
   };
 
@@ -940,7 +941,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
             fontFamily: "var(--font-sans)",
           }}
         >
-          Elements — Inline Crypto Widget
+          {t("elements.title", { defaultValue: "Elements — Inline Crypto Widget" })}
         </Typography>
         <Box
           component="span"
@@ -955,22 +956,19 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
             color: "#0b0b0b",
           }}
         >
-          NEW · publishable key
+          {t("elements.badge", { defaultValue: "NEW · publishable key" })}
         </Box>
       </Box>
       <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
-        Render Dynopay’s native crypto payment UI directly in your DOM — no iframe, no
-        redirect. Uses a publishable key (browser-safe) and your customer picks a
-        currency, then pays to the address shown. Always verify fulfillment via
-        webhooks — the browser <code>succeeded</code> event is UX only.
+        {t("elements.description", { defaultValue: "Render Dynopay’s native crypto payment UI directly in your DOM — no iframe, no redirect. Uses a publishable key (browser-safe) and your customer picks a currency, then pays to the address shown. Always verify fulfillment via webhooks — the browser succeeded event is UX only." })}
       </Typography>
 
-      <SnippetBlock label="HTML — mount inline" code={snippet} onCopy={onCopy} />
-      <SnippetBlock label="React — hook form" code={reactSnippet} onCopy={onCopy} />
+      <SnippetBlock label={t("elements.snippetHtml", { defaultValue: "HTML — mount inline" })} code={snippet} onCopy={onCopy} />
+      <SnippetBlock label={t("elements.snippetReact", { defaultValue: "React — hook form" })} code={reactSnippet} onCopy={onCopy} />
 
       <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1.25, alignItems: "center" }}>
         <CustomButton
-          label={previewOpen ? "Hide live preview" : "Show live preview"}
+          label={previewOpen ? t("elements.hidePreview", { defaultValue: "Hide live preview" }) : t("elements.showPreview", { defaultValue: "Show live preview" })}
           data-testid="elements-preview-toggle"
           variant="primary"
           onClick={togglePreview}
@@ -981,7 +979,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
           }}
         />
         <CustomButton
-          label="View full guide"
+          label={t("elements.viewGuide", { defaultValue: "View full guide" })}
           endIcon={<Icon name="arrow-up-right" size={16} />}
           variant="outlined"
           sx={{
@@ -996,8 +994,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
         />
         {!hasRealPk && (
           <Typography sx={{ fontSize: 12, color: theme.palette.warning?.main || "#F59E0B" }}>
-            No publishable key found — the snippet uses a placeholder. Create one in the
-            “Publishable Keys” section below.
+            {t("elements.noPkWarning", { defaultValue: "No publishable key found — the snippet uses a placeholder. Create one in the “Publishable Keys” section below." })}
           </Typography>
         )}
       </Box>
@@ -1013,7 +1010,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
           }}
         >
           <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1 }}>
-            Live preview · $5 · sandbox
+            {t("elements.livePreviewLabel", { defaultValue: "Live preview · $5 · sandbox" })}
           </Typography>
           {previewError ? (
             <Typography

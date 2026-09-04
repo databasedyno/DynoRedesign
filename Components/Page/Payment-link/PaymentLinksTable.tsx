@@ -414,7 +414,7 @@ const PaymentLinksTable = ({
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.25 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, mr: 1, flexWrap: "wrap" }}>
                       <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
-                        {row.description || "Payment Link"}
+                        {row.description || t("paymentLinkFallback", { defaultValue: "Payment Link" })}
                       </Typography>
                       {row.linkType === "donation" && donationChip}
                     </Box>
@@ -429,7 +429,7 @@ const PaymentLinksTable = ({
                               : "pending"
                       }
                     >
-                      {row.status === "active" ? "Active" : row.status === "expired" ? "Expired" : row.status === "paid" || row.status === "completed" ? "Paid" : "Pending"}
+                      {row.status === "active" ? t("statusActive", { defaultValue: "Active" }) : row.status === "expired" ? t("statusExpired", { defaultValue: "Expired" }) : row.status === "paid" || row.status === "completed" ? t("statusPaid", { defaultValue: "Paid" }) : t("statusPending", { defaultValue: "Pending" })}
                     </StatusDot>
                   </Box>
                   {/* Middle: USD + Crypto */}
@@ -526,7 +526,7 @@ const PaymentLinksTable = ({
                       {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
                         <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
                           <CopyButton
-                            aria-label="Crypto refund"
+                            aria-label={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })}
                             data-testid={`paylink-crypto-refund-mobile-${row.id}`}
                             onClick={() => setCryptoRefundLinkId(String(row.id))}
                             sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.primary.main }}
@@ -726,12 +726,12 @@ const PaymentLinksTable = ({
                         }
                       >
                         {row.status === "active"
-                          ? "Active"
+                          ? t("statusActive", { defaultValue: "Active" })
                           : row.status === "expired"
-                            ? "Expired"
+                            ? t("statusExpired", { defaultValue: "Expired" })
                             : row.status === "paid" || row.status === "completed"
-                              ? "Completed"
-                              : "Pending"}
+                              ? t("statusCompleted", { defaultValue: "Completed" })
+                              : t("statusPending", { defaultValue: "Pending" })}
                       </StatusDot>
                     </TableBodyCell>
 
@@ -886,7 +886,7 @@ const PaymentLinksTable = ({
                       {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
                         <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
                           <CopyButton
-                            aria-label="Crypto refund"
+                            aria-label={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })}
                             data-testid={`paylink-crypto-refund-${row.id}`}
                             onClick={() => setCryptoRefundLinkId(String(row.id))}
                             sx={{

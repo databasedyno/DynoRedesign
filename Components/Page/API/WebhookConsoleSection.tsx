@@ -41,6 +41,7 @@ import {
 import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import useApiSWR from "@/hooks/useApiSWR";
 
 import axiosBaseApi from "@/axiosConfig";
@@ -124,6 +125,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   const showSettings = view === "all" || view === "settings";
   const showEvents = view === "all" || view === "events";
   const theme = useTheme();
+  const { t: tr } = useTranslation("apiScreen");
   const isMobile = useIsMobile();
   const dispatch = useDispatch();
 
@@ -253,16 +255,16 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     if (!companyId) return;
     const trimmed = url.trim();
     if (trimmed && !/^https?:\/\//i.test(trimmed)) {
-      toast("Webhook URL must start with http:// or https://", "error");
+      toast(tr("webhook.toastUrlProtocol", { defaultValue: "Webhook URL must start with http:// or https://" }), "error");
       return;
     }
     setSavingUrl(true);
     try {
       await axiosBaseApi.put(API_ENDPOINTS.company.webhookSettings(companyId), { webhook_url: trimmed });
       setSavedUrl(trimmed);
-      toast("Webhook endpoint saved");
+      toast(tr("webhook.toastUrlSaved", { defaultValue: "Webhook endpoint saved" }));
     } catch {
-      toast("Failed to save webhook endpoint", "error");
+      toast(tr("webhook.toastUrlSaveFailed", { defaultValue: "Failed to save webhook endpoint" }), "error");
     } finally {
       setSavingUrl(false);
     }
@@ -274,10 +276,10 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     try {
       await axiosBaseApi.post(API_ENDPOINTS.company.webhookReenable(companyId));
       setDisabledInfo({ disabled: false, at: null, reason: null });
-      toast("Webhook delivery re-enabled");
+      toast(tr("webhook.toastReenabled", { defaultValue: "Webhook delivery re-enabled" }));
       loadSettings();
     } catch {
-      toast("Failed to re-enable webhook delivery", "error");
+      toast(tr("webhook.toastReenableFailed", { defaultValue: "Failed to re-enable webhook delivery" }), "error");
       loadSettings();
     } finally {
       setReenabling(false);
@@ -290,10 +292,10 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     try {
       await axiosBaseApi.post(API_ENDPOINTS.company.webhookDisable(companyId));
       setDisabledInfo({ disabled: true, at: new Date().toISOString(), reason: "Manually paused by merchant" });
-      toast("Webhook delivery paused");
+      toast(tr("webhook.toastPaused", { defaultValue: "Webhook delivery paused" }));
       loadSettings();
     } catch {
-      toast("Failed to pause webhook delivery", "error");
+      toast(tr("webhook.toastPauseFailed", { defaultValue: "Failed to pause webhook delivery" }), "error");
       loadSettings();
     } finally {
       setDisabling(false);
@@ -309,10 +311,10 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
         setSecret(d.webhook_secret);
         setSecretIsPreview(false);
         setShowSecret(true);
-        toast("Signing secret regenerated");
+        toast(tr("webhook.toastSecretRegen", { defaultValue: "Signing secret regenerated" }));
       }
     } catch {
-      toast("Failed to regenerate secret", "error");
+      toast(tr("webhook.toastSecretRegenFailed", { defaultValue: "Failed to regenerate secret" }), "error");
     } finally {
       setRegenerating(false);
     }
@@ -327,9 +329,9 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     try {
       await axiosBaseApi.put(API_ENDPOINTS.company.webhookSettings(companyId), { webhook_events: events });
       setSavedEvents(events);
-      toast(events.length ? "Event subscriptions saved" : "All optional events turned off");
+      toast(events.length ? tr("webhook.toastEventsSaved", { defaultValue: "Event subscriptions saved" }) : tr("webhook.toastEventsAllOff", { defaultValue: "All optional events turned off" }));
     } catch {
-      toast("Failed to save event subscriptions", "error");
+      toast(tr("webhook.toastEventsSaveFailed", { defaultValue: "Failed to save event subscriptions" }), "error");
     } finally {
       setSavingEvents(false);
     }
@@ -338,7 +340,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   const sendTest = async () => {
     if (!companyId) return;
     if (!savedUrl) {
-      toast("Save a webhook endpoint URL first", "error");
+      toast(tr("webhook.toastSaveUrlFirst", { defaultValue: "Save a webhook endpoint URL first" }), "error");
       return;
     }
     setSendingTest(true);
@@ -355,17 +357,17 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
           ? ` (HTTP ${data.response_status})`
           : "";
         toast(
-          `Test event could not be delivered${code}. Check your endpoint URL and try again.`,
+          tr("webhook.toastTestFailed", { defaultValue: "Test event could not be delivered{{code}}. Check your endpoint URL and try again.", code }),
           "error"
         );
       } else {
         const code = data?.response_status ? ` (HTTP ${data.response_status})` : "";
-        toast(`Test event delivered${code} — check recent deliveries`);
+        toast(tr("webhook.toastTestDelivered", { defaultValue: "Test event delivered{{code}} — check recent deliveries", code }));
       }
       setTimeout(refreshAll, 1200);
       setTimeout(refreshAll, 4000);
     } catch {
-      toast("Failed to send test event", "error");
+      toast(tr("webhook.toastTestSendFailed", { defaultValue: "Failed to send test event" }), "error");
     } finally {
       setSendingTest(false);
     }
@@ -379,7 +381,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       const res = await axiosBaseApi.get(API_ENDPOINTS.company.webhookHistoryDetail(companyId, logId));
       setDetail(res?.data?.data ?? null);
     } catch {
-      toast("Failed to load delivery detail", "error");
+      toast(tr("webhook.toastDetailFailed", { defaultValue: "Failed to load delivery detail" }), "error");
       setDetail(null);
     } finally {
       setLoadingDetail(false);
@@ -389,12 +391,24 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   const copy = (text: string, label: string) => {
     if (!text) return;
     copyToClipboard(text).then(
-      () => toast(`${label} copied`),
-      () => toast(`Failed to copy ${label}`, "error"),
+      () => toast(tr("webhook.toastCopied", { defaultValue: "{{label}} copied", label })),
+      () => toast(tr("webhook.toastCopyFailed", { defaultValue: "Failed to copy {{label}}", label }), "error"),
     );
   };
 
   const t = theme.palette.text;
+  const statusLabel = (status: string) =>
+    status === "success"
+      ? tr("webhook.statusDelivered", { defaultValue: "Delivered" })
+      : status === "failed"
+        ? tr("webhook.statusFailed", { defaultValue: "Failed" })
+        : tr("webhook.statusPending", { defaultValue: "Pending" });
+  const eventHint = (id: string) => {
+    if (id === "payment.created") return tr("webhook.eventCreatedHint", { defaultValue: "A checkout was created and an address issued — nothing paid yet" });
+    if (id === "payment.expired") return tr("webhook.eventExpiredHint", { defaultValue: "A payment link passed its expiry without being paid" });
+    if (id === "payment.overpaid") return tr("webhook.eventOverpaidHint", { defaultValue: "The customer sent more than requested, above your threshold" });
+    return "";
+  };
   const urlDirty = url.trim() !== savedUrl.trim();
   // A saved endpoint gates the "advanced" controls (toggle, secret, test,
   // event subscriptions). With no URL there is nothing to configure yet, so we
@@ -408,17 +422,17 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   return (
     <>
       <PanelCard
-        title={view === "events" ? "Events log" : "Webhooks"}
+        title={view === "events" ? tr("webhook.eventsLogTitle", { defaultValue: "Events log" }) : tr("webhook.title", { defaultValue: "Webhooks" })}
         subTitle={
           view === "events"
-            ? "Recent webhook delivery attempts — click a row for the payload and response"
+            ? tr("webhook.eventsLogSubtitle", { defaultValue: "Recent webhook delivery attempts — click a row for the payload and response" })
             : view === "settings"
-              ? "Configure your endpoint URL, signing secret and test events"
-              : "Receive real-time events and inspect recent delivery attempts"
+              ? tr("webhook.settingsSubtitle", { defaultValue: "Configure your endpoint URL, signing secret and test events" })
+              : tr("webhook.allSubtitle", { defaultValue: "Receive real-time events and inspect recent delivery attempts" })
         }
         headerIcon={<Icon name={view === "events" ? "list" : "webhook"} color={brandFg(theme.palette.mode === "dark")} />}
         headerAction={
-          <Tooltip title="Refresh">
+          <Tooltip title={tr("webhook.refresh", { defaultValue: "Refresh" })}>
             <IconButton onClick={refreshAll} size="small" data-testid="webhook-refresh">
               <Icon name="refresh-cw" size={20} />
             </IconButton>
@@ -427,7 +441,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       >
         {!companyId ? (
           <Typography sx={{ fontSize: 13, color: t.secondary, py: 2 }}>
-            Select a company to configure webhooks.
+            {tr("webhook.selectCompany", { defaultValue: "Select a company to configure webhooks." })}
           </Typography>
         ) : (
           <Box data-testid="webhook-console">
@@ -445,20 +459,22 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 <Icon name="circle-alert" size={20} color="#DC2626" style={{ flexShrink: 0, marginTop: 2 }} />
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#DC2626" }}>
-                    Webhook delivery is turned off
+                    {tr("webhook.deliveryOff", { defaultValue: "Webhook delivery is turned off" })}
                   </Typography>
                   <Typography sx={{ fontSize: 12.5, color: t.primary, mt: 0.5 }}>
                     {(disabledInfo.reason || "").toLowerCase().includes("manual") ? (
                       <>
-                        You paused webhook deliveries to your company URL
-                        {disabledInfo.at ? ` (since ${fmtTime(disabledInfo.at)})` : ""}. Turn deliveries back
-                        on whenever you&apos;re ready — per-request webhook URLs are unaffected.
+                        {tr("webhook.pausedManual", { defaultValue: "You paused webhook deliveries to your company URL" })}
+                        {disabledInfo.at ? ` (${tr("webhook.since", { defaultValue: "since {{time}}", time: fmtTime(disabledInfo.at) })})` : ""}
+                        {". "}
+                        {tr("webhook.pausedManualHint", { defaultValue: "Turn deliveries back on whenever you're ready — per-request webhook URLs are unaffected." })}
                       </>
                     ) : (
                       <>
-                        We stopped sending events because your endpoint repeatedly failed to respond
-                        {disabledInfo.at ? ` (since ${fmtTime(disabledInfo.at)})` : ""}. Fix or update your
-                        endpoint URL {showSettings ? "above" : "in the Webhooks tab"}, then re-enable delivery.
+                        {tr("webhook.pausedAuto", { defaultValue: "We stopped sending events because your endpoint repeatedly failed to respond" })}
+                        {disabledInfo.at ? ` (${tr("webhook.since", { defaultValue: "since {{time}}", time: fmtTime(disabledInfo.at) })})` : ""}
+                        {". "}
+                        {tr("webhook.pausedAutoHint", { defaultValue: "Fix or update your endpoint URL {{where}}, then re-enable delivery.", where: showSettings ? tr("webhook.locationAbove", { defaultValue: "above" }) : tr("webhook.locationTab", { defaultValue: "in the Webhooks tab" }) })}
                       </>
                     )}
                   </Typography>
@@ -483,7 +499,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                     alignSelf: isMobile ? "stretch" : "flex-start",
                   }}
                 >
-                  {reenabling ? "Re-enabling…" : "Re-enable"}
+                  {reenabling ? tr("webhook.reenabling", { defaultValue: "Re-enabling…" }) : tr("webhook.reenable", { defaultValue: "Re-enable" })}
                 </Button>
               </Box>
             )}
@@ -501,12 +517,12 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             >
               <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{ fontSize: 13, fontWeight: 700, color: t.primary }}>
-                  Deliver webhook events
+                  {tr("webhook.deliverEvents", { defaultValue: "Deliver webhook events" })}
                 </Typography>
                 <Typography sx={{ fontSize: 12, color: t.secondary }}>
                   {disabledInfo.disabled
-                    ? "Paused — events are not being sent to your company URL."
-                    : "Active — events are sent to your company URL."}
+                    ? tr("webhook.deliverPaused", { defaultValue: "Paused — events are not being sent to your company URL." })
+                    : tr("webhook.deliverActive", { defaultValue: "Active — events are sent to your company URL." })}
                 </Typography>
               </Box>
               <Switch
@@ -514,14 +530,14 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 onChange={(e) => (e.target.checked ? reenableWebhook() : disableWebhook())}
                 disabled={reenabling || disabling}
                 data-testid="webhook-delivery-toggle"
-                inputProps={{ "aria-label": "Toggle webhook delivery" }}
+                inputProps={{ "aria-label": tr("webhook.toggleAria", { defaultValue: "Toggle webhook delivery" }) }}
               />
             </Box>
             )}
 
             {/* Endpoint URL */}
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
-              Endpoint URL
+              {tr("webhook.endpointUrl", { defaultValue: "Endpoint URL" })}
             </Typography>
             <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 1, mb: 2 }}>
               <TextField
@@ -531,7 +547,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 data-testid="webhook-url-input"
-                inputProps={{ "aria-label": "Webhook endpoint URL" }}
+                inputProps={{ "aria-label": tr("webhook.endpointUrlAria", { defaultValue: "Webhook endpoint URL" }) }}
               />
               <Button
                 variant="contained"
@@ -540,13 +556,13 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 data-testid="webhook-url-save"
                 sx={{ minWidth: 96, textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
               >
-                {savingUrl ? <CircularProgress size={18} color="inherit" /> : "Save"}
+                {savingUrl ? <CircularProgress size={18} color="inherit" /> : tr("webhook.save", { defaultValue: "Save" })}
               </Button>
             </Box>
 
             {!hasUrl && (
               <Typography data-testid="webhook-no-url-hint" sx={{ fontSize: 12.5, color: t.secondary, mb: 1 }}>
-                Add your endpoint URL above to start receiving events. Once saved, you can set a signing secret, choose which events to receive and send a test.
+                {tr("webhook.noUrlHint", { defaultValue: "Add your endpoint URL above to start receiving events. Once saved, you can set a signing secret, choose which events to receive and send a test." })}
               </Typography>
             )}
 
@@ -554,7 +570,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
               <>
             {/* Signing secret */}
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
-              Signing secret
+              {tr("webhook.signingSecret", { defaultValue: "Signing secret" })}
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, flexWrap: "wrap" }}>
               <Box
@@ -567,20 +583,20 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 <Typography sx={{ fontFamily: "monospace", fontSize: 13, color: t.primary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {secret
                     ? secretIsPreview
-                      ? `${secret} · set — regenerate to replace`
+                      ? tr("webhook.secretSet", { defaultValue: "{{preview}} · set — regenerate to replace", preview: secret })
                       : (showSecret ? secret : "•".repeat(Math.min(secret.length, 28)))
-                    : "No secret set — regenerate to create one"}
+                    : tr("webhook.noSecret", { defaultValue: "No secret set — regenerate to create one" })}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
                   {secret && !secretIsPreview && (
                     <>
-                      <Tooltip title={showSecret ? "Hide" : "Reveal"}>
+                      <Tooltip title={showSecret ? tr("webhook.hide", { defaultValue: "Hide" }) : tr("webhook.reveal", { defaultValue: "Reveal" })}>
                         <IconButton size="small" onClick={() => setShowSecret((s) => !s)} data-testid="webhook-secret-toggle">
                           {showSecret ? <Icon name="eye-off" size={20} /> : <Icon name="eye" size={20} />}
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Copy secret">
-                        <IconButton size="small" onClick={() => copy(secret, "Secret")}>
+                      <Tooltip title={tr("webhook.copySecret", { defaultValue: "Copy secret" })}>
+                        <IconButton size="small" onClick={() => copy(secret, tr("webhook.secretLabel", { defaultValue: "Secret" }))}>
                           <Icon name="copy" size={20} />
                         </IconButton>
                       </Tooltip>
@@ -596,7 +612,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 data-testid="webhook-secret-regen"
                 sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
               >
-                Regenerate
+                {tr("webhook.regenerate", { defaultValue: "Regenerate" })}
               </Button>
               <Button
                 variant="contained"
@@ -607,16 +623,16 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 data-testid="webhook-send-test"
                 sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
               >
-                Send test event
+                {tr("webhook.sendTest", { defaultValue: "Send test event" })}
               </Button>
             </Box>
 
             {/* Event subscriptions — opt-in extras on top of the always-on payment updates */}
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.5 }}>
-              Event subscriptions
+              {tr("webhook.eventSubscriptions", { defaultValue: "Event subscriptions" })}
             </Typography>
             <Typography sx={{ fontSize: 12, color: t.secondary, mb: 1 }}>
-              Payment updates (pending, confirmed, underpaid, settled) are always delivered. Tick any extra events you want.
+              {tr("webhook.eventSubscriptionsHint", { defaultValue: "Payment updates (pending, confirmed, underpaid, settled) are always delivered. Tick any extra events you want." })}
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", mb: 1 }} data-testid="webhook-event-subscriptions">
               {OPT_IN_EVENTS.map((ev) => (
@@ -628,7 +644,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                       checked={events.includes(ev.id)}
                       onChange={() => toggleEvent(ev.id)}
                       data-testid={`webhook-event-${ev.id.replace(".", "-")}`}
-                      inputProps={{ "aria-label": `Subscribe to ${ev.id}` } as React.InputHTMLAttributes<HTMLInputElement>}
+                      inputProps={{ "aria-label": tr("webhook.subscribeAria", { defaultValue: "Subscribe to {{event}}", event: ev.id }) } as React.InputHTMLAttributes<HTMLInputElement>}
                     />
                   }
                   label={
@@ -636,7 +652,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                       <Typography sx={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: t.primary }}>
                         {ev.id}
                       </Typography>
-                      <Typography sx={{ fontSize: 12, color: t.secondary }}>{ev.hint}</Typography>
+                      <Typography sx={{ fontSize: 12, color: t.secondary }}>{eventHint(ev.id)}</Typography>
                     </Box>
                   }
                   sx={{ alignItems: "flex-start", ml: 0, mb: 0.5 }}
@@ -651,7 +667,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 data-testid="webhook-events-save"
                 sx={{ minWidth: 130, textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
               >
-                {savingEvents ? <CircularProgress size={18} color="inherit" /> : "Save events"}
+                {savingEvents ? <CircularProgress size={18} color="inherit" /> : tr("webhook.saveEvents", { defaultValue: "Save events" })}
               </Button>
             </Box>
               </>
@@ -665,10 +681,10 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             {stats && (
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }} data-testid="webhook-stats">
                 {[
-                  { k: "Delivered", v: String(stats.successful ?? 0), c: "#16A34A" },
-                  { k: "Failed", v: String(stats.failed ?? 0), c: "#DC2626" },
-                  { k: "Success rate", v: stats.success_rate ?? "—", c: t.primary },
-                  { k: "Avg latency", v: stats.avg_response_time_ms ? `${stats.avg_response_time_ms} ms` : "—", c: t.primary },
+                  { k: tr("webhook.statDelivered", { defaultValue: "Delivered" }), v: String(stats.successful ?? 0), c: "#16A34A" },
+                  { k: tr("webhook.statFailed", { defaultValue: "Failed" }), v: String(stats.failed ?? 0), c: "#DC2626" },
+                  { k: tr("webhook.statSuccessRate", { defaultValue: "Success rate" }), v: stats.success_rate ?? "—", c: t.primary },
+                  { k: tr("webhook.statAvgLatency", { defaultValue: "Avg latency" }), v: stats.avg_response_time_ms ? `${stats.avg_response_time_ms} ms` : "—", c: t.primary },
                 ].map((s) => (
                   <Box key={s.k} sx={{ px: 1.5, py: 1, borderRadius: 2, border: `1px solid ${theme.palette.divider}`, minWidth: 92 }}>
                     <Typography sx={{ fontSize: 10.5, color: t.secondary, textTransform: "uppercase", letterSpacing: 0.4, fontWeight: 700 }}>{s.k}</Typography>
@@ -681,7 +697,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             {/* Recent deliveries */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
               <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary }}>
-                Recent deliveries
+                {tr("webhook.recentDeliveries", { defaultValue: "Recent deliveries" })}
               </Typography>
               <Select
                 size="small"
@@ -690,9 +706,9 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 data-testid="webhook-status-filter"
                 sx={{ fontSize: 12, height: 30, ".MuiSelect-select": { py: 0.5 } }}
               >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="success">Delivered</MenuItem>
-                <MenuItem value="failed">Failed</MenuItem>
+                <MenuItem value="all">{tr("webhook.filterAll", { defaultValue: "All" })}</MenuItem>
+                <MenuItem value="success">{tr("webhook.filterDelivered", { defaultValue: "Delivered" })}</MenuItem>
+                <MenuItem value="failed">{tr("webhook.filterFailed", { defaultValue: "Failed" })}</MenuItem>
               </Select>
             </Box>
 
@@ -704,7 +720,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
               ) : logs.length === 0 ? (
                 <Box sx={{ textAlign: "center", py: 4, px: 2 }} data-testid="webhook-deliveries-empty">
                   <Typography sx={{ fontSize: 13, color: t.secondary }}>
-                    No deliveries yet. Save an endpoint and click “Send test event”.
+                    {tr("webhook.noDeliveries", { defaultValue: "No deliveries yet. Save an endpoint and click “Send test event”." })}
                   </Typography>
                 </Box>
               ) : (
@@ -735,7 +751,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                         <Typography sx={{ fontSize: 12, color: t.secondary, fontFamily: "monospace" }}>{lg.response_time_ms} ms</Typography>
                       )}
                       <StatusDot tone={m.tone}>
-                        {lg.response_status != null ? `${m.label} · ${lg.response_status}` : m.label}
+                        {lg.response_status != null ? `${statusLabel(lg.status)} · ${lg.response_status}` : statusLabel(lg.status)}
                       </StatusDot>
                     </Box>
                   );
@@ -752,8 +768,8 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       <Dialog open={!!detail} onClose={() => setDetail(null)} fullWidth maxWidth="sm">
         <DialogContent sx={{ p: 0 }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, py: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-            <Typography sx={{ fontWeight: 800, fontSize: 15 }}>Delivery attempt</Typography>
-            <IconButton size="small" onClick={() => setDetail(null)} aria-label="Close">
+            <Typography sx={{ fontWeight: 800, fontSize: 15 }}>{tr("webhook.deliveryAttempt", { defaultValue: "Delivery attempt" })}</Typography>
+            <IconButton size="small" onClick={() => setDetail(null)} aria-label={tr("webhook.close", { defaultValue: "Close" })}>
               <Icon name="x" size={20} />
             </IconButton>
           </Box>
@@ -764,29 +780,29 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
           ) : (
             <Box sx={{ p: 2.5 }}>
               {[
-                ["Event", detail.event_type],
-                ["Status", detail.status],
-                ["HTTP response", detail.response_status != null ? String(detail.response_status) : "—"],
-                ["Latency", detail.response_time_ms != null ? `${detail.response_time_ms} ms` : "—"],
-                ["Retries", String(detail.retry_count ?? 0)],
-                ["Endpoint", detail.webhook_url || "—"],
-                ["Sent at", fmtTime(detail.created_at)],
-                ["Completed at", fmtTime(detail.completed_at)],
-                ["Delivery ID", detail.webhook_id || "—"],
-              ].map(([k, v]) => (
-                <Box key={String(k)} sx={{ display: "flex", gap: 2, py: 0.75, borderBottom: `1px solid ${theme.palette.divider}` }}>
-                  <Typography sx={{ fontSize: 12, color: t.secondary, minWidth: 110, fontWeight: 600 }}>{k}</Typography>
-                  <Typography sx={{ fontSize: 12.5, color: t.primary, wordBreak: "break-all", fontFamily: k === "Endpoint" || k === "Delivery ID" ? "monospace" : "inherit" }}>{v}</Typography>
+                { k: tr("webhook.fieldEvent", { defaultValue: "Event" }), v: detail.event_type, mono: false },
+                { k: tr("webhook.fieldStatus", { defaultValue: "Status" }), v: detail.status, mono: false },
+                { k: tr("webhook.fieldHttpResponse", { defaultValue: "HTTP response" }), v: detail.response_status != null ? String(detail.response_status) : "—", mono: false },
+                { k: tr("webhook.fieldLatency", { defaultValue: "Latency" }), v: detail.response_time_ms != null ? `${detail.response_time_ms} ms` : "—", mono: false },
+                { k: tr("webhook.fieldRetries", { defaultValue: "Retries" }), v: String(detail.retry_count ?? 0), mono: false },
+                { k: tr("webhook.fieldEndpoint", { defaultValue: "Endpoint" }), v: detail.webhook_url || "—", mono: true },
+                { k: tr("webhook.fieldSentAt", { defaultValue: "Sent at" }), v: fmtTime(detail.created_at), mono: false },
+                { k: tr("webhook.fieldCompletedAt", { defaultValue: "Completed at" }), v: fmtTime(detail.completed_at), mono: false },
+                { k: tr("webhook.fieldDeliveryId", { defaultValue: "Delivery ID" }), v: detail.webhook_id || "—", mono: true },
+              ].map((row) => (
+                <Box key={String(row.k)} sx={{ display: "flex", gap: 2, py: 0.75, borderBottom: `1px solid ${theme.palette.divider}` }}>
+                  <Typography sx={{ fontSize: 12, color: t.secondary, minWidth: 110, fontWeight: 600 }}>{row.k}</Typography>
+                  <Typography sx={{ fontSize: 12.5, color: t.primary, wordBreak: "break-all", fontFamily: row.mono ? "monospace" : "inherit" }}>{row.v}</Typography>
                 </Box>
               ))}
               {detail.error_message && (
                 <Box sx={{ mt: 1.5, p: 1.25, borderRadius: 2, bgcolor: "rgba(220,38,38,0.10)", border: "1px solid rgba(220,38,38,0.3)" }}>
-                  <Typography sx={{ fontSize: 11, fontWeight: 700, color: "#DC2626", mb: 0.5 }}>ERROR</Typography>
+                  <Typography sx={{ fontSize: 11, fontWeight: 700, color: "#DC2626", mb: 0.5 }}>{tr("webhook.errorLabel", { defaultValue: "ERROR" })}</Typography>
                   <Typography sx={{ fontSize: 12.5, color: "#DC2626", wordBreak: "break-word" }}>{detail.error_message}</Typography>
                 </Box>
               )}
               <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mt: 2, mb: 0.5 }}>
-                Payload sent
+                {tr("webhook.payloadSent", { defaultValue: "Payload sent" })}
               </Typography>
               <Box
                 component="pre"

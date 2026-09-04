@@ -71,5 +71,11 @@
     "downloadQr": "Baixar QR",
     "copiedOpensCheckout": "Link copiado — abre o seu checkout"
   },
-  "cryptoRefundTooltip": "Reembolso em crypto"
+  "cryptoRefundTooltip": "Reembolso em crypto",
+  "paymentLinkFallback": "Link de Pagamento",
+  "statusActive": "Ativo",
+  "statusExpired": "Expirado",
+  "statusPaid": "Pago",
+  "statusPending": "Pendente",
+  "statusCompleted": "Concluído"
 }

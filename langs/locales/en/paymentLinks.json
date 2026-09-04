@@ -71,5 +71,11 @@
     "downloadQr": "Download QR",
     "copiedOpensCheckout": "Link copied — opens your checkout"
   },
-  "cryptoRefundTooltip": "Crypto refund"
+  "cryptoRefundTooltip": "Crypto refund",
+  "paymentLinkFallback": "Payment Link",
+  "statusActive": "Active",
+  "statusExpired": "Expired",
+  "statusPaid": "Paid",
+  "statusPending": "Pending",
+  "statusCompleted": "Completed"
 }

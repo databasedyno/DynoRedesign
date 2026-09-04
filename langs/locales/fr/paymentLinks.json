@@ -71,5 +71,11 @@
     "downloadQr": "Télécharger le QR",
     "copiedOpensCheckout": "Lien copié — ouvre votre caisse"
   },
-  "cryptoRefundTooltip": "Remboursement crypto"
+  "cryptoRefundTooltip": "Remboursement crypto",
+  "paymentLinkFallback": "Lien de paiement",
+  "statusActive": "Actif",
+  "statusExpired": "Expiré",
+  "statusPaid": "Payé",
+  "statusPending": "En attente",
+  "statusCompleted": "Terminé"
 }
