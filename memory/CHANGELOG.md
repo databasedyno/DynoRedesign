@@ -1,3 +1,13 @@
+# FIX 2026-06 (pod 8b63f71b): Email logo now matches the landing-page logo.
+# All emails (admin + merchant) render the header logo from baseEmailTemplate → getDynopayLogoUrl() →
+# ${SERVER_URL}/api/static/dynopay-email-logo.png (backend/public/dynopay-email-logo.png).
+# That PNG showed the OLD logo. Regenerated it from the CURRENT landing white wordmark
+# (assets/Icons/home/dynopay-whiteLogo.svg → white #FFFFFF text + #4338CA refresh mark) rasterized
+# 480x160 on the #050505 email header background. Verified: /api/static/dynopay-email-logo.png = 200 image/png
+# and visually identical to the landing header. No cid/attachment logos exist. catbox CDN fallback only used
+# when SERVER_URL is unset (it is set in prod). Ships on next Save-to-GitHub → DO deploy (image already COPYs backend/public).
+
+
 # SESSION 2026-06 (fork, pod 8b63f71b) — SEO: localize /for/* verticals + crawlable Help index links
 Continuation of 3B. Verified: tsc 0 errors, all routes 200, /for/saas?lang=fr full French render + clean console (no hydration errors), request isolation holds.
 - LOCALIZE /for/* (15 industry landing pages) into all 6 langs:
