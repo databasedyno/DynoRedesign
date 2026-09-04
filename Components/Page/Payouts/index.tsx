@@ -480,8 +480,8 @@ const PayoutsPage: React.FC = () => {
         return;
       }
       const f = new Date(`${customFrom}T00:00:00`);
-      const t = new Date(`${customTo}T23:59:59.999`);
-      if (f > t) {
+      const toDate = new Date(`${customTo}T23:59:59.999`);
+      if (f > toDate) {
         dispatch({
           type: TOAST_SHOW,
           payload: {
@@ -492,7 +492,7 @@ const PayoutsPage: React.FC = () => {
         return;
       }
       dateFrom = f.toISOString();
-      dateTo = t.toISOString();
+      dateTo = toDate.toISOString();
     } else {
       const to = new Date();
       const from = new Date();

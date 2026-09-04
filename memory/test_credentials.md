@@ -1,4 +1,16 @@
 # ============================================================================
+# 2026-09-04 (pod 8b63f71b) i18n SWEEP + BUILD FIX — prod-connected, SAFE MODE, EMAIL OFF
+# ----------------------------------------------------------------------------
+# - CURRENT Preview URL (THIS POD): https://8b63f71b-4b1b-4d23-b5de-14ea1f5798b9.preview.emergentagent.com
+#   (IGNORE all older *.preview.emergentagent.com URLs below — historical.)
+# - Env restored from env.vault.enc (passphrase Katiekendra123@). SAFE MODE intact (jobs off, email off, Redis /1).
+# - >>> MERCHANT LOGIN FOR TESTING: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1) <<<
+#   2-step login: /auth/login -> data-testid=login-email-input -> button "Continue" (exact) -> password-input -> signin-submit-btn.
+# - NOTE: WIRED TO PRODUCTION DB — prefer READ-ONLY checks. Next.js dev never hits 'networkidle' -> wait on selectors.
+# ============================================================================
+
+
+# ============================================================================
 # 2026-09-03 (pod ca6c51ad) FORK — TRANSACTIONS TOOLBAR/EXPORT — prod-connected, SAFE MODE, EMAIL OFF
 # ----------------------------------------------------------------------------
 # - CURRENT Preview URL (THIS POD): https://vault-setup-4.preview.emergentagent.com

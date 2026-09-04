@@ -1,12 +1,1 @@
-{
-  "apiScreen": {
-    "buyButtons.badgeFixed": "FIXED",
-    "buyButtons.badgeCustomer": "CUSTOMER",
-    "buyButtons.statusActive": "active",
-    "buyButtons.statusArchived": "archived",
-    "buyButtons.defaultLabel": "Pay with crypto",
-    "buyButtons.createdMsg": "Buy button created",
-    "buyButtons.updatedMsg": "Buy button updated",
-    "buyButtons.saveFailed": "Failed to save buy button"
-  }
-}
+{}
