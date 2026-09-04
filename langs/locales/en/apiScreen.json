@@ -174,7 +174,15 @@
     "selectCompany": "Select a company to manage its buy buttons.",
     "empty": "No buy buttons yet. Create one to embed a tamper-proof checkout on your site.",
     "deleteTitle": "Archive buy button",
-    "deleteMessage": "Once archived, this buy button can no longer create checkout sessions. Any pages on your site using it will stop working until you reactivate it (or replace the button-id with a new one)."
+    "deleteMessage": "Once archived, this buy button can no longer create checkout sessions. Any pages on your site using it will stop working until you reactivate it (or replace the button-id with a new one).",
+    "badgeFixed": "FIXED",
+    "badgeCustomer": "CUSTOMER",
+    "statusActive": "active",
+    "statusArchived": "archived",
+    "defaultLabel": "Pay with crypto",
+    "createdMsg": "Buy button created",
+    "updatedMsg": "Buy button updated",
+    "saveFailed": "Failed to save buy button"
   },
   "pk": {
     "snippetSuffix": "snippet",

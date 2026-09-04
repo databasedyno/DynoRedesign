@@ -90,7 +90,7 @@ interface FormState {
 
 const DEFAULT_FORM: FormState = {
   name: "",
-  label: "Pay with crypto",
+  label: "",
   price_type: "fixed",
   amount: "25",
   min_amount: "10",
@@ -262,7 +262,7 @@ const BuyButtonRow = ({
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0, flexWrap: "wrap" }}>
           <Chip
-            label={btn.price_type === "fixed" ? "FIXED" : "CUSTOMER"}
+            label={btn.price_type === "fixed" ? t("buyButtons.badgeFixed", { defaultValue: "FIXED" }) : t("buyButtons.badgeCustomer", { defaultValue: "CUSTOMER" })}
             size="small"
             sx={{
               height: 22,
@@ -293,7 +293,7 @@ const BuyButtonRow = ({
               <Icon name="ban" size={16} />
             )}
             <Typography sx={{ fontSize: 12, fontWeight: 600, textTransform: "capitalize", color: statusColor }}>
-              {btn.status}
+              {btn.status === "active" ? t("buyButtons.statusActive", { defaultValue: "active" }) : t("buyButtons.statusArchived", { defaultValue: "archived" })}
             </Typography>
           </Box>
         </Box>
@@ -544,7 +544,7 @@ const FormModal = ({
     if (mode === "edit" && initial) {
       setForm({
         name: initial.name || "",
-        label: initial.label || "Pay with crypto",
+        label: initial.label || t("buyButtons.defaultLabel", { defaultValue: "Pay with crypto" }),
         price_type: initial.price_type,
         amount: initial.amount != null ? String(initial.amount) : "25",
         min_amount: initial.min_amount != null ? String(initial.min_amount) : "10",
@@ -557,10 +557,10 @@ const FormModal = ({
           : "",
       });
     } else {
-      setForm(DEFAULT_FORM);
+      setForm({ ...DEFAULT_FORM, label: t("buyButtons.defaultLabel", { defaultValue: "Pay with crypto" }) });
     }
     setServerError(null);
-  }, [open, mode, initial]);
+  }, [open, mode, initial, t]);
 
   const setField = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -599,7 +599,7 @@ const FormModal = ({
 
     const body: Record<string, unknown> = {
       name: form.name.trim(),
-      label: form.label.trim() || "Pay with crypto",
+      label: form.label.trim() || t("buyButtons.defaultLabel", { defaultValue: "Pay with crypto" }),
       price_type: form.price_type,
       allowed_currencies: currencies.length > 0 ? currencies : null,
       description: form.description.trim() || null,
@@ -618,7 +618,7 @@ const FormModal = ({
       if (mode === "create") {
         body.company_id = companyId;
         const { data } = await axiosBaseApi.post("buy-buttons", body);
-        onSaved(data?.message || "Buy button created", data?.data as BuyButton);
+        onSaved(data?.message || t("buyButtons.createdMsg", { defaultValue: "Buy button created" }), data?.data as BuyButton);
       } else if (initial) {
         // price_type is immutable — drop it
         delete body.price_type;
@@ -633,14 +633,14 @@ const FormModal = ({
           `buy-buttons/${initial.button_id}`,
           body,
         );
-        onSaved(data?.message || "Buy button updated");
+        onSaved(data?.message || t("buyButtons.updatedMsg", { defaultValue: "Buy button updated" }));
       }
       onClose();
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
         err?.message ||
-        "Failed to save buy button";
+        t("buyButtons.saveFailed", { defaultValue: "Failed to save buy button" });
       setServerError(msg);
       dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
     } finally {
@@ -697,7 +697,7 @@ const FormModal = ({
           <InputField
             fullWidth
             label={t("buyButtons.buttonLabel", { defaultValue: "Button label" })}
-            placeholder="Pay with crypto"
+            placeholder={t("buyButtons.defaultLabel", { defaultValue: "Pay with crypto" })}
             value={form.label}
             onChange={(e: any) => setField("label", e.target.value)}
           />

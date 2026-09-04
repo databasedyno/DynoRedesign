@@ -174,7 +174,15 @@
     "selectCompany": "Wählen Sie ein Unternehmen aus, um dessen Kauf-Buttons zu verwalten.",
     "empty": "Noch keine Kauf-Buttons. Erstellen Sie einen, um einen manipulationssicheren Checkout auf Ihrer Website einzubetten.",
     "deleteTitle": "Kauf-Button archivieren",
-    "deleteMessage": "Einmal archiviert, kann dieser Kauf-Button keine Checkout-Sitzungen mehr erstellen. Alle Seiten auf Ihrer Website, die ihn verwenden, funktionieren nicht mehr, bis Sie ihn reaktivieren (oder die Button-ID durch eine neue ersetzen)."
+    "deleteMessage": "Einmal archiviert, kann dieser Kauf-Button keine Checkout-Sitzungen mehr erstellen. Alle Seiten auf Ihrer Website, die ihn verwenden, funktionieren nicht mehr, bis Sie ihn reaktivieren (oder die Button-ID durch eine neue ersetzen).",
+    "badgeFixed": "FIXIERT",
+    "badgeCustomer": "KUNDE",
+    "statusActive": "aktiv",
+    "statusArchived": "archiviert",
+    "defaultLabel": "Mit Krypto bezahlen",
+    "createdMsg": "Kauf-Button erstellt",
+    "updatedMsg": "Kauf-Button aktualisiert",
+    "saveFailed": "Speichern des Kauf-Buttons fehlgeschlagen"
   },
   "pk": {
     "snippetSuffix": "Snippet",

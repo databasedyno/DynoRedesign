@@ -174,7 +174,15 @@
     "selectCompany": "Selecteer een bedrijf om de koopknoppen te beheren.",
     "empty": "Nog geen koopknoppen. Maak er een om een manipulatievrije checkout op je site in te voegen.",
     "deleteTitle": "Koopknop archiveren",
-    "deleteMessage": "Eenmaal gearchiveerd, kan deze koopknop geen checkout-sessies meer creëren. Pagina's op je site die deze gebruiken, zullen stoppen met werken totdat je deze heractiveert (of de button-id vervangt door een nieuwe)."
+    "deleteMessage": "Eenmaal gearchiveerd, kan deze koopknop geen checkout-sessies meer creëren. Pagina's op je site die deze gebruiken, zullen stoppen met werken totdat je deze heractiveert (of de button-id vervangt door een nieuwe).",
+    "badgeFixed": "VAST",
+    "badgeCustomer": "KLANT",
+    "statusActive": "actief",
+    "statusArchived": "gearchiveerd",
+    "defaultLabel": "Betaal met crypto",
+    "createdMsg": "Koopknop aangemaakt",
+    "updatedMsg": "Koopknop bijgewerkt",
+    "saveFailed": "Opslaan van koopknop mislukt"
   },
   "pk": {
     "snippetSuffix": "snippet",

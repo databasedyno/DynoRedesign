@@ -174,7 +174,15 @@
     "selectCompany": "Selecione uma empresa para gerir os seus botões de compra.",
     "empty": "Ainda não há botões de compra. Crie um para incorporar um checkout à prova de adulteração no seu site.",
     "deleteTitle": "Arquivar botão de compra",
-    "deleteMessage": "Uma vez arquivado, este botão de compra não pode mais criar sessões de checkout. Qualquer página no seu site que o utilize deixará de funcionar até que o reative (ou substitua o ID do botão por um novo)."
+    "deleteMessage": "Uma vez arquivado, este botão de compra não pode mais criar sessões de checkout. Qualquer página no seu site que o utilize deixará de funcionar até que o reative (ou substitua o ID do botão por um novo).",
+    "badgeFixed": "FIXO",
+    "badgeCustomer": "CLIENTE",
+    "statusActive": "ativo",
+    "statusArchived": "arquivado",
+    "defaultLabel": "Pagar com crypto",
+    "createdMsg": "Botão de compra criado",
+    "updatedMsg": "Botão de compra atualizado",
+    "saveFailed": "Falha ao salvar o botão de compra"
   },
   "pk": {
     "snippetSuffix": "snippet",

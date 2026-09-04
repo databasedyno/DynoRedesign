@@ -174,7 +174,15 @@
     "selectCompany": "Sélectionnez une entreprise pour gérer ses boutons d'achat.",
     "empty": "Pas encore de boutons d'achat. Créez-en un pour intégrer un paiement à l'épreuve des falsifications sur votre site.",
     "deleteTitle": "Archiver le bouton d'achat",
-    "deleteMessage": "Une fois archivé, ce bouton d'achat ne peut plus créer de sessions de paiement. Toutes les pages de votre site l'utilisant cesseront de fonctionner jusqu'à ce que vous le réactiviez (ou remplaciez l'identifiant du bouton par un nouveau)."
+    "deleteMessage": "Une fois archivé, ce bouton d'achat ne peut plus créer de sessions de paiement. Toutes les pages de votre site l'utilisant cesseront de fonctionner jusqu'à ce que vous le réactiviez (ou remplaciez l'identifiant du bouton par un nouveau).",
+    "badgeFixed": "FIXE",
+    "badgeCustomer": "CLIENT",
+    "statusActive": "actif",
+    "statusArchived": "archivé",
+    "defaultLabel": "Payer avec crypto",
+    "createdMsg": "Bouton d'achat créé",
+    "updatedMsg": "Bouton d'achat mis à jour",
+    "saveFailed": "Échec de l'enregistrement du bouton d'achat"
   },
   "pk": {
     "snippetSuffix": "extrait",

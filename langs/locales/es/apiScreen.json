@@ -174,7 +174,15 @@
     "selectCompany": "Selecciona una empresa para gestionar sus botones de compra.",
     "empty": "Aún no hay botones de compra. Crea uno para incrustar un pago a prueba de manipulaciones en tu sitio.",
     "deleteTitle": "Archivar botón de compra",
-    "deleteMessage": "Una vez archivado, este botón de compra ya no podrá crear sesiones de pago. Cualquier página en tu sitio que lo use dejará de funcionar hasta que lo reactives (o reemplaces el ID del botón por uno nuevo)."
+    "deleteMessage": "Una vez archivado, este botón de compra ya no podrá crear sesiones de pago. Cualquier página en tu sitio que lo use dejará de funcionar hasta que lo reactives (o reemplaces el ID del botón por uno nuevo).",
+    "badgeFixed": "FIJO",
+    "badgeCustomer": "CLIENTE",
+    "statusActive": "activo",
+    "statusArchived": "archivado",
+    "defaultLabel": "Pagar con cripto",
+    "createdMsg": "Botón de compra creado",
+    "updatedMsg": "Botón de compra actualizado",
+    "saveFailed": "Error al guardar el botón de compra"
   },
   "pk": {
     "snippetSuffix": "fragmento",
