@@ -8,21 +8,34 @@ import config from "./config";
 import { EMAIL_TOKENS as T } from "./brandTokens";
 import { t as tr } from "./emailI18n";
 
-// Public CDN-hosted PNG logo for maximum email client compatibility
-const DYNOPAY_LOGO_CDN = "https://files.catbox.moe/9wq2et.png";
+// Cache-busted email logo filename. Regenerated from the CURRENT landing white
+// wordmark (assets/Icons/home/dynopay-whiteLogo.svg) baked onto the dark #050505
+// email chip, so it is pixel-identical to the site header. The version suffix is
+// REQUIRED: Gmail/Outlook proxy-cache remote images by URL, so reusing the old
+// filename kept serving the stale logo even after the image bytes changed.
+const EMAIL_LOGO_FILE = "dynopay-email-logo-v2.png";
+
+// Last-resort absolute base used only if NO url env is configured (e.g. a worker
+// booted without SERVER_URL — the exact case that made admin emails fall back to
+// a stale external image host). Points at OUR production domain serving the NEW
+// logo, never a 3rd-party CDN.
+const DYNOPAY_PROD_BASE = "https://dynopay.com";
 
 /**
  * Brand logo for emails. Uses an "inversion-proof" PNG: the white wordmark is
  * baked onto a solid #050505 chip (matching the always-dark header/footer) so
  * it stays visible even when a mail client force-adapts the dark footer into a
- * white card. Served via /api/static (no external CDN dependency in prod).
+ * white card. Always served from our own /api/static (never a 3rd-party CDN),
+ * with a resilient base-URL fallback chain so admin/background-job emails resolve
+ * the SAME up-to-date logo as merchant emails.
  */
 export const getDynopayLogoUrl = (): string => {
-  const serverUrl = config.serverUrl;
-  if (serverUrl) {
-    return `${serverUrl}/api/static/dynopay-email-logo.png`;
-  }
-  return DYNOPAY_LOGO_CDN;
+  const base =
+    config.serverUrl ||
+    config.frontendUrl ||
+    config.publicBaseUrl ||
+    DYNOPAY_PROD_BASE;
+  return `${base.replace(/\/+$/, "")}/api/static/${EMAIL_LOGO_FILE}`;
 };
 
 /**
