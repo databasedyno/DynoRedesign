@@ -1,6 +1,28 @@
 import "@/styles/globals.css";
 import "nprogress/nprogress.css";
-import "../i18n";
+import i18n from "../i18n";
+
+// ── 3B: hydrate the server-selected locale synchronously BEFORE first render ──
+// The server picks the ?lang= locale in App.getInitialProps and serializes its
+// resources into __NEXT_DATA__; applying them here (client, at module eval)
+// guarantees the first client render matches the server HTML — no hydration flash.
+if (typeof window !== "undefined") {
+  try {
+    const boot = (
+      window as unknown as {
+        __NEXT_DATA__?: { props?: { i18nLang?: string; i18nResources?: Record<string, object> } };
+      }
+    ).__NEXT_DATA__?.props;
+    const bl = boot?.i18nLang;
+    if (bl && bl !== "en") {
+      const res = boot?.i18nResources;
+      if (res) for (const ns of Object.keys(res)) i18n.addResourceBundle(bl, ns, res[ns], true, true);
+      if (i18n.language !== bl) i18n.changeLanguage(bl);
+    }
+  } catch {
+    /* non-fatal — falls back to English */
+  }
+}
 
 // Geist Sans + Mono — Vercel's OSS typeface, self-hosted from the `geist`
 // package but declared with next/font/local directly so we control `display`.
@@ -64,7 +86,7 @@ import Head from "next/head";
 import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import NProgress from "nprogress";
 import dynamic from "next/dynamic";
-import { useTranslation } from "react-i18next";
+import { useTranslation, I18nextProvider } from "react-i18next";
 
 import type { SxProps, Theme } from "@mui/material";
 import { ThemeProvider as MuiThemeProvider, CssBaseline } from "@mui/material";
@@ -347,11 +369,24 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     return privatePrefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
   }, [pathname]);
 
-  const canonicalUrl = useMemo(() => {
-    // Strip dynamic segments for a clean canonical
+  const LOCALE_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
+  const localeBaseUrl = useMemo(() => {
+    // Strip dynamic segments for a clean base URL
     const cleanPath = pathname.replace(/\[.*?\]/g, "").replace(/\/+$/, "");
     return `${SITE_URL}${cleanPath || "/"}`;
   }, [pathname]);
+  // Pages whose content is fully i18n-driven get real per-locale SSR variants
+  // (self-canonical ?lang= + hreflang). Data-driven English pages (blog, /for/*)
+  // stay English-only.
+  const isLocalizablePage =
+    pathname === "/" || pathname === "/fees" || pathname === "/help-support";
+  const canonicalUrl = useMemo(
+    () =>
+      isLocalizablePage && i18n.language !== "en"
+        ? `${localeBaseUrl}?lang=${i18n.language}`
+        : localeBaseUrl,
+    [isLocalizablePage, i18n.language, localeBaseUrl],
+  );
 
   const { pageTitle, pageDescription: metaDescription } = useMemo(() => {
     // Map route paths to translation keys
@@ -631,11 +666,21 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta key="twitter:image" name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:site" content="@Dynopaycom" />
 
-        {/* ─── hreflang alternates intentionally omitted ───
-             Non-English pages are client-side translations served at ?lang=xx,
-             not distinct server-rendered URLs, so emitting hreflang here made
-             Google report invalid alternates and treat them as duplicates.
-             English is the single indexable version until real SSR locales ship. */}
+        {/* ─── hreflang alternates — REAL per-locale ?lang= SSR variants ───
+             Emitted only on fully-localised pages (home, /fees, /help-support).
+             English is x-default and self-canonical at the bare URL. */}
+        {isLocalizablePage &&
+          LOCALE_LANGS.map((l) => (
+            <link
+              key={`alt-${l}`}
+              rel="alternate"
+              hrefLang={l}
+              href={l === "en" ? localeBaseUrl : `${localeBaseUrl}?lang=${l}`}
+            />
+          ))}
+        {isLocalizablePage && (
+          <link key="x-default" rel="alternate" hrefLang="x-default" href={localeBaseUrl} />
+        )}
 
         {/* ─── JSON-LD Structured Data ─── */}
         {pathname === "/" && (
@@ -659,12 +704,33 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
 // App Component
 // -----------------------------
 
-export default function App({
+function App({
   emotionCache = clientSideEmotionCache,
   initialThemeMode,
   ...props
 }: AppPropsWithLayout) {
+  const { i18nLang, i18nResources } = props as unknown as {
+    i18nLang?: string;
+    i18nResources?: Record<string, object>;
+  };
+  // Per-request i18n instance on the SERVER (isolates locale so concurrent
+  // requests never leak languages into each other). The CLIENT keeps using the
+  // shared global instance so the language switcher and localStorage persistence
+  // keep working; the module-level bootstrap already set it to the ?lang= locale.
+  const activeI18n = useMemo(() => {
+    const lng = i18nLang || "en";
+    if (typeof window !== "undefined" || lng === "en") return i18n;
+    const inst = i18n.cloneInstance({ lng, initImmediate: false });
+    if (i18nResources) {
+      for (const ns of Object.keys(i18nResources)) {
+        inst.addResourceBundle(lng, ns, i18nResources[ns], true, true);
+      }
+    }
+    inst.changeLanguage(lng);
+    return inst;
+  }, [i18nLang, i18nResources]);
   return (
+    <I18nextProvider i18n={activeI18n}>
     <CacheProvider value={emotionCache}>
       <ErrorBoundary>
         <Provider store={store}>
@@ -720,6 +786,7 @@ export default function App({
         </Provider>
       </ErrorBoundary>
     </CacheProvider>
+    </I18nextProvider>
   );
 }
 
@@ -801,5 +868,54 @@ App.getInitialProps = async (appContext: AppContext) => {
     (isHelpSupportPath(pathname)
       ? getDefaultThemeForPath(pathname)
       : getDefaultThemeForContext(routeCtx));
-  return { ...appProps, initialThemeMode };
+  // ── 3B: server-side locale for ?lang= (renders translated HTML per request) ──
+  const I18N_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
+  const qLang = appContext.ctx.query?.lang;
+  const langParam = Array.isArray(qLang) ? qLang[0] : qLang;
+  const i18nLang =
+    typeof langParam === "string" && I18N_LANGS.includes(langParam) ? langParam : "en";
+  let i18nResources: Record<string, object> | undefined;
+  if (typeof window === "undefined" && i18nLang !== "en") {
+    try {
+      const req2 = eval("require");
+      const fsMod = req2("fs");
+      const pathMod = req2("path");
+      const dir = pathMod.join(process.cwd(), "langs", "locales", i18nLang);
+      const NS = [
+        "common", "auth", "dashboardLayout", "profile", "notifications", "apiScreen",
+        "walletScreen", "companyDialog", "companySettings", "transactions",
+        "createPaymentLinkScreen", "paymentLinks", "helpAndSupport", "landing", "fees",
+        "apiStatus", "termsConditions", "privacyPolicy", "amlPolicy", "referrals", "pageTitles",
+      ];
+      const bundle: Record<string, object> = {};
+      for (const ns of NS) {
+        try {
+          bundle[ns] = JSON.parse(fsMod.readFileSync(pathMod.join(dir, ns + ".json"), "utf8"));
+        } catch {
+          /* namespace missing for this locale — skip */
+        }
+      }
+      for (const ns of Object.keys(bundle)) i18n.addResourceBundle(i18nLang, ns, bundle[ns], true, true);
+      i18nResources = bundle;
+    } catch {
+      /* fs unavailable — fall back to English SSR */
+    }
+  }
+
+  // Edge/CDN caching for public marketing pages (softens the per-request SSR cost).
+  const res2 = appContext.ctx.res;
+  const pubPrefixes = ["/fees", "/help-support", "/blog", "/for", "/about", "/press",
+    "/documentation", "/how-to", "/referral-program", "/system-status", "/accept-crypto-payments-in"];
+  if (res2 && !res2.headersSent) {
+    const isPublic = pathname === "/" ||
+      pubPrefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
+    if (isPublic) {
+      res2.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=3600");
+      res2.setHeader("Vary", "Accept-Language");
+    }
+  }
+
+  return { ...appProps, initialThemeMode, i18nLang, i18nResources };
 };
+
+export default App;

@@ -117,5 +117,209 @@
     "closeSupportChat": "Sluit ondersteuningschat",
     "chatWithSupport": "Chat met ondersteuning",
     "openSupportChat": "Open ondersteuningschat"
+  },
+  "articles": {
+    "supported-cryptocurrencies-and-networks": {
+      "title": "Ondersteunde Cryptovaluta's & Netwerken",
+      "description": "Bekijk welke cryptovaluta's en blockchain-netwerken Dynopay ondersteunt en hoe je de juiste kunt kiezen.",
+      "intro": "Dynopay stelt je in staat om een breed scala aan cryptovaluta's te accepteren via meerdere blockchain-netwerken. Deze gids legt uit welke activa en netwerken worden ondersteund, hoe netwerken verschillen en hoe je de juiste kunt kiezen voor jouw bedrijf en jouw klanten.",
+      "sections": [
+        {
+          "heading": "Wat je kunt accepteren",
+          "body": "Dynopay ondersteunt belangrijke cryptovaluta's en stablecoins op de meest gebruikte blockchains. Je kunt de activa inschakelen die logisch zijn voor jouw klanten en de rest uitgeschakeld laten. Stablecoins zoals USDT en USDC zijn populair voor bedrijven omdat hun waarde dicht bij de Amerikaanse dollar blijft, wat prijsvolatiliteit tussen het moment dat een klant betaalt en het moment dat de fondsen in jouw portemonnee komen, verwijdert."
+        },
+        {
+          "heading": "Netwerken en waarom ze belangrijk zijn",
+          "body": "Hetzelfde activum kan vaak over meer dan één netwerk worden verzonden. Het netwerk dat je accepteert, beïnvloedt de bevestigingssnelheid en de netwerkvergoeding die jouw klant betaalt.",
+          "bullets": [
+            "Een enkele munt (bijvoorbeeld USDT) kan beschikbaar zijn op verschillende netwerken, elk met verschillende snelheden en vergoedingen.",
+            "Snellere netwerken met lagere vergoedingen zijn meestal de beste standaard voor dagelijkse betalingen.",
+            "Zorg er altijd voor dat jouw klant fondsen verzendt op hetzelfde netwerk dat je bij de kassa hebt geselecteerd — verzenden op het verkeerde netwerk kan resulteren in verloren fondsen."
+          ]
+        },
+        {
+          "heading": "De juiste activa kiezen",
+          "body": "Kies activa op basis van wat jouw klanten al bezitten en hoe gevoelig je bent voor prijsbewegingen.",
+          "bullets": [
+            "Geef de voorkeur aan stablecoins als je wilt dat het ontvangen bedrag overeenkomt met het gefactureerde bedrag.",
+            "Schakel bekende munten in die jouw publiek waarschijnlijk zal gebruiken.",
+            "Houd je lijst gefocust — het aanbieden van minder, duidelijk gelabelde opties vermindert verwarring bij de kassa."
+          ]
+        },
+        {
+          "heading": "Activa inschakelen in jouw dashboard",
+          "body": "Je beheert welke valuta's en netwerken actief zijn vanuit jouw Dynopay-dashboard. Zet de activa aan die je wilt accepteren, bevestig dat je een ontvangende portemonnee voor elk hebt, en ze verschijnen als opties bij de kassa. Je kunt deze lijst op elk moment aanpassen naarmate jouw behoeften veranderen."
+        }
+      ]
+    },
+    "how-crypto-payments-work-for-merchants": {
+      "title": "Hoe Crypto Betalingen Werken voor Handelaren",
+      "description": "Een duidelijke uitleg van wat er gebeurt vanaf het moment dat een klant betaalt tot het moment dat de fondsen zijn verrekend.",
+      "intro": "Crypto betalingen kunnen aanvoelen als een zwart gat als je er nog nooit een hebt gedaan. Dit artikel loopt precies door wat er gebeurt vanaf het moment dat een klant besluit te betalen tot het moment dat de verrekende fondsen onder jouw controle zijn.",
+      "sections": [
+        {
+          "heading": "De betalingsreis, stap voor stap",
+          "bullets": [
+            "Je deelt een betalingslink, factuur of gehoste kassa met jouw klant.",
+            "De klant kiest een cryptovaluta en netwerk en ziet het exacte bedrag en een portemonnee-adres (meestal als een QR-code).",
+            "Ze verzenden de betaling vanuit hun eigen portemonnee of exchange.",
+            "Dynopay detecteert de transactie op de blockchain en volgt de bevestigingen in real-time.",
+            "Zodra bevestigd, wordt de betaling als voltooid gemarkeerd en worden de fondsen bijgeschreven op de portemonnee die jij beheert."
+          ]
+        },
+        {
+          "heading": "Bevestigingen uitgelegd",
+          "body": "Een blockchain-bevestiging is het netwerk dat het eens is dat een transactie geldig en definitief is. Dynopay wacht op het juiste aantal bevestigingen voor het gekozen netwerk voordat een betaling als voltooid wordt gemarkeerd. Dit beschermt je tegen betalingen die later kunnen worden teruggedraaid, wat de reden is waarom crypto betalingen geen terugboekingen hebben."
+        },
+        {
+          "heading": "Niet-bewaard door ontwerp",
+          "body": "Dynopay is niet-bewaard: fondsen worden verzonden naar een portemonnee die jij beheert, niet gehouden in een Dynopay-account. Jij behoudt de bewaring de hele tijd en kunt jouw crypto verplaatsen wanneer je maar wilt."
+        },
+        {
+          "heading": "Alles volgen in jouw dashboard",
+          "body": "Elke betaling verschijnt in jouw dashboard met zijn status, bedrag, valuta, netwerk en bevestigingsdetails. Je krijgt een enkele, real-time weergave van wat is betaald, wat in behandeling is en wat is verrekend."
+        }
+      ]
+    },
+    "fees-rates-and-conversion-logic": {
+      "title": "Vergoedingen, Tarieven & Conversielogica",
+      "description": "Begrijp transactiekosten, wisselkoersen en hoe uitbetalingsbedragen worden berekend.",
+      "intro": "Begrijpen hoe vergoedingen en wisselkoersen werken helpt je om correct te prijzen en precies te weten wat je zult ontvangen. Deze gids behandelt de transactiekosten van Dynopay, hoe tarieven worden vergrendeld en hoe het uiteindelijke bedrag wordt berekend.",
+      "sections": [
+        {
+          "heading": "Transactiekosten",
+          "body": "Dynopay rekent een eenvoudige percentagevergoeding per succesvolle transactie. Vergoedingen beginnen bij 1,5% en nemen af naarmate jouw verwerkingsvolume groeit, tot zo laag als 0,5% voor handelaren met een hoog volume. Jouw eerste betaling is gratis zodat je de volledige flow kosteloos kunt testen."
+        },
+        {
+          "heading": "Netwerkvergoedingen",
+          "body": "Afzonderlijk van de vergoeding van Dynopay, rekent elke blockchain zijn eigen netwerk (gas)vergoeding om fondsen te verplaatsen. Deze vergoeding gaat naar het netwerk, niet naar Dynopay, en varieert per netwerk en congestie. Het kiezen van een efficiënt netwerk houdt deze kosten laag voor jou en jouw klanten."
+        },
+        {
+          "heading": "Hoe wisselkoersen worden toegepast",
+          "bullets": [
+            "Wanneer je in een fiat-valuta prijst, converteert Dynopay het bedrag naar de gekozen crypto met een live marktprijs bij de kassa.",
+            "De koers wordt aan de klant getoond zodat ze precies weten hoeveel crypto ze moeten verzenden.",
+            "Betalen in een stablecoin houdt het ontvangen bedrag dicht bij het gefactureerde bedrag, waardoor volatiliteit wordt vermeden."
+          ]
+        },
+        {
+          "heading": "Wat je daadwerkelijk ontvangt",
+          "body": "Het bedrag dat aan jouw portemonnee wordt bijgeschreven is het betalingsbedrag minus de toepasselijke Dynopay-vergoeding. Omdat Dynopay niet-bewaard is, is de verrekende crypto onmiddellijk van jou — er is geen wachttijd opgelegd door Dynopay voordat je het kunt gebruiken."
+        }
+      ]
+    },
+    "wallets-payouts-and-settlement-options": {
+      "title": "Portemonnees, Uitbetalingen & Verrekenopties",
+      "description": "Leer waar jouw fondsen na een betaling naartoe gaan, hoe uitbetalingen werken en welke verrekenopties beschikbaar zijn.",
+      "intro": "Waar jouw geld na een betaling naartoe gaat, is een van de belangrijkste dingen om correct in te stellen. Dit artikel legt ontvangende portemonnees uit, hoe verrekening werkt en de uitbetalingsopties die voor jou beschikbaar zijn.",
+      "sections": [
+        {
+          "heading": "Jouw ontvangende portemonnees",
+          "body": "Voor elke cryptovaluta die je accepteert, verbind je een portemonnee-adres dat jij beheert. Betalingen voor dat activum worden rechtstreeks naar dat adres verrekend. Omdat Dynopay jouw fondsen nooit vasthoudt, behoud je te allen tijde volledige bewaring."
+        },
+        {
+          "heading": "Hoe verrekening werkt",
+          "body": "Wanneer een betaling het vereiste aantal bevestigingen bereikt, wordt deze automatisch verrekend naar jouw verbonden portemonnee. Er is geen handmatige opname stap en geen door Dynopay opgelegde wachttijd — de fondsen zijn al onder jouw controle."
+        },
+        {
+          "heading": "Verrekenopties",
+          "bullets": [
+            "Houd fondsen in de crypto waarin ze zijn betaald, direct in jouw verbonden portemonnee.",
+            "Accepteer stablecoins om een dollar-gepegde balans te behouden en volatiliteit te vermijden.",
+            "Gebruik verschillende portemonnees voor verschillende activa om jouw schatkist te organiseren op de manier die jij verkiest."
+          ]
+        },
+        {
+          "heading": "Portemonnees veilig beheren",
+          "body": "Controleer elk portemonnee-adres dubbel wanneer je het toevoegt, en zorg ervoor dat je de privésleutels of het account erachter beheert. Een betaling die naar een adres is verzonden, is definitief, dus een nauwkeurige portemonnee-instelling is essentieel. Je kunt jouw ontvangende portemonnees in het dashboard bijwerken wanneer je dat nodig hebt."
+        }
+      ]
+    },
+    "invoices-checkout-and-payment-links": {
+      "title": "Facturen, Kassa & Betalingslinks",
+      "description": "Maak facturen, betalingslinks en aangepaste kassa-ervaringen voor jouw bedrijf.",
+      "intro": "Dynopay biedt je verschillende manieren om een crypto-betaling aan te vragen en te innen zonder enige code te schrijven. Deze gids behandelt betalingslinks, facturen en de gehoste kassa, en wanneer je elk moet gebruiken.",
+      "sections": [
+        {
+          "heading": "Betalingslinks",
+          "body": "Een betalingslink is de snelste manier om betaald te worden. Maak een link voor een vast of door de klant ingevoerd bedrag, en deel deze via e-mail, chat of sociale media. Wanneer de klant deze opent, ziet hij een gereed-om-te-betalen kassa — geen account vereist."
+        },
+        {
+          "heading": "Facturen",
+          "body": "Facturen zijn ideaal wanneer je een duidelijk record nodig hebt dat aan een specifieke klant of bestelling is gekoppeld. Voeg regelitems en een totaal toe, stuur de factuur en volg de status ervan van concept tot betaald in jouw dashboard."
+        },
+        {
+          "heading": "Gehoste kassa",
+          "body": "De gehoste kassa is een veilige, door Dynopay gehoste betalingspagina. Klanten kiezen een valuta en netwerk, zien het exacte bedrag en een QR-code, en betalen met een paar tikken. Het regelt de weergave van tarieven, netwerkselectie en bevestigingstracering voor jou."
+        },
+        {
+          "heading": "Welke moet je gebruiken?",
+          "bullets": [
+            "Gebruik een betalingslink voor snelle, eenmalige verzoeken en delen.",
+            "Gebruik een factuur wanneer je gedetailleerde, klant-specifieke records nodig hebt.",
+            "Gebruik de gehoste kassa wanneer je een gepolijste, gebrandmerkte betaalervaring wilt waar je klanten naartoe kunt verwijzen."
+          ]
+        }
+      ]
+    },
+    "api-and-integrations": {
+      "title": "API & Integraties",
+      "description": "Integreer Dynopay in jouw website, app of SaaS met behulp van onze API en kant-en-klare tools.",
+      "intro": "Als je crypto-betalingen direct in jouw website, app of SaaS wilt, biedt Dynopay een API en kant-en-klare tools. Deze gids legt de integratieopties uit en hoe je aan de slag kunt.",
+      "sections": [
+        {
+          "heading": "Geen-code en low-code opties",
+          "bullets": [
+            "Betalingslinks en koopknoppen stellen je in staat om betalingen te accepteren met een kopie-en-plak snippet — geen backend vereist.",
+            "Gehoste kassa behandelt de gehele betalingsflow op door Dynopay gehoste pagina's.",
+            "Deze opties zijn de snelste manier om live te gaan en dekken de meest voorkomende gebruiksscenario's."
+          ]
+        },
+        {
+          "heading": "De Dynopay API",
+          "body": "Voor volledige controle laat de API je betalingen creëren, checkouts genereren en betalingsstatus programmatically lezen. Je authenticates met API-sleutels die in jouw dashboard zijn gegenereerd, en je houdt jouw geheime sleutel op jouw server, nooit in client-side code."
+        },
+        {
+          "heading": "Webhooks",
+          "body": "Webhooks informeren jouw systeem in real-time wanneer de status van een betaling verandert — bijvoorbeeld wanneer deze is bevestigd. Richt een webhook op een eindpunt op jouw server zodat je bestellingen kunt vervullen, toegang kunt ontgrendelen of records automatisch kunt bijwerken zodra een betaling is verrekend."
+        },
+        {
+          "heading": "Aan de slag met de API",
+          "bullets": [
+            "Genereer een API-sleutel in de ontwikkelaarssectie van jouw dashboard.",
+            "Bekijk de documentatie voor de eindpunten die je nodig hebt.",
+            "Test met een kleine transactie voordat je live gaat, en verifieer dat jouw webhook het bevestigingsevenement ontvangt."
+          ]
+        }
+      ]
+    },
+    "security-and-transaction-safety": {
+      "title": "Beveiliging & Transactie Veiligheid",
+      "description": "Ontdek hoe Dynopay transacties, fondsen en gegevens van handelaren beschermt.",
+      "intro": "Beveiliging is centraal in hoe Dynopay is gebouwd. Dit artikel legt uit hoe Dynopay transacties, fondsen en jouw account beschermt, en de stappen die je kunt nemen om veilig te blijven.",
+      "sections": [
+        {
+          "heading": "Niet-bewaarde fondsen",
+          "body": "Omdat Dynopay niet-bewaard is, worden jouw fondsen rechtstreeks verrekend naar portemonnees die jij beheert in plaats van in een Dynopay-account te blijven. Dit vermindert het risico op bewaring aanzienlijk — er is geen gezamenlijke balans waar een aanvaller op kan richten."
+        },
+        {
+          "heading": "Geen terugboekingen",
+          "body": "Bevestigde blockchain-betalingen zijn definitief en kunnen niet worden teruggedraaid. Dit verwijdert de terugboekingsfraude die kaartbetalingen teistert, waardoor je zeker weet dat een voltooide betaling voltooide blijft."
+        },
+        {
+          "heading": "Jouw account beschermen",
+          "bullets": [
+            "Gebruik een sterk, uniek wachtwoord en houd jouw inloggegevens privé.",
+            "Bewaar jouw API-geheime sleutels — sla ze op jouw server op en stel ze nooit bloot in een browser of openbaar repository.",
+            "Controleer portemonnee-adressen zorgvuldig, aangezien blockchain-overdrachten niet ongedaan kunnen worden gemaakt.",
+            "Bekijk jouw dashboard regelmatig zodat je snel iets onverwachts kunt opmerken."
+          ]
+        },
+        {
+          "heading": "Gegevensbescherming",
+          "body": "Dynopay gaat om met gegevens met encryptie en volgt privacy- en compliance-best practices. Gevoelige informatie is beschermd tijdens verzending en in rust, en je blijft de controle over jouw account en fondsen behouden."
+        }
+      ]
+    }
   }
 }

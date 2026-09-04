@@ -11,11 +11,12 @@ import { createEmotionCache } from "@/utils/createEmotionCache";
 
 type MyDocumentProps = DocumentInitialProps & {
   emotionStyleTags: JSX.Element[];
+  lang: string;
 };
 
-export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
+export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) {
   return (
-    <Html>
+    <Html lang={lang}>
       <Head>
         {/* Favicon — adaptive dark/light so the mark never disappears on dark browser
             themes. SVG self-switches via prefers-color-scheme; PNG media links cover
@@ -71,7 +72,9 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
 (function(){
   try {
     var SUPPORTED = ['en','pt','fr','es','de','nl'];
-    var lang = localStorage.getItem('lang');
+    var lang = null;
+    try { var m = location.search.match(/[?&]lang=([a-z]{2})/); if (m) lang = m[1]; } catch(e){}
+    if (!lang) { try { lang = localStorage.getItem('lang'); } catch(e){} }
     if (!lang || SUPPORTED.indexOf(lang) === -1) { lang = 'en'; }
     document.documentElement.lang = lang;
   } catch(e) {
@@ -206,5 +209,11 @@ MyDocument.getInitialProps = async (ctx: DocumentContext): Promise<MyDocumentPro
     />
   ));
 
-  return { ...initialProps, emotionStyleTags };
+  // <html lang> reflects the ?lang= locale so crawlers see the correct language.
+  const SUPPORTED = ["en", "pt", "fr", "es", "de", "nl"];
+  const q = ctx.query?.lang;
+  const qv = Array.isArray(q) ? q[0] : q;
+  const lang = typeof qv === "string" && SUPPORTED.includes(qv) ? qv : "en";
+
+  return { ...initialProps, emotionStyleTags, lang };
 };

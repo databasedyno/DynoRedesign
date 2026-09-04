@@ -11,6 +11,7 @@ import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import { Box } from "@mui/material";
 import i18n from "i18next";
 import Image, { StaticImageData } from "next/image";
+import { useRouter } from "next/router";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -65,6 +66,7 @@ function HeaderLangMenu({
   idPrefix = "header",
 }: HeaderLangMenuProps) {
   const { i18n: i18nInstance, t } = useTranslation("common");
+  const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -92,9 +94,18 @@ function HeaderLangMenu({
       }
       const { setAppLanguage } = await import("@/helpers/setAppLanguage");
       await setAppLanguage(lng);
+      // Reflect the locale in the URL (?lang=xx) so the canonical/hreflang and a
+      // shared link match the language on screen. Shallow → no full reload.
+      const nextQuery = { ...router.query } as Record<string, string>;
+      if (lng === "en") delete nextQuery.lang;
+      else nextQuery.lang = lng;
+      router.replace({ pathname: router.pathname, query: nextQuery }, undefined, {
+        shallow: true,
+        scroll: false,
+      });
       close();
     },
-    [close, current],
+    [close, current, router],
   );
 
   useEffect(() => {

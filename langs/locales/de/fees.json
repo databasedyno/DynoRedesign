@@ -149,6 +149,34 @@
     "inc6": "Automatische Wandlung in USDC / USDT",
     "inc7": "Zahlungslinks & Kauf-Buttons",
     "inc8": "Checkout in 6 Sprachen",
-    "inc9": "Keine Monats- oder Einrichtungsgebühren"
+    "inc9": "Keine Monats- oder Einrichtungsgebühren",
+    "faqEyebrow": "Häufig gestellte Fragen",
+    "faqTitle": "Preisanfragen, beantwortet",
+    "faqItems": [
+      {
+        "q": "Wie viel berechnet Dynopay pro Transaktion?",
+        "a": "Die Gebühren beginnen bei 1,5 % pro erfolgreicher Transaktion und sinken auf bis zu 0,5 %, wenn Ihr monatliches Verarbeitungsvolumen wächst. Ihre erste Zahlung ist völlig kostenlos."
+      },
+      {
+        "q": "Gibt es monatliche Gebühren oder Einrichtungsgebühren?",
+        "a": "Nein. Es gibt keine monatlichen Gebühren, keine Einrichtungsgebühren und keine versteckten Kosten. Sie zahlen nur einen einfachen Prozentsatz auf erfolgreiche Zahlungen."
+      },
+      {
+        "q": "Was sind Netzwerkgebühren (Gasgebühren)?",
+        "a": "Jede Blockchain erhebt ihre eigenen Netzwerkgebühren, um Gelder zu bewegen. Diese Gebühr geht an das Netzwerk, nicht an Dynopay, und variiert je nach Netzwerk und Auslastung. Die Wahl eines effizienten Netzwerks hält die Gebühren für Sie und Ihre Kunden niedrig."
+      },
+      {
+        "q": "Zahle ich Gebühren für Rückerstattungen oder fehlgeschlagene Zahlungen?",
+        "a": "Sie werden nur bei erfolgreichen Zahlungen belastet. Fehlgeschlagene, abgebrochene oder unbestätigte Zahlungen kosten Sie nichts."
+      },
+      {
+        "q": "Wann erhalte ich mein Geld?",
+        "a": "Dynopay ist nicht verwahrend, sodass bestätigte Zahlungen direkt auf eine von Ihnen kontrollierte Wallet ausgezahlt werden. Es gibt keine von Dynopay auferlegte Haltedauer, bevor Sie Ihre Gelder verwenden können."
+      },
+      {
+        "q": "Wie werden Wechselkurse berechnet?",
+        "a": "Wenn Sie in einer Fiat-Währung preisen, wandelt Dynopay den Betrag zum gewählten Krypto zu einem aktuellen Marktpreis um, der dem Kunden an der Kasse angezeigt wird. Die Zahlung in einer Stablecoin hält den erhaltenen Betrag nahe am in Rechnung gestellten Betrag."
+      }
+    ]
   }
 }

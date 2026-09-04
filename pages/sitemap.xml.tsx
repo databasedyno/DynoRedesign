@@ -4,6 +4,11 @@ import { blogPosts } from "@/utils/blogData";
 import helpArticles from "@/hooks/useHelpAndSupportData";
 
 const SITE_URL = "https://dynopay.com";
+const LOCALE_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
+
+/** Fully i18n-driven pages get real per-locale ?lang= hreflang alternates. */
+const isLocalizable = (p: string): boolean =>
+  p === "/" || p === "/fees" || p === "/help-support" || p.startsWith("/help-support/");
 
 interface SitemapEntry {
   path: string;
@@ -63,11 +68,19 @@ function staticEntries(): SitemapEntry[] {
  */
 function renderUrl(entry: SitemapEntry): string {
   const loc = `${SITE_URL}${entry.path}`;
+  const alts = isLocalizable(entry.path)
+    ? "\n" +
+      LOCALE_LANGS.map(
+        (l) =>
+          `    <xhtml:link rel="alternate" hreflang="${l}" href="${l === "en" ? loc : `${loc}?lang=${l}`}" />`,
+      ).join("\n") +
+      `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />`
+    : "";
   return `  <url>
     <loc>${loc}</loc>${entry.lastmod ? `
     <lastmod>${entry.lastmod}</lastmod>` : ""}
     <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority}</priority>
+    <priority>${entry.priority}</priority>${alts}
   </url>`;
 }
 

@@ -117,5 +117,209 @@
     "closeSupportChat": "Fermer le chat de support",
     "chatWithSupport": "Discuter avec le support",
     "openSupportChat": "Ouvrir le chat de support"
+  },
+  "articles": {
+    "supported-cryptocurrencies-and-networks": {
+      "title": "Cryptomonnaies et réseaux pris en charge",
+      "description": "Découvrez quelles cryptomonnaies et réseaux blockchain sont pris en charge par Dynopay et comment choisir le bon.",
+      "intro": "Dynopay vous permet d'accepter une large gamme de cryptomonnaies à travers plusieurs réseaux blockchain. Ce guide explique quels actifs et réseaux sont pris en charge, comment les réseaux diffèrent et comment choisir les bons pour votre entreprise et vos clients.",
+      "sections": [
+        {
+          "heading": "Ce que vous pouvez accepter",
+          "body": "Dynopay prend en charge les principales cryptomonnaies et stablecoins sur les blockchains les plus utilisées. Vous pouvez activer les actifs qui ont du sens pour vos clients et laisser les autres désactivés. Les stablecoins tels que USDT et USDC sont populaires pour les entreprises car leur valeur reste proche du dollar américain, ce qui élimine la volatilité des prix entre le moment où un client paie et le moment où les fonds arrivent dans votre portefeuille."
+        },
+        {
+          "heading": "Réseaux et pourquoi ils sont importants",
+          "body": "Le même actif peut souvent être envoyé sur plus d'un réseau. Le réseau que vous acceptez affecte la vitesse de confirmation et les frais de réseau que votre client paie.",
+          "bullets": [
+            "Une seule pièce (par exemple USDT) peut être disponible sur plusieurs réseaux, chacun avec des vitesses et des frais différents.",
+            "Les réseaux plus rapides et à frais réduits sont généralement le meilleur choix par défaut pour les paiements quotidiens.",
+            "Assurez-vous toujours que votre client envoie des fonds sur le même réseau que celui que vous avez sélectionné lors du paiement — envoyer sur le mauvais réseau peut entraîner la perte de fonds."
+          ]
+        },
+        {
+          "heading": "Choisir les bons actifs",
+          "body": "Choisissez des actifs en fonction de ce que vos clients détiennent déjà et de votre sensibilité aux mouvements de prix.",
+          "bullets": [
+            "Préférez les stablecoins si vous souhaitez que le montant reçu corresponde au montant facturé.",
+            "Activez les pièces bien connues que votre public est susceptible d'utiliser.",
+            "Gardez votre liste ciblée — offrir moins d'options clairement étiquetées réduit la confusion lors du paiement."
+          ]
+        },
+        {
+          "heading": "Activation des actifs dans votre tableau de bord",
+          "body": "Vous contrôlez quelles devises et réseaux sont actifs depuis votre tableau de bord Dynopay. Activez les actifs que vous souhaitez accepter, confirmez que vous avez un portefeuille de réception pour chacun, et ils apparaîtront comme options lors du paiement. Vous pouvez ajuster cette liste à tout moment selon l'évolution de vos besoins."
+        }
+      ]
+    },
+    "how-crypto-payments-work-for-merchants": {
+      "title": "Comment fonctionnent les paiements crypto pour les commerçants",
+      "description": "Une explication claire de ce qui se passe depuis le moment où un client paie jusqu'à ce que les fonds soient réglés.",
+      "intro": "Les paiements crypto peuvent sembler être une boîte noire si vous n'en avez jamais effectué. Cet article explique exactement ce qui se passe depuis le moment où un client décide de payer jusqu'au moment où les fonds réglés sont sous votre contrôle.",
+      "sections": [
+        {
+          "heading": "Le parcours de paiement, étape par étape",
+          "bullets": [
+            "Vous partagez un lien de paiement, une facture ou un paiement hébergé avec votre client.",
+            "Le client choisit une cryptomonnaie et un réseau et voit le montant exact et une adresse de portefeuille (généralement sous forme de code QR).",
+            "Il envoie le paiement depuis son propre portefeuille ou échange.",
+            "Dynopay détecte la transaction sur la blockchain et suit ses confirmations en temps réel.",
+            "Une fois confirmé, le paiement est marqué comme complet et les fonds sont crédités sur le portefeuille que vous contrôlez."
+          ]
+        },
+        {
+          "heading": "Explication des confirmations",
+          "body": "Une confirmation blockchain est le réseau qui accepte qu'une transaction est valide et finale. Dynopay attend le nombre approprié de confirmations pour le réseau choisi avant de marquer un paiement comme complet. Cela vous protège des paiements qui pourraient être annulés ultérieurement, c'est pourquoi les paiements crypto n'ont pas de rétrofacturations."
+        },
+        {
+          "heading": "Non-custodial par conception",
+          "body": "Dynopay est non-custodial : les fonds sont envoyés à un portefeuille que vous contrôlez, et non conservés dans un compte Dynopay. Vous gardez la garde tout le temps et pouvez déplacer votre crypto quand vous le souhaitez."
+        },
+        {
+          "heading": "Suivi de tout dans votre tableau de bord",
+          "body": "Chaque paiement apparaît dans votre tableau de bord avec son statut, son montant, sa devise, son réseau et ses détails de confirmation. Vous obtenez une vue unique et en temps réel de ce qui a été payé, ce qui est en attente et ce qui a été réglé."
+        }
+      ]
+    },
+    "fees-rates-and-conversion-logic": {
+      "title": "Frais, taux et logique de conversion",
+      "description": "Comprenez les frais de transaction, les taux de change et comment les montants de paiement sont calculés.",
+      "intro": "Comprendre comment fonctionnent les frais et les taux de change vous aide à fixer les prix correctement et à savoir exactement ce que vous allez recevoir. Ce guide couvre les frais de transaction de Dynopay, comment les taux sont verrouillés et comment le montant final est calculé.",
+      "sections": [
+        {
+          "heading": "Frais de transaction",
+          "body": "Dynopay facture un simple pourcentage par transaction réussie. Les frais commencent à 1,5 % et diminuent à mesure que votre volume de traitement augmente, tombant aussi bas que 0,5 % pour les commerçants à fort volume. Votre premier paiement est gratuit afin que vous puissiez tester l'ensemble du processus sans frais."
+        },
+        {
+          "heading": "Frais de réseau",
+          "body": "Séparément des frais de Dynopay, chaque blockchain facture ses propres frais de réseau (gaz) pour déplacer des fonds. Ces frais vont au réseau, pas à Dynopay, et varient selon le réseau et la congestion. Choisir un réseau efficace maintient ces coûts bas pour vous et vos clients."
+        },
+        {
+          "heading": "Comment les taux de change sont appliqués",
+          "bullets": [
+            "Lorsque vous fixez un prix en monnaie fiduciaire, Dynopay convertit le montant en crypto choisie en utilisant un taux de marché en direct lors du paiement.",
+            "Le taux est affiché au client afin qu'il sache exactement combien de crypto envoyer.",
+            "Payer en stablecoin maintient le montant reçu proche du montant facturé, évitant la volatilité."
+          ]
+        },
+        {
+          "heading": "Ce que vous recevez réellement",
+          "body": "Le montant crédité sur votre portefeuille est le montant du paiement moins les frais applicables de Dynopay. Comme Dynopay est non-custodial, la crypto réglée vous appartient immédiatement — il n'y a pas de période d'attente imposée par Dynopay avant que vous puissiez l'utiliser."
+        }
+      ]
+    },
+    "wallets-payouts-and-settlement-options": {
+      "title": "Portefeuilles, paiements et options de règlement",
+      "description": "Découvrez où vont vos fonds, comment fonctionnent les paiements et quelles options de règlement sont disponibles.",
+      "intro": "Où va votre argent après un paiement est l'une des choses les plus importantes à configurer correctement. Cet article explique les portefeuilles de réception, comment fonctionne le règlement et les options de paiement qui vous sont disponibles.",
+      "sections": [
+        {
+          "heading": "Vos portefeuilles de réception",
+          "body": "Pour chaque cryptomonnaie que vous acceptez, vous connectez une adresse de portefeuille que vous contrôlez. Les paiements pour cet actif se règlent directement à cette adresse. Comme Dynopay ne conserve jamais vos fonds, vous gardez la pleine garde à tout moment."
+        },
+        {
+          "heading": "Comment fonctionne le règlement",
+          "body": "Lorsqu'un paiement atteint le nombre requis de confirmations, il est automatiquement réglé sur votre portefeuille connecté. Il n'y a pas d'étape de retrait manuelle et pas de période de détention imposée par Dynopay — les fonds sont déjà sous votre contrôle."
+        },
+        {
+          "heading": "Options de règlement",
+          "bullets": [
+            "Conservez les fonds dans la crypto dans laquelle ils ont été payés, directement dans votre portefeuille connecté.",
+            "Acceptez les stablecoins pour maintenir un solde indexé au dollar et éviter la volatilité.",
+            "Utilisez différents portefeuilles pour différents actifs afin d'organiser votre trésorerie comme vous le souhaitez."
+          ]
+        },
+        {
+          "heading": "Gestion des portefeuilles en toute sécurité",
+          "body": "Vérifiez chaque adresse de portefeuille lorsque vous l'ajoutez, et assurez-vous de contrôler les clés privées ou le compte qui la sous-tend. Un paiement envoyé à une adresse est final, donc une configuration précise du portefeuille est essentielle. Vous pouvez mettre à jour vos portefeuilles de réception dans le tableau de bord chaque fois que vous en avez besoin."
+        }
+      ]
+    },
+    "invoices-checkout-and-payment-links": {
+      "title": "Factures, paiement et liens de paiement",
+      "description": "Créez des factures, des liens de paiement et des expériences de paiement personnalisées pour votre entreprise.",
+      "intro": "Dynopay vous offre plusieurs façons de demander et de collecter un paiement crypto sans écrire de code. Ce guide couvre les liens de paiement, les factures et le paiement hébergé, et quand utiliser chacun.",
+      "sections": [
+        {
+          "heading": "Liens de paiement",
+          "body": "Un lien de paiement est le moyen le plus rapide d'être payé. Créez un lien pour un montant fixe ou saisi par le client, puis partagez-le par e-mail, chat ou réseaux sociaux. Lorsque le client l'ouvre, il voit un paiement prêt à être effectué — aucun compte requis."
+        },
+        {
+          "heading": "Factures",
+          "body": "Les factures sont idéales lorsque vous avez besoin d'un enregistrement clair lié à un client ou une commande spécifique. Ajoutez des lignes d'articles et un total, envoyez la facture et suivez son statut de brouillon à payé dans votre tableau de bord."
+        },
+        {
+          "heading": "Paiement hébergé",
+          "body": "Le paiement hébergé est une page de paiement sécurisée hébergée par Dynopay. Les clients choisissent une devise et un réseau, voient le montant exact et un code QR, et paient en quelques clics. Il gère l'affichage des taux, la sélection du réseau et le suivi des confirmations pour vous."
+        },
+        {
+          "heading": "Lequel devriez-vous utiliser ?",
+          "bullets": [
+            "Utilisez un lien de paiement pour des demandes rapides et ponctuelles.",
+            "Utilisez une facture lorsque vous avez besoin d'enregistrements détaillés et spécifiques au client.",
+            "Utilisez le paiement hébergé lorsque vous souhaitez une expérience de paiement soignée et de marque à laquelle vous pouvez diriger les clients."
+          ]
+        }
+      ]
+    },
+    "api-and-integrations": {
+      "title": "API et intégrations",
+      "description": "Intégrez Dynopay dans votre site web, application ou SaaS en utilisant notre API et nos outils prêts à l'emploi.",
+      "intro": "Si vous souhaitez que les paiements crypto soient intégrés directement dans votre site web, application ou SaaS, Dynopay propose une API et des outils prêts à l'emploi. Ce guide explique les options d'intégration et comment commencer.",
+      "sections": [
+        {
+          "heading": "Options sans code et à faible code",
+          "bullets": [
+            "Les liens de paiement et les boutons d'achat vous permettent d'accepter des paiements avec un extrait à copier-coller — aucun backend requis.",
+            "Le paiement hébergé gère l'ensemble du flux de paiement sur des pages hébergées par Dynopay.",
+            "Ces options sont le moyen le plus rapide de se lancer et couvrent la plupart des cas d'utilisation courants."
+          ]
+        },
+        {
+          "heading": "L'API Dynopay",
+          "body": "Pour un contrôle total, l'API vous permet de créer des paiements, de générer des paiements et de lire le statut des paiements de manière programmatique. Vous vous authentifiez avec des clés API générées dans votre tableau de bord, et vous gardez votre clé secrète sur votre serveur, jamais dans le code côté client."
+        },
+        {
+          "heading": "Webhooks",
+          "body": "Les webhooks notifient votre système en temps réel lorsque le statut d'un paiement change — par exemple lorsqu'il est confirmé. Dirigez un webhook vers un point de terminaison sur votre serveur afin que vous puissiez exécuter des commandes, débloquer l'accès ou mettre à jour des enregistrements automatiquement dès qu'un paiement est réglé."
+        },
+        {
+          "heading": "Commencer avec l'API",
+          "bullets": [
+            "Générez une clé API dans la section développeur de votre tableau de bord.",
+            "Consultez la documentation pour les points de terminaison dont vous avez besoin.",
+            "Testez avec une petite transaction avant de passer en production, et vérifiez que votre webhook reçoit l'événement de confirmation."
+          ]
+        }
+      ]
+    },
+    "security-and-transaction-safety": {
+      "title": "Sécurité et sécurité des transactions",
+      "description": "Découvrez comment Dynopay protège les transactions, les fonds et les données des commerçants.",
+      "intro": "La sécurité est au cœur de la façon dont Dynopay est construit. Cet article explique comment Dynopay protège les transactions, les fonds et votre compte, et les étapes que vous pouvez suivre pour rester en sécurité.",
+      "sections": [
+        {
+          "heading": "Fonds non-custodial",
+          "body": "Parce que Dynopay est non-custodial, vos fonds se règlent directement sur des portefeuilles que vous contrôlez plutôt que de rester dans un compte Dynopay. Cela réduit considérablement le risque de garde — il n'y a pas de solde commun qu'un attaquant pourrait cibler."
+        },
+        {
+          "heading": "Pas de rétrofacturations",
+          "body": "Les paiements blockchain confirmés sont définitifs et ne peuvent pas être annulés. Cela élimine la fraude par rétrofacturation qui sévit dans les paiements par carte, vous donnant la certitude qu'un paiement complété reste complété."
+        },
+        {
+          "heading": "Protéger votre compte",
+          "bullets": [
+            "Utilisez un mot de passe fort et unique et gardez vos identifiants de connexion privés.",
+            "Protégez vos clés secrètes API — conservez-les sur votre serveur et ne les exposez jamais dans un navigateur ou un dépôt public.",
+            "Vérifiez soigneusement les adresses de portefeuille, car les transferts blockchain ne peuvent pas être annulés.",
+            "Examinez régulièrement votre tableau de bord afin de pouvoir repérer rapidement toute chose inattendue."
+          ]
+        },
+        {
+          "heading": "Protection des données",
+          "body": "Dynopay gère les données avec cryptage et suit les meilleures pratiques en matière de confidentialité et de conformité. Les informations sensibles sont protégées en transit et au repos, et vous restez en contrôle de votre compte et de vos fonds tout au long."
+        }
+      ]
+    }
   }
 }

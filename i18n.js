@@ -219,12 +219,17 @@ if (!isServer) {
  */
 async function applyDetectedLanguage() {
   if (isServer) return;
-  const savedLang = savedLangAtBoot;
-  if (savedLang && savedLang !== i18n.language) {
-    if (!_loadedLanguages.has(savedLang)) {
-      await loadLanguageAsync(savedLang);
+  // ?lang= in the URL wins (real per-locale SSR variant); else the saved pref.
+  let target = savedLangAtBoot;
+  try {
+    const m = window.location.search.match(/[?&]lang=([a-z]{2})/);
+    if (m && SUPPORTED_LANGUAGES.includes(m[1])) target = m[1];
+  } catch {}
+  if (target && target !== i18n.language) {
+    if (!_loadedLanguages.has(target)) {
+      await loadLanguageAsync(target);
     }
-    await i18n.changeLanguage(savedLang);
+    await i18n.changeLanguage(target);
   }
 }
 

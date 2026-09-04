@@ -149,6 +149,34 @@
     "inc6": "Conversão automática para USDC / USDT",
     "inc7": "Links de pagamento e botões de compra",
     "inc8": "Checkout em 6 idiomas",
-    "inc9": "Sem mensalidade ou taxa de setup"
+    "inc9": "Sem mensalidade ou taxa de setup",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "Perguntas sobre preços, respondidas",
+    "faqItems": [
+      {
+        "q": "Quanto é que a Dynopay cobra por transação?",
+        "a": "As taxas começam em 1,5% por transação bem-sucedida e descem até 0,5% à medida que o seu volume de processamento mensal aumenta. O seu primeiro pagamento é completamente gratuito."
+      },
+      {
+        "q": "Existem taxas mensais ou custos de configuração?",
+        "a": "Não. Não há taxas mensais, nem taxas de configuração, nem encargos ocultos. Você paga apenas uma simples percentagem sobre pagamentos bem-sucedidos."
+      },
+      {
+        "q": "O que são taxas de rede (gas)?",
+        "a": "Cada blockchain cobra a sua própria taxa de rede para mover fundos. Esta taxa vai para a rede, não para a Dynopay, e varia consoante a rede e a congestão. Escolher uma rede eficiente mantém a taxa baixa para si e para os seus clientes."
+      },
+      {
+        "q": "Pago taxas em reembolsos ou pagamentos falhados?",
+        "a": "Você só é cobrado em pagamentos bem-sucedidos. Pagamentos falhados, abandonados ou não confirmados não custam nada."
+      },
+      {
+        "q": "Quando recebo o meu dinheiro?",
+        "a": "A Dynopay é não custodial, portanto, os pagamentos confirmados são liquidadas diretamente para uma carteira que você controla. Não há um período de espera imposto pela Dynopay antes que você possa usar os seus fundos."
+      },
+      {
+        "q": "Como são calculadas as taxas de câmbio?",
+        "a": "Quando você define o preço numa moeda fiduciária, a Dynopay converte o montante para a criptomoeda escolhida a uma taxa de mercado ao vivo mostrada ao cliente no checkout. Pagar em stablecoin mantém o montante recebido próximo do montante faturado."
+      }
+    ]
   }
 }

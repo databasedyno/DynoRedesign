@@ -149,6 +149,34 @@
     "inc6": "Conversion automatique en USDC / USDT",
     "inc7": "Liens de paiement et boutons d'achat",
     "inc8": "Checkout en 6 langues",
-    "inc9": "Aucun frais mensuel ni d'installation"
+    "inc9": "Aucun frais mensuel ni d'installation",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "Questions sur les prix, répondues",
+    "faqItems": [
+      {
+        "q": "Combien Dynopay facture-t-il par transaction ?",
+        "a": "Les frais commencent à 1,5 % par transaction réussie et descendent jusqu'à 0,5 % à mesure que votre volume de traitement mensuel augmente. Votre tout premier paiement est entièrement gratuit."
+      },
+      {
+        "q": "Y a-t-il des frais mensuels ou des coûts de configuration ?",
+        "a": "Non. Il n'y a pas de frais mensuels, pas de frais de configuration et pas de frais cachés. Vous ne payez qu'un simple pourcentage sur les paiements réussis."
+      },
+      {
+        "q": "Quels sont les frais de réseau (gaz) ?",
+        "a": "Chaque blockchain facture ses propres frais de réseau pour déplacer des fonds. Ces frais vont au réseau, pas à Dynopay, et varient selon le réseau et la congestion. Choisir un réseau efficace les maintient bas pour vous et vos clients."
+      },
+      {
+        "q": "Dois-je payer des frais sur les remboursements ou les paiements échoués ?",
+        "a": "Vous n'êtes facturé que sur les paiements réussis. Les paiements échoués, abandonnés ou non confirmés ne vous coûtent rien."
+      },
+      {
+        "q": "Quand vais-je recevoir mon argent ?",
+        "a": "Dynopay est non-custodial, donc les paiements confirmés se règlent directement sur un portefeuille que vous contrôlez. Il n'y a pas de période de détention imposée par Dynopay avant que vous puissiez utiliser vos fonds."
+      },
+      {
+        "q": "Comment les taux de change sont-ils calculés ?",
+        "a": "Lorsque vous fixez un prix en monnaie fiduciaire, Dynopay convertit le montant en crypto choisie à un taux de marché en direct affiché au client lors du paiement. Payer en stablecoin maintient le montant reçu proche du montant facturé."
+      }
+    ]
   }
 }

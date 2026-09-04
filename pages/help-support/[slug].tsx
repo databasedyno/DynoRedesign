@@ -19,6 +19,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import HelpAndSupportData from "@/hooks/useHelpAndSupportData";
 import GettingStartedWithDynopay from "@/Components/Page/HelpAndSupport/Slugs/getting-started-with-dynopay";
+import HelpArticleBody from "@/Components/Page/HelpAndSupport/HelpArticleBody";
 
 const SITE_URL = "https://dynopay.com";
 
@@ -58,7 +59,7 @@ const dbMetaDescription = (article: KBArticleDetail): string => {
 
 const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDetailProps) => {
   const isMobile = useIsMobile("md");
-  const { t } = useTranslation("helpAndSupport");
+  const { t, i18n } = useTranslation("helpAndSupport");
   const router = useRouter();
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
@@ -70,11 +71,16 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
   }, [setPageName, setPageDescription, t]);
 
   const slug = article?.slug || stub?.slug || "";
-  const title = article?.title || stub?.title || "Help Article";
+  const title = article?.title || (stub ? t(`articles.${slug}.title`, { defaultValue: stub.title }) : "Help Article");
   const metaDescription = article
     ? dbMetaDescription(article)
-    : stub?.description || "Dynopay knowledge base — guides for crypto payments, products, tips, and account setup.";
-  const canonicalUrl = `${SITE_URL}/help-support/${slug}`;
+    : stub
+      ? t(`articles.${slug}.description`, { defaultValue: stub.description })
+      : "Dynopay knowledge base — guides for crypto payments, products, tips, and account setup.";
+  const canonicalBase = `${SITE_URL}/help-support/${slug}`;
+  const lang = i18n.language;
+  const canonicalUrl = lang && lang !== "en" ? `${canonicalBase}?lang=${lang}` : canonicalBase;
+  const LOCALES = ["en", "pt", "fr", "es", "de", "nl"];
 
   const handleFeedback = async (isHelpful: boolean) => {
     if (!article?.article_id || feedbackSubmitted) return;
@@ -93,6 +99,10 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
       <title>{`${title} · Dynopay Help Center`}</title>
       <meta name="description" content={metaDescription} />
       <link key="canonical" rel="canonical" href={canonicalUrl} />
+      {LOCALES.map((l) => (
+        <link key={`alt-${l}`} rel="alternate" hrefLang={l} href={l === "en" ? canonicalBase : `${canonicalBase}?lang=${l}`} />
+      ))}
+      <link key="x-default" rel="alternate" hrefLang="x-default" href={canonicalBase} />
       <meta key="og:type" property="og:type" content="article" />
       <meta key="og:title" property="og:title" content={`${title} · Dynopay Help Center`} />
       <meta key="og:description" property="og:description" content={metaDescription} />
@@ -102,14 +112,14 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     </Head>
   );
 
-  // ── 1. Rich, hand-authored static article (fully server-rendered) ──
-  const RichArticle = !article && stub ? RICH_ARTICLES[slug] : undefined;
-  if (RichArticle && stub) {
+  // ── 1. Static hand-authored article (fully server-rendered) ──
+  if (!article && stub) {
+    const Bespoke = RICH_ARTICLES[slug];
     return (
       <>
         {head}
-        <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
-          <RichArticle data={stub} />
+        <Box sx={{ flex: 1, display: "flex", minHeight: 0, pt: { xs: 2, md: 3.5 }, ...(Bespoke ? {} : { px: { xs: "12px", md: "20px" }, pb: { xs: "12px", md: "20px" }, overflowY: "auto" }) }}>
+          {Bespoke ? <Bespoke data={stub} /> : <HelpArticleBody slug={slug} title={title} />}
         </Box>
       </>
     );

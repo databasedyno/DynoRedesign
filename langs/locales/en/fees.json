@@ -149,6 +149,34 @@
     "inc6": "Auto-convert to USDC / USDT",
     "inc7": "Payment links & buy buttons",
     "inc8": "Checkout in 6 languages",
-    "inc9": "No monthly or setup fees"
+    "inc9": "No monthly or setup fees",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "Pricing questions, answered",
+    "faqItems": [
+      {
+        "q": "How much does Dynopay charge per transaction?",
+        "a": "Fees start at 1.5% per successful transaction and drop to as low as 0.5% as your monthly processing volume grows. Your very first payment is completely free."
+      },
+      {
+        "q": "Are there monthly fees or setup costs?",
+        "a": "No. There are no monthly fees, no setup fees, and no hidden charges. You only pay a simple percentage on successful payments."
+      },
+      {
+        "q": "What are network (gas) fees?",
+        "a": "Every blockchain charges its own network fee to move funds. This fee goes to the network, not to Dynopay, and varies by network and congestion. Choosing an efficient network keeps it low for you and your customers."
+      },
+      {
+        "q": "Do I pay fees on refunds or failed payments?",
+        "a": "You are only ever charged on successful payments. Failed, abandoned, or unconfirmed payments cost you nothing."
+      },
+      {
+        "q": "When do I receive my money?",
+        "a": "Dynopay is non-custodial, so confirmed payments settle directly to a wallet you control. There is no Dynopay-imposed holding period before you can use your funds."
+      },
+      {
+        "q": "How are exchange rates calculated?",
+        "a": "When you price in a fiat currency, Dynopay converts the amount to the chosen crypto at a live market rate shown to the customer at checkout. Paying in a stablecoin keeps the amount received close to the amount invoiced."
+      }
+    ]
   }
 }

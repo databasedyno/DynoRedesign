@@ -117,5 +117,209 @@
     "closeSupportChat": "Cerrar chat de soporte",
     "chatWithSupport": "Chatear con soporte",
     "openSupportChat": "Abrir chat de soporte"
+  },
+  "articles": {
+    "supported-cryptocurrencies-and-networks": {
+      "title": "Criptomonedas y redes soportadas",
+      "description": "Vea qué criptomonedas y redes blockchain soporta Dynopay y cómo elegir la adecuada.",
+      "intro": "Dynopay le permite aceptar una amplia gama de criptomonedas a través de múltiples redes blockchain. Esta guía explica qué activos y redes son compatibles, cómo difieren las redes y cómo elegir las adecuadas para su negocio y sus clientes.",
+      "sections": [
+        {
+          "heading": "Lo que puede aceptar",
+          "body": "Dynopay soporta las principales criptomonedas y stablecoins en las blockchains más utilizadas. Puede habilitar los activos que tengan sentido para sus clientes y dejar el resto desactivado. Las stablecoins como USDT y USDC son populares para los negocios porque su valor se mantiene cerca del dólar estadounidense, lo que elimina la volatilidad de precios entre el momento en que un cliente paga y el momento en que los fondos llegan a su billetera."
+        },
+        {
+          "heading": "Redes y por qué son importantes",
+          "body": "El mismo activo a menudo puede enviarse a través de más de una red. La red que acepte afecta la velocidad de confirmación y la tarifa de red que paga su cliente.",
+          "bullets": [
+            "Una sola moneda (por ejemplo, USDT) puede estar disponible en varias redes, cada una con diferentes velocidades y tarifas.",
+            "Las redes más rápidas y con tarifas más bajas suelen ser la mejor opción por defecto para pagos cotidianos.",
+            "Asegúrese siempre de que su cliente envíe fondos en la misma red que seleccionó en el proceso de pago; enviar en la red incorrecta puede resultar en la pérdida de fondos."
+          ]
+        },
+        {
+          "heading": "Eligiendo los activos correctos",
+          "body": "Elija activos basados en lo que sus clientes ya poseen y cuán sensible es usted a los movimientos de precios.",
+          "bullets": [
+            "Prefiera stablecoins si desea que el monto recibido coincida con el monto facturado.",
+            "Habilite monedas bien conocidas que su audiencia probablemente utilizará.",
+            "Mantenga su lista enfocada: ofrecer menos opciones claramente etiquetadas reduce la confusión en el proceso de pago."
+          ]
+        },
+        {
+          "heading": "Habilitando activos en su panel",
+          "body": "Usted controla qué monedas y redes están activas desde su panel de Dynopay. Active los activos que desea aceptar, confirme que tiene una billetera receptora para cada uno, y aparecerán como opciones en el proceso de pago. Puede ajustar esta lista en cualquier momento a medida que cambien sus necesidades."
+        }
+      ]
+    },
+    "how-crypto-payments-work-for-merchants": {
+      "title": "Cómo funcionan los pagos en criptomonedas para comerciantes",
+      "description": "Una explicación clara de lo que sucede desde el momento en que un cliente paga hasta que los fondos se liquidan.",
+      "intro": "Los pagos en criptomonedas pueden parecer una caja negra si nunca ha realizado uno. Este artículo describe exactamente lo que sucede desde el momento en que un cliente decide pagar hasta el momento en que los fondos liquidados están bajo su control.",
+      "sections": [
+        {
+          "heading": "El viaje del pago, paso a paso",
+          "bullets": [
+            "Usted comparte un enlace de pago, factura o proceso de pago alojado con su cliente.",
+            "El cliente elige una criptomoneda y una red y se le muestra el monto exacto y una dirección de billetera (generalmente como un código QR).",
+            "Envía el pago desde su propia billetera o intercambio.",
+            "Dynopay detecta la transacción en la blockchain y rastrea sus confirmaciones en tiempo real.",
+            "Una vez confirmado, el pago se marca como completo y los fondos se acreditan a la billetera que usted controla."
+          ]
+        },
+        {
+          "heading": "Confirmaciones explicadas",
+          "body": "Una confirmación en blockchain es la red acordando que una transacción es válida y final. Dynopay espera el número apropiado de confirmaciones para la red elegida antes de marcar un pago como completo. Esto lo protege de pagos que podrían ser revertidos más tarde, razón por la cual los pagos en criptomonedas no tienen contracargos."
+        },
+        {
+          "heading": "No custodial por diseño",
+          "body": "Dynopay es no custodial: los fondos se envían a una billetera que usted controla, no se mantienen en una cuenta de Dynopay. Usted mantiene la custodia todo el tiempo y puede mover su criptomoneda cuando quiera."
+        },
+        {
+          "heading": "Rastreando todo en su panel",
+          "body": "Cada pago aparece en su panel con su estado, monto, moneda, red y detalles de confirmación. Obtiene una vista única y en tiempo real de lo que se ha pagado, lo que está pendiente y lo que se ha liquidado."
+        }
+      ]
+    },
+    "fees-rates-and-conversion-logic": {
+      "title": "Tarifas, tasas y lógica de conversión",
+      "description": "Entienda las tarifas de transacción, las tasas de cambio y cómo se calculan los montos de pago.",
+      "intro": "Entender cómo funcionan las tarifas y las tasas de cambio le ayuda a fijar precios correctamente y saber exactamente lo que recibirá. Esta guía cubre las tarifas de transacción de Dynopay, cómo se bloquean las tasas y cómo se calcula el monto final.",
+      "sections": [
+        {
+          "heading": "Tarifas de transacción",
+          "body": "Dynopay cobra una tarifa simple de porcentaje por cada transacción exitosa. Las tarifas comienzan en 1.5% y disminuyen a medida que crece su volumen de procesamiento, bajando hasta 0.5% para comerciantes de alto volumen. Su primer pago es gratis para que pueda probar todo el flujo sin costo."
+        },
+        {
+          "heading": "Tarifas de red",
+          "body": "Separadas de la tarifa de Dynopay, cada blockchain cobra su propia tarifa de red (gas) para mover fondos. Esta tarifa va a la red, no a Dynopay, y varía según la red y la congestión. Elegir una red eficiente mantiene estos costos bajos para usted y sus clientes."
+        },
+        {
+          "heading": "Cómo se aplican las tasas de cambio",
+          "bullets": [
+            "Cuando fija un precio en una moneda fiduciaria, Dynopay convierte el monto a la criptomoneda elegida utilizando una tasa de mercado en vivo en el proceso de pago.",
+            "La tasa se muestra al cliente para que sepa exactamente cuánto cripto enviar.",
+            "Pagar en una stablecoin mantiene el monto recibido cerca del monto facturado, evitando la volatilidad."
+          ]
+        },
+        {
+          "heading": "Lo que realmente recibe",
+          "body": "El monto acreditado a su billetera es el monto del pago menos la tarifa aplicable de Dynopay. Debido a que Dynopay es no custodial, la criptomoneda liquidada es suya de inmediato: no hay período de espera impuesto por Dynopay antes de que pueda usarla."
+        }
+      ]
+    },
+    "wallets-payouts-and-settlement-options": {
+      "title": "Billeteras, pagos y opciones de liquidación",
+      "description": "Aprenda a dónde van sus fondos, cómo funcionan los pagos y qué opciones de liquidación están disponibles.",
+      "intro": "A dónde va su dinero después de un pago es una de las cosas más importantes que debe configurar correctamente. Este artículo explica las billeteras receptores, cómo funciona la liquidación y las opciones de pago disponibles para usted.",
+      "sections": [
+        {
+          "heading": "Sus billeteras receptoras",
+          "body": "Para cada criptomoneda que acepte, conecta una dirección de billetera que usted controla. Los pagos para ese activo se liquidan directamente a esa dirección. Debido a que Dynopay nunca retiene sus fondos, usted mantiene la custodia total en todo momento."
+        },
+        {
+          "heading": "Cómo funciona la liquidación",
+          "body": "Cuando un pago alcanza el número requerido de confirmaciones, se liquida automáticamente a su billetera conectada. No hay un paso de retiro manual y no hay un período de retención impuesto por Dynopay: los fondos ya están bajo su control."
+        },
+        {
+          "heading": "Opciones de liquidación",
+          "bullets": [
+            "Mantenga los fondos en la criptomoneda en la que fueron pagados, directamente en su billetera conectada.",
+            "Acepte stablecoins para mantener un saldo vinculado al dólar y evitar la volatilidad.",
+            "Utilice diferentes billeteras para diferentes activos para organizar su tesorería como prefiera."
+          ]
+        },
+        {
+          "heading": "Gestionando billeteras de forma segura",
+          "body": "Verifique cada dirección de billetera cuando la agregue y asegúrese de que controla las claves privadas o la cuenta detrás de ella. Un pago enviado a una dirección es final, por lo que la configuración precisa de la billetera es esencial. Puede actualizar sus billeteras receptoras en el panel siempre que lo necesite."
+        }
+      ]
+    },
+    "invoices-checkout-and-payment-links": {
+      "title": "Facturas, proceso de pago y enlaces de pago",
+      "description": "Cree facturas, enlaces de pago y experiencias de pago personalizadas para su negocio.",
+      "intro": "Dynopay le ofrece varias formas de solicitar y cobrar un pago en criptomonedas sin escribir ningún código. Esta guía cubre enlaces de pago, facturas y el proceso de pago alojado, y cuándo usar cada uno.",
+      "sections": [
+        {
+          "heading": "Enlaces de pago",
+          "body": "Un enlace de pago es la forma más rápida de recibir un pago. Cree un enlace para un monto fijo o ingresado por el cliente, luego compártalo por correo electrónico, chat o redes sociales. Cuando el cliente lo abra, verá un proceso de pago listo para pagar: no se requiere cuenta."
+        },
+        {
+          "heading": "Facturas",
+          "body": "Las facturas son ideales cuando necesita un registro claro vinculado a un cliente u orden específica. Agregue líneas de artículos y un total, envíe la factura y rastree su estado desde borrador hasta pagado dentro de su panel."
+        },
+        {
+          "heading": "Proceso de pago alojado",
+          "body": "El proceso de pago alojado es una página de pago segura, alojada por Dynopay. Los clientes eligen una moneda y una red, ven el monto exacto y un código QR, y pagan en unos pocos toques. Maneja la visualización de tasas, selección de red y seguimiento de confirmaciones por usted."
+        },
+        {
+          "heading": "¿Cuál debería usar?",
+          "bullets": [
+            "Utilice un enlace de pago para solicitudes rápidas y únicas y para compartir.",
+            "Utilice una factura cuando necesite registros detallados y específicos para el cliente.",
+            "Utilice el proceso de pago alojado cuando desee una experiencia de pago pulida y de marca a la que pueda dirigir a los clientes."
+          ]
+        }
+      ]
+    },
+    "api-and-integrations": {
+      "title": "API e Integraciones",
+      "description": "Integre Dynopay en su sitio web, aplicación o SaaS utilizando nuestra API y herramientas listas para usar.",
+      "intro": "Si desea pagos en criptomonedas integrados directamente en su sitio web, aplicación o SaaS, Dynopay ofrece una API y herramientas listas para usar. Esta guía explica las opciones de integración y cómo comenzar.",
+      "sections": [
+        {
+          "heading": "Opciones sin código y de bajo código",
+          "bullets": [
+            "Los enlaces de pago y los botones de compra le permiten aceptar pagos con un fragmento de copiar y pegar: no se requiere backend.",
+            "El proceso de pago alojado maneja todo el flujo de pago en páginas alojadas por Dynopay.",
+            "Estas opciones son la forma más rápida de salir en vivo y cubren la mayoría de los casos de uso comunes."
+          ]
+        },
+        {
+          "heading": "La API de Dynopay",
+          "body": "Para un control total, la API le permite crear pagos, generar procesos de pago y leer el estado de los pagos programáticamente. Se autentica con claves API generadas en su panel, y mantiene su clave secreta en su servidor, nunca en el código del lado del cliente."
+        },
+        {
+          "heading": "Webhooks",
+          "body": "Los webhooks notifican a su sistema en tiempo real cuando cambia el estado de un pago, por ejemplo, cuando se confirma. Apunte un webhook a un punto final en su servidor para que pueda cumplir con los pedidos, desbloquear el acceso o actualizar registros automáticamente tan pronto como se liquida un pago."
+        },
+        {
+          "heading": "Comenzando con la API",
+          "bullets": [
+            "Genere una clave API en la sección de desarrolladores de su panel.",
+            "Revise la documentación para los puntos finales que necesita.",
+            "Pruebe con una pequeña transacción antes de salir en vivo y verifique que su webhook reciba el evento de confirmación."
+          ]
+        }
+      ]
+    },
+    "security-and-transaction-safety": {
+      "title": "Seguridad y seguridad de transacciones",
+      "description": "Descubra cómo Dynopay protege las transacciones, los fondos y los datos de los comerciantes.",
+      "intro": "La seguridad es central en cómo está construido Dynopay. Este artículo explica cómo Dynopay protege las transacciones, los fondos y su cuenta, y los pasos que puede seguir para mantenerse seguro.",
+      "sections": [
+        {
+          "heading": "Fondos no custodiales",
+          "body": "Debido a que Dynopay es no custodial, sus fondos se liquidan directamente a billeteras que usted controla en lugar de permanecer en una cuenta de Dynopay. Esto reduce drásticamente el riesgo de custodia: no hay un saldo agrupado que un atacante pueda atacar."
+        },
+        {
+          "heading": "Sin contracargos",
+          "body": "Los pagos confirmados en blockchain son finales y no pueden ser revertidos. Esto elimina el fraude por contracargos que afecta a los pagos con tarjeta, dándole la certeza de que un pago completado permanece completado."
+        },
+        {
+          "heading": "Protegiendo su cuenta",
+          "bullets": [
+            "Utilice una contraseña fuerte y única y mantenga sus credenciales de inicio de sesión privadas.",
+            "Proteja sus claves secretas de API: guárdelas en su servidor y nunca las exponga en un navegador o repositorio público.",
+            "Verifique cuidadosamente las direcciones de billetera, ya que las transferencias en blockchain no se pueden deshacer.",
+            "Revise su panel regularmente para que pueda detectar cualquier cosa inesperada rápidamente."
+          ]
+        },
+        {
+          "heading": "Protección de datos",
+          "body": "Dynopay maneja los datos con cifrado y sigue las mejores prácticas de privacidad y cumplimiento. La información sensible está protegida en tránsito y en reposo, y usted mantiene el control de su cuenta y fondos en todo momento."
+        }
+      ]
+    }
   }
 }

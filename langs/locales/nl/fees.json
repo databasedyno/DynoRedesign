@@ -149,6 +149,34 @@
     "inc6": "Automatische omzetting naar USDC / USDT",
     "inc7": "Betaallinks & koopknoppen",
     "inc8": "Checkout in 6 talen",
-    "inc9": "Geen maand- of setupkosten"
+    "inc9": "Geen maand- of setupkosten",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "Prijsvragen, beantwoord",
+    "faqItems": [
+      {
+        "q": "Hoeveel rekent Dynopay per transactie?",
+        "a": "De kosten beginnen bij 1,5% per succesvolle transactie en dalen tot zo laag als 0,5% naarmate je maandelijkse verwerkingsvolume groeit. Je eerste betaling is volledig gratis."
+      },
+      {
+        "q": "Zijn er maandelijkse kosten of opstartkosten?",
+        "a": "Nee. Er zijn geen maandelijkse kosten, geen opstartkosten en geen verborgen kosten. Je betaalt alleen een eenvoudig percentage op succesvolle betalingen."
+      },
+      {
+        "q": "Wat zijn netwerk (gas) kosten?",
+        "a": "Elke blockchain rekent zijn eigen netwerkvergoeding om geld te verplaatsen. Deze vergoeding gaat naar het netwerk, niet naar Dynopay, en varieert per netwerk en congestie. Het kiezen van een efficiënt netwerk houdt het laag voor jou en je klanten."
+      },
+      {
+        "q": "Betaal ik kosten op terugbetalingen of mislukte betalingen?",
+        "a": "Je wordt alleen in rekening gebracht voor succesvolle betalingen. Mislukte, verlaten of onbevestigde betalingen kosten je niets."
+      },
+      {
+        "q": "Wanneer ontvang ik mijn geld?",
+        "a": "Dynopay is niet-custodiaal, dus bevestigde betalingen worden rechtstreeks naar een wallet gestuurd die jij beheert. Er is geen door Dynopay opgelegde wachttijd voordat je je fondsen kunt gebruiken."
+      },
+      {
+        "q": "Hoe worden wisselkoersen berekend?",
+        "a": "Wanneer je prijst in een fiat-valuta, converteert Dynopay het bedrag naar de gekozen crypto tegen een live marktprijs die aan de klant wordt getoond bij de kassa. Betalen in een stablecoin houdt het ontvangen bedrag dicht bij het gefactureerde bedrag."
+      }
+    ]
   }
 }

@@ -1,7 +1,11 @@
-# STATUS 2026-06 (pod 8b63f71b): SEO audit fixes SHIPPED to code (see memory/CHANGELOG.md top entry + /app/plan/plan.md).
-# Help Center now indexable + SSR; hreflang alternates removed (Option A); creator canonical deduped; stale robots.txt removed; IndexNow script reads live sitemap.
-# KNOWN GAP: KB DB (tbl_kb_article) is empty — 7 of 8 help articles SSR only title+description (thin); "getting-started-with-dynopay" has full authored body. Backlog: author the other 7 (or seed the KB DB), then they auto-render full content via existing SSR.
-# Deploy: next Save-to-GitHub → DigitalOcean. Post-deploy: user resubmits sitemap.xml + requests indexing in Search Console.
+# STATUS 2026-06 (pod 8b63f71b): SEO fixes SHIPPED to code — 3A audit + follow-ups A/B/C. See memory/CHANGELOG.md top entries + /app/plan/plan.md.
+# A) 7 help articles authored + translated ×6 langs, server-rendered (fully localized title/body/canonical under ?lang=).
+# B) /fees now has a visible FAQ + FAQPage & Service JSON-LD (translated ×6). /for/* already had FAQ/WebPage/Breadcrumb JSON-LD.
+# C) MULTILINGUAL SSR (Option 3B) LIVE in code: ?lang=xx (en,pt,fr,es,de,nl) renders translated HTML with <html lang>, self-canonical + hreflang; per-request cloned i18n instance (no cross-request bleed); client hydrates same locale (no mismatch). Header switcher updates ?lang= in URL. Public marketing pages carry s-maxage=300 caching.
+#   Localizable (canonical/hreflang) set = / , /fees , /help-support(+articles). blog & /for/* stay English-only by design.
+# Deploy: next Save-to-GitHub → DigitalOcean. Post-deploy: resubmit sitemap.xml + request indexing in Search Console.
+# Backlog: SSR <a href> cards on the help-support index (crawl currently via JS+sitemap); optional per-locale translation of /for/* SEO content.
+
 
 
 # DynoPay — Product Requirements (living doc)

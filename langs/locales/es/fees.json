@@ -149,6 +149,34 @@
     "inc6": "Conversión automática a USDC / USDT",
     "inc7": "Enlaces de pago y botones de compra",
     "inc8": "Checkout en 6 idiomas",
-    "inc9": "Sin cuotas mensuales ni de alta"
+    "inc9": "Sin cuotas mensuales ni de alta",
+    "faqEyebrow": "Preguntas frecuentes",
+    "faqTitle": "Preguntas sobre precios, respondidas",
+    "faqItems": [
+      {
+        "q": "¿Cuánto cobra Dynopay por transacción?",
+        "a": "Las tarifas comienzan en 1.5% por transacción exitosa y bajan hasta 0.5% a medida que crece su volumen de procesamiento mensual. Su primer pago es completamente gratis."
+      },
+      {
+        "q": "¿Hay tarifas mensuales o costos de configuración?",
+        "a": "No. No hay tarifas mensuales, ni tarifas de configuración, ni cargos ocultos. Solo paga un porcentaje simple en pagos exitosos."
+      },
+      {
+        "q": "¿Qué son las tarifas de red (gas)?",
+        "a": "Cada blockchain cobra su propia tarifa de red para mover fondos. Esta tarifa va a la red, no a Dynopay, y varía según la red y la congestión. Elegir una red eficiente mantiene la tarifa baja para usted y sus clientes."
+      },
+      {
+        "q": "¿Pago tarifas en reembolsos o pagos fallidos?",
+        "a": "Solo se le cobra en pagos exitosos. Los pagos fallidos, abandonados o no confirmados no le cuestan nada."
+      },
+      {
+        "q": "¿Cuándo recibo mi dinero?",
+        "a": "Dynopay es no custodial, por lo que los pagos confirmados se liquidan directamente en una billetera que usted controla. No hay un período de retención impuesto por Dynopay antes de que pueda usar sus fondos."
+      },
+      {
+        "q": "¿Cómo se calculan los tipos de cambio?",
+        "a": "Cuando fija el precio en una moneda fiduciaria, Dynopay convierte el monto a la criptomoneda elegida a una tasa de mercado en vivo mostrada al cliente en el momento de la compra. Pagar en una stablecoin mantiene el monto recibido cerca del monto facturado."
+      }
+    ]
   }
 }

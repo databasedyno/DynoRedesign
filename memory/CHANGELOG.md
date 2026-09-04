@@ -1,3 +1,22 @@
+# SESSION 2026-06 (fork, pod 8b63f71b) — SEO follow-ups A+B+C: help articles, /fees schema, MULTILINGUAL SSR (Option 3B)
+Continuation after the 3A audit fixes. All verified (tsc 0 errors; frontend testing agent 7/7 smoke pass; curl HTML/XML). Ships on next Save-to-GitHub → DO deploy.
+- A) HELP ARTICLES (7 authored + translated ×6 langs, SSR):
+  * English bodies in scripts/help_articles_en.json (intro + sections{heading,body,bullets} + title + description per slug).
+  * scripts/translate_help_articles.py injects into langs/locales/en/helpAndSupport.json under `articles.<slug>` and machine-translates (OpenAI gpt-4o-mini) into de/es/fr/pt/nl. 100 strings/lang. Re-runnable/idempotent.
+  * Components/Page/HelpAndSupport/HelpArticleBody.tsx = generic renderer reading `articles.<slug>` via t()/returnObjects. Wired in pages/help-support/[slug].tsx (RICH_ARTICLES: getting-started keeps its bespoke component; other 7 use HelpArticleBody). Localized title/H1/meta/canonical.
+- B) /fees schema (pages/fees.tsx): visible FAQ section (data-testid=fees-faq-section) + FAQPage JSON-LD (6 Q) + Service/OfferCatalog JSON-LD from TIERS. FAQ copy in fees.json v3.faq* translated ×6 (scripts/translate_fees_faq.py). NOTE: /for/* ALREADY had WebPage+FAQPage+Breadcrumb JSON-LD (SEOLandingPage.tsx) — no change needed there.
+- C) MULTILINGUAL SSR — Option 3B, ENTIRE APP, ?lang=xx (en,pt,fr,es,de,nl):
+  * pages/_app.tsx App.getInitialProps: reads ?lang, loads that locale's namespace JSONs server-side via fs (eval-require, no client bundle), addResourceBundle into shared store, returns { i18nLang, i18nResources } (serialized in __NEXT_DATA__). Sets Cache-Control s-maxage=300 SWR + Vary on public marketing paths.
+  * Per-request isolation: App wraps tree in <I18nextProvider i18n={activeI18n}> — on SERVER a fresh i18n.cloneInstance({lng}) per request (NO cross-request language bleed); on CLIENT the shared global (switcher/localStorage keep working). Global language is NEVER mutated server-side.
+  * Client hydration: module-level bootstrap in _app reads __NEXT_DATA__.props.i18nLang/i18nResources and sets the global BEFORE first render → matches server → no hydration mismatch (verified: clean console).
+  * FIX applied: `export default function App` → `function App` + `export default App` at EOF (SWC "App is not defined" when attaching App.getInitialProps).
+  * <html lang> from ?lang via _document.getInitialProps + blocking script reads ?lang first.
+  * Canonical + hreflang: self-referential ?lang canonical + full hreflang cluster (+x-default) emitted ONLY on fully-i18n pages: `/`, `/fees`, `/help-support`, `/help-support/*`. Sitemap re-adds xhtml:link alternates for the same localizable set only (blog & /for/* stay English-only, 0 alternates). i18n.js applyDetectedLanguage now prefers ?lang.
+  * Header language switcher (HeaderLangMenu.tsx) now shallow-router.replace to add/remove ?lang=xx so canonical/hreflang + shared links match the on-screen locale.
+- VERIFIED: /fees?lang=fr & /?lang=es & article?lang=de render translated HTML + correct <html lang> + self-canonical + 7 hreflang; parallel en/fr requests stay isolated (no bleed); EN pages stay English with bare canonical; all key routes 200; no console/hydration errors.
+- Known/backlog: help-support INDEX cards are client-rendered onClick (not SSR <a href>) — crawl relies on JS + sitemap (all 8 listed); /for/* SEO landing content is English-only by design (no per-locale translation).
+
+
 # SESSION 2026-06 (fork, pod 8b63f71b) — SEO audit fixes for dynopay.com (Google Search Console) — SAFE MODE, prod DB
 Executed the approved SEO plan (/app/plan/plan.md). All 7 items done; verified via raw HTML/XML curl + tsc (0 errors) + clean console. Ships on next Save-to-GitHub → DO deploy.
 - #1 Help Center indexable: removed "/help-support" from the private-route prefixes in pages/_app.tsx (was emitting robots noindex,nofollow). Verified: /help-support and /help-support/* no longer emit a robots noindex.

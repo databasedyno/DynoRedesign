@@ -81,10 +81,51 @@ const FeesPage = () => {
     { feature: t("v3.cmpChargebacks"), dynopay: false, dynoText: t("v3.valNone"), others: true, othersText: t("v3.valCommon") },
   ];
 
+  const faqItems = t("v3.faqItems", { returnObjects: true, defaultValue: [] }) as
+    | Array<{ q: string; a: string }>
+    | string;
+  const faqs: Array<{ q: string; a: string }> = Array.isArray(faqItems) ? faqItems : [];
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    serviceType: "Crypto payment gateway",
+    name: "Dynopay",
+    url: "https://dynopay.com/fees",
+    provider: { "@type": "Organization", name: "Dynopay", url: "https://dynopay.com" },
+    areaServed: "Worldwide",
+    description:
+      "Accept crypto payments with transparent fees from 1.5% down to 0.5% by volume. Non-custodial, no chargebacks, no monthly fees. First payment free.",
+    offers: {
+      "@type": "OfferCatalog",
+      name: "Dynopay pricing tiers",
+      itemListElement: TIERS.map((tr) => ({
+        "@type": "Offer",
+        name: tr.name,
+        description:
+          tr.max === null
+            ? `${tr.pct}% per transaction for monthly volume above ${formatUSD(tr.min)}`
+            : `${tr.pct}% per transaction for monthly volume ${formatUSD(tr.min)}–${formatUSD(tr.max)}`,
+      })),
+    },
+  };
+
   return (
     <>
       <Head>
         <title>{tTitle("fees_title")}</title>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }} />
       </Head>
 
       <PageWrapper sx={{ background: s.bg }}>
@@ -554,6 +595,40 @@ const FeesPage = () => {
                   <ShieldOutlinedIcon sx={{ color: BRAND_ACCENT, fontSize: 22 }} />
                   <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, letterSpacing: "-0.01em" }}>{item.title}</Typography>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2, lineHeight: 1.6 }}>{item.body}</Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Container>
+
+        {/* ===== FAQ ===== */}
+        <Container>
+          <Box component="section" data-testid="fees-faq-section" sx={{ py: { xs: 8, md: 14 } }}>
+            <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 640 }}>
+              <Eyebrow tone="violet" sx={{ mb: 2 }}>{t("v3.faqEyebrow")}</Eyebrow>
+              <HeadlineL sx={{ color: s.ink }}>{t("v3.faqTitle")}</HeadlineL>
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {faqs.map((f, i) => (
+                <Box
+                  key={i}
+                  component="article"
+                  sx={{
+                    background: s.surface,
+                    border: `1px solid ${s.line}`,
+                    borderRadius: "16px",
+                    p: { xs: 2.5, md: 3 },
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1.25,
+                  }}
+                >
+                  <Typography component="h2" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 16, md: 18 }, color: s.ink, letterSpacing: "-0.01em" }}>
+                    {f.q}
+                  </Typography>
+                  <Typography component="p" sx={{ fontFamily: FONT_BODY, fontSize: { xs: 14, md: 15 }, color: s.ink2, lineHeight: 1.65 }}>
+                    {f.a}
+                  </Typography>
                 </Box>
               ))}
             </Box>
