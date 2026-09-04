@@ -103,7 +103,7 @@ export const LanguageOnboardingBar = () => {
     <Box
       data-testid="language-onboarding-bar"
       role="region"
-      aria-label="Choose your language"
+      aria-label={t("language.choose")}
       sx={{
         position: "fixed",
         left: 0,
@@ -202,7 +202,7 @@ export const LanguageOnboardingBar = () => {
 
       <IconButton
         data-testid="language-onboarding-close"
-        aria-label="Dismiss language chooser"
+        aria-label={t("language.dismissChooser")}
         onClick={hide}
         size="small"
         sx={{ flexShrink: 0, color: theme.palette.text.secondary }}

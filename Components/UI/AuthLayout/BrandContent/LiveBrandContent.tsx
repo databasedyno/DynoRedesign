@@ -1,12 +1,14 @@
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { useEffect, useState, useCallback, ReactNode } from "react";
 import i18n from "@/i18n";
+import { useTranslation } from "react-i18next";
 
 /* ─────────────────────────────────────────────────────
    CAROUSEL SLIDE DATA
    ───────────────────────────────────────────────────── */
 
 interface FeatureSlide {
+  id: string;
   tagline: string;
   title: string;
   description: string;
@@ -323,7 +325,7 @@ const CheckoutMockup = () => (
     </Box>
     {/* CTA */}
     <Box sx={{ background: "linear-gradient(135deg, #6C5CE7, #a78bfa)", borderRadius: "8px", py: "10px", textAlign: "center", mb: "12px", boxShadow: "0 4px 12px rgba(108,92,231,0.35)" }}>
-      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif" }}>Pay Now</Typography>
+      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif" }}>{i18n.t("liveBrand.payNow", { ns: "common", defaultValue: "Pay Now" })}</Typography>
     </Box>
   </MockBrowserChrome>
 );
@@ -334,36 +336,42 @@ const CheckoutMockup = () => (
 
 const SLIDES: FeatureSlide[] = [
   {
+    id: "links",
     tagline: "Join Dynopay and get",
     title: "Payment Links",
     description: "Create shareable payment links in seconds. Accept crypto from anyone, anywhere.",
     mockup: PaymentLinksMockup,
   },
   {
+    id: "multiCurrency",
     tagline: "Join Dynopay and get",
     title: "Multi-Currency Support",
     description: "Accept BTC, ETH, USDT, SOL, XRP, and more — all in one platform.",
     mockup: MultiCurrencyMockup,
   },
   {
+    id: "settlement",
     tagline: "Join Dynopay and get",
     title: "Instant Settlement",
     description: "Receive payments in real-time with instant forwarding to your wallet.",
     mockup: InstantSettlementMockup,
   },
   {
+    id: "dashboard",
     tagline: "Join Dynopay and get",
     title: "Dashboard Analytics",
     description: "Track transactions, revenue, and performance with a powerful dashboard.",
     mockup: DashboardMockup,
   },
   {
+    id: "lowFees",
     tagline: "Join Dynopay and get",
     title: "Low Fees",
     description: "Competitive 1.5% transaction fee with no hidden charges or monthly costs.",
     mockup: LowFeesMockup,
   },
   {
+    id: "checkout",
     tagline: "Join Dynopay and get",
     title: "Checkout Pages",
     description: "Beautiful, branded checkout pages for your customers — no code needed.",
@@ -402,6 +410,7 @@ const DotIndicators = ({ total, current, onDotClick }: { total: number; current:
 
 const LiveBrandContent = () => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const [current, setCurrent] = useState(0);
   const [fade, setFade] = useState(true);
@@ -491,7 +500,7 @@ const LiveBrandContent = () => {
             mb: "4px",
           }}
         >
-          {slide.tagline}
+          {t("liveBrand.tagline", { defaultValue: slide.tagline })}
         </Typography>
         <Typography
           sx={{
@@ -503,7 +512,7 @@ const LiveBrandContent = () => {
             textShadow: "0 2px 12px rgba(0,0,0,0.15)",
           }}
         >
-          {slide.title}
+          {t(`liveBrand.${slide.id}.title`, { defaultValue: slide.title })}
         </Typography>
         <Typography
           sx={{
@@ -516,7 +525,7 @@ const LiveBrandContent = () => {
             mx: "auto",
           }}
         >
-          {slide.description}
+          {t(`liveBrand.${slide.id}.description`, { defaultValue: slide.description })}
         </Typography>
       </Box>
 

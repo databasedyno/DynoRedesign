@@ -67,6 +67,9 @@
     "share": "Teilen",
     "openLink": "Link öffnen",
     "createAnother": "Weiteren erstellen",
-    "done": "Fertig"
-  }
+    "done": "Fertig",
+    "downloadQr": "QR herunterladen",
+    "copiedOpensCheckout": "Link kopiert — öffnet deinen Checkout"
+  },
+  "cryptoRefundTooltip": "Krypto-Rückerstattung"
 }

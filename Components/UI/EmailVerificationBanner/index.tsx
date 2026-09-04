@@ -133,8 +133,8 @@ const EmailVerificationBanner: React.FC = () => {
       <OtpDialog
         open={showOtp}
         onClose={() => setShowOtp(false)}
-        title="Verify Your Email"
-        subtitle="Enter the verification code sent to your email"
+        title={t("emailVerify.title")}
+        subtitle={t("emailVerify.subtitle")}
         contactInfo={userState.email || userState.profile?.email || ""}
         contactType="email"
         otpLength={6}

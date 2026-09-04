@@ -1,3 +1,16 @@
+# SESSION 2026-06 (fork, pod ca6c51ad) — i18n Sweep Part 2: P0 dashboard/checkout tier + 74 missing-EN keys — SAFE MODE, prod DB
+- Fixed 74 keys used in code (t + defaultValue) that were missing from EN -> backfilled EN + machine-translated to de/es/fr/pt/nl
+  via scripts/extract_missing_i18n.py -> i18n_manifest.json -> scripts/translate_missing_i18n.py (OpenAI). check-i18n.mjs: all 5 locales complete.
+- Fully internationalised the P0 dashboard/checkout components (wrapped every functional string in t(key,{defaultValue}), common/apiScreen ns):
+  * Components/Page/ProductEditor/index.tsx  (100% — ~62 strings: toasts, validation, delivery opts, tax & VAT, variants, labels)
+  * Components/Page/API/BuyButtonsSection.tsx (functional 100% — snippet/row/modal/section toasts+labels; 2 left = form-value default "Pay with crypto" + its placeholder, intentionally EN)
+  * Components/Page/Payouts/index.tsx         (functional 100% — summary, settlement/auto-convert, savings, digest, pending, settlements, CSV export; 5 flagged = RANGE_PRESETS array English defaults, render site IS translated via payouts.range_* keys)
+  * Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx (marketing copy done: 6 slide taglines/titles/descriptions + "Pay Now" CTA via liveBrand.* keys; 28 flagged = decorative fake-browser mockup micro-labels / crypto tickers / demo data — left as illustrative screenshot chrome)
+- Total hardcoded scan: 785 -> 671. New i18n keys: 260 (197 common + 63 apiScreen) x6 langs, all verified populated (spot-checked DE/FR/ES/NL).
+- Dynamic-key strings the extractor can't see (payouts.range_*, liveBrand.<slide>.title/description, liveBrand.tagline) were added to the manifest by hand before translate.
+- NOT DONE (remaining ~640 strings, next tier = "public pages/docs"): pages/documentation.tsx (213), pages/how-to.tsx (22), Help&Support KB articles, API PublishableKeysSection (20) / WebhookConsoleSection (16), PaymentLinksTable, SupportChatWidget, CheckoutShell/StatusStrip, FeeCalculator, refund/tip/campaign components, etc.
+- Verify: next dev compiled clean (3097 modules, no errors) after all edits; TS/JSX intact. Preview /,/register render blank in the screenshot tool but the UNTOUCHED homepage is equally blank -> environmental preview artifact, not these changes. User will self-verify (testing_agent skipped per user).
+
 # SESSION 2026-09-03 (fork, pod ca6c51ad) PART 2 — CORS alert noise + mobile header brand name + column sorting + sitemap audit
 - CORS: blocked/malformed Origin → 403 JSON quietly (CorsOriginError), no more HIGH alert emails / 500s for bot probes.
 - Mobile header: business name fully visible at 390/375 (theme toggle moved into user menu on phones, chevrons/briefcase hidden xs).
@@ -1572,3 +1585,41 @@ User picked: rail (desktop) + chip bar (mobile), fold low-priority sections into
 - testing_agent iteration_126 (frontend): rail/chip bar/tabs/jump links/anchors/dark/ES/regression all PASS,
   0 console + 0 hydration errors. Its 3 findings fixed: null-active window (fallback), how-it-works 68px
   offset (anchor moved outside Reveal), page still long (padding pass + Solutions fold, user-approved).
+
+────────────────────────────────────────────────────────────────────────────
+## 2026-09-04 — I18N SWEEP, PART 1 (session 30c) — "register page stays English; several others too"
+User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome, dashboard); leave English:
+/documentation API reference, help-centre/blog article bodies, QA/demo pages, admin pages.
+- TOOLING: `python3 scripts/scan_hardcoded_i18n.py [paths]` — heuristic scanner for hardcoded English (JSX text incl.
+  multi-line, text attributes, label/hint/title object literals). `ALL=1` expands. Full inventory saved at
+  memory/i18n/inventory_2026-09-04.txt; in-scope list memory/i18n/inscope.txt (113 files / 569 strings incl. some
+  false positives such as icon alt texts, coin names, sample data).
+  `python3 scripts/i18n_add.py batch.json` merges {ns:{dot.key:{en,de,es,fr,nl,pt}}} into all 6 locale files.
+  Batches applied so far: memory/i18n/batch1.json, batch2.json, batch3.json.
+- FIXED (verified testing_agent iteration_127, PT/FR/EN, 0 console/hydration errors):
+  • Components/UI/AuthLayout/PurposePicker.tsx (the reported register Step 1) → auth.purposeQuestion, purposeOptions.*
+  • pages/auth/secure-account.tsx → auth.secureAccount.*
+  • HomeHeader (public beta badge, trust pills, aria labels) → landing.v3.header.*; HeaderLangMenu → common.language.*
+  • HomeFooter (column headings, 11 vertical links, trust row, aria/alt) → landing.footerNav.*
+  • NewHeader (open/close menu, View account) + MobileNavigationBar aria → dashboardLayout.*
+  • StickyPromoBar, FeeFreeBanner, FeeFreeWidget → common.promoBar.* / common.feeFree.*
+  • EmailVerificationBanner, DashboardSetupPrompt, LanguageSwitcher, LanguageOnboardingBar, ScrollToTopButton,
+    PageUnavailable → common.*; MobileReferralBanner → referrals.shareTitle/shareText
+  • Class-B parity gaps: 20 notifications keys + apiScreen.currency.baseCurrencyHelper + common.settingsPage.viewOnly
+    now translated in de/es/fr/nl/pt → `node scripts/check-i18n.mjs` passes.
+- REMAINING (next session — work top-down from memory/i18n/inscope.txt, skipping icon alt texts/coin names/sample data):
+  checkout: CheckoutStatusStrip (10), CheckoutShell (10), Pay3Components (cryptoTransfer "Go back", CleanCheckoutV2 3,
+  campaign CampaignShareTray 11 / RewardTierShelf 3 / DonorWallV2 2, verify 1), pages/pay/demo 4, [handle]/checkout 1;
+  public: pages/how-to.tsx (22), BrandSpotlightV3 (Your brands / Add brand), kyc/complete (4), unsubscribe (3),
+  wallet-security (2), OnboardingBanner (6), HandleClaimNudge, Creator/* (CreatorLivePreview 7, CreatorPageSettings 5,
+  SupportWidget 1, InlineTipCheckout "Try again"), SupportChatWidget (14);
+  dashboard: ProductEditor (62), Payouts (28), API/* (BuyButtons 30, PublishableKeys 20, WebhookConsole 16,
+  ApiKeysPage 9), PaymentLinksTable (Crypto refund), CompanyDetailsSection (Select Country/State/City, Enter VAT),
+  CryptoRefundModal (11), refundStatus (2), TransactionDetailsModal (Amount Details, Transaction Hashes, Customer VAT ID,
+  Reverse-charge), Storefront (ProductsTab 7, ShareTab 4), orders.tsx (6), Invoices/InvoicePreviewDrawer (5),
+  PaymentLinkSuccessModal (Direct Pay QR Code, Link Id), CreatorPageCard (5), AutoClaimHandle (3), DatePicker (6 presets),
+  DataTable ("Rows per page:"), WalletReuseSelector (3), Wallet ("Total processed"), CompanyEmailRoutingCard (9 — use the
+  notifications.category_* keys that now exist), CompanySettingsDialog delete-confirm (2), TaxSection (2),
+  DashboardRightSection "Active Tier", ConversionBanner "Auto-convert", pages/invoices title.
+  ALSO: 74 keys used with inline defaultValue but missing from EN (scripts/i18n_manifest.json via
+  `python3 scripts/extract_missing_i18n.py`) — add EN + 5 translations so non-EN stops falling back.

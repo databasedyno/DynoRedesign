@@ -307,7 +307,16 @@
       "exploreBtn": "Explorer"
     },
     "header": {
-      "systemsNormal": "Tout fonctionne"
+      "systemsNormal": "Tout fonctionne",
+      "ariaPrimaryNav": "Navigation principale",
+      "ariaGoHome": "Aller à l'accueil",
+      "publicBeta": "Bêta publique",
+      "ariaSystemStatus": "État du système",
+      "ariaToggleMenu": "Afficher/masquer le menu",
+      "ariaMobileNav": "Navigation mobile",
+      "trustEncrypted": "Chiffré",
+      "trustNonCustodial": "Non-custodial",
+      "trustLive": "En direct"
     },
     "footer": {
       "systemsOperational": "Tous les systèmes opérationnels"
@@ -528,7 +537,8 @@
       "r6b": "Facturé dès le premier jour"
     },
     "trust": {
-      "label": "Acceptez les paiements sur 9 blockchains"
+      "label": "Acceptez les paiements sur 9 blockchains",
+      "chainTooltip": "Voir les frais et les réseaux supportés"
     },
     "brandSpotlight": {
       "eyebrow": "Multi-marque",
@@ -712,13 +722,19 @@
       "vatValid": "✓ Numéro de TVA UE valide — l'autoliquidation s'applique, aucune TVA ne sera facturée.",
       "vatInvalid": "Ce numéro de TVA n'a pas pu être validé — la taxe standard s'appliquera.",
       "vatHint": "Les entreprises de l'UE peuvent saisir un numéro de TVA pour l'autoliquidation.",
-      "reverseChargeNotice": "Autoliquidation B2B dans l'UE : aucune TVA facturée. Vous devez déclarer la TVA dans votre propre État membre."
+      "reverseChargeNotice": "Autoliquidation B2B dans l'UE : aucune TVA facturée. Vous devez déclarer la TVA dans votre propre État membre.",
+      "viewCart": "Voir le panier",
+      "yourCart": "Votre panier",
+      "viewFullCart": "Voir le panier complet"
     },
     "receiptEmail": {
       "label": "Envoyez-moi un reçu (facultatif)",
       "helper": "Nous vous enverrons votre reçu par e-mail dès la confirmation du paiement.",
       "saved": "Le reçu sera envoyé à cette adresse e-mail.",
-      "invalid": "Saisissez une adresse e-mail valide."
+      "invalid": "Saisissez une adresse e-mail valide.",
+      "savedShort": "Le reçu est en route vers votre boîte de réception.",
+      "successLabel": "Vous voulez une copie de votre reçu ?",
+      "successHelper": "Ajoutez votre email et nous vous enverrons votre reçu — aucun compte nécessaire."
     },
     "notify": {
       "title": "Paiement confirmé ✓",
@@ -734,7 +750,20 @@
     "feePaidByMerchant": "payés par le marchand",
     "feePaidByCustomer": "ajoutés à votre total",
     "plusNetworkCover": "+ couverture des frais de réseau",
-    "inclNetworkCover": "incl. couverture des frais de réseau"
+    "inclNetworkCover": "incl. couverture des frais de réseau",
+    "loadingCheckout": "Chargement du paiement…",
+    "expiredTitle": "Cette fenêtre de paiement a expiré",
+    "expiredBody": "Le temps pour compléter ce paiement est écoulé. Si vous avez déjà envoyé des fonds, contactez le marchand. Sinon, demandez-leur un nouveau lien de paiement.",
+    "expiredRetry": "Recommencer",
+    "breakdownTrustPaid": "Montants vérifiés — voici exactement comment votre paiement a été réparti.",
+    "breakdownTrust": "Ces montants correspondent exactement — votre paiement est réparti de manière transparente entre le marchand et les frais Dynopay.",
+    "preparingAddress": "Préparation de l'adresse de paiement…",
+    "underpaid": {
+      "gotPrefix": "Nous avons reçu",
+      "sendPrefix": "Envoyer",
+      "sameAddressTail": "plus à la même adresse ci-dessous pour compléter votre paiement.",
+      "graceTimer": "Temps restant pour compléter"
+    }
   },
   "creator": {
     "card": {
@@ -1029,5 +1058,32 @@
     "contactBody": "Pour une interview, un commentaire ou tout élément manquant sur cette page, écrivez-nous — nous lisons chaque message.",
     "storyCta": "Découvrir notre histoire"
   },
-  "referralProgram": "Programme de parrainage"
+  "referralProgram": "Programme de parrainage",
+  "footerNav": {
+    "product": "Produit",
+    "solutions": "Solutions",
+    "company": "Entreprise",
+    "logoAlt": "Logo Dynopay",
+    "trustAria": "Confiance et conformité",
+    "verticals": {
+      "ecommerce": "E-commerce",
+      "saas": "SaaS",
+      "gaming": "Jeux vidéo",
+      "freelancers": "Freelances",
+      "remittance": "Transferts d'argent",
+      "digitalDownloads": "Téléchargements numériques",
+      "hosting": "Hébergement et domaines",
+      "vpn": "VPN et confidentialité",
+      "marketplaces": "Places de marché",
+      "agencies": "Agences et consultants",
+      "nonprofits": "Associations"
+    },
+    "trust": {
+      "nonCustodial": "Non-custodial",
+      "chains": "9 blockchains",
+      "encrypted": "Chiffré",
+      "gdpr": "Conforme RGPD / LCB-FT",
+      "noChargebacks": "Aucune rétrofacturation"
+    }
+  }
 }

@@ -36,13 +36,13 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
 
   const steps: SetupStep[] = [
     {
-      label: "Create a Company",
+      label: t("setupPrompt.createCompany"),
       icon: BusinessRounded,
       path: "/create-pay-link",
       done: hasCompany,
     },
     {
-      label: "Add a Wallet Address",
+      label: t("setupPrompt.addWallet"),
       icon: AccountBalanceWalletRounded,
       path: "/wallet",
       done: hasWallet,

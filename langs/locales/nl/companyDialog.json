@@ -31,7 +31,9 @@
     "brandLogo": {
       "label": "Bedrijfslogo",
       "uploadCta": "Klik om te uploaden of sleep en laat los",
-      "uploadHint": "SVG, PNG, JPG (max. 2MB)"
+      "uploadHint": "SVG, PNG, JPG (max. 2MB)",
+      "saving": "Opslaan…",
+      "autoSaveHint": "Automatisch opgeslagen wanneer je een bestand kiest"
     },
     "country": {
       "label": "Land*",

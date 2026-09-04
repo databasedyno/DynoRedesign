@@ -108,5 +108,9 @@
   "activeLabel": "actief",
   "signOut": "Afmelden",
   "saveName": "Naam opslaan",
-  "nameUpdated": "Je naam is bijgewerkt"
+  "nameUpdated": "Je naam is bijgewerkt",
+  "photoUpdated": "Foto bijgewerkt",
+  "photoUpdateFailed": "Bijwerken van foto mislukt",
+  "saving": "Opslaan…",
+  "autoSaveHint": "Wijzigingen worden automatisch opgeslagen"
 }

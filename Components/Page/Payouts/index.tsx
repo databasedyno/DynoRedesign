@@ -411,8 +411,8 @@ const PayoutsPage: React.FC = () => {
         type: TOAST_SHOW,
         payload: {
           message: next
-            ? "Weekly payout digest turned on"
-            : "Weekly payout digest turned off",
+            ? t("payouts.digestOn", { defaultValue: "Weekly payout digest turned on" })
+            : t("payouts.digestOff", { defaultValue: "Weekly payout digest turned off" }),
           severity: "success",
         },
       });
@@ -421,7 +421,7 @@ const PayoutsPage: React.FC = () => {
       dispatch({
         type: TOAST_SHOW,
         payload: {
-          message: "Couldn't update the digest setting",
+          message: t("payouts.digestUpdateFailed", { defaultValue: "Couldn't update the digest setting" }),
           severity: "error",
         },
       });
@@ -437,14 +437,14 @@ const PayoutsPage: React.FC = () => {
       dispatch({
         type: TOAST_SHOW,
         payload: {
-          message: "Preview digest sent to your email",
+          message: t("payouts.previewSent", { defaultValue: "Preview digest sent to your email" }),
           severity: "success",
         },
       });
     } catch {
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: "Couldn't send the preview", severity: "error" },
+        payload: { message: t("payouts.previewFailed", { defaultValue: "Couldn't send the preview" }), severity: "error" },
       });
     } finally {
       setDigestPreviewing(false);
@@ -473,7 +473,7 @@ const PayoutsPage: React.FC = () => {
         dispatch({
           type: TOAST_SHOW,
           payload: {
-            message: "Pick both a start and end date",
+            message: t("payouts.pickBothDates", { defaultValue: "Pick both a start and end date" }),
             severity: "error",
           },
         });
@@ -485,7 +485,7 @@ const PayoutsPage: React.FC = () => {
         dispatch({
           type: TOAST_SHOW,
           payload: {
-            message: "Start date must be before the end date",
+            message: t("payouts.startBeforeEnd", { defaultValue: "Start date must be before the end date" }),
             severity: "error",
           },
         });
@@ -529,13 +529,13 @@ const PayoutsPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: "Payout history exported", severity: "success" },
+        payload: { message: t("payouts.exported", { defaultValue: "Payout history exported" }), severity: "success" },
       });
     } catch {
       dispatch({
         type: TOAST_SHOW,
         payload: {
-          message: "Export failed. Please try again.",
+          message: t("payouts.exportFailed", { defaultValue: "Export failed. Please try again." }),
           severity: "error",
         },
       });
@@ -563,30 +563,30 @@ const PayoutsPage: React.FC = () => {
     accent?: string;
   }[] = [
     {
-      label: "Total settled",
+      label: t("payouts.totalSettled", { defaultValue: "Total settled" }),
       value: loading ? null : stats?.totalVolumeFormatted || `${sym}0.00`,
-      hint: "Lifetime volume received",
+      hint: t("payouts.totalSettledHint", { defaultValue: "Lifetime volume received" }),
     },
     {
-      label: "Pending",
+      label: t("payouts.pending", { defaultValue: "Pending" }),
       value: loading ? null : `${stats?.pendingTransactions ?? 0}`,
-      hint: "Payments awaiting confirmation",
+      hint: t("payouts.pendingHint", { defaultValue: "Payments awaiting confirmation" }),
     },
     {
-      label: "Auto\u2011convert",
-      value: settlementLoading ? null : autoEnabled ? "On" : "Off",
+      label: t("payouts.autoConvert", { defaultValue: "Auto\u2011convert" }),
+      value: settlementLoading ? null : autoEnabled ? t("payouts.on", { defaultValue: "On" }) : t("payouts.off", { defaultValue: "Off" }),
       hint: autoEnabled
-        ? `Settling to ${settlementTarget}`
-        : "Convert crypto to a stablecoin",
+        ? t("payouts.settlingTo", { defaultValue: "Settling to {{target}}", target: settlementTarget })
+        : t("payouts.autoConvertHint", { defaultValue: "Convert crypto to a stablecoin" }),
       accent: autoEnabled ? SUCCESS_GREEN : undefined,
     },
     {
-      label: "Fee tier",
+      label: t("payouts.feeTier", { defaultValue: "Fee tier" }),
       value: loading ? null : feeTiers?.currentTier || "Starter",
       hint:
         feeTiers?.currentTierPercent != null
-          ? `${feeTiers.currentTierPercent}% per transaction`
-          : "Your current pricing",
+          ? t("payouts.feePerTxn", { defaultValue: "{{pct}}% per transaction", pct: feeTiers.currentTierPercent })
+          : t("payouts.feeTierHint", { defaultValue: "Your current pricing" }),
     },
   ];
 
@@ -669,24 +669,24 @@ const PayoutsPage: React.FC = () => {
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 700 }}>
-                Settlement & auto-convert
+                {t("payouts.settlementAutoConvert", { defaultValue: "Settlement & auto-convert" })}
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
               >
                 {settlementLoading
-                  ? "Loading\u2026"
+                  ? t("payouts.loading", { defaultValue: "Loading\u2026" })
                   : autoEnabled
-                    ? `Incoming crypto auto\u2011converts to ${settlementTarget}`
-                    : "Auto\u2011convert is off \u2014 payments settle in the coin received"}
+                    ? t("payouts.incomingConverts", { defaultValue: "Incoming crypto auto\u2011converts to {{target}}", target: settlementTarget })
+                    : t("payouts.autoConvertOffDesc", { defaultValue: "Auto\u2011convert is off \u2014 payments settle in the coin received" })}
               </Typography>
             </Box>
           </Stack>
           <Tooltip
             title={
               !hasStablecoinWallet && !enabled
-                ? "Add a stablecoin settlement wallet first"
+                ? t("payouts.addWalletFirst", { defaultValue: "Add a stablecoin settlement wallet first" })
                 : ""
             }
             arrow
@@ -724,7 +724,7 @@ const PayoutsPage: React.FC = () => {
               variant="body2"
               sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
             >
-              Settle to
+              {t("payouts.settleTo", { defaultValue: "Settle to" })}
             </Typography>
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <Select
@@ -735,7 +735,7 @@ const PayoutsPage: React.FC = () => {
                 sx={{ borderRadius: 2, fontWeight: 600 }}
               >
                 <MenuItem value="" disabled>
-                  Select settlement coin
+                  {t("payouts.selectSettlementCoin", { defaultValue: "Select settlement coin" })}
                 </MenuItem>
                 {settlementOptions.map((opt) => {
                   const val =
@@ -755,7 +755,7 @@ const PayoutsPage: React.FC = () => {
         <Divider sx={{ my: 2 }} />
 
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-          Settlement wallets
+          {t("payouts.settlementWallets", { defaultValue: "Settlement wallets" })}
         </Typography>
         {settlementLoading ? (
           <Skeleton height={48} />
@@ -764,8 +764,7 @@ const PayoutsPage: React.FC = () => {
             variant="body2"
             sx={{ color: theme.palette.text.secondary }}
           >
-            No stablecoin settlement wallet configured yet. Add one in Settings
-            to auto-convert payouts.
+            {t("payouts.noSettlementWallet", { defaultValue: "No stablecoin settlement wallet configured yet. Add one in Settings to auto-convert payouts." })}
           </Typography>
         ) : (
           <Stack divider={<Divider flexItem />} spacing={0}>
@@ -805,7 +804,7 @@ const PayoutsPage: React.FC = () => {
                           variant="caption"
                           sx={{ color: theme.palette.text.secondary }}
                         >
-                          on {o.chain}
+                          {t("payouts.onChain", { defaultValue: "on" })} {o.chain}
                         </Typography>
                       </Typography>
                       <Typography
@@ -822,7 +821,7 @@ const PayoutsPage: React.FC = () => {
                   {isActive && (
                     <Chip
                       size="small"
-                      label="Active"
+                      label={t("payouts.active", { defaultValue: "Active" })}
                       sx={{
                         color: SUCCESS_GREEN,
                         bgcolor: `${SUCCESS_GREEN}1A`,
@@ -863,13 +862,13 @@ const PayoutsPage: React.FC = () => {
             <Box sx={{ minWidth: 0 }}>
               <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
                 <Typography sx={{ fontWeight: 700 }}>
-                  Auto-convert protection
+                  {t("payouts.autoConvertProtection", { defaultValue: "Auto-convert protection" })}
                 </Typography>
                 {savingsAllTimeCount === 1 && (
                   <Chip
                     size="small"
                     icon={<AutoAwesomeRounded sx={{ fontSize: 14 }} />}
-                    label="First conversion!"
+                    label={t("payouts.firstConversion", { defaultValue: "First conversion!" })}
                     data-testid="payouts-first-conversion-badge"
                     sx={{
                       height: 22,
@@ -892,16 +891,12 @@ const PayoutsPage: React.FC = () => {
                 sx={{ color: theme.palette.text.secondary }}
               >
                 {savingsAllTimeCount === 1 && savingsMonthUsd > 0
-                  ? "Your first payment was just auto-converted to a stablecoin \u2014 locked in against volatility"
+                  ? t("payouts.savingsFirst", { defaultValue: "Your first payment was just auto-converted to a stablecoin \u2014 locked in against volatility" })
                   : savingsMonthUsd > 0
-                    ? `Locked into stablecoins this month across ${savingsMonthCount} ${
-                        savingsMonthCount === 1 ? "payment" : "payments"
-                      } — shielded from crypto volatility`
+                    ? t("payouts.savingsMonth", { defaultValue: "Locked into stablecoins this month across {{count}} {{noun}} — shielded from crypto volatility", count: savingsMonthCount, noun: savingsMonthCount === 1 ? t("payouts.payment", { defaultValue: "payment" }) : t("payouts.payments", { defaultValue: "payments" }) })
                     : savingsInProgress > 0
-                      ? `${savingsInProgress} conversion${
-                          savingsInProgress === 1 ? "" : "s"
-                        } in progress — protecting your revenue`
-                      : "Turn on auto-convert to lock incoming crypto into stablecoins"}
+                      ? t("payouts.savingsInProgress", { defaultValue: "{{count}} {{noun}} in progress — protecting your revenue", count: savingsInProgress, noun: savingsInProgress === 1 ? t("payouts.conversion", { defaultValue: "conversion" }) : t("payouts.conversions", { defaultValue: "conversions" }) })
+                      : t("payouts.savingsOff", { defaultValue: "Turn on auto-convert to lock incoming crypto into stablecoins" })}
               </Typography>
             </Box>
           </Stack>
@@ -926,7 +921,7 @@ const PayoutsPage: React.FC = () => {
                 fontWeight: 600,
               }}
             >
-              This month
+              {t("payouts.thisMonth", { defaultValue: "This month" })}
             </Typography>
           </Box>
         </Stack>
@@ -943,14 +938,14 @@ const PayoutsPage: React.FC = () => {
                 variant="caption"
                 sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
               >
-                Last 6 months
+                {t("payouts.last6Months", { defaultValue: "Last 6 months" })}
               </Typography>
               <Sparkline
                 points={savingsMonthly}
                 width={168}
                 height={36}
                 color={SUCCESS_GREEN}
-                ariaLabel="Stablecoin conversions over the last 6 months"
+                ariaLabel={t("payouts.savingsSparklineAria", { defaultValue: "Stablecoin conversions over the last 6 months" })}
                 data-testid="payouts-savings-sparkline"
               />
             </Stack>
@@ -986,13 +981,12 @@ const PayoutsPage: React.FC = () => {
             <MailRounded fontSize="small" />
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 700 }}>Weekly payout digest</Typography>
+            <Typography sx={{ fontWeight: 700 }}>{t("payouts.weeklyDigest", { defaultValue: "Weekly payout digest" })}</Typography>
             <Typography
               variant="body2"
               sx={{ color: theme.palette.text.secondary }}
             >
-              Get a weekly email summarising settled payouts and anything still
-              pending
+              {t("payouts.weeklyDigestDesc", { defaultValue: "Get a weekly email summarising settled payouts and anything still pending" })}
             </Typography>
           </Box>
         </Stack>
@@ -1006,7 +1000,7 @@ const PayoutsPage: React.FC = () => {
               data-testid="payouts-digest-preview-btn"
               sx={{ textTransform: "none", borderRadius: 2 }}
             >
-              {digestPreviewing ? "Sending\u2026" : "Send preview"}
+              {digestPreviewing ? t("payouts.sending", { defaultValue: "Sending\u2026" }) : t("payouts.sendPreview", { defaultValue: "Send preview" })}
             </Button>
           )}
           <Switch
@@ -1050,12 +1044,12 @@ const PayoutsPage: React.FC = () => {
               <AccountBalanceWalletRounded fontSize="small" />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700 }}>Payout wallets</Typography>
+              <Typography sx={{ fontWeight: 700 }}>{t("payouts.payoutWallets", { defaultValue: "Payout wallets" })}</Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
               >
-                Where your settled funds land
+                {t("payouts.payoutWalletsDesc", { defaultValue: "Where your settled funds land" })}
               </Typography>
             </Box>
           </Stack>
@@ -1065,7 +1059,7 @@ const PayoutsPage: React.FC = () => {
             onClick={() => router.push("/wallet")}
             sx={{ textTransform: "none" }}
           >
-            Manage
+            {t("payouts.manage", { defaultValue: "Manage" })}
           </Button>
         </Box>
         <Box
@@ -1092,7 +1086,7 @@ const PayoutsPage: React.FC = () => {
               <ReceiptLongRounded fontSize="small" />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700 }}>Tax collected</Typography>
+              <Typography sx={{ fontWeight: 700 }}>{t("payouts.taxCollected", { defaultValue: "Tax collected" })}</Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
@@ -1100,7 +1094,7 @@ const PayoutsPage: React.FC = () => {
                 {loading
                   ? "\u2026"
                   : stats?.taxCollectedFormatted || `${sym}0.00`}{" "}
-                to date
+                {t("payouts.toDate", { defaultValue: "to date" })}
               </Typography>
             </Box>
           </Stack>
@@ -1110,7 +1104,7 @@ const PayoutsPage: React.FC = () => {
             onClick={() => router.push("/invoices")}
             sx={{ textTransform: "none" }}
           >
-            Receipts
+            {t("payouts.receipts", { defaultValue: "Receipts" })}
           </Button>
         </Box>
       </Box>
@@ -1138,12 +1132,12 @@ const PayoutsPage: React.FC = () => {
               <HourglassTopRounded fontSize="small" />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700 }}>Pending funds</Typography>
+              <Typography sx={{ fontWeight: 700 }}>{t("payouts.pendingFunds", { defaultValue: "Pending funds" })}</Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
               >
-                Payments awaiting on-chain confirmation
+                {t("payouts.pendingFundsDesc", { defaultValue: "Payments awaiting on-chain confirmation" })}
               </Typography>
             </Box>
           </Stack>
@@ -1165,8 +1159,8 @@ const PayoutsPage: React.FC = () => {
               sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
             >
               {pendingCount === 1
-                ? "1 payment awaiting"
-                : `${pendingCount} payments awaiting`}
+                ? t("payouts.paymentAwaiting", { defaultValue: "1 payment awaiting" })
+                : t("payouts.paymentsAwaiting", { defaultValue: "{{count}} payments awaiting", count: pendingCount })}
             </Typography>
           </Box>
         </Stack>
@@ -1180,7 +1174,7 @@ const PayoutsPage: React.FC = () => {
               textAlign: "center",
             }}
           >
-            No payments awaiting confirmation right now.
+            {t("payouts.noPendingNow", { defaultValue: "No payments awaiting confirmation right now." })}
           </Typography>
         ) : (
           <Stack divider={<Divider flexItem />} spacing={0}>
@@ -1220,13 +1214,13 @@ const PayoutsPage: React.FC = () => {
                       sx={{ color: theme.palette.text.secondary }}
                     >
                       {who ? `${who} \u00b7 ` : ""}
-                      {started ? `started ${started}` : ""}
-                      {left != null ? ` \u00b7 ~${left}m left to confirm` : ""}
+                      {started ? t("payouts.startedRel", { defaultValue: "started {{when}}", when: started }) : ""}
+                      {left != null ? t("payouts.minLeft", { defaultValue: " \u00b7 ~{{n}}m left to confirm", n: left }) : ""}
                     </Typography>
                   </Box>
                   <Chip
                     size="small"
-                    label="Confirming"
+                    label={t("payouts.confirming", { defaultValue: "Confirming" })}
                     sx={{
                       color: WARNING_AMBER,
                       bgcolor: `${WARNING_AMBER}1A`,
@@ -1248,7 +1242,7 @@ const PayoutsPage: React.FC = () => {
           justifyContent="space-between"
           sx={{ mb: 1.5 }}
         >
-          <Typography sx={{ fontWeight: 700 }}>Recent settlements</Typography>
+          <Typography sx={{ fontWeight: 700 }}>{t("payouts.recentSettlements", { defaultValue: "Recent settlements" })}</Typography>
           <Stack
             direction="row"
             alignItems="center"
@@ -1265,7 +1259,7 @@ const PayoutsPage: React.FC = () => {
               >
                 {RANGE_PRESETS.map((r) => (
                   <MenuItem key={r.value} value={r.value}>
-                    {r.label}
+                    {t(`payouts.range_${r.value}`, { defaultValue: r.label })}
                   </MenuItem>
                 ))}
               </Select>
@@ -1277,7 +1271,7 @@ const PayoutsPage: React.FC = () => {
                   type="date"
                   value={customFrom}
                   onChange={(e) => setCustomFrom(e.target.value)}
-                  label="From"
+                  label={t("payouts.dateFrom", { defaultValue: "From" })}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
                     max: customTo || undefined,
@@ -1290,7 +1284,7 @@ const PayoutsPage: React.FC = () => {
                   type="date"
                   value={customTo}
                   onChange={(e) => setCustomTo(e.target.value)}
-                  label="To"
+                  label={t("payouts.dateTo", { defaultValue: "To" })}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
                     min: customFrom || undefined,
@@ -1309,7 +1303,7 @@ const PayoutsPage: React.FC = () => {
                   data-testid="payouts-export-settled-only"
                 />
               }
-              label="Settled only"
+              label={t("payouts.settledOnly", { defaultValue: "Settled only" })}
               sx={{
                 m: 0,
                 "& .MuiFormControlLabel-label": { fontSize: 13 },
@@ -1330,7 +1324,7 @@ const PayoutsPage: React.FC = () => {
               }
               sx={{ textTransform: "none", borderRadius: 2 }}
             >
-              {exporting ? "Exporting\u2026" : "Export CSV"}
+              {exporting ? t("payouts.exporting", { defaultValue: "Exporting\u2026" }) : t("payouts.exportCsv", { defaultValue: "Export CSV" })}
             </Button>
             <Button
               size="small"
@@ -1338,7 +1332,7 @@ const PayoutsPage: React.FC = () => {
               onClick={() => router.push("/transactions")}
               sx={{ textTransform: "none" }}
             >
-              View all
+              {t("payouts.viewAll", { defaultValue: "View all" })}
             </Button>
           </Stack>
         </Stack>
@@ -1357,7 +1351,7 @@ const PayoutsPage: React.FC = () => {
               textAlign: "center",
             }}
           >
-            No payments yet. Your settled payments will appear here.
+            {t("payouts.noPaymentsYet", { defaultValue: "No payments yet. Your settled payments will appear here." })}
           </Typography>
         ) : (
           <Stack divider={<Divider flexItem />} spacing={0}>

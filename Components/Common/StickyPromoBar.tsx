@@ -3,6 +3,7 @@ import { Box, Typography, IconButton } from '@mui/material';
 import { BRAND_ACCENT } from '@/constants/theme';
 import { Close, ArrowForward, CardGiftcardRounded } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 /**
  * StickyPromoBar (item C) — a slim, dismissible bar at the very top of the
@@ -19,6 +20,7 @@ const PROMO_HEIGHT_PX = 36; // synchronized with the CSS var --dyno-promo-h
 
 const StickyPromoBar: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(true); // start hidden on SSR
 
@@ -55,7 +57,7 @@ const StickyPromoBar: React.FC = () => {
   return (
     <Box
       role="banner"
-      aria-label="Fee-free trial promotion"
+      aria-label={t("promoBar.aria")}
       sx={{
         position: 'fixed',
         top: 0,
@@ -92,13 +94,10 @@ const StickyPromoBar: React.FC = () => {
         <CardGiftcardRounded sx={{ fontSize: 18 }} aria-hidden />
         {/* Shorter copy on mobile so the whole bar fits in one line at 375px iPhone width. */}
         <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-          Your{' '}
-          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>first payment</Box>{' '}
-          is <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>fee-free</Box>
+          {t("promoBar.desktop")}
         </Box>
         <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
-          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>1st payment</Box>{' '}
-          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>fee-free</Box>
+          {t("promoBar.mobile")}
         </Box>
       </Typography>
 
@@ -122,11 +121,11 @@ const StickyPromoBar: React.FC = () => {
           '&:hover': { bgcolor: 'rgba(255,255,255,0.26)', transform: 'translateY(-1px)' },
         }}
       >
-        Claim <ArrowForward sx={{ fontSize: 14 }} />
+        {t("promoBar.claim")} <ArrowForward sx={{ fontSize: 14 }} />
       </Box>
 
       <IconButton
-        aria-label="Dismiss promotion"
+        aria-label={t("promoBar.dismiss")}
         size="small"
         onClick={onDismiss}
         sx={{

@@ -400,7 +400,7 @@ const MobileNavigationBar = () => {
                       {showAccountNewDot && (
                         <Box
                           data-testid="mobile-nav-account-new-dot"
-                          aria-label="New features available"
+                          aria-label={t("ariaNewFeatures")}
                           sx={{
                             position: "absolute",
                             top: -2,
@@ -473,7 +473,7 @@ const MobileNavigationBar = () => {
                         {(item as any).isNew && (
                           <Box
                             data-testid={`mobile-nav-new-dot-${item.id}`}
-                            aria-label="New feature"
+                            aria-label={t("ariaNewFeature")}
                             sx={{
                               position: "absolute",
                               top: -2,

@@ -1,6 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Vertical } from "@/Components/UI/_shared";
 import { BRAND_ACCENT } from "@/constants/theme";
 
@@ -32,16 +33,11 @@ import { BRAND_ACCENT } from "@/constants/theme";
  * `useVerticalAccent(override)` reads it directly via the parent page.
  */
 
-const OPTIONS: Array<{
-  vertical: Vertical;
-  icon: string;
-  label: string;
-  hint: string;
-}> = [
-  { vertical: "merchants",   icon: "mdi:storefront-outline",       label: "Sell products", hint: "Storefront, pay-links, invoices" },
-  { vertical: "fundraisers", icon: "mdi:hand-heart-outline",       label: "Fundraise",     hint: "Crowdfunding & donation pages" },
-  { vertical: "creators",    icon: "mdi:sparkles-outline",         label: "Get tips",      hint: "@handle page, tip-jar, momentum" },
-  { vertical: "developers",  icon: "mdi:code-tags",                label: "Build with API",hint: "Keys, webhooks, sandbox" },
+const OPTIONS: Array<{ vertical: Vertical; icon: string }> = [
+  { vertical: "merchants",   icon: "mdi:storefront-outline" },
+  { vertical: "fundraisers", icon: "mdi:hand-heart-outline" },
+  { vertical: "creators",    icon: "mdi:sparkles-outline" },
+  { vertical: "developers",  icon: "mdi:code-tags" },
 ];
 
 const VALID_VERTICALS: Vertical[] = ["merchants", "fundraisers", "creators", "developers"];
@@ -60,6 +56,7 @@ export interface PurposePickerProps {
 
 export default function PurposePicker({ onSelect, onDetected, routerQuery }: PurposePickerProps) {
   const theme = useTheme();
+  const { t } = useTranslation("auth");
   const dark = theme.palette.mode === "dark";
   const [mounted, setMounted] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -137,7 +134,7 @@ export default function PurposePicker({ onSelect, onDetected, routerQuery }: Pur
           mb: 1.25,
         }}
       >
-        What are you here for?
+        {t("purposeQuestion")}
       </Typography>
       <Box
         sx={{
@@ -198,10 +195,10 @@ export default function PurposePicker({ onSelect, onDetected, routerQuery }: Pur
               </Box>
               <Box sx={{ minWidth: 0, flex: 1 }}>
                 <Typography sx={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 13.5, lineHeight: 1.15, color: theme.palette.text.primary }}>
-                  {o.label}
+                  {t(`purposeOptions.${o.vertical}.label`)}
                 </Typography>
                 <Typography sx={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: 12, lineHeight: 1.3, color: theme.palette.text.secondary, mt: 0.25 }}>
-                  {o.hint}
+                  {t(`purposeOptions.${o.vertical}.hint`)}
                 </Typography>
               </Box>
               {active && (

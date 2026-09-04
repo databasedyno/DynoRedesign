@@ -65,5 +65,6 @@
   "walletUpdated": "Wallet erfolgreich aktualisiert",
   "editOtpNotice": "Zum Ändern der Adresse ist ein Einmalcode erforderlich, der an Ihre E-Mail gesendet wird.",
   "verifyAndSave": "Bestätigen & speichern",
-  "updatingWallet": "Wallet wird aktualisiert…"
+  "updatingWallet": "Wallet wird aktualisiert…",
+  "manageWallets": "Wallets verwalten"
 }

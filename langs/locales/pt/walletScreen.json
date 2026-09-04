@@ -65,5 +65,6 @@
   "walletUpdated": "Carteira atualizada com sucesso",
   "editOtpNotice": "Alterar o endereço requer um código único enviado para o seu e-mail.",
   "verifyAndSave": "Verificar e guardar",
-  "updatingWallet": "A atualizar a sua carteira…"
+  "updatingWallet": "A atualizar a sua carteira…",
+  "manageWallets": "Gerir carteiras"
 }

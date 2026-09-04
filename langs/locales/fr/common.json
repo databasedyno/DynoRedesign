@@ -11,7 +11,13 @@
     "rateMinutesSecondsAgo": "Taux mis à jour il y a {{m}} min {{s}} s"
   },
   "chooseYourLanguage": "Choisissez votre langue",
-  "language": "Langue",
+  "language": {
+    "change": "Changer de langue",
+    "options": "Options de langue",
+    "choose": "Choisissez votre langue",
+    "dismissChooser": "Fermer le sélecteur de langue",
+    "closeMenu": "Fermer le menu des langues"
+  },
   "english": "Anglais",
   "spanish": "Espagnol",
   "homePageName": "Accueil",
@@ -91,7 +97,11 @@
     "incompletePayment": "Paiement incomplet",
     "address": "Adresse",
     "customerPaysFee": "Le client paie les frais de traitement",
-    "pendingPayment": "Paiement en attente"
+    "pendingPayment": "Paiement en attente",
+    "loadFailed": "Nous n'avons pas pu charger ce lien de paiement. Veuillez réessayer.",
+    "linkExpiredTitle": "Ce lien de paiement a expiré",
+    "linkErrorTitle": "Ce lien de paiement ne peut pas être ouvert",
+    "goToDynopay": "Aller à Dynopay"
   },
   "crypto": {
     "title": "Cryptomonnaie",
@@ -627,7 +637,10 @@
     "taxDesc": "Comportement par défaut de la TVA/taxe pour les paiements et les liens de paiement.",
     "scopeAccount": "S'applique à l'ensemble de votre compte",
     "scopeCompany": "S'applique à {{company}}",
-    "selectedCompanyFallback": "la marque sélectionnée"
+    "selectedCompanyFallback": "la marque sélectionnée",
+    "viewOnly": "Lecture seule",
+    "team": "Équipe",
+    "teamDesc": "Invitez des coéquipiers et contrôlez ce que chacun peut accéder."
   },
   "donation": {
     "defaultTitle": "Soutenez cette campagne",
@@ -660,7 +673,9 @@
     "toGo": "à venir",
     "story": "Notre histoire",
     "gallery": "Photos",
-    "updates": "Mises à jour"
+    "updates": "Mises à jour",
+    "invalidEmail": "Veuillez entrer une adresse e-mail valide ou laissez-la vide.",
+    "emailPlaceholder": "E-mail pour les mises à jour (facultatif)"
   },
   "taxSettings": {
     "loadError": "Impossible de charger les paramètres de taxe.",
@@ -677,7 +692,8 @@
     "vatLabel": "Votre ID TVA / Taxe",
     "vatDesc": "Affiché sur les reçus. Permet la validation du reverse-charge dans l'UE lorsque vos acheteurs fournissent leur propre ID TVA.",
     "vatInvalidHint": "Cela ne correspond pas à un format de TVA connu de l'UE/GB — il sera tout de même enregistré tel qu'entré.",
-    "save": "Enregistrer les paramètres de taxe"
+    "save": "Enregistrer les paramètres de taxe",
+    "inheritNote": "Affichage de vos paramètres par défaut de compte — enregistrer ici crée des paramètres fiscaux spécifiques à l'entreprise sélectionnée."
   },
   "accountTypeIndividual": "Individuel",
   "accountTypeBusiness": "Entreprise",
@@ -788,7 +804,8 @@
       "showProductsDesc": "Affiche la section boutique sur cette page créateur. Désactivez-la pour une page uniquement pourboires — votre page boutique et les liens produits directs continuent de fonctionner.",
       "storePreviewBoth": "Aperçu : pourboires + boutique affichés",
       "storePreviewProductsHidden": "Aperçu : boutique masquée sur cette page",
-      "storePreviewStoreOff": "Aperçu : page uniquement pourboires — boutique et liens produits masqués"
+      "storePreviewStoreOff": "Aperçu : page uniquement pourboires — boutique et liens produits masqués",
+      "minFloorNote": "min 10 $"
     },
     "compare": {
       "title": "Comparer les vitrines",
@@ -951,5 +968,261 @@
     "securedBy": "Paiements sécurisés par Dynopay",
     "merchantLabel": "Marchand vérifié"
   },
-  "referAndEarn": "Parrainez et gagnez"
+  "referAndEarn": "Parrainez et gagnez",
+  "scrollToTop": "Retour en haut",
+  "dynopayHome": "Accueil Dynopay",
+  "feeFree": {
+    "bannerAria": "Progression de l'essai sans frais",
+    "bannerBody": "Nous renonçons à l'intégralité de nos frais de plateforme — vous ne payez que le coût réseau (blockchain).",
+    "startAccepting": "Commencer à accepter des paiements",
+    "dismiss": "Fermer la bannière",
+    "widgetTitle": "Votre premier paiement est sans frais de plateforme",
+    "widgetBody": "Nous renonçons à l'intégralité des frais de plateforme (fixes + %) sur votre premier paiement — vous ne payez que le coût réseau (blockchain). Les frais standard s'appliquent ensuite."
+  },
+  "promoBar": {
+    "aria": "Promotion essai sans frais",
+    "desktop": "Votre premier paiement est sans frais",
+    "mobile": "1er paiement sans frais",
+    "dismiss": "Fermer la promotion",
+    "claim": "Profiter"
+  },
+  "emailVerify": {
+    "title": "Vérifiez votre e-mail",
+    "subtitle": "Saisissez le code de vérification envoyé à votre e-mail"
+  },
+  "setupPrompt": {
+    "createCompany": "Créer une entreprise",
+    "addWallet": "Ajouter une adresse de portefeuille"
+  },
+  "payouts": {
+    "pageName": "Soldes & paiements",
+    "pageDescription": "Votre volume réglé, fonds en attente, conversion automatique et où les paiements sont déposés.",
+    "digestOn": "Résumé des paiements hebdomadaires activé",
+    "digestOff": "Résumé des paiements hebdomadaires désactivé",
+    "digestUpdateFailed": "Impossible de mettre à jour le paramètre de résumé",
+    "previewSent": "Aperçu du résumé envoyé à votre email",
+    "previewFailed": "Impossible d'envoyer l'aperçu",
+    "pickBothDates": "Choisissez à la fois une date de début et une date de fin",
+    "startBeforeEnd": "La date de début doit être avant la date de fin",
+    "exported": "Historique des paiements exporté",
+    "exportFailed": "Échec de l'exportation. Veuillez réessayer.",
+    "totalSettled": "Total réglé",
+    "totalSettledHint": "Volume total reçu",
+    "pending": "En attente",
+    "pendingHint": "Paiements en attente de confirmation",
+    "autoConvert": "Conversion automatique",
+    "on": "Activé",
+    "off": "Désactivé",
+    "autoConvertHint": "Convertir la crypto en stablecoin",
+    "feeTier": "Niveau de frais",
+    "feeTierHint": "Votre tarification actuelle",
+    "settlementAutoConvert": "Règlement & conversion automatique",
+    "loading": "Chargement…",
+    "autoConvertOffDesc": "La conversion automatique est désactivée — les paiements se règlent dans la crypto reçue",
+    "addWalletFirst": "Ajoutez d'abord un portefeuille de règlement en stablecoin",
+    "settleTo": "Régler à",
+    "selectSettlementCoin": "Sélectionnez la crypto de règlement",
+    "settlementWallets": "Portefeuilles de règlement",
+    "noSettlementWallet": "Aucun portefeuille de règlement en stablecoin configuré pour le moment. Ajoutez-en un dans les paramètres pour convertir automatiquement les paiements.",
+    "onChain": "sur",
+    "active": "Actif",
+    "autoConvertProtection": "Protection de conversion automatique",
+    "firstConversion": "Première conversion !",
+    "savingsFirst": "Votre premier paiement a été automatiquement converti en stablecoin — protégé contre la volatilité",
+    "payment": "paiement",
+    "payments": "paiements",
+    "conversion": "conversion",
+    "conversions": "conversions",
+    "savingsOff": "Activez la conversion automatique pour verrouiller la crypto entrante en stablecoins",
+    "thisMonth": "Ce mois-ci",
+    "last6Months": "6 derniers mois",
+    "savingsSparklineAria": "Conversions de stablecoins au cours des 6 derniers mois",
+    "weeklyDigest": "Résumé hebdomadaire des paiements",
+    "weeklyDigestDesc": "Recevez un e-mail hebdomadaire résumant les paiements réglés et tout ce qui est encore en attente",
+    "sending": "Envoi…",
+    "sendPreview": "Envoyer l'aperçu",
+    "payoutWallets": "Portefeuilles de paiement",
+    "payoutWalletsDesc": "Où se trouvent vos fonds réglés",
+    "manage": "Gérer",
+    "taxCollected": "Impôt collecté",
+    "toDate": "à ce jour",
+    "receipts": "Reçus",
+    "pendingFunds": "Fonds en attente",
+    "pendingFundsDesc": "Paiements en attente de confirmation on-chain",
+    "paymentAwaiting": "1 paiement en attente",
+    "noPendingNow": "Aucun paiement en attente de confirmation pour le moment.",
+    "confirming": "Confirmation en cours",
+    "recentSettlements": "Règlements récents",
+    "dateFrom": "De",
+    "dateTo": "À",
+    "settledOnly": "Uniquement réglés",
+    "exporting": "Exportation…",
+    "exportCsv": "Exporter CSV",
+    "viewAll": "Voir tout",
+    "noPaymentsYet": "Aucun paiement pour le moment. Vos paiements réglés apparaîtront ici.",
+    "range_7": "Derniers 7 jours",
+    "range_30": "Derniers 30 jours",
+    "range_90": "Derniers 90 jours",
+    "range_365": "Derniers 12 mois",
+    "range_custom": "Plage personnalisée…"
+  },
+  "liveBrand": {
+    "payNow": "Payer maintenant",
+    "tagline": "Rejoignez Dynopay et obtenez",
+    "links": {
+      "title": "Liens de paiement",
+      "description": "Créez des liens de paiement partageables en quelques secondes. Acceptez des cryptos de n'importe qui, n'importe où."
+    },
+    "multiCurrency": {
+      "title": "Support multi-devises",
+      "description": "Acceptez BTC, ETH, USDT, SOL, XRP, et plus — le tout sur une seule plateforme."
+    },
+    "settlement": {
+      "title": "Règlement instantané",
+      "description": "Recevez des paiements en temps réel avec un transfert instantané vers votre portefeuille."
+    },
+    "dashboard": {
+      "title": "Analyse du tableau de bord",
+      "description": "Suivez les transactions, les revenus et les performances avec un tableau de bord puissant."
+    },
+    "lowFees": {
+      "title": "Frais bas",
+      "description": "Frais de transaction compétitifs de 1,5 % sans frais cachés ni coûts mensuels."
+    },
+    "checkout": {
+      "title": "Pages de paiement",
+      "description": "De belles pages de paiement de marque pour vos clients — sans code nécessaire."
+    }
+  },
+  "productEditor": {
+    "delivery": {
+      "url": {
+        "label": "Accéder à l'URL",
+        "hint": "Livrez un lien (Notion, Google Drive, site privé) lors du paiement."
+      },
+      "file": {
+        "label": "Téléchargement de fichier",
+        "hint": "Téléchargez vos fichiers. L'acheteur reçoit des liens de téléchargement signés."
+      },
+      "licenseKey": {
+        "label": "Clés de licence",
+        "hint": "Collez une clé par ligne. Une clé est émise par achat."
+      }
+    },
+    "variantDefault": "Variante",
+    "toast": {
+      "loadFailed": "Échec du chargement du produit",
+      "created": "Produit créé.",
+      "saved": "Enregistré.",
+      "saveFailed": "Échec de l'enregistrement.",
+      "published": "Publié — votre produit est en ligne.",
+      "publishFailed": "Échec de la publication.",
+      "archived": "Archivé.",
+      "archiveFailed": "Échec de l'archivage.",
+      "imageTooLarge": "L'image est trop grande (max 10 Mo).",
+      "onlyImages": "Seuls les fichiers image sont autorisés.",
+      "imageUploadFailed": "Échec du téléchargement de l'image.",
+      "coverUploaded": "Image de couverture téléchargée.",
+      "galleryAdded": "Image de galerie ajoutée.",
+      "enterImageUrl": "Entrez une URL d'image.",
+      "urlScheme": "L'URL doit commencer par http(s):// ou /",
+      "urlTooLong": "L'URL est trop longue (max 512 caractères).",
+      "imageDup": "Cette image est déjà dans la galerie.",
+      "variantImageSaveFailed": "Échec de l'enregistrement de l'image de variante.",
+      "variantImageUploaded": "Image de variante téléchargée.",
+      "variantImageClearFailed": "Échec de la suppression de l'image de variante.",
+      "fileUploaded": "Fichier téléchargé.",
+      "uploadFailed": "Échec du téléchargement.",
+      "deleteFailed": "Échec de la suppression.",
+      "saveDraftFirst": "Enregistrez d'abord le brouillon.",
+      "addVariantFailed": "Échec de l'ajout de variante.",
+      "variantSaved": "Variante enregistrée.",
+      "variantSaveFailed": "Échec de l'enregistrement de la variante."
+    },
+    "validate": {
+      "titleRequired": "Le titre est requis.",
+      "priceGtZero": "Le prix doit être supérieur à 0.",
+      "enterAccessUrl": "Entrez l'URL d'accès."
+    },
+    "confirm": {
+      "archiveProduct": "Archiver ce produit ? Les acheteurs ne pourront pas le voir.",
+      "removeFile": "Supprimer ce fichier ?"
+    },
+    "newProduct": "Nouveau produit",
+    "editProduct": "Modifier le produit",
+    "slug": "Slug :",
+    "productTitle": "Titre du produit",
+    "subtitle": "Sous-titre (optionnel)",
+    "description": "Description (Markdown pris en charge)",
+    "coverImage": "Image de couverture",
+    "coverImageUrl": "URL de l'image (optionnel, https://…)",
+    "uploading": "Téléchargement…",
+    "uploadImage": "Télécharger l'image",
+    "removeCoverImage": "Supprimer l'image de couverture",
+    "coverPreview": "Aperçu de la couverture",
+    "coverImageHint": "JPG, PNG, GIF, WebP ou SVG. Max 10 Mo. Les images téléchargées sont servies via le CDN de l'application.",
+    "photoGallery": "Galerie photo (optionnelle)",
+    "removeGalleryImage": "Supprimer l'image de la galerie",
+    "galleryImageUrl": "URL de l'image",
+    "galleryAlt": "Texte alternatif (optionnel)",
+    "galleryAltPlaceholder": "Décrivez l'image",
+    "addFromUrl": "Ajouter depuis l'URL",
+    "uploadFromDevice": "Télécharger depuis l'appareil",
+    "basePriceInfo": "Prix de base (informationnel, les variantes remplacent)",
+    "price": "Prix",
+    "currency": "Devise",
+    "stockUnlimited": "Stock (vide = illimité)",
+    "digitalDelivery": "Livraison numérique",
+    "deliveryMethod": "Méthode de livraison",
+    "accessUrl": "URL d'accès",
+    "licenseKeys": "Clés de licence (une par ligne)",
+    "uploadFile": "Télécharger un fichier",
+    "saveDraftFirstHint": "Enregistrez d'abord le brouillon, puis vous pourrez télécharger des fichiers.",
+    "taxVat": "Taxe & TVA",
+    "taxIntro": "Choisissez si les acheteurs doivent payer des taxes sur ce produit. C'est exactement ce qui apparaît lors du paiement sur votre vitrine.",
+    "chargeTax": "Facturer la taxe sur ce produit",
+    "chargingTax": "facturation de la taxe",
+    "noTaxState": "pas de taxe",
+    "inheritStoreDefault": "Hériter de la valeur par défaut du magasin",
+    "alwaysChargeTax": "Toujours facturer la taxe",
+    "neverChargeTax": "Ne jamais facturer la taxe",
+    "overrideExemptHint": "Les remplacements ne s'appliquent pas aux produits exonérés de taxe.",
+    "overrideHint": "Remplace la valeur par défaut de votre magasin (Paramètres → Taxe) uniquement pour ce produit.",
+    "taxCategory": "Catégorie de taxe",
+    "categoryDigital": "Biens / services numériques",
+    "categoryPhysical": "Biens physiques",
+    "categoryService": "Service",
+    "categoryExempt": "Exonéré de taxe",
+    "categoryExemptHint": "Ce produit est toujours vendu sans taxe, peu importe vos paramètres fiscaux.",
+    "categoryPhysicalHint": "Les biens physiques utilisent le pays de l'adresse de livraison de l'acheteur pour la juridiction fiscale.",
+    "categoryDigitalHint": "Les biens / services numériques utilisent la localisation détectée de l'acheteur pour la juridiction fiscale.",
+    "atCheckout": "Au moment du paiement",
+    "effectiveExempt": "Exonéré de taxe — ce produit est toujours vendu sans taxe.",
+    "shippingCountry": "pays de l'adresse de livraison",
+    "location": "emplacement",
+    "effectiveOff": "Aucune taxe ajoutée — les acheteurs paient exactement le prix affiché.",
+    "taxDefaultHintPre": "Le paramètre par défaut de votre boutique est actuellement",
+    "noTax": "Pas de taxe",
+    "taxDefaultHintMid": ". Activez-le pour tous les paiements dans Paramètres → Taxes, ou définissez ce produit sur",
+    "manageTaxLink": "Gérez le paramètre par défaut de votre boutique dans Paramètres → Taxes →",
+    "variantsOptional": "Variantes (facultatif)",
+    "addVariant": "Ajouter une variante",
+    "enableVariantsAria": "Activer les variantes",
+    "enableVariantsDesc": "Activez les variantes (par exemple, différentes tailles / niveaux). Lorsqu'elles sont activées, chaque variante a son propre prix + stock.",
+    "oneOffServiceAria": "Service ponctuel",
+    "oneOffServiceDesc": "Service ponctuel (cacher le sélecteur de quantité). Activez-le pour des produits comme « Parler à un développeur » où une quantité n'a pas de sens — les acheteurs l'achètent une fois.",
+    "noVariantsYet": "Pas encore de variantes. Cliquez sur « Ajouter une variante » pour en créer une.",
+    "removeVariantImage": "Supprimer l'image de la variante",
+    "change": "Changer",
+    "add": "Ajouter",
+    "variantTitle": "Titre",
+    "variantPriceCents": "Prix (¢)",
+    "variantStock": "Stock",
+    "deleteVariant": "Supprimer la variante",
+    "saveDraft": "Enregistrer le brouillon",
+    "updateLiveProduct": "Mettre à jour le produit en ligne",
+    "publish": "Publier",
+    "archive": "Archiver",
+    "adjustImage": "Ajuster l'image"
+  }
 }

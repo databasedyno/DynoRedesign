@@ -106,7 +106,7 @@ const NewHeader = () => {
         {/* Mobile/tablet hamburger — top-left, opens full nav drawer (Coinbase pattern) */}
         <IconButton
           data-testid="mobile-hamburger-toggle"
-          aria-label="Open menu"
+          aria-label={t("dashboardLayout:ariaOpenMenu")}
           onClick={() => setDrawerOpen(true)}
           disableRipple
           disableFocusRipple
@@ -292,7 +292,7 @@ const NewHeader = () => {
           />
           <IconButton
             data-testid="mobile-nav-drawer-close"
-            aria-label="Close menu"
+            aria-label={t("dashboardLayout:ariaCloseMenu")}
             onClick={() => setDrawerOpen(false)}
             sx={{
               width: 36,
@@ -364,7 +364,7 @@ const NewHeader = () => {
                   fontFamily: "var(--font-sans)",
                 }}
               >
-                View account
+                {t("dashboardLayout:viewAccount")}
               </Typography>
             </Box>
           </Box>

@@ -307,7 +307,16 @@
       "exploreBtn": "Ontdek"
     },
     "header": {
-      "systemsNormal": "Alles draait"
+      "systemsNormal": "Alles draait",
+      "ariaPrimaryNav": "Hoofdnavigatie",
+      "ariaGoHome": "Naar de startpagina",
+      "publicBeta": "Openbare bèta",
+      "ariaSystemStatus": "Systeemstatus",
+      "ariaToggleMenu": "Menu openen/sluiten",
+      "ariaMobileNav": "Mobiele navigatie",
+      "trustEncrypted": "Versleuteld",
+      "trustNonCustodial": "Non-custodial",
+      "trustLive": "Live"
     },
     "footer": {
       "systemsOperational": "Alle systemen operationeel"
@@ -528,7 +537,8 @@
       "r6b": "Vanaf dag één in rekening gebracht"
     },
     "trust": {
-      "label": "Accepteer betalingen op 9 blockchains"
+      "label": "Accepteer betalingen op 9 blockchains",
+      "chainTooltip": "Bekijk vergoedingen en ondersteunde netwerken"
     },
     "brandSpotlight": {
       "eyebrow": "Multi-brand",
@@ -712,13 +722,19 @@
       "vatValid": "✓ Geldig EU-btw-nummer — verleggingsregeling van toepassing, er wordt geen btw in rekening gebracht.",
       "vatInvalid": "Dit btw-nummer kon niet worden gevalideerd — het standaardtarief wordt toegepast.",
       "vatHint": "Bedrijven in de EU kunnen een btw-nummer invoeren voor de verleggingsregeling.",
-      "reverseChargeNotice": "EU B2B-verleggingsregeling: geen btw in rekening gebracht. Je moet de btw in je eigen lidstaat aangeven."
+      "reverseChargeNotice": "EU B2B-verleggingsregeling: geen btw in rekening gebracht. Je moet de btw in je eigen lidstaat aangeven.",
+      "viewCart": "Bekijk winkelwagentje",
+      "yourCart": "Je winkelwagentje",
+      "viewFullCart": "Bekijk volledig winkelwagentje"
     },
     "receiptEmail": {
       "label": "Stuur mij een bon (optioneel)",
       "helper": "We e-mailen je bon zodra deze betaling is bevestigd.",
       "saved": "De bon wordt naar dit e-mailadres gestuurd.",
-      "invalid": "Voer een geldig e-mailadres in."
+      "invalid": "Voer een geldig e-mailadres in.",
+      "savedShort": "Ontvangstbewijs is onderweg naar je inbox.",
+      "successLabel": "Wil je een kopie van je ontvangstbewijs?",
+      "successHelper": "Voeg je e-mailadres toe en we sturen je ontvangstbewijs — geen account nodig."
     },
     "notify": {
       "title": "Betaling bevestigd ✓",
@@ -734,7 +750,20 @@
     "feePaidByMerchant": "betaald door de verkoper",
     "feePaidByCustomer": "opgeteld bij je totaal",
     "plusNetworkCover": "+ dekking netwerkkosten",
-    "inclNetworkCover": "incl. dekking netwerkkosten"
+    "inclNetworkCover": "incl. dekking netwerkkosten",
+    "loadingCheckout": "Betaling laden…",
+    "expiredTitle": "Dit betalingsvenster is verlopen",
+    "expiredBody": "De tijd om deze betaling te voltooien is verstreken. Als je al geld hebt gestuurd, neem dan contact op met de verkoper. Vraag anders om een nieuwe betalingslink.",
+    "expiredRetry": "Begin opnieuw",
+    "breakdownTrustPaid": "Bedragen geverifieerd — hier is precies hoe je betaling is verdeeld.",
+    "breakdownTrust": "Deze bedragen kloppen precies — je betaling is transparant verdeeld tussen de verkoper en de Dynopay vergoeding.",
+    "preparingAddress": "Betalingsadres voorbereiden…",
+    "underpaid": {
+      "gotPrefix": "We hebben ontvangen",
+      "sendPrefix": "Stuur",
+      "sameAddressTail": "meer naar hetzelfde adres hieronder om je betaling te voltooien.",
+      "graceTimer": "Tijd over om te voltooien"
+    }
   },
   "creator": {
     "card": {
@@ -1029,5 +1058,32 @@
     "contactBody": "Voor interviews, reacties of iets dat op deze pagina ontbreekt: schrijf ons — we lezen elk bericht.",
     "storyCta": "Lees ons verhaal"
   },
-  "referralProgram": "Referral-programma"
+  "referralProgram": "Referral-programma",
+  "footerNav": {
+    "product": "Product",
+    "solutions": "Oplossingen",
+    "company": "Bedrijf",
+    "logoAlt": "Dynopay-logo",
+    "trustAria": "Vertrouwen en compliance",
+    "verticals": {
+      "ecommerce": "E-commerce",
+      "saas": "SaaS",
+      "gaming": "Gaming",
+      "freelancers": "Freelancers",
+      "remittance": "Geldovermakingen",
+      "digitalDownloads": "Digitale downloads",
+      "hosting": "Hosting & domeinen",
+      "vpn": "VPN & privacy",
+      "marketplaces": "Marktplaatsen",
+      "agencies": "Bureaus & consultants",
+      "nonprofits": "Non-profitorganisaties"
+    },
+    "trust": {
+      "nonCustodial": "Non-custodial",
+      "chains": "9 blockchains",
+      "encrypted": "Versleuteld",
+      "gdpr": "AVG- / AML-conform",
+      "noChargebacks": "Geen chargebacks"
+    }
+  }
 }

@@ -747,6 +747,8 @@ low-risk mechanical change). Files: see REFACTOR_STATUS.md "Next Actions" checkb
   scroll-up), staggered cards, CSS hero load-in, SSR-visible/hydration-safe, reduced-motion aware.
 - Auto-convert "icon missing" P0: root cause was Settings never enabling auto-convert (payload mismatch,
   silent). Fixed + verified on live backend (company 71 test, restored). Details in CHANGELOG 2026-09-04.
+- I18N sweep part 1 (30c): register purpose picker + header/footer/banners/secure-account now translate; 22 locale
+  parity gaps filled; scanner + merge tooling added. Part 2 (checkout + dashboard, ~450 strings) is IN PROGRESS.
 - Landing navigation (30b): desktop section dot-rail + mobile chip bar (scroll-spy, aria-current), hero
   "Explore ↓" jump links, 6 lower-priority sections folded into the tabbed "More about Dynopay" block, section
   padding tightened → desktop page ≈31% shorter (20.6k → 14.3k px). testing_agent iteration_126 PASS.
@@ -793,3 +795,9 @@ low-risk mechanical change). Files: see REFACTOR_STATUS.md "Next Actions" checkb
 ## Still open / backlog (from prior handoff)
 - P1 Bulk Undo (undo last batch within unlocked session); P1 Session Extend (+10 min on ending-soon banner);
   P2 Wallet Search filter; P2 Shared Address Tags ("used on X networks").
+
+
+## i18n Sweep Part 2 — status (updated 2026-06, pod ca6c51ad)
+- DONE: 74 missing-EN keys fixed+translated; ProductEditor, BuyButtonsSection, Payouts fully i18n; LiveBrandContent marketing copy i18n. All 6 locales complete (check-i18n.mjs green). Scan 785->671.
+- P1 REMAINING (next tier "public pages/docs", ~640 strings): pages/documentation.tsx (213), how-to.tsx (22), Help&Support KB articles, API PublishableKeysSection/WebhookConsoleSection, PaymentLinksTable, SupportChatWidget, CheckoutShell/StatusStrip, FeeCalculator, refund/tip/campaign components, misc dashboard leftovers.
+- Workflow to continue: wrap strings in t("ns:key",{defaultValue:"EN"}) -> python3 scripts/extract_missing_i18n.py -> (hand-add dynamic keys) -> python3 scripts/translate_missing_i18n.py -> node scripts/check-i18n.mjs.

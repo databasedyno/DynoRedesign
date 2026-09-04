@@ -29,6 +29,7 @@ import {
 import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
@@ -112,6 +113,7 @@ const parseTokens = (raw: string): string[] =>
 
 const SnippetPre = ({ code, onCopy }: { code: string; onCopy: () => void }) => {
   const theme = useTheme();
+  const { t } = useTranslation("apiScreen");
   return (
     <Box sx={{ mt: 1 }}>
       <Box
@@ -131,7 +133,7 @@ const SnippetPre = ({ code, onCopy }: { code: string; onCopy: () => void }) => {
             color: theme.palette.text.secondary,
           }}
         >
-          &lt;dynopay-buy-button&gt; snippet
+          &lt;dynopay-buy-button&gt; {t("buyButtons.snippet", { defaultValue: "snippet" })}
         </Typography>
         <Box
           component="button"
@@ -154,7 +156,7 @@ const SnippetPre = ({ code, onCopy }: { code: string; onCopy: () => void }) => {
           }}
         >
           <Icon name="copy" size={14} />
-          Copy
+          {t("buyButtons.copy", { defaultValue: "Copy" })}
         </Box>
       </Box>
       <Box
@@ -208,6 +210,7 @@ const BuyButtonRow = ({
   onReactivate,
 }: RowProps) => {
   const theme = useTheme();
+  const { t } = useTranslation("apiScreen");
   const [expanded, setExpanded] = useState(false);
 
   const statusColor =
@@ -218,7 +221,7 @@ const BuyButtonRow = ({
   const priceLabel =
     btn.price_type === "fixed"
       ? `${btn.amount ?? 0} ${btn.base_currency}`
-      : `${btn.min_amount ?? 5}-${btn.max_amount ?? "∞"} ${btn.base_currency} (customer chooses)`;
+      : `${btn.min_amount ?? 5}-${btn.max_amount ?? "∞"} ${btn.base_currency} (${t("buyButtons.customerChooses", { defaultValue: "customer chooses" })})`;
 
   const pk = pkLive || pkTest || "pk_live_your_key";
   const snippet =
@@ -296,7 +299,7 @@ const BuyButtonRow = ({
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-          <Tooltip title="Edit">
+          <Tooltip title={t("buyButtons.edit", { defaultValue: "Edit" })}>
             <span>
               <IconButton
                 size="small"
@@ -310,7 +313,7 @@ const BuyButtonRow = ({
             </span>
           </Tooltip>
           {btn.status === "active" ? (
-            <Tooltip title="Archive">
+            <Tooltip title={t("buyButtons.archive", { defaultValue: "Archive" })}>
               <span>
                 <IconButton
                   size="small"
@@ -323,7 +326,7 @@ const BuyButtonRow = ({
               </span>
             </Tooltip>
           ) : (
-            <Tooltip title="Reactivate">
+            <Tooltip title={t("buyButtons.reactivate", { defaultValue: "Reactivate" })}>
               <span>
                 <IconButton
                   size="small"
@@ -371,11 +374,11 @@ const BuyButtonRow = ({
         >
           {btn.button_id}
         </Typography>
-        <Tooltip title="Copy button id">
+        <Tooltip title={t("buyButtons.copyButtonId", { defaultValue: "Copy button id" })}>
           <IconButton
             size="small"
             data-testid={`bb-copy-${btn.button_id}`}
-            onClick={() => onCopy(btn.button_id, "Button ID")}
+            onClick={() => onCopy(btn.button_id, t("buyButtons.buttonIdLabel", { defaultValue: "Button ID" }))}
           >
             <Icon name="copy" size={16} />
           </IconButton>
@@ -385,18 +388,18 @@ const BuyButtonRow = ({
       {/* Meta chips */}
       <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 0.75, alignItems: "center" }}>
         <Chip size="small" label={priceLabel} sx={{ height: 22, fontSize: 11 }} />
-        <Chip size="small" label={`${btn.usage_count} uses`} sx={{ height: 22, fontSize: 11 }} />
+        <Chip size="small" label={`${btn.usage_count} ${t("buyButtons.uses", { defaultValue: "uses" })}`} sx={{ height: 22, fontSize: 11 }} />
         <Chip
           size="small"
           label={
             btn.allowed_currencies && btn.allowed_currencies.length > 0
-              ? `${btn.allowed_currencies.length} currencies`
-              : "All configured"
+              ? `${btn.allowed_currencies.length} ${t("buyButtons.currencies", { defaultValue: "currencies" })}`
+              : t("buyButtons.allConfigured", { defaultValue: "All configured" })
           }
           sx={{ height: 22, fontSize: 11 }}
         />
         {btn.metadata && Object.keys(btn.metadata).length > 0 && (
-          <Chip size="small" label={`${Object.keys(btn.metadata).length} metadata`} sx={{ height: 22, fontSize: 11 }} />
+          <Chip size="small" label={`${Object.keys(btn.metadata).length} ${t("buyButtons.metadata", { defaultValue: "metadata" })}`} sx={{ height: 22, fontSize: 11 }} />
         )}
       </Box>
 
@@ -404,7 +407,7 @@ const BuyButtonRow = ({
       <Box sx={{ mt: 1 }}>
         <CustomButton
           data-testid={`bb-expand-${btn.button_id}`}
-          label={expanded ? "Hide snippet" : "Show snippet"}
+          label={expanded ? t("buyButtons.hideSnippet", { defaultValue: "Hide snippet" }) : t("buyButtons.showSnippet", { defaultValue: "Show snippet" })}
           variant="secondary"
           size="small"
           endIcon={expanded ? <Icon name="chevron-up" size={16} /> : <Icon name="chevron-down" size={16} />}
@@ -427,7 +430,7 @@ const BuyButtonRow = ({
                   mb: 0.5,
                 }}
               >
-                Description
+                {t("buyButtons.description", { defaultValue: "Description" })}
               </Typography>
               <Typography sx={{ fontSize: 13, color: theme.palette.text.primary }}>
                 {btn.description}
@@ -447,7 +450,7 @@ const BuyButtonRow = ({
                   mb: 0.5,
                 }}
               >
-                Success URL
+                {t("buyButtons.successUrl", { defaultValue: "Success URL" })}
               </Typography>
               <Typography sx={{ fontSize: 13, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", color: theme.palette.text.primary, wordBreak: "break-all" }}>
                 {btn.success_url}
@@ -467,7 +470,7 @@ const BuyButtonRow = ({
                   mb: 0.5,
                 }}
               >
-                Allowed currencies
+                {t("buyButtons.allowedCurrencies", { defaultValue: "Allowed currencies" })}
               </Typography>
               <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap", gap: 0.5 }}>
                 {btn.allowed_currencies.map((c) => (
@@ -491,14 +494,14 @@ const BuyButtonRow = ({
               }}
             >
               <Typography sx={{ fontSize: 12, color: theme.palette.text.primary }}>
-                Create a publishable key first (above) so this snippet has one to reference. The placeholder <code>pk_live_your_key</code> is not usable.
+                {t("buyButtons.noPkWarnPre", { defaultValue: "Create a publishable key first (above) so this snippet has one to reference. The placeholder" })} <code>pk_live_your_key</code> {t("buyButtons.noPkWarnPost", { defaultValue: "is not usable." })}
               </Typography>
             </Box>
           )}
 
           <SnippetPre
             code={snippet}
-            onCopy={() => onCopy(snippet, "Buy Button snippet")}
+            onCopy={() => onCopy(snippet, t("buyButtons.snippetCopyLabel", { defaultValue: "Buy Button snippet" }))}
           />
         </Box>
       )}
@@ -534,6 +537,7 @@ const FormModal = ({
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const { t } = useTranslation("apiScreen");
 
   useEffect(() => {
     if (!open) return;
@@ -662,7 +666,7 @@ const FormModal = ({
       }}
     >
       <PanelCard
-        title={mode === "create" ? "Create buy button" : "Edit buy button"}
+        title={mode === "create" ? t("buyButtons.createTitle", { defaultValue: "Create buy button" }) : t("buyButtons.editTitle", { defaultValue: "Edit buy button" })}
         showHeaderBorder={false}
         bodyPadding={
           isMobile
@@ -678,23 +682,21 @@ const FormModal = ({
             mb: 2,
           }}
         >
-          A buy button is a pre-created checkout object. Because the amount and
-          currencies live server-side, shoppers can&apos;t tamper with the price
-          in your page&apos;s HTML.
+          {t("buyButtons.modalIntro", { defaultValue: "A buy button is a pre-created checkout object. Because the amount and currencies live server-side, shoppers can’t tamper with the price in your page’s HTML." })}
         </Typography>
 
         <Stack spacing={2}>
           <InputField
             fullWidth
-            label="Internal name *"
-            placeholder="e.g. T-shirt (Large)"
+            label={t("buyButtons.internalName", { defaultValue: "Internal name *" })}
+            placeholder={t("buyButtons.internalNamePlaceholder", { defaultValue: "e.g. T-shirt (Large)" })}
             value={form.name}
             onChange={(e: any) => setField("name", e.target.value)}
           />
 
           <InputField
             fullWidth
-            label="Button label"
+            label={t("buyButtons.buttonLabel", { defaultValue: "Button label" })}
             placeholder="Pay with crypto"
             value={form.label}
             onChange={(e: any) => setField("label", e.target.value)}
@@ -710,7 +712,7 @@ const FormModal = ({
                   mb: 0.5,
                 }}
               >
-                Price type
+                {t("buyButtons.priceType", { defaultValue: "Price type" })}
               </Typography>
               <Select
                 fullWidth
@@ -728,8 +730,8 @@ const FormModal = ({
                   borderRadius: "8px",
                 }}
               >
-                <MenuItem value="fixed">Fixed price — you set the amount</MenuItem>
-                <MenuItem value="customer">Customer chooses (e.g. donation)</MenuItem>
+                <MenuItem value="fixed">{t("buyButtons.priceFixed", { defaultValue: "Fixed price — you set the amount" })}</MenuItem>
+                <MenuItem value="customer">{t("buyButtons.priceCustomer", { defaultValue: "Customer chooses (e.g. donation)" })}</MenuItem>
               </Select>
             </Box>
           )}
@@ -738,14 +740,14 @@ const FormModal = ({
             <>
               <InputField
                 fullWidth
-                label="Amount *"
+                label={t("buyButtons.amount", { defaultValue: "Amount *" })}
                 placeholder="25"
                 type="number"
                 value={form.amount}
                 onChange={(e: any) => setField("amount", e.target.value)}
               />
               <Typography sx={{ mt: -1, fontSize: 12, color: theme.palette.text.secondary }}>
-                Amount must be ≥ 5 (base currency of your active secret key).
+                {t("buyButtons.amountHint", { defaultValue: "Amount must be ≥ 5 (base currency of your active secret key)." })}
               </Typography>
             </>
           ) : (
@@ -753,7 +755,7 @@ const FormModal = ({
               <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
                 <InputField
                   fullWidth
-                  label="Min amount *"
+                  label={t("buyButtons.minAmount", { defaultValue: "Min amount *" })}
                   placeholder="10"
                   type="number"
                   value={form.min_amount}
@@ -761,7 +763,7 @@ const FormModal = ({
                 />
                 <InputField
                   fullWidth
-                  label="Max amount"
+                  label={t("buyButtons.maxAmount", { defaultValue: "Max amount" })}
                   placeholder="500"
                   type="number"
                   value={form.max_amount}
@@ -769,15 +771,15 @@ const FormModal = ({
                 />
               </Box>
               <Typography sx={{ mt: -1, fontSize: 12, color: theme.palette.text.secondary }}>
-                Shopper picks any amount in this range at checkout. Min must be ≥ 5.
+                {t("buyButtons.rangeHint", { defaultValue: "Shopper picks any amount in this range at checkout. Min must be ≥ 5." })}
               </Typography>
             </>
           )}
 
           <InputField
             fullWidth
-            label="Allowed currencies (optional)"
-            placeholder="e.g. USDT-TRC20, USDC-ERC20 — leave empty to allow all configured"
+            label={t("buyButtons.allowedCurrenciesLabel", { defaultValue: "Allowed currencies (optional)" })}
+            placeholder={t("buyButtons.allowedCurrenciesPlaceholder", { defaultValue: "e.g. USDT-TRC20, USDC-ERC20 — leave empty to allow all configured" })}
             value={form.allowed_currencies_input}
             onChange={(e: any) =>
               setField("allowed_currencies_input", e.target.value)
@@ -793,8 +795,8 @@ const FormModal = ({
 
           <InputField
             fullWidth
-            label="Description (optional)"
-            placeholder="Shown to shoppers on the checkout page"
+            label={t("buyButtons.descriptionOptional", { defaultValue: "Description (optional)" })}
+            placeholder={t("buyButtons.descriptionPlaceholder", { defaultValue: "Shown to shoppers on the checkout page" })}
             multiline
             minRows={2}
             value={form.description}
@@ -803,15 +805,15 @@ const FormModal = ({
 
           <InputField
             fullWidth
-            label="Success URL (optional)"
-            placeholder="https://shop.com/thanks — where to send the shopper after payment"
+            label={t("buyButtons.successUrlOptional", { defaultValue: "Success URL (optional)" })}
+            placeholder={t("buyButtons.successUrlPlaceholder", { defaultValue: "https://shop.com/thanks — where to send the shopper after payment" })}
             value={form.success_url}
             onChange={(e: any) => setField("success_url", e.target.value)}
           />
 
           <InputField
             fullWidth
-            label="Metadata JSON (optional)"
+            label={t("buyButtons.metadataLabel", { defaultValue: "Metadata JSON (optional)" })}
             placeholder='{"sku":"TSHIRT-L-BLK","campaign":"summer24"}'
             multiline
             minRows={3}
@@ -820,12 +822,12 @@ const FormModal = ({
           />
           {metadataInvalid && (
             <Typography sx={{ mt: -1, fontSize: 12, color: theme.palette.error.main }}>
-              Metadata must be a valid JSON object (e.g. <code>{"{}"}</code>).
+              {t("buyButtons.metadataInvalidPre", { defaultValue: "Metadata must be a valid JSON object (e.g." })} <code>{"{}"}</code>{t("buyButtons.metadataInvalidPost", { defaultValue: ")." })}
             </Typography>
           )}
           {!metadataInvalid && (
             <Typography sx={{ mt: -1, fontSize: 12, color: theme.palette.text.secondary }}>
-              Attached to every session created from this button — useful for reconciling webhooks server-side.
+              {t("buyButtons.metadataHint", { defaultValue: "Attached to every session created from this button — useful for reconciling webhooks server-side." })}
             </Typography>
           )}
 
@@ -866,14 +868,14 @@ const FormModal = ({
           <CustomButton
             variant="outlined"
             size={isMobile ? "small" : "medium"}
-            label="Cancel"
+            label={t("buyButtons.cancel", { defaultValue: "Cancel" })}
             onClick={onClose}
             sx={{ flex: 1 }}
           />
           <CustomButton
             variant="primary"
             size={isMobile ? "small" : "medium"}
-            label={mode === "create" ? "Create button" : "Save changes"}
+            label={mode === "create" ? t("buyButtons.createSubmit", { defaultValue: "Create button" }) : t("buyButtons.saveChanges", { defaultValue: "Save changes" })}
             onClick={handleSubmit}
             disabled={!canSubmit}
             data-testid="bb-form-submit"
@@ -896,6 +898,7 @@ const BuyButtonsSection = () => {
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const companyList = useCompanyStore().companyList;
+  const { t } = useTranslation("apiScreen");
 
   const effectiveCompanyId = useMemo(() => {
     if (selectedCompanyId) return selectedCompanyId;
@@ -926,11 +929,11 @@ const BuyButtonsSection = () => {
   const loadError = buttonsError
     ? (buttonsError as any)?.response?.data?.message ||
       (buttonsError as any)?.message ||
-      "Failed to load buy buttons"
+      t("buyButtons.loadFailed", { defaultValue: "Failed to load buy buttons" })
     : pksError
       ? (pksError as any)?.response?.data?.message ||
         (pksError as any)?.message ||
-        "Failed to load buy buttons"
+        t("buyButtons.loadFailed", { defaultValue: "Failed to load buy buttons" })
       : null;
   const load = useCallback(() => {
     refetchButtons();
@@ -965,18 +968,18 @@ const BuyButtonsSection = () => {
     return row?.publishable_key || null;
   }, [pks]);
 
-  const handleCopy = (value: string, label = "Copied") => {
+  const handleCopy = (value: string, label = t("buyButtons.copied", { defaultValue: "Copied" })) => {
     if (!value) return;
     try {
       copyToClipboard(value);
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: `${label} copied`, severity: "info" },
+        payload: { message: t("buyButtons.copiedToast", { defaultValue: "{{label}} copied", label }), severity: "info" },
       });
     } catch {
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: "Unable to copy", severity: "error" },
+        payload: { message: t("buyButtons.unableToCopy", { defaultValue: "Unable to copy" }), severity: "error" },
       });
     }
   };
@@ -1007,7 +1010,7 @@ const BuyButtonsSection = () => {
       await axiosBaseApi.delete(`buy-buttons/${archiveId}`);
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: "Buy button archived", severity: "success" },
+        payload: { message: t("buyButtons.archivedToast", { defaultValue: "Buy button archived" }), severity: "success" },
       });
       load();
     } catch (err: any) {
@@ -1016,7 +1019,7 @@ const BuyButtonsSection = () => {
         payload: {
           message:
             err?.response?.data?.message ||
-            "Failed to archive buy button",
+            t("buyButtons.archiveFailed", { defaultValue: "Failed to archive buy button" }),
           severity: "error",
         },
       });
@@ -1032,7 +1035,7 @@ const BuyButtonsSection = () => {
       });
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: "Buy button reactivated", severity: "success" },
+        payload: { message: t("buyButtons.reactivatedToast", { defaultValue: "Buy button reactivated" }), severity: "success" },
       });
       load();
     } catch (err: any) {
@@ -1041,7 +1044,7 @@ const BuyButtonsSection = () => {
         payload: {
           message:
             err?.response?.data?.message ||
-            "Failed to reactivate buy button",
+            t("buyButtons.reactivateFailed", { defaultValue: "Failed to reactivate buy button" }),
           severity: "error",
         },
       });
@@ -1089,17 +1092,15 @@ const BuyButtonsSection = () => {
               fontFamily: "var(--font-sans)",
             }}
           >
-            Buy buttons
+            {t("buyButtons.title", { defaultValue: "Buy buttons" })}
           </Typography>
           <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
-            Pre-created checkout objects. The <code>button-id</code> path is the
-            canonical Stripe-style flow — because the amount lives server-side,
-            shoppers can&apos;t tamper with the price in your HTML.
+            {t("buyButtons.sectionDescPre", { defaultValue: "Pre-created checkout objects. The" })} <code>button-id</code> {t("buyButtons.sectionDescPost", { defaultValue: "path is the canonical Stripe-style flow — because the amount lives server-side, shoppers can’t tamper with the price in your HTML." })}
           </Typography>
         </Box>
         <CustomButton
           data-testid="bb-create-btn"
-          label={isMobile ? "Create" : "Create buy button"}
+          label={isMobile ? t("buyButtons.create", { defaultValue: "Create" }) : t("buyButtons.createBuyButton", { defaultValue: "Create buy button" })}
           variant="primary"
           size={isMobile ? "small" : "medium"}
           endIcon={<Icon name="plus" size={isMobile ? 16 : 18} />}
@@ -1121,7 +1122,7 @@ const BuyButtonsSection = () => {
             data-testid="bb-no-company"
           >
             <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-              Select a company to manage its buy buttons.
+              {t("buyButtons.selectCompany", { defaultValue: "Select a company to manage its buy buttons." })}
             </Typography>
           </Box>
         ) : loading ? (
@@ -1162,7 +1163,7 @@ const BuyButtonsSection = () => {
             data-testid="bb-empty"
           >
             <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-              No buy buttons yet. Create one to embed a tamper-proof checkout on your site.
+              {t("buyButtons.empty", { defaultValue: "No buy buttons yet. Create one to embed a tamper-proof checkout on your site." })}
             </Typography>
           </Box>
         ) : (
@@ -1197,8 +1198,8 @@ const BuyButtonsSection = () => {
         open={archiveId !== null}
         onClose={() => setArchiveId(null)}
         onConfirm={confirmArchive}
-        title="Archive buy button"
-        message="Once archived, this buy button can no longer create checkout sessions. Any pages on your site using it will stop working until you reactivate it (or replace the button-id with a new one)."
+        title={t("buyButtons.deleteTitle", { defaultValue: "Archive buy button" })}
+        message={t("buyButtons.deleteMessage", { defaultValue: "Once archived, this buy button can no longer create checkout sessions. Any pages on your site using it will stop working until you reactivate it (or replace the button-id with a new one)." })}
       />
     </Box>
   );

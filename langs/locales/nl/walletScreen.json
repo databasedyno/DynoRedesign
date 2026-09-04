@@ -65,5 +65,6 @@
   "walletUpdated": "Wallet succesvol bijgewerkt",
   "editOtpNotice": "Het wijzigen van het adres vereist een eenmalige code die naar je e-mail wordt gestuurd.",
   "verifyAndSave": "Verifiëren en opslaan",
-  "updatingWallet": "Je wallet wordt bijgewerkt…"
+  "updatingWallet": "Je wallet wordt bijgewerkt…",
+  "manageWallets": "Beheer portemonnees"
 }

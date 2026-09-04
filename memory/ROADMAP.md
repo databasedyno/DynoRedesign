@@ -1,5 +1,10 @@
 # CURRENT PRIORITIES (2026-09-04, session 30) — top of stack
 
+🔴 IN PROGRESS — I18N SWEEP PART 2 (user-approved scope "all customer-facing UI"): register/chrome/banners DONE
+(session 30c); ~450 strings remain across checkout + dashboard files — exact list in CHANGELOG 2026-09-04 "REMAINING"
+and memory/i18n/inscope.txt. Workflow: scan → edit with t() → write memory/i18n/batchN.json → `python3
+scripts/i18n_add.py` → `node scripts/check-i18n.mjs` → tsc → testing_agent (PT/FR).
+
 DONE (30b): landing navigators (desktop dot rail + mobile chip bar, scroll-spy), hero "Explore ↓" jump links,
 "More about Dynopay" tabbed fold (6 sections) + ~30% tighter section padding → desktop page ≈31% shorter
 (20.6k → 14.3k px). Further shortening options offered but NOT taken (drop Referral band / fold Numbers band).

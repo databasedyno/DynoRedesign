@@ -307,7 +307,16 @@
       "exploreBtn": "Explorar"
     },
     "header": {
-      "systemsNormal": "Todo funciona"
+      "systemsNormal": "Todo funciona",
+      "ariaPrimaryNav": "Navegación principal",
+      "ariaGoHome": "Ir al inicio",
+      "publicBeta": "Beta pública",
+      "ariaSystemStatus": "Estado del sistema",
+      "ariaToggleMenu": "Abrir o cerrar menú",
+      "ariaMobileNav": "Navegación móvil",
+      "trustEncrypted": "Cifrado",
+      "trustNonCustodial": "Sin custodia",
+      "trustLive": "En vivo"
     },
     "footer": {
       "systemsOperational": "Todos los sistemas operativos"
@@ -528,7 +537,8 @@
       "r6b": "Se cobra desde el primer día"
     },
     "trust": {
-      "label": "Acepta pagos en 9 blockchains"
+      "label": "Acepta pagos en 9 blockchains",
+      "chainTooltip": "Ver tarifas y redes soportadas"
     },
     "brandSpotlight": {
       "eyebrow": "Multimarca",
@@ -712,13 +722,19 @@
       "vatValid": "✓ ID de IVA de la UE válido — se aplica inversión del sujeto pasivo, no se cobrará IVA.",
       "vatInvalid": "No se pudo validar este ID de IVA — se aplicará el impuesto estándar.",
       "vatHint": "Las empresas de la UE pueden introducir un ID de IVA para la inversión del sujeto pasivo.",
-      "reverseChargeNotice": "Inversión del sujeto pasivo B2B en la UE: no se cobra IVA. Debes declarar el IVA en tu propio estado miembro."
+      "reverseChargeNotice": "Inversión del sujeto pasivo B2B en la UE: no se cobra IVA. Debes declarar el IVA en tu propio estado miembro.",
+      "viewCart": "Ver carrito",
+      "yourCart": "Tu carrito",
+      "viewFullCart": "Ver carrito completo"
     },
     "receiptEmail": {
       "label": "Envíame un recibo (opcional)",
       "helper": "Te enviaremos el recibo por correo en cuanto se confirme el pago.",
       "saved": "El recibo se enviará a este correo.",
-      "invalid": "Introduce un correo electrónico válido."
+      "invalid": "Introduce un correo electrónico válido.",
+      "savedShort": "El recibo está en camino a tu bandeja de entrada.",
+      "successLabel": "¿Quieres una copia de tu recibo?",
+      "successHelper": "Agrega tu correo electrónico y te enviaremos tu recibo — no se necesita cuenta."
     },
     "notify": {
       "title": "Pago confirmado ✓",
@@ -734,7 +750,20 @@
     "feePaidByMerchant": "pagada por el comercio",
     "feePaidByCustomer": "añadida a tu total",
     "plusNetworkCover": "+ cobertura de la tarifa de red",
-    "inclNetworkCover": "incl. cobertura de la tarifa de red"
+    "inclNetworkCover": "incl. cobertura de la tarifa de red",
+    "loadingCheckout": "Cargando pago…",
+    "expiredTitle": "Esta ventana de pago ha expirado",
+    "expiredBody": "El tiempo para completar este pago se ha agotado. Si ya enviaste fondos, contacta al comerciante. De lo contrario, pídeles un nuevo enlace de pago.",
+    "expiredRetry": "Comenzar de nuevo",
+    "breakdownTrustPaid": "Montos verificados — aquí está exactamente cómo se dividió tu pago.",
+    "breakdownTrust": "Estos montos coinciden exactamente — tu pago se divide de manera transparente entre el comerciante y la tarifa de Dynopay.",
+    "preparingAddress": "Preparando dirección de pago…",
+    "underpaid": {
+      "gotPrefix": "Recibimos",
+      "sendPrefix": "Enviar",
+      "sameAddressTail": "más a la misma dirección a continuación para completar tu pago.",
+      "graceTimer": "Tiempo restante para completar"
+    }
   },
   "creator": {
     "card": {
@@ -1029,5 +1058,32 @@
     "contactBody": "Para entrevistas, declaraciones o cualquier cosa que falte en esta página, escríbenos — leemos todos los mensajes.",
     "storyCta": "Lee nuestra historia"
   },
-  "referralProgram": "Programa de referidos"
+  "referralProgram": "Programa de referidos",
+  "footerNav": {
+    "product": "Producto",
+    "solutions": "Soluciones",
+    "company": "Empresa",
+    "logoAlt": "Logotipo de Dynopay",
+    "trustAria": "Confianza y cumplimiento",
+    "verticals": {
+      "ecommerce": "Comercio electrónico",
+      "saas": "SaaS",
+      "gaming": "Videojuegos",
+      "freelancers": "Freelancers",
+      "remittance": "Remesas",
+      "digitalDownloads": "Descargas digitales",
+      "hosting": "Hosting y dominios",
+      "vpn": "VPN y privacidad",
+      "marketplaces": "Marketplaces",
+      "agencies": "Agencias y consultores",
+      "nonprofits": "Organizaciones sin ánimo de lucro"
+    },
+    "trust": {
+      "nonCustodial": "Sin custodia",
+      "chains": "9 blockchains",
+      "encrypted": "Cifrado",
+      "gdpr": "Conforme a RGPD / AML",
+      "noChargebacks": "Sin contracargos"
+    }
+  }
 }

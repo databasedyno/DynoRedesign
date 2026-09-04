@@ -108,5 +108,9 @@
   "activeLabel": "activo",
   "signOut": "Desconectar",
   "saveName": "Guardar nombre",
-  "nameUpdated": "Tu nombre se ha actualizado"
+  "nameUpdated": "Tu nombre se ha actualizado",
+  "photoUpdated": "Foto actualizada",
+  "photoUpdateFailed": "Error al actualizar la foto",
+  "saving": "Guardando…",
+  "autoSaveHint": "Los cambios se guardan automáticamente"
 }

@@ -307,7 +307,16 @@
       "exploreBtn": "Explorar"
     },
     "header": {
-      "systemsNormal": "Tudo a funcionar"
+      "systemsNormal": "Tudo a funcionar",
+      "ariaPrimaryNav": "Navegação principal",
+      "ariaGoHome": "Ir para o início",
+      "publicBeta": "Beta pública",
+      "ariaSystemStatus": "Estado do sistema",
+      "ariaToggleMenu": "Abrir/fechar menu",
+      "ariaMobileNav": "Navegação móvel",
+      "trustEncrypted": "Encriptado",
+      "trustNonCustodial": "Sem custódia",
+      "trustLive": "Ao vivo"
     },
     "footer": {
       "systemsOperational": "Todos os sistemas operacionais"
@@ -528,7 +537,8 @@
       "r6b": "Cobrado desde o primeiro dia"
     },
     "trust": {
-      "label": "Aceite pagamentos em 9 blockchains"
+      "label": "Aceite pagamentos em 9 blockchains",
+      "chainTooltip": "Veja as taxas e redes suportadas"
     },
     "brandSpotlight": {
       "eyebrow": "Multimarca",
@@ -712,13 +722,19 @@
       "vatValid": "✓ NIF de IVA da UE válido — aplica-se autoliquidação, não será cobrado IVA.",
       "vatInvalid": "Não foi possível validar este NIF de IVA — será aplicado o imposto padrão.",
       "vatHint": "Empresas na UE podem inserir um NIF de IVA para a autoliquidação.",
-      "reverseChargeNotice": "Autoliquidação B2B na UE: não é cobrado IVA. Você deve declarar o IVA no seu próprio Estado-Membro."
+      "reverseChargeNotice": "Autoliquidação B2B na UE: não é cobrado IVA. Você deve declarar o IVA no seu próprio Estado-Membro.",
+      "viewCart": "Ver carrinho",
+      "yourCart": "O seu carrinho",
+      "viewFullCart": "Ver carrinho completo"
     },
     "receiptEmail": {
       "label": "Envie-me um recibo (opcional)",
       "helper": "Enviaremos o seu recibo por e-mail assim que o pagamento for confirmado.",
       "saved": "O recibo será enviado para este e-mail.",
-      "invalid": "Introduza um e-mail válido."
+      "invalid": "Introduza um e-mail válido.",
+      "savedShort": "O recibo está a caminho da sua caixa de entrada.",
+      "successLabel": "Quer uma cópia do seu recibo?",
+      "successHelper": "Adicione o seu email e enviaremos o seu recibo — sem necessidade de conta."
     },
     "notify": {
       "title": "Pagamento confirmado ✓",
@@ -734,7 +750,20 @@
     "feePaidByMerchant": "paga pelo comerciante",
     "feePaidByCustomer": "adicionada ao seu total",
     "plusNetworkCover": "+ cobertura da taxa de rede",
-    "inclNetworkCover": "incl. cobertura da taxa de rede"
+    "inclNetworkCover": "incl. cobertura da taxa de rede",
+    "loadingCheckout": "A carregar checkout…",
+    "expiredTitle": "Esta janela de pagamento expirou",
+    "expiredBody": "O tempo para completar este pagamento esgotou-se. Se já enviou fundos, contacte o comerciante. Caso contrário, peça-lhes um novo link de pagamento.",
+    "expiredRetry": "Recomeçar",
+    "breakdownTrustPaid": "Montantes verificados — aqui está exatamente como o seu pagamento foi dividido.",
+    "breakdownTrust": "Estes montantes coincidem exatamente — o seu pagamento é dividido de forma transparente entre o comerciante e a taxa da Dynopay.",
+    "preparingAddress": "A preparar o endereço de pagamento…",
+    "underpaid": {
+      "gotPrefix": "Recebemos",
+      "sendPrefix": "Enviar",
+      "sameAddressTail": "mais para o mesmo endereço abaixo para completar o seu pagamento.",
+      "graceTimer": "Tempo restante para completar"
+    }
   },
   "creator": {
     "card": {
@@ -1029,5 +1058,32 @@
     "contactBody": "Para entrevistas, comentários ou algo que falte nesta página, escreva para nós — lemos todas as mensagens.",
     "storyCta": "Leia nossa história"
   },
-  "referralProgram": "Programa de indicações"
+  "referralProgram": "Programa de indicações",
+  "footerNav": {
+    "product": "Produto",
+    "solutions": "Soluções",
+    "company": "Empresa",
+    "logoAlt": "Logótipo Dynopay",
+    "trustAria": "Confiança e conformidade",
+    "verticals": {
+      "ecommerce": "E-commerce",
+      "saas": "SaaS",
+      "gaming": "Jogos",
+      "freelancers": "Freelancers",
+      "remittance": "Remessas",
+      "digitalDownloads": "Downloads digitais",
+      "hosting": "Alojamento e domínios",
+      "vpn": "VPN e privacidade",
+      "marketplaces": "Marketplaces",
+      "agencies": "Agências e consultores",
+      "nonprofits": "Organizações sem fins lucrativos"
+    },
+    "trust": {
+      "nonCustodial": "Sem custódia",
+      "chains": "9 blockchains",
+      "encrypted": "Encriptado",
+      "gdpr": "Em conformidade com RGPD / AML",
+      "noChargebacks": "Sem chargebacks"
+    }
+  }
 }

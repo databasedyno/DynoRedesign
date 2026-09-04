@@ -70,7 +70,11 @@
     "incompletePayment": "Unvollständige Zahlung",
     "address": "Adresse",
     "customerPaysFee": "Kunde zahlt Bearbeitungsgebühr",
-    "pendingPayment": "Ausstehende Zahlung"
+    "pendingPayment": "Ausstehende Zahlung",
+    "loadFailed": "Wir konnten diesen Zahlungslink nicht laden. Bitte versuchen Sie es erneut.",
+    "linkExpiredTitle": "Dieser Zahlungslink ist abgelaufen",
+    "linkErrorTitle": "Dieser Zahlungslink kann nicht geöffnet werden",
+    "goToDynopay": "Gehe zu Dynopay"
   },
   "crypto": {
     "title": "Kryptowährung",
@@ -353,7 +357,13 @@
   "myProfile": "Mein Profil",
   "logout": "Abmelden",
   "hello": "Hallo",
-  "language": "Sprache",
+  "language": {
+    "change": "Sprache ändern",
+    "options": "Sprachoptionen",
+    "choose": "Wähle deine Sprache",
+    "dismissChooser": "Sprachauswahl schließen",
+    "closeMenu": "Sprachmenü schließen"
+  },
   "english": "Englisch",
   "spanish": "Spanisch",
   "homePageName": "Startseite",
@@ -627,7 +637,10 @@
     "taxDesc": "Standardverhalten für Mehrwertsteuer/Steuern bei Checkouts und Zahlungslinks.",
     "scopeAccount": "Gilt für Ihr gesamtes Konto",
     "scopeCompany": "Gilt für {{company}}",
-    "selectedCompanyFallback": "die ausgewählte Marke"
+    "selectedCompanyFallback": "die ausgewählte Marke",
+    "viewOnly": "Nur ansehen",
+    "team": "Team",
+    "teamDesc": "Laden Sie Teamkollegen ein und steuern Sie, auf was jeder zugreifen kann."
   },
   "donation": {
     "defaultTitle": "Unterstütze diese Kampagne",
@@ -660,7 +673,9 @@
     "toGo": "noch zu gehen",
     "story": "Unsere Geschichte",
     "gallery": "Fotos",
-    "updates": "Updates"
+    "updates": "Updates",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein oder lassen Sie das Feld leer.",
+    "emailPlaceholder": "E-Mail für Updates (optional)"
   },
   "taxSettings": {
     "loadError": "Konnte die Steuereinstellungen nicht laden.",
@@ -677,7 +692,8 @@
     "vatLabel": "Ihre VAT / Steuer-ID",
     "vatDesc": "Auf Quittungen angezeigt. Ermöglicht die Validierung der EU-Umkehrbesteuerung, wenn Ihre Käufer ihre eigene VAT-ID angeben.",
     "vatInvalidHint": "Dies entspricht nicht einem bekannten EU/GB VAT-Format – es wird dennoch wie eingegeben gespeichert.",
-    "save": "Steuereinstellungen speichern"
+    "save": "Steuereinstellungen speichern",
+    "inheritNote": "Zeigt Ihre kontoweitigen Standardwerte an – Änderungen hier erstellen steuerliche Einstellungen, die spezifisch für das ausgewählte Unternehmen sind."
   },
   "accountTypeIndividual": "Einzelperson",
   "accountTypeBusiness": "Unternehmen",
@@ -788,7 +804,8 @@
       "showProductsDesc": "Zeigt den Shop-Bereich auf dieser Creator-Seite. Schalte ihn AUS für eine schlichte, reine Trinkgeld-Seite — deine Shop-Seite und direkte Produktlinks funktionieren weiter.",
       "storePreviewBoth": "Vorschau: Trinkgeld + Shop sichtbar",
       "storePreviewProductsHidden": "Vorschau: Shop auf dieser Seite ausgeblendet",
-      "storePreviewStoreOff": "Vorschau: reine Trinkgeld-Seite — Shop und Produktlinks ausgeblendet"
+      "storePreviewStoreOff": "Vorschau: reine Trinkgeld-Seite — Shop und Produktlinks ausgeblendet",
+      "minFloorNote": "min 10 $"
     },
     "compare": {
       "title": "Schaufenster vergleichen",
@@ -951,5 +968,261 @@
     "securedBy": "Zahlungen abgesichert durch Dynopay",
     "merchantLabel": "Verifizierter Händler"
   },
-  "referAndEarn": "Empfehlen & verdienen"
+  "referAndEarn": "Empfehlen & verdienen",
+  "scrollToTop": "Nach oben scrollen",
+  "dynopayHome": "Dynopay-Startseite",
+  "feeFree": {
+    "bannerAria": "Fortschritt der gebührenfreien Testphase",
+    "bannerBody": "Wir erlassen unsere gesamte Plattformgebühr — du zahlst nur die Netzwerkkosten (Blockchain).",
+    "startAccepting": "Zahlungen annehmen",
+    "dismiss": "Banner schließen",
+    "widgetTitle": "Deine erste Zahlung ist plattformgebührenfrei",
+    "widgetBody": "Bei deiner ersten Zahlung erlassen wir die gesamte Plattformgebühr (fix + %) — du zahlst nur die Netzwerkkosten (Blockchain). Danach gelten die Standardgebühren."
+  },
+  "promoBar": {
+    "aria": "Aktion: gebührenfreie Testphase",
+    "desktop": "Deine erste Zahlung ist gebührenfrei",
+    "mobile": "1. Zahlung gebührenfrei",
+    "dismiss": "Aktion schließen",
+    "claim": "Einlösen"
+  },
+  "emailVerify": {
+    "title": "E-Mail bestätigen",
+    "subtitle": "Gib den Bestätigungscode ein, den wir dir per E-Mail gesendet haben"
+  },
+  "setupPrompt": {
+    "createCompany": "Unternehmen anlegen",
+    "addWallet": "Wallet-Adresse hinzufügen"
+  },
+  "payouts": {
+    "pageName": "Salden & Auszahlungen",
+    "pageDescription": "Ihr abgewickeltes Volumen, ausstehende Mittel, automatische Umwandlung und wo die Auszahlungen landen.",
+    "digestOn": "Wöchentlicher Auszahlungsbericht aktiviert",
+    "digestOff": "Wöchentlicher Auszahlungsbericht deaktiviert",
+    "digestUpdateFailed": "Konnte die Berichtseinstellung nicht aktualisieren",
+    "previewSent": "Vorschaubericht an Ihre E-Mail gesendet",
+    "previewFailed": "Vorschau konnte nicht gesendet werden",
+    "pickBothDates": "Wählen Sie sowohl ein Start- als auch ein Enddatum",
+    "startBeforeEnd": "Das Startdatum muss vor dem Enddatum liegen",
+    "exported": "Auszahlungshistorie exportiert",
+    "exportFailed": "Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "totalSettled": "Insgesamt abgewickelt",
+    "totalSettledHint": "Lebenszeitvolumen erhalten",
+    "pending": "Ausstehend",
+    "pendingHint": "Zahlungen warten auf Bestätigung",
+    "autoConvert": "Automatische Umwandlung",
+    "on": "Ein",
+    "off": "Aus",
+    "autoConvertHint": "Krypto in einen Stablecoin umwandeln",
+    "feeTier": "Gebührenstufe",
+    "feeTierHint": "Ihre aktuellen Preise",
+    "settlementAutoConvert": "Abwicklung & automatische Umwandlung",
+    "loading": "Laden…",
+    "autoConvertOffDesc": "Automatische Umwandlung ist deaktiviert — Zahlungen werden in der erhaltenen Münze abgewickelt",
+    "addWalletFirst": "Fügen Sie zuerst eine Stablecoin-Abwicklungsgeldbörse hinzu",
+    "settleTo": "Abwickeln an",
+    "selectSettlementCoin": "Wählen Sie die Abwicklungsmünze",
+    "settlementWallets": "Abwicklungsgeldbörsen",
+    "noSettlementWallet": "Noch keine Stablecoin-Abwicklungsgeldbörse konfiguriert. Fügen Sie eine in den Einstellungen hinzu, um Auszahlungen automatisch umzuwandeln.",
+    "onChain": "auf",
+    "active": "Aktiv",
+    "autoConvertProtection": "Schutz vor automatischer Umwandlung",
+    "firstConversion": "Erste Umwandlung!",
+    "savingsFirst": "Ihre erste Zahlung wurde gerade automatisch in einen Stablecoin umgewandelt — gegen Volatilität abgesichert",
+    "payment": "Zahlung",
+    "payments": "Zahlungen",
+    "conversion": "Umwandlung",
+    "conversions": "Umwandlungen",
+    "savingsOff": "Aktivieren Sie die automatische Umwandlung, um eingehende Krypto in Stablecoins zu sichern",
+    "thisMonth": "Diesen Monat",
+    "last6Months": "Letzte 6 Monate",
+    "savingsSparklineAria": "Stablecoin-Umwandlungen der letzten 6 Monate",
+    "weeklyDigest": "Wöchentlicher Auszahlungsbericht",
+    "weeklyDigestDesc": "Erhalten Sie wöchentlich eine E-Mail mit einer Zusammenfassung der abgewickelten Auszahlungen und aller noch ausstehenden",
+    "sending": "Senden…",
+    "sendPreview": "Vorschau senden",
+    "payoutWallets": "Auszahlungswallets",
+    "payoutWalletsDesc": "Wo Ihre ausgeglichenen Mittel landen",
+    "manage": "Verwalten",
+    "taxCollected": "Eingezogene Steuern",
+    "toDate": "bis heute",
+    "receipts": "Quittungen",
+    "pendingFunds": "Ausstehende Mittel",
+    "pendingFundsDesc": "Zahlungen warten auf die Bestätigung in der Blockchain",
+    "paymentAwaiting": "1 Zahlung wartet",
+    "noPendingNow": "Momentan warten keine Zahlungen auf Bestätigung.",
+    "confirming": "Wird bestätigt",
+    "recentSettlements": "Aktuelle Abrechnungen",
+    "dateFrom": "Von",
+    "dateTo": "Bis",
+    "settledOnly": "Nur ausgeglichene",
+    "exporting": "Exportiere…",
+    "exportCsv": "CSV exportieren",
+    "viewAll": "Alle anzeigen",
+    "noPaymentsYet": "Noch keine Zahlungen. Ihre ausgeglichenen Zahlungen erscheinen hier.",
+    "range_7": "Letzte 7 Tage",
+    "range_30": "Letzte 30 Tage",
+    "range_90": "Letzte 90 Tage",
+    "range_365": "Letzte 12 Monate",
+    "range_custom": "Benutzerdefinierter Zeitraum…"
+  },
+  "liveBrand": {
+    "payNow": "Jetzt bezahlen",
+    "tagline": "Treten Sie Dynopay bei und erhalten Sie",
+    "links": {
+      "title": "Zahlungslinks",
+      "description": "Erstellen Sie in Sekunden teilbare Zahlungslinks. Akzeptieren Sie Krypto von jedem, überall."
+    },
+    "multiCurrency": {
+      "title": "Multi-Währungsunterstützung",
+      "description": "Akzeptieren Sie BTC, ETH, USDT, SOL, XRP und mehr – alles auf einer Plattform."
+    },
+    "settlement": {
+      "title": "Sofortige Abrechnung",
+      "description": "Erhalten Sie Zahlungen in Echtzeit mit sofortiger Weiterleitung an Ihr Wallet."
+    },
+    "dashboard": {
+      "title": "Dashboard-Analysen",
+      "description": "Verfolgen Sie Transaktionen, Einnahmen und Leistung mit einem leistungsstarken Dashboard."
+    },
+    "lowFees": {
+      "title": "Niedrige Gebühren",
+      "description": "Wettbewerbsfähige Transaktionsgebühr von 1,5 % ohne versteckte Kosten oder monatliche Gebühren."
+    },
+    "checkout": {
+      "title": "Checkout-Seiten",
+      "description": "Schöne, gebrandete Checkout-Seiten für Ihre Kunden – kein Code erforderlich."
+    }
+  },
+  "productEditor": {
+    "delivery": {
+      "url": {
+        "label": "Zugangs-URL",
+        "hint": "Liefern Sie einen Link (Notion, Google Drive, private Seite) bei Zahlung."
+      },
+      "file": {
+        "label": "Dateidownload",
+        "hint": "Laden Sie Ihre Datei(en) hoch. Käufer erhält signierte Download-Links."
+      },
+      "licenseKey": {
+        "label": "Lizenzschlüssel",
+        "hint": "Fügen Sie einen Schlüssel pro Zeile ein. Ein Schlüssel wird pro Kauf ausgegeben."
+      }
+    },
+    "variantDefault": "Variante",
+    "toast": {
+      "loadFailed": "Produkt konnte nicht geladen werden",
+      "created": "Produkt erstellt.",
+      "saved": "Gespeichert.",
+      "saveFailed": "Speichern fehlgeschlagen.",
+      "published": "Veröffentlicht – Ihr Produkt ist live.",
+      "publishFailed": "Veröffentlichen fehlgeschlagen.",
+      "archived": "Archiviert.",
+      "archiveFailed": "Archivieren fehlgeschlagen.",
+      "imageTooLarge": "Bild ist zu groß (max. 10 MB).",
+      "onlyImages": "Nur Bilddateien sind erlaubt.",
+      "imageUploadFailed": "Bild-Upload fehlgeschlagen.",
+      "coverUploaded": "Titelbild hochgeladen.",
+      "galleryAdded": "Galeriebild hinzugefügt.",
+      "enterImageUrl": "Geben Sie eine Bild-URL ein.",
+      "urlScheme": "URL muss mit http(s):// oder / beginnen.",
+      "urlTooLong": "URL ist zu lang (max. 512 Zeichen).",
+      "imageDup": "Dieses Bild ist bereits in der Galerie.",
+      "variantImageSaveFailed": "Speichern des Variantenbildes fehlgeschlagen.",
+      "variantImageUploaded": "Variantenbild hochgeladen.",
+      "variantImageClearFailed": "Löschen des Variantenbildes fehlgeschlagen.",
+      "fileUploaded": "Datei hochgeladen.",
+      "uploadFailed": "Upload fehlgeschlagen.",
+      "deleteFailed": "Löschen fehlgeschlagen.",
+      "saveDraftFirst": "Zuerst den Entwurf speichern.",
+      "addVariantFailed": "Hinzufügen der Variante fehlgeschlagen.",
+      "variantSaved": "Variante gespeichert.",
+      "variantSaveFailed": "Speichern der Variante fehlgeschlagen."
+    },
+    "validate": {
+      "titleRequired": "Titel ist erforderlich.",
+      "priceGtZero": "Preis muss größer als 0 sein.",
+      "enterAccessUrl": "Geben Sie die Zugangs-URL ein."
+    },
+    "confirm": {
+      "archiveProduct": "Dieses Produkt archivieren? Käufer können es nicht sehen.",
+      "removeFile": "Diese Datei entfernen?"
+    },
+    "newProduct": "Neues Produkt",
+    "editProduct": "Produkt bearbeiten",
+    "slug": "Slug:",
+    "productTitle": "Produktbezeichnung",
+    "subtitle": "Untertitel (optional)",
+    "description": "Beschreibung (Markdown unterstützt)",
+    "coverImage": "Titelbild",
+    "coverImageUrl": "Bild-URL (optional, https://…)",
+    "uploading": "Hochladen…",
+    "uploadImage": "Bild hochladen",
+    "removeCoverImage": "Titelbild entfernen",
+    "coverPreview": "Vorschau des Titelbilds",
+    "coverImageHint": "JPG, PNG, GIF, WebP oder SVG. Max 10 MB. Hochgeladene Bilder werden über das App-CDN bereitgestellt.",
+    "photoGallery": "Fotogalerie (optional)",
+    "removeGalleryImage": "Galeriebild entfernen",
+    "galleryImageUrl": "Bild-URL",
+    "galleryAlt": "Alternativtext (optional)",
+    "galleryAltPlaceholder": "Bild beschreiben",
+    "addFromUrl": "Von URL hinzufügen",
+    "uploadFromDevice": "Von Gerät hochladen",
+    "basePriceInfo": "Basispreis (informativ, Varianten überschreiben)",
+    "price": "Preis",
+    "currency": "Währung",
+    "stockUnlimited": "Lagerbestand (leer = unbegrenzt)",
+    "digitalDelivery": "Digitale Lieferung",
+    "deliveryMethod": "Liefermethode",
+    "accessUrl": "Zugangs-URL",
+    "licenseKeys": "Lizenzschlüssel (jeweils eine Zeile)",
+    "uploadFile": "Datei hochladen",
+    "saveDraftFirstHint": "Zuerst den Entwurf speichern, dann können Sie Dateien hochladen.",
+    "taxVat": "Steuer & MwSt",
+    "taxIntro": "Wählen Sie, ob Käufern Steuern auf dieses Produkt berechnet werden. Dies ist genau das, was an der Kasse Ihres Shops angezeigt wird.",
+    "chargeTax": "Steuer auf dieses Produkt berechnen",
+    "chargingTax": "Steuer wird berechnet",
+    "noTaxState": "keine Steuer",
+    "inheritStoreDefault": "Standard des Shops übernehmen",
+    "alwaysChargeTax": "Immer Steuer berechnen",
+    "neverChargeTax": "Nie Steuer berechnen",
+    "overrideExemptHint": "Überschreibungen gelten nicht für steuerbefreite Produkte.",
+    "overrideHint": "Überschreibt den standardmäßigen Shop-Wert (Einstellungen → Steuer) nur für dieses Produkt.",
+    "taxCategory": "Steuerkategorie",
+    "categoryDigital": "Digitale Waren / Dienstleistungen",
+    "categoryPhysical": "Physische Waren",
+    "categoryService": "Dienstleistung",
+    "categoryExempt": "Steuerbefreit",
+    "categoryExemptHint": "Dieses Produkt wird immer steuerfrei verkauft, unabhängig von Ihren Steuereinstellungen.",
+    "categoryPhysicalHint": "Physische Waren verwenden das Land der Versandadresse des Käufers für die Steuerhoheit.",
+    "categoryDigitalHint": "Digitale Waren / Dienstleistungen verwenden den ermittelten Standort des Käufers für die Steuerhoheit.",
+    "atCheckout": "An der Kasse",
+    "effectiveExempt": "Steuerbefreit — dieses Produkt wird immer steuerfrei verkauft.",
+    "shippingCountry": "Land der Versandadresse",
+    "location": "Standort",
+    "effectiveOff": "Es wird keine Steuer hinzugefügt — Käufer zahlen genau den angegebenen Preis.",
+    "taxDefaultHintPre": "Ihr Standardgeschäft ist derzeit",
+    "noTax": "Keine Steuer",
+    "taxDefaultHintMid": ". Aktivieren Sie es für alle Käufe in den Einstellungen → Steuer, oder setzen Sie dieses Produkt auf",
+    "manageTaxLink": "Verwalten Sie Ihren geschäftsweiten Steuerstandard in den Einstellungen → Steuer →",
+    "variantsOptional": "Varianten (optional)",
+    "addVariant": "Variante hinzufügen",
+    "enableVariantsAria": "Varianten aktivieren",
+    "enableVariantsDesc": "Varianten aktivieren (z. B. verschiedene Größen / Stufen). Wenn aktiviert, hat jede Variante ihren eigenen Preis + Lagerbestand.",
+    "oneOffServiceAria": "Einmalige Dienstleistung",
+    "oneOffServiceDesc": "Einmalige Dienstleistung (Menge auswählen ausblenden). Aktivieren für Produkte wie „Sprich mit einem Entwickler“, bei denen eine Menge keinen Sinn macht — Käufer erwerben es einmal.",
+    "noVariantsYet": "Noch keine Varianten. Klicken Sie auf „Variante hinzufügen“, um eine zu erstellen.",
+    "removeVariantImage": "Variantebild entfernen",
+    "change": "Ändern",
+    "add": "Hinzufügen",
+    "variantTitle": "Titel",
+    "variantPriceCents": "Preis (¢)",
+    "variantStock": "Lagerbestand",
+    "deleteVariant": "Variante löschen",
+    "saveDraft": "Entwurf speichern",
+    "updateLiveProduct": "Live-Produkt aktualisieren",
+    "publish": "Veröffentlichen",
+    "archive": "Archivieren",
+    "adjustImage": "Bild anpassen"
+  }
 }

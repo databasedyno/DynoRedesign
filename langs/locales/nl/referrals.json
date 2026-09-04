@@ -178,5 +178,11 @@
     "leaderboardTitle": "Topaanbevelers",
     "leaderboardSubtitle": "De mensen die Dynopay op dit moment het meest delen.",
     "leaderboardCount": "{{count}} verwijzingen"
-  }
+  },
+  "shareTitle": "Word lid van Dynopay",
+  "shareText": "Accepteer cryptobetalingen met Dynopay. Gebruik mijn verwijzingscode voor 50% korting op de kosten!",
+  "payoutAvailableCredit": "Beschikbare fee-krediet",
+  "payoutAvailableCreditDesc": "Verlaagt automatisch je Dynopay-fee bij je volgende betalingen.",
+  "payoutCreditedToDate": "Tot nu toe gecrediteerd",
+  "payoutCreditedToDateDesc": "Totaal aan fees al gedekt door je referral rewards."
 }

@@ -3,11 +3,13 @@ import { Box, IconButton, useTheme } from "@mui/material";
 import { memo, useCallback, useEffect, useState } from "react";
 
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 
 const SCROLL_THRESHOLD = 300;
 
 const ScrollToTopButton = () => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const isMobile = useIsMobile("md");
 
   const [isVisible, setIsVisible] = useState(false);
@@ -73,7 +75,7 @@ const ScrollToTopButton = () => {
     >
       <IconButton
         onClick={scrollToTop}
-        aria-label="Scroll to top"
+        aria-label={t("scrollToTop")}
         data-testid="scroll-to-top-button"
         sx={{
           backgroundColor: theme.palette.primary.main,

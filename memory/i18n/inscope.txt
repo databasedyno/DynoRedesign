@@ -1,0 +1,796 @@
+Components/Page/ProductEditor/index.tsx (62)
+  731: Cover image
+  796: JPG, PNG, GIF, WebP or SVG. Max 10 MB. Uploaded images are served over the app CDN.
+  804: Photo gallery (optional)
+  964: Delivery method
+  1026: Save the draft first, then you can upload files.
+  1060: Choose whether buyers are charged tax on this product. This is exactly what shows on your storefront
+  1065: Charge tax on this product
+  1079: Always charge tax
+  1080: Never charge tax
+  1091: Tax category
+  1099: Digital goods / services
+  1100: Physical goods
+  1102: Tax exempt
+  1131: At checkout
+  1146: Your store default is currently
+  1146: No tax
+  1147: Always charge tax
+  1201: Enable variants (e.g. different sizes / tiers). When on, each variant has its own price + stock.
+  31: Access URL
+  31: Deliver a link (Notion, Google Drive, private site) on payment.
+  32: File download
+  32: Upload your file(s). Buyer gets signed download links.
+  33: License keys
+  33: Paste one key per line. One key is issued per purchase.
+  281: Product created.
+  310: Published — your product is live.
+  343: Image is too large (max 10 MB).
+  347: Only image files are allowed.
+  374: Cover image uploaded.
+  403: Gallery image added.
+  427: Enter an image URL.
+  431: URL must start with http(s):// or /
+  435: URL is too long (max 512 chars).
+  439: That image is already in the gallery.
+  487: Variant image uploaded.
+  560: File uploaded.
+  582: Save the draft first.
+  620: Variant saved.
+  710: Product title
+  716: Subtitle (optional)
+  722: Description (Markdown supported)
+  762: Remove cover image
+  787: Cover preview
+  847: Remove gallery image
+  868: Image URL
+  878: Alt text (optional)
+  879: Describe the image
+  890: Add from URL
+  961: Digital delivery
+  967: Delivery method
+  985: Access URL
+  996: License keys (one per line)
+  1057: Tax & VAT
+  1068: Charge tax on this product
+  1094: Tax category
+  1169: Variants (optional)
+  1173: Add variant
+  1255: Remove variant image
+  1305: Price (¢)
+  1332: Delete variant
+  1344: Save draft
+  1377: Adjust image
+
+Components/Page/API/BuyButtonsSection.tsx (30)
+  450: Success URL
+  470: Allowed currencies
+  494: Create a publishable key first (above) so this snippet has one to reference. The placeholder
+  494: is not usable.
+  713: Price type
+  731: Fixed price — you set the amount
+  732: Customer chooses (e.g. donation)
+  823: Metadata must be a valid JSON object (e.g.
+  828: Attached to every session created from this button — useful for reconciling webhooks server-side.
+  1092: Buy buttons
+  1095: Pre-created checkout objects. The
+  1124: Select a company to manage its buy buttons.
+  1165: No buy buttons yet. Create one to embed a tamper-proof checkout on your site.
+  92: Pay with crypto
+  374: Copy button id
+  689: Internal name *
+  690: e.g. T-shirt (Large)
+  697: Button label
+  698: Pay with crypto
+  741: Amount *
+  756: Min amount *
+  764: Max amount
+  779: Allowed currencies (optional)
+  780: e.g. USDT-TRC20, USDC-ERC20 — leave empty to allow all configured
+  796: Description (optional)
+  797: Shown to shoppers on the checkout page
+  806: Success URL (optional)
+  814: Metadata JSON (optional)
+  1200: Archive buy button
+  1201: Once archived, this buy button can no longer create checkout sessions. Any pages on your site using 
+
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx (29)
+  134: Payment #2847
+  286: Pay Invoice #4821
+  288: to Acme Corp
+  326: Pay Now
+  143: Invoice #2846
+  144: Invoice #2845
+  174: Payment received
+  175: Forwarded to wallet
+  176: Payment received
+  177: Forwarded to wallet
+  261: Coinbase Commerce
+  337: Join Dynopay and get
+  338: Payment Links
+  339: Create shareable payment links in seconds. Accept crypto from anyone, anywhere.
+  343: Join Dynopay and get
+  344: Multi-Currency Support
+  345: Accept BTC, ETH, USDT, SOL, XRP, and more — all in one platform.
+  349: Join Dynopay and get
+  350: Instant Settlement
+  351: Receive payments in real-time with instant forwarding to your wallet.
+  355: Join Dynopay and get
+  356: Dashboard Analytics
+  357: Track transactions, revenue, and performance with a powerful dashboard.
+  361: Join Dynopay and get
+  362: Low Fees
+  363: Competitive 1.5% transaction fee with no hidden charges or monthly costs.
+  367: Join Dynopay and get
+  368: Checkout Pages
+  369: Beautiful, branded checkout pages for your customers — no code needed.
+
+Components/Page/Payouts/index.tsx (28)
+  672: Settlement & auto-convert
+  727: Settle to
+  738: Select settlement coin
+  758: Settlement wallets
+  866: Auto-convert protection
+  929: This month
+  946: Last 6 months
+  989: Weekly payout digest
+  1053: Payout wallets
+  1058: Where your settled funds land
+  1095: Tax collected
+  1141: Pending funds
+  1146: Payments awaiting on-chain confirmation
+  1183: No payments awaiting confirmation right now.
+  1251: Recent settlements
+  1341: View all
+  1360: No payments yet. Your settled payments will appear here.
+  178: Last 7 days
+  179: Last 30 days
+  180: Last 90 days
+  181: Last 12 months
+  182: Custom range\u2026
+  566: Total settled
+  568: Lifetime volume received
+  573: Payments awaiting confirmation
+  584: Fee tier
+  872: First conversion!
+  1312: Settled only
+
+pages/how-to.tsx (22)
+  119: How Dynopay works — accept crypto in about 2 minutes
+  131: How it works
+  133: Get paid in crypto,
+  135: in about two minutes
+  352: Create your first link
+  369: Read the docs
+  450: Create payment link
+  472: dynopay.com/pay/aX9kQ2
+  491: dynopay.com/pay/aX9kQ2
+  571: Payment confirmed on-chain
+  586: Your wallet
+  612: Settled to a wallet you control
+  617: Keep the original coin, or auto-convert to USDC / USDT — set it once and forget it.
+  33: Create a payment link
+  34: Name a price, add a short description, hit create. No code, no contract — you get a shareable link i
+  40: Share it anywhere
+  41: Drop the link into a chat, an invoice, your bio or a checkout button. One link works everywhere your
+  47: Your customer pays in crypto
+  48: They pick Bitcoin, Ethereum or a stablecoin and pay. You watch it confirm on-chain in real time — no
+  54: Funds land in your wallet
+  55: Payments settle straight to a wallet you control — keep the original coin, or auto-convert to USDC o
+  484: Copy link
+
+Components/Page/API/PublishableKeysSection.tsx (20)
+  437: Allowed domains
+  463: Allowed currencies
+  490: and (optionally)
+  712: Comma or space separated. Accepts full URLs (
+  847: Publishable key created
+  1089: Browser-safe keys for drop-in
+  1126: Select a company to manage its publishable keys.
+  1186: No publishable keys yet
+  213: Pay with crypto
+  350: Copy publishable key
+  395: All configured currencies
+  686: Key name (optional)
+  687: e.g. Storefront checkout
+  695: Allowed domains *
+  726: Max amount *
+  739: Allowed currencies (optional)
+  740: e.g. USDT-TRC20, USDC-ERC20 — leave empty to allow all configured wallets
+  1194: Create publishable key
+  1233: Revoke publishable key
+  1234: Once revoked, this publishable key can no longer create checkout sessions. Any Buy Buttons on your s
+
+Components/Page/API/WebhookConsoleSection.tsx (16)
+  430: Select a company to configure webhooks.
+  448: Webhook delivery is turned off
+  504: Deliver webhook events
+  524: Endpoint URL
+  549: Add your endpoint URL above to start receiving events. Once saved, you can set a signing secret, cho
+  557: Signing secret
+  610: Send test event
+  616: Event subscriptions
+  619: Payment updates (pending, confirmed, underpaid, settled) are always delivered. Tick any extra events
+  684: Recent deliveries
+  755: Delivery attempt
+  789: Payload sent
+  84: A checkout was created and an address issued — nothing paid yet
+  85: A payment link passed its expiry without being paid
+  86: The customer sent more than requested, above your threshold
+  582: Copy secret
+
+Components/Common/SupportChatWidget/index.tsx (14)
+  869: Talk to a human
+  711: Talk to a human
+  717: Talk to a human
+  722: New conversation
+  723: New conversation
+  727: Close chat
+  876: Your email (optional if signed in)
+  883: Anything to add? (optional)
+  1002: Remove attachment
+  1021: Insert emoji
+  1027: Attach image or PDF (max 5MB)
+  1033: Attach a file
+  1052: Ask about fees, coins, API…
+  1065: Send message
+
+Components/Page/Payment-link/PaymentLinksTable.tsx (14)
+  227: row.donation?.goalAmount ? (
+  529: Crypto refund
+  612: linkIdHeader
+  615: descriptionHeader
+  618: usdValueHeader
+  621: cryptoValueHeader
+  624: createdHeader
+  627: expiresHeader
+  630: statusHeader
+  633: timesUsedHeader
+  633: timesUsedTooltip
+  654: actionsHeader
+  889: Crypto refund
+  1067: Info Icon
+
+Components/UI/CompanySettingsDialog/CompanyDetailsSection.tsx (13)
+  96: Czech Republic
+  120: United Arab Emirates
+  125: Brazil (Business)
+  129: United Kingdom
+  134: New Zealand
+  136: United States
+  137: South Africa
+  534: Select Country
+  699: Select State
+  855: Select City
+  1210: Enter VAT number
+  1324: download-icon
+  1354: logo preview
+
+Components/Page/Refund/CryptoRefundModal.tsx (11)
+  274: Refund status
+  319: Send exactly
+  363: Crypto refund
+  541: Cancel refund
+  346: Refund to customer
+  348: Network fee (you cover)
+  352: Customer receives at
+  390: Asset / chain
+  392: Paid by customer
+  397: Customer refund address
+  495: Reason (optional, shown to customer)
+
+Components/Page/Pay3Components/cryptoTransfer.tsx (11)
+  149: USD Coin (USDC - ERC-20)
+  155: Bitcoin (BTC)
+  161: Ethereum (ETH)
+  167: Litecoin (LTC)
+  173: Dogecoin (DOGE)
+  179: Bitcoin Cash (BCH)
+  185: Tron (TRX)
+  191: Solana (SOL)
+  197: Ripple (XRP)
+  203: Polygon (POL)
+  1697: Go back
+
+Components/Page/Pay3Components/campaign/CampaignShareTray.tsx (11)
+  100: Share on X
+  107: Share on X
+  114: Share on Threads
+  121: Share on Threads
+  128: Share on WhatsApp
+  135: Share on WhatsApp
+  142: Share on LinkedIn
+  149: Share on LinkedIn
+  156: Copy link
+  160: Copy campaign link
+  171: Link copied
+
+Components/UI/CheckoutStatusStrip.tsx (10)
+  114: Waiting for your payment
+  114: Send the exact amount below. Confirmation is automatic once we detect the transaction.
+  115: Broadcasting on-chain
+  115: We saw your transaction. Confirmations usually take under a minute.
+  116: Payment confirmed
+  116: The network confirmed it. Settlement is in progress.
+  117: You're all set
+  117: Funds have cleared. A receipt is on its way.
+  118: Something went wrong
+  118: The payment didn't complete. Nothing was charged — you can try again below.
+
+Components/UI/CheckoutShell.tsx (10)
+  85: Waiting for your payment
+  85: Send the exact amount to the address below. We'll confirm automatically once it hits the mempool.
+  86: Broadcasting on-chain
+  86: Your transaction is in the mempool. Confirmations usually take under a minute.
+  87: Payment confirmed
+  87: The network confirmed your transaction. Funds are being settled to the merchant right now.
+  88: You're all set 🎉
+  88: Funds have cleared. A receipt is on its way to your email.
+  89: Something went wrong
+  89: The payment didn't complete. Nothing was charged — you can try again below.
+
+Components/UI/FeeCalculator/index.tsx (10)
+  83: Bitcoin (BTC)
+  84: Ethereum (ETH)
+  85: Litecoin (LTC)
+  86: Dogecoin (DOGE)
+  87: Tron (TRX)
+  88: Bitcoin Cash (BCH)
+  89: Solana (SOL)
+  90: Ripple (XRP)
+  94: Polygon (MATIC)
+  95: RLUSD (XRP Ledger)
+
+Components/Page/API/ApiKeysPage.tsx (9)
+  707: Embedded Checkout
+  826: new Promise
+  943: Elements — Inline Crypto Widget
+  965: event is UX only.
+  717: Optional — modal
+  721: View full guide
+  968: HTML — mount inline
+  969: React — hook form
+  984: View full guide
+
+Components/Page/Notification/CompanyEmailRoutingCard.tsx (9)
+  22: Payment received, confirming, partial or failed alerts
+  23: Payouts & settlements
+  23: Auto-conversion payouts, settlements and refunds
+  24: Orders & invoices
+  24: Order receipts, downloads and invoice emails
+  25: Account & config
+  25: Webhook, API key, wallet and profile changes
+  26: Digests & summaries
+  26: Weekly summaries and payout digests
+
+Components/Layout/HomeHeader/index.tsx (7)
+  327: Public beta
+  578: Non-custodial
+  252: Primary navigation
+  254: Go to home
+  387: System status
+  434: Toggle menu
+  474: Mobile navigation
+
+Components/UI/AuthLayout/PurposePicker.tsx (7)
+  140: What are you here for?
+  41: Sell products
+  41: Storefront, pay-links, invoices
+  42: Crowdfunding & donation pages
+  43: Get tips
+  44: Build with API
+  44: Keys, webhooks, sandbox
+
+Components/Page/Home/v3/BrandSpotlightV3.tsx (7)
+  192: Aurora Group
+  209: Your brands
+  308: Add brand
+  49: Aurora Coffee
+  50: Nomad Studio
+  51: Side Projects
+  163: DynoPay brand switcher showing multiple brands under one account
+
+Components/Page/Creator/CreatorLivePreview.tsx (7)
+  261: Your first donation link will appear here
+  264: Create a donation link and it will feature at the top of your page.
+  276: Support this campaign
+  303: Powered by
+  31: Buy me a coffee
+  32: Send a tip
+  33: Support me
+
+Components/Page/Transactions/TransactionDetailsModal.tsx (7)
+  349: Reverse-charge (0%)
+  368: Customer VAT ID
+  250: Close transaction details
+  295: Amount Details
+  443: Transaction Hashes
+  492: Right Arrow
+  540: Right Arrow
+
+Components/Page/Storefront/ProductsTab.tsx (7)
+  214: Sell your first product
+  144: View my page
+  153: New product
+  167: Search products…
+  221: Create your first product
+  276: Quick sell — create a payment link pre-filled with this product
+  301: Open public page
+
+pages/auth/secure-account.tsx (6)
+  136: What happens next:
+  45: Securing your account...
+  46: Please wait while we process your request.
+  51: Account Secured
+  57: Something went wrong
+  63: Link expired or already used
+
+pages/pay-links/products/[productId]/orders.tsx (6)
+  153: View in Transactions
+  164: No orders yet.
+  223: Crypto refund (on-chain)
+  232: Open order
+  264: Reason (shown to buyer)
+  280: Return items to stock
+
+Components/Layout/HomeFooter/index.tsx (6)
+  95: Digital Downloads
+  96: Hosting & Domains
+  97: VPN & Privacy
+  99: Agencies & Consultants
+  152: Dynopay logo
+  199: Trust and compliance
+
+Components/UI/OnboardingBanner.tsx (6)
+  124: Welcome to Dynopay
+  33: Pick a handle and turn on the tip widget — your public creator page goes live in under a minute.
+  39: Name it, price it, pick the crypto you'll accept. Your storefront + a shareable pay-link land in one
+  45: Set a funding goal, add reward tiers, and share a page that accepts BTC, ETH, USDT, and more.
+  49: API access
+  51: Copy your live + sandbox keys, install the SDK, and drop the embed on any page in ~10 lines of code.
+
+Components/UI/CompanySettingsDialog/WebhookNotificationsSection.tsx (6)
+  133: Copy Icon
+  169: wh_sec_....................xyz123
+  184: Copy Icon
+  236: Refresh Icon
+  302: Info Icon
+  339: Refresh Icon
+
+Components/UI/DatePicker/index.tsx (6)
+  116: This Week
+  117: Last Week
+  118: This Month
+  119: Last Month
+  120: Last 7 Days
+  121: Last 30 Days
+
+Components/UI/pay-link/PaymentLinkHeader.tsx (5)
+  32: info icon
+  75: Transaction Icon
+  106: True Icon
+  114: False Icon
+  122: True Icon
+
+Components/Page/Dashboard/CreatorPageCard.tsx (5)
+  407: Your QR code
+  420: Vanity link analytics
+  426: Total visits
+  430: Last 7 days
+  440: No referrer data yet — visits will start showing up here as your link is shared.
+
+Components/Page/Creator/CreatorPageSettings.tsx (5)
+  53: Buy me a coffee
+  54: Send a tip
+  55: Support me
+  66: Twitter / X
+  739: Alice Cooper
+
+Components/Page/Invoices/InvoicePreviewDrawer.tsx (5)
+  242: Download PDF
+  264: Open in new tab
+  281: Couldn’t load the invoice preview
+  284: Try downloading the PDF directly — the preview may be blocked by your browser.
+  215: Close invoice preview
+
+Components/Page/CreatePaymentLink/PaymentLinkSuccessModal.tsx (5)
+  249: close icon
+  378: Direct Pay QR Code
+  444: copy address
+  475: blockchain fees
+  491: Link Id
+
+pages/kyc/complete.tsx (4)
+  22: Verification submitted — Dynopay
+  53: Verification submitted
+  79: Back to dashboard
+  83: You can safely close this tab.
+
+pages/pay/demo.tsx (4)
+  205: Payment successful
+  225: Run the demo again
+  322: Email me a receipt (optional)
+  353: Tap to copy payment address
+
+Components/Layout/Menus.tsx (4)
+  67: Invoices & Tax
+  72: Wallet Address
+  95: Transfer Speed
+  100: Wallet Address
+
+Components/UI/FeeFreeBanner/index.tsx (4)
+  163: We waive our full platform fee — you only pay the network (blockchain) cost.
+  189: Start accepting payments
+  112: Fee-free trial progress
+  196: Dismiss fee-free banner
+
+Components/UI/pay-link/TaxSection.tsx (4)
+  113: Prices include tax
+  116: Back out VAT from the price instead of adding on top
+  157: true icon
+  223: info icon
+
+Components/Page/Storefront/ShareTab.tsx (4)
+  98: Claim your handle to get a link
+  115: Set up my page
+  132: Your page link
+  217: QR code
+
+pages/unsubscribe.tsx (3)
+  51: Unsubscribe — Dynopay
+  100: Link not valid
+  112: Back to Dynopay
+
+Components/Common/StickyPromoBar.tsx (3)
+  96: first payment
+  58: Fee-free trial promotion
+  129: Dismiss promotion
+
+Components/Layout/Header/index.tsx (3)
+  157: no user
+  166: For mobile only
+  218: no user
+
+Components/Layout/NewHeader/index.tsx (3)
+  367: View account
+  109: Open menu
+  295: Close menu
+
+Components/UI/WalletReuseSelector/index.tsx (3)
+  183: Reuse wallets from your other companies
+  198: Dismiss reuse suggestion
+  313: Use these wallets
+
+Components/Page/Home/v3/CoinShowcaseV3.tsx (3)
+  34: Bitcoin Cash
+  37: USD Coin
+  38: Ripple USD
+
+Components/Page/Dashboard/AutoClaimHandle.tsx (3)
+  134: Your creator page is reserved!
+  184: Publish my page
+  201: Maybe later
+
+Components/Page/CreatePaymentLink/index.tsx (3)
+  1109: item.shortOrder
+  1894: Customer pays
+  1019: Bitcoin Cash
+
+Components/Page/Wallet/index.tsx (3)
+  370: Copy Icon
+  399: Total processed
+  431: Total processed
+
+Components/Page/Pay3Components/CleanCheckoutV2.tsx (3)
+  1350: Tap to copy payment address
+  1379: Payment QR code
+  1692: Copy address
+
+Components/Page/Pay3Components/campaign/RewardTierShelf.tsx (3)
+  97: Reward tiers
+  101: Scroll tiers left
+  109: Scroll tiers right
+
+pages/press.tsx (2)
+  152: support@dynopay.com
+  357: support@dynopay.com
+
+pages/wallet-security.tsx (2)
+  178: Contact support
+  193: Back to sign in
+
+Components/Layout/MobileNavigationBar/index.tsx (2)
+  403: New features available
+  476: New feature
+
+Components/Layout/HomeHeader/HeaderLangMenu.tsx (2)
+  128: Change language
+  144: Language options
+
+Components/UI/MobileReferralBanner/index.tsx (2)
+  33: Join Dynopay
+  34: Accept crypto payments with Dynopay. Use my referral code for 50% off fees!
+
+Components/UI/DashboardSetupPrompt/index.tsx (2)
+  39: Create a Company
+  45: Add a Wallet Address
+
+Components/UI/EmailVerificationBanner/index.tsx (2)
+  136: Verify Your Email
+  137: Enter the verification code sent to your email
+
+Components/UI/OtpDialog/index.tsx (2)
+  146: email icon
+  167: close icon
+
+Components/UI/CompanySettingsDialog/index.tsx (2)
+  742: This will permanently remove
+  746: to confirm:
+
+Components/UI/AddWalletModal/index.tsx (2)
+  815: info icon
+  847: info icon
+
+Components/UI/LanguageSwitcher/index.tsx (2)
+  242: Close language menu
+  270: Language options
+
+Components/UI/LanguageOnboardingBar/index.tsx (2)
+  106: Choose your language
+  205: Dismiss language chooser
+
+Components/UI/DataTable/index.tsx (2)
+  238: Rows per page:
+  114: simple table
+
+Components/Page/Refund/refundStatus.tsx (2)
+  54: Awaiting deposit
+  55: Deposit detected
+
+Components/Page/Home/v3/TrustLogosV3.tsx (2)
+  18: XRP Ledger
+  22: Bitcoin Cash
+
+Components/Page/Dashboard/FeeFreeWidget.tsx (2)
+  92: Your first payment is platform-fee-free
+  95: We waive our full platform fee (fixed + %) on your first payment — you only pay the network (blockch
+
+Components/Page/Creator/InlineTipCheckout.tsx (2)
+  624: Try again
+  1280: Try again
+
+Components/Page/Payment-link/QuickCreateLinkPanel.tsx (2)
+  331: customer@email.com
+  419: Copy link
+
+Components/Page/Pay3Components/campaign/DonorWallV2.tsx (2)
+  251: Organizer replied
+  51: Top supporter
+
+pages/invoices.tsx (1)
+  346: Invoices — Dynopay
+
+pages/wallet.tsx (1)
+  137: info icon
+
+pages/about.tsx (1)
+  239: support@dynopay.com
+
+pages/blog/[slug].tsx (1)
+  68: X (Twitter)
+
+pages/[handle]/checkout.tsx (1)
+  299: e.g. DE123456789
+
+Components/Common/PageUnavailable/index.tsx (1)
+  86: Dynopay home
+
+Components/Layout/ScrollToTopButton.tsx (1)
+  76: Scroll to top
+
+Components/UI/NoData.tsx (1)
+  30: no data
+
+Components/UI/DeleteModel/index.tsx (1)
+  68: trash icon
+
+Components/UI/AreaChart/index.tsx (1)
+  188: calendar-icon
+
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx (1)
+  379: Skip for now
+
+Components/UI/OnboardingFlow/CreateCompanyModal.tsx (1)
+  877: logo preview
+
+Components/UI/pay-link/DonationSettingsSection.tsx (1)
+  700: Campaign cover
+
+Components/UI/pay-link/CampaignManager.tsx (1)
+  803: Remove reply
+
+Components/UI/pay-link/PaymentSettingsBasic.tsx (1)
+  171: blockchain fees
+
+Components/UI/pay-link/SaveChangeModel.tsx (1)
+  32: info icon
+
+Components/UI/CompanySettingsDialog/PaymentToleranceSection.tsx (1)
+  45: rounded stack
+
+Components/UI/CompanySettingsDialog/CryptoConversionSection.tsx (1)
+  41: swap horiz
+
+Components/UI/InfoBanner/index.tsx (1)
+  46: info icon
+
+Components/UI/TimePeriodSelector/index.tsx (1)
+  205: currentIndex
+
+Components/UI/CryptocurrencySelector/index.tsx (1)
+  176: Bitcoin (BTC)
+
+Components/Page/Dashboard/ClaimHandleBanner.tsx (1)
+  174: Dismiss banner
+
+Components/Page/Dashboard/HeroMetrics.tsx (1)
+  184: Revenue trend sparkline
+
+Components/Page/Dashboard/DashboardLeftSection.tsx (1)
+  620: Wallet Icon
+
+Components/Page/Dashboard/ReferralRewardBanner.tsx (1)
+  118: Dismiss banner
+
+Components/Page/Dashboard/DashboardRightSection.tsx (1)
+  293: Active Tier
+
+Components/Page/Dashboard/ConversionBanner.tsx (1)
+  240: Auto-convert
+
+Components/Page/Creator/SupportWidget.tsx (1)
+  379: Email for updates (optional)
+
+Components/Page/Creator/CreatorProfile.tsx (1)
+  745: Powered by
+
+Components/Page/HelpAndSupport/index.tsx (1)
+  454: support@dynopay.com
+
+Components/Page/Transactions/index.tsx (1)
+  657: View my transactions
+
+Components/Page/Transactions/TransactionsTable.tsx (1)
+  632: swap horiz
+
+Components/Page/Customers/index.tsx (1)
+  462: max && (
+
+Components/Page/Profile/AccountSetting.tsx (1)
+  386: Profile photo
+
+Components/Page/Storefront/PageTab.tsx (1)
+  327: Updates instantly as you tweak the theme — no Save required.
+
+Components/Page/Wallet/WalletReuseNudge.tsx (1)
+  231: Add a different one
+
+Components/Page/Pay3Components/bankTransferCompo.tsx (1)
+  402: Dynopay Payments Ltd.
+
+Components/Page/Pay3Components/donationCampaign.tsx (1)
+  154: updates?: Array
+
+Components/Page/Pay3Components/verify.tsx (1)
+  51: Verifying....
+
+Components/Page/Pay3Components/checkoutExtras.tsx (1)
+  57: you@example.com
+
+Components/Page/Notification/NotificationPage.tsx (1)
+  734: envelope-icon
+
+Components/Page/Settings/TaxSettingsSection.tsx (1)
+  398: e.g. DE123456789
+
+TOTAL files: 125  strings: 839

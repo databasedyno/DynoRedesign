@@ -11,7 +11,13 @@
     "rateMinutesSecondsAgo": "Tasa actualizada hace {{m}} min {{s}} s"
   },
   "chooseYourLanguage": "Elige tu idioma",
-  "language": "Idioma",
+  "language": {
+    "change": "Cambiar idioma",
+    "options": "Opciones de idioma",
+    "choose": "Elige tu idioma",
+    "dismissChooser": "Cerrar selector de idioma",
+    "closeMenu": "Cerrar menú de idioma"
+  },
   "english": "Inglés",
   "spanish": "Español",
   "homePageName": "Inicio",
@@ -91,7 +97,11 @@
     "incompletePayment": "Pago incompleto",
     "address": "Dirección",
     "customerPaysFee": "El cliente paga la tarifa de procesamiento",
-    "pendingPayment": "Pago pendiente"
+    "pendingPayment": "Pago pendiente",
+    "loadFailed": "No pudimos cargar este enlace de pago. Por favor, inténtalo de nuevo.",
+    "linkExpiredTitle": "Este enlace de pago ha expirado",
+    "linkErrorTitle": "Este enlace de pago no se puede abrir",
+    "goToDynopay": "Ir a Dynopay"
   },
   "crypto": {
     "title": "Criptomoneda",
@@ -627,7 +637,10 @@
     "taxDesc": "Comportamiento predeterminado del IVA/impuesto para pagos y enlaces de pago.",
     "scopeAccount": "Se aplica a toda tu cuenta",
     "scopeCompany": "Se aplica a {{company}}",
-    "selectedCompanyFallback": "la marca seleccionada"
+    "selectedCompanyFallback": "la marca seleccionada",
+    "viewOnly": "Solo lectura",
+    "team": "Equipo",
+    "teamDesc": "Invita a compañeros de equipo y controla a qué puede acceder cada uno."
   },
   "donation": {
     "defaultTitle": "Apoya esta campaña",
@@ -660,7 +673,9 @@
     "toGo": "por ir",
     "story": "Nuestra historia",
     "gallery": "Fotos",
-    "updates": "Actualizaciones"
+    "updates": "Actualizaciones",
+    "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida o déjala en blanco.",
+    "emailPlaceholder": "Correo electrónico para actualizaciones (opcional)"
   },
   "taxSettings": {
     "loadError": "No se pudieron cargar los ajustes de impuestos.",
@@ -677,7 +692,8 @@
     "vatLabel": "Tu ID de IVA / Impuesto",
     "vatDesc": "Mostrado en los recibos. Habilita la validación del cargo inverso en la UE cuando tus compradores proporcionan su propio ID de IVA.",
     "vatInvalidHint": "Esto no coincide con un formato de IVA conocido de la UE/GB; aún así se guardará como se ingresó.",
-    "save": "Guardar ajustes de impuestos"
+    "save": "Guardar ajustes de impuestos",
+    "inheritNote": "Mostrando tus valores predeterminados de cuenta — guardar aquí crea configuraciones fiscales específicas para la empresa seleccionada."
   },
   "accountTypeIndividual": "Individual",
   "accountTypeBusiness": "Negocio",
@@ -788,7 +804,8 @@
       "showProductsDesc": "Muestra la sección de tienda en esta página de creador. Desactívala para una página limpia solo de propinas: tu página de tienda y los enlaces directos a productos siguen funcionando.",
       "storePreviewBoth": "Vista previa: propinas + tienda visibles",
       "storePreviewProductsHidden": "Vista previa: tienda oculta en esta página",
-      "storePreviewStoreOff": "Vista previa: página solo de propinas — tienda y enlaces de productos ocultos"
+      "storePreviewStoreOff": "Vista previa: página solo de propinas — tienda y enlaces de productos ocultos",
+      "minFloorNote": "mín $10"
     },
     "compare": {
       "title": "Comparar tiendas",
@@ -951,5 +968,261 @@
     "securedBy": "Pagos protegidos por Dynopay",
     "merchantLabel": "Comercio verificado"
   },
-  "referAndEarn": "Recomienda y gana"
+  "referAndEarn": "Recomienda y gana",
+  "scrollToTop": "Volver arriba",
+  "dynopayHome": "Inicio de Dynopay",
+  "feeFree": {
+    "bannerAria": "Progreso de la prueba sin comisiones",
+    "bannerBody": "Eximimos toda nuestra comisión de plataforma: solo pagas el coste de red (blockchain).",
+    "startAccepting": "Empieza a aceptar pagos",
+    "dismiss": "Cerrar banner",
+    "widgetTitle": "Tu primer pago no tiene comisión de plataforma",
+    "widgetBody": "Eximimos toda la comisión de plataforma (fija + %) en tu primer pago: solo pagas el coste de red (blockchain). Después se aplican las comisiones estándar."
+  },
+  "promoBar": {
+    "aria": "Promoción de prueba sin comisiones",
+    "desktop": "Tu primer pago no tiene comisiones",
+    "mobile": "1.er pago sin comisiones",
+    "dismiss": "Cerrar promoción",
+    "claim": "Reclamar"
+  },
+  "emailVerify": {
+    "title": "Verifica tu correo",
+    "subtitle": "Introduce el código de verificación enviado a tu correo"
+  },
+  "setupPrompt": {
+    "createCompany": "Crear una empresa",
+    "addWallet": "Añadir una dirección de billetera"
+  },
+  "payouts": {
+    "pageName": "Saldos y pagos",
+    "pageDescription": "Tu volumen liquidado, fondos pendientes, conversión automática y dónde se realizan los pagos.",
+    "digestOn": "Resumen de pagos semanal activado",
+    "digestOff": "Resumen de pagos semanal desactivado",
+    "digestUpdateFailed": "No se pudo actualizar la configuración del resumen",
+    "previewSent": "Resumen de vista previa enviado a tu correo electrónico",
+    "previewFailed": "No se pudo enviar la vista previa",
+    "pickBothDates": "Selecciona una fecha de inicio y una de fin",
+    "startBeforeEnd": "La fecha de inicio debe ser anterior a la fecha de fin",
+    "exported": "Historial de pagos exportado",
+    "exportFailed": "La exportación falló. Por favor, inténtalo de nuevo.",
+    "totalSettled": "Total liquidado",
+    "totalSettledHint": "Volumen total recibido",
+    "pending": "Pendiente",
+    "pendingHint": "Pagos a la espera de confirmación",
+    "autoConvert": "Conversión automática",
+    "on": "Activado",
+    "off": "Desactivado",
+    "autoConvertHint": "Convertir cripto a una stablecoin",
+    "feeTier": "Nivel de tarifa",
+    "feeTierHint": "Tu precio actual",
+    "settlementAutoConvert": "Liquidación y conversión automática",
+    "loading": "Cargando…",
+    "autoConvertOffDesc": "La conversión automática está desactivada — los pagos se liquidan en la moneda recibida",
+    "addWalletFirst": "Agrega primero una billetera de liquidación en stablecoin",
+    "settleTo": "Liquidar a",
+    "selectSettlementCoin": "Selecciona la moneda de liquidación",
+    "settlementWallets": "Billeteras de liquidación",
+    "noSettlementWallet": "Aún no se ha configurado ninguna billetera de liquidación en stablecoin. Agrega una en Configuración para convertir automáticamente los pagos.",
+    "onChain": "en",
+    "active": "Activo",
+    "autoConvertProtection": "Protección de conversión automática",
+    "firstConversion": "¡Primera conversión!",
+    "savingsFirst": "Tu primer pago se convirtió automáticamente a una stablecoin — protegido contra la volatilidad",
+    "payment": "pago",
+    "payments": "pagos",
+    "conversion": "conversión",
+    "conversions": "conversiones",
+    "savingsOff": "Activa la conversión automática para bloquear cripto entrante en stablecoins",
+    "thisMonth": "Este mes",
+    "last6Months": "Últimos 6 meses",
+    "savingsSparklineAria": "Conversiones de stablecoin en los últimos 6 meses",
+    "weeklyDigest": "Resumen semanal de pagos",
+    "weeklyDigestDesc": "Recibe un correo electrónico semanal resumiendo los pagos liquidados y cualquier cosa aún pendiente",
+    "sending": "Enviando…",
+    "sendPreview": "Enviar vista previa",
+    "payoutWallets": "Carteras de pago",
+    "payoutWalletsDesc": "Donde aterrizan tus fondos liquidados",
+    "manage": "Gestionar",
+    "taxCollected": "Impuesto recaudado",
+    "toDate": "hasta la fecha",
+    "receipts": "Recibos",
+    "pendingFunds": "Fondos pendientes",
+    "pendingFundsDesc": "Pagos a la espera de confirmación en la cadena",
+    "paymentAwaiting": "1 pago a la espera",
+    "noPendingNow": "No hay pagos a la espera de confirmación en este momento.",
+    "confirming": "Confirmando",
+    "recentSettlements": "Liquidaciones recientes",
+    "dateFrom": "Desde",
+    "dateTo": "Hasta",
+    "settledOnly": "Solo liquidados",
+    "exporting": "Exportando…",
+    "exportCsv": "Exportar CSV",
+    "viewAll": "Ver todo",
+    "noPaymentsYet": "No hay pagos aún. Tus pagos liquidados aparecerán aquí.",
+    "range_7": "Últimos 7 días",
+    "range_30": "Últimos 30 días",
+    "range_90": "Últimos 90 días",
+    "range_365": "Últimos 12 meses",
+    "range_custom": "Rango personalizado…"
+  },
+  "liveBrand": {
+    "payNow": "Pagar ahora",
+    "tagline": "Únete a Dynopay y obtén",
+    "links": {
+      "title": "Enlaces de Pago",
+      "description": "Crea enlaces de pago compartibles en segundos. Acepta cripto de cualquiera, en cualquier lugar."
+    },
+    "multiCurrency": {
+      "title": "Soporte Multimoneda",
+      "description": "Acepta BTC, ETH, USDT, SOL, XRP y más, todo en una sola plataforma."
+    },
+    "settlement": {
+      "title": "Liquidación Instantánea",
+      "description": "Recibe pagos en tiempo real con reenvío instantáneo a tu cartera."
+    },
+    "dashboard": {
+      "title": "Análisis del Panel",
+      "description": "Rastrea transacciones, ingresos y rendimiento con un panel potente."
+    },
+    "lowFees": {
+      "title": "Bajas Tarifas",
+      "description": "Tarifa de transacción competitiva del 1.5% sin cargos ocultos ni costos mensuales."
+    },
+    "checkout": {
+      "title": "Páginas de Pago",
+      "description": "Páginas de pago hermosas y de marca para tus clientes, sin necesidad de código."
+    }
+  },
+  "productEditor": {
+    "delivery": {
+      "url": {
+        "label": "Acceder a URL",
+        "hint": "Entregar un enlace (Notion, Google Drive, sitio privado) al realizar el pago."
+      },
+      "file": {
+        "label": "Descarga de archivo",
+        "hint": "Sube tu(s) archivo(s). El comprador recibe enlaces de descarga firmados."
+      },
+      "licenseKey": {
+        "label": "Claves de licencia",
+        "hint": "Pega una clave por línea. Se emite una clave por compra."
+      }
+    },
+    "variantDefault": "Variante",
+    "toast": {
+      "loadFailed": "Error al cargar el producto",
+      "created": "Producto creado.",
+      "saved": "Guardado.",
+      "saveFailed": "Error al guardar.",
+      "published": "Publicado — tu producto está en vivo.",
+      "publishFailed": "Error al publicar.",
+      "archived": "Archivado.",
+      "archiveFailed": "Error al archivar.",
+      "imageTooLarge": "La imagen es demasiado grande (máx. 10 MB).",
+      "onlyImages": "Solo se permiten archivos de imagen.",
+      "imageUploadFailed": "Error al subir la imagen.",
+      "coverUploaded": "Imagen de portada subida.",
+      "galleryAdded": "Imagen de galería añadida.",
+      "enterImageUrl": "Ingresa una URL de imagen.",
+      "urlScheme": "La URL debe comenzar con http(s):// o /",
+      "urlTooLong": "La URL es demasiado larga (máx. 512 caracteres).",
+      "imageDup": "Esa imagen ya está en la galería.",
+      "variantImageSaveFailed": "Error al guardar la imagen de la variante.",
+      "variantImageUploaded": "Imagen de variante subida.",
+      "variantImageClearFailed": "Error al eliminar la imagen de la variante.",
+      "fileUploaded": "Archivo subido.",
+      "uploadFailed": "Error al subir.",
+      "deleteFailed": "Error al eliminar.",
+      "saveDraftFirst": "Guarda el borrador primero.",
+      "addVariantFailed": "Error al añadir variante.",
+      "variantSaved": "Variante guardada.",
+      "variantSaveFailed": "Error al guardar la variante."
+    },
+    "validate": {
+      "titleRequired": "Se requiere un título.",
+      "priceGtZero": "El precio debe ser mayor que 0.",
+      "enterAccessUrl": "Ingresa la URL de acceso."
+    },
+    "confirm": {
+      "archiveProduct": "¿Archivar este producto? Los compradores no podrán verlo.",
+      "removeFile": "¿Eliminar este archivo?"
+    },
+    "newProduct": "Nuevo producto",
+    "editProduct": "Editar producto",
+    "slug": "Slug:",
+    "productTitle": "Título del producto",
+    "subtitle": "Subtítulo (opcional)",
+    "description": "Descripción (Markdown soportado)",
+    "coverImage": "Imagen de portada",
+    "coverImageUrl": "URL de la imagen (opcional, https://…)",
+    "uploading": "Subiendo…",
+    "uploadImage": "Subir imagen",
+    "removeCoverImage": "Eliminar imagen de portada",
+    "coverPreview": "Vista previa de la portada",
+    "coverImageHint": "JPG, PNG, GIF, WebP o SVG. Máx 10 MB. Las imágenes subidas se sirven a través del CDN de la app.",
+    "photoGallery": "Galería de fotos (opcional)",
+    "removeGalleryImage": "Eliminar imagen de la galería",
+    "galleryImageUrl": "URL de la imagen",
+    "galleryAlt": "Texto alternativo (opcional)",
+    "galleryAltPlaceholder": "Describe la imagen",
+    "addFromUrl": "Agregar desde URL",
+    "uploadFromDevice": "Subir desde el dispositivo",
+    "basePriceInfo": "Precio base (informativo, las variantes anulan)",
+    "price": "Precio",
+    "currency": "Moneda",
+    "stockUnlimited": "Stock (en blanco = ilimitado)",
+    "digitalDelivery": "Entrega digital",
+    "deliveryMethod": "Método de entrega",
+    "accessUrl": "URL de acceso",
+    "licenseKeys": "Claves de licencia (una por línea)",
+    "uploadFile": "Subir un archivo",
+    "saveDraftFirstHint": "Guarda el borrador primero, luego podrás subir archivos.",
+    "taxVat": "Impuesto y IVA",
+    "taxIntro": "Elige si se cobrará impuesto a los compradores por este producto. Esto es exactamente lo que se muestra en el checkout de tu tienda.",
+    "chargeTax": "Cobrar impuesto por este producto",
+    "chargingTax": "cobrando impuesto",
+    "noTaxState": "sin impuesto",
+    "inheritStoreDefault": "Heredar predeterminado de la tienda",
+    "alwaysChargeTax": "Cobrar siempre impuesto",
+    "neverChargeTax": "Nunca cobrar impuesto",
+    "overrideExemptHint": "Las anulaciones no se aplican a productos exentos de impuestos.",
+    "overrideHint": "Anula el predeterminado de toda la tienda (Configuración → Impuesto) solo para este producto.",
+    "taxCategory": "Categoría de impuestos",
+    "categoryDigital": "Bienes / servicios digitales",
+    "categoryPhysical": "Bienes físicos",
+    "categoryService": "Servicio",
+    "categoryExempt": "Exento de impuestos",
+    "categoryExemptHint": "Este producto siempre se vende libre de impuestos, independientemente de tu configuración fiscal.",
+    "categoryPhysicalHint": "Los bienes físicos utilizan el país de la dirección de envío del comprador para la jurisdicción fiscal.",
+    "categoryDigitalHint": "Los bienes / servicios digitales utilizan la ubicación detectada del comprador para la jurisdicción fiscal.",
+    "atCheckout": "En el pago",
+    "effectiveExempt": "Exento de impuestos — este producto siempre se vende libre de impuestos.",
+    "shippingCountry": "país de la dirección de envío",
+    "location": "ubicación",
+    "effectiveOff": "No se añade impuesto — los compradores pagan exactamente el precio listado.",
+    "taxDefaultHintPre": "El predeterminado de tu tienda es actualmente",
+    "noTax": "Sin impuestos",
+    "taxDefaultHintMid": ". Actívalo para todos los pagos en Configuración → Impuestos, o establece este producto como",
+    "manageTaxLink": "Gestiona el predeterminado de impuestos de tu tienda en Configuración → Impuestos →",
+    "variantsOptional": "Variantes (opcional)",
+    "addVariant": "Agregar variante",
+    "enableVariantsAria": "Habilitar variantes",
+    "enableVariantsDesc": "Habilitar variantes (por ejemplo, diferentes tamaños / niveles). Cuando está activado, cada variante tiene su propio precio + stock.",
+    "oneOffServiceAria": "Servicio único",
+    "oneOffServiceDesc": "Servicio único (ocultar el selector de cantidad). Actívalo para productos como “Habla con un desarrollador” donde una cantidad no tiene sentido — los compradores lo adquieren una vez.",
+    "noVariantsYet": "Aún no hay variantes. Haz clic en “Agregar variante” para crear una.",
+    "removeVariantImage": "Eliminar imagen de variante",
+    "change": "Cambiar",
+    "add": "Agregar",
+    "variantTitle": "Título",
+    "variantPriceCents": "Precio (¢)",
+    "variantStock": "Stock",
+    "deleteVariant": "Eliminar variante",
+    "saveDraft": "Guardar borrador",
+    "updateLiveProduct": "Actualizar producto en vivo",
+    "publish": "Publicar",
+    "archive": "Archivar",
+    "adjustImage": "Ajustar imagen"
+  }
 }

@@ -52,7 +52,7 @@ const SOCIALS: readonly SocialItemType[] = [
 // Set NEXT_PUBLIC_SHOW_SOCIAL_LINKS=false to hide them. Default (unset) = shown.
 const SHOW_SOCIAL_LINKS = process.env.NEXT_PUBLIC_SHOW_SOCIAL_LINKS !== "false";
 
-const TRUST = ["Non-custodial", "9 blockchains", "Encrypted", "GDPR / AML aligned", "No chargebacks"] as const;
+const TRUST = ["nonCustodial", "chains", "encrypted", "gdpr", "noChargebacks"] as const;
 
 const HomeFooter: FC = () => {
   const router = useRouter();
@@ -76,7 +76,7 @@ const HomeFooter: FC = () => {
   const columns: readonly FooterColumn[] = useMemo(
     () => [
       {
-        heading: "Product",
+        heading: t("footerNav.product"),
         links: [
           { label: t("features"), link: "/#features" },
           { label: t("headerFees"), link: "/fees" },
@@ -85,23 +85,23 @@ const HomeFooter: FC = () => {
         ],
       },
       {
-        heading: "Solutions",
+        heading: t("footerNav.solutions"),
         links: [
-          { label: "E-commerce", link: "/for/ecommerce" },
-          { label: "SaaS", link: "/for/saas" },
-          { label: "Gaming", link: "/for/gaming" },
-          { label: "Freelancers", link: "/for/freelancers" },
-          { label: "Remittance", link: "/for/remittance" },
-          { label: "Digital Downloads", link: "/for/digital-downloads" },
-          { label: "Hosting & Domains", link: "/for/hosting" },
-          { label: "VPN & Privacy", link: "/for/vpn" },
-          { label: "Marketplaces", link: "/for/marketplaces" },
-          { label: "Agencies & Consultants", link: "/for/agencies" },
-          { label: "Nonprofits", link: "/for/nonprofits" },
+          { label: t("footerNav.verticals.ecommerce"), link: "/for/ecommerce" },
+          { label: t("footerNav.verticals.saas"), link: "/for/saas" },
+          { label: t("footerNav.verticals.gaming"), link: "/for/gaming" },
+          { label: t("footerNav.verticals.freelancers"), link: "/for/freelancers" },
+          { label: t("footerNav.verticals.remittance"), link: "/for/remittance" },
+          { label: t("footerNav.verticals.digitalDownloads"), link: "/for/digital-downloads" },
+          { label: t("footerNav.verticals.hosting"), link: "/for/hosting" },
+          { label: t("footerNav.verticals.vpn"), link: "/for/vpn" },
+          { label: t("footerNav.verticals.marketplaces"), link: "/for/marketplaces" },
+          { label: t("footerNav.verticals.agencies"), link: "/for/agencies" },
+          { label: t("footerNav.verticals.nonprofits"), link: "/for/nonprofits" },
         ],
       },
       {
-        heading: "Company",
+        heading: t("footerNav.company"),
         links: [
           { label: t("blog"), link: "/blog" },
           { label: t("referralProgram"), link: "/referral-program" },
@@ -149,7 +149,7 @@ const HomeFooter: FC = () => {
           {/* Brand */}
           <Box sx={{ maxWidth: 340 }}>
             <LogoWrapper onClick={() => router.push("/")}>
-              <Image src={logoSrc} alt="Dynopay logo" width={128} height={43} priority />
+              <Image src={logoSrc} alt={t("footerNav.logoAlt")} width={128} height={43} priority />
             </LogoWrapper>
             <Typography
               sx={{
@@ -196,7 +196,7 @@ const HomeFooter: FC = () => {
         {/* ── Trust / compliance signals ────────────────────────────── */}
         <Box
           data-testid="footer-trust-row"
-          aria-label="Trust and compliance"
+          aria-label={t("footerNav.trustAria")}
           sx={{
             pt: 4,
             borderTop: `1px solid ${divider}`,
@@ -222,7 +222,7 @@ const HomeFooter: FC = () => {
             >
               <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
               <Typography sx={{ color: trustText, fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.02em" }}>
-                {label}
+                {t(`footerNav.trust.${label}`)}
               </Typography>
             </Box>
           ))}

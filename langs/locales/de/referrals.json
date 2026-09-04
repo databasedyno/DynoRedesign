@@ -178,5 +178,11 @@
     "leaderboardTitle": "Top-Empfehler",
     "leaderboardSubtitle": "Die Menschen, die Dynopay gerade am meisten teilen.",
     "leaderboardCount": "{{count}} Empfehlungen"
-  }
+  },
+  "shareTitle": "Werde Teil von Dynopay",
+  "shareText": "Akzeptiere Krypto-Zahlungen mit Dynopay. Mit meinem Empfehlungscode sparst du 50 % Gebühren!",
+  "payoutAvailableCredit": "Verfügbarer Gebührenkredit",
+  "payoutAvailableCreditDesc": "Senkt automatisch Ihre Dynopay-Gebühren bei Ihren nächsten Zahlungen.",
+  "payoutCreditedToDate": "Bisher gutgeschrieben",
+  "payoutCreditedToDateDesc": "Gesamte Gebühren, die bereits durch Ihre Empfehlungsprämien gedeckt sind."
 }

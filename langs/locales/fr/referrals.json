@@ -178,5 +178,11 @@
     "leaderboardTitle": "Meilleurs parrains",
     "leaderboardSubtitle": "Les personnes qui partagent le plus Dynopay en ce moment.",
     "leaderboardCount": "{{count}} parrainages"
-  }
+  },
+  "shareTitle": "Rejoignez Dynopay",
+  "shareText": "Acceptez les paiements crypto avec Dynopay. Utilisez mon code de parrainage pour 50 % de réduction sur les frais !",
+  "payoutAvailableCredit": "Crédit de frais disponible",
+  "payoutAvailableCreditDesc": "Réduit automatiquement vos frais Dynopay sur vos prochains paiements.",
+  "payoutCreditedToDate": "Crédité à ce jour",
+  "payoutCreditedToDateDesc": "Total des frais déjà couverts par vos récompenses de parrainage."
 }

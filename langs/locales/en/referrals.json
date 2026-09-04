@@ -178,5 +178,11 @@
     "leaderboardTitle": "Top referrers",
     "leaderboardSubtitle": "The people sharing Dynopay the most right now.",
     "leaderboardCount": "{{count}} referrals"
-  }
+  },
+  "shareTitle": "Join Dynopay",
+  "shareText": "Accept crypto payments with Dynopay. Use my referral code for 50% off fees!",
+  "payoutAvailableCredit": "Available fee credit",
+  "payoutAvailableCreditDesc": "Automatically lowers your Dynopay fee on your next payments.",
+  "payoutCreditedToDate": "Credited to date",
+  "payoutCreditedToDateDesc": "Total fees already covered by your referral rewards."
 }

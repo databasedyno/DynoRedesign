@@ -246,5 +246,8 @@
   "setupStepKycHelperContinue": "Continue sua verificação de onde parou.",
   "setupStepKycStarting": "Abrindo verificação…",
   "setupKycTitle": "Verifique sua identidade para continuar recebendo",
-  "setupKycSubtitle": "Você passou de US$ 10.000 em volume de pagamentos e o período de carência de 90 dias terminou. Conclua uma verificação rápida de identidade para criar novos links de pagamento."
+  "setupKycSubtitle": "Você passou de US$ 10.000 em volume de pagamentos e o período de carência de 90 dias terminou. Conclua uma verificação rápida de identidade para criar novos links de pagamento.",
+  "linkCopiedOpensCheckout": "Link copiado — abre o seu checkout",
+  "scanToOpenCheckout": "Escaneie para abrir o checkout",
+  "downloadQr": "Baixar QR"
 }

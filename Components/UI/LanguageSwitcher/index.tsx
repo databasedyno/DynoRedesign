@@ -73,7 +73,7 @@ const LANGUAGES: readonly Language[] = [
 function LanguageSwitcher({ showBig = false }: Props) {
   const isMobile = useIsMobile("md");
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const { i18n: i18nInstance } = useTranslation(); // Subscribe to language changes for re-render
+  const { i18n: i18nInstance, t } = useTranslation("common"); // Subscribe to language changes for re-render
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   // Which side the 196px dropdown expands toward. Default right-aligned (menu
@@ -239,7 +239,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
             onKeyDown={onKeyActivate}
             role="button"
             tabIndex={0}
-            aria-label="Close language menu"
+            aria-label={t("language.closeMenu")}
           >
             <HeaderSelectedLeft>
               <Image
@@ -267,7 +267,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
             </HeaderRight>
           </DropdownHeader>
 
-          <Box role="listbox" aria-label="Language options">
+          <Box role="listbox" aria-label={t("language.options")}>
             {LANGUAGES.map((lng) => {
               const isSelected = lng.code === current;
 

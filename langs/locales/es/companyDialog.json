@@ -31,7 +31,9 @@
     "brandLogo": {
       "label": "Logo de marca",
       "uploadCta": "Haz clic para subir o arrastra y suelta",
-      "uploadHint": "SVG, PNG, JPG (máx. 2MB)"
+      "uploadHint": "SVG, PNG, JPG (máx. 2MB)",
+      "saving": "Guardando…",
+      "autoSaveHint": "Guardado automáticamente al elegir un archivo"
     },
     "country": {
       "label": "País*",

@@ -67,6 +67,9 @@
     "share": "Delen",
     "openLink": "Link openen",
     "createAnother": "Nog een aanmaken",
-    "done": "Klaar"
-  }
+    "done": "Klaar",
+    "downloadQr": "Download QR",
+    "copiedOpensCheckout": "Link gekopieerd — opent je checkout"
+  },
+  "cryptoRefundTooltip": "Crypto terugbetaling"
 }

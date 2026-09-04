@@ -64,7 +64,7 @@ function HeaderLangMenu({
   hideOnMobile = false,
   idPrefix = "header",
 }: HeaderLangMenuProps) {
-  const { i18n: i18nInstance } = useTranslation();
+  const { i18n: i18nInstance, t } = useTranslation("common");
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -125,7 +125,7 @@ function HeaderLangMenu({
         disableRipple
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label="Change language"
+        aria-label={t("language.change")}
         data-testid={`${idPrefix}-language-globe`}
         onClick={() => setIsOpen((v) => !v)}
       >
@@ -141,7 +141,7 @@ function HeaderLangMenu({
       </LangGlobeButton>
 
       {isOpen && (
-        <LangPanel role="listbox" aria-label="Language options" data-testid={`${idPrefix}-language-panel`} sx={panelSx}>
+        <LangPanel role="listbox" aria-label={t("language.options")} data-testid={`${idPrefix}-language-panel`} sx={panelSx}>
           {LANGUAGES.map((lng) => {
             const isSelected = lng.code === current;
             return (

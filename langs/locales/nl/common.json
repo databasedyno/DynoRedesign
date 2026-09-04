@@ -70,7 +70,11 @@
     "incompletePayment": "Onvolledige betaling",
     "address": "Adres",
     "customerPaysFee": "Klant betaalt verwerkingskosten",
-    "pendingPayment": "In afwachting van betaling"
+    "pendingPayment": "In afwachting van betaling",
+    "loadFailed": "We konden deze betalingslink niet laden. Probeer het opnieuw.",
+    "linkExpiredTitle": "Deze betalingslink is verlopen",
+    "linkErrorTitle": "Deze betalingslink kan niet worden geopend",
+    "goToDynopay": "Ga naar Dynopay"
   },
   "crypto": {
     "title": "Cryptovaluta",
@@ -353,7 +357,13 @@
   "myProfile": "Mijn Profiel",
   "logout": "Uitloggen",
   "hello": "Hallo",
-  "language": "Taal",
+  "language": {
+    "change": "Taal wijzigen",
+    "options": "Taalopties",
+    "choose": "Kies je taal",
+    "dismissChooser": "Taalkeuze sluiten",
+    "closeMenu": "Taalmenu sluiten"
+  },
   "english": "Engels",
   "spanish": "Spaans",
   "homePageName": "Home",
@@ -627,7 +637,10 @@
     "taxDesc": "Standaard BTW/belastinggedrag voor checkouts en betalingslinks.",
     "scopeAccount": "Geldt voor je hele account",
     "scopeCompany": "Geldt voor {{company}}",
-    "selectedCompanyFallback": "het geselecteerde merk"
+    "selectedCompanyFallback": "het geselecteerde merk",
+    "viewOnly": "Alleen bekijken",
+    "team": "Team",
+    "teamDesc": "Nodig teamleden uit en beheer wat elk kan openen."
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",
@@ -660,7 +673,9 @@
     "toGo": "te gaan",
     "story": "Ons verhaal",
     "gallery": "Foto's",
-    "updates": "Updates"
+    "updates": "Updates",
+    "invalidEmail": "Voer een geldig e-mailadres in, of laat het leeg.",
+    "emailPlaceholder": "E-mailadres voor updates (optioneel)"
   },
   "taxSettings": {
     "loadError": "Kon de belastinginstellingen niet laden.",
@@ -677,7 +692,8 @@
     "vatLabel": "Jouw BTW / Belasting ID",
     "vatDesc": "Weergegeven op ontvangstbewijzen. Maakt EU omgekeerde belastingvalidatie mogelijk wanneer jouw kopers hun eigen BTW-ID verstrekken.",
     "vatInvalidHint": "Dit komt niet overeen met een bekend EU/GB BTW-formaat — het zal nog steeds worden opgeslagen zoals ingevoerd.",
-    "save": "Belastinginstellingen opslaan"
+    "save": "Belastinginstellingen opslaan",
+    "inheritNote": "Toont uw accountbrede standaardinstellingen — opslaan hier creëert belastinginstellingen specifiek voor het geselecteerde bedrijf."
   },
   "accountTypeIndividual": "Individu",
   "accountTypeBusiness": "Bedrijf",
@@ -788,7 +804,8 @@
       "showProductsDesc": "Toont de winkelsectie op deze creatorpagina. Zet het UIT voor een strakke alleen-fooienpagina — je winkelpagina en directe productlinks blijven werken.",
       "storePreviewBoth": "Voorbeeld: fooien + winkel zichtbaar",
       "storePreviewProductsHidden": "Voorbeeld: winkel verborgen op deze pagina",
-      "storePreviewStoreOff": "Voorbeeld: alleen-fooienpagina — winkel en productlinks verborgen"
+      "storePreviewStoreOff": "Voorbeeld: alleen-fooienpagina — winkel en productlinks verborgen",
+      "minFloorNote": "min €10"
     },
     "compare": {
       "title": "Etalages vergelijken",
@@ -951,5 +968,261 @@
     "securedBy": "Betalingen beveiligd door Dynopay",
     "merchantLabel": "Geverifieerde verkoper"
   },
-  "referAndEarn": "Verwijs & verdien"
+  "referAndEarn": "Verwijs & verdien",
+  "scrollToTop": "Terug naar boven",
+  "dynopayHome": "Dynopay-startpagina",
+  "feeFree": {
+    "bannerAria": "Voortgang van de gratis proefperiode",
+    "bannerBody": "We schrappen onze volledige platformkosten — je betaalt alleen de netwerkkosten (blockchain).",
+    "startAccepting": "Begin met betalingen ontvangen",
+    "dismiss": "Banner sluiten",
+    "widgetTitle": "Je eerste betaling is vrij van platformkosten",
+    "widgetBody": "We schrappen de volledige platformkosten (vast + %) op je eerste betaling — je betaalt alleen de netwerkkosten (blockchain). Daarna gelden de standaardtarieven."
+  },
+  "promoBar": {
+    "aria": "Promotie gratis proefperiode",
+    "desktop": "Je eerste betaling is gratis",
+    "mobile": "1e betaling gratis",
+    "dismiss": "Promotie sluiten",
+    "claim": "Claimen"
+  },
+  "emailVerify": {
+    "title": "Verifieer je e-mail",
+    "subtitle": "Voer de verificatiecode in die naar je e-mail is gestuurd"
+  },
+  "setupPrompt": {
+    "createCompany": "Bedrijf aanmaken",
+    "addWallet": "Walletadres toevoegen"
+  },
+  "payouts": {
+    "pageName": "Saldi & uitbetalingen",
+    "pageDescription": "Uw verwerkte volume, uitstaande fondsen, automatische conversie en waar uitbetalingen terechtkomen.",
+    "digestOn": "Wekelijkse uitbetalingssamenvatting ingeschakeld",
+    "digestOff": "Wekelijkse uitbetalingssamenvatting uitgeschakeld",
+    "digestUpdateFailed": "Kon de samenvattingsinstelling niet bijwerken",
+    "previewSent": "Voorbeeldsamenvatting naar je e-mail verzonden",
+    "previewFailed": "Kon de preview niet verzenden",
+    "pickBothDates": "Kies zowel een start- als einddatum",
+    "startBeforeEnd": "De startdatum moet voor de einddatum liggen",
+    "exported": "Uitbetalingsgeschiedenis geëxporteerd",
+    "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
+    "totalSettled": "Totaal verrekend",
+    "totalSettledHint": "Ontvangen levenslange volume",
+    "pending": "In behandeling",
+    "pendingHint": "Betalingen wachten op bevestiging",
+    "autoConvert": "Automatisch omzetten",
+    "on": "Aan",
+    "off": "Uit",
+    "autoConvertHint": "Zet crypto om naar een stablecoin",
+    "feeTier": "Kostenklasse",
+    "feeTierHint": "Uw huidige prijsstelling",
+    "settlementAutoConvert": "Verrekening & automatisch omzetten",
+    "loading": "Laden…",
+    "autoConvertOffDesc": "Automatisch omzetten is uit — betalingen worden verrekend in de ontvangen munt",
+    "addWalletFirst": "Voeg eerst een stablecoin-verrekenportemonnee toe",
+    "settleTo": "Verreken naar",
+    "selectSettlementCoin": "Selecteer verrekenmunt",
+    "settlementWallets": "Verrekenportemonnees",
+    "noSettlementWallet": "Er is nog geen stablecoin-verrekenportemonnee geconfigureerd. Voeg er een toe in Instellingen om uitbetalingen automatisch om te zetten.",
+    "onChain": "op",
+    "active": "Actief",
+    "autoConvertProtection": "Automatisch omzetten bescherming",
+    "firstConversion": "Eerste conversie!",
+    "savingsFirst": "Uw eerste betaling is net automatisch omgezet naar een stablecoin — beschermd tegen volatiliteit",
+    "payment": "betaling",
+    "payments": "betalingen",
+    "conversion": "conversie",
+    "conversions": "conversies",
+    "savingsOff": "Zet automatisch omzetten aan om binnenkomende crypto in stablecoins te vergrendelen",
+    "thisMonth": "Deze maand",
+    "last6Months": "Laatste 6 maanden",
+    "savingsSparklineAria": "Stablecoin-conversies in de afgelopen 6 maanden",
+    "weeklyDigest": "Wekelijks uitbetalingsoverzicht",
+    "weeklyDigestDesc": "Ontvang een wekelijkse e-mail met een samenvatting van verrekende uitbetalingen en alles wat nog in behandeling is",
+    "sending": "Verzenden…",
+    "sendPreview": "Verzend preview",
+    "payoutWallets": "Uitbetalingsportefeuilles",
+    "payoutWalletsDesc": "Waar je verwerkte fondsen terechtkomen",
+    "manage": "Beheren",
+    "taxCollected": "Belasting geïnd",
+    "toDate": "tot nu toe",
+    "receipts": "Ontvangsten",
+    "pendingFunds": "In behandeling zijnde fondsen",
+    "pendingFundsDesc": "Betalingen die wachten op on-chain bevestiging",
+    "paymentAwaiting": "1 betaling in afwachting",
+    "noPendingNow": "Geen betalingen wachten momenteel op bevestiging.",
+    "confirming": "Bevestigen",
+    "recentSettlements": "Recente afrekeningen",
+    "dateFrom": "Van",
+    "dateTo": "Tot",
+    "settledOnly": "Alleen verrekend",
+    "exporting": "Exporteren…",
+    "exportCsv": "Exporteer CSV",
+    "viewAll": "Bekijk alles",
+    "noPaymentsYet": "Nog geen betalingen. Je verwerkte betalingen verschijnen hier.",
+    "range_7": "Laatste 7 dagen",
+    "range_30": "Laatste 30 dagen",
+    "range_90": "Laatste 90 dagen",
+    "range_365": "Laatste 12 maanden",
+    "range_custom": "Aangepaste periode…"
+  },
+  "liveBrand": {
+    "payNow": "Betaal nu",
+    "tagline": "Word lid van Dynopay en ontvang",
+    "links": {
+      "title": "Betalingslinks",
+      "description": "Maak deelbare betalingslinks in enkele seconden. Accepteer crypto van iedereen, overal."
+    },
+    "multiCurrency": {
+      "title": "Multi-valuta ondersteuning",
+      "description": "Accepteer BTC, ETH, USDT, SOL, XRP en meer — allemaal op één platform."
+    },
+    "settlement": {
+      "title": "Directe afrekening",
+      "description": "Ontvang betalingen in real-time met directe doorstorting naar je portemonnee."
+    },
+    "dashboard": {
+      "title": "Dashboard Analytics",
+      "description": "Volg transacties, inkomsten en prestaties met een krachtig dashboard."
+    },
+    "lowFees": {
+      "title": "Lage kosten",
+      "description": "Concurrentiële transactiekosten van 1,5% zonder verborgen kosten of maandelijkse kosten."
+    },
+    "checkout": {
+      "title": "Checkout Pagina's",
+      "description": "Mooie, gebrandmerkte checkout pagina's voor je klanten — geen code nodig."
+    }
+  },
+  "productEditor": {
+    "delivery": {
+      "url": {
+        "label": "Toegang URL",
+        "hint": "Lever een link (Notion, Google Drive, privé site) bij betaling."
+      },
+      "file": {
+        "label": "Bestand downloaden",
+        "hint": "Upload je bestand(en). Koper ontvangt ondertekende downloadlinks."
+      },
+      "licenseKey": {
+        "label": "Licentiesleutels",
+        "hint": "Plak één sleutel per regel. Eén sleutel wordt uitgegeven per aankoop."
+      }
+    },
+    "variantDefault": "Variant",
+    "toast": {
+      "loadFailed": "Product kon niet worden geladen",
+      "created": "Product aangemaakt.",
+      "saved": "Opgeslagen.",
+      "saveFailed": "Opslaan mislukt.",
+      "published": "Gepubliceerd — je product is live.",
+      "publishFailed": "Publiceren mislukt.",
+      "archived": "Gearchiveerd.",
+      "archiveFailed": "Archiveren mislukt.",
+      "imageTooLarge": "Afbeelding is te groot (max 10 MB).",
+      "onlyImages": "Alleen afbeeldingsbestanden zijn toegestaan.",
+      "imageUploadFailed": "Afbeelding uploaden mislukt.",
+      "coverUploaded": "Omslagafbeelding geüpload.",
+      "galleryAdded": "Galerijafbeelding toegevoegd.",
+      "enterImageUrl": "Voer een afbeeldings-URL in.",
+      "urlScheme": "URL moet beginnen met http(s):// of /",
+      "urlTooLong": "URL is te lang (max 512 tekens).",
+      "imageDup": "Die afbeelding staat al in de galerij.",
+      "variantImageSaveFailed": "Opslaan van variantafbeelding mislukt.",
+      "variantImageUploaded": "Variantafbeelding geüpload.",
+      "variantImageClearFailed": "Variantafbeelding wissen mislukt.",
+      "fileUploaded": "Bestand geüpload.",
+      "uploadFailed": "Uploaden mislukt.",
+      "deleteFailed": "Verwijderen mislukt.",
+      "saveDraftFirst": "Sla eerst het concept op.",
+      "addVariantFailed": "Variant toevoegen mislukt.",
+      "variantSaved": "Variant opgeslagen.",
+      "variantSaveFailed": "Opslaan van variant mislukt."
+    },
+    "validate": {
+      "titleRequired": "Titel is verplicht.",
+      "priceGtZero": "Prijs moet groter zijn dan 0.",
+      "enterAccessUrl": "Voer de toegang URL in."
+    },
+    "confirm": {
+      "archiveProduct": "Dit product archiveren? Kopers kunnen het niet zien.",
+      "removeFile": "Dit bestand verwijderen?"
+    },
+    "newProduct": "Nieuw product",
+    "editProduct": "Bewerk product",
+    "slug": "Slug:",
+    "productTitle": "Producttitel",
+    "subtitle": "Subtitel (optioneel)",
+    "description": "Beschrijving (Markdown ondersteund)",
+    "coverImage": "Omslagafbeelding",
+    "coverImageUrl": "Afbeeldings-URL (optioneel, https://…)",
+    "uploading": "Uploaden…",
+    "uploadImage": "Afbeelding uploaden",
+    "removeCoverImage": "Verwijder omslagafbeelding",
+    "coverPreview": "Voorbeeld omslag",
+    "coverImageHint": "JPG, PNG, GIF, WebP of SVG. Max 10 MB. Geüploade afbeeldingen worden via de app CDN geleverd.",
+    "photoGallery": "Fotogalerij (optioneel)",
+    "removeGalleryImage": "Verwijder galerijafbeelding",
+    "galleryImageUrl": "Afbeeldings-URL",
+    "galleryAlt": "Alt-tekst (optioneel)",
+    "galleryAltPlaceholder": "Beschrijf de afbeelding",
+    "addFromUrl": "Toevoegen vanaf URL",
+    "uploadFromDevice": "Uploaden vanaf apparaat",
+    "basePriceInfo": "Basisprijs (informatief, varianten overschrijven)",
+    "price": "Prijs",
+    "currency": "Valuta",
+    "stockUnlimited": "Voorraad (leeg = onbeperkt)",
+    "digitalDelivery": "Digitale levering",
+    "deliveryMethod": "Leveringsmethode",
+    "accessUrl": "Toegangs-URL",
+    "licenseKeys": "Licentiesleutels (één per regel)",
+    "uploadFile": "Upload een bestand",
+    "saveDraftFirstHint": "Sla eerst het concept op, dan kun je bestanden uploaden.",
+    "taxVat": "Belasting & BTW",
+    "taxIntro": "Kies of kopers belasting op dit product moeten betalen. Dit is precies wat er op je winkelwagentje wordt weergegeven.",
+    "chargeTax": "Belasting op dit product in rekening brengen",
+    "chargingTax": "belasting in rekening brengen",
+    "noTaxState": "geen belasting",
+    "inheritStoreDefault": "Standaard van de winkel overnemen",
+    "alwaysChargeTax": "Altijd belasting in rekening brengen",
+    "neverChargeTax": "Nooit belasting in rekening brengen",
+    "overrideExemptHint": "Overrides zijn niet van toepassing op belastingvrije producten.",
+    "overrideHint": "Overschrijft de standaardinstelling van je winkel (Instellingen → Belasting) alleen voor dit product.",
+    "taxCategory": "Belastingcategorie",
+    "categoryDigital": "Digitale goederen / diensten",
+    "categoryPhysical": "Fysieke goederen",
+    "categoryService": "Dienst",
+    "categoryExempt": "Belastingvrij",
+    "categoryExemptHint": "Dit product wordt altijd belastingvrij verkocht, ongeacht je belastinginstellingen.",
+    "categoryPhysicalHint": "Fysieke goederen gebruiken het land van het verzendadres van de koper voor de belastingjurisdictie.",
+    "categoryDigitalHint": "Digitale goederen / diensten gebruiken de gedetecteerde locatie van de koper voor de belastingjurisdictie.",
+    "atCheckout": "Bij het afrekenen",
+    "effectiveExempt": "Belastingvrij — dit product wordt altijd belastingvrij verkocht.",
+    "shippingCountry": "land van het verzendadres",
+    "location": "locatie",
+    "effectiveOff": "Geen belasting toegevoegd — kopers betalen precies de vermelde prijs.",
+    "taxDefaultHintPre": "De standaardinstelling van je winkel is momenteel",
+    "noTax": "Geen belasting",
+    "taxDefaultHintMid": ". Zet het aan voor alle afrekeningen in Instellingen → Belasting, of stel dit product in op",
+    "manageTaxLink": "Beheer je winkelbrede belastinginstelling in Instellingen → Belasting →",
+    "variantsOptional": "Varianten (optioneel)",
+    "addVariant": "Voeg variant toe",
+    "enableVariantsAria": "Schakel varianten in",
+    "enableVariantsDesc": "Schakel varianten in (bijv. verschillende maten / niveaus). Wanneer ingeschakeld, heeft elke variant zijn eigen prijs + voorraad.",
+    "oneOffServiceAria": "Eenmalige dienst",
+    "oneOffServiceDesc": "Eenmalige dienst (verberg de hoeveelheidselector). Zet aan voor producten zoals “Praat met een ontwikkelaar” waar een hoeveelheid geen zin heeft — kopers kopen het één keer.",
+    "noVariantsYet": "Nog geen varianten. Klik op “Voeg variant toe” om er een te maken.",
+    "removeVariantImage": "Verwijder variantafbeelding",
+    "change": "Wijzig",
+    "add": "Voeg toe",
+    "variantTitle": "Titel",
+    "variantPriceCents": "Prijs (¢)",
+    "variantStock": "Voorraad",
+    "deleteVariant": "Verwijder variant",
+    "saveDraft": "Concept opslaan",
+    "updateLiveProduct": "Update live product",
+    "publish": "Publiceer",
+    "archive": "Archiveer",
+    "adjustImage": "Pas afbeelding aan"
+  }
 }

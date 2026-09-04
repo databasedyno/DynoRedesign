@@ -65,5 +65,6 @@
   "walletUpdated": "Portefeuille mis à jour avec succès",
   "editOtpNotice": "Modifier l'adresse nécessite un code à usage unique envoyé par e-mail.",
   "verifyAndSave": "Vérifier et enregistrer",
-  "updatingWallet": "Mise à jour de votre portefeuille…"
+  "updatingWallet": "Mise à jour de votre portefeuille…",
+  "manageWallets": "Gérer les portefeuilles"
 }

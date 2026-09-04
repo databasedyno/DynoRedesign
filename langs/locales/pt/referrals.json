@@ -178,5 +178,11 @@
     "leaderboardTitle": "Principais indicadores",
     "leaderboardSubtitle": "As pessoas que mais compartilham a Dynopay agora.",
     "leaderboardCount": "{{count}} indicações"
-  }
+  },
+  "shareTitle": "Junte-se à Dynopay",
+  "shareText": "Aceite pagamentos em cripto com a Dynopay. Use o meu código de referência e poupe 50% nas taxas!",
+  "payoutAvailableCredit": "Crédito de taxa disponível",
+  "payoutAvailableCreditDesc": "Reduz automaticamente a sua taxa Dynopay nos seus próximos pagamentos.",
+  "payoutCreditedToDate": "Creditos até à data",
+  "payoutCreditedToDateDesc": "Total de taxas já cobertas pelas suas recompensas de referência."
 }

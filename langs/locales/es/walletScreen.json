@@ -65,5 +65,6 @@
   "walletUpdated": "Cartera actualizada correctamente",
   "editOtpNotice": "Cambiar la dirección requiere un código de un solo uso enviado a tu correo.",
   "verifyAndSave": "Verificar y guardar",
-  "updatingWallet": "Actualizando tu cartera…"
+  "updatingWallet": "Actualizando tu cartera…",
+  "manageWallets": "Gestionar billeteras"
 }

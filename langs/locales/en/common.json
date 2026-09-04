@@ -11,7 +11,13 @@
     "rateMinutesSecondsAgo": "Rate updated {{m}}m {{s}}s ago"
   },
   "chooseYourLanguage": "Choose your language",
-  "language": "Language",
+  "language": {
+    "change": "Change language",
+    "options": "Language options",
+    "choose": "Choose your language",
+    "dismissChooser": "Dismiss language chooser",
+    "closeMenu": "Close language menu"
+  },
   "english": "English",
   "spanish": "Spanish",
   "homePageName": "Home",
@@ -92,7 +98,11 @@
     "incompletePayment": "Incomplete Payment",
     "address": "Address",
     "customerPaysFee": "Customer pays processing fee",
-    "pendingPayment": "Pending payment"
+    "pendingPayment": "Pending payment",
+    "loadFailed": "We could not load this payment link. Please try again.",
+    "linkExpiredTitle": "This payment link has expired",
+    "linkErrorTitle": "This payment link can't be opened",
+    "goToDynopay": "Go to Dynopay"
   },
   "crypto": {
     "title": "Cryptocurrency",
@@ -628,7 +638,9 @@
     "taxDesc": "Default VAT/tax behavior for checkouts and payment links.",
     "scopeAccount": "Applies to your whole account",
     "scopeCompany": "Applies to {{company}}",
-    "selectedCompanyFallback": "the selected brand"
+    "selectedCompanyFallback": "the selected brand",
+    "team": "Team",
+    "teamDesc": "Invite teammates and control what each can access."
   },
   "donation": {
     "defaultTitle": "Support this campaign",
@@ -661,7 +673,9 @@
     "toGo": "to go",
     "story": "Our story",
     "gallery": "Photos",
-    "updates": "Updates"
+    "updates": "Updates",
+    "invalidEmail": "Please enter a valid email address, or leave it blank.",
+    "emailPlaceholder": "Email for updates (optional)"
   },
   "taxSettings": {
     "loadError": "Couldn't load tax settings.",
@@ -678,7 +692,8 @@
     "vatLabel": "Your VAT / Tax ID",
     "vatDesc": "Shown on receipts. Enables EU reverse-charge validation when your buyers provide their own VAT ID.",
     "vatInvalidHint": "This doesn't match a known EU/GB VAT format — it will still be saved as entered.",
-    "save": "Save tax settings"
+    "save": "Save tax settings",
+    "inheritNote": "Showing your account-wide defaults — saving here creates tax settings specific to the selected company."
   },
   "accountTypeIndividual": "Individual",
   "accountTypeBusiness": "Business",
@@ -789,7 +804,8 @@
       "showProductsDesc": "Show the shop section on this creator page. Turn it OFF for a clean tip-only page — your shop page and direct product links keep working.",
       "storePreviewBoth": "Preview: tips + shop shown",
       "storePreviewProductsHidden": "Preview: shop hidden from this page",
-      "storePreviewStoreOff": "Preview: tip-only page — shop & product links hidden"
+      "storePreviewStoreOff": "Preview: tip-only page — shop & product links hidden",
+      "minFloorNote": "min $10"
     },
     "compare": {
       "title": "Compare storefronts",
@@ -952,5 +968,261 @@
     "securedBy": "Payments secured by Dynopay",
     "merchantLabel": "Verified merchant"
   },
-  "referAndEarn": "Refer & earn"
+  "referAndEarn": "Refer & earn",
+  "scrollToTop": "Scroll to top",
+  "dynopayHome": "Dynopay home",
+  "feeFree": {
+    "bannerAria": "Fee-free trial progress",
+    "bannerBody": "We waive our full platform fee — you only pay the network (blockchain) cost.",
+    "startAccepting": "Start accepting payments",
+    "dismiss": "Dismiss fee-free banner",
+    "widgetTitle": "Your first payment is platform-fee-free",
+    "widgetBody": "We waive our full platform fee (fixed + %) on your first payment — you only pay the network (blockchain) cost. Standard fees start after that."
+  },
+  "promoBar": {
+    "aria": "Fee-free trial promotion",
+    "desktop": "Your first payment is fee-free",
+    "mobile": "1st payment fee-free",
+    "dismiss": "Dismiss promotion",
+    "claim": "Claim"
+  },
+  "emailVerify": {
+    "title": "Verify Your Email",
+    "subtitle": "Enter the verification code sent to your email"
+  },
+  "setupPrompt": {
+    "createCompany": "Create a Company",
+    "addWallet": "Add a Wallet Address"
+  },
+  "payouts": {
+    "pageName": "Balances & payouts",
+    "pageDescription": "Your settled volume, pending funds, auto‑conversion and where payouts land.",
+    "digestOn": "Weekly payout digest turned on",
+    "digestOff": "Weekly payout digest turned off",
+    "digestUpdateFailed": "Couldn't update the digest setting",
+    "previewSent": "Preview digest sent to your email",
+    "previewFailed": "Couldn't send the preview",
+    "pickBothDates": "Pick both a start and end date",
+    "startBeforeEnd": "Start date must be before the end date",
+    "exported": "Payout history exported",
+    "exportFailed": "Export failed. Please try again.",
+    "totalSettled": "Total settled",
+    "totalSettledHint": "Lifetime volume received",
+    "pending": "Pending",
+    "pendingHint": "Payments awaiting confirmation",
+    "autoConvert": "Auto‑convert",
+    "on": "On",
+    "off": "Off",
+    "autoConvertHint": "Convert crypto to a stablecoin",
+    "feeTier": "Fee tier",
+    "feeTierHint": "Your current pricing",
+    "settlementAutoConvert": "Settlement & auto-convert",
+    "loading": "Loading…",
+    "autoConvertOffDesc": "Auto‑convert is off — payments settle in the coin received",
+    "addWalletFirst": "Add a stablecoin settlement wallet first",
+    "settleTo": "Settle to",
+    "selectSettlementCoin": "Select settlement coin",
+    "settlementWallets": "Settlement wallets",
+    "noSettlementWallet": "No stablecoin settlement wallet configured yet. Add one in Settings to auto-convert payouts.",
+    "onChain": "on",
+    "active": "Active",
+    "autoConvertProtection": "Auto-convert protection",
+    "firstConversion": "First conversion!",
+    "savingsFirst": "Your first payment was just auto-converted to a stablecoin — locked in against volatility",
+    "payment": "payment",
+    "payments": "payments",
+    "conversion": "conversion",
+    "conversions": "conversions",
+    "savingsOff": "Turn on auto-convert to lock incoming crypto into stablecoins",
+    "thisMonth": "This month",
+    "last6Months": "Last 6 months",
+    "savingsSparklineAria": "Stablecoin conversions over the last 6 months",
+    "weeklyDigest": "Weekly payout digest",
+    "weeklyDigestDesc": "Get a weekly email summarising settled payouts and anything still pending",
+    "sending": "Sending…",
+    "sendPreview": "Send preview",
+    "payoutWallets": "Payout wallets",
+    "payoutWalletsDesc": "Where your settled funds land",
+    "manage": "Manage",
+    "taxCollected": "Tax collected",
+    "toDate": "to date",
+    "receipts": "Receipts",
+    "pendingFunds": "Pending funds",
+    "pendingFundsDesc": "Payments awaiting on-chain confirmation",
+    "paymentAwaiting": "1 payment awaiting",
+    "noPendingNow": "No payments awaiting confirmation right now.",
+    "confirming": "Confirming",
+    "recentSettlements": "Recent settlements",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "settledOnly": "Settled only",
+    "exporting": "Exporting…",
+    "exportCsv": "Export CSV",
+    "viewAll": "View all",
+    "noPaymentsYet": "No payments yet. Your settled payments will appear here.",
+    "range_7": "Last 7 days",
+    "range_30": "Last 30 days",
+    "range_90": "Last 90 days",
+    "range_365": "Last 12 months",
+    "range_custom": "Custom range…"
+  },
+  "liveBrand": {
+    "payNow": "Pay Now",
+    "tagline": "Join Dynopay and get",
+    "links": {
+      "title": "Payment Links",
+      "description": "Create shareable payment links in seconds. Accept crypto from anyone, anywhere."
+    },
+    "multiCurrency": {
+      "title": "Multi-Currency Support",
+      "description": "Accept BTC, ETH, USDT, SOL, XRP, and more — all in one platform."
+    },
+    "settlement": {
+      "title": "Instant Settlement",
+      "description": "Receive payments in real-time with instant forwarding to your wallet."
+    },
+    "dashboard": {
+      "title": "Dashboard Analytics",
+      "description": "Track transactions, revenue, and performance with a powerful dashboard."
+    },
+    "lowFees": {
+      "title": "Low Fees",
+      "description": "Competitive 1.5% transaction fee with no hidden charges or monthly costs."
+    },
+    "checkout": {
+      "title": "Checkout Pages",
+      "description": "Beautiful, branded checkout pages for your customers — no code needed."
+    }
+  },
+  "productEditor": {
+    "delivery": {
+      "url": {
+        "label": "Access URL",
+        "hint": "Deliver a link (Notion, Google Drive, private site) on payment."
+      },
+      "file": {
+        "label": "File download",
+        "hint": "Upload your file(s). Buyer gets signed download links."
+      },
+      "licenseKey": {
+        "label": "License keys",
+        "hint": "Paste one key per line. One key is issued per purchase."
+      }
+    },
+    "variantDefault": "Variant",
+    "toast": {
+      "loadFailed": "Failed to load product",
+      "created": "Product created.",
+      "saved": "Saved.",
+      "saveFailed": "Save failed.",
+      "published": "Published — your product is live.",
+      "publishFailed": "Publish failed.",
+      "archived": "Archived.",
+      "archiveFailed": "Archive failed.",
+      "imageTooLarge": "Image is too large (max 10 MB).",
+      "onlyImages": "Only image files are allowed.",
+      "imageUploadFailed": "Image upload failed.",
+      "coverUploaded": "Cover image uploaded.",
+      "galleryAdded": "Gallery image added.",
+      "enterImageUrl": "Enter an image URL.",
+      "urlScheme": "URL must start with http(s):// or /",
+      "urlTooLong": "URL is too long (max 512 chars).",
+      "imageDup": "That image is already in the gallery.",
+      "variantImageSaveFailed": "Failed to save variant image.",
+      "variantImageUploaded": "Variant image uploaded.",
+      "variantImageClearFailed": "Failed to clear variant image.",
+      "fileUploaded": "File uploaded.",
+      "uploadFailed": "Upload failed.",
+      "deleteFailed": "Delete failed.",
+      "saveDraftFirst": "Save the draft first.",
+      "addVariantFailed": "Add variant failed.",
+      "variantSaved": "Variant saved.",
+      "variantSaveFailed": "Variant save failed."
+    },
+    "validate": {
+      "titleRequired": "Title is required.",
+      "priceGtZero": "Price must be greater than 0.",
+      "enterAccessUrl": "Enter the access URL."
+    },
+    "confirm": {
+      "archiveProduct": "Archive this product? Buyers won't be able to see it.",
+      "removeFile": "Remove this file?"
+    },
+    "newProduct": "New product",
+    "editProduct": "Edit product",
+    "slug": "Slug:",
+    "productTitle": "Product title",
+    "subtitle": "Subtitle (optional)",
+    "description": "Description (Markdown supported)",
+    "coverImage": "Cover image",
+    "coverImageUrl": "Image URL (optional, https://…)",
+    "uploading": "Uploading…",
+    "uploadImage": "Upload image",
+    "removeCoverImage": "Remove cover image",
+    "coverPreview": "Cover preview",
+    "coverImageHint": "JPG, PNG, GIF, WebP or SVG. Max 10 MB. Uploaded images are served over the app CDN.",
+    "photoGallery": "Photo gallery (optional)",
+    "removeGalleryImage": "Remove gallery image",
+    "galleryImageUrl": "Image URL",
+    "galleryAlt": "Alt text (optional)",
+    "galleryAltPlaceholder": "Describe the image",
+    "addFromUrl": "Add from URL",
+    "uploadFromDevice": "Upload from device",
+    "basePriceInfo": "Base price (informational, variants override)",
+    "price": "Price",
+    "currency": "Currency",
+    "stockUnlimited": "Stock (blank = unlimited)",
+    "digitalDelivery": "Digital delivery",
+    "deliveryMethod": "Delivery method",
+    "accessUrl": "Access URL",
+    "licenseKeys": "License keys (one per line)",
+    "uploadFile": "Upload a file",
+    "saveDraftFirstHint": "Save the draft first, then you can upload files.",
+    "taxVat": "Tax & VAT",
+    "taxIntro": "Choose whether buyers are charged tax on this product. This is exactly what shows on your storefront checkout.",
+    "chargeTax": "Charge tax on this product",
+    "chargingTax": "charging tax",
+    "noTaxState": "no tax",
+    "inheritStoreDefault": "Inherit store default",
+    "alwaysChargeTax": "Always charge tax",
+    "neverChargeTax": "Never charge tax",
+    "overrideExemptHint": "Overrides don't apply to tax-exempt products.",
+    "overrideHint": "Overrides your store-wide default (Settings → Tax) for this product only.",
+    "taxCategory": "Tax category",
+    "categoryDigital": "Digital goods / services",
+    "categoryPhysical": "Physical goods",
+    "categoryService": "Service",
+    "categoryExempt": "Tax exempt",
+    "categoryExemptHint": "This product is always sold tax-free, regardless of your tax settings.",
+    "categoryPhysicalHint": "Physical goods use the buyer's shipping-address country for the tax jurisdiction.",
+    "categoryDigitalHint": "Digital goods / services use the buyer's detected location for the tax jurisdiction.",
+    "atCheckout": "At checkout",
+    "effectiveExempt": "Tax-exempt — this product is always sold tax-free.",
+    "shippingCountry": "shipping-address country",
+    "location": "location",
+    "effectiveOff": "No tax is added — buyers pay exactly the listed price.",
+    "taxDefaultHintPre": "Your store default is currently",
+    "noTax": "No tax",
+    "taxDefaultHintMid": ". Turn it on for all checkouts in Settings → Tax, or set this product to",
+    "manageTaxLink": "Manage your store-wide tax default in Settings → Tax →",
+    "variantsOptional": "Variants (optional)",
+    "addVariant": "Add variant",
+    "enableVariantsAria": "Enable variants",
+    "enableVariantsDesc": "Enable variants (e.g. different sizes / tiers). When on, each variant has its own price + stock.",
+    "oneOffServiceAria": "One-off service",
+    "oneOffServiceDesc": "One-off service (hide the quantity selector). Turn on for products like “Talk to a Developer” where a quantity makes no sense — buyers purchase it once.",
+    "noVariantsYet": "No variants yet. Click “Add variant” to create one.",
+    "removeVariantImage": "Remove variant image",
+    "change": "Change",
+    "add": "Add",
+    "variantTitle": "Title",
+    "variantPriceCents": "Price (¢)",
+    "variantStock": "Stock",
+    "deleteVariant": "Delete variant",
+    "saveDraft": "Save draft",
+    "updateLiveProduct": "Update live product",
+    "publish": "Publish",
+    "archive": "Archive",
+    "adjustImage": "Adjust image"
+  }
 }

@@ -307,7 +307,16 @@
       "exploreBtn": "Explore"
     },
     "header": {
-      "systemsNormal": "All systems normal"
+      "systemsNormal": "All systems normal",
+      "ariaPrimaryNav": "Primary navigation",
+      "ariaGoHome": "Go to home",
+      "publicBeta": "Public beta",
+      "ariaSystemStatus": "System status",
+      "ariaToggleMenu": "Toggle menu",
+      "ariaMobileNav": "Mobile navigation",
+      "trustEncrypted": "Encrypted",
+      "trustNonCustodial": "Non-custodial",
+      "trustLive": "Live"
     },
     "footer": {
       "systemsOperational": "All systems operational"
@@ -528,7 +537,8 @@
       "r6b": "Charged from day one"
     },
     "trust": {
-      "label": "Accept payments across 9 blockchains"
+      "label": "Accept payments across 9 blockchains",
+      "chainTooltip": "See fees & supported networks"
     },
     "brandSpotlight": {
       "eyebrow": "Multi-brand",
@@ -712,13 +722,19 @@
       "vatValid": "✓ Valid EU VAT ID — reverse-charge applies, no VAT will be charged.",
       "vatInvalid": "This VAT ID couldn't be validated — standard tax will apply.",
       "vatHint": "Businesses in the EU can enter a VAT ID for reverse-charge.",
-      "reverseChargeNotice": "EU B2B reverse-charge: no VAT charged. You must account for VAT in your own member state."
+      "reverseChargeNotice": "EU B2B reverse-charge: no VAT charged. You must account for VAT in your own member state.",
+      "viewCart": "View cart",
+      "yourCart": "Your cart",
+      "viewFullCart": "View full cart"
     },
     "receiptEmail": {
       "label": "Email me a receipt (optional)",
       "helper": "We'll email your receipt the moment this payment confirms.",
       "saved": "Receipt will be sent to this email.",
-      "invalid": "Enter a valid email address."
+      "invalid": "Enter a valid email address.",
+      "savedShort": "Receipt is on its way to your inbox.",
+      "successLabel": "Want a copy of your receipt?",
+      "successHelper": "Add your email and we'll send your receipt — no account needed."
     },
     "notify": {
       "title": "Payment confirmed ✓",
@@ -734,7 +750,20 @@
     "feePaidByMerchant": "paid by the merchant",
     "feePaidByCustomer": "added to your total",
     "plusNetworkCover": "+ network fee cover",
-    "inclNetworkCover": "incl. network fee cover"
+    "inclNetworkCover": "incl. network fee cover",
+    "loadingCheckout": "Loading checkout…",
+    "expiredTitle": "This payment window expired",
+    "expiredBody": "The time to complete this payment ran out. If you already sent funds, contact the merchant. Otherwise, ask them for a fresh payment link.",
+    "expiredRetry": "Start over",
+    "breakdownTrustPaid": "Amounts verified — here's exactly how your payment was split.",
+    "breakdownTrust": "These amounts tie out exactly — your payment is split transparently between the merchant and the Dynopay fee.",
+    "preparingAddress": "Preparing payment address…",
+    "underpaid": {
+      "gotPrefix": "We received",
+      "sendPrefix": "Send",
+      "sameAddressTail": "more to the same address below to complete your payment.",
+      "graceTimer": "Time left to complete"
+    }
   },
   "creator": {
     "card": {
@@ -1029,5 +1058,32 @@
     "contactBody": "For interviews, comments or anything missing from this page, write to us — we read every message.",
     "storyCta": "Read our story"
   },
-  "referralProgram": "Referral program"
+  "referralProgram": "Referral program",
+  "footerNav": {
+    "product": "Product",
+    "solutions": "Solutions",
+    "company": "Company",
+    "logoAlt": "Dynopay logo",
+    "trustAria": "Trust and compliance",
+    "verticals": {
+      "ecommerce": "E-commerce",
+      "saas": "SaaS",
+      "gaming": "Gaming",
+      "freelancers": "Freelancers",
+      "remittance": "Remittance",
+      "digitalDownloads": "Digital Downloads",
+      "hosting": "Hosting & Domains",
+      "vpn": "VPN & Privacy",
+      "marketplaces": "Marketplaces",
+      "agencies": "Agencies & Consultants",
+      "nonprofits": "Nonprofits"
+    },
+    "trust": {
+      "nonCustodial": "Non-custodial",
+      "chains": "9 blockchains",
+      "encrypted": "Encrypted",
+      "gdpr": "GDPR / AML aligned",
+      "noChargebacks": "No chargebacks"
+    }
+  }
 }

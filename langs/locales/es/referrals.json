@@ -178,5 +178,11 @@
     "leaderboardTitle": "Mejores referidores",
     "leaderboardSubtitle": "Las personas que más comparten Dynopay ahora mismo.",
     "leaderboardCount": "{{count}} referidos"
-  }
+  },
+  "shareTitle": "Únete a Dynopay",
+  "shareText": "Acepta pagos en cripto con Dynopay. ¡Usa mi código de referido y ahorra un 50 % en comisiones!",
+  "payoutAvailableCredit": "Crédito de tarifa disponible",
+  "payoutAvailableCreditDesc": "Reduce automáticamente tu tarifa de Dynopay en tus próximos pagos.",
+  "payoutCreditedToDate": "Acreditado hasta la fecha",
+  "payoutCreditedToDateDesc": "Total de tarifas ya cubiertas por tus recompensas de referencia."
 }

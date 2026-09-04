@@ -307,7 +307,16 @@
       "exploreBtn": "Entdecken"
     },
     "header": {
-      "systemsNormal": "Alle Systeme normal"
+      "systemsNormal": "Alle Systeme normal",
+      "ariaPrimaryNav": "Hauptnavigation",
+      "ariaGoHome": "Zur Startseite",
+      "publicBeta": "Öffentliche Beta",
+      "ariaSystemStatus": "Systemstatus",
+      "ariaToggleMenu": "Menü umschalten",
+      "ariaMobileNav": "Mobile Navigation",
+      "trustEncrypted": "Verschlüsselt",
+      "trustNonCustodial": "Non-custodial",
+      "trustLive": "Live"
     },
     "footer": {
       "systemsOperational": "Alle Systeme betriebsbereit"
@@ -528,7 +537,8 @@
       "r6b": "Ab dem ersten Tag berechnet"
     },
     "trust": {
-      "label": "Zahlungen auf 9 Blockchains akzeptieren"
+      "label": "Zahlungen auf 9 Blockchains akzeptieren",
+      "chainTooltip": "Siehe Gebühren & unterstützte Netzwerke"
     },
     "brandSpotlight": {
       "eyebrow": "Multi-Brand",
@@ -712,13 +722,19 @@
       "vatValid": "✓ Gültige EU-USt-IdNr. — Reverse-Charge gilt, es wird keine MwSt. berechnet.",
       "vatInvalid": "Diese USt-IdNr. konnte nicht validiert werden — es gilt die reguläre Steuer.",
       "vatHint": "Unternehmen in der EU können eine USt-IdNr. für Reverse-Charge angeben.",
-      "reverseChargeNotice": "EU-B2B-Reverse-Charge: keine MwSt. berechnet. Sie müssen die MwSt. in Ihrem eigenen Mitgliedstaat abführen."
+      "reverseChargeNotice": "EU-B2B-Reverse-Charge: keine MwSt. berechnet. Sie müssen die MwSt. in Ihrem eigenen Mitgliedstaat abführen.",
+      "viewCart": "Warenkorb ansehen",
+      "yourCart": "Ihr Warenkorb",
+      "viewFullCart": "Gesamten Warenkorb ansehen"
     },
     "receiptEmail": {
       "label": "Beleg per E-Mail senden (optional)",
       "helper": "Wir senden Ihren Beleg per E-Mail, sobald die Zahlung bestätigt ist.",
       "saved": "Der Beleg wird an diese E-Mail gesendet.",
-      "invalid": "Geben Sie eine gültige E-Mail-Adresse ein."
+      "invalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "savedShort": "Die Quittung ist auf dem Weg in Ihr Postfach.",
+      "successLabel": "Möchten Sie eine Kopie Ihrer Quittung?",
+      "successHelper": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen Ihre Quittung – kein Konto erforderlich."
     },
     "notify": {
       "title": "Zahlung bestätigt ✓",
@@ -734,7 +750,20 @@
     "feePaidByMerchant": "vom Händler bezahlt",
     "feePaidByCustomer": "zu deinem Gesamtbetrag addiert",
     "plusNetworkCover": "+ Netzwerkgebühr-Deckung",
-    "inclNetworkCover": "inkl. Netzwerkgebühr-Deckung"
+    "inclNetworkCover": "inkl. Netzwerkgebühr-Deckung",
+    "loadingCheckout": "Zahlung wird geladen…",
+    "expiredTitle": "Dieses Zahlungsfenster ist abgelaufen",
+    "expiredBody": "Die Zeit zum Abschluss dieser Zahlung ist abgelaufen. Wenn Sie bereits Gelder gesendet haben, kontaktieren Sie den Händler. Andernfalls bitten Sie ihn um einen neuen Zahlungslink.",
+    "expiredRetry": "Von vorne beginnen",
+    "breakdownTrustPaid": "Beträge verifiziert – hier ist genau, wie Ihre Zahlung aufgeteilt wurde.",
+    "breakdownTrust": "Diese Beträge stimmen genau überein – Ihre Zahlung wird transparent zwischen dem Händler und der Dynopay-Gebühr aufgeteilt.",
+    "preparingAddress": "Zahlungsadresse wird vorbereitet…",
+    "underpaid": {
+      "gotPrefix": "Wir haben erhalten",
+      "sendPrefix": "Senden Sie",
+      "sameAddressTail": "mehr an die unten angegebene Adresse, um Ihre Zahlung abzuschließen.",
+      "graceTimer": "Verbleibende Zeit zum Abschluss"
+    }
   },
   "creator": {
     "card": {
@@ -1029,5 +1058,32 @@
     "contactBody": "Für Interviews, Statements oder alles, was auf dieser Seite fehlt, schreiben Sie uns — wir lesen jede Nachricht.",
     "storyCta": "Unsere Geschichte lesen"
   },
-  "referralProgram": "Empfehlungsprogramm"
+  "referralProgram": "Empfehlungsprogramm",
+  "footerNav": {
+    "product": "Produkt",
+    "solutions": "Lösungen",
+    "company": "Unternehmen",
+    "logoAlt": "Dynopay-Logo",
+    "trustAria": "Vertrauen und Compliance",
+    "verticals": {
+      "ecommerce": "E-Commerce",
+      "saas": "SaaS",
+      "gaming": "Gaming",
+      "freelancers": "Freelancer",
+      "remittance": "Überweisungen",
+      "digitalDownloads": "Digitale Downloads",
+      "hosting": "Hosting & Domains",
+      "vpn": "VPN & Datenschutz",
+      "marketplaces": "Marktplätze",
+      "agencies": "Agenturen & Berater",
+      "nonprofits": "Non-Profit-Organisationen"
+    },
+    "trust": {
+      "nonCustodial": "Non-custodial",
+      "chains": "9 Blockchains",
+      "encrypted": "Verschlüsselt",
+      "gdpr": "DSGVO- / AML-konform",
+      "noChargebacks": "Keine Rückbuchungen"
+    }
+  }
 }

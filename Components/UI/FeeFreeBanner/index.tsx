@@ -5,6 +5,7 @@ import LocalOfferRounded from "@mui/icons-material/LocalOfferRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import { useRouter } from "next/router";
 import { useFeeFreeStatus } from "@/hooks/useFeeFreeStatus";
+import { useTranslation } from "react-i18next";
 
 /**
  * FeeFreeBanner — persistent top-strip that shows the merchant's remaining
@@ -27,6 +28,7 @@ import { useFeeFreeStatus } from "@/hooks/useFeeFreeStatus";
 
 const FeeFreeBanner: React.FC = () => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [dismissed, setDismissed] = useState(false);
@@ -109,7 +111,7 @@ const FeeFreeBanner: React.FC = () => {
     <Box
       data-testid="fee-free-banner"
       role="region"
-      aria-label="Fee-free trial progress"
+      aria-label={t("feeFree.bannerAria")}
       sx={{
         width: "100%",
         background: "linear-gradient(90deg, #0A0A0A 0%, #111111 100%)",
@@ -160,7 +162,7 @@ const FeeFreeBanner: React.FC = () => {
               whiteSpace: "nowrap",
             }}
           >
-            We waive our full platform fee — you only pay the network (blockchain) cost.
+            {t("feeFree.bannerBody")}
           </Typography>
         </Box>
 
@@ -186,14 +188,14 @@ const FeeFreeBanner: React.FC = () => {
               "&:hover": { transform: "translateY(-1px)", filter: "brightness(1.05)" },
             }}
           >
-            Start accepting payments
+            {t("feeFree.startAccepting")}
             <ArrowForwardRounded sx={{ fontSize: 14 }} />
           </Box>
         )}
 
         <IconButton
           size="small"
-          aria-label="Dismiss fee-free banner"
+          aria-label={t("feeFree.dismiss")}
           onClick={handleDismiss}
           sx={{
             color: "rgba(255,255,255,0.7)",

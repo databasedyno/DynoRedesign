@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import Logo from "@/assets/Icons/Logo";
+import { useTranslation } from "react-i18next";
 
 /**
  * PageUnavailable — a single, reusable, on-brand screen shown whenever a
@@ -31,6 +32,7 @@ const PageUnavailable = ({
   description = "The page you're looking for may have been moved, unpublished, or no longer exists.",
 }: PageUnavailableProps) => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const isDark = theme.palette.mode === "dark";
 
   // Theme-aware tokens (work across the app's home/auth/app palettes).
@@ -83,7 +85,7 @@ const PageUnavailable = ({
       <Box
         component="a"
         href={MARKETING_URL}
-        aria-label="Dynopay home"
+        aria-label={t("dynopayHome")}
         sx={{
           position: "absolute",
           top: { xs: 24, md: 32 },

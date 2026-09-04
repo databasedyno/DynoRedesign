@@ -17,6 +17,7 @@ import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import CloudUploadRounded from "@mui/icons-material/CloudUploadRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
 import ImageCropperDialog from "@/Components/UI/ImageCropperDialog";
@@ -27,11 +28,6 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 import { toFixedStr } from "@/utils/money";
 
 const CURRENCY_OPTS = PRICING_CURRENCIES;
-const DELIVERY_OPTS: Array<{ v: "url" | "file" | "license_key"; label: string; hint: string }> = [
-  { v: "url", label: "Access URL", hint: "Deliver a link (Notion, Google Drive, private site) on payment." },
-  { v: "file", label: "File download", hint: "Upload your file(s). Buyer gets signed download links." },
-  { v: "license_key", label: "License keys", hint: "Paste one key per line. One key is issued per purchase." },
-];
 
 interface Variant {
   variant_id?: number;
@@ -88,6 +84,13 @@ export interface ProductEditorProps {
 const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation("common");
+
+  const DELIVERY_OPTS: Array<{ v: "url" | "file" | "license_key"; label: string; hint: string }> = [
+    { v: "url", label: t("productEditor.delivery.url.label", { defaultValue: "Access URL" }), hint: t("productEditor.delivery.url.hint", { defaultValue: "Deliver a link (Notion, Google Drive, private site) on payment." }) },
+    { v: "file", label: t("productEditor.delivery.file.label", { defaultValue: "File download" }), hint: t("productEditor.delivery.file.hint", { defaultValue: "Upload your file(s). Buyer gets signed download links." }) },
+    { v: "license_key", label: t("productEditor.delivery.licenseKey.label", { defaultValue: "License keys" }), hint: t("productEditor.delivery.licenseKey.hint", { defaultValue: "Paste one key per line. One key is issued per purchase." }) },
+  ];
 
   const [loading, setLoading] = useState<boolean>(mode === "edit");
   const [saving, setSaving] = useState<boolean>(false);
@@ -174,7 +177,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         setVariants(
           (d.variants || []).map((v: any) => ({
             variant_id: v.variant_id,
-            title: v.attributes?.title || v.sku || "Variant",
+            title: v.attributes?.title || v.sku || t("productEditor.variantDefault", { defaultValue: "Variant" }),
             price_cents: Number(v.price_cents) || 0,
             stock_count: v.stock_count == null ? null : Number(v.stock_count),
             is_active: v.is_active !== false,
@@ -212,7 +215,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         }
       })
       .catch((e) => {
-        setToast({ text: e?.response?.data?.message || "Failed to load product", kind: "err" });
+        setToast({ text: e?.response?.data?.message || t("productEditor.toast.loadFailed", { defaultValue: "Failed to load product" }), kind: "err" });
       })
       .finally(() => setLoading(false));
   }, [mode, productId]);
@@ -264,9 +267,9 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   };
 
   const validate = (): string | null => {
-    if (!title.trim() || title.trim().length < 2) return "Title is required.";
-    if (!hasVariants && priceCents <= 0) return "Price must be greater than 0.";
-    if (deliveryType === "url" && !accessUrl.trim()) return "Enter the access URL.";
+    if (!title.trim() || title.trim().length < 2) return t("productEditor.validate.titleRequired", { defaultValue: "Title is required." });
+    if (!hasVariants && priceCents <= 0) return t("productEditor.validate.priceGtZero", { defaultValue: "Price must be greater than 0." });
+    if (deliveryType === "url" && !accessUrl.trim()) return t("productEditor.validate.enterAccessUrl", { defaultValue: "Enter the access URL." });
     return null;
   };
 
@@ -278,14 +281,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       if (mode === "new" || !product) {
         const r = await axiosBaseApi.post("products", buildPayload());
         const newP: ProductRow = r.data?.data?.product;
-        setToast({ text: "Product created.", kind: "ok" });
+        setToast({ text: t("productEditor.toast.created", { defaultValue: "Product created." }), kind: "ok" });
         router.replace(`/pay-links/products/${newP.product_id}/edit`);
       } else {
         await axiosBaseApi.patch(`products/${product.product_id}`, buildPayload());
-        setToast({ text: "Saved.", kind: "ok" });
+        setToast({ text: t("productEditor.toast.saved", { defaultValue: "Saved." }), kind: "ok" });
       }
     } catch (e: any) {
-      setToast({ text: e?.response?.data?.message || "Save failed.", kind: "err" });
+      setToast({ text: e?.response?.data?.message || t("productEditor.toast.saveFailed", { defaultValue: "Save failed." }), kind: "err" });
     } finally {
       setSaving(false);
     }
@@ -307,14 +310,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       }
       const r = await axiosBaseApi.post(`products/${target.product_id}/publish`);
       setProduct(r.data?.data?.product);
-      setToast({ text: "Published — your product is live.", kind: "ok" });
+      setToast({ text: t("productEditor.toast.published", { defaultValue: "Published — your product is live." }), kind: "ok" });
       // Just created? Move the URL onto the saved product so refreshes / further
       // edits target the right record.
       if (mode === "new") {
         router.replace(`/pay-links/products/${target.product_id}/edit`);
       }
     } catch (e: any) {
-      setToast({ text: e?.response?.data?.message || "Publish failed.", kind: "err" });
+      setToast({ text: e?.response?.data?.message || t("productEditor.toast.publishFailed", { defaultValue: "Publish failed." }), kind: "err" });
     } finally {
       setPublishing(false);
     }
@@ -322,13 +325,13 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
 
   const archive = async () => {
     if (!product) return;
-    if (!window.confirm("Archive this product? Buyers won't be able to see it.")) return;
+    if (!window.confirm(t("productEditor.confirm.archiveProduct", { defaultValue: "Archive this product? Buyers won't be able to see it." }))) return;
     try {
       await axiosBaseApi.post(`products/${product.product_id}/archive`);
       setProduct({ ...product, status: "archived" });
-      setToast({ text: "Archived.", kind: "ok" });
+      setToast({ text: t("productEditor.toast.archived", { defaultValue: "Archived." }), kind: "ok" });
     } catch (e: any) {
-      setToast({ text: e?.response?.data?.message || "Archive failed.", kind: "err" });
+      setToast({ text: e?.response?.data?.message || t("productEditor.toast.archiveFailed", { defaultValue: "Archive failed." }), kind: "err" });
     }
   };
 
@@ -340,11 +343,11 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const uploadImageFile = async (file: File): Promise<string | null> => {
     if (!file) return null;
     if (file.size > MAX_IMAGE_BYTES) {
-      setToast({ text: "Image is too large (max 10 MB).", kind: "err" });
+      setToast({ text: t("productEditor.toast.imageTooLarge", { defaultValue: "Image is too large (max 10 MB)." }), kind: "err" });
       return null;
     }
     if (!file.type.startsWith("image/")) {
-      setToast({ text: "Only image files are allowed.", kind: "err" });
+      setToast({ text: t("productEditor.toast.onlyImages", { defaultValue: "Only image files are allowed." }), kind: "err" });
       return null;
     }
     try {
@@ -358,7 +361,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       return url;
     } catch (err: any) {
       setToast({
-        text: err?.response?.data?.message || err?.message || "Image upload failed.",
+        text: err?.response?.data?.message || err?.message || t("productEditor.toast.imageUploadFailed", { defaultValue: "Image upload failed." }),
         kind: "err",
       });
       return null;
@@ -371,7 +374,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     setCoverUploading(false);
     if (url) {
       setCoverUrl(url);
-      setToast({ text: "Cover image uploaded.", kind: "ok" });
+      setToast({ text: t("productEditor.toast.coverUploaded", { defaultValue: "Cover image uploaded." }), kind: "ok" });
     }
   };
 
@@ -400,7 +403,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         { url, alt: galleryAltDraft.trim() || undefined },
       ].slice(0, MAX_GALLERY_ITEMS));
       setGalleryAltDraft("");
-      setToast({ text: "Gallery image added.", kind: "ok" });
+      setToast({ text: t("productEditor.toast.galleryAdded", { defaultValue: "Gallery image added." }), kind: "ok" });
     }
   };
 
@@ -409,7 +412,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     if (galleryImgInputRef.current) galleryImgInputRef.current.value = "";
     if (!file) return;
     if (gallery.length >= MAX_GALLERY_ITEMS) {
-      setToast({ text: `Gallery is full (max ${MAX_GALLERY_ITEMS} images).`, kind: "err" });
+      setToast({ text: t("productEditor.toast.galleryFull", { defaultValue: "Gallery is full (max {{max}} images).", max: MAX_GALLERY_ITEMS }), kind: "err" });
       return;
     }
     if (isCroppableImage(file.type)) {
@@ -424,23 +427,23 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const addGalleryFromUrl = () => {
     const url = galleryUrlDraft.trim();
     if (!url) {
-      setToast({ text: "Enter an image URL.", kind: "err" });
+      setToast({ text: t("productEditor.toast.enterImageUrl", { defaultValue: "Enter an image URL." }), kind: "err" });
       return;
     }
     if (!/^(https?:\/\/|\/)/i.test(url)) {
-      setToast({ text: "URL must start with http(s):// or /", kind: "err" });
+      setToast({ text: t("productEditor.toast.urlScheme", { defaultValue: "URL must start with http(s):// or /" }), kind: "err" });
       return;
     }
     if (url.length > 512) {
-      setToast({ text: "URL is too long (max 512 chars).", kind: "err" });
+      setToast({ text: t("productEditor.toast.urlTooLong", { defaultValue: "URL is too long (max 512 chars)." }), kind: "err" });
       return;
     }
     if (gallery.some((g) => g.url === url)) {
-      setToast({ text: "That image is already in the gallery.", kind: "err" });
+      setToast({ text: t("productEditor.toast.imageDup", { defaultValue: "That image is already in the gallery." }), kind: "err" });
       return;
     }
     if (gallery.length >= MAX_GALLERY_ITEMS) {
-      setToast({ text: `Gallery is full (max ${MAX_GALLERY_ITEMS} images).`, kind: "err" });
+      setToast({ text: t("productEditor.toast.galleryFull", { defaultValue: "Gallery is full (max {{max}} images).", max: MAX_GALLERY_ITEMS }), kind: "err" });
       return;
     }
     setGallery((prev) => [
@@ -478,13 +481,13 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         );
       } catch (err: any) {
         setToast({
-          text: err?.response?.data?.message || "Failed to save variant image.",
+          text: err?.response?.data?.message || t("productEditor.toast.variantImageSaveFailed", { defaultValue: "Failed to save variant image." }),
           kind: "err",
         });
         return;
       }
     }
-    setToast({ text: "Variant image uploaded.", kind: "ok" });
+    setToast({ text: t("productEditor.toast.variantImageUploaded", { defaultValue: "Variant image uploaded." }), kind: "ok" });
   };
 
   const onVariantImgChosen = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -534,7 +537,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         );
       } catch (err: any) {
         setToast({
-          text: err?.response?.data?.message || "Failed to clear variant image.",
+          text: err?.response?.data?.message || t("productEditor.toast.variantImageClearFailed", { defaultValue: "Failed to clear variant image." }),
           kind: "err",
         });
       }
@@ -557,9 +560,9 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       );
       const asset = r.data?.data?.asset;
       if (asset) setAssets((prev) => [...prev, asset]);
-      setToast({ text: "File uploaded.", kind: "ok" });
+      setToast({ text: t("productEditor.toast.fileUploaded", { defaultValue: "File uploaded." }), kind: "ok" });
     } catch (err: any) {
-      setToast({ text: err?.response?.data?.message || "Upload failed.", kind: "err" });
+      setToast({ text: err?.response?.data?.message || t("productEditor.toast.uploadFailed", { defaultValue: "Upload failed." }), kind: "err" });
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -568,21 +571,21 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
 
   const removeAsset = async (assetId: number) => {
     if (!product) return;
-    if (!window.confirm("Remove this file?")) return;
+    if (!window.confirm(t("productEditor.confirm.removeFile", { defaultValue: "Remove this file?" }))) return;
     try {
       await axiosBaseApi.delete(`products/${product.product_id}/assets/${assetId}`);
       setAssets((prev) => prev.filter((a) => a.asset_id !== assetId));
     } catch (err: any) {
-      setToast({ text: err?.response?.data?.message || "Delete failed.", kind: "err" });
+      setToast({ text: err?.response?.data?.message || t("productEditor.toast.deleteFailed", { defaultValue: "Delete failed." }), kind: "err" });
     }
   };
 
   // Variants — server round-trip per row (simpler than local batch)
   const addVariantRow = async () => {
-    if (!product) { setToast({ text: "Save the draft first.", kind: "err" }); return; }
+    if (!product) { setToast({ text: t("productEditor.toast.saveDraftFirst", { defaultValue: "Save the draft first." }), kind: "err" }); return; }
     try {
       const r = await axiosBaseApi.post(`products/${product.product_id}/variants`, {
-        attributes: { title: `Variant ${variants.length + 1}` },
+        attributes: { title: `${t("productEditor.variantDefault", { defaultValue: "Variant" })} ${variants.length + 1}` },
         price_cents: priceCents || 500,
         stock_count: null,
         is_active: true,
@@ -592,7 +595,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         ...prev,
         {
           variant_id: v.variant_id,
-          title: v.attributes?.title || "Variant",
+          title: v.attributes?.title || t("productEditor.variantDefault", { defaultValue: "Variant" }),
           price_cents: Number(v.price_cents) || 0,
           stock_count: v.stock_count == null ? null : Number(v.stock_count),
           is_active: v.is_active !== false,
@@ -600,7 +603,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       ]);
       setHasVariants(true);
     } catch (e: any) {
-      setToast({ text: e?.response?.data?.message || "Add variant failed.", kind: "err" });
+      setToast({ text: e?.response?.data?.message || t("productEditor.toast.addVariantFailed", { defaultValue: "Add variant failed." }), kind: "err" });
     }
   };
 
@@ -617,9 +620,9 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           image_url: row.image_url ?? null,
         }
       );
-      setToast({ text: "Variant saved.", kind: "ok" });
+      setToast({ text: t("productEditor.toast.variantSaved", { defaultValue: "Variant saved." }), kind: "ok" });
     } catch (e: any) {
-      setToast({ text: e?.response?.data?.message || "Variant save failed.", kind: "err" });
+      setToast({ text: e?.response?.data?.message || t("productEditor.toast.variantSaveFailed", { defaultValue: "Variant save failed." }), kind: "err" });
     }
   };
 
@@ -631,7 +634,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           `products/${product.product_id}/variants/${row.variant_id}`
         );
       } catch (e: any) {
-        setToast({ text: e?.response?.data?.message || "Delete failed.", kind: "err" });
+        setToast({ text: e?.response?.data?.message || t("productEditor.toast.deleteFailed", { defaultValue: "Delete failed." }), kind: "err" });
         return;
       }
     }
@@ -686,7 +689,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         </Snackbar>
       )}
 
-      <PanelCard title={mode === "new" ? "New product" : `Edit product`}>
+      <PanelCard title={mode === "new" ? t("productEditor.newProduct", { defaultValue: "New product" }) : t("productEditor.editProduct", { defaultValue: "Edit product" })}>
         <Stack spacing={2}>
           {product && (
             <Stack direction="row" spacing={1} alignItems="center">
@@ -701,25 +704,25 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 }}
               />
               <Typography variant="caption" color="text.secondary">
-                Slug: <b>{product.slug}</b>
+                {t("productEditor.slug", { defaultValue: "Slug:" })} <b>{product.slug}</b>
               </Typography>
             </Stack>
           )}
 
           <TextField
-            label="Product title"
+            label={t("productEditor.productTitle", { defaultValue: "Product title" })}
             fullWidth value={title}
             onChange={(e) => setTitle(e.target.value)}
             inputProps={{ "data-testid": "product-title-input", maxLength: 160 }}
           />
           <TextField
-            label="Subtitle (optional)"
+            label={t("productEditor.subtitle", { defaultValue: "Subtitle (optional)" })}
             fullWidth value={subtitle}
             onChange={(e) => setSubtitle(e.target.value)}
             inputProps={{ "data-testid": "product-subtitle-input", maxLength: 240 }}
           />
           <TextField
-            label="Description (Markdown supported)"
+            label={t("productEditor.description", { defaultValue: "Description (Markdown supported)" })}
             fullWidth multiline minRows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -728,11 +731,11 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           {/* Cover image: URL field + Upload button + preview */}
           <Stack spacing={1}>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Cover image
+              {t("productEditor.coverImage", { defaultValue: "Cover image" })}
             </Typography>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "flex-start" }}>
               <TextField
-                label="Image URL (optional, https://…)"
+                label={t("productEditor.coverImageUrl", { defaultValue: "Image URL (optional, https://…)" })}
                 fullWidth
                 value={coverUrl}
                 onChange={(e) => setCoverUrl(e.target.value)}
@@ -748,7 +751,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 data-testid="product-cover-file-input"
               />
               <CustomButton
-                label={coverUploading ? "Uploading…" : "Upload image"}
+                label={coverUploading ? t("productEditor.uploading", { defaultValue: "Uploading…" }) : t("productEditor.uploadImage", { defaultValue: "Upload image" })}
                 variant="outlined"
                 startIcon={<CloudUploadRounded />}
                 onClick={() => coverImgInputRef.current?.click()}
@@ -759,7 +762,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               {coverUrl && (
                 <IconButton
                   size="small"
-                  aria-label="Remove cover image"
+                  aria-label={t("productEditor.removeCoverImage", { defaultValue: "Remove cover image" })}
                   onClick={() => setCoverUrl("")}
                   data-testid="product-cover-clear-btn"
                   sx={{ alignSelf: { sm: "center" } }}
@@ -784,7 +787,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary merchant-provided cover URL, not domain-whitelisted */}
                 <img
                   src={coverUrl}
-                  alt="Cover preview"
+                  alt={t("productEditor.coverPreview", { defaultValue: "Cover preview" })}
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
@@ -793,7 +796,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               </Box>
             )}
             <Typography variant="caption" color="text.secondary">
-              JPG, PNG, GIF, WebP or SVG. Max 10 MB. Uploaded images are served over the app CDN.
+              {t("productEditor.coverImageHint", { defaultValue: "JPG, PNG, GIF, WebP or SVG. Max 10 MB. Uploaded images are served over the app CDN." })}
             </Typography>
           </Stack>
 
@@ -801,7 +804,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           <Stack spacing={1} data-testid="product-gallery-section">
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                Photo gallery (optional)
+                {t("productEditor.photoGallery", { defaultValue: "Photo gallery (optional)" })}
               </Typography>
               <Chip
                 size="small"
@@ -834,7 +837,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={g.url}
-                      alt={g.alt || `Gallery image ${idx + 1}`}
+                      alt={g.alt || t("productEditor.galleryImageAlt", { defaultValue: "Gallery image {{n}}", n: idx + 1 })}
                       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
@@ -844,7 +847,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                       size="small"
                       onClick={() => removeGalleryAt(idx)}
                       data-testid={`product-gallery-remove-${idx}`}
-                      aria-label="Remove gallery image"
+                      aria-label={t("productEditor.removeGalleryImage", { defaultValue: "Remove gallery image" })}
                       sx={{
                         position: "absolute",
                         top: 4,
@@ -865,7 +868,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               <Stack spacing={1} sx={{ p: 1.5, border: `1px dashed ${theme.palette.divider}`, borderRadius: 1.5 }}>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
                   <TextField
-                    label="Image URL"
+                    label={t("productEditor.galleryImageUrl", { defaultValue: "Image URL" })}
                     placeholder="https://…"
                     fullWidth
                     size="small"
@@ -875,8 +878,8 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                     sx={{ flex: 2 }}
                   />
                   <TextField
-                    label="Alt text (optional)"
-                    placeholder="Describe the image"
+                    label={t("productEditor.galleryAlt", { defaultValue: "Alt text (optional)" })}
+                    placeholder={t("productEditor.galleryAltPlaceholder", { defaultValue: "Describe the image" })}
                     fullWidth
                     size="small"
                     value={galleryAltDraft}
@@ -887,7 +890,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 </Stack>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
                   <CustomButton
-                    label="Add from URL"
+                    label={t("productEditor.addFromUrl", { defaultValue: "Add from URL" })}
                     variant="outlined"
                     size="small"
                     startIcon={<AddRounded />}
@@ -904,7 +907,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                     data-testid="product-gallery-file-input"
                   />
                   <CustomButton
-                    label={galleryUploading ? "Uploading…" : "Upload from device"}
+                    label={galleryUploading ? t("productEditor.uploading", { defaultValue: "Uploading…" }) : t("productEditor.uploadFromDevice", { defaultValue: "Upload from device" })}
                     variant="outlined"
                     size="small"
                     startIcon={<CloudUploadRounded />}
@@ -915,7 +918,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                   />
                 </Stack>
                 <Typography variant="caption" color="text.secondary">
-                  Max 10 MB per image, up to {MAX_GALLERY_ITEMS} images total.
+                  {t("productEditor.galleryMaxHint", { defaultValue: "Max 10 MB per image, up to {{max}} images total.", max: MAX_GALLERY_ITEMS })}
                 </Typography>
               </Stack>
             )}
@@ -923,7 +926,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <TextField
-              label={hasVariants ? "Base price (informational, variants override)" : "Price"}
+              label={hasVariants ? t("productEditor.basePriceInfo", { defaultValue: "Base price (informational, variants override)" }) : t("productEditor.price", { defaultValue: "Price" })}
               type="number"
               value={priceDollars}
               onChange={(e) => setPriceDollars(e.target.value)}
@@ -931,10 +934,10 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               sx={{ flex: 1 }}
             />
             <FormControl sx={{ minWidth: 140 }}>
-              <InputLabel id="ccy-label">Currency</InputLabel>
+              <InputLabel id="ccy-label">{t("productEditor.currency", { defaultValue: "Currency" })}</InputLabel>
               <Select
                 labelId="ccy-label"
-                label="Currency"
+                label={t("productEditor.currency", { defaultValue: "Currency" })}
                 value={currency}
                 onChange={(e) => setCurrency(String(e.target.value))}
                 inputProps={{ "data-testid": "product-currency-select" }}
@@ -946,7 +949,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             </FormControl>
             {!hasVariants && (
               <TextField
-                label="Stock (blank = unlimited)"
+                label={t("productEditor.stockUnlimited", { defaultValue: "Stock (blank = unlimited)" })}
                 type="number"
                 value={baseStock}
                 onChange={(e) => setBaseStock(e.target.value)}
@@ -958,13 +961,13 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         </Stack>
       </PanelCard>
 
-      <PanelCard title="Digital delivery">
+      <PanelCard title={t("productEditor.digitalDelivery", { defaultValue: "Digital delivery" })}>
         <Stack spacing={2}>
           <FormControl fullWidth>
-            <InputLabel id="delivery-label">Delivery method</InputLabel>
+            <InputLabel id="delivery-label">{t("productEditor.deliveryMethod", { defaultValue: "Delivery method" })}</InputLabel>
             <Select
               labelId="delivery-label"
-              label="Delivery method"
+              label={t("productEditor.deliveryMethod", { defaultValue: "Delivery method" })}
               value={deliveryType}
               onChange={(e) => setDeliveryType(String(e.target.value) as any)}
               inputProps={{ "data-testid": "product-delivery-select" }}
@@ -982,7 +985,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
 
           {deliveryType === "url" && (
             <TextField
-              label="Access URL"
+              label={t("productEditor.accessUrl", { defaultValue: "Access URL" })}
               placeholder="https://your-drive-or-notion-link"
               fullWidth
               value={accessUrl}
@@ -993,7 +996,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
 
           {deliveryType === "license_key" && (
             <TextField
-              label="License keys (one per line)"
+              label={t("productEditor.licenseKeys", { defaultValue: "License keys (one per line)" })}
               multiline minRows={4}
               fullWidth
               value={licenseKeysText}
@@ -1013,7 +1016,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                   data-testid="product-file-input"
                 />
                 <CustomButton
-                  label={uploading ? "Uploading…" : "Upload a file"}
+                  label={uploading ? t("productEditor.uploading", { defaultValue: "Uploading…" }) : t("productEditor.uploadFile", { defaultValue: "Upload a file" })}
                   variant="outlined"
                   startIcon={<CloudUploadRounded />}
                   onClick={onUploadClick}
@@ -1023,7 +1026,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 />
                 {!product && (
                   <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                    Save the draft first, then you can upload files.
+                    {t("productEditor.saveDraftFirstHint", { defaultValue: "Save the draft first, then you can upload files." })}
                   </Typography>
                 )}
               </Box>
@@ -1054,18 +1057,18 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         </Stack>
       </PanelCard>
 
-      <PanelCard title="Tax & VAT">
+      <PanelCard title={t("productEditor.taxVat", { defaultValue: "Tax & VAT" })}>
         <Stack spacing={2}>
           <Typography variant="body2" color="text.secondary" data-testid="product-tax-intro">
-            Choose whether buyers are charged tax on this product. This is exactly what shows on your storefront checkout.
+            {t("productEditor.taxIntro", { defaultValue: "Choose whether buyers are charged tax on this product. This is exactly what shows on your storefront checkout." })}
           </Typography>
 
           {/* Primary decision — charge tax or not */}
           <FormControl fullWidth>
-            <InputLabel id="tax-override-label">Charge tax on this product</InputLabel>
+            <InputLabel id="tax-override-label">{t("productEditor.chargeTax", { defaultValue: "Charge tax on this product" })}</InputLabel>
             <Select
               labelId="tax-override-label"
-              label="Charge tax on this product"
+              label={t("productEditor.chargeTax", { defaultValue: "Charge tax on this product" })}
               value={applyTaxOverride}
               onChange={(e) => setApplyTaxOverride(String(e.target.value) as any)}
               inputProps={{ "data-testid": "product-tax-override-select" }}
@@ -1073,40 +1076,40 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             >
               <MenuItem value="inherit" data-testid="product-tax-override-opt-inherit">
                 {merchantTax.loaded
-                  ? `Inherit store default (currently: ${merchantTax.applyTax ? "charging tax" : "no tax"})`
-                  : "Inherit store default"}
+                  ? t("productEditor.inheritStoreDefaultCurrent", { defaultValue: "Inherit store default (currently: {{state}})", state: merchantTax.applyTax ? t("productEditor.chargingTax", { defaultValue: "charging tax" }) : t("productEditor.noTaxState", { defaultValue: "no tax" }) })
+                  : t("productEditor.inheritStoreDefault", { defaultValue: "Inherit store default" })}
               </MenuItem>
-              <MenuItem value="on" data-testid="product-tax-override-opt-on">Always charge tax</MenuItem>
-              <MenuItem value="off" data-testid="product-tax-override-opt-off">Never charge tax</MenuItem>
+              <MenuItem value="on" data-testid="product-tax-override-opt-on">{t("productEditor.alwaysChargeTax", { defaultValue: "Always charge tax" })}</MenuItem>
+              <MenuItem value="off" data-testid="product-tax-override-opt-off">{t("productEditor.neverChargeTax", { defaultValue: "Never charge tax" })}</MenuItem>
             </Select>
             <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
               {taxCategory === "exempt"
-                ? "Overrides don't apply to tax-exempt products."
-                : "Overrides your store-wide default (Settings → Tax) for this product only."}
+                ? t("productEditor.overrideExemptHint", { defaultValue: "Overrides don't apply to tax-exempt products." })
+                : t("productEditor.overrideHint", { defaultValue: "Overrides your store-wide default (Settings → Tax) for this product only." })}
             </Typography>
           </FormControl>
 
           {/* Tax category — jurisdiction rules */}
           <FormControl fullWidth>
-            <InputLabel id="tax-category-label">Tax category</InputLabel>
+            <InputLabel id="tax-category-label">{t("productEditor.taxCategory", { defaultValue: "Tax category" })}</InputLabel>
             <Select
               labelId="tax-category-label"
-              label="Tax category"
+              label={t("productEditor.taxCategory", { defaultValue: "Tax category" })}
               value={taxCategory}
               onChange={(e) => setTaxCategory(String(e.target.value) as any)}
               inputProps={{ "data-testid": "product-tax-category-select" }}
             >
-              <MenuItem value="digital" data-testid="product-tax-category-opt-digital">Digital goods / services</MenuItem>
-              <MenuItem value="physical" data-testid="product-tax-category-opt-physical">Physical goods</MenuItem>
-              <MenuItem value="service" data-testid="product-tax-category-opt-service">Service</MenuItem>
-              <MenuItem value="exempt" data-testid="product-tax-category-opt-exempt">Tax exempt</MenuItem>
+              <MenuItem value="digital" data-testid="product-tax-category-opt-digital">{t("productEditor.categoryDigital", { defaultValue: "Digital goods / services" })}</MenuItem>
+              <MenuItem value="physical" data-testid="product-tax-category-opt-physical">{t("productEditor.categoryPhysical", { defaultValue: "Physical goods" })}</MenuItem>
+              <MenuItem value="service" data-testid="product-tax-category-opt-service">{t("productEditor.categoryService", { defaultValue: "Service" })}</MenuItem>
+              <MenuItem value="exempt" data-testid="product-tax-category-opt-exempt">{t("productEditor.categoryExempt", { defaultValue: "Tax exempt" })}</MenuItem>
             </Select>
             <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
               {taxCategory === "exempt"
-                ? "This product is always sold tax-free, regardless of your tax settings."
+                ? t("productEditor.categoryExemptHint", { defaultValue: "This product is always sold tax-free, regardless of your tax settings." })
                 : taxCategory === "physical"
-                ? "Physical goods use the buyer's shipping-address country for the tax jurisdiction."
-                : "Digital goods / services use the buyer's detected location for the tax jurisdiction."}
+                ? t("productEditor.categoryPhysicalHint", { defaultValue: "Physical goods use the buyer's shipping-address country for the tax jurisdiction." })
+                : t("productEditor.categoryDigitalHint", { defaultValue: "Digital goods / services use the buyer's detected location for the tax jurisdiction." })}
             </Typography>
           </FormControl>
 
@@ -1128,14 +1131,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             <ReceiptLongRounded sx={{ fontSize: 18, color: "text.secondary", mt: "1px" }} />
             <Box>
               <Typography variant="caption" sx={{ fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "text.secondary", display: "block" }}>
-                At checkout
+                {t("productEditor.atCheckout", { defaultValue: "At checkout" })}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.primary", mt: 0.25 }} data-testid="product-tax-effective-text">
                 {taxIsExempt
-                  ? "Tax-exempt — this product is always sold tax-free."
+                  ? t("productEditor.effectiveExempt", { defaultValue: "Tax-exempt — this product is always sold tax-free." })
                   : taxEffectiveOn
-                  ? `Buyers are charged VAT/tax based on their ${taxCategory === "physical" ? "shipping-address country" : "location"}.`
-                  : "No tax is added — buyers pay exactly the listed price."}
+                  ? t("productEditor.effectiveOn", { defaultValue: "Buyers are charged VAT/tax based on their {{place}}.", place: taxCategory === "physical" ? t("productEditor.shippingCountry", { defaultValue: "shipping-address country" }) : t("productEditor.location", { defaultValue: "location" }) })
+                  : t("productEditor.effectiveOff", { defaultValue: "No tax is added — buyers pay exactly the listed price." })}
               </Typography>
             </Box>
           </Box>
@@ -1143,8 +1146,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           {/* Discoverability nudge — inheriting a store default that is OFF */}
           {taxInheritsOffDefault && (
             <Alert severity="info" data-testid="product-tax-default-hint" sx={{ borderRadius: "10px" }}>
-              Your store default is currently <strong>No tax</strong>. Turn it on for all checkouts in Settings → Tax,
-              or set this product to <strong>Always charge tax</strong>.
+              {t("productEditor.taxDefaultHintPre", { defaultValue: "Your store default is currently" })} <strong>{t("productEditor.noTax", { defaultValue: "No tax" })}</strong>{t("productEditor.taxDefaultHintMid", { defaultValue: ". Turn it on for all checkouts in Settings → Tax, or set this product to" })} <strong>{t("productEditor.alwaysChargeTax", { defaultValue: "Always charge tax" })}</strong>.
             </Alert>
           )}
 
@@ -1160,17 +1162,17 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Manage your store-wide tax default in Settings → Tax →
+            {t("productEditor.manageTaxLink", { defaultValue: "Manage your store-wide tax default in Settings → Tax →" })}
           </Typography>
         </Stack>
       </PanelCard>
 
       <PanelCard
-        title="Variants (optional)"
+        title={t("productEditor.variantsOptional", { defaultValue: "Variants (optional)" })}
         headerAction={
           product && (
             <CustomButton
-              label="Add variant"
+              label={t("productEditor.addVariant", { defaultValue: "Add variant" })}
               variant="outlined"
               size="small"
               startIcon={<AddRounded />}
@@ -1195,10 +1197,10 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             <Switch
               checked={hasVariants}
               onChange={(e) => setHasVariants(e.target.checked)}
-              inputProps={{ "aria-label": "Enable variants", ...({ "data-testid": "product-has-variants-toggle" } as any) }}
+              inputProps={{ "aria-label": t("productEditor.enableVariantsAria", { defaultValue: "Enable variants" }), ...({ "data-testid": "product-has-variants-toggle" } as any) }}
             />
             <Typography variant="body2" color="text.secondary">
-              Enable variants (e.g. different sizes / tiers). When on, each variant has its own price + stock.
+              {t("productEditor.enableVariantsDesc", { defaultValue: "Enable variants (e.g. different sizes / tiers). When on, each variant has its own price + stock." })}
             </Typography>
           </Stack>
 
@@ -1206,16 +1208,16 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             <Switch
               checked={hideQuantity}
               onChange={(e) => setHideQuantity(e.target.checked)}
-              inputProps={{ "aria-label": "One-off service", ...({ "data-testid": "product-hide-quantity-toggle" } as any) }}
+              inputProps={{ "aria-label": t("productEditor.oneOffServiceAria", { defaultValue: "One-off service" }), ...({ "data-testid": "product-hide-quantity-toggle" } as any) }}
             />
             <Typography variant="body2" color="text.secondary">
-              One-off service (hide the quantity selector). Turn on for products like “Talk to a Developer” where a quantity makes no sense — buyers purchase it once.
+              {t("productEditor.oneOffServiceDesc", { defaultValue: "One-off service (hide the quantity selector). Turn on for products like “Talk to a Developer” where a quantity makes no sense — buyers purchase it once." })}
             </Typography>
           </Stack>
 
           {hasVariants && variants.length === 0 && (
             <Typography variant="caption" color="text.secondary">
-              No variants yet. Click “Add variant” to create one.
+              {t("productEditor.noVariantsYet", { defaultValue: "No variants yet. Click “Add variant” to create one." })}
             </Typography>
           )}
           {hasVariants && variants.map((v, idx) => (
@@ -1252,7 +1254,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                     <IconButton
                       size="small"
                       onClick={() => removeVariantImage(idx)}
-                      aria-label="Remove variant image"
+                      aria-label={t("productEditor.removeVariantImage", { defaultValue: "Remove variant image" })}
                       data-testid={`product-variant-image-remove-${idx}`}
                       sx={{
                         position: "absolute",
@@ -1283,7 +1285,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                   </Box>
                 )}
                 <CustomButton
-                  label={variantImgUploadIdx === idx ? "…" : v.image_url ? "Change" : "Add"}
+                  label={variantImgUploadIdx === idx ? "…" : v.image_url ? t("productEditor.change", { defaultValue: "Change" }) : t("productEditor.add", { defaultValue: "Add" })}
                   variant="outlined"
                   size="small"
                   onClick={() => onVariantImgClick(idx)}
@@ -1293,7 +1295,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 />
               </Stack>
               <TextField
-                label="Title"
+                label={t("productEditor.variantTitle", { defaultValue: "Title" })}
                 value={v.title}
                 onChange={(e) => setVariants((p) => p.map((x, i) => i === idx ? { ...x, title: e.target.value } : x))}
                 onBlur={() => saveVariant(variants[idx])}
@@ -1302,7 +1304,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 inputProps={{ "data-testid": `product-variant-title-${idx}` }}
               />
               <TextField
-                label="Price (¢)"
+                label={t("productEditor.variantPriceCents", { defaultValue: "Price (¢)" })}
                 type="number"
                 value={v.price_cents}
                 onChange={(e) => setVariants((p) => p.map((x, i) => i === idx ? { ...x, price_cents: Math.max(0, Math.floor(Number(e.target.value) || 0)) } : x))}
@@ -1312,7 +1314,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 inputProps={{ "data-testid": `product-variant-price-${idx}` }}
               />
               <TextField
-                label="Stock"
+                label={t("productEditor.variantStock", { defaultValue: "Stock" })}
                 type="number"
                 value={v.stock_count == null ? "" : String(v.stock_count)}
                 onChange={(e) => {
@@ -1329,7 +1331,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 size="small"
                 onClick={() => deleteVariant(v, idx)}
                 data-testid={`product-variant-delete-${idx}`}
-                aria-label="Delete variant"
+                aria-label={t("productEditor.deleteVariant", { defaultValue: "Delete variant" })}
               >
                 <DeleteOutlineRounded fontSize="small" />
               </IconButton>
@@ -1341,7 +1343,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       <Divider />
       <Stack direction={{ xs: "column", sm: "row" }} spacing={1} justifyContent="flex-end" data-dyno-anchor="cta">
         <CustomButton
-          label="Save draft"
+          label={t("productEditor.saveDraft", { defaultValue: "Save draft" })}
           variant="outlined"
           onClick={saveDraft}
           loading={saving}
@@ -1349,7 +1351,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           data-testid="product-save-btn"
         />
         <CustomButton
-          label={isLive ? "Update live product" : "Publish"}
+          label={isLive ? t("productEditor.updateLiveProduct", { defaultValue: "Update live product" }) : t("productEditor.publish", { defaultValue: "Publish" })}
           variant="primary"
           onClick={publish}
           loading={publishing}
@@ -1358,7 +1360,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         />
         {product && (
           <CustomButton
-            label="Archive"
+            label={t("productEditor.archive", { defaultValue: "Archive" })}
             variant="secondary"
             onClick={archive}
             disabled={saving || publishing || isArchived}
@@ -1374,7 +1376,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           sourceFile={cropFile}
           cropShape="rect"
           aspect={cropAspect}
-          title="Adjust image"
+          title={t("productEditor.adjustImage", { defaultValue: "Adjust image" })}
           onCancel={closeCropper}
           onApply={(file) => handleCropApply(file)}
         />

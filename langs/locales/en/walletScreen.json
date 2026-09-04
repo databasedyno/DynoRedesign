@@ -65,5 +65,6 @@
   "walletUpdated": "Wallet updated successfully",
   "editOtpNotice": "Changing the address requires a one-time code sent to your email.",
   "verifyAndSave": "Verify & save",
-  "updatingWallet": "Updating your wallet…"
+  "updatingWallet": "Updating your wallet…",
+  "manageWallets": "Manage wallets"
 }

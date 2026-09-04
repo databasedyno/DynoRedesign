@@ -246,5 +246,8 @@
   "setupStepKycHelperContinue": "Ga verder met je verificatie waar je was gebleven.",
   "setupStepKycStarting": "Verificatie wordt geopend…",
   "setupKycTitle": "Verifieer je identiteit om betaald te blijven worden",
-  "setupKycSubtitle": "Je hebt $10.000 aan betalingsvolume overschreden en de respijtperiode van 90 dagen is voorbij. Voltooi een korte identiteitscontrole om nieuwe betaallinks te maken."
+  "setupKycSubtitle": "Je hebt $10.000 aan betalingsvolume overschreden en de respijtperiode van 90 dagen is voorbij. Voltooi een korte identiteitscontrole om nieuwe betaallinks te maken.",
+  "linkCopiedOpensCheckout": "Link gekopieerd — opent je checkout",
+  "scanToOpenCheckout": "Scan om de checkout te openen",
+  "downloadQr": "Download QR"
 }

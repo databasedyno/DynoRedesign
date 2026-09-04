@@ -7,10 +7,12 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import axiosBaseApi from "@/axiosConfig";
+import { useTranslation } from "react-i18next";
 
 const SecureAccountPage = () => {
   const theme = useTheme();
   const router = useRouter();
+  const { t } = useTranslation("auth");
   const { token } = router.query;
 
   const [status, setStatus] = useState<"loading" | "success" | "error" | "invalid">("loading");
@@ -23,12 +25,12 @@ const SecureAccountPage = () => {
       try {
         const res = await axiosBaseApi.post("user/security/flag-login", { token });
         setStatus("success");
-        setMessage(res.data?.message || "Account secured successfully.");
+        setMessage(res.data?.message || t("secureAccount.successDefault"));
       } catch (e: any) {
-        const msg = e.response?.data?.message || "Failed to process request.";
+        const msg = e.response?.data?.message || t("secureAccount.failedDefault");
         if (e.response?.status === 404) {
           setStatus("invalid");
-          setMessage("This security link has already been used or is invalid.");
+          setMessage(t("secureAccount.invalidDefault"));
         } else {
           setStatus("error");
           setMessage(msg);
@@ -37,30 +39,30 @@ const SecureAccountPage = () => {
     };
 
     flagLogin();
-  }, [token]);
+  }, [token, t]);
 
   const statusConfig = {
     loading: {
       icon: <CircularProgress size={48} />,
-      title: "Securing your account...",
-      subtitle: "Please wait while we process your request.",
+      title: t("secureAccount.loadingTitle"),
+      subtitle: t("secureAccount.loadingSubtitle"),
       color: brandFg(theme.palette.mode === "dark"),
     },
     success: {
       icon: <CheckCircleOutlineIcon sx={{ fontSize: 56, color: "#22c55e" }} />,
-      title: "Account Secured",
+      title: t("secureAccount.successTitle"),
       subtitle: message,
       color: "#22c55e",
     },
     error: {
       icon: <ErrorOutlineIcon sx={{ fontSize: 56, color: "#ef4444" }} />,
-      title: "Something went wrong",
+      title: t("secureAccount.errorTitle"),
       subtitle: message,
       color: "#ef4444",
     },
     invalid: {
       icon: <ShieldOutlinedIcon sx={{ fontSize: 56, color: theme.palette.text.secondary }} />,
-      title: "Link expired or already used",
+      title: t("secureAccount.invalidTitle"),
       subtitle: message,
       color: theme.palette.text.secondary,
     },
@@ -133,10 +135,10 @@ const SecureAccountPage = () => {
                 lineHeight: 1.5,
               }}
             >
-              <strong>What happens next:</strong><br />
-              • Your account has been temporarily locked for 24 hours<br />
-              • All active sessions have been flagged<br />
-              • Reset your password to regain access
+              <strong>{t("secureAccount.nextTitle")}</strong><br />
+              • {t("secureAccount.next1")}<br />
+              • {t("secureAccount.next2")}<br />
+              • {t("secureAccount.next3")}
             </Typography>
             <Typography
               component="a"
@@ -152,7 +154,7 @@ const SecureAccountPage = () => {
                 "&:hover": { textDecoration: "underline" },
               }}
             >
-              Go to Login →
+              {t("secureAccount.goToLogin")}
             </Typography>
           </Box>
         )}
@@ -171,7 +173,7 @@ const SecureAccountPage = () => {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Go to Login →
+            {t("secureAccount.goToLogin")}
           </Typography>
         )}
       </Box>

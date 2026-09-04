@@ -249,9 +249,9 @@ const HomeHeader = memo(function HomeHeader() {
         opacity: isHeaderVisible ? 1 : 0,
       }}
     >
-      <HeaderContainer aria-label="Primary navigation">
+      <HeaderContainer aria-label={t("v3.header.ariaPrimaryNav")}>
         <LeftGroup>
-          <ClickableLogo type="button" aria-label="Go to home" onClick={navigateHome}>
+          <ClickableLogo type="button" aria-label={t("v3.header.ariaGoHome")} onClick={navigateHome}>
             <Image src={logoSrc} alt="Dynopay" width={134} height={45} draggable={false} priority />
           </ClickableLogo>
 
@@ -324,7 +324,7 @@ const HomeHeader = memo(function HomeHeader() {
                           >
                             <FeaturedBadge>
                               <FeaturedIcon sx={{ fontSize: 13 }} />
-                              Public beta
+                              {t("v3.header.publicBeta")}
                             </FeaturedBadge>
                             <Box sx={{ position: "relative", zIndex: 1 }}>
                               <Typography
@@ -384,7 +384,7 @@ const HomeHeader = memo(function HomeHeader() {
         <RightGroup>
           <Actions>
             {!minimalChrome && (
-            <StatusPillWrap aria-label="System status">
+            <StatusPillWrap aria-label={t("v3.header.ariaSystemStatus")}>
               <span className="dot" />
               <span className="status-label">{t("v3.header.systemsNormal")}</span>
             </StatusPillWrap>
@@ -431,7 +431,7 @@ const HomeHeader = memo(function HomeHeader() {
           </Actions>
 
           <MobileMenuButton
-            aria-label="Toggle menu"
+            aria-label={t("v3.header.ariaToggleMenu")}
             aria-expanded={mobileMenuOpen}
             data-testid="mobile-menu-toggle"
             disableRipple
@@ -471,7 +471,7 @@ const HomeHeader = memo(function HomeHeader() {
       <MobilePanel
         data-open={mobileMenuOpen ? "true" : "false"}
         role="dialog"
-        aria-label="Mobile navigation"
+        aria-label={t("v3.header.ariaMobileNav")}
         data-testid="mobile-menu-panel"
       >
         <MobileDrawer>
@@ -573,10 +573,10 @@ const HomeHeader = memo(function HomeHeader() {
             </MobileLanguageWrapper>
 
             <MobileTrustBadges>
-              <TrustPill>Encrypted</TrustPill>
+              <TrustPill>{t("v3.header.trustEncrypted")}</TrustPill>
               <TrustPill>GDPR</TrustPill>
-              <TrustPill>Non-custodial</TrustPill>
-              <TrustPill>● Live</TrustPill>
+              <TrustPill>{t("v3.header.trustNonCustodial")}</TrustPill>
+              <TrustPill>● {t("v3.header.trustLive")}</TrustPill>
             </MobileTrustBadges>
           </MobileNavContent>
         </MobileDrawer>
