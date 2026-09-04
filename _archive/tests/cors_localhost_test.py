@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://zen-panini-8.preview.emergentagent.com",
+        "origin": "https://vault-setup-4.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

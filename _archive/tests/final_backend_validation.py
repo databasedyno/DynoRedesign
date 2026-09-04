@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://zen-panini-8.preview.emergentagent.com"
+BACKEND_URL = "https://vault-setup-4.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""

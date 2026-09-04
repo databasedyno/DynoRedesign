@@ -4,7 +4,7 @@ import time
 import requests
 import pytest
 
-BASE_URL = "https://zen-panini-8.preview.emergentagent.com"
+BASE_URL = "https://vault-setup-4.preview.emergentagent.com"
 
 
 def _csrf_session():

@@ -15,7 +15,7 @@ BASE_URL = (
     os.environ.get("PREVIEW_BASE_URL")
     or os.environ.get("REACT_APP_BACKEND_URL")
     or _env.get("REACT_APP_BACKEND_URL")
-    or "https://ca6c51ad-10d4-4491-b39b-dd426814946f.preview.emergentagent.com"
+    or "https://vault-setup-4.preview.emergentagent.com"
 ).rstrip("/")
 
 COMPANY_ID = 1
