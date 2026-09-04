@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor bureaus & consultants · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor bureaus & consultants met Dynopay. Non-custodial, 15+ cryptocurrencies, kosten vanaf 1,5%. Betaal wereldwijde aannemers. Begin nu.",
+  "h1": "Accepteer crypto-betalingen voor bureaus & consultants zonder terugboekingen",
+  "subheading": "Factureer klanten in 15+ cryptocurrencies, betaal internationale aannemers binnen enkele minuten en elimineer grensoverschrijdende kosten—fondsen komen rechtstreeks in je wallet.",
+  "intro_paragraph": "Bureaus en consultants kunnen inkomsten verliezen door terugboekingen van creditcards, dagen wachten op internationale overschrijvingen en 3-7% betalen aan valutawisselkosten bij het werken met wereldwijde klanten. Dynopay is een non-custodial platform waarmee je klanten kunt factureren en aannemers kunt betalen in Bitcoin, Ethereum, USDT, USDC en 11 andere cryptocurrencies. Jij beheert de fondsen van betaling tot uitbetaling—Dynopay houdt nooit je geld vast.",
+  "features": [
+    {
+      "title": "Betaal aannemers in crypto",
+      "description": "Stuur crypto-betalingen naar freelancers en partners wereldwijd zonder overschrijvingskosten, valutaconversie of 3-daagse blokkades. Ze ontvangen fondsen binnen enkele minuten, en jij vermijdt kosten van tussenliggende banken die in projectbudgetten snijden."
+    },
+    {
+      "title": "Elimineer terugboekingsfraude op retainer",
+      "description": "Crypto-transacties zijn definitief. Klanten die betwisten voltooide werkzaamheden kunnen betalingen maanden later niet terugdraaien. Jij houdt wat je verdient, en je cashflow blijft voorspelbaar zonder reserveringsblokkades of doorlopende aansprakelijkheid."
+    },
+    {
+      "title": "Factureer klanten in stablecoins of Bitcoin",
+      "description": "Genereer betalingslinks voor eenmalige projecten of terugkerende retainers. Klanten betalen in USDT, USDC, BTC, ETH of 11 andere activa. Fondsen komen binnen enkele minuten in je wallet, en jij kiest wanneer je wilt omzetten of vasthouden."
+    }
+  ],
+  "how_it_works": [
+    "Meld je aan, verifieer je e-mail en voeg het wallet-adres toe waar je betalingen wilt ontvangen.",
+    "Maak een betalingslink voor je factuur of embed de checkout-widget op je klantenportaal.",
+    "Klant betaalt in crypto; fondsen komen binnen enkele minuten rechtstreeks in je wallet. De eerste betaling is kosteloos."
+  ],
+  "faqs": [
+    {
+      "question": "Welke cryptocurrencies kunnen bureaus accepteren met Dynopay?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, USDT (ERC20, TRC20, Polygon), USDC, RLUSD, Litecoin, Dogecoin, Solana, XRP, Polygon, Tron en Bitcoin Cash. Klanten kunnen betalen in elke ondersteunde activa, en jij ontvangt fondsen rechtstreeks in je wallet."
+    },
+    {
+      "question": "Hoeveel rekent Dynopay bureaus aan voor crypto-betalingen?",
+      "answer": "Kosten beginnen bij 1,5% plus één dollar per succesvolle betaling en dalen automatisch naar 0,5% naarmate je betalingsvolume groeit. Je eerste betaling is volledig kosteloos. Er zijn geen maandelijkse kosten, opstartkosten of verborgen kosten."
+    },
+    {
+      "question": "Kan ik internationale aannemers betalen met Dynopay?",
+      "answer": "Ja. Je kunt crypto naar aannemers wereldwijd sturen zonder overschrijvingskosten of meerdaagse afhandelingsvertragingen. Dynopay heeft geen landrestricties voor het ontvangen van crypto. Aannemers ontvangen fondsen binnen enkele minuten, en jij vermijdt kosten van tussenliggende banken die 3-7% per transactie kunnen kosten."
+    },
+    {
+      "question": "Houdt Dynopay mijn fondsen vast zoals een betalingsverwerker?",
+      "answer": "Nee. Dynopay is non-custodial. Betalingen gaan rechtstreeks van je klant naar het wallet-adres dat jij beheert. Dynopay houdt nooit je fondsen vast, bevriest ze of controleert ze. Jij behoudt te allen tijde de volledige controle, waardoor tegenpartijrisico en reserveringsblokkades worden geëlimineerd."
+    },
+    {
+      "question": "Hoe lang duurt het om crypto-betalingen te accepteren?",
+      "answer": "De meeste bureaus zijn binnen 10 minuten live. Meld je aan, verifieer je e-mail, maak je bedrijfsprofiel aan, voeg één uitbetalingswallet-adres toe en genereer vervolgens een betalingslink of embed de checkout-widget. Je kunt je eerste factuur onmiddellijk verzenden."
+    }
+  ],
+  "cta_headline": "Begin met het accepteren van crypto-betalingen in 10 minuten",
+  "cta_body": "Je eerste betaling is kosteloos. Geen opstartkosten, geen maandelijkse kosten, en fondsen komen rechtstreeks in je wallet.",
+  "_generated_at": "2026-08-29T14:56:26.929627Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "agencies",
+  "_display_name": "Agencies & Consultants"
+}

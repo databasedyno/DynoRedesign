@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für SaaS- und Abonnementprodukte · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für SaaS- und Abonnementprodukte mit Dynopay. Keine Rückbuchungen, globale Reichweite, 15+ Kryptowährungen. Gebühren ab 1,5 %. Starten Sie noch heute.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für SaaS- und Abonnementprodukte ohne Rückbuchungen",
+  "subheading": "Dynopay hilft Abonnementunternehmen, unfreiwillige Kündigungen zu beseitigen, in eingeschränkte Märkte zu expandieren und Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in Ihre Wallet zu erhalten.",
+  "intro_paragraph": "Abonnementunternehmen verlieren routinemäßig Einnahmen durch fehlgeschlagene Kartenzahlungen und unfreiwillige Kündigungen. Internationale Kunden sehen sich Währungsumrechnungsgebühren und Einschränkungen bei Zahlungsmethoden gegenüber. Dynopay ist eine nicht verwahrende Plattform, die Krypto-Zahlungen direkt in Ihre Wallet einzahlt – kein Mittelsmann, der Ihre Gelder hält. Sie erhalten Zahlungslinks, gehostete Kassen und eine REST-API, um Abonnenten in 15+ Kryptowährungen mit Gebühren ab 1,5 % und sinkend auf 0,5 % bei größerem Volumen abzurechnen. Keine Rückbuchungen. Keine monatlichen Gebühren. Die erste Zahlung ist kostenlos.",
+  "features": [
+    {
+      "title": "Nicht verwahrende Abwicklung in Ihre Wallet",
+      "description": "Die Gelder gehen direkt in Ihre Ethereum-, Bitcoin- oder Solana-Wallet. Dynopay hält Ihr Geld niemals, sodass Sie die volle Kontrolle behalten und nach Ihrem eigenen Zeitplan in Fiat umwandeln können."
+    },
+    {
+      "title": "Null unfreiwillige Kündigungen von Krypto-Abonnenten",
+      "description": "Krypto-Zahlungen verfallen nicht und Transaktionen schlagen nicht fehl. Kunden, die Stablecoins oder Bitcoin bevorzugen, bleiben länger abonniert, da es keine fehlgeschlagenen Kartentransaktionen oder veralteten Abrechnungsdetails gibt."
+    },
+    {
+      "title": "Erreichen Sie Kunden in unterversorgten Märkten",
+      "description": "Akzeptieren Sie Zahlungen aus Regionen, die von Kartennetzwerken schlecht bedient werden. Krypto ermöglicht es Kunden, von überall zu zahlen, sodass Sie jeden Markt bedienen können, in dem Sie tätig sein möchten."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und fügen Sie eine Auszahlung-Wallet-Adresse für die Abwicklung hinzu.",
+    "Generieren Sie einen Zahlungslink oder betten Sie das Kassen-Widget auf Ihrer SaaS-Anmeldeseite oder Kontoseite ein.",
+    "Der Kunde zahlt in seiner bevorzugten Kryptowährung. Die Gelder treffen innerhalb von Minuten in Ihrer Wallet ein, und Sie sind live."
+  ],
+  "faqs": [
+    {
+      "question": "Wie reduzieren Krypto-Zahlungen unfreiwillige Kündigungen für Abonnementunternehmen?",
+      "answer": "Krypto-Wallets verfallen nicht und Transaktionen schlagen nicht aufgrund unzureichender Mittel fehl, wie es bei Karten der Fall ist. Abonnenten, die Stablecoins oder Bitcoin halten, können zuverlässig zahlen, ohne die Probleme mit abgelehnten Karten, die eine Hauptursache für unfreiwillige Kündigungen im traditionellen SaaS-Abrechnungsmodell sind."
+    },
+    {
+      "question": "Welche Kryptowährungen können meine SaaS-Kunden zur Zahlung verwenden?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX und Stablecoins einschließlich USDT (ERC20, TRC20, Polygon), USDC (ERC20) und RLUSD auf Ethereum und XRP Ledger."
+    },
+    {
+      "question": "Was sind die Gebühren von Dynopay für Abonnementzahlungen?",
+      "answer": "Die Gebühren beginnen bei 1,5 % plus einem Dollar pro erfolgreicher Zahlung und sinken automatisch auf 0,5 %, wenn Ihr abgewickeltes Volumen wächst. Keine Einrichtungsgebühren, keine monatlichen Gebühren, keine versteckten Kosten, und Ihre erste Zahlung ist völlig kostenlos."
+    },
+    {
+      "question": "Muss ich Krypto halten oder ein Händlerkonto einrichten?",
+      "answer": "Sie benötigen nur eine Wallet-Adresse für die Kryptowährung, die Sie erhalten möchten. Dynopay ist nicht verwahrend, sodass Zahlungen direkt an Ihre Coinbase-, Ledger-, MetaMask- oder jede Wallet, die Sie kontrollieren, gehen. Kein Händlerkonto erforderlich."
+    },
+    {
+      "question": "Kann ich wiederkehrende Abonnements in Kryptowährung mit Dynopay abrechnen?",
+      "answer": "Ja, auf Basis jedes Abrechnungszyklus. Krypto hat keine Karten-ähnliche automatische Abbuchung, sodass jede Erneuerung eine frische Zahlung ist: Verwenden Sie die REST-API und Webhooks, um pro Abrechnungszyklus einen Zahlungslink zu generieren und ihn automatisch zu senden. Erneuerungen schlagen niemals aufgrund abgelaufener Karten oder Ablehnungen des Ausstellers fehl."
+    }
+  ],
+  "cta_headline": "Beginnen Sie, Krypto-Zahlungen in 10 Minuten zu akzeptieren",
+  "cta_body": "Melden Sie sich jetzt an und Ihre erste Transaktion ist gebührenfrei. Keine monatlichen Kosten, keine Einrichtungsgebühren, und die Gelder gehen direkt in Ihre Wallet.",
+  "_generated_at": "2026-08-29T14:53:11.839432Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "saas",
+  "_display_name": "SaaS & Subscription Products"
+}

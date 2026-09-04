@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour freelances et créateurs · Dynopay",
+  "meta_description": "Acceptez les paiements crypto pour freelances et créateurs avec Dynopay. Pas de rétrofacturations, clients mondiaux, 15+ cryptomonnaies. Commencez à recevoir des paiements en 10 minutes.",
+  "h1": "Acceptez les paiements crypto pour freelances et créateurs sans rétrofacturations ni frontières",
+  "subheading": "Recevez des paiements en Bitcoin, Ethereum, USDT et 12+ autres cryptomonnaies. Les fonds arrivent directement dans votre portefeuille—jamais bloqués par une plateforme.",
+  "intro_paragraph": "Lorsque vous vendez des services numériques, des modèles ou du coaching à l'international, PayPal peut retenir vos fonds jusqu'à 180 jours et les clients peuvent annuler des paiements des mois plus tard. Dynopay est une plateforme de commerce crypto non-custodiale conçue pour les freelances et créateurs qui souhaitent des paiements mondiaux sans rétrofacturations. Vous recevez des fonds directement dans votre propre portefeuille, et les frais commencent à 1,5 % puis descendent à 0,5 % à grande échelle. Pas de frais mensuels, pas de fonds gelés, pas de fraude sur les remboursements.",
+  "features": [
+    {
+      "title": "Votre portefeuille, votre garde toujours",
+      "description": "Dynopay ne conserve jamais vos fonds. Chaque paiement arrive directement dans le portefeuille que vous contrôlez, donc aucune plateforme ne peut geler vos gains ou retarder les retraits."
+    },
+    {
+      "title": "Aucun risque de rétrofacturation sur les services",
+      "description": "Les paiements crypto sont définitifs. Les clients ne peuvent pas annuler un paiement 90 jours après que vous ayez livré un logo, un site web ou un appel de coaching—éliminant les abus de remboursement."
+    },
+    {
+      "title": "Pourboires, produits et liens de paiement",
+      "description": "Collectez des pourboires sur dynopay.com/@votrepseudo, vendez des produits numériques avec un paiement hébergé, ou partagez des liens de paiement pour des factures. Une seule plateforme gère les trois."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous avec votre email, vérifiez-le et créez votre profil d'entreprise en moins de trois minutes.",
+    "Ajoutez votre adresse de portefeuille Bitcoin, Ethereum ou stablecoin—juste une destination de paiement pour commencer à recevoir des paiements.",
+    "Générez un lien de paiement, intégrez le paiement sur votre site, ou partagez votre page de pourboire personnelle et lancez-vous."
+  ],
+  "faqs": [
+    {
+      "question": "Dois-je détenir des cryptomonnaies pour accepter des paiements crypto en tant que freelance ?",
+      "answer": "Non. Vous avez seulement besoin d'une adresse de portefeuille où les paiements arrivent. Vous pouvez créer un portefeuille gratuit en quelques minutes avec Exodus, MetaMask ou Coinbase Wallet, puis convertir des cryptos en votre monnaie locale sur un échange quand vous le souhaitez."
+    },
+    {
+      "question": "Quelles cryptomonnaies les freelances et créateurs peuvent-ils accepter avec Dynopay ?",
+      "answer": "Dynopay prend en charge 15+ cryptomonnaies, y compris Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX, et des stablecoins comme USDT (ERC20, TRC20, Polygon) et USDC. Vous choisissez quels actifs accepter par produit ou lien."
+    },
+    {
+      "question": "Quels frais Dynopay applique-t-il pour les paiements crypto ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par paiement réussi et descendent automatiquement à 0,5 % à mesure que votre volume réglé augmente. Votre premier paiement est complètement gratuit. Pas de frais mensuels, de coûts d'installation ou de frais cachés."
+    },
+    {
+      "question": "Les clients peuvent-ils contester ou annuler un paiement crypto après que j'ai livré le travail ?",
+      "answer": "Non. Les transactions en cryptomonnaie sont définitives et irréversibles. Une fois qu'un client paie, il ne peut pas déposer de rétrofacturation ou de contestation de paiement—vous protégeant de la fraude sur les remboursements courante avec les cartes de crédit et PayPal."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter des paiements crypto en tant que créateur ?",
+      "answer": "Vous pouvez être opérationnel en moins de 10 minutes. Inscrivez-vous, vérifiez votre email, ajoutez votre adresse de portefeuille, et générez un lien de paiement ou une page de pourboire personnelle. Pas de demande longue, de vérifications de crédit ou de documentation d'entreprise requises."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des paiements crypto aujourd'hui",
+  "cta_body": "Votre premier paiement est sans frais. Lancez-vous en 10 minutes sans coûts mensuels et fonds envoyés directement à votre portefeuille.",
+  "_generated_at": "2026-08-29T14:53:34.729935Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "freelancers",
+  "_display_name": "Freelancers & Creators"
+}

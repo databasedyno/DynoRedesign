@@ -1,3 +1,17 @@
+# SESSION 2026-06 (fork, pod 8b63f71b) — SEO: localize /for/* verticals + crawlable Help index links
+Continuation of 3B. Verified: tsc 0 errors, all routes 200, /for/saas?lang=fr full French render + clean console (no hydration errors), request isolation holds.
+- LOCALIZE /for/* (15 industry landing pages) into all 6 langs:
+  * scripts/translate_verticals.py translates each vertical's English JSON (data/seo-pages/verticals/*.json) into de/es/fr/pt/nl — SKIPPING `_`-prefixed meta keys (esp. _slug). Writes data/seo-pages/verticals/i18n/<lang>/<slug>.json. Per-vertical calls (batching all 390 strings in one call truncated → use per-vertical). Re-runnable.
+  * utils/seoContent.ts: getVerticalContentAllLangs(slug) returns {en,pt,fr,es,de,nl} (fallback to en per missing locale). SEO_LOCALES exported.
+  * pages/for/[vertical].tsx: CONVERTED getStaticProps/getStaticPaths → getServerSideProps (SSG→SSR) so ?lang= renders server-side (SSG can't read query at request time — that was the bug: html lang=en + English title on ?lang=fr). Passes contents(all 6) + canonicalBase; VerticalSEOPage picks by i18n.language, sets self-canonical ?lang + passes localeAlternates.
+  * Components/Page/SEO/SEOLandingPage.tsx: new optional prop localeAlternates → emits 6 hreflang + x-default. Country pages (none exist currently) would omit it and stay English. title/canonical/FAQ+WebPage+Breadcrumb JSON-LD all localize via `content`.
+  * sitemap isLocalizable += /for/ → each of 15 /for/* URLs now carries 7 xhtml:link alternates.
+  * NOTE: /for/* are now SSR (not SSG) — CDN-cached via _app Cache-Control s-maxage=300 SWR on public paths (approved tradeoff).
+- CRAWLABLE HELP INDEX (Components/Page/HelpAndSupport/index.tsx):
+  * Cards already used next/link <a href>, but the list was populated by a client useEffect (initial loading=true → SSR showed only a spinner, 0 links). Now SEED state with buildStatic() (the 8 static articles, titles/desc via t(`articles.<slug>.title`) so localized) and loading=false → 8 crawlable <a href="/help-support/{slug}"> links are in the SSR HTML. Client fetch still upgrades from KB API if populated. Verified: 8 links in SSR.
+- Verified samples: /for/saas EN (bare canonical) & ?lang=fr (html lang=fr, self-canonical ?lang=fr, 7 hreflang, French title+h1+FAQPage); /for/{creators de, ecommerce es, nonprofits pt, gaming nl} all 200; EN request after fr stays English (no bleed).
+
+
 # SESSION 2026-06 (fork, pod 8b63f71b) — SEO follow-ups A+B+C: help articles, /fees schema, MULTILINGUAL SSR (Option 3B)
 Continuation after the 3A audit fixes. All verified (tsc 0 errors; frontend testing agent 7/7 smoke pass; curl HTML/XML). Ships on next Save-to-GitHub → DO deploy.
 - A) HELP ARTICLES (7 authored + translated ×6 langs, SSR):

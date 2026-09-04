@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Webhosting- und Domainanbieter · Dynopay",
+  "meta_description": "Akzeptieren Sie Bitcoin, Ethereum, USDT und 15+ Kryptowährungen für Hosting und Domains. Keine Rückbuchungen, globale Reichweite, Gelder direkt in Ihre Wallet. Jetzt kostenlos starten.",
+  "h1": "Krypto-Zahlungen für Webhosting- und Domainanbieter, die auf wiederkehrende Einnahmen ausgelegt sind",
+  "subheading": "Akzeptieren Sie Bitcoin, Ethereum, Stablecoins und 15+ Kryptowährungen für Hosting-Pläne und Domainregistrierungen – Gelder kommen direkt in Ihre Wallet ohne Rückbuchungsrisiko.",
+  "intro_paragraph": "Webhosting- und Domainanbieter verlieren Einnahmen durch betrügerische Rückbuchungen, fehlgeschlagene Kartenverlängerungen und Zahlungsabwicklungsgebühren bei internationalen Transaktionen. Dynopay ist eine nicht verwahrende Krypto-Handelsplattform, die jede Zahlung direkt an Ihre Wallet sendet – keine Zwischenverwahrung, kein Rückbuchungsbetrug, kein unfreiwilliger Verlust durch abgelaufene Karten. Rechnungsverlängerungen mit API-generierten Zahlungslinks, einmalige Domainkäufe und Teilen von Zahlungslinks für manuelle Rechnungen, alles mit Gebühren ab 1,5 %, die auf 0,5 % sinken, wenn Ihr Volumen wächst.",
+  "features": [
+    {
+      "title": "Keine Rückbuchungen, niemals",
+      "description": "Krypto-Transaktionen sind endgültig. Beseitigen Sie Betrug durch gestohlene Karten und freundliche Betrugsstreitigkeiten, die Hosting-Anbieter monatlich Tausende an Gebühren, verlorener Servicezeit und Verwaltungsaufwand kosten."
+    },
+    {
+      "title": "Hören Sie auf, wiederkehrende Einnahmen zu verlieren",
+      "description": "Kartenablauf und Bankablehnungen führen zu unfreiwilligem Verlust. Krypto-Verlängerungen schlagen niemals bei einer abgelaufenen Karte fehl – Kunden zahlen einfach einen neuen Link in jedem Zyklus, sodass Sie Kunden behalten, die zahlen möchten, aber mit traditionellen Zahlungsmethoden nicht können."
+    },
+    {
+      "title": "Bedienen Sie Kunden in jedem Land",
+      "description": "Akzeptieren Sie Zahlungen weltweit ohne Währungsumrechnungsgebühren. Kunden in Märkten, die von Kartennetzwerken unterversorgt sind, können Ihnen direkt in Stablecoins wie USDT oder USDC bezahlen."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail und erstellen Sie Ihr Unternehmensprofil in weniger als drei Minuten.",
+    "Fügen Sie eine Auszahlung-Wallet-Adresse für Bitcoin, Ethereum oder jede unterstützte Kette hinzu, auf die Sie Gelder senden möchten.",
+    "Generieren Sie Zahlungslinks für Rechnungen oder betten Sie das Checkout-Widget auf Ihrer Abrechnungsseite ein – gehen Sie in zehn Minuten live."
+  ],
+  "faqs": [
+    {
+      "question": "Kann ich Krypto für monatliche Hosting-Abonnements oder nur für einmalige Domainkäufe akzeptieren?",
+      "answer": "Beides. Krypto hat keine Karten-ähnliche automatische Abbuchung, sodass Verlängerungen als frische Zahlungen in jedem Zyklus funktionieren: Generieren Sie einen Zahlungslink manuell oder automatisieren Sie es mit der REST-API und Webhooks. Einmalige Domainkäufe verwenden dieselben Links oder das Checkout-Widget, wobei Gelder jedes Mal direkt in Ihre Wallet gesendet werden."
+    },
+    {
+      "question": "Was passiert, wenn ein Kunde in Bitcoin bezahlt, ich aber Stablecoins erhalten möchte?",
+      "answer": "Standardmäßig erhalten Sie genau das, was der Kunde sendet, direkt an Ihre Auszahlung-Wallet. Wenn Sie einen stabilen Wert bevorzugen, aktivieren Sie die optionale automatische Umwandlung, sodass volatile Vermögenswerte wie Bitcoin in Ihrer Wallet in USDT oder USDC abgerechnet werden."
+    },
+    {
+      "question": "Wie vergleichen sich die Krypto-Zahlungsgebühren mit Kreditkartenabwicklern für Hosting-Anbieter?",
+      "answer": "Dynopay erhebt Gebühren ab 1,5 % plus einen Dollar pro Transaktion bei anfänglichem Volumen, die auf 0,5 % bei Skalierung basierend auf dem abgerechneten Volumen sinken. Es gibt keine monatlichen Gebühren, Einrichtungsgebühren, Rückbuchungsgebühren oder internationale Transaktionszuschläge. Ihre erste Zahlung ist völlig gebührenfrei."
+    },
+    {
+      "question": "Muss ich Krypto halten oder Blockchain verstehen, um Krypto-Zahlungen zu akzeptieren?",
+      "answer": "Keine Blockchain-Expertise erforderlich. Sie geben während der Einrichtung eine Wallet-Adresse an – Sie können eine mit jeder Standard-Wallet-App erstellen. Zahlungen kommen automatisch an, und Sie kontrollieren, wann Sie in Fiat umwandeln oder die Krypto langfristig halten."
+    },
+    {
+      "question": "Können Kunden in Ländern, in denen mein aktueller Zahlungsabwickler nicht funktioniert, mit Krypto für Hosting bezahlen?",
+      "answer": "Ja. Dynopay hat keine Länderbeschränkungen für den Empfang von Krypto-Zahlungen. Kunden in Regionen, die von Kartennetzwerken oder PayPal unterversorgt sind, können Ihnen direkt in Bitcoin, Ethereum oder Stablecoins bezahlen, wodurch sich Ihr adressierbarer Markt erweitert."
+    }
+  ],
+  "cta_headline": "Beginnen Sie, Krypto-Zahlungen in zehn Minuten zu akzeptieren",
+  "cta_body": "Ihre erste Transaktion ist gebührenfrei. Keine monatlichen Kosten, keine Einrichtungsgebühren, und Gelder gehen direkt an Ihre Wallet ohne Rückbuchungsrisiko.",
+  "_generated_at": "2026-08-29T14:55:14.132117Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "hosting",
+  "_display_name": "Web Hosting & Domain Providers"
+}

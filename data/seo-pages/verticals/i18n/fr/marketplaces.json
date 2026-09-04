@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour les places de marché et plateformes en ligne · Dynopay",
+  "meta_description": "Acceptez les paiements crypto sur votre place de marché ou plateforme. Non-custodial, 15+ cryptomonnaies, à partir de 1,5 % de frais. Pas de rétrofacturations. Commencez en 10 minutes avec Dynopay.",
+  "h1": "Paiements crypto pour les places de marché et plateformes en ligne qui vous gardent en contrôle",
+  "subheading": "Acceptez Bitcoin, Ethereum, USDT et 15+ cryptomonnaies directement dans votre portefeuille. Éliminez les rétrofacturations, réduisez la friction des paiements et payez les vendeurs à l'échelle mondiale.",
+  "intro_paragraph": "Les places de marché et plateformes en ligne font face à des disputes de rétrofacturation constantes, des maux de tête liés aux paiements transfrontaliers et des restrictions des processeurs de paiement sur les biens numériques. Dynopay est une plateforme de commerce crypto non-custodial qui envoie des fonds directement à votre portefeuille—sans intermédiaire détenant votre argent. Vous obtenez des liens de paiement, un paiement hébergé, une intégration API complète et une échelle automatique des frais de 1,5 % à 0,5 % en fonction du volume. Vos vendeurs et utilisateurs peuvent recevoir des paiements crypto en quelques minutes, partout dans le monde, sans risque de rétrofacturation.",
+  "features": [
+    {
+      "title": "Règlements directs dans votre portefeuille, toujours",
+      "description": "Les fonds arrivent dans votre propre portefeuille pour chaque transaction. Dynopay ne prend jamais la garde, vous contrôlez donc la liquidité, le timing et la conformité. Pas d'attente pour des paiements groupés ou des approbations d'intermédiaire."
+    },
+    {
+      "title": "Aucune exposition aux rétrofacturations",
+      "description": "Les transactions crypto sont finales. Éliminez les disputes de fraude, la fraude amicale et les frais de rétrofacturation qui érodent les marges sur les biens numériques, les abonnements et les ventes de places de marché à prix élevé."
+    },
+    {
+      "title": "Payez les vendeurs internationaux en quelques minutes",
+      "description": "Distribuez les gains aux freelances, fournisseurs et créateurs du monde entier en crypto. Pas de délais de virement, pas de frais bancaires correspondants. Ils choisissent leur portefeuille et leur actif préférés."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email et créez votre profil d'entreprise en moins de trois minutes.",
+    "Ajoutez une adresse de portefeuille de paiement pour la cryptomonnaie que vous souhaitez recevoir comme règlement.",
+    "Générez un lien de paiement, intégrez le widget de paiement ou intégrez via l'API REST et commencez à accepter des paiements."
+  ],
+  "faqs": [
+    {
+      "question": "Quelles cryptomonnaies ma place de marché peut-elle accepter avec Dynopay ?",
+      "answer": "Dynopay prend en charge 15+ cryptomonnaies, y compris Bitcoin, Ethereum, Litecoin, Dogecoin, USDT sur Ethereum, Tron et Polygon, USDC, RLUSD, Solana, XRP, TRX, Bitcoin Cash et Polygon (MATIC). Tous les règlements vont directement à votre portefeuille."
+    },
+    {
+      "question": "Quels sont les frais de Dynopay pour le traitement des paiements crypto sur une plateforme ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par paiement réussi et tombent automatiquement à 0,5 % à mesure que votre volume réglé augmente. Pas de frais mensuels, pas de coûts d'installation, pas de frais cachés. Votre premier paiement est complètement gratuit."
+    },
+    {
+      "question": "Comment puis-je payer les vendeurs ou créateurs sur ma place de marché en crypto ?",
+      "answer": "Chaque vendeur ou créateur fournit sa propre adresse de portefeuille. Vous pouvez envoyer des crypto directement depuis votre portefeuille de trésorerie, ou intégrer l'API de Dynopay pour automatiser les paiements."
+    },
+    {
+      "question": "Dynopay conserve-t-il des fonds à un moment donné lors d'une transaction ?",
+      "answer": "Non. Dynopay est non-custodial. Chaque paiement va directement du portefeuille de l'acheteur à votre portefeuille de paiement spécifié. Vous maintenez la pleine garde et le contrôle des fonds à tout moment, sans verrouillage d'intermédiaire."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter des crypto sur ma plateforme ?",
+      "answer": "L'intégration prend moins de 10 minutes. Inscrivez-vous, vérifiez votre email, ajoutez vos détails d'entreprise, spécifiez un portefeuille de paiement et générez un lien de paiement ou intégrez le paiement. Vous pouvez être opérationnel le même jour."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des paiements crypto en 10 minutes",
+  "cta_body": "Votre premier paiement est sans frais. Pas de coût d'installation, pas de frais mensuels, et les fonds se règlent directement dans votre portefeuille.",
+  "_generated_at": "2026-08-29T14:56:01.692406Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "marketplaces",
+  "_display_name": "Online Marketplaces & Platforms"
+}

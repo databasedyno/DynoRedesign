@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto crowdfunding & donatieplatform · Dynopay",
+  "meta_description": "Voer crowdfundingcampagnes uit en verzamel donaties in 15+ cryptocurrencies. Stel doelen, bied beloningen aan, update supporters. Fondsen naar je wallet. Begin gratis.",
+  "h1": "Crypto crowdfunding en donaties voor non-profitorganisaties en fondsenwervers",
+  "subheading": "Start campagnes met financieringsdoelen, beloningsniveaus en updates voor supporters—ontvang vervolgens Bitcoin, Ethereum, stablecoins en meer rechtstreeks in je wallet.",
+  "intro_paragraph": "Dynopay biedt non-profitorganisaties en organisatoren een complete campagnepagina om fondsen in crypto van supporters wereldwijd te werven. Stel een financieringsdoel in, creëer beloningsniveaus, plaats updates die backers per e-mail op de hoogte houden, en kijk hoe donaties in je eigen wallet aankomen—niet vastgehouden door een derde partij. Accepteer 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Polygon, Solana, Tron en XRP Ledger. Prijzen beginnen bij 1,5% per transactie en dalen naar 0,5% naarmate je volume groeit, met je eerste betaling volledig gratis.",
+  "features": [
+    {
+      "title": "Campagnepagina's met Beloningsniveaus",
+      "description": "Bouw een branded campagnepagina met je financieringsdoel, voortgangsbalk en meerdere beloningsniveaus. Supporters kiezen hun bijdrage en jij houdt de volledige controle over elke donatie in je wallet."
+    },
+    {
+      "title": "Updates voor Supporters via E-mail",
+      "description": "Plaats campagne-updates die automatisch al je backers per e-mail op de hoogte stellen. Houd je gemeenschap betrokken, deel mijlpalen en bouw vertrouwen op zonder aparte mailinglijsten of tools van derden te beheren."
+    },
+    {
+      "title": "Accepteer 15+ Cryptocurrencies Wereldwijd",
+      "description": "Ontvang Bitcoin, Ethereum, USDT, USDC, RLUSD, Solana, XRP, Dogecoin en meer. Geen geografische beperkingen voor wie kan doneren, zodat je fondsen kunt werven van supporters overal ter wereld."
+    }
+  ],
+  "how_it_works": [
+    "Meld je aan, verifieer je e-mail en maak je organisatieprofiel in minder dan vijf minuten aan.",
+    "Voeg je walletadres toe, stel je financieringsdoel in, creëer beloningsniveaus en publiceer je campagnepagina.",
+    "Deel je campagne-link en ontvang donaties rechtstreeks in je wallet terwijl supporters bijdragen."
+  ],
+  "faqs": [
+    {
+      "question": "Hoeveel kost het om een crypto crowdfundingcampagne te runnen?",
+      "answer": "Prijzen beginnen bij 1,5% plus één dollar per succesvolle donatie en dalen automatisch naar 0,5% naarmate je volume toeneemt. Je eerste betaling is volledig gratis. Geen maandelijkse kosten, geen opstartkosten en geen verborgen kosten."
+    },
+    {
+      "question": "Moet ik Dynopay toegang geven tot mijn wallet?",
+      "answer": "Nee. Dynopay is non-custodial, wat betekent dat je een walletadres opgeeft waar donaties rechtstreeks naartoe worden gestuurd. Je behoudt te allen tijde volledige controle en eigendom van je fondsen. Dynopay houdt of raakt je donaties nooit aan."
+    },
+    {
+      "question": "Welke cryptocurrencies kunnen donoren gebruiken?",
+      "answer": "Supporters kunnen doneren met Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT, USDC, RLUSD, MATIC, Tron, Solana en XRP. Dat zijn 15+ cryptocurrencies over negen blockchains, wat donoren flexibiliteit geeft in hoe ze bijdragen."
+    },
+    {
+      "question": "Kan ik beloningen aanbieden aan donoren op verschillende niveaus?",
+      "answer": "Ja. Je kunt meerdere beloningsniveaus creëren met verschillende bijdragebedragen en voordelen. Supporters selecteren hun niveau bij het doneren, en je kunt de uitvoering beheren op basis van wat elke backer tijdens je campagne heeft gekozen."
+    },
+    {
+      "question": "Zijn er landbeperkingen voor het verzamelen van donaties?",
+      "answer": "Er zijn geen geografische beperkingen voor het ontvangen van crypto-donaties—supporters uit elk land kunnen bijdragen aan je campagne. Identiteitsverificatie (KYC) is van toepassing op je Dynopay-account zodra het verwerkte volume een drempel overschrijdt, en fiat off-ramps voeren hun eigen KYC uit als je naar lokale valuta converteert."
+    }
+  ],
+  "cta_headline": "Start vandaag nog je crypto fondsenwervingscampagne",
+  "cta_body": "Je eerste donatie is kosteloos en je kunt binnen 10 minuten live gaan met je eigen campagnepagina en wallet.",
+  "_generated_at": "2026-08-29T14:57:54.590424Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "fundraisers",
+  "_display_name": "Fundraisers & Nonprofits"
+}

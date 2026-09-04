@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para freelancers e criadores · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para freelancers e criadores com a Dynopay. Sem chargebacks, clientes globais, 15+ criptomoedas. Comece a receber pagamentos em 10 minutos.",
+  "h1": "Aceite pagamentos em criptomoeda para freelancers e criadores sem chargebacks ou fronteiras",
+  "subheading": "Receba pagamentos em Bitcoin, Ethereum, USDT e 12+ outras criptomoedas. Os fundos chegam diretamente à sua carteira—nunca bloqueados por uma plataforma.",
+  "intro_paragraph": "Quando vende serviços digitais, templates ou coaching em diferentes países, o PayPal pode reter os seus fundos por até 180 dias e os clientes podem reverter cobranças meses depois. A Dynopay é uma plataforma de comércio em criptomoeda não custodial, criada para freelancers e criadores que desejam pagamentos globais sem chargebacks. Você recebe os fundos diretamente na sua própria carteira, e as taxas começam em 1,5% e depois caem para 0,5% em grande escala. Sem taxas mensais, sem fundos congelados, sem fraudes de reembolso.",
+  "features": [
+    {
+      "title": "A sua carteira, a sua custódia sempre",
+      "description": "A Dynopay nunca retém os seus fundos. Cada pagamento chega diretamente à carteira que você controla, portanto, nenhuma plataforma pode congelar os seus ganhos ou atrasar retiradas."
+    },
+    {
+      "title": "Risco zero de chargeback em serviços",
+      "description": "Os pagamentos em criptomoeda são finais. Os clientes não podem reverter um pagamento 90 dias após você ter entregue um logotipo, site ou chamada de coaching—eliminando abusos de reembolso."
+    },
+    {
+      "title": "Dicas, produtos e links de pagamento",
+      "description": "Colete dicas em dynopay.com/@seuhandle, venda produtos digitais com checkout hospedado ou compartilhe links de pagamento para faturas. Uma plataforma gerencia os três."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se com o seu e-mail, verifique-o e crie o seu perfil de empresa em menos de três minutos.",
+    "Adicione o seu endereço de carteira de Bitcoin, Ethereum ou stablecoin—apenas um destino de pagamento para começar a receber pagamentos.",
+    "Gere um link de pagamento, incorpore o checkout no seu site ou compartilhe a sua página pessoal de dicas e vá ao ar."
+  ],
+  "faqs": [
+    {
+      "question": "Preciso manter criptomoeda para aceitar pagamentos em criptomoeda como freelancer?",
+      "answer": "Não. Você só precisa de um endereço de carteira onde os pagamentos chegam. Pode criar uma carteira gratuita em minutos com Exodus, MetaMask ou Coinbase Wallet, e depois converter criptomoeda para a sua moeda local numa exchange sempre que desejar."
+    },
+    {
+      "question": "Quais criptomoedas podem freelancers e criadores aceitar com a Dynopay?",
+      "answer": "A Dynopay suporta 15+ criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX e stablecoins como USDT (ERC20, TRC20, Polygon) e USDC. Você escolhe quais ativos aceitar por produto ou link."
+    },
+    {
+      "question": "Quais taxas a Dynopay cobra por pagamentos em criptomoeda?",
+      "answer": "As taxas começam em 1,5% mais um dólar por pagamento bem-sucedido e caem automaticamente para 0,5% à medida que o seu volume liquidado cresce. O seu primeiro pagamento é completamente gratuito. Sem taxas mensais, custos de configuração ou cobranças ocultas."
+    },
+    {
+      "question": "Os clientes podem contestar ou reverter um pagamento em criptomoeda após eu entregar o trabalho?",
+      "answer": "Não. As transações em criptomoeda são finais e irreversíveis. Uma vez que um cliente paga, ele não pode solicitar um chargeback ou disputa de pagamento—protegendo-o de fraudes de reembolso comuns com cartões de crédito e PayPal."
+    },
+    {
+      "question": "Quão rapidamente posso começar a aceitar pagamentos em criptomoeda como criador?",
+      "answer": "Você pode ir ao ar em menos de 10 minutos. Inscreva-se, verifique o seu e-mail, adicione o seu endereço de carteira e gere um link de pagamento ou página pessoal de dicas. Sem aplicação longa, verificações de crédito ou documentação empresarial necessária."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda hoje",
+  "cta_body": "O seu primeiro pagamento é sem taxas. Vá ao ar em 10 minutos sem custos mensais e fundos enviados diretamente para a sua carteira.",
+  "_generated_at": "2026-08-29T14:53:34.729935Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "freelancers",
+  "_display_name": "Freelancers & Creators"
+}

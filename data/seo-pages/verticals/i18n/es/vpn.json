@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en criptomonedas para software de VPN y privacidad · Dynopay",
+  "meta_description": "Acepta Bitcoin, Ethereum, USDT y más de 15 criptomonedas para tu servicio de VPN o privacidad. No custodial, sin contracargos, activo en 10 minutos. Comienza ahora.",
+  "h1": "Acepta pagos en criptomonedas para software de VPN y privacidad sin contracargos",
+  "subheading": "Deja de perder ingresos por fraude en pagos y cancelaciones involuntarias. Dynopay entrega Bitcoin, stablecoins y más de 15 criptomonedas directamente a tu billetera.",
+  "intro_paragraph": "Los proveedores de software de VPN y privacidad enfrentan fricciones constantes en los pagos: rechazos de tarjetas por banderas de seguridad, fraude por contracargos de usuarios que consumieron ancho de banda y luego disputaron cargos, y cancelaciones involuntarias cuando los bancos marcan pagos recurrentes como sospechosos. Dynopay es una plataforma de comercio en criptomonedas no custodial que deposita cada pago directamente en tu billetera—sin custodia intermedia, sin riesgo de contracargos, sin fondos congelados. Soporta Bitcoin, Ethereum, USDT en tres cadenas y más de 15 criptomonedas en total con tarifas que comienzan en 1.5% y bajan a 0.5% a medida que escalas.",
+  "features": [
+    {
+      "title": "Cero riesgo de contracargos, nunca",
+      "description": "Los pagos en criptomonedas son finales. Los usuarios que abusan de tu ancho de banda no pueden revertir la transacción seis meses después. Mantienes cada dólar que ganas de suscriptores legítimos sin responsabilidad por fraude."
+    },
+    {
+      "title": "No custodial: los fondos llegan a tu billetera",
+      "description": "Cada pago se liquida directamente en tu billetera de Bitcoin, Ethereum o stablecoin. Dynopay nunca retiene tu dinero, así que controlas la liquidez y eliminas el riesgo de contraparte de los procesadores de pagos."
+    },
+    {
+      "title": "Reduce las cancelaciones involuntarias por rechazos de tarjetas",
+      "description": "Las redes de tarjetas marcan las suscripciones de VPN como de alto riesgo, causando rechazos falsos. Los pagos en criptomonedas evitan completamente las vías tradicionales, por lo que los usuarios conscientes de la privacidad renuevan sin fricciones y retienes más ingresos."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo electrónico y añade la dirección de billetera donde deseas recibir pagos.",
+    "Genera un enlace de pago o incrusta el widget de pago en tu página de suscripción en menos de 10 minutos.",
+    "Los clientes pagan en Bitcoin, USDT, Ethereum o más de 15 criptomonedas; los fondos llegan directamente a tu billetera en minutos."
+  ],
+  "faqs": [
+    {
+      "question": "¿Por qué las empresas de VPN aceptan pagos en criptomonedas?",
+      "answer": "Las criptomonedas eliminan los contracargos, reducen las cancelaciones involuntarias por rechazos de tarjetas y atraen a usuarios enfocados en la privacidad que prefieren no vincular cuentas bancarias. Dynopay soporta Bitcoin, Ethereum, USDT en tres cadenas y más de 15 criptomonedas en total con liquidación no custodial directamente a tu billetera."
+    },
+    {
+      "question": "¿Cuánto cobra Dynopay por los pagos en criptomonedas?",
+      "answer": "Las tarifas comienzan en 1.5% más un dólar por pago exitoso y bajan automáticamente a 0.5% a medida que crece tu volumen. Tu primer pago es completamente gratis. Sin tarifas mensuales, sin costos de configuración, sin cargos ocultos y sin tarifas por contracargos porque los contracargos no existen en criptomonedas."
+    },
+    {
+      "question": "¿Pueden los usuarios suscribirse mensualmente con criptomonedas?",
+      "answer": "Sí, ciclo por ciclo. Las criptomonedas no tienen cargos automáticos al estilo de tarjetas, así que cada renovación es un pago nuevo: envía a los suscriptores un enlace de pago por ciclo de facturación, o automatízalo con la API REST y webhooks. Las renovaciones nunca fallan por rechazos de emisores o tarjetas expiradas, por lo que las cancelaciones involuntarias se mantienen más bajas que en planes basados en tarjetas."
+    },
+    {
+      "question": "¿Qué criptomonedas puede aceptar mi VPN?",
+      "answer": "Dynopay soporta Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum con USDT y USDC, Polygon, Tron con USDT, Solana y XRP Ledger incluyendo RLUSD. Eso son más de 15 criptomonedas en total, y cada pago se deposita directamente en la billetera que controlas—nunca retenido por Dynopay."
+    },
+    {
+      "question": "¿Qué tan rápido puedo comenzar a aceptar criptomonedas para mi servicio de VPN?",
+      "answer": "En menos de 10 minutos. Regístrate, verifica tu correo electrónico, crea tu perfil de empresa, añade una dirección de billetera de pago, luego genera un enlace de pago o incrusta el widget de pago. Estás activo de inmediato sin necesidad de integración técnica, aunque la API REST y los webhooks están disponibles para desarrolladores."
+    }
+  ],
+  "cta_headline": "Comienza a aceptar pagos en criptomonedas en 10 minutos",
+  "cta_body": "Tu primer pago es gratis, sin tarifas mensuales, y los fondos van directamente a tu billetera. Regístrate ahora y comienza hoy.",
+  "_generated_at": "2026-08-29T14:55:38.714229Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "vpn",
+  "_display_name": "VPN & Privacy Software"
+}

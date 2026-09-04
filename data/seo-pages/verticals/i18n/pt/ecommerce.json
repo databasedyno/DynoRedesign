@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para lojas de e-commerce · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para lojas de e-commerce. Bitcoin, Ethereum, USDT, Solana e mais de 15 criptos. Sem chargebacks. Os fundos vão diretamente para a sua carteira. Comece grátis.",
+  "h1": "Aceite pagamentos em criptomoeda para lojas de e-commerce sem chargebacks",
+  "subheading": "Receba Bitcoin, Ethereum, stablecoins e mais de 15 criptomoedas diretamente na sua carteira. Sem retenções de pagamento, sem disputas de fraude, sem taxas de processador de 2-4%.",
+  "intro_paragraph": "Os comerciantes de e-commerce perdem 0,47% da receita em chargebacks e mais 2,9% + $0,30 por transação com cartão. Dynopay é uma plataforma de comércio em criptomoeda não custodial construída para lojas online: você recebe os fundos diretamente na sua própria carteira no momento em que um cliente paga, eliminando completamente o risco de chargeback. Os preços começam em 1,5% e caem para 0,5% em escala com base no volume, sem taxas mensais, sem custos de configuração, e o seu primeiro pagamento é completamente grátis.",
+  "features": [
+    {
+      "title": "Risco de chargeback zero, nunca",
+      "description": "As transações em criptomoeda são finais. Sem disputas de fraude, sem fraude amigável, sem taxas de reapresentação. Assim que um cliente paga com Bitcoin, USDT ou ETH, os fundos são seus e não podem ser revertidos por um banco."
+    },
+    {
+      "title": "Os fundos chegam à sua carteira",
+      "description": "Dynopay nunca retém o seu dinheiro. Os pagamentos são liquidadas diretamente para o seu endereço Ethereum, carteira Bitcoin ou conta Solana, geralmente em minutos. Você controla as chaves privadas e a custódia em todos os momentos."
+    },
+    {
+      "title": "Taxas mais baixas do que os processadores de cartão",
+      "description": "Pague a partir de 1,5% e veja as taxas caírem automaticamente para 0,5% à medida que o seu volume cresce. Sem intercâmbio, sem pontos base em reembolsos, sem taxas mensais de gateway. O primeiro pagamento é grátis."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique o seu e-mail e crie um perfil de empresa em menos de três minutos.",
+    "Adicione um endereço de carteira de pagamento para Bitcoin, Ethereum, USDT ou qualquer criptomoeda suportada que deseja aceitar.",
+    "Gere um link de pagamento ou incorpore o widget de checkout na sua loja WooCommerce ou personalizada. Vá ao ar."
+  ],
+  "faqs": [
+    {
+      "question": "Quais criptomoedas pode a minha loja de e-commerce aceitar com a Dynopay?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP e stablecoins como USDT na Ethereum, Tron e Polygon, USDC na Ethereum e RLUSD na Ethereum e XRP Ledger. Você escolhe quais ativar."
+    },
+    {
+      "question": "Preciso de uma carteira de criptomoeda para aceitar pagamentos?",
+      "answer": "Sim. A Dynopay é não custodial, então você fornece um endereço de carteira por criptomoeda que deseja aceitar. Os pagamentos vão diretamente para lá. Você controla as chaves privadas. A Dynopay nunca retém os fundos dos clientes ou exige que você faça retiradas."
+    },
+    {
+      "question": "Quanto a Dynopay cobra por transação?",
+      "answer": "Os preços começam em 1,5% mais um dólar por pagamento bem-sucedido e caem automaticamente para 0,5% à medida que o seu volume liquidado aumenta. Sem taxas mensais, sem custos de configuração, sem cobranças ocultas. O seu primeiro pagamento é completamente isento de taxas."
+    },
+    {
+      "question": "Os clientes podem contestar ou reverter um pagamento em criptomoeda?",
+      "answer": "Não. As transações em criptomoeda são irreversíveis por design. Assim que um cliente envia Bitcoin ou USDT e a blockchain confirma, o pagamento não pode ser estornado, contestado ou recuperado por um banco ou rede de cartões."
+    },
+    {
+      "question": "Quanto tempo leva para começar a aceitar criptomoeda na minha loja online?",
+      "answer": "A maioria dos comerciantes vai ao ar em menos de 10 minutos. Inscreva-se, verifique o seu e-mail, adicione um perfil de empresa, conecte um endereço de carteira, depois gere um link de pagamento ou coloque o widget na sua loja. Sem subscrição ou período de espera."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda hoje",
+  "cta_body": "O seu primeiro pagamento é grátis e a configuração leva menos de 10 minutos. Sem taxas mensais, sem chargebacks, fundos diretos para a sua carteira.",
+  "_generated_at": "2026-08-29T14:52:47.910056Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "ecommerce",
+  "_display_name": "E-commerce Stores"
+}

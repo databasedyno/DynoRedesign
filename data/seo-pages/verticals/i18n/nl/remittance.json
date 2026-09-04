@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor remittances en grensoverschrijdende uitbetalingen · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor remittances en grensoverschrijdende uitbetalingen. Non-custodial, 15+ cryptocurrencies, kosten vanaf 1,5%. Geen terugboekingen. Begin binnen 10 minuten.",
+  "h1": "Crypto-betalingen voor remittances en grensoverschrijdende uitbetalingen",
+  "subheading": "Verzamel grensoverschrijdende betalingen in Bitcoin, USDT, XRP en 12+ andere cryptocurrencies zonder correspondentbanken, terugboekingen of wachttijden",
+  "intro_paragraph": "Traditionele remittancecorridors belasten je met 3-7% FX-toeslagen, 3-5 dagen afwikkelingsvensters en trage legacy-systemen die je klanten frustreren. Dynopay levert crypto-betalingen rechtstreeks aan je wallet—geen custody, geen terugboekingen, geen maandelijkse kosten. Je klanten betalen in Bitcoin, stablecoins of 15+ cryptocurrencies, en je ontvangt de fondsen binnen enkele minuten in de wallet die jij beheert. Kosten beginnen bij 1,5% en dalen naar 0,5% naarmate je volume groeit, met je eerste transactie volledig gratis.",
+  "features": [
+    {
+      "title": "Fondsen komen rechtstreeks in je wallet",
+      "description": "Non-custodial architectuur betekent dat elke betaling in de wallet komt die je tijdens de setup opgeeft. Dynopay raakt je fondsen nooit aan, zodat je volledige controle behoudt en kapitaal onmiddellijk kunt verplaatsen."
+    },
+    {
+      "title": "Stablecoins elimineren FX-volatiliteit",
+      "description": "Accepteer USDT op Ethereum, Tron en Polygon, plus USDC op Ethereum en RLUSD op Ethereum en de XRP Ledger. Je ontvangers krijgen voorspelbare waarde zonder blootstelling aan Bitcoin-prijsfluctuaties."
+    },
+    {
+      "title": "Geen terugboekingen, ooit",
+      "description": "Crypto-transacties zijn definitief. Eenmaal afgewikkeld, kunnen fondsen niet worden teruggedraaid door een bank of betalingsverwerker, waardoor geschilverliezen die kaartgebaseerde remittance-diensten teisteren, worden geëlimineerd."
+    }
+  ],
+  "how_it_works": [
+    "Meld je aan, verifieer je e-mail, maak een bedrijfsprofiel aan en voeg het walletadres toe waar je de fondsen naartoe wilt laten sturen.",
+    "Genereer een betalingslink of embed de checkout-widget op je platform zodat klanten in crypto kunnen betalen.",
+    "Klanten betalen in hun gekozen cryptocurrency; fondsen komen binnen enkele minuten in je wallet aan, minus de platformkosten."
+  ],
+  "faqs": [
+    {
+      "question": "Hoe verminderen crypto-betalingen de kosten voor grensoverschrijdende uitbetalingen in vergelijking met banken?",
+      "answer": "Banken brengen correspondentiekosten, FX-spreads en SWIFT-kosten in rekening die in totaal 3-7% per transactie bedragen. Dynopay rekent vanaf 1,5% (dalend naar 0,5% bij volume) zonder verborgen kosten, zonder tussenpersonen en zonder valutaconversiekosten bij het gebruik van stablecoins."
+    },
+    {
+      "question": "Welke stablecoins ondersteunt Dynopay voor remittancebedrijven?",
+      "answer": "Dynopay ondersteunt USDT op Ethereum, Polygon en Tron-netwerken, USDC op Ethereum, plus RLUSD op zowel Ethereum als de XRP Ledger. Dit biedt je klanten meerdere opties met lage kosten voor stable-value transfers."
+    },
+    {
+      "question": "Heb ik een crypto-wallet nodig voordat ik betalingen ga accepteren?",
+      "answer": "Ja. Tijdens de onboarding geef je één walletadres op per cryptocurrency die je wilt accepteren. Fondsen van elke betaling gaan daar rechtstreeks naartoe. Je kunt elke non-custodial wallet gebruiken zoals MetaMask, Ledger, Exodus of een zakelijke treasury wallet."
+    },
+    {
+      "question": "Hoe lang duurt het voordat grensoverschrijdende crypto-betalingen zijn afgehandeld?",
+      "answer": "Bitcoin bevestigt in 10-60 minuten, afhankelijk van de netwerkcongestie. Ethereum, Polygon, Tron en Solana-betalingen worden meestal binnen 5 minuten bevestigd. XRP en Litecoin worden binnen 2-5 minuten afgewikkeld. Alle zijn sneller dan traditionele bankoverschrijvingen."
+    },
+    {
+      "question": "Kunnen klanten in elk land me crypto-betalingen sturen via Dynopay?",
+      "answer": "Ja. Crypto kent geen geografische beperkingen voor wie fondsen naar je wallet kan sturen. Identiteitsverificatie (KYC) is van toepassing op je Dynopay-account zodra het afgewikkelde volume een drempel overschrijdt, fiat-afritten hebben hun eigen KYC, en als remittancebedrijf blijf je verantwoordelijk voor je eigen vergunningen en AML-verplichtingen."
+    }
+  ],
+  "cta_headline": "Begin met het accepteren van crypto-betalingen in 10 minuten",
+  "cta_body": "Meld je nu aan en je eerste transactie is kosteloos. Geen opstartkosten, geen maandelijkse kosten, fondsen rechtstreeks naar je wallet.",
+  "_generated_at": "2026-08-29T14:54:22.884958Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "remittance",
+  "_display_name": "Remittance & Cross-Border Payouts"
+}

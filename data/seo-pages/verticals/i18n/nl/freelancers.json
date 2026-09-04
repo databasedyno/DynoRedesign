@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor freelancers & creators · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor freelancers & creators met Dynopay. Geen terugboekingen, wereldwijde klanten, 15+ cryptocurrencies. Begin binnen 10 minuten met het ontvangen van betalingen.",
+  "h1": "Accepteer crypto-betalingen voor freelancers & creators zonder terugboekingen of grenzen",
+  "subheading": "Ontvang betalingen in Bitcoin, Ethereum, USDT en 12+ andere cryptocurrencies. Fondsen komen rechtstreeks in je wallet—nooit vergrendeld door een platform.",
+  "intro_paragraph": "Wanneer je digitale diensten, sjablonen of coaching over de grens verkoopt, kan PayPal je fondsen tot 180 dagen vasthouden en kunnen klanten maanden later terugboekingen aanvragen. Dynopay is een non-custodial crypto commerce platform gebouwd voor freelancers en creators die wereldwijde betalingen zonder terugboekingen willen. Je ontvangt fondsen rechtstreeks in je eigen wallet, en de kosten beginnen bij 1,5% en dalen naar 0,5% bij schaalvergroting. Geen maandelijkse kosten, geen bevroren fondsen, geen terugboekingsfraude.",
+  "features": [
+    {
+      "title": "Jouw wallet, jouw bewaring altijd",
+      "description": "Dynopay houdt je fondsen nooit vast. Elke betaling komt rechtstreeks in de wallet die jij beheert, zodat geen enkel platform je inkomsten kan bevriezen of opnames kan vertragen."
+    },
+    {
+      "title": "Geen risico op terugboekingen bij diensten",
+      "description": "Crypto-betalingen zijn definitief. Klanten kunnen een betaling 90 dagen na levering van een logo, website of coachinggesprek niet terugdraaien—terugboekingsmisbruik wordt geëlimineerd."
+    },
+    {
+      "title": "Fooi, producten en betalingslinks",
+      "description": "Verzamel fooien op dynopay.com/@yourhandle, verkoop digitale producten met gehoste checkout, of deel betalingslinks voor facturen. Eén platform beheert alle drie."
+    }
+  ],
+  "how_it_works": [
+    "Meld je aan met je e-mail, verifieer deze en maak je bedrijfsprofiel in minder dan drie minuten aan.",
+    "Voeg je Bitcoin-, Ethereum- of stablecoin-walletadres toe—slechts één uitbetalingsbestemming om betalingen te ontvangen.",
+    "Genereer een betalingslink, embed de checkout op je site, of deel je persoonlijke fooi-pagina en ga live."
+  ],
+  "faqs": [
+    {
+      "question": "Moet ik cryptocurrency bezitten om crypto-betalingen als freelancer te accepteren?",
+      "answer": "Nee. Je hebt alleen een walletadres nodig waar betalingen binnenkomen. Je kunt in enkele minuten een gratis wallet aanmaken met Exodus, MetaMask of Coinbase Wallet, en vervolgens crypto omzetten naar je lokale valuta op een exchange wanneer je maar wilt."
+    },
+    {
+      "question": "Welke cryptocurrencies kunnen freelancers en creators accepteren met Dynopay?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX en stablecoins zoals USDT (ERC20, TRC20, Polygon) en USDC. Jij kiest welke activa je per product of link accepteert."
+    },
+    {
+      "question": "Welke kosten rekent Dynopay voor crypto-betalingen?",
+      "answer": "De kosten beginnen bij 1,5% plus één dollar per succesvolle betaling en dalen automatisch naar 0,5% naarmate je verwerkte volume groeit. Je eerste betaling is volledig gratis. Geen maandelijkse kosten, opstartkosten of verborgen kosten."
+    },
+    {
+      "question": "Kunnen klanten een crypto-betaling betwisten of terugdraaien nadat ik werk heb geleverd?",
+      "answer": "Nee. Cryptocurrency-transacties zijn definitief en onomkeerbaar. Zodra een klant betaalt, kunnen ze geen terugboeking of betalingsgeschil indienen—wat je beschermt tegen terugboekingsfraude die vaak voorkomt bij creditcards en PayPal."
+    },
+    {
+      "question": "Hoe snel kan ik beginnen met het accepteren van crypto-betalingen als creator?",
+      "answer": "Je kunt binnen 10 minuten live gaan. Meld je aan, verifieer je e-mail, voeg je walletadres toe en genereer een betalingslink of persoonlijke fooi-pagina. Geen langdurige aanvraag, kredietcontroles of bedrijfsdocumentatie vereist."
+    }
+  ],
+  "cta_headline": "Begin vandaag nog met het accepteren van crypto-betalingen",
+  "cta_body": "Je eerste betaling is kosteloos. Ga binnen 10 minuten live zonder maandelijkse kosten en met fondsen die rechtstreeks naar je wallet worden gestuurd.",
+  "_generated_at": "2026-08-29T14:53:34.729935Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "freelancers",
+  "_display_name": "Freelancers & Creators"
+}

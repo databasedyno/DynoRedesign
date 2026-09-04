@@ -44,12 +44,15 @@ interface Props {
   canonicalUrl: string;
   /** Cross-link targets (3 pages of the opposite kind) — for SEO crawl depth */
   relatedPages?: SEOPageIndexEntry[];
+  /** When set (bare URL, no ?lang), emit per-locale hreflang alternates. */
+  localeAlternates?: string;
 }
 
 const SITE_ORIGIN = "https://dynopay.com";
 const SIGNUP_PATH = "/auth/register";
+const SEO_HREFLANGS = ["en", "pt", "fr", "es", "de", "nl"];
 
-const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages = [] }) => {
+const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages = [], localeAlternates }) => {
   const { t } = useTranslation('landing');
   const isMobile = useIsMobile("md");
   const theme = useTheme();
@@ -154,6 +157,19 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         {/* `key="canonical"` overrides the fallback canonical in `_app.tsx`
              so search engines see the slug-specific URL. */}
         <link key="canonical" rel="canonical" href={canonicalUrl} />
+        {/* Real per-locale hreflang alternates (verticals are fully translated). */}
+        {localeAlternates &&
+          SEO_HREFLANGS.map((l) => (
+            <link
+              key={`alt-${l}`}
+              rel="alternate"
+              hrefLang={l}
+              href={l === "en" ? localeAlternates : `${localeAlternates}?lang=${l}`}
+            />
+          ))}
+        {localeAlternates && (
+          <link key="x-default" rel="alternate" hrefLang="x-default" href={localeAlternates} />
+        )}
 
         {/* OpenGraph */}
         <meta key="og:type" property="og:type" content="website" />

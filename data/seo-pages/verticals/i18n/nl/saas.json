@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor SaaS- en abonnementsproducten · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor SaaS- en abonnementsproducten met Dynopay. Geen terugboekingen, wereldwijde dekking, 15+ cryptocurrencies. Kosten vanaf 1,5%. Begin vandaag nog.",
+  "h1": "Accepteer crypto-betalingen voor SaaS- en abonnementsproducten zonder terugboekingen",
+  "subheading": "Dynopay helpt abonnementsbedrijven om ongewilde churn te elimineren, uit te breiden naar beperkte markten en Bitcoin, stablecoins en 15+ cryptocurrencies rechtstreeks naar uw wallet te ontvangen.",
+  "intro_paragraph": "Abonnementsbedrijven verliezen routinematig inkomsten door mislukte kaartbetalingen en ongewilde churn. Internationale klanten hebben te maken met valutaconversiekosten en beperkingen op betaalmethoden. Dynopay is een non-custodial platform dat crypto-betalingen rechtstreeks in uw wallet stort—geen tussenpersoon die uw geld vasthoudt. U krijgt betalingslinks, gehoste checkout en een REST API om abonnees in 15+ cryptocurrencies te factureren met kosten die beginnen bij 1,5% en dalen tot 0,5% bij schaalvergroting. Geen terugboekingen. Geen maandelijkse kosten. Eerste betaling is gratis.",
+  "features": [
+    {
+      "title": "Non-custodial afhandeling naar uw wallet",
+      "description": "Fondsen gaan rechtstreeks naar uw Ethereum-, Bitcoin- of Solana-wallet. Dynopay houdt uw geld nooit vast, zodat u volledige controle behoudt en op uw eigen schema naar fiat kunt converteren."
+    },
+    {
+      "title": "Geen ongewilde churn van crypto-abonnees",
+      "description": "Crypto-betalingen verlopen niet en worden niet geweigerd. Klanten die de voorkeur geven aan stablecoins of Bitcoin blijven langer geabonneerd omdat er geen mislukte kaarttransacties of verouderde factuurgegevens zijn."
+    },
+    {
+      "title": "Bereik klanten in onderbediende markten",
+      "description": "Accepteer betalingen uit regio's die slecht bediend worden door kaartnetwerken. Crypto stelt klanten in staat om u vanuit elke locatie te betalen, zodat u elke markt kunt bedienen waarin u wilt opereren."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak een bedrijfsprofiel aan en voeg één uitbetalingswalletadres toe voor afhandeling.",
+    "Genereer een betalingslink of embed de checkout-widget op uw SaaS-aanmeld- of accountpagina.",
+    "Klant betaalt in hun favoriete cryptocurrency. Fondsen komen binnen enkele minuten in uw wallet aan, en u bent live."
+  ],
+  "faqs": [
+    {
+      "question": "Hoe verminderen crypto-betalingen ongewilde churn voor abonnementsbedrijven?",
+      "answer": "Crypto-wallets verlopen niet en transacties falen niet door onvoldoende saldo op dezelfde manier als kaarten. Abonnees die stablecoins of Bitcoin aanhouden, kunnen betrouwbaar betalen zonder de problemen van kaartweigeringen die een belangrijke oorzaak zijn van ongewilde churn in traditionele SaaS-facturering."
+    },
+    {
+      "question": "Welke cryptocurrencies kunnen mijn SaaS-klanten gebruiken om te betalen?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX en stablecoins waaronder USDT (ERC20, TRC20, Polygon), USDC (ERC20) en RLUSD op Ethereum en XRP Ledger."
+    },
+    {
+      "question": "Wat zijn de kosten van Dynopay voor abonnementsbetalingen?",
+      "answer": "Kosten beginnen bij 1,5% plus één dollar per succesvolle betaling en dalen automatisch naar 0,5% naarmate uw verwerkte volume groeit. Geen opstartkosten, geen maandelijkse kosten, geen verborgen kosten, en uw eerste betaling is volledig gratis."
+    },
+    {
+      "question": "Moet ik crypto aanhouden of een handelsaccount aanmaken?",
+      "answer": "U heeft alleen een walletadres nodig voor de cryptocurrency die u wilt ontvangen. Dynopay is non-custodial, dus betalingen gaan rechtstreeks naar uw Coinbase, Ledger, MetaMask of elke wallet die u beheert. Geen handelsaccount vereist."
+    },
+    {
+      "question": "Kan ik terugkerende abonnementen in cryptocurrency factureren met Dynopay?",
+      "answer": "Ja, op basis van per cyclus. Crypto heeft geen automatische kaartafschrijving, dus elke verlenging is een nieuwe betaling: gebruik de REST API en webhooks om per factureringscyclus een betalingslink te genereren en deze automatisch te verzenden. Verlengen mislukt nooit door verlopen kaarten of weigeringen van de uitgever."
+    }
+  ],
+  "cta_headline": "Begin met het accepteren van crypto-betalingen in 10 minuten",
+  "cta_body": "Meld u nu aan en uw eerste transactie is kosteloos. Geen maandelijkse kosten, geen opstartkosten, en fondsen gaan rechtstreeks naar uw wallet.",
+  "_generated_at": "2026-08-29T14:53:11.839432Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "saas",
+  "_display_name": "SaaS & Subscription Products"
+}

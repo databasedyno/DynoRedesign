@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour le jeu et l'iGaming · Dynopay",
+  "meta_description": "Acceptez les paiements crypto pour le jeu et l'iGaming sans rétrofacturations, avec une portée mondiale et des règlements instantanés. Commencez en 10 minutes. Premier paiement gratuit.",
+  "h1": "Paiements crypto pour les plateformes de jeu et d'iGaming sans risque de rétrofacturation",
+  "subheading": "Acceptez plus de 15 cryptomonnaies des joueurs du monde entier, éliminez les frictions de paiement et recevez des fonds directement dans votre portefeuille—sans intermédiaires.",
+  "intro_paragraph": "Les opérateurs de jeux et d'iGaming font face à des défis de paiement constants : les processeurs de cartes bloquent ou restreignent les comptes, les rétrofacturations drainent les revenus, et les joueurs rencontrent des refus de carte sans fin. Dynopay est une plateforme non-custodiale qui vous permet d'accepter Bitcoin, Ethereum, USDT et plus de 12 autres cryptomonnaies. Vous recevez des fonds directement dans votre portefeuille—Dynopay ne conserve jamais votre argent—et les paiements se règlent en quelques minutes avec des frais commençant à 1,5 % qui tombent à 0,5 % à grande échelle. Pas de rétrofacturations. Pas de frais mensuels.",
+  "features": [
+    {
+      "title": "Aucune exposition aux rétrofacturations",
+      "description": "Les transactions crypto sont finales. Pas de litiges frauduleux ou de rétrofacturations amicales qui grèvent les revenus, et pas de frais de gestion de litiges à absorber."
+    },
+    {
+      "title": "Un rail de paiement pour chaque marché",
+      "description": "Acceptez des cryptos des joueurs dans les marchés où vous opérez—une intégration au lieu d'un patchwork de processeurs régionaux et de relations bancaires. Vous restez maître de vos propres licences et règles de marché."
+    },
+    {
+      "title": "Règlements directs dans le portefeuille",
+      "description": "Recevez des fonds directement dans votre portefeuille Ethereum, Bitcoin ou USDT en quelques minutes. Dynopay ne conserve jamais votre argent, vous maintenez donc la pleine garde et pouvez accéder au capital immédiatement."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email et créez votre profil d'entreprise en moins de trois minutes.",
+    "Ajoutez votre adresse de portefeuille Bitcoin, Ethereum ou stablecoin où vous souhaitez recevoir les dépôts des joueurs.",
+    "Générez des liens de paiement ou intégrez le widget de paiement sur votre plateforme et commencez à accepter des cryptos."
+  ],
+  "faqs": [
+    {
+      "question": "Les paiements crypto pour le jeu ont-ils des rétrofacturations ?",
+      "answer": "Non. Les transactions en cryptomonnaie sont irréversibles par conception. Une fois qu'un joueur envoie un dépôt, il ne peut pas le contester ou le renverser, éliminant ainsi la fraude par rétrofacturation et les pertes de litiges auxquelles les opérateurs de jeux sont confrontés avec les paiements par carte."
+    },
+    {
+      "question": "Quelles cryptomonnaies les plateformes de jeu peuvent-elles accepter avec Dynopay ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, y compris Bitcoin, Ethereum, Litecoin, Dogecoin, USDT sur Ethereum, Polygon et Tron, USDC, SOL, XRP, RLUSD, et d'autres. Les joueurs choisissent leur pièce préférée lors du paiement."
+    },
+    {
+      "question": "Combien Dynopay facture-t-il pour les paiements crypto de jeu ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par transaction et tombent automatiquement à 0,5 % à mesure que votre volume réglé augmente. Pas de frais mensuels, pas de coûts d'installation, et votre premier paiement est entièrement gratuit. Pas de rétrofacturations signifie pas de frais de litige."
+    },
+    {
+      "question": "Les joueurs de différents pays peuvent-ils déposer avec des cryptos ?",
+      "answer": "Les paiements crypto fonctionnent à l'échelle mondiale, donc les joueurs dans les marchés où votre plateforme opère peuvent déposer sans refus de carte ni lacunes de processeurs régionaux. La vérification d'identité (KYC) s'applique à votre compte Dynopay une fois que le volume réglé dépasse un seuil, et les sorties fiat ont leur propre KYC."
+    },
+    {
+      "question": "Combien de temps faut-il à un site de jeu pour commencer à accepter des cryptos avec Dynopay ?",
+      "answer": "La plupart des opérateurs se mettent en ligne en moins de 10 minutes. Inscrivez-vous, vérifiez votre email, ajoutez votre adresse de portefeuille de paiement et générez un lien de paiement ou intégrez le widget de paiement. Pas de souscription longue des processeurs—vos propres licences de jeu et la conformité locale restent votre responsabilité."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des paiements crypto dès aujourd'hui",
+  "cta_body": "Votre premier paiement est gratuit. Pas de frais mensuels, pas de coûts d'installation, et en ligne en moins de 10 minutes avec zéro risque de rétrofacturation.",
+  "_generated_at": "2026-08-29T14:53:56.868307Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "gaming",
+  "_display_name": "Gaming & iGaming"
+}

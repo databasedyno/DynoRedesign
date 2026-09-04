@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para jogos e iGaming · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para jogos e iGaming sem chargebacks, com alcance global e liquidações instantâneas. Comece em 10 minutos. Primeiro pagamento grátis.",
+  "h1": "Pagamentos em criptomoeda para plataformas de jogos e iGaming com risco zero de chargeback",
+  "subheading": "Aceite mais de 15 criptomoedas de jogadores em todo o mundo, elimine a fricção nos pagamentos e receba fundos diretamente na sua carteira—sem intermediários.",
+  "intro_paragraph": "Os operadores de jogos e iGaming enfrentam constantes desafios de pagamento: processadores de cartões bloqueiam ou restringem contas, chargebacks drenam receitas e os jogadores enfrentam recusas de cartões sem fim. Dynopay é uma plataforma não custodial que permite aceitar Bitcoin, Ethereum, USDT e mais de 12 outras criptomoedas. Você recebe fundos diretamente na sua carteira—Dynopay nunca retém o seu dinheiro—e os pagamentos são liquidadas em minutos com taxas a partir de 1.5% que caem para 0.5% em grande escala. Sem chargebacks. Sem taxas mensais.",
+  "features": [
+    {
+      "title": "Exposição zero a chargebacks",
+      "description": "As transações em criptomoeda são finais. Sem disputas fraudulentas ou reversões de fraude amigável que consomem receitas, e sem sobrecarga de gestão de disputas ou taxas de representação a absorver."
+    },
+    {
+      "title": "Uma via de pagamento para todos os mercados",
+      "description": "Aceite criptomoedas de jogadores nos mercados onde opera—uma integração em vez de um mosaico de processadores regionais e relações bancárias. Você mantém o controle das suas próprias licenças e regras de mercado."
+    },
+    {
+      "title": "Liquidações diretas na carteira",
+      "description": "Receba fundos diretamente na sua carteira de Ethereum, Bitcoin ou USDT em minutos. Dynopay nunca retém o seu dinheiro, portanto você mantém a custódia total e pode acessar o capital imediatamente."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique seu e-mail e crie o perfil da sua empresa em menos de três minutos.",
+    "Adicione o endereço da sua carteira de Bitcoin, Ethereum ou stablecoin onde deseja receber depósitos de jogadores.",
+    "Gere links de pagamento ou incorpore o widget de checkout na sua plataforma e comece a aceitar criptomoedas."
+  ],
+  "faqs": [
+    {
+      "question": "Os pagamentos em criptomoeda para jogos têm chargebacks?",
+      "answer": "Não. As transações em criptomoeda são irreversíveis por design. Uma vez que um jogador envia um depósito, não pode contestá-lo ou revertê-lo, eliminando a fraude de chargeback e as perdas de disputas que os operadores de jogos enfrentam com pagamentos por cartão."
+    },
+    {
+      "question": "Quais criptomoedas podem as plataformas de jogos aceitar com Dynopay?",
+      "answer": "Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, USDT na Ethereum, Polygon e Tron, USDC, SOL, XRP, RLUSD, entre outras. Os jogadores escolhem a sua moeda preferida no checkout."
+    },
+    {
+      "question": "Quanto cobra a Dynopay por pagamentos em criptomoeda para jogos?",
+      "answer": "As taxas começam em 1.5% mais um dólar por transação e caem automaticamente para 0.5% à medida que o seu volume liquidado cresce. Sem taxas mensais, sem custos de configuração, e o seu primeiro pagamento é completamente grátis. Sem chargebacks significa sem taxas de disputa."
+    },
+    {
+      "question": "Os jogadores de diferentes países podem depositar com criptomoeda?",
+      "answer": "Os pagamentos em criptomoeda funcionam globalmente, portanto os jogadores nos mercados onde a sua plataforma opera podem depositar sem recusas de cartões ou lacunas de processadores regionais. A verificação de identidade (KYC) aplica-se à sua conta Dynopay uma vez que o volume liquidado ultrapasse um limite, e as saídas fiat têm o seu próprio KYC."
+    },
+    {
+      "question": "Quão rapidamente pode um site de jogos começar a aceitar criptomoeda com a Dynopay?",
+      "answer": "A maioria dos operadores entra em funcionamento em menos de 10 minutos. Inscreva-se, verifique seu e-mail, adicione o endereço da sua carteira de pagamento e gere um link de pagamento ou incorpore o widget de checkout. Sem longas aprovações de processadores—suas próprias licenças de jogos e conformidade local permanecem sob sua responsabilidade."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda hoje",
+  "cta_body": "O seu primeiro pagamento é grátis. Sem taxas mensais, sem custos de configuração, e ativo em menos de 10 minutos com risco zero de chargeback.",
+  "_generated_at": "2026-08-29T14:53:56.868307Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "gaming",
+  "_display_name": "Gaming & iGaming"
+}

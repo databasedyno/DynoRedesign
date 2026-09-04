@@ -1,0 +1,55 @@
+{
+  "meta_title": "Akzeptiere Krypto-Trinkgelder als Creator – deine eigene Tipp-Seite · Dynopay",
+  "meta_description": "Akzeptiere Krypto-Trinkgelder als Creator mit deiner eigenen dynopay.com/@handle-Seite. Fans zahlen in 15+ Kryptowährungen, die Gelder gehen direkt auf dein Wallet. Starte heute kostenlos.",
+  "h1": "Akzeptiere Krypto-Trinkgelder als Creator mit deiner persönlichen Tipp-Seite",
+  "subheading": "Erhalte deine eigene dynopay.com/@handle-Seite, auf der Fans dich in Bitcoin, Ethereum, Solana und 12+ anderen Kryptowährungen unterstützen – direkt auf dein Wallet ausgezahlt.",
+  "intro_paragraph": "Die meisten Plattformen halten deine Trinkgelder in ihrem Konto und zahlen dir später. Dynopay funktioniert anders: Jedes Trinkgeld geht direkt auf dein eigenes Krypto-Wallet, und du behältst die Kontrolle die ganze Zeit. Deine persönliche Tipp-Seite unter dynopay.com/@handle akzeptiert 15+ Kryptowährungen, Fans zahlen mit einem Klick, ohne ein Konto zu erstellen, und du bist in weniger als 10 Minuten live. Die erste Zahlung ist völlig kostenlos, danach beginnen die Gebühren bei 1,5 % und sinken auf 0,5 %, wenn dein Volumen wächst.",
+  "features": [
+    {
+      "title": "Trinkgelder direkt auf dein Wallet",
+      "description": "Jedes Krypto-Trinkgeld landet direkt in dem Wallet, das du kontrollierst. Dynopay hält niemals deine Gelder, sodass du die volle Kontrolle hast und deine Krypto jederzeit bewegen kannst."
+    },
+    {
+      "title": "Deine eigene gebrandete Tipp-Seite",
+      "description": "Sichere dir deine dynopay.com/@handle und teile einen Link überall. Fans zahlen in Bitcoin, Ethereum, Solana, USDT oder 11+ anderen Kryptowährungen, ohne sich anzumelden oder etwas zu installieren."
+    },
+    {
+      "title": "Gebühren sinken, wenn du wächst",
+      "description": "Deine erste Zahlung ist kostenlos. Danach beginnen die Gebühren bei 1,5 % und fallen automatisch auf 0,5 %, basierend auf deinem Volumen. Keine monatlichen Gebühren, keine Einrichtungskosten, keine Rückbuchungen."
+    }
+  ],
+  "how_it_works": [
+    "Melde dich mit deiner E-Mail an, erstelle dein Creator-Profil und sichere dir dein individuelles @handle unter dynopay.com.",
+    "Füge einmal deine Krypto-Wallet-Adresse hinzu – Bitcoin, Ethereum, Solana oder jede Kette, die du für Auszahlungen bevorzugst.",
+    "Teile deinen dynopay.com/@handle-Link in deiner Bio, Stream-Overlays oder Posts. Fans geben dir in Sekunden Trinkgelder."
+  ],
+  "faqs": [
+    {
+      "question": "Welche Kryptowährungen kann ich als Trinkgelder akzeptieren?",
+      "answer": "Du kannst 15+ Kryptowährungen akzeptieren, darunter Bitcoin, Ethereum, Solana, Dogecoin, Litecoin, XRP, Tron, Polygon und Stablecoins wie USDT und USDC über mehrere Netzwerke. Fans wählen aus, welche Krypto sie senden, und du erhältst sie direkt in deinem Wallet."
+    },
+    {
+      "question": "Muss ich für jede Kryptowährung ein Wallet erstellen?",
+      "answer": "Nein. Du fügst eine Auszahlung-Wallet-Adresse pro Kryptowährung hinzu, die du unterstützen möchtest. Zum Beispiel fügst du eine Ethereum-Adresse hinzu, um ETH, USDT, USDC und RLUSD auf Ethereum zu erhalten. Trinkgelder in dieser Krypto gehen direkt an das Wallet, das du angegeben hast."
+    },
+    {
+      "question": "Wie viel verlangt Dynopay für Krypto-Trinkgelder?",
+      "answer": "Deine erste Zahlung ist völlig kostenlos. Danach beginnen die Gebühren bei 1,5 % plus einem Dollar pro Trinkgeld und sinken automatisch auf bis zu 0,5 %, wenn dein Volumen wächst. Es gibt keine monatlichen Gebühren, Einrichtungskosten oder versteckte Gebühren."
+    },
+    {
+      "question": "Müssen meine Fans sich anmelden oder etwas installieren?",
+      "answer": "Nein. Fans besuchen deine dynopay.com/@handle-Seite, wählen ihre Krypto aus und senden das Trinkgeld von ihrem bestehenden Wallet. Sie erstellen kein Konto – höchstens können sie eine optionale E-Mail für eine Quittung hinterlassen. Die Zahlung dauert Sekunden."
+    },
+    {
+      "question": "Wie lange dauert es, um Krypto-Trinkgelder zu akzeptieren?",
+      "answer": "Unter 10 Minuten. Melde dich an, verifiziere deine E-Mail, sichere dir dein @handle und füge deine Wallet-Adresse hinzu. Deine persönliche Tipp-Seite wird sofort live und du kannst den Link überall teilen, wo sich deine Community versammelt."
+    }
+  ],
+  "cta_headline": "Sichere dir deine Tipp-Seite und gehe heute live",
+  "cta_body": "Melde dich in zwei Minuten an, füge dein Wallet hinzu und beginne, Krypto-Trinkgelder zu akzeptieren. Deine erste Zahlung ist kostenlos, keine monatlichen Gebühren jemals.",
+  "_generated_at": "2026-08-29T14:57:33.999072Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "creators",
+  "_display_name": "Creators & Streamers"
+}

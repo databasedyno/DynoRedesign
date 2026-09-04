@@ -1,0 +1,55 @@
+{
+  "meta_title": "Aceite gorjetas em criptomoeda como criador — a sua própria página de gorjetas · Dynopay",
+  "meta_description": "Aceite gorjetas em criptomoeda como criador com a sua própria página dynopay.com/@handle. Os fãs pagam em mais de 15 criptomoedas, e os fundos vão diretamente para a sua carteira. Comece gratuitamente hoje.",
+  "h1": "Aceite gorjetas em criptomoeda como criador com a sua página de gorjetas pessoal",
+  "subheading": "Obtenha a sua própria página dynopay.com/@handle onde os fãs o apoiam em Bitcoin, Ethereum, Solana e mais de 12 outras criptomoedas — pagos diretamente para a sua carteira.",
+  "intro_paragraph": "A maioria das plataformas mantém as suas gorjetas na sua conta e paga-lhe mais tarde. A Dynopay funciona de forma diferente: cada gorjeta vai diretamente para a sua própria carteira de criptomoedas, e você mantém a custódia o tempo todo. A sua página de gorjetas pessoal em dynopay.com/@handle aceita mais de 15 criptomoedas, os fãs pagam com um toque sem criar uma conta, e você está ativo em menos de 10 minutos. O primeiro pagamento é completamente gratuito, depois as taxas começam em 1,5% e caem para 0,5% à medida que o seu volume cresce.",
+  "features": [
+    {
+      "title": "Gorjetas diretamente para a sua carteira",
+      "description": "Cada gorjeta em criptomoeda vai diretamente para a carteira que você controla. A Dynopay nunca mantém os seus fundos, por isso você tem total custódia e pode mover a sua criptomoeda sempre que quiser."
+    },
+    {
+      "title": "A sua própria página de gorjetas com marca",
+      "description": "Reivindique o seu dynopay.com/@handle e partilhe um link em todo o lado. Os fãs pagam em Bitcoin, Ethereum, Solana, USDT ou mais de 11 outras criptomoedas sem se inscreverem ou instalarem nada."
+    },
+    {
+      "title": "As taxas diminuem à medida que você cresce",
+      "description": "O seu primeiro pagamento é gratuito. Depois disso, as taxas começam em 1,5% e caem automaticamente para 0,5% com base no seu volume. Sem taxas mensais, sem custos de configuração, sem estornos."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se com o seu e-mail, crie o seu perfil de criador e reivindique o seu @handle personalizado em dynopay.com.",
+    "Adicione o seu endereço de carteira de criptomoeda uma vez — Bitcoin, Ethereum, Solana ou qualquer rede que preferir para pagamentos.",
+    "Partilhe o seu link dynopay.com/@handle na sua biografia, sobreposições de stream ou publicações. Os fãs dão gorjetas em segundos."
+  ],
+  "faqs": [
+    {
+      "question": "Quais criptomoedas posso aceitar como gorjetas?",
+      "answer": "Você pode aceitar mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Solana, Dogecoin, Litecoin, XRP, Tron, Polygon e stablecoins como USDT e USDC em várias redes. Os fãs escolhem qual criptomoeda enviar, e você a recebe diretamente na sua carteira."
+    },
+    {
+      "question": "Preciso criar uma carteira para cada criptomoeda?",
+      "answer": "Não. Você adiciona um endereço de carteira de pagamento por criptomoeda que deseja suportar. Por exemplo, adicione um endereço Ethereum para receber ETH, USDT, USDC e RLUSD na Ethereum. As gorjetas nessa criptomoeda vão diretamente para a carteira que você forneceu."
+    },
+    {
+      "question": "Quanto a Dynopay cobra por gorjetas em criptomoeda?",
+      "answer": "O seu primeiro pagamento é completamente gratuito. Depois disso, as taxas começam em 1,5% mais um dólar por gorjeta e caem automaticamente para tão baixo quanto 0,5% à medida que o seu volume cresce. Não há taxas mensais, custos de configuração ou cobranças ocultas."
+    },
+    {
+      "question": "Os meus fãs precisam se inscrever ou instalar algo?",
+      "answer": "Não. Os fãs visitam a sua página dynopay.com/@handle, escolhem a sua criptomoeda e enviam a gorjeta da sua carteira existente. Eles não criam uma conta — no máximo, podem deixar um e-mail opcional para um recibo. O pagamento leva segundos."
+    },
+    {
+      "question": "Quanto tempo leva para começar a aceitar gorjetas em criptomoeda?",
+      "answer": "Menos de 10 minutos. Inscreva-se, verifique o seu e-mail, reivindique o seu @handle e adicione o seu endereço de carteira. A sua página de gorjetas pessoal fica ativa imediatamente e você pode partilhar o link em qualquer lugar onde a sua comunidade se reúna."
+    }
+  ],
+  "cta_headline": "Reivindique a sua página de gorjetas e fique ativo hoje",
+  "cta_body": "Inscreva-se em dois minutos, adicione a sua carteira e comece a aceitar gorjetas em criptomoeda. O seu primeiro pagamento é gratuito, sem taxas mensais nunca.",
+  "_generated_at": "2026-08-29T14:57:33.999072Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "creators",
+  "_display_name": "Creators & Streamers"
+}

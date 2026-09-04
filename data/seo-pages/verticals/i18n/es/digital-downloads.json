@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en criptomonedas para descargas digitales y cursos · Dynopay",
+  "meta_description": "Acepta pagos en criptomonedas para descargas digitales y vendedores de cursos. Sin contracargos, sin abuso de reembolsos. Bitcoin, USDT, Solana y más de 15 monedas. Activo en 10 minutos. Comienza ahora.",
+  "h1": "Acepta Pagos en Criptomonedas para Descargas Digitales y Vendedores de Cursos",
+  "subheading": "Deja de perder ingresos por contracargos y fraudes de reembolso. Recibe Bitcoin, stablecoins y más de 15 criptomonedas directamente en tu billetera—sin intermediarios, sin reversos.",
+  "intro_paragraph": "Si vendes cursos, ebooks o productos digitales, conoces el costo de los contracargos y de los reembolsadores seriales que consumen tu contenido y luego disputan el cargo. Dynopay es una plataforma de pagos en criptomonedas no custodial diseñada para creadores y educadores. Recibes fondos directamente en tu propia billetera—nunca tocamos tu dinero—y las transacciones en criptomonedas son finales. Sin contracargos. Sin abuso de reembolsos. Solo pagos irreversibles de clientes de todo el mundo, con tarifas que comienzan en 1.5% y bajan a 0.5% a gran escala.",
+  "features": [
+    {
+      "title": "Sin Contracargos, Nunca",
+      "description": "Los pagos en criptomonedas son finales una vez confirmados en la cadena. Ningún cliente puede revertir una transacción después de descargar tu curso o ebook, eliminando el fraude de contracargos y el fraude amistoso que afectan a los procesadores de tarjetas."
+    },
+    {
+      "title": "Tu Billetera, Tu Custodia",
+      "description": "Los fondos van directamente del cliente a tu dirección de Bitcoin, Ethereum o stablecoin. Dynopay nunca retiene saldos, así que controlas tu dinero desde el momento de la venta sin retrasos en retiros ni congelaciones de cuentas."
+    },
+    {
+      "title": "Ventas Globales Sin Barreras",
+      "description": "Vende a clientes en cualquier país sin tarifas por transacciones internacionales ni costos de conversión de moneda. Acepta Bitcoin, USDT, USDC, SOL y más de 15 criptomonedas de compradores en cualquier parte del mundo."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo electrónico y añade la dirección de billetera donde deseas recibir pagos.",
+    "Crea un enlace de pago para tu curso o incrusta el widget de pago en tu página de ventas existente.",
+    "El cliente paga en su criptomoneda preferida; los fondos llegan a tu billetera en minutos, completamente sin comisiones en tu primera venta."
+  ],
+  "faqs": [
+    {
+      "question": "¿Cómo evitan los pagos en criptomonedas el fraude de reembolso para productos digitales?",
+      "answer": "Las transacciones de criptomonedas son irreversibles una vez confirmadas en la blockchain. A diferencia de las tarjetas de crédito, los clientes no pueden disputar o contracargar un pago en criptomonedas después de acceder a tu curso o descarga. La venta es final, protegiéndote de reembolsadores seriales y piratas de contenido que abusan de las políticas de reembolso tradicionales."
+    },
+    {
+      "question": "¿Qué criptomonedas pueden usar mis estudiantes para comprar mis cursos?",
+      "answer": "Dynopay admite más de 15 criptomonedas, incluyendo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP y stablecoins como USDT y USDC en Ethereum, Polygon y Tron. Los estudiantes pagan en su moneda preferida; tú eliges qué activos aceptar en tu billetera."
+    },
+    {
+      "question": "¿Cuáles son las tarifas por aceptar pagos en criptomonedas en productos digitales?",
+      "answer": "Las tarifas comienzan en 1.5% más un dólar por pago exitoso y bajan automáticamente a 0.5% a medida que crece tu volumen. Sin tarifas mensuales, sin costos de configuración, sin cargos ocultos. Tu primer pago es completamente libre de comisiones para que puedas probar la plataforma sin riesgos."
+    },
+    {
+      "question": "¿Qué tan rápido puedo comenzar a aceptar criptomonedas para mi curso en línea?",
+      "answer": "Puedes estar activo en menos de 10 minutos. Regístrate, verifica tu correo electrónico, añade tu dirección de billetera de pago, luego genera un enlace de pago o incrusta nuestro widget de pago en tu página de ventas. No se requieren aprobaciones largas ni suscripciones de comerciantes."
+    },
+    {
+      "question": "¿Necesito verificación KYC para recibir pagos en criptomonedas por cursos?",
+      "answer": "Puedes comenzar a recibir criptomonedas directamente en tu propia billetera en minutos sin suscripción de comerciante. La verificación de identidad (KYC) se aplica a tu cuenta una vez que el volumen liquidado supera un umbral, y los terceros que convierten a moneda fiduciaria realizan su propio KYC cuando conviertes a moneda local."
+    }
+  ],
+  "cta_headline": "Comienza a Aceptar Pagos en Criptomonedas Hoy",
+  "cta_body": "Tu primera transacción es sin comisiones. Configura tu pago en criptomonedas en menos de 10 minutos y deja de perder ingresos por contracargos.",
+  "_generated_at": "2026-08-29T14:54:48.095503Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "digital-downloads",
+  "_display_name": "Digital Downloads & Course Sellers"
+}

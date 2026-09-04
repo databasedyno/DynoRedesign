@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour les fournisseurs d'hébergement web et de domaines · Dynopay",
+  "meta_description": "Acceptez Bitcoin, Ethereum, USDT et plus de 15 cryptomonnaies pour l'hébergement et les domaines. Pas de rétrofacturations, portée mondiale, fonds directement sur votre portefeuille. Commencez gratuitement.",
+  "h1": "Paiements crypto pour les fournisseurs d'hébergement web et de domaines conçus pour des revenus récurrents",
+  "subheading": "Acceptez Bitcoin, Ethereum, stablecoins et plus de 15 cryptomonnaies pour les plans d'hébergement et les enregistrements de domaines—les fonds arrivent directement dans votre portefeuille sans risque de rétrofacturation.",
+  "intro_paragraph": "Les fournisseurs d'hébergement web et de domaines perdent des revenus à cause des rétrofacturations frauduleuses, des échecs de renouvellement de carte et des blocages de processeurs de paiement sur les transactions internationales. Dynopay est une plateforme de commerce crypto non-custodiale qui envoie chaque paiement directement à votre portefeuille—pas de garde intermédiaire, pas de fraude par rétrofacturation, pas de désabonnement involontaire dû à des cartes expirées. Facturez les renouvellements avec des liens de paiement générés par API, effectuez des achats de domaines uniques, et partagez des liens de paiement pour des factures manuelles, le tout avec des frais commençant à 1,5 % qui tombent à 0,5 % à mesure que votre volume augmente.",
+  "features": [
+    {
+      "title": "Pas de rétrofacturations, jamais",
+      "description": "Les transactions crypto sont finales. Éliminez la fraude provenant de cartes volées et des litiges de fraude amicale qui coûtent aux fournisseurs d'hébergement des milliers chaque mois en frais, temps de service perdu et frais administratifs."
+    },
+    {
+      "title": "Arrêtez de perdre des revenus récurrents",
+      "description": "L'expiration des cartes et les refus bancaires entraînent un désabonnement involontaire. Les renouvellements crypto échouent jamais sur une carte expirée—les clients paient simplement un nouveau lien à chaque cycle, vous permettant de conserver des clients qui souhaitent payer mais ne peuvent pas avec des méthodes traditionnelles."
+    },
+    {
+      "title": "Servez des clients dans chaque pays",
+      "description": "Acceptez des paiements à l'échelle mondiale sans frais de conversion de devises. Les clients dans des marchés mal desservis par les réseaux de cartes peuvent vous payer directement en stablecoins comme USDT ou USDC."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email et créez votre profil d'entreprise en moins de trois minutes.",
+    "Ajoutez une adresse de portefeuille de paiement pour Bitcoin, Ethereum ou toute chaîne supportée où vous souhaitez que les fonds soient envoyés.",
+    "Générez des liens de paiement pour des factures ou intégrez le widget de paiement sur votre page de facturation—devenez opérationnel en dix minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Puis-je accepter des crypto pour des abonnements d'hébergement mensuels ou juste des achats de domaines uniques ?",
+      "answer": "Les deux. La crypto n'a pas de prélèvement automatique de style carte, donc les renouvellements fonctionnent comme de nouveaux paiements à chaque cycle : générez un lien de paiement manuellement ou automatisez-le avec l'API REST et les webhooks. Les achats de domaines uniques utilisent les mêmes liens ou le widget de paiement, avec des fonds envoyés directement à votre portefeuille à chaque fois."
+    },
+    {
+      "question": "Que se passe-t-il si un client paie en Bitcoin mais que je veux recevoir des stablecoins ?",
+      "answer": "Par défaut, vous recevez exactement ce que le client envoie, directement sur votre portefeuille de paiement. Si vous préférez une valeur stable, activez la conversion automatique optionnelle et les actifs volatils comme Bitcoin se régleront en USDT ou USDC dans votre portefeuille à la place."
+    },
+    {
+      "question": "Comment les frais de paiement crypto se comparent-ils aux processeurs de cartes de crédit pour les fournisseurs d'hébergement ?",
+      "answer": "Dynopay facture à partir de 1,5 % plus un dollar par transaction à un volume de départ, tombant à 0,5 % à grande échelle en fonction du volume réglé. Il n'y a pas de frais mensuels, de coûts d'installation, de frais de rétrofacturation ou de surtaxes sur les transactions internationales. Votre premier paiement est complètement sans frais."
+    },
+    {
+      "question": "Ai-je besoin de détenir des crypto ou de comprendre la blockchain pour accepter des paiements crypto ?",
+      "answer": "Aucune expertise en blockchain requise. Vous fournissez une adresse de portefeuille lors de la configuration—vous pouvez en créer une en utilisant n'importe quelle application de portefeuille standard. Les paiements arrivent automatiquement, et vous contrôlez quand convertir en fiat via votre échange préféré ou conserver la crypto à long terme."
+    },
+    {
+      "question": "Les clients dans des pays où mon processeur de paiement actuel ne fonctionne pas peuvent-ils payer pour l'hébergement avec de la crypto ?",
+      "answer": "Oui. Dynopay n'a aucune restriction de pays pour recevoir des paiements crypto. Les clients dans des régions mal desservies par les réseaux de cartes ou PayPal peuvent vous payer directement en Bitcoin, Ethereum ou stablecoins, élargissant votre marché adressable."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des paiements crypto en dix minutes",
+  "cta_body": "Votre première transaction est sans frais. Pas de coûts mensuels, pas de frais d'installation, et les fonds vont directement à votre portefeuille sans risque de rétrofacturation.",
+  "_generated_at": "2026-08-29T14:55:14.132117Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "hosting",
+  "_display_name": "Web Hosting & Domain Providers"
+}

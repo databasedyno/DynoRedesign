@@ -1,0 +1,55 @@
+{
+  "meta_title": "Acceptez les pourboires en crypto en tant que créateur — votre propre page de pourboire · Dynopay",
+  "meta_description": "Acceptez les pourboires en crypto en tant que créateur avec votre propre page dynopay.com/@handle. Les fans paient en plus de 15 cryptomonnaies, les fonds vont directement dans votre portefeuille. Commencez gratuitement aujourd'hui.",
+  "h1": "Acceptez les pourboires en crypto en tant que créateur avec votre page de pourboire personnelle",
+  "subheading": "Obtenez votre propre page dynopay.com/@handle où les fans vous soutiennent en Bitcoin, Ethereum, Solana et 12+ autres cryptomonnaies—payées directement dans votre portefeuille.",
+  "intro_paragraph": "La plupart des plateformes conservent vos pourboires dans leur compte et vous paient plus tard. Dynopay fonctionne différemment : chaque pourboire va directement dans votre propre portefeuille crypto, et vous gardez la garde tout le temps. Votre page de pourboire personnelle sur dynopay.com/@handle accepte plus de 15 cryptomonnaies, les fans paient d'un simple clic sans créer de compte, et vous êtes en ligne en moins de 10 minutes. Le premier paiement est complètement gratuit, puis les frais commencent à 1,5 % et descendent à 0,5 % à mesure que votre volume augmente.",
+  "features": [
+    {
+      "title": "Pourboires directement dans votre portefeuille",
+      "description": "Chaque pourboire en crypto arrive directement dans le portefeuille que vous contrôlez. Dynopay ne conserve jamais vos fonds, vous avez donc la pleine garde et pouvez déplacer votre crypto quand vous le souhaitez."
+    },
+    {
+      "title": "Votre propre page de pourboire de marque",
+      "description": "Revendiquer votre dynopay.com/@handle et partagez un lien partout. Les fans paient en Bitcoin, Ethereum, Solana, USDT ou 11+ autres cryptomonnaies sans s'inscrire ni installer quoi que ce soit."
+    },
+    {
+      "title": "Les frais diminuent à mesure que vous grandissez",
+      "description": "Votre premier paiement est gratuit. Après cela, les frais commencent à 1,5 % et tombent automatiquement à 0,5 % en fonction de votre volume. Pas de frais mensuels, pas de coûts d'installation, pas de rétrofacturations."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous avec votre email, créez votre profil de créateur et revendiquez votre @handle personnalisé sur dynopay.com.",
+    "Ajoutez votre adresse de portefeuille crypto une fois—Bitcoin, Ethereum, Solana ou toute chaîne que vous préférez pour les paiements.",
+    "Partagez votre lien dynopay.com/@handle dans votre bio, vos superpositions de streaming ou vos publications. Les fans vous donnent des pourboires en quelques secondes."
+  ],
+  "faqs": [
+    {
+      "question": "Quelles cryptomonnaies puis-je accepter comme pourboires ?",
+      "answer": "Vous pouvez accepter plus de 15 cryptomonnaies, y compris Bitcoin, Ethereum, Solana, Dogecoin, Litecoin, XRP, Tron, Polygon et des stablecoins comme USDT et USDC sur plusieurs réseaux. Les fans choisissent quelle crypto envoyer, et vous la recevez directement dans votre portefeuille."
+    },
+    {
+      "question": "Dois-je créer un portefeuille pour chaque cryptomonnaie ?",
+      "answer": "Non. Vous ajoutez une adresse de portefeuille de paiement par cryptomonnaie que vous souhaitez soutenir. Par exemple, ajoutez une adresse Ethereum pour recevoir ETH, USDT, USDC et RLUSD sur Ethereum. Les pourboires dans cette crypto vont directement au portefeuille que vous avez fourni."
+    },
+    {
+      "question": "Combien Dynopay facture-t-il pour les pourboires en crypto ?",
+      "answer": "Votre premier paiement est complètement gratuit. Après cela, les frais commencent à 1,5 % plus un dollar par pourboire et tombent automatiquement à aussi bas que 0,5 % à mesure que votre volume augmente. Il n'y a pas de frais mensuels, de coûts d'installation ou de frais cachés."
+    },
+    {
+      "question": "Mes fans doivent-ils s'inscrire ou installer quoi que ce soit ?",
+      "answer": "Non. Les fans visitent votre page dynopay.com/@handle, choisissent leur crypto et envoient le pourboire depuis leur portefeuille existant. Ils ne créent pas de compte—au maximum, ils peuvent laisser un email optionnel pour un reçu. Le paiement prend quelques secondes."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter des pourboires en crypto ?",
+      "answer": "Moins de 10 minutes. Inscrivez-vous, vérifiez votre email, revendiquez votre @handle et ajoutez votre adresse de portefeuille. Votre page de pourboire personnelle est mise en ligne immédiatement et vous pouvez partager le lien partout où votre communauté se réunit."
+    }
+  ],
+  "cta_headline": "Revendiquer votre page de pourboire et allez en ligne aujourd'hui",
+  "cta_body": "Inscrivez-vous en deux minutes, ajoutez votre portefeuille et commencez à accepter des pourboires en crypto. Votre premier paiement est gratuit, pas de frais mensuels jamais.",
+  "_generated_at": "2026-08-29T14:57:33.999072Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "creators",
+  "_display_name": "Creators & Streamers"
+}

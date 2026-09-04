@@ -38,16 +38,29 @@ const HelpAndSupport = () => {
     const theme = useTheme();
     const isMobile = useIsMobile("md");
     const { t } = useTranslation("helpAndSupport");
+    // Localized static articles — used to SEED state so the article <a href> links
+    // exist in the server-rendered HTML (crawlable without JS) and are translated
+    // under ?lang=. The client fetch below upgrades them from the KB API if present.
+    const buildStatic = useCallback(
+        (): KBArticle[] =>
+            HelpAndSupportData.map((item, i) => ({
+                article_id: i,
+                title: t(`articles.${item.slug}.title`, { defaultValue: item.title }),
+                slug: item.slug,
+                description: t(`articles.${item.slug}.description`, { defaultValue: item.description }),
+                excerpt: t(`articles.${item.slug}.description`, { defaultValue: item.description }),
+            })),
+        [t],
+    );
     const [searchTerm, setSearchTerm] = useState("");
-    const [articles, setArticles] = useState<KBArticle[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [articles, setArticles] = useState<KBArticle[]>(buildStatic);
+    const [loading, setLoading] = useState(false);
     const [searching, setSearching] = useState(false);
 
     // Fetch articles from KB API, fallback to hardcoded data
     useEffect(() => {
         const fetchArticles = async () => {
             try {
-                setLoading(true);
                 const res = await axiosBaseApi.get(API_ENDPOINTS.kb.articles);
                 const data = res?.data?.data;
                 if (data?.articles && data.articles.length > 0) {
@@ -60,27 +73,10 @@ const HelpAndSupport = () => {
                         category_name: a.category_name || "",
                         reading_time_minutes: a.reading_time_minutes || 0,
                     })));
-                } else {
-                    // Fallback to hardcoded data
-                    setArticles(HelpAndSupportData.map((item, i) => ({
-                        article_id: i,
-                        title: item.title,
-                        slug: item.slug,
-                        description: item.description,
-                        excerpt: item.description,
-                    })));
                 }
+                // else: keep the seeded static articles (already visible)
             } catch {
-                // Fallback to hardcoded data on error
-                setArticles(HelpAndSupportData.map((item, i) => ({
-                    article_id: i,
-                    title: item.title,
-                    slug: item.slug,
-                    description: item.description,
-                    excerpt: item.description,
-                })));
-            } finally {
-                setLoading(false);
+                // keep seeded static articles on error
             }
         };
         fetchArticles();
@@ -101,23 +97,11 @@ const HelpAndSupport = () => {
                         description: a.excerpt || a.description || "",
                     })));
                 } else {
-                    // Fallback to hardcoded data when API returns empty
-                    setArticles(HelpAndSupportData.map((item, i) => ({
-                        article_id: i,
-                        title: item.title,
-                        slug: item.slug,
-                        description: item.description,
-                        excerpt: item.description,
-                    })));
+                    // Keep the seeded (localized) static articles when API is empty
+                    setArticles(buildStatic());
                 }
             } catch {
-                setArticles(HelpAndSupportData.map((item, i) => ({
-                    article_id: i,
-                    title: item.title,
-                    slug: item.slug,
-                    description: item.description,
-                    excerpt: item.description,
-                })));
+                setArticles(buildStatic());
             }
             return;
         }
@@ -163,7 +147,7 @@ const HelpAndSupport = () => {
         } finally {
             setSearching(false);
         }
-    }, [searchTerm]);
+    }, [searchTerm, buildStatic]);
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {

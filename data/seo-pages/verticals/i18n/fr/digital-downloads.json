@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour téléchargements numériques et cours · Dynopay",
+  "meta_description": "Acceptez les paiements crypto pour les téléchargements numériques et les vendeurs de cours. Pas de rétrofacturations, pas d'abus de remboursement. Bitcoin, USDT, Solana et plus de 15 pièces. En ligne en 10 minutes. Commencez maintenant.",
+  "h1": "Acceptez les paiements crypto pour les téléchargements numériques et les vendeurs de cours",
+  "subheading": "Ne perdez plus de revenus à cause des rétrofacturations et de la fraude au remboursement. Recevez Bitcoin, stablecoins et plus de 15 cryptomonnaies directement dans votre portefeuille—sans intermédiaire, sans annulations.",
+  "intro_paragraph": "Si vous vendez des cours, des ebooks ou des produits numériques, vous connaissez le coût des rétrofacturations et des demandeurs de remboursement en série qui consomment votre contenu puis contestent la charge. Dynopay est une plateforme de paiement crypto non-custodiale conçue pour les créateurs et les éducateurs. Vous recevez des fonds directement dans votre propre portefeuille—nous ne touchons jamais votre argent—et les transactions crypto sont finales. Pas de rétrofacturations. Pas d'abus de remboursement. Juste des paiements irréversibles de clients du monde entier, avec des frais commençant à 1,5 % et tombant à 0,5 % à grande échelle.",
+  "features": [
+    {
+      "title": "Pas de rétrofacturations, jamais",
+      "description": "Les paiements crypto sont définitifs une fois confirmés sur la blockchain. Aucun client ne peut annuler une transaction après avoir téléchargé votre cours ou ebook, éliminant ainsi la fraude par rétrofacturation et la fraude amicale qui affligent les processeurs de cartes."
+    },
+    {
+      "title": "Votre portefeuille, votre garde",
+      "description": "Les fonds vont directement du client à votre adresse Bitcoin, Ethereum ou stablecoin. Dynopay ne conserve jamais de soldes, vous contrôlez donc votre argent dès le moment de la vente sans délais de retrait ni gel de compte."
+    },
+    {
+      "title": "Ventes mondiales sans barrières",
+      "description": "Vendez à des clients dans n'importe quel pays sans frais de carte transfrontaliers ni coûts de conversion de devises. Acceptez Bitcoin, USDT, USDC, SOL et plus de 15 cryptomonnaies de clients partout dans le monde."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email et ajoutez l'adresse de portefeuille où vous souhaitez recevoir des paiements.",
+    "Créez un lien de paiement pour votre cours ou intégrez le widget de paiement sur votre page de vente existante.",
+    "Le client paie dans sa cryptomonnaie préférée ; les fonds arrivent dans votre portefeuille en quelques minutes, complètement sans frais lors de votre première vente."
+  ],
+  "faqs": [
+    {
+      "question": "Comment les paiements crypto empêchent-ils la fraude au remboursement pour les produits numériques ?",
+      "answer": "Les transactions en cryptomonnaie sont irréversibles une fois confirmées sur la blockchain. Contrairement aux cartes de crédit, les clients ne peuvent pas contester ou rétrofacturer un paiement crypto après avoir accédé à votre cours ou téléchargement. La vente est définitive, vous protégeant des demandeurs de remboursement en série et des pirates de contenu qui abusent des politiques de remboursement traditionnelles."
+    },
+    {
+      "question": "Quelles cryptomonnaies mes étudiants peuvent-ils utiliser pour acheter mes cours ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, y compris Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP et des stablecoins comme USDT et USDC sur Ethereum, Polygon et Tron. Les étudiants paient dans leur pièce préférée ; vous choisissez quels actifs accepter dans votre portefeuille."
+    },
+    {
+      "question": "Quels sont les frais pour accepter des paiements crypto sur des produits numériques ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par paiement réussi et tombent automatiquement à 0,5 % à mesure que votre volume augmente. Pas de frais mensuels, pas de coûts d'installation, pas de frais cachés. Votre tout premier paiement est complètement sans frais afin que vous puissiez tester la plateforme sans risque."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter des crypto pour mon cours en ligne ?",
+      "answer": "Vous pouvez être en ligne en moins de 10 minutes. Inscrivez-vous, vérifiez votre email, ajoutez votre adresse de portefeuille de paiement, puis générez un lien de paiement ou intégrez notre widget de paiement sur votre page de vente. Pas d'approbations longues ni de souscriptions de commerçants requises."
+    },
+    {
+      "question": "Ai-je besoin d'une vérification KYC pour recevoir des paiements crypto pour des cours ?",
+      "answer": "Vous pouvez commencer à recevoir des crypto directement dans votre propre portefeuille en quelques minutes sans souscription de commerçant. La vérification d'identité (KYC) s'applique à votre compte une fois que le volume réglé dépasse un seuil, et les sorties fiat tierces effectuent leur propre KYC lorsque vous convertissez en monnaie locale."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des paiements crypto aujourd'hui",
+  "cta_body": "Votre première transaction est sans frais. Configurez votre paiement crypto en moins de 10 minutes et arrêtez de perdre des revenus à cause des rétrofacturations.",
+  "_generated_at": "2026-08-29T14:54:48.095503Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "digital-downloads",
+  "_display_name": "Digital Downloads & Course Sellers"
+}

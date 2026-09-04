@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor e-commerce winkels · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor e-commerce winkels. Bitcoin, Ethereum, USDT, Solana en 15+ crypto's. Geen terugboekingen. Fondsen gaan direct naar uw wallet. Begin gratis.",
+  "h1": "Accepteer crypto-betalingen voor e-commerce winkels zonder terugboekingen",
+  "subheading": "Ontvang Bitcoin, Ethereum, stablecoins en 15+ cryptocurrencies direct in uw wallet. Geen betalingsbeperkingen, geen fraude geschillen, geen 2-4% verwerkingskosten.",
+  "intro_paragraph": "E-commerce verkopers verliezen 0,47% van de omzet aan terugboekingen en nog eens 2,9% + $0,30 per kaarttransactie. Dynopay is een non-custodial crypto commerce platform gebouwd voor online winkels: u ontvangt fondsen direct in uw eigen wallet op het moment dat een klant betaalt, waardoor het risico op terugboekingen volledig wordt geëlimineerd. Prijzen beginnen bij 1,5% en dalen naar 0,5% bij schaalvergroting op basis van volume, zonder maandelijkse kosten, zonder opstartkosten, en uw eerste betaling is volledig gratis.",
+  "features": [
+    {
+      "title": "Geen risico op terugboekingen, ooit",
+      "description": "Crypto-transacties zijn definitief. Geen fraude geschillen, geen vriendelijke fraude, geen herbeoordelingskosten. Zodra een klant Bitcoin, USDT of ETH betaalt, zijn de fondsen van u en kunnen ze niet door een bank worden teruggedraaid."
+    },
+    {
+      "title": "Fondsen komen in uw wallet aan",
+      "description": "Dynopay houdt uw geld nooit vast. Betalingen worden direct naar uw Ethereum-adres, Bitcoin-wallet of Solana-account overgemaakt, meestal binnen enkele minuten. U beheert de privésleutels en de bewaring te allen tijde."
+    },
+    {
+      "title": "Lagere kosten dan kaartverwerkers",
+      "description": "Betaal vanaf 1,5% en kijk hoe de kosten automatisch dalen naar 0,5% naarmate uw volume groeit. Geen interchange, geen basispunten op terugbetalingen, geen maandelijkse gateway-kosten. Eerste betaling is gratis."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail en maak een bedrijfsprofiel in minder dan drie minuten.",
+    "Voeg één uitbetalingswallet-adres toe voor Bitcoin, Ethereum, USDT of elke ondersteunde crypto die u wilt accepteren.",
+    "Genereer een betalingslink of embed de checkout-widget op uw WooCommerce of aangepaste winkel. Ga live."
+  ],
+  "faqs": [
+    {
+      "question": "Welke cryptocurrencies kan mijn e-commerce winkel accepteren met Dynopay?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP en stablecoins zoals USDT op Ethereum, Tron en Polygon, USDC op Ethereum, en RLUSD op Ethereum en XRP Ledger. U kiest welke u wilt inschakelen."
+    },
+    {
+      "question": "Heb ik een crypto wallet nodig om betalingen te accepteren?",
+      "answer": "Ja. Dynopay is non-custodial, dus u biedt één wallet-adres per cryptocurrency die u wilt accepteren. Betalingen gaan daar direct naartoe. U beheert de privésleutels. Dynopay houdt nooit klantfondsen vast of vereist dat u opneemt."
+    },
+    {
+      "question": "Hoeveel rekent Dynopay per transactie?",
+      "answer": "Prijzen beginnen bij 1,5% plus één dollar per succesvolle betaling en dalen automatisch naar 0,5% naarmate uw verwerkte volume toeneemt. Geen maandelijkse kosten, geen opstartkosten, geen verborgen kosten. Uw eerste betaling is volledig kosteloos."
+    },
+    {
+      "question": "Kunnen klanten een crypto-betaling betwisten of terugdraaien?",
+      "answer": "Nee. Cryptocurrency-transacties zijn onomkeerbaar per ontwerp. Zodra een klant Bitcoin of USDT verzendt en de blockchain dit bevestigt, kan de betaling niet worden teruggedraaid, betwist of teruggevorderd door een bank of kaartnetwerk."
+    },
+    {
+      "question": "Hoe lang duurt het om crypto te accepteren in mijn online winkel?",
+      "answer": "De meeste verkopers gaan binnen 10 minuten live. Meld u aan, verifieer uw e-mail, voeg een bedrijfsprofiel toe, verbind één wallet-adres en genereer een betalingslink of plaats de widget in uw winkel. Geen underwriting of wachttijd."
+    }
+  ],
+  "cta_headline": "Begin vandaag nog met het accepteren van crypto-betalingen",
+  "cta_body": "Uw eerste betaling is gratis en de installatie duurt minder dan 10 minuten. Geen maandelijkse kosten, geen terugboekingen, fondsen direct naar uw wallet.",
+  "_generated_at": "2026-08-29T14:52:47.910056Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "ecommerce",
+  "_display_name": "E-commerce Stores"
+}

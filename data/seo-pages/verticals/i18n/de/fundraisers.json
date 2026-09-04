@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Crowdfunding- und Spendenplattform · Dynopay",
+  "meta_description": "Führen Sie Crowdfunding-Kampagnen durch und sammeln Sie Spenden in über 15 Kryptowährungen. Setzen Sie Ziele, bieten Sie Belohnungen an, aktualisieren Sie Unterstützer. Gelder auf Ihr Wallet. Jetzt kostenlos starten.",
+  "h1": "Krypto-Crowdfunding und Spenden für gemeinnützige Organisationen und Fundraiser",
+  "subheading": "Starten Sie Kampagnen mit Finanzierungszielen, Belohnungsstufen und Unterstützer-Updates – und erhalten Sie Bitcoin, Ethereum, Stablecoins und mehr direkt auf Ihr Wallet.",
+  "intro_paragraph": "Dynopay bietet gemeinnützigen Organisationen und Veranstaltern eine vollständige Kampagnenseite, um weltweit in Krypto von Unterstützern Spenden zu sammeln. Setzen Sie ein Finanzierungsziel, erstellen Sie Belohnungsstufen, posten Sie Updates, die Unterstützer per E-Mail benachrichtigen, und beobachten Sie, wie Spenden in Ihrem eigenen Wallet ankommen – nicht von einem Dritten gehalten. Akzeptieren Sie über 15 Kryptowährungen, darunter Bitcoin, Ethereum, Polygon, Solana, Tron und XRP Ledger. Die Preise beginnen bei 1,5 % pro Transaktion und sinken auf 0,5 %, wenn Ihr Volumen wächst, wobei Ihre erste Zahlung völlig kostenlos ist.",
+  "features": [
+    {
+      "title": "Kampagnenseiten mit Belohnungsstufen",
+      "description": "Erstellen Sie eine markenbezogene Kampagnenseite mit Ihrem Finanzierungsziel, Fortschrittsbalken und mehreren Belohnungsstufen. Unterstützer wählen ihre Beitragshöhe und Sie behalten die vollständige Kontrolle über jede Spende in Ihrem Wallet."
+    },
+    {
+      "title": "Unterstützer-Updates per E-Mail",
+      "description": "Posten Sie Kampagnen-Updates, die automatisch alle Ihre Unterstützer per E-Mail benachrichtigen. Halten Sie Ihre Community engagiert, teilen Sie Meilensteine und bauen Sie Vertrauen auf, ohne separate Mailinglisten oder Drittanbieter-Tools verwalten zu müssen."
+    },
+    {
+      "title": "Akzeptieren Sie über 15 Kryptowährungen weltweit",
+      "description": "Erhalten Sie Bitcoin, Ethereum, USDT, USDC, RLUSD, Solana, XRP, Dogecoin und mehr. Es gibt keine geografischen Einschränkungen, wer spenden kann, sodass Sie von Unterstützern aus der ganzen Welt Gelder sammeln können."
+    }
+  ],
+  "how_it_works": [
+    "Registrieren Sie sich, verifizieren Sie Ihre E-Mail und erstellen Sie Ihr Organisationsprofil in weniger als fünf Minuten.",
+    "Fügen Sie Ihre Wallet-Adresse hinzu, setzen Sie Ihr Finanzierungsziel, erstellen Sie Belohnungsstufen und veröffentlichen Sie Ihre Kampagnenseite.",
+    "Teilen Sie Ihren Kampagnenlink und erhalten Sie Spenden direkt auf Ihr Wallet, während Unterstützer beitragen."
+  ],
+  "faqs": [
+    {
+      "question": "Wie viel kostet es, eine Krypto-Crowdfunding-Kampagne durchzuführen?",
+      "answer": "Die Preise beginnen bei 1,5 % plus einem Dollar pro erfolgreicher Spende und sinken automatisch auf 0,5 %, wenn Ihr Volumen steigt. Ihre erste Zahlung ist völlig kostenlos. Keine monatlichen Gebühren, keine Einrichtungskosten und keine versteckten Gebühren."
+    },
+    {
+      "question": "Muss ich Dynopay Zugang zu meinem Wallet geben?",
+      "answer": "Nein. Dynopay ist nicht verwahrend, was bedeutet, dass Sie eine Wallet-Adresse angeben, an die Spenden direkt gesendet werden. Sie behalten jederzeit die volle Kontrolle und Aufsicht über Ihre Gelder. Dynopay hält oder berührt Ihre Spenden niemals."
+    },
+    {
+      "question": "Welche Kryptowährungen können Spender verwenden?",
+      "answer": "Unterstützer können mit Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT, USDC, RLUSD, MATIC, Tron, Solana und XRP spenden. Das sind über 15 Kryptowährungen auf neun Blockchains, die den Spendern Flexibilität bei ihren Beiträgen bieten."
+    },
+    {
+      "question": "Kann ich Belohnungen für Spender auf verschiedenen Ebenen anbieten?",
+      "answer": "Ja. Sie können mehrere Belohnungsstufen mit unterschiedlichen Beitragshöhen und Vorteilen erstellen. Unterstützer wählen ihre Stufe beim Spenden, und Sie können die Erfüllung basierend auf dem, was jeder Unterstützer während Ihrer Kampagne gewählt hat, verwalten."
+    },
+    {
+      "question": "Gibt es Länderbeschränkungen für das Sammeln von Spenden?",
+      "answer": "Es gelten keine geografischen Einschränkungen für den Erhalt von Krypto-Spenden – Unterstützer aus jedem Land können zu Ihrer Kampagne beitragen. Die Identitätsüberprüfung (KYC) gilt für Ihr Dynopay-Konto, sobald das abgewickelte Volumen einen Schwellenwert überschreitet, und Fiat-Offramps führen ihre eigene KYC durch, wenn Sie in die lokale Währung umwandeln."
+    }
+  ],
+  "cta_headline": "Starten Sie noch heute Ihre Krypto-Fundraising-Kampagne",
+  "cta_body": "Ihre erste Spende ist gebührenfrei und Sie können in weniger als 10 Minuten mit Ihrer eigenen Kampagnenseite und Wallet live gehen.",
+  "_generated_at": "2026-08-29T14:57:54.590424Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "fundraisers",
+  "_display_name": "Fundraisers & Nonprofits"
+}

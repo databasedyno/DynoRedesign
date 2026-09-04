@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor digitale downloads & cursussen · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor digitale downloads & cursusverkopers. Geen terugboekingen, geen misbruik van terugbetalingen. Bitcoin, USDT, Solana & 15+ munten. Live in 10 minuten. Begin nu.",
+  "h1": "Accepteer Crypto-betalingen voor Digitale Downloads & Cursusverkopers",
+  "subheading": "Stop met het verliezen van inkomsten door terugboekingen en terugbetalingsfraude. Ontvang Bitcoin, stablecoins en 15+ cryptocurrencies rechtstreeks in uw wallet—geen tussenpersoon, geen terugboekingen.",
+  "intro_paragraph": "Als u cursussen, e-books of digitale producten verkoopt, weet u wat de kosten zijn van terugboekingen en seriële terugbetalers die uw inhoud consumeren en vervolgens de betaling betwisten. Dynopay is een non-custodial crypto-betalingsplatform dat is gebouwd voor makers en docenten. U ontvangt fondsen rechtstreeks in uw eigen wallet—wij raken uw geld nooit aan—en crypto-transacties zijn definitief. Geen terugboekingen. Geen misbruik van terugbetalingen. Gewoon onomkeerbare betalingen van klanten wereldwijd, met kosten die beginnen bij 1,5% en dalen naar 0,5% bij schaalvergroting.",
+  "features": [
+    {
+      "title": "Geen Terugboekingen, Nooit",
+      "description": "Crypto-betalingen zijn definitief zodra ze on-chain zijn bevestigd. Geen enkele klant kan een transactie terugdraaien nadat ze uw cursus of e-book hebben gedownload, waardoor terugboekingsfraude en vriendelijke fraude die kaartverwerkers teisteren, worden geëlimineerd."
+    },
+    {
+      "title": "Uw Wallet, Uw Bewaring",
+      "description": "Fondsen gaan rechtstreeks van klant naar uw Bitcoin-, Ethereum- of stablecoin-adres. Dynopay houdt nooit saldi vast, zodat u uw geld vanaf het moment van verkoop controleert zonder vertragingen bij opnames of accountbevriezingen."
+    },
+    {
+      "title": "Wereldwijde Verkoop Zonder Belemmeringen",
+      "description": "Verkoop aan klanten in elk land zonder grensoverschrijdende kaartkosten of kosten voor valutaconversie. Accepteer Bitcoin, USDT, USDC, SOL en 15+ cryptocurrencies van kopers overal ter wereld."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail en voeg het wallet-adres toe waar u betalingen wilt ontvangen.",
+    "Maak een betalingslink voor uw cursus of embed de checkout-widget op uw bestaande verkooppagina.",
+    "Klant betaalt in hun favoriete crypto; fondsen komen binnen enkele minuten in uw wallet aan, volledig kosteloos bij uw eerste verkoop."
+  ],
+  "faqs": [
+    {
+      "question": "Hoe voorkomen crypto-betalingen terugbetalingsfraude voor digitale producten?",
+      "answer": "Cryptocurrency-transacties zijn onomkeerbaar zodra ze op de blockchain zijn bevestigd. In tegenstelling tot creditcards kunnen klanten een crypto-betaling niet betwisten of terugboeken nadat ze toegang hebben gekregen tot uw cursus of download. De verkoop is definitief, wat u beschermt tegen seriële terugbetalers en inhoudpiraten die misbruik maken van traditionele terugbetalingsbeleid."
+    },
+    {
+      "question": "Welke cryptocurrencies kunnen mijn studenten gebruiken om mijn cursussen te kopen?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP en stablecoins zoals USDT en USDC op Ethereum, Polygon en Tron. Studenten betalen in hun favoriete munt; u kiest welke activa u in uw wallet accepteert."
+    },
+    {
+      "question": "Wat zijn de kosten voor het accepteren van crypto-betalingen voor digitale producten?",
+      "answer": "Kosten beginnen bij 1,5% plus één dollar per succesvolle betaling en dalen automatisch naar 0,5% naarmate uw volume groeit. Geen maandelijkse kosten, geen opstartkosten, geen verborgen kosten. Uw allereerste betaling is volledig kosteloos, zodat u het platform risicoloos kunt testen."
+    },
+    {
+      "question": "Hoe snel kan ik beginnen met het accepteren van crypto voor mijn online cursus?",
+      "answer": "U kunt binnen 10 minuten live gaan. Meld u aan, verifieer uw e-mail, voeg uw uitbetalingswallet-adres toe en genereer vervolgens een betalingslink of embed onze checkout-widget op uw verkooppagina. Geen lange goedkeuringen of merchant underwriting vereist."
+    },
+    {
+      "question": "Heb ik KYC-verificatie nodig om crypto-betalingen voor cursussen te ontvangen?",
+      "answer": "U kunt binnen enkele minuten crypto rechtstreeks naar uw eigen wallet ontvangen zonder merchant underwriting. Identiteitsverificatie (KYC) is van toepassing op uw account zodra het verwerkte volume een drempel overschrijdt, en derde partijen voor fiat-afritten voeren hun eigen KYC uit wanneer u converteert naar lokale valuta."
+    }
+  ],
+  "cta_headline": "Begin Vandaag Met Het Accepteren Van Crypto-betalingen",
+  "cta_body": "Uw eerste transactie is kosteloos. Stel uw crypto-checkout in minder dan 10 minuten in en stop met het verliezen van inkomsten door terugboekingen.",
+  "_generated_at": "2026-08-29T14:54:48.095503Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "digital-downloads",
+  "_display_name": "Digital Downloads & Course Sellers"
+}

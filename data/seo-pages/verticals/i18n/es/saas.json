@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en criptomonedas para productos SaaS y de suscripción · Dynopay",
+  "meta_description": "Acepta pagos en criptomonedas para productos SaaS y de suscripción con Dynopay. Sin contracargos, alcance global, 15+ criptomonedas. Tarifas desde 1.5%. Comienza hoy.",
+  "h1": "Acepta pagos en criptomonedas para productos SaaS y de suscripción sin contracargos",
+  "subheading": "Dynopay ayuda a las empresas de suscripción a eliminar la pérdida involuntaria de clientes, expandirse a mercados restringidos y recibir Bitcoin, stablecoins y 15+ criptomonedas directamente en tu billetera.",
+  "intro_paragraph": "Las empresas de suscripción pierden ingresos rutinariamente por pagos fallidos con tarjeta y pérdida involuntaria de clientes. Los clientes internacionales enfrentan tarifas de conversión de moneda y restricciones en los métodos de pago. Dynopay es una plataforma no custodial que deposita pagos en criptomonedas directamente en tu billetera—sin intermediarios que retengan tus fondos. Obtienes enlaces de pago, pago alojado y una API REST para facturar a suscriptores en 15+ criptomonedas con tarifas que comienzan en 1.5% y bajan a 0.5% a gran escala. Sin contracargos. Sin tarifas mensuales. El primer pago es gratis.",
+  "features": [
+    {
+      "title": "Liquidación no custodial a tu billetera",
+      "description": "Los fondos van directamente a tu billetera de Ethereum, Bitcoin o Solana. Dynopay nunca retiene tu dinero, por lo que mantienes la custodia total y puedes convertir a fiat en tu propio horario."
+    },
+    {
+      "title": "Cero pérdida involuntaria de clientes de criptos",
+      "description": "Los pagos en criptomonedas no expiran ni se declinan. Los clientes que prefieren stablecoins o Bitcoin permanecen suscritos por más tiempo porque no hay transacciones fallidas con tarjeta ni detalles de facturación desactualizados."
+    },
+    {
+      "title": "Alcanza clientes en mercados desatendidos",
+      "description": "Acepta pagos de regiones mal atendidas por redes de tarjetas. Las criptomonedas permiten a los clientes pagarte desde cualquier lugar, así que puedes atender cada mercado en el que elijas operar."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo electrónico, crea un perfil de empresa y añade una dirección de billetera de pago para la liquidación.",
+    "Genera un enlace de pago o incrusta el widget de pago en tu página de registro o cuenta SaaS.",
+    "El cliente paga en su criptomoneda preferida. Los fondos llegan a tu billetera en minutos, y estás en vivo."
+  ],
+  "faqs": [
+    {
+      "question": "¿Cómo reducen los pagos en criptomonedas la pérdida involuntaria de clientes para las empresas de suscripción?",
+      "answer": "Las billeteras de criptomonedas no expiran y las transacciones no fallan por fondos insuficientes de la misma manera que lo hacen las tarjetas. Los suscriptores que tienen stablecoins o Bitcoin pueden pagar de manera confiable sin los problemas de declinación de tarjetas que son una causa principal de la pérdida involuntaria de clientes en la facturación SaaS tradicional."
+    },
+    {
+      "question": "¿Qué criptomonedas pueden usar mis clientes de SaaS para pagar?",
+      "answer": "Dynopay admite 15+ criptomonedas: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX y stablecoins incluyendo USDT (ERC20, TRC20, Polygon), USDC (ERC20) y RLUSD en Ethereum y XRP Ledger."
+    },
+    {
+      "question": "¿Cuáles son las tarifas de Dynopay para pagos de suscripción?",
+      "answer": "Las tarifas comienzan en 1.5% más un dólar por pago exitoso y bajan automáticamente a 0.5% a medida que crece tu volumen liquidado. Sin tarifas de configuración, sin tarifas mensuales, sin costos ocultos, y tu primer pago es completamente gratis."
+    },
+    {
+      "question": "¿Necesito mantener criptomonedas o configurar una cuenta de comerciante?",
+      "answer": "Solo necesitas una dirección de billetera para la criptomoneda que deseas recibir. Dynopay es no custodial, por lo que los pagos van directamente a tu Coinbase, Ledger, MetaMask o cualquier billetera que controles. No se requiere cuenta de comerciante."
+    },
+    {
+      "question": "¿Puedo facturar suscripciones recurrentes en criptomonedas usando Dynopay?",
+      "answer": "Sí, de forma cíclica. Las criptomonedas no tienen cargos automáticos al estilo de tarjeta, por lo que cada renovación es un pago nuevo: utiliza la API REST y webhooks para generar un enlace de pago por ciclo de facturación y enviarlo automáticamente. Las renovaciones nunca fallan por tarjetas expiradas o declinaciones del emisor."
+    }
+  ],
+  "cta_headline": "Comienza a aceptar pagos en criptomonedas en 10 minutos",
+  "cta_body": "Regístrate ahora y tu primera transacción es sin costo. Sin costos mensuales, sin tarifas de configuración, y los fondos van directamente a tu billetera.",
+  "_generated_at": "2026-08-29T14:53:11.839432Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "saas",
+  "_display_name": "SaaS & Subscription Products"
+}

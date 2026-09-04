@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en criptomonedas para tiendas de comercio electrónico · Dynopay",
+  "meta_description": "Acepta pagos en criptomonedas para tiendas de comercio electrónico. Bitcoin, Ethereum, USDT, Solana y más de 15 criptomonedas. Sin contracargos. Los fondos van directamente a tu billetera. Comienza gratis.",
+  "h1": "Acepta pagos en criptomonedas para tiendas de comercio electrónico sin contracargos",
+  "subheading": "Recibe Bitcoin, Ethereum, stablecoins y más de 15 criptomonedas directamente en tu billetera. Sin retenciones de pago, sin disputas de fraude, sin tarifas de procesador del 2-4%.",
+  "intro_paragraph": "Los comerciantes de comercio electrónico pierden el 0.47% de sus ingresos por contracargos y otro 2.9% + $0.30 por transacción con tarjeta. Dynopay es una plataforma de comercio en criptomonedas no custodial diseñada para tiendas en línea: recibes los fondos directamente en tu propia billetera en el momento en que un cliente paga, eliminando completamente el riesgo de contracargos. Los precios comienzan en 1.5% y bajan a 0.5% a gran escala según el volumen, sin tarifas mensuales, sin costos de configuración, y tu primer pago es completamente gratis.",
+  "features": [
+    {
+      "title": "Cero riesgo de contracargos, nunca",
+      "description": "Las transacciones en criptomonedas son finales. Sin disputas de fraude, sin fraude amistoso, sin tarifas de representación. Una vez que un cliente paga con Bitcoin, USDT o ETH, los fondos son tuyos y no pueden ser revertidos por un banco."
+    },
+    {
+      "title": "Los fondos llegan a tu billetera",
+      "description": "Dynopay nunca retiene tu dinero. Los pagos se liquidan directamente en tu dirección de Ethereum, billetera de Bitcoin o cuenta de Solana, generalmente en minutos. Tú controlas las claves privadas y la custodia en todo momento."
+    },
+    {
+      "title": "Tarifas más bajas que los procesadores de tarjetas",
+      "description": "Paga desde 1.5% y observa cómo las tarifas bajan automáticamente a 0.5% a medida que tu volumen crece. Sin intercambio, sin puntos básicos en reembolsos, sin cargos mensuales de puerta de enlace. El primer pago es gratis."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo electrónico y crea un perfil de empresa en menos de tres minutos.",
+    "Agrega una dirección de billetera de pago para Bitcoin, Ethereum, USDT o cualquier criptomoneda soportada que desees aceptar.",
+    "Genera un enlace de pago o incrusta el widget de pago en tu WooCommerce o tienda personalizada. Hazlo en vivo."
+  ],
+  "faqs": [
+    {
+      "question": "¿Qué criptomonedas puede aceptar mi tienda de comercio electrónico con Dynopay?",
+      "answer": "Dynopay soporta más de 15 criptomonedas incluyendo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP y stablecoins como USDT en Ethereum, Tron y Polygon, USDC en Ethereum, y RLUSD en Ethereum y XRP Ledger. Tú eliges cuáles habilitar."
+    },
+    {
+      "question": "¿Necesito una billetera de criptomonedas para aceptar pagos?",
+      "answer": "Sí. Dynopay es no custodial, por lo que debes proporcionar una dirección de billetera por cada criptomoneda que desees aceptar. Los pagos van directamente allí. Tú controlas las claves privadas. Dynopay nunca retiene los fondos de los clientes ni requiere que retires."
+    },
+    {
+      "question": "¿Cuánto cobra Dynopay por transacción?",
+      "answer": "Los precios comienzan en 1.5% más un dólar por cada pago exitoso y bajan automáticamente a 0.5% a medida que aumenta tu volumen liquidado. Sin tarifas mensuales, sin costos de configuración, sin cargos ocultos. Tu primer pago es completamente libre de tarifas."
+    },
+    {
+      "question": "¿Pueden los clientes disputar o revertir un pago en criptomonedas?",
+      "answer": "No. Las transacciones de criptomonedas son irreversibles por diseño. Una vez que un cliente envía Bitcoin o USDT y la blockchain lo confirma, el pago no puede ser revertido, disputado o reclamado por un banco o red de tarjetas."
+    },
+    {
+      "question": "¿Cuánto tiempo tarda en comenzar a aceptar criptomonedas en mi tienda en línea?",
+      "answer": "La mayoría de los comerciantes se ponen en marcha en menos de 10 minutos. Regístrate, verifica tu correo electrónico, agrega un perfil de empresa, conecta una dirección de billetera, luego genera un enlace de pago o coloca el widget en tu tienda. Sin suscripción ni período de espera."
+    }
+  ],
+  "cta_headline": "Comienza a aceptar pagos en criptomonedas hoy",
+  "cta_body": "Tu primer pago es gratis y la configuración toma menos de 10 minutos. Sin tarifas mensuales, sin contracargos, fondos directos a tu billetera.",
+  "_generated_at": "2026-08-29T14:52:47.910056Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "ecommerce",
+  "_display_name": "E-commerce Stores"
+}

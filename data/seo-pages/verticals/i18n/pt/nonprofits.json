@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para organizações sem fins lucrativos e instituições de caridade · Dynopay",
+  "meta_description": "Aceite Bitcoin, Ethereum e mais de 15 criptomoedas para doações. Sem chargebacks, sem taxas mensais. Os fundos vão diretamente para a sua carteira. Comece gratuitamente hoje.",
+  "h1": "Aceite Pagamentos em Cripto para Organizações Sem Fins Lucrativos e Instituições de Caridade Sem Chargebacks",
+  "subheading": "Receba doações em Bitcoin, Ethereum, USDC e mais de 15 criptomoedas—os fundos chegam diretamente à sua carteira sem risco de chargeback.",
+  "intro_paragraph": "A fraude em doações custa milhares às organizações sem fins lucrativos em presentes de cartões de crédito revertidos e disputas de processamento. A Dynopay elimina completamente os chargebacks ao aceitar doações em cripto que se liquidam diretamente na carteira da sua organização—você mantém a custódia total desde o momento em que um doador envia fundos. Lance páginas de doação, incorpore widgets de checkout no seu site ou realize campanhas de crowdfunding com acompanhamento de metas e atualizações para doadores. As taxas começam em 1,5% e caem para 0,5% em grande escala, sem cobranças mensais e sua primeira doação é completamente gratuita.",
+  "features": [
+    {
+      "title": "Risco Zero de Chargeback em Doações",
+      "description": "As transações em cripto são finais. Uma vez que um doador envia Bitcoin ou stablecoin, os fundos não podem ser revertidos ou contestados, protegendo o seu orçamento de reivindicações fraudulentas de reembolso."
+    },
+    {
+      "title": "Os Fundos Vão Diretamente Para Você",
+      "description": "O modelo não custodial significa que as doações chegam imediatamente à sua própria carteira. A Dynopay nunca retém os seus fundos, assim você controla o tesouro e os desembolsos sem atrasos na retirada."
+    },
+    {
+      "title": "Aceite Doações Globalmente",
+      "description": "Apoiantes de qualquer lugar podem doar na sua criptomoeda preferida sem taxas de conversão de moeda, atrasos em transferências internacionais ou restrições geográficas de processadores de pagamento."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique seu e-mail, crie o seu perfil de organização sem fins lucrativos e adicione o endereço da sua carteira de pagamento.",
+    "Gere um link de doação ou incorpore o widget de checkout no seu site para começar a aceitar cripto.",
+    "Os doadores enviam Bitcoin, USDC ou outros ativos suportados e os fundos se liquidam diretamente na sua carteira."
+  ],
+  "faqs": [
+    {
+      "question": "As organizações sem fins lucrativos pagam taxas de transação sobre doações em cripto?",
+      "answer": "Sim. A Dynopay cobra a partir de 1,5% mais um dólar por doação no nível Starter, caindo automaticamente para 0,5% à medida que o seu volume liquidado cresce. Sem taxas mensais ou custos de configuração. Sua primeira doação é completamente isenta de taxas, e não há taxas de chargeback porque os pagamentos em cripto são finais."
+    },
+    {
+      "question": "Quais criptomoedas as organizações sem fins lucrativos podem aceitar para doações?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, USDT e stablecoins USDC na Ethereum e Polygon, Solana, XRP, RLUSD, Tron e Bitcoin Cash. Os doadores escolhem o seu ativo preferido no checkout."
+    },
+    {
+      "question": "Como os fundos em cripto doados chegam à carteira da nossa organização sem fins lucrativos?",
+      "answer": "A Dynopay é não custodial. As doações vão diretamente do doador para o endereço da carteira que você configura durante a configuração. Você mantém a custódia total em todos os momentos—A Dynopay nunca retém, agrupa ou controla os seus fundos. Você pode retirar ou gastar imediatamente."
+    },
+    {
+      "question": "Os apoiantes internacionais podem doar cripto a organizações sem fins lucrativos dos EUA?",
+      "answer": "Sim. As doações em cripto funcionam globalmente por padrão, sem restrições de país sobre quem pode enviar fundos para a sua carteira. Os doadores evitam taxas de transferência internacional e spreads de conversão de moeda, e você recebe contribuições em minutos, independentemente da localização deles."
+    },
+    {
+      "question": "Quanto tempo leva para começar a aceitar doações em cripto?",
+      "answer": "Menos de 10 minutos. Inscreva-se, verifique seu e-mail, crie o seu perfil de organização sem fins lucrativos, adicione uma carteira de pagamento, depois gere um link de doação ou incorpore o widget no seu site. Não são necessárias aprovações de conta de comerciante ou integração bancária."
+    }
+  ],
+  "cta_headline": "Comece a Aceitar Doações em Cripto Hoje",
+  "cta_body": "Sua primeira doação é isenta de taxas. Vá ao ar em menos de 10 minutos, sem custos de configuração ou cobranças mensais.",
+  "_generated_at": "2026-08-29T14:56:49.775449Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "nonprofits",
+  "_display_name": "Nonprofits & Charities"
+}

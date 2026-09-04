@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para marketplaces e plataformas online · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda no seu marketplace ou plataforma. Não custodial, 15+ criptomoedas, com taxas a partir de 1,5%. Sem chargebacks. Comece em 10 minutos com a Dynopay.",
+  "h1": "Pagamentos em criptomoeda para marketplaces e plataformas online que o mantêm no controlo",
+  "subheading": "Aceite Bitcoin, Ethereum, USDT e 15+ criptomoedas diretamente na sua carteira. Elimine chargebacks, reduza a fricção nos pagamentos e pague vendedores globalmente.",
+  "intro_paragraph": "Os marketplaces e plataformas online enfrentam constantes disputas de chargeback, dores de cabeça com pagamentos transfronteiriços e restrições de processadores de pagamento em bens digitais. A Dynopay é uma plataforma de comércio em criptomoeda não custodial que envia fundos diretamente para a sua carteira—sem intermediários a segurar o seu dinheiro. Você obtém links de pagamento, checkout alojado, integração total da API e escalonamento automático das taxas de 1,5% até 0,5% com base no volume. Os seus vendedores e utilizadores podem receber pagamentos em criptomoeda em minutos, em qualquer parte do mundo, com risco zero de chargeback.",
+  "features": [
+    {
+      "title": "Liquidações diretas na carteira, sempre",
+      "description": "Os fundos chegam à sua própria carteira para cada transação. A Dynopay nunca toma posse, por isso você controla a liquidez, o tempo e a conformidade. Sem esperar por pagamentos em lote ou aprovações de intermediários."
+    },
+    {
+      "title": "Exposição zero a chargebacks",
+      "description": "As transações em criptomoeda são finais. Elimine disputas de fraude, fraude amigável e taxas de chargeback que erodem as margens em bens digitais, subscrições e vendas de alto valor em marketplaces."
+    },
+    {
+      "title": "Pague vendedores internacionais em minutos",
+      "description": "Distribua ganhos a freelancers, fornecedores e criadores em todo o mundo em criptomoeda. Sem atrasos em transferências, sem taxas bancárias correspondentes. Eles escolhem a sua carteira e ativo preferidos."
+    }
+  ],
+  "how_it_works": [
+    "Registe-se, verifique o seu email e crie o seu perfil de empresa em menos de três minutos.",
+    "Adicione um endereço de carteira de pagamento para a criptomoeda que deseja receber como liquidação.",
+    "Gere um link de pagamento, incorpore o widget de checkout ou integre via API REST e comece a aceitar pagamentos."
+  ],
+  "faqs": [
+    {
+      "question": "Quais criptomoedas pode o meu marketplace aceitar com a Dynopay?",
+      "answer": "A Dynopay suporta 15+ criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, USDT na Ethereum, Tron e Polygon, USDC, RLUSD, Solana, XRP, TRX, Bitcoin Cash e Polygon (MATIC). Todas as liquidações vão diretamente para a sua carteira."
+    },
+    {
+      "question": "Quais são as taxas da Dynopay para processar pagamentos em criptomoeda numa plataforma?",
+      "answer": "As taxas começam em 1,5% mais um dólar por pagamento bem-sucedido e caem automaticamente para 0,5% à medida que o seu volume liquidado cresce. Sem taxas mensais, sem custos de configuração, sem encargos ocultos. O seu primeiro pagamento é completamente gratuito."
+    },
+    {
+      "question": "Como faço para pagar vendedores ou criadores no meu marketplace em criptomoeda?",
+      "answer": "Cada vendedor ou criador fornece o seu próprio endereço de carteira. Você pode enviar criptomoeda diretamente da sua carteira de tesouraria ou integrar a API da Dynopay para automatizar os pagamentos."
+    },
+    {
+      "question": "A Dynopay retém fundos em algum momento durante uma transação?",
+      "answer": "Não. A Dynopay é não custodial. Cada pagamento vai diretamente da carteira do comprador para a sua carteira de pagamento especificada. Você mantém total posse e controlo sobre os fundos em todos os momentos, sem bloqueio por intermediários."
+    },
+    {
+      "question": "Quanto tempo leva para começar a aceitar criptomoeda na minha plataforma?",
+      "answer": "O processo de integração leva menos de 10 minutos. Registe-se, verifique o seu email, adicione os detalhes da sua empresa, especifique uma carteira de pagamento e gere um link de pagamento ou integre o checkout. Você pode entrar em funcionamento no mesmo dia."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda em 10 minutos",
+  "cta_body": "O seu primeiro pagamento é sem taxas. Sem custos de configuração, sem taxas mensais, e os fundos são liquidadas diretamente na sua carteira.",
+  "_generated_at": "2026-08-29T14:56:01.692406Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "marketplaces",
+  "_display_name": "Online Marketplaces & Platforms"
+}

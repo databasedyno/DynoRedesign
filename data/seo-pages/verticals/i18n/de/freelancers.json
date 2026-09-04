@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Freelancer & Kreative · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Freelancer & Kreative mit Dynopay. Keine Rückbuchungen, globale Kunden, 15+ Kryptowährungen. Beginnen Sie, Zahlungen in 10 Minuten zu erhalten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Freelancer & Kreative ohne Rückbuchungen oder Grenzen",
+  "subheading": "Erhalten Sie Zahlungen in Bitcoin, Ethereum, USDT und 12+ anderen Kryptowährungen. Die Gelder gelangen direkt in Ihre Wallet – niemals von einer Plattform gesperrt.",
+  "intro_paragraph": "Wenn Sie digitale Dienstleistungen, Vorlagen oder Coaching grenzüberschreitend verkaufen, kann PayPal Ihre Gelder bis zu 180 Tage einbehalten, und Kunden können Monate später Rückbuchungen vornehmen. Dynopay ist eine nicht verwahrende Krypto-Handelsplattform, die für Freelancer und Kreative entwickelt wurde, die globale Zahlungen ohne Rückbuchungen wünschen. Sie erhalten Gelder direkt in Ihre eigene Wallet, und die Gebühren beginnen bei 1,5 % und sinken bei größeren Volumina auf 0,5 %. Keine monatlichen Gebühren, keine eingefrorenen Gelder, kein Rückerstattungsbetrug.",
+  "features": [
+    {
+      "title": "Ihre Wallet, Ihre Verwahrung immer",
+      "description": "Dynopay hält Ihre Gelder niemals. Jede Zahlung landet direkt in der Wallet, die Sie kontrollieren, sodass keine Plattform Ihre Einnahmen einfrieren oder Auszahlungen verzögern kann."
+    },
+    {
+      "title": "Kein Rückbuchungsrisiko bei Dienstleistungen",
+      "description": "Krypto-Zahlungen sind endgültig. Kunden können eine Zahlung 90 Tage nach der Lieferung eines Logos, einer Website oder eines Coaching-Gesprächs nicht zurückbuchen – Rückerstattungsmissbrauch wird somit ausgeschlossen."
+    },
+    {
+      "title": "Trinkgelder, Produkte und Zahlungslinks",
+      "description": "Sammeln Sie Trinkgelder unter dynopay.com/@yourhandle, verkaufen Sie digitale Produkte mit gehostetem Checkout oder teilen Sie Zahlungslinks für Rechnungen. Eine Plattform verwaltet alle drei."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich mit Ihrer E-Mail an, verifizieren Sie sie und erstellen Sie Ihr Unternehmensprofil in weniger als drei Minuten.",
+    "Fügen Sie Ihre Bitcoin-, Ethereum- oder Stablecoin-Wallet-Adresse hinzu – nur ein Auszahlungsziel, um Zahlungen zu erhalten.",
+    "Erstellen Sie einen Zahlungslink, betten Sie den Checkout auf Ihrer Website ein oder teilen Sie Ihre persönliche Trinkgeldseite und gehen Sie live."
+  ],
+  "faqs": [
+    {
+      "question": "Muss ich Kryptowährung halten, um als Freelancer Krypto-Zahlungen zu akzeptieren?",
+      "answer": "Nein. Sie benötigen nur eine Wallet-Adresse, an die Zahlungen eingehen. Sie können in wenigen Minuten eine kostenlose Wallet mit Exodus, MetaMask oder Coinbase Wallet erstellen und dann Krypto jederzeit an einer Börse in Ihre lokale Währung umwandeln."
+    },
+    {
+      "question": "Welche Kryptowährungen können Freelancer und Kreative mit Dynopay akzeptieren?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX und Stablecoins wie USDT (ERC20, TRC20, Polygon) und USDC. Sie wählen aus, welche Vermögenswerte Sie pro Produkt oder Link akzeptieren möchten."
+    },
+    {
+      "question": "Welche Gebühren erhebt Dynopay für Krypto-Zahlungen?",
+      "answer": "Die Gebühren beginnen bei 1,5 % plus einem Dollar pro erfolgreicher Zahlung und sinken automatisch auf 0,5 %, wenn Ihr abgewickeltes Volumen wächst. Ihre erste Zahlung ist völlig kostenlos. Keine monatlichen Gebühren, Einrichtungsgebühren oder versteckte Kosten."
+    },
+    {
+      "question": "Können Kunden eine Krypto-Zahlung anfechten oder rückgängig machen, nachdem ich die Arbeit geliefert habe?",
+      "answer": "Nein. Kryptowährungstransaktionen sind endgültig und unwiderruflich. Sobald ein Kunde bezahlt, kann er keine Rückbuchung oder Zahlungsanfechtung einreichen – das schützt Sie vor Rückerstattungsbetrug, der bei Kreditkarten und PayPal häufig vorkommt."
+    },
+    {
+      "question": "Wie schnell kann ich als Kreativer Krypto-Zahlungen akzeptieren?",
+      "answer": "Sie können in weniger als 10 Minuten live gehen. Melden Sie sich an, verifizieren Sie Ihre E-Mail, fügen Sie Ihre Wallet-Adresse hinzu und erstellen Sie einen Zahlungslink oder eine persönliche Trinkgeldseite. Keine langen Anträge, Bonitätsprüfungen oder Geschäftsdokumentationen erforderlich."
+    }
+  ],
+  "cta_headline": "Beginnen Sie noch heute mit der Akzeptanz von Krypto-Zahlungen",
+  "cta_body": "Ihre erste Zahlung ist gebührenfrei. Gehen Sie in 10 Minuten live, ohne monatliche Kosten, und die Gelder werden direkt an Ihre Wallet gesendet.",
+  "_generated_at": "2026-08-29T14:53:34.729935Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "freelancers",
+  "_display_name": "Freelancers & Creators"
+}

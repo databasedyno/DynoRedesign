@@ -1,0 +1,55 @@
+{
+  "meta_title": "Accepteer crypto-tips als creator — jouw eigen tippagina · Dynopay",
+  "meta_description": "Accepteer crypto-tips als creator met jouw eigen dynopay.com/@handle pagina. Fans betalen in 15+ cryptovaluta, de fondsen gaan rechtstreeks naar jouw wallet. Begin vandaag gratis.",
+  "h1": "Accepteer crypto-tips als creator met jouw persoonlijke tippagina",
+  "subheading": "Krijg jouw eigen dynopay.com/@handle pagina waar fans jou steunen in Bitcoin, Ethereum, Solana en 12+ andere cryptovaluta—betaald rechtstreeks naar jouw wallet.",
+  "intro_paragraph": "De meeste platforms houden jouw tips op hun account en betalen je later. Dynopay werkt anders: elke tip gaat rechtstreeks naar jouw eigen crypto wallet, en jij houdt de controle de hele tijd. Jouw persoonlijke tippagina op dynopay.com/@handle accepteert 15+ cryptocurrencies, fans betalen met één tik zonder een account aan te maken, en je bent binnen 10 minuten live. De eerste betaling is volledig gratis, daarna beginnen de kosten bij 1,5% en dalen naar 0,5% naarmate jouw volume groeit.",
+  "features": [
+    {
+      "title": "Tips rechtstreeks naar jouw wallet",
+      "description": "Elke crypto-tip komt direct in de wallet die jij beheert. Dynopay houdt jouw fondsen nooit vast, zodat jij volledige controle hebt en jouw crypto kunt verplaatsen wanneer je maar wilt."
+    },
+    {
+      "title": "Jouw eigen gebrandmerkte tippagina",
+      "description": "Claim jouw dynopay.com/@handle en deel één link overal. Fans betalen in Bitcoin, Ethereum, Solana, USDT of 11+ andere cryptovaluta zonder zich aan te melden of iets te installeren."
+    },
+    {
+      "title": "Kosten dalen naarmate je groeit",
+      "description": "Jouw eerste betaling is gratis. Daarna beginnen de kosten bij 1,5% en vallen automatisch naar 0,5% op basis van jouw volume. Geen maandelijkse kosten, geen opstartkosten, geen terugboekingen."
+    }
+  ],
+  "how_it_works": [
+    "Meld je aan met je e-mail, maak je creator-profiel aan en claim jouw aangepaste @handle op dynopay.com.",
+    "Voeg jouw crypto wallet-adres één keer toe—Bitcoin, Ethereum, Solana of elke keten die je verkiest voor uitbetalingen.",
+    "Deel jouw dynopay.com/@handle link in je bio, stream overlays of berichten. Fans tippen je in seconden."
+  ],
+  "faqs": [
+    {
+      "question": "Welke cryptocurrencies kan ik accepteren als tips?",
+      "answer": "Je kunt 15+ cryptocurrencies accepteren, waaronder Bitcoin, Ethereum, Solana, Dogecoin, Litecoin, XRP, Tron, Polygon en stablecoins zoals USDT en USDC op meerdere netwerken. Fans kiezen welke crypto ze willen sturen, en jij ontvangt het direct in jouw wallet."
+    },
+    {
+      "question": "Moet ik een wallet aanmaken voor elke cryptocurrency?",
+      "answer": "Nee. Je voegt één uitbetalingswallet-adres toe per cryptocurrency die je wilt ondersteunen. Voeg bijvoorbeeld één Ethereum-adres toe om ETH, USDT, USDC en RLUSD op Ethereum te ontvangen. Tips in die crypto gaan rechtstreeks naar de wallet die je hebt opgegeven."
+    },
+    {
+      "question": "Hoeveel rekent Dynopay voor crypto-tips?",
+      "answer": "Jouw eerste betaling is volledig gratis. Daarna beginnen de kosten bij 1,5% plus één dollar per tip en dalen automatisch tot zo laag als 0,5% naarmate jouw volume groeit. Er zijn geen maandelijkse kosten, opstartkosten of verborgen kosten."
+    },
+    {
+      "question": "Moeten mijn fans zich aanmelden of iets installeren?",
+      "answer": "Nee. Fans bezoeken jouw dynopay.com/@handle pagina, kiezen hun crypto en sturen de tip vanuit hun bestaande wallet. Ze maken geen account aan—hooguit kunnen ze een optionele e-mail achterlaten voor een ontvangstbewijs. Betaling duurt seconden."
+    },
+    {
+      "question": "Hoe lang duurt het om crypto-tips te accepteren?",
+      "answer": "Minder dan 10 minuten. Meld je aan, verifieer je e-mail, claim je @handle en voeg je wallet-adres toe. Jouw persoonlijke tippagina gaat onmiddellijk live en je kunt de link delen waar jouw community samenkomt."
+    }
+  ],
+  "cta_headline": "Claim jouw tippagina en ga vandaag live",
+  "cta_body": "Meld je aan in twee minuten, voeg je wallet toe en begin crypto-tips te accepteren. Jouw eerste betaling is gratis, nooit maandelijkse kosten.",
+  "_generated_at": "2026-08-29T14:57:33.999072Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "creators",
+  "_display_name": "Creators & Streamers"
+}

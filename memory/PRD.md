@@ -2,9 +2,11 @@
 # A) 7 help articles authored + translated ×6 langs, server-rendered (fully localized title/body/canonical under ?lang=).
 # B) /fees now has a visible FAQ + FAQPage & Service JSON-LD (translated ×6). /for/* already had FAQ/WebPage/Breadcrumb JSON-LD.
 # C) MULTILINGUAL SSR (Option 3B) LIVE in code: ?lang=xx (en,pt,fr,es,de,nl) renders translated HTML with <html lang>, self-canonical + hreflang; per-request cloned i18n instance (no cross-request bleed); client hydrates same locale (no mismatch). Header switcher updates ?lang= in URL. Public marketing pages carry s-maxage=300 caching.
-#   Localizable (canonical/hreflang) set = / , /fees , /help-support(+articles). blog & /for/* stay English-only by design.
+#   Localizable (canonical/hreflang) set = / , /fees , /help-support(+articles), AND /for/* (all 15 verticals, fully translated ×6).
+#   /for/[vertical] is now SSR (getServerSideProps, was SSG) so ?lang= renders server-side; CDN-cached via _app s-maxage=300. blog stays English-only.
+#   Help-support INDEX now server-renders 8 crawlable <a href> article links (seeded static, localized) — no longer JS-only.
 # Deploy: next Save-to-GitHub → DigitalOcean. Post-deploy: resubmit sitemap.xml + request indexing in Search Console.
-# Backlog: SSR <a href> cards on the help-support index (crawl currently via JS+sitemap); optional per-locale translation of /for/* SEO content.
+# Backlog: optional per-locale translation of country pages (route not built yet); seed KB DB to auto-upgrade help articles to editable DB content.
 
 
 

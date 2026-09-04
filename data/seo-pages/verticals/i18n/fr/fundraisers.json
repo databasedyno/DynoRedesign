@@ -1,0 +1,55 @@
+{
+  "meta_title": "Plateforme de financement participatif et de dons en crypto · Dynopay",
+  "meta_description": "Lancez des campagnes de financement participatif et collectez des dons en plus de 15 cryptomonnaies. Fixez des objectifs, offrez des récompenses, mettez à jour vos soutiens. Fonds vers votre portefeuille. Commencez gratuitement.",
+  "h1": "Financement participatif et dons en crypto pour les ONG et les collecteurs de fonds",
+  "subheading": "Lancez des campagnes avec des objectifs de financement, des niveaux de récompense et des mises à jour pour les soutiens—puis recevez des Bitcoin, Ethereum, stablecoins, et plus directement dans votre portefeuille.",
+  "intro_paragraph": "Dynopay offre aux ONG et aux organisateurs une page de campagne complète pour collecter des fonds en crypto auprès de soutiens du monde entier. Fixez un objectif de financement, créez des niveaux de récompense, publiez des mises à jour qui notifient les contributeurs par email, et regardez les dons arriver dans votre propre portefeuille—sans intermédiaire. Acceptez plus de 15 cryptomonnaies, y compris Bitcoin, Ethereum, Polygon, Solana, Tron, et XRP Ledger. Les frais commencent à 1,5 % par transaction et descendent à 0,5 % à mesure que votre volume augmente, avec votre premier paiement entièrement gratuit.",
+  "features": [
+    {
+      "title": "Pages de Campagne avec Niveaux de Récompense",
+      "description": "Créez une page de campagne de marque avec votre objectif de financement, une barre de progression, et plusieurs niveaux de récompense. Les soutiens choisissent leur niveau de contribution et vous gardez la pleine propriété de chaque don dans votre portefeuille."
+    },
+    {
+      "title": "Mises à Jour pour les Soutiens par Email",
+      "description": "Publiez des mises à jour de campagne qui notifient automatiquement tous vos contributeurs par email. Gardez votre communauté engagée, partagez des étapes importantes, et construisez la confiance sans gérer des listes de diffusion séparées ou des outils tiers."
+    },
+    {
+      "title": "Acceptez plus de 15 Cryptomonnaies à l'Échelle Mondiale",
+      "description": "Recevez des Bitcoin, Ethereum, USDT, USDC, RLUSD, Solana, XRP, Dogecoin, et plus. Aucune restriction géographique sur qui peut faire un don, vous pouvez donc collecter des fonds auprès de soutiens partout dans le monde."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email, et créez le profil de votre organisation en moins de cinq minutes.",
+    "Ajoutez votre adresse de portefeuille, fixez votre objectif de financement, créez des niveaux de récompense, et publiez votre page de campagne.",
+    "Partagez le lien de votre campagne et recevez des dons directement dans votre portefeuille au fur et à mesure que les soutiens contribuent."
+  ],
+  "faqs": [
+    {
+      "question": "Combien cela coûte-t-il de lancer une campagne de financement participatif en crypto ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par don réussi et descendent automatiquement à 0,5 % à mesure que votre volume augmente. Votre premier paiement est entièrement gratuit. Pas de frais mensuels, pas de coûts d'installation, et pas de frais cachés."
+    },
+    {
+      "question": "Dois-je donner accès à mon portefeuille à Dynopay ?",
+      "answer": "Non. Dynopay est non-custodial, ce qui signifie que vous fournissez une adresse de portefeuille où les dons sont envoyés directement. Vous conservez le contrôle total et la garde de vos fonds à tout moment. Dynopay ne détient ni ne touche vos dons."
+    },
+    {
+      "question": "Quelles cryptomonnaies les donateurs peuvent-ils utiliser ?",
+      "answer": "Les soutiens peuvent faire des dons en utilisant Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT, USDC, RLUSD, MATIC, Tron, Solana, et XRP. Cela fait plus de 15 cryptomonnaies sur neuf blockchains, offrant aux donateurs une flexibilité dans leur contribution."
+    },
+    {
+      "question": "Puis-je offrir des récompenses aux donateurs à différents niveaux ?",
+      "answer": "Oui. Vous pouvez créer plusieurs niveaux de récompense avec différents montants de contribution et avantages. Les soutiens sélectionnent leur niveau lors du don, et vous pouvez gérer l'exécution en fonction de ce que chaque contributeur a choisi pendant votre campagne."
+    },
+    {
+      "question": "Y a-t-il des restrictions par pays sur la collecte de dons ?",
+      "answer": "Aucune restriction géographique ne s'applique à la réception de dons en crypto—les soutiens de n'importe quel pays peuvent contribuer à votre campagne. La vérification d'identité (KYC) s'applique à votre compte Dynopay une fois que le volume réglé dépasse un seuil, et les passerelles fiat effectuent leur propre KYC si vous convertissez en monnaie locale."
+    }
+  ],
+  "cta_headline": "Lancez votre campagne de collecte de fonds en crypto aujourd'hui",
+  "cta_body": "Votre premier don est sans frais et vous pouvez être opérationnel en moins de 10 minutes avec votre propre page de campagne et portefeuille.",
+  "_generated_at": "2026-08-29T14:57:54.590424Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "fundraisers",
+  "_display_name": "Fundraisers & Nonprofits"
+}

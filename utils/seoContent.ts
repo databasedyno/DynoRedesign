@@ -83,6 +83,25 @@ export function getVerticalContent(slug: string): SEOPageContent | null {
   return _readOne(VERTICALS_DIR, slug);
 }
 
+const VERTICAL_I18N_DIR = path.join(VERTICALS_DIR, "i18n");
+export const SEO_LOCALES = ["en", "pt", "fr", "es", "de", "nl"] as const;
+export type LocalizedSEOContent = Record<string, SEOPageContent>;
+
+/**
+ * English source + machine translations for a vertical, keyed by locale.
+ * Falls back to English for any missing locale so a page never renders blank.
+ */
+export function getVerticalContentAllLangs(slug: string): LocalizedSEOContent | null {
+  const en = getVerticalContent(slug);
+  if (!en) return null;
+  const out: LocalizedSEOContent = { en };
+  for (const lng of SEO_LOCALES) {
+    if (lng === "en") continue;
+    out[lng] = _readOne(path.join(VERTICAL_I18N_DIR, lng), slug) || en;
+  }
+  return out;
+}
+
 /** Compact record used by the sitemap to list every SEO page. */
 export interface SEOPageIndexEntry {
   slug: string;

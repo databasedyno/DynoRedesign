@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor online marktplaatsen en platforms · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen op uw marktplaats of platform. Non-custodial, 15+ cryptocurrencies, vanaf 1,5% kosten. Geen terugboekingen. Begin binnen 10 minuten met Dynopay.",
+  "h1": "Crypto-betalingen voor online marktplaatsen en platforms die u de controle geven",
+  "subheading": "Accepteer Bitcoin, Ethereum, USDT en 15+ cryptocurrencies rechtstreeks in uw wallet. Elimineer terugboekingen, verminder betalingsfrictie en betaal verkopers wereldwijd.",
+  "intro_paragraph": "Online marktplaatsen en platforms worden geconfronteerd met constante terugboekingsgeschillen, problemen met grensoverschrijdende uitbetalingen en beperkingen van betalingsverwerkers op digitale goederen. Dynopay is een non-custodial crypto commerce platform dat fondsen rechtstreeks naar uw wallet verzendt—geen tussenpersoon die uw geld vasthoudt. U krijgt betalingslinks, gehoste checkout, volledige API-integratie en automatische schaalverdeling van kosten van 1,5% tot 0,5% op basis van volume. Uw verkopers en gebruikers kunnen crypto-uitbetalingen binnen enkele minuten ontvangen, overal ter wereld, met nul terugboekingsrisico.",
+  "features": [
+    {
+      "title": "Directe wallet-settlement, altijd",
+      "description": "Fondsen komen voor elke transactie in uw eigen wallet aan. Dynopay neemt nooit de controle, zodat u de liquiditeit, timing en naleving beheert. Geen wachten op batch-uitbetalingen of goedkeuringen van tussenpersonen."
+    },
+    {
+      "title": "Nul terugboekingsrisico",
+      "description": "Crypto-transacties zijn definitief. Elimineer fraude geschillen, vriendelijke fraude en terugboekingskosten die marges op digitale goederen, abonnementen en hoge-ticket marktplaatsverkopen ondermijnen."
+    },
+    {
+      "title": "Betaal internationale verkopers binnen enkele minuten",
+      "description": "Verdeel inkomsten naar freelancers, leveranciers en makers wereldwijd in crypto. Geen vertragingen bij overschrijvingen, geen correspondentbankkosten. Zij kiezen hun voorkeurswallet en activa."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail en maak uw bedrijfsprofiel in minder dan drie minuten aan.",
+    "Voeg één uitbetalingswallet-adres toe voor de cryptocurrency die u als betaling wilt ontvangen.",
+    "Genereer een betalingslink, embed de checkout-widget of integreer via REST API en begin met het accepteren van betalingen."
+  ],
+  "faqs": [
+    {
+      "question": "Welke cryptocurrencies kan mijn marktplaats accepteren met Dynopay?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, USDT op Ethereum, Tron en Polygon, USDC, RLUSD, Solana, XRP, TRX, Bitcoin Cash en Polygon (MATIC). Alle uitbetalingen gaan rechtstreeks naar uw wallet."
+    },
+    {
+      "question": "Wat zijn de kosten van Dynopay voor het verwerken van crypto-betalingen op een platform?",
+      "answer": "Kosten beginnen bij 1,5% plus één dollar per succesvolle betaling en dalen automatisch naar 0,5% naarmate uw verwerkte volume groeit. Geen maandelijkse kosten, geen opstartkosten, geen verborgen kosten. Uw eerste betaling is volledig gratis."
+    },
+    {
+      "question": "Hoe betaal ik verkopers of makers op mijn marktplaats in crypto?",
+      "answer": "Elke verkoper of maker geeft zijn eigen wallet-adres op. U kunt crypto rechtstreeks vanuit uw treasury wallet verzenden, of de API van Dynopay integreren om uitbetalingen te automatiseren."
+    },
+    {
+      "question": "Houdt Dynopay op enig moment tijdens een transactie fondsen vast?",
+      "answer": "Nee. Dynopay is non-custodial. Elke betaling gaat rechtstreeks van de wallet van de koper naar uw opgegeven uitbetalingswallet. U behoudt te allen tijde volledige controle over de fondsen, zonder tussenpersoon blokkering."
+    },
+    {
+      "question": "Hoe lang duurt het om crypto te accepteren op mijn platform?",
+      "answer": "De onboarding duurt minder dan 10 minuten. Meld u aan, verifieer uw e-mail, voeg uw bedrijfsgegevens toe, specificeer één uitbetalingswallet en genereer een betalingslink of integreer de checkout. U kunt dezelfde dag nog live gaan."
+    }
+  ],
+  "cta_headline": "Begin met het accepteren van crypto-betalingen in 10 minuten",
+  "cta_body": "Uw eerste betaling is kosteloos. Geen opstartkosten, geen maandelijkse kosten, en fondsen worden rechtstreeks naar uw wallet overgemaakt.",
+  "_generated_at": "2026-08-29T14:56:01.692406Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "marketplaces",
+  "_display_name": "Online Marketplaces & Platforms"
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Accepteer crypto-betalingen voor uw winkel · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor uw winkel met gehoste checkout, betalingslinks en een storefront. Fondsen worden rechtstreeks naar uw wallet overgemaakt. Begin gratis in 10 minuten.",
+  "h1": "Accepteer crypto-betalingen voor uw winkel met gehoste checkout en betalingslinks",
+  "subheading": "Verkoop producten en verzamel betalingen in 15+ cryptocurrencies. Elke transactie wordt rechtstreeks naar uw wallet overgemaakt—Dynopay houdt uw fondsen nooit vast.",
+  "intro_paragraph": "Dynopay biedt online verkopers een complete toolkit voor crypto-commerce: gehoste checkoutpagina's, no-code betalingslinks en een volledige storefront om producten te verkopen in Bitcoin, Ethereum, Solana, stablecoins en 15+ andere cryptocurrencies. Omdat Dynopay non-custodial is, komt elke betaling binnen enkele minuten rechtstreeks in uw eigen wallet—geen tussenliggende wachttijd, geen opnameverzoeken en geen terugboekingen. U betaalt een platformvergoeding die begint bij 1,5% en daalt naar 0,5% naarmate uw volume groeit, zonder maandelijkse of opstartkosten.",
+  "features": [
+    {
+      "title": "Non-custodial betalingsverwerking",
+      "description": "Elke crypto-betaling van uw klanten komt rechtstreeks in uw eigen wallet aan. Dynopay houdt, bevriest of controleert uw fondsen nooit, zodat u volledige controle behoudt en geld kunt verplaatsen wanneer u maar wilt."
+    },
+    {
+      "title": "Gehoste checkout en betalingslinks",
+      "description": "Genereer een checkoutpagina of deelbare betalingslink in enkele seconden—geen codering vereist. Klanten betalen in hun favoriete crypto, en u ontvangt de afrekening in uw gekozen activum, inclusief automatische conversie naar stablecoins."
+    },
+    {
+      "title": "Volume-gebaseerde kostenstructuur",
+      "description": "Uw eerste betaling is volledig gratis. Daarna beginnen de kosten bij 1,5% plus één dollar per transactie en dalen automatisch naar 0,5% naarmate uw verwerkte volume toeneemt, zonder maandelijkse of verborgen kosten."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan met uw e-mail, verifieer uw account en maak uw bedrijfsprofiel in minder dan drie minuten aan.",
+    "Voeg uw uitbetalingswallet-adres toe voor elke ondersteunde keten—Bitcoin, Ethereum, Solana, Tron, Polygon of XRP Ledger.",
+    "Maak een betalingslink aan of embed de checkout-widget op uw site en begin onmiddellijk met het accepteren van crypto-betalingen."
+  ],
+  "faqs": [
+    {
+      "question": "Welke cryptocurrencies kan mijn winkel accepteren met Dynopay?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Solana, Litecoin, Dogecoin, XRP, Tron, Polygon en stablecoins zoals USDT, USDC en RLUSD op meerdere ketens. U kiest welke activa u accepteert en welke wallet de afrekening ontvangt."
+    },
+    {
+      "question": "Hoeveel rekent Dynopay voor het accepteren van crypto-betalingen?",
+      "answer": "Uw eerste betaling is volledig gratis. Daarna beginnen de kosten bij 1,5% plus één dollar per succesvolle transactie en dalen automatisch naar 0,5% bij hogere volumes. Er zijn geen maandelijkse kosten, opstartkosten of verborgen kosten, en crypto-betalingen hebben geen terugboekingen."
+    },
+    {
+      "question": "Moet ik Dynopay controle geven over mijn crypto?",
+      "answer": "Nee. Dynopay is non-custodial, wat betekent dat elke betaling rechtstreeks van uw klant naar uw eigen wallet wordt overgemaakt. Dynopay houdt, controleert of heeft op geen enkel moment toegang tot uw fondsen tijdens de transactie."
+    },
+    {
+      "question": "Hoe lang duurt het om crypto te accepteren in mijn online winkel?",
+      "answer": "De meeste verkopers zijn binnen 10 minuten live. U meldt zich aan, verifieert uw e-mail, voegt een uitbetalingswallet-adres toe en genereert een betalingslink of embed de checkout-widget. Geen langdurige onboarding, geen complexe integratie vereist voor basisverkopen."
+    },
+    {
+      "question": "Kan ik binnenkomende crypto automatisch omzetten naar stablecoins?",
+      "answer": "Ja. Dynopay biedt optionele automatische conversie naar USDT of USDC op het moment van afrekening, zodat u volatiele activa zoals Bitcoin of Ethereum kunt accepteren, maar stabiele waarde rechtstreeks in uw wallet ontvangt zonder handmatige omzetting."
+    }
+  ],
+  "cta_headline": "Begin vandaag nog met het accepteren van crypto-betalingen",
+  "cta_body": "Uw eerste transactie is volledig gratis en u kunt binnen 10 minuten live zijn zonder maandelijkse kosten of opstartkosten.",
+  "_generated_at": "2026-08-29T14:57:11.030787Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "merchants",
+  "_display_name": "Merchants & Online Sellers"
+}

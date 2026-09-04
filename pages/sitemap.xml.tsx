@@ -8,7 +8,11 @@ const LOCALE_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
 
 /** Fully i18n-driven pages get real per-locale ?lang= hreflang alternates. */
 const isLocalizable = (p: string): boolean =>
-  p === "/" || p === "/fees" || p === "/help-support" || p.startsWith("/help-support/");
+  p === "/" ||
+  p === "/fees" ||
+  p === "/help-support" ||
+  p.startsWith("/help-support/") ||
+  p.startsWith("/for/");
 
 interface SitemapEntry {
   path: string;

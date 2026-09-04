@@ -1,9 +1,9 @@
 import React, { memo } from "react";
-import type { GetStaticPaths, GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
+import { useTranslation } from "react-i18next";
 import SEOLandingPage from "@/Components/Page/SEO/SEOLandingPage";
 import {
-  getAllVerticalSlugs,
-  getVerticalContent,
+  getVerticalContentAllLangs,
   getRelatedPages,
   type SEOPageContent,
   type SEOPageIndexEntry,
@@ -12,46 +12,38 @@ import {
 const SITE_ORIGIN = "https://dynopay.com";
 
 interface Props {
-  content: SEOPageContent;
-  canonicalUrl: string;
+  contents: Record<string, SEOPageContent>;
+  canonicalBase: string;
   relatedPages: SEOPageIndexEntry[];
 }
 
-const VerticalSEOPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages }) => {
+const VerticalSEOPage: React.FC<Props> = ({ contents, canonicalBase, relatedPages }) => {
+  const { i18n } = useTranslation();
+  const lang = i18n.language || "en";
+  const content = contents[lang] || contents.en;
+  const canonicalUrl = lang !== "en" ? `${canonicalBase}?lang=${lang}` : canonicalBase;
   return (
     <SEOLandingPage
       content={content}
       canonicalUrl={canonicalUrl}
+      localeAlternates={canonicalBase}
       relatedPages={relatedPages}
     />
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const slugs = getAllVerticalSlugs();
-  if (slugs.length === 0) {
-    // Fail the build loudly — a missing data/seo-pages dir silently shipped
-    // zero pages (production 404s) when the Dockerfile omitted COPY data/.
-    throw new Error(
-      "SEO build error: data/seo-pages/verticals is missing or empty — check Dockerfile COPY data/ ./data/"
-    );
-  }
-  return {
-    paths: slugs.map((slug) => ({ params: { vertical: slug } })),
-    fallback: false,
-  };
-};
-
-export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
+// SSR (not SSG) so the ?lang= locale renders server-side with the correct
+// <html lang>, self-canonical and hreflang. Public page → CDN-cached via _app.
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
   const slug = String(params?.vertical || "");
-  const content = getVerticalContent(slug);
-  if (!content) {
+  const contents = getVerticalContentAllLangs(slug);
+  if (!contents) {
     return { notFound: true };
   }
   return {
     props: {
-      content,
-      canonicalUrl: `${SITE_ORIGIN}/for/${slug}`,
+      contents,
+      canonicalBase: `${SITE_ORIGIN}/for/${slug}`,
       relatedPages: getRelatedPages("vertical", slug, 3),
     },
   };

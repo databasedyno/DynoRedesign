@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Agenturen & Berater · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Agenturen & Berater mit Dynopay. Non-Custodial, 15+ Kryptowährungen, Gebühren ab 1,5%. Bezahlen Sie globale Auftragnehmer. Jetzt starten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Agenturen & Berater ohne Rückbuchungen",
+  "subheading": "Stellen Sie Rechnungen in 15+ Kryptowährungen aus, bezahlen Sie internationale Auftragnehmer in Minuten und eliminieren Sie grenzüberschreitende Gebühren – die Gelder landen direkt in Ihrem Wallet.",
+  "intro_paragraph": "Agenturen und Berater können Einnahmen durch Rückbuchungen von Kreditkarten verlieren, Tage auf internationale Überweisungen warten und 3-7% an Fremdwährungsgebühren zahlen, wenn sie mit globalen Kunden arbeiten. Dynopay ist eine non-custodial Plattform, die es Ihnen ermöglicht, Kunden in Bitcoin, Ethereum, USDT, USDC und 11 weiteren Kryptowährungen zu fakturieren und Auftragnehmer zu bezahlen. Sie kontrollieren die Gelder vom Zahlungseingang bis zur Auszahlung – Dynopay hält Ihr Geld niemals.",
+  "features": [
+    {
+      "title": "Bezahlen Sie Auftragnehmer in Krypto",
+      "description": "Senden Sie Krypto-Zahlungen an Freelancer und Partner weltweit ohne Überweisungsgebühren, Währungsumrechnung oder 3-tägige Sperrfristen. Sie erhalten die Gelder in Minuten, und Sie vermeiden Zwischenbankgebühren, die Ihr Projektbudget belasten."
+    },
+    {
+      "title": "Eliminieren Sie Rückbuchungsbetrug bei Retainern",
+      "description": "Krypto-Transaktionen sind endgültig. Kunden, die abgeschlossene Arbeiten anfechten, können Zahlungen Monate später nicht zurückrufen. Sie behalten, was Sie verdienen, und Ihr Cashflow bleibt vorhersehbar ohne Rücklagen oder laufende Verbindlichkeiten."
+    },
+    {
+      "title": "Rechnungen an Kunden in Stablecoins oder Bitcoin",
+      "description": "Erstellen Sie Zahlungslinks für einmalige Projekte oder wiederkehrende Retainer. Kunden zahlen in USDT, USDC, BTC, ETH oder 11 anderen Vermögenswerten. Die Gelder landen innerhalb von Minuten in Ihrem Wallet, und Sie entscheiden, wann Sie umwandeln oder halten möchten."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail und fügen Sie die Wallet-Adresse hinzu, an die Sie Zahlungen erhalten möchten.",
+    "Erstellen Sie einen Zahlungslink für Ihre Rechnung oder betten Sie das Checkout-Widget in Ihr Kundenportal ein.",
+    "Kunde zahlt in Krypto; Gelder landen direkt innerhalb von Minuten in Ihrem Wallet. Die erste Zahlung ist gebührenfrei."
+  ],
+  "faqs": [
+    {
+      "question": "Welche Kryptowährungen können Agenturen mit Dynopay akzeptieren?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, USDT (ERC20, TRC20, Polygon), USDC, RLUSD, Litecoin, Dogecoin, Solana, XRP, Polygon, Tron und Bitcoin Cash. Kunden können in jedem unterstützten Vermögenswert bezahlen, und Sie erhalten die Gelder direkt in Ihrem Wallet."
+    },
+    {
+      "question": "Wie viel berechnet Dynopay Agenturen für Krypto-Zahlungen?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken automatisch auf 0,5%, wenn Ihr Zahlungsvolumen wächst. Ihre erste Zahlung ist völlig gebührenfrei. Es gibt keine monatlichen Gebühren, Einrichtungsgebühren oder versteckten Kosten."
+    },
+    {
+      "question": "Kann ich internationale Auftragnehmer mit Dynopay bezahlen?",
+      "answer": "Ja. Sie können Krypto an Auftragnehmer weltweit senden, ohne Überweisungsgebühren oder mehrtägige Abwicklungsverzögerungen. Dynopay hat keine Länderbeschränkungen für den Empfang von Krypto. Auftragnehmer erhalten die Gelder in Minuten, und Sie vermeiden Zwischenbankgebühren, die 3-7% pro Transaktion kosten können."
+    },
+    {
+      "question": "Hält Dynopay meine Gelder wie ein Zahlungsdienstleister?",
+      "answer": "Nein. Dynopay ist non-custodial. Zahlungen gehen direkt von Ihrem Kunden an die Wallet-Adresse, die Sie kontrollieren. Dynopay hält, friert oder kontrolliert Ihre Gelder niemals. Sie behalten jederzeit die volle Kontrolle, wodurch Gegenparteirisiken und Rücklagen entfallen."
+    },
+    {
+      "question": "Wie lange dauert es, Krypto-Zahlungen zu akzeptieren?",
+      "answer": "Die meisten Agenturen sind in weniger als 10 Minuten live. Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie Ihr Unternehmensprofil, fügen Sie eine Auszahlung-Wallet-Adresse hinzu und generieren Sie dann einen Zahlungslink oder betten Sie das Checkout-Widget ein. Sie können sofort Ihre erste Rechnung senden."
+    }
+  ],
+  "cta_headline": "Beginnen Sie, Krypto-Zahlungen in 10 Minuten zu akzeptieren",
+  "cta_body": "Ihre erste Zahlung ist gebührenfrei. Keine Einrichtungsgebühren, keine monatlichen Gebühren, und die Gelder landen direkt in Ihrem Wallet.",
+  "_generated_at": "2026-08-29T14:56:26.929627Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "agencies",
+  "_display_name": "Agencies & Consultants"
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en criptomonedas para proveedores de alojamiento web y dominios · Dynopay",
+  "meta_description": "Acepta Bitcoin, Ethereum, USDT y más de 15 criptomonedas para alojamiento y dominios. Sin contracargos, alcance global, fondos directos a tu billetera. Comienza gratis.",
+  "h1": "Pagos en criptomonedas para proveedores de alojamiento web y dominios diseñados para ingresos recurrentes",
+  "subheading": "Acepta Bitcoin, Ethereum, stablecoins y más de 15 criptomonedas para planes de alojamiento y registros de dominios: los fondos llegan directamente a tu billetera sin riesgo de contracargos.",
+  "intro_paragraph": "Los proveedores de alojamiento web y dominios pierden ingresos por contracargos fraudulentos, renovaciones de tarjetas fallidas y retenciones de procesadores de pagos en transacciones internacionales. Dynopay es una plataforma de comercio cripto no custodial que envía cada pago directamente a tu billetera: sin custodia intermedia, sin fraude por contracargos, sin pérdida involuntaria de clientes por tarjetas expiradas. Factura renovaciones con enlaces de pago generados por API, realiza compras de dominios únicas y comparte enlaces de pago para facturas manuales, todo con tarifas que comienzan en 1.5% y que bajan a 0.5% a medida que crece tu volumen.",
+  "features": [
+    {
+      "title": "Sin contracargos, nunca",
+      "description": "Las transacciones en criptomonedas son finales. Elimina el fraude de tarjetas robadas y disputas de fraude amistoso que le cuestan a los proveedores de alojamiento miles mensualmente en tarifas, tiempo de servicio perdido y costos administrativos."
+    },
+    {
+      "title": "Deja de perder ingresos recurrentes",
+      "description": "La expiración de tarjetas y los rechazos bancarios causan pérdida involuntaria de clientes. Las renovaciones en criptomonedas nunca fallan en una tarjeta expirada: los clientes simplemente pagan un nuevo enlace cada ciclo, por lo que retienes a los clientes que quieren pagar pero no pueden con métodos tradicionales."
+    },
+    {
+      "title": "Atiende a clientes en todos los países",
+      "description": "Acepta pagos a nivel global sin tarifas de conversión de divisas. Los clientes en mercados desatendidos por redes de tarjetas pueden pagarte directamente en stablecoins como USDT o USDC."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo electrónico y crea tu perfil de empresa en menos de tres minutos.",
+    "Agrega una dirección de billetera de pago para Bitcoin, Ethereum o cualquier cadena soportada donde desees que se envíen los fondos.",
+    "Genera enlaces de pago para facturas o incrusta el widget de pago en tu página de facturación: activa en diez minutos."
+  ],
+  "faqs": [
+    {
+      "question": "¿Puedo aceptar criptomonedas para suscripciones mensuales de alojamiento o solo para compras únicas de dominios?",
+      "answer": "Ambos. Las criptomonedas no tienen cargos automáticos estilo tarjeta, por lo que las renovaciones funcionan como pagos nuevos cada ciclo: genera un enlace de pago manualmente o automatízalo con la API REST y webhooks. Las compras únicas de dominios utilizan los mismos enlaces o el widget de pago, con fondos enviados directamente a tu billetera cada vez."
+    },
+    {
+      "question": "¿Qué pasa si un cliente paga en Bitcoin pero quiero recibir stablecoins?",
+      "answer": "Por defecto, recibes exactamente lo que el cliente envía, directamente a tu billetera de pago. Si prefieres un valor estable, activa la conversión automática opcional y los activos volátiles como Bitcoin se liquidan en USDT o USDC en tu billetera en su lugar."
+    },
+    {
+      "question": "¿Cómo se comparan las tarifas de pago en criptomonedas con los procesadores de tarjetas de crédito para proveedores de alojamiento?",
+      "answer": "Dynopay cobra desde 1.5% más un dólar por transacción en volumen inicial, bajando a 0.5% a gran escala según el volumen liquidado. No hay tarifas mensuales, costos de configuración, tarifas por contracargos ni recargos por transacciones internacionales. Tu primer pago es completamente libre de tarifas."
+    },
+    {
+      "question": "¿Necesito tener criptomonedas o entender blockchain para aceptar pagos en criptomonedas?",
+      "answer": "No se requiere experiencia en blockchain. Proporcionas una dirección de billetera durante la configuración: puedes crear una usando cualquier aplicación de billetera estándar. Los pagos llegan automáticamente y tú controlas cuándo convertir a fiat a través de tu intercambio preferido o mantener la criptomoneda a largo plazo."
+    },
+    {
+      "question": "¿Pueden los clientes en países donde mi procesador de pagos actual no funciona pagar por alojamiento con criptomonedas?",
+      "answer": "Sí. Dynopay no tiene restricciones por país para recibir pagos en criptomonedas. Los clientes en regiones desatendidas por redes de tarjetas o PayPal pueden pagarte directamente en Bitcoin, Ethereum o stablecoins, ampliando tu mercado objetivo."
+    }
+  ],
+  "cta_headline": "Comienza a aceptar pagos en criptomonedas en diez minutos",
+  "cta_body": "Tu primera transacción es libre de tarifas. Sin costos mensuales, sin tarifas de configuración y los fondos van directamente a tu billetera con cero riesgo de contracargos.",
+  "_generated_at": "2026-08-29T14:55:14.132117Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "hosting",
+  "_display_name": "Web Hosting & Domain Providers"
+}
