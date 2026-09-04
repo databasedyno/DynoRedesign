@@ -6,6 +6,11 @@
 # 480x160 on the #050505 email header background. Verified: /api/static/dynopay-email-logo.png = 200 image/png
 # and visually identical to the landing header. No cid/attachment logos exist. catbox CDN fallback only used
 # when SERVER_URL is unset (it is set in prod). Ships on next Save-to-GitHub → DO deploy (image already COPYs backend/public).
+# FOLLOW-UP: refreshed the 5 footer social icons (backend/public/email/{facebook,instagram,x,linkedin,telegram}.png)
+# into a consistent white-monochrome set (official brand glyphs, 48px 2x, white on transparent; footer applies 0.75 opacity
+# on its #050505 bg). Old set was inconsistent (mixed circles/bare glyphs, broken-looking Instagram). All serve 200 via /api/static/email/.
+# Logo inversion: the email logo already bakes the white wordmark onto a solid #050505 chip, so it stays legible whether a
+# mail client force-inverts the header or swaps it to white — no separate light-bg variant needed (emails can't reliably select one).
 
 
 # SESSION 2026-06 (fork, pod 8b63f71b) — SEO: localize /for/* verticals + crawlable Help index links
