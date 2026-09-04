@@ -60,7 +60,7 @@ const BrandSpotlightV3: React.FC = () => {
   }, [inView, reduceMotion, brands.length]);
 
   return (
-    <Box component="section" data-testid="brand-spotlight" sx={{ background: s.bg, py: { xs: 10, md: 18 } }}>
+    <Box component="section" data-testid="brand-spotlight" sx={{ background: s.bg, py: { xs: 8, md: 12 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box
           sx={{

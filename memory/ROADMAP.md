@@ -1,5 +1,8 @@
 # CURRENT PRIORITIES (2026-09-04, session 30) — top of stack
 
+DONE (30b): landing navigators (desktop dot rail + mobile chip bar, scroll-spy), hero "Explore ↓" jump links,
+"More about Dynopay" tabbed fold (6 sections) + ~30% tighter section padding → desktop page ≈31% shorter
+(20.6k → 14.3k px). Further shortening options offered but NOT taken (drop Referral band / fold Numbers band).
 DONE: new "conversion coin" wordmark logo everywhere (regenerate with `node scripts/brand/generate-logo.mjs`),
 bidirectional landing scroll reveals (<Reveal/>), and the REAL fix for "auto-converted icon missing"
 (Settings never actually enabled auto-convert — payload mismatch; now mapped/awaited/toasted). See CHANGELOG.
@@ -10,6 +13,8 @@ NEXT / BACKLOG:
 - P1 Brute-force / OTP lockout UI: "Too many attempts, try again in X:XX" live timer on login + OTP screens.
 - P2 Security Activity panel (Settings → Security): recent logins, lockouts, alert history, "sign out everywhere".
 - P2 Optional: apply <Reveal/> to other public pages (fees, docs, about) for the same scroll feel.
+- P2 Optional (user declined for now): fold Numbers band / drop Referral band to reach the ~40% shorter target.
+- P3 Optional: deep-link tabs (#more=whopays) so header/footer "Fees" can open the Who-pays tab directly.
 
 # CURRENT PRIORITIES (2026-07-11, session 28) — top of stack
 

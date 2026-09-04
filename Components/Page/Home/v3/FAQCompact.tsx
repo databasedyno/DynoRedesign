@@ -33,7 +33,7 @@ const FAQCompact: React.FC = () => {
   });
 
   return (
-    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 14, md: 24 } }}>
+    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 9, md: 14 } }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqJsonLd }} />
       <Box sx={{ maxWidth: 960, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ mb: { xs: 7, md: 11 }, textAlign: "center" }}>

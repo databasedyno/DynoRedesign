@@ -47,7 +47,7 @@ const SolutionsGridV3: React.FC = () => {
     <Box
       component="section"
       data-testid="solutions-grid"
-      sx={{ background: s.bg, borderTop: `1px solid ${s.line}`, py: { xs: 12, md: 18 } }}
+      sx={{ background: s.bg, borderTop: `1px solid ${s.line}`, py: { xs: 8, md: 12 } }}
     >
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 6, md: 9 } }}>

@@ -119,7 +119,7 @@ const CoinShowcaseV3: React.FC = () => {
   const loop = [...COINS, ...COINS];
 
   return (
-    <Box component="section" data-testid="coin-showcase" sx={{ background: s.bg, py: { xs: 12, md: 20 }, overflow: "hidden" }}>
+    <Box component="section" data-testid="coin-showcase" sx={{ background: s.bg, py: { xs: 8, md: 13 }, overflow: "hidden" }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ textAlign: "center", maxWidth: 680, mx: "auto", mb: { xs: 5, md: 7 } }}>
           <Eyebrow sx={{ mb: 2 }}>{t("v3.coins.eyebrow")}</Eyebrow>

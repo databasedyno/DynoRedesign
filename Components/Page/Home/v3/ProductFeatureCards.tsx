@@ -72,7 +72,7 @@ const ProductFeatureCards: React.FC = () => {
   ];
 
   return (
-    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 14, md: 24 } }}>
+    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 9, md: 14 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box
           sx={{

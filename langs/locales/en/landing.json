@@ -536,6 +536,30 @@
       "b2": "Each brand keeps its own checkout, wallets and settlement currency.",
       "b3": "Switch between brands in one click, on any device.",
       "cta": "Start your first brand"
+    },
+    "nav": {
+      "aria": "Page sections",
+      "explore": "Explore",
+      "howitworks": "How it works",
+      "usecases": "Use cases",
+      "features": "Features",
+      "why": "Why Dynopay",
+      "compare": "Compare",
+      "coins": "Coins",
+      "developers": "Developers",
+      "more": "More",
+      "faq": "FAQ"
+    },
+    "more": {
+      "eyebrow": "[ More about Dynopay ]",
+      "tabs": {
+        "pain": "The problem we fix",
+        "solutions": "Solutions",
+        "ways": "Ways to get paid",
+        "whopays": "Who pays the fee",
+        "refunds": "Refunds & trust",
+        "learn": "Learn"
+      }
     }
   },
   "checkout": {

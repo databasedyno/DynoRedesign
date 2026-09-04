@@ -536,6 +536,30 @@
       "b2": "Elk merk houdt zijn eigen checkout, wallets en afrekenvaluta.",
       "b3": "Wissel met één klik tussen merken, op elk apparaat.",
       "cta": "Start je eerste merk"
+    },
+    "nav": {
+      "aria": "Paginasecties",
+      "explore": "Ontdek",
+      "howitworks": "Hoe het werkt",
+      "usecases": "Toepassingen",
+      "features": "Functies",
+      "why": "Waarom Dynopay",
+      "compare": "Vergelijk",
+      "coins": "Munten",
+      "developers": "Developers",
+      "more": "Meer",
+      "faq": "FAQ"
+    },
+    "more": {
+      "eyebrow": "[ Meer over Dynopay ]",
+      "tabs": {
+        "pain": "Het probleem dat we oplossen",
+        "solutions": "Oplossingen",
+        "ways": "Manieren om betaald te worden",
+        "whopays": "Wie betaalt de fee",
+        "refunds": "Terugbetalingen & vertrouwen",
+        "learn": "Leren"
+      }
     }
   },
   "checkout": {

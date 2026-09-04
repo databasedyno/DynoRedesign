@@ -747,6 +747,9 @@ low-risk mechanical change). Files: see REFACTOR_STATUS.md "Next Actions" checkb
   scroll-up), staggered cards, CSS hero load-in, SSR-visible/hydration-safe, reduced-motion aware.
 - Auto-convert "icon missing" P0: root cause was Settings never enabling auto-convert (payload mismatch,
   silent). Fixed + verified on live backend (company 71 test, restored). Details in CHANGELOG 2026-09-04.
+- Landing navigation (30b): desktop section dot-rail + mobile chip bar (scroll-spy, aria-current), hero
+  "Explore ↓" jump links, 6 lower-priority sections folded into the tabbed "More about Dynopay" block, section
+  padding tightened → desktop page ≈31% shorter (20.6k → 14.3k px). testing_agent iteration_126 PASS.
 
 # WALLET SECURITY + ONBOARDING PREMIUM WALLET (2026-06 fork, pod 5cde9912) — DONE (backend curl-verified, frontend testing_agent iteration_116 PASS)
 

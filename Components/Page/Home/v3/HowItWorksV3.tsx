@@ -30,9 +30,8 @@ const HowItWorksV3: React.FC = () => {
   return (
     <Box
       component="section"
-      id="how-it-works"
       data-testid="how-it-works"
-      sx={{ background: s.bg, py: { xs: 11, md: 18 }, scrollMarginTop: "88px" }}
+      sx={{ background: s.bg, py: { xs: 8, md: 12 } }}
     >
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 640, mb: { xs: 6, md: 9 } }}>

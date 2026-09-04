@@ -37,7 +37,7 @@ const WhyDynoPayV3: React.FC = () => {
   ];
 
   return (
-    <Box component="section" data-testid="why-dynopay" sx={{ background: s.bgAlt, py: { xs: 10, md: 18 } }}>
+    <Box component="section" data-testid="why-dynopay" sx={{ background: s.bgAlt, py: { xs: 8, md: 12 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 680, mb: { xs: 5, md: 8 } }}>
           <Eyebrow sx={{ mb: 2 }}>{t("v3.why.eyebrow")}</Eyebrow>

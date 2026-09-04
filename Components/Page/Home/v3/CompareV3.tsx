@@ -31,7 +31,7 @@ const CompareV3: React.FC = () => {
   const colFrames = { xs: "1fr", md: "1.15fr 1.35fr 1.35fr" } as const;
 
   return (
-    <Box component="section" data-testid="compare" sx={{ background: s.bgAlt, py: { xs: 10, md: 18 } }}>
+    <Box component="section" data-testid="compare" sx={{ background: s.bgAlt, py: { xs: 8, md: 12 } }}>
       <Box sx={{ maxWidth: 1080, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ textAlign: "center", maxWidth: 680, mx: "auto", mb: { xs: 5, md: 8 } }}>
           <Eyebrow sx={{ mb: 2 }}>{t("v3.compare.eyebrow")}</Eyebrow>

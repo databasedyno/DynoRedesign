@@ -16,24 +16,21 @@ import { HomeWrapper } from "./styled";
  * imports. ssr:true (default) is required — the HTML must not change. */
 const HowItWorksV3 = dynamic(() => import("./v3/HowItWorksV3"));
 const AudienceDoorsV3 = dynamic(() => import("./v3/AudienceDoorsV3"));
-const SolutionsGridV3 = dynamic(() => import("./v3/SolutionsGridV3"));
 const ProductFeatureCards = dynamic(() => import("./v3/ProductFeatureCards"));
-const WaysToGetPaidV3 = dynamic(() => import("./v3/WaysToGetPaidV3"));
-const WhoPaysFeeV3 = dynamic(() => import("./v3/WhoPaysFeeV3"));
 const CoinShowcaseV3 = dynamic(() => import("./v3/CoinShowcaseV3"));
-const RefundsTrustV3 = dynamic(() => import("./v3/RefundsTrustV3"));
 const NumbersTrustBand = dynamic(() => import("./v3/NumbersTrustBand"));
-const LearnDocsCards = dynamic(() => import("./v3/LearnDocsCards"));
 const FAQCompact = dynamic(() => import("./v3/FAQCompact"));
 const ReferralCtaBandV3 = dynamic(() => import("./v3/ReferralCtaBandV3"));
 const FinalCTAAurora = dynamic(() => import("./v3/FinalCTAAurora"));
-const PainSolutionV3 = dynamic(() => import("./v3/PainSolutionV3"));
 const WhyDynoPayV3 = dynamic(() => import("./v3/WhyDynoPayV3"));
 const BrandSpotlightV3 = dynamic(() => import("./v3/BrandSpotlightV3"));
 const DeveloperBandV3 = dynamic(() => import("./v3/DeveloperBandV3"));
 const ProductShowcaseV3 = dynamic(() => import("./v3/ProductShowcaseV3"));
 const CompareV3 = dynamic(() => import("./v3/CompareV3"));
 const TrustLogosV3 = dynamic(() => import("./v3/TrustLogosV3"));
+const MoreAboutV3 = dynamic(() => import("./v3/MoreAboutV3"));
+// Scroll-driven navigators (rail + chip bar) — client-only by nature.
+const LandingNav = dynamic(() => import("./v3/LandingNav"), { ssr: false });
 
 /**
  * HomePage v3 — "Creator-first, cut in half" (2026-07-18).
@@ -74,49 +71,47 @@ const HomePage: FC = () => {
     }).catch(() => {});
   }, []);
 
-  // #3 landing-length (phones only): the length problem is a mobile one, so the
-  // most overlapping marketing sections are hidden at `xs` (< 600px) while kept
-  // in full on tablet + desktop (`sm`+). They remain in the SSR HTML, so search
-  // engines still see them — this is a CSS visibility trim, not a content cut.
-  const hideOnPhone = { display: { xs: "none", sm: "block" } } as const;
-
   // Every section below the hero sits in a <Reveal/> — a bidirectional
   // scroll-linked fade/slide (replays on the way back up, reduced-motion aware).
+  // Anchor ids match LANDING_SECTIONS (rail / chip bar / header hash links).
+  // Pain, Solutions grid, Ways-to-get-paid, Who-pays-the-fee, Refunds and Learn are
+  // folded into the tabbed MoreAboutV3 block (2026-09 "page is too long to navigate").
+  const anchor = { scrollMarginTop: "88px" } as const;
   return (
     <HomeWrapper>
       <HeroPlayground />
+      <LandingNav />
       <Reveal><TrustLogosV3 /></Reveal>
-      <Reveal><HowItWorksV3 /></Reveal>
-      <Box id="use-cases" component="div" sx={{ scrollMarginTop: "88px" }}>
+      <Box id="how-it-works" component="div" sx={anchor}>
+        <Reveal><HowItWorksV3 /></Reveal>
+      </Box>
+      <Box id="use-cases" component="div" sx={anchor}>
         <Reveal><AudienceDoorsV3 /></Reveal>
       </Box>
-      <Box sx={hideOnPhone}>
-        <Reveal><PainSolutionV3 /></Reveal>
-      </Box>
-      <Box sx={hideOnPhone}>
-        <Reveal><SolutionsGridV3 /></Reveal>
-      </Box>
-      <Box id="features" component="div" sx={{ scrollMarginTop: "88px" }}>
+      <Box id="features" component="div" sx={anchor}>
         <Reveal><ProductFeatureCards /></Reveal>
       </Box>
       <Reveal><ProductShowcaseV3 /></Reveal>
-      <Reveal><WhyDynoPayV3 /></Reveal>
+      <Box id="why-dynopay" component="div" sx={anchor}>
+        <Reveal><WhyDynoPayV3 /></Reveal>
+      </Box>
       <Reveal><BrandSpotlightV3 /></Reveal>
-      <Box sx={hideOnPhone}>
-        <Reveal><WaysToGetPaidV3 /></Reveal>
+      <Box id="compare" component="div" sx={anchor}>
+        <Reveal><CompareV3 /></Reveal>
       </Box>
-      <Box sx={hideOnPhone}>
-        <Reveal><WhoPaysFeeV3 /></Reveal>
-      </Box>
-      <Reveal><CompareV3 /></Reveal>
-      <Reveal><CoinShowcaseV3 /></Reveal>
-      <Box sx={hideOnPhone}>
-        <Reveal><RefundsTrustV3 /></Reveal>
+      <Box id="coins" component="div" sx={anchor}>
+        <Reveal><CoinShowcaseV3 /></Reveal>
       </Box>
       <Reveal><NumbersTrustBand /></Reveal>
-      <Reveal><DeveloperBandV3 /></Reveal>
-      <Reveal><LearnDocsCards /></Reveal>
-      <Reveal><FAQCompact /></Reveal>
+      <Box id="developers" component="div" sx={anchor}>
+        <Reveal><DeveloperBandV3 /></Reveal>
+      </Box>
+      <Box id="more" component="div" sx={anchor}>
+        <Reveal><MoreAboutV3 /></Reveal>
+      </Box>
+      <Box id="faq" component="div" sx={anchor}>
+        <Reveal><FAQCompact /></Reveal>
+      </Box>
       <Reveal><ReferralCtaBandV3 /></Reveal>
       <Reveal><FinalCTAAurora /></Reveal>
     </HomeWrapper>

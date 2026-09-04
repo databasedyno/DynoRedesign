@@ -53,7 +53,7 @@ const DeveloperBandV3: React.FC = () => {
   ];
 
   return (
-    <Box component="section" data-testid="developer-band" sx={{ background: s.bg, py: { xs: 10, md: 18 } }}>
+    <Box component="section" data-testid="developer-band" sx={{ background: s.bg, py: { xs: 8, md: 12 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box
           sx={{

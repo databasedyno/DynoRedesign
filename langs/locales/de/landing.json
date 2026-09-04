@@ -536,6 +536,30 @@
       "b2": "Jede Marke behält eigenen Checkout, Wallets und Abrechnungswährung.",
       "b3": "Mit einem Klick zwischen Marken wechseln – auf jedem Gerät.",
       "cta": "Erste Marke starten"
+    },
+    "nav": {
+      "aria": "Seitenabschnitte",
+      "explore": "Entdecken",
+      "howitworks": "So funktioniert's",
+      "usecases": "Anwendungsfälle",
+      "features": "Funktionen",
+      "why": "Warum Dynopay",
+      "compare": "Vergleich",
+      "coins": "Coins",
+      "developers": "Entwickler",
+      "more": "Mehr",
+      "faq": "FAQ"
+    },
+    "more": {
+      "eyebrow": "[ Mehr über Dynopay ]",
+      "tabs": {
+        "pain": "Das Problem, das wir lösen",
+        "solutions": "Lösungen",
+        "ways": "Zahlungswege",
+        "whopays": "Wer zahlt die Gebühr",
+        "refunds": "Rückerstattungen & Vertrauen",
+        "learn": "Lernen"
+      }
     }
   },
   "checkout": {

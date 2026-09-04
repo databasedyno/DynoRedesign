@@ -67,7 +67,7 @@ const ProductShowcaseV3: React.FC = () => {
   ][step];
 
   return (
-    <Box component="section" data-testid="product-showcase" sx={{ background: s.bg, py: { xs: 10, md: 18 } }}>
+    <Box component="section" data-testid="product-showcase" sx={{ background: s.bg, py: { xs: 8, md: 12 } }}>
       <Box sx={{ maxWidth: 900, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ textAlign: "center", maxWidth: 680, mx: "auto", mb: { xs: 6, md: 9 } }}>
           <Eyebrow sx={{ mb: 2 }}>{t("v3.showcase.eyebrow")}</Eyebrow>

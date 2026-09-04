@@ -536,6 +536,30 @@
       "b2": "Chaque marque garde son propre checkout, ses wallets et sa devise de règlement.",
       "b3": "Passez d'une marque à l'autre en un clic, sur tous vos appareils.",
       "cta": "Créez votre première marque"
+    },
+    "nav": {
+      "aria": "Sections de la page",
+      "explore": "Explorer",
+      "howitworks": "Comment ça marche",
+      "usecases": "Cas d'usage",
+      "features": "Fonctionnalités",
+      "why": "Pourquoi Dynopay",
+      "compare": "Comparer",
+      "coins": "Cryptos",
+      "developers": "Développeurs",
+      "more": "Plus",
+      "faq": "FAQ"
+    },
+    "more": {
+      "eyebrow": "[ En savoir plus sur Dynopay ]",
+      "tabs": {
+        "pain": "Le problème que nous réglons",
+        "solutions": "Solutions",
+        "ways": "Façons d'être payé",
+        "whopays": "Qui paie les frais",
+        "refunds": "Remboursements & confiance",
+        "learn": "Apprendre"
+      }
     }
   },
   "checkout": {

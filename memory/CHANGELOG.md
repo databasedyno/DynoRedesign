@@ -1539,3 +1539,36 @@ carrying two white swap arrows (crypto → stablecoin conversion loop). Wordmark
   reduced motion), dashboard/transactions regression, settings read-only preselect (USDC ERC20)
   and SMADAV write flow — all PASS. Its 2 findings (toast unmount, SSR opacity-0 hydration
   warning) fixed above and self-verified (0 console errors, 0 hydration errors, in/out toggles).
+
+────────────────────────────────────────────────────────────────────────────
+## 2026-09-04 — LANDING NAVIGATION + PAGE FOLD (session 30b) — "hard to navigate, had to scroll to see everything"
+User picked: rail (desktop) + chip bar (mobile), fold low-priority sections into ONE tabbed block, hero
+"Explore ↓" jump links. Then (a): also fold the Solutions grid.
+- NEW `v3/landingSections.ts` — LANDING_SECTIONS registry (how-it-works, use-cases, features, why-dynopay,
+  compare, coins, developers, more, faq) + jumpToSection() (96px header offset, smooth unless reduced-motion).
+- NEW `v3/useLandingNav.ts` — rAF scroll-spy: active = last section whose top ≤ 40% viewport (falls back to the
+  first section once past the hero so there is never a "visible but nothing active" window); pastHero =
+  scrollY > 0.7·vh; headerBottom read from <header> rect (+ transitionend) so the mobile bar docks under the
+  auto-hiding header or at top:0 when it hides.
+- NEW `v3/SectionRail.tsx` (md+, fixed right edge, dots → active indigo pill + label, labels on hover,
+  aria-current, testids landing-section-rail / rail-dot-<id>) and `v3/SectionChipBar.tsx` (<md, frosted bar,
+  horizontally scrollable chips, active auto-centred, testids landing-chip-bar / chip-<id>). Composed by
+  `v3/LandingNav.tsx` (dynamic ssr:false in index.tsx).
+- NEW `v3/MoreAboutV3.tsx` — tabbed "[ More about Dynopay ]" block (role=tablist, arrow-key nav, only the
+  active panel mounted via next/dynamic): The problem we fix (PainSolutionV3) · Solutions (SolutionsGridV3) ·
+  Ways to get paid · Who pays the fee · Refunds & trust · Learn. Inner sections keep their headline but lose
+  band chrome via `& > section` override (transparent bg, no borderTop, tighter padding). id="more".
+- index.tsx: order Trust → HowItWorks → UseCases → Features → Showcase → Why → BrandSpotlight → Compare →
+  Coins → Numbers → Developers → More → FAQ → Referral → FinalCTA; every nav target wrapped in an anchor Box
+  (id + scrollMarginTop 88px) OUTSIDE the <Reveal/> (the reveal's translateY otherwise skews jump offsets —
+  how-it-works id moved off the section root for that reason). hideOnPhone removed (nothing left uses it).
+- HeroPlayground: "EXPLORE ↓" nav row (hero-jump-links; hero-jump-<id> for how-it-works/compare/developers/faq,
+  real href="#id" + smooth jump) with bobbing arrow (reduced-motion safe). Hero padding tightened
+  (pt 22→17, pb 26→12 on md).
+- Section vertical padding tightened ≈30% across all wired v3 sections (md 18→12, 24→14, 20→13, 16→11).
+- i18n: landing.json v3.nav.* (aria, explore + 9 labels) and v3.more.* (eyebrow + 6 tabs) in 6 locales.
+- MEASURED (1440×900): desktop scrollHeight ≈20.6k → 14.3k px (≈31% shorter); mobile ≈20.3k (the 5 folded
+  sections were already hidden on phones, so mobile gains come from padding + the tab block replacing Learn).
+- testing_agent iteration_126 (frontend): rail/chip bar/tabs/jump links/anchors/dark/ES/regression all PASS,
+  0 console + 0 hydration errors. Its 3 findings fixed: null-active window (fallback), how-it-works 68px
+  offset (anchor moved outside Reveal), page still long (padding pass + Solutions fold, user-approved).

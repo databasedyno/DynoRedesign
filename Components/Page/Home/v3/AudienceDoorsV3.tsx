@@ -26,7 +26,7 @@ const AudienceDoorsV3: React.FC = () => {
   ];
 
   return (
-    <Box component="section" sx={{ background: s.bg, py: { xs: 14, md: 24 } }}>
+    <Box component="section" sx={{ background: s.bg, py: { xs: 9, md: 14 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 7, md: 11 } }}>
           <Box sx={{ maxWidth: 620 }}>

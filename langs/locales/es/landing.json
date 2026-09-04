@@ -536,6 +536,30 @@
       "b2": "Cada marca mantiene su propio checkout, monederos y moneda de liquidación.",
       "b3": "Cambia entre marcas con un clic, en cualquier dispositivo.",
       "cta": "Crea tu primera marca"
+    },
+    "nav": {
+      "aria": "Secciones de la página",
+      "explore": "Explorar",
+      "howitworks": "Cómo funciona",
+      "usecases": "Casos de uso",
+      "features": "Funciones",
+      "why": "Por qué Dynopay",
+      "compare": "Comparar",
+      "coins": "Monedas",
+      "developers": "Desarrolladores",
+      "more": "Más",
+      "faq": "FAQ"
+    },
+    "more": {
+      "eyebrow": "[ Más sobre Dynopay ]",
+      "tabs": {
+        "pain": "El problema que resolvemos",
+        "solutions": "Soluciones",
+        "ways": "Formas de cobrar",
+        "whopays": "Quién paga la comisión",
+        "refunds": "Reembolsos y confianza",
+        "learn": "Aprender"
+      }
     }
   },
   "checkout": {

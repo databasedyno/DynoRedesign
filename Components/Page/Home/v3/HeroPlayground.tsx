@@ -8,8 +8,10 @@ import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { AuroraInk, HeadlineXL, Eyebrow, Body } from "./styled.v3";
+import { jumpToSection } from "./landingSections";
 import useLocalPrice from "@/hooks/useLocalPrice";
 import { BRAND_ACCENT } from "@/constants/theme";
 
@@ -34,6 +36,16 @@ const heroCopyIn = keyframes`
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
 `;
+const heroArrowBob = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(3px); }
+`;
+const HERO_JUMP_LINKS = [
+  { id: "how-it-works", key: "howitworks" },
+  { id: "compare", key: "compare" },
+  { id: "developers", key: "developers" },
+  { id: "faq", key: "faq" },
+] as const;
 // Staggered load-in for the hero copy column (CSS-only: paints before hydration).
 const heroIn = (delay: number) => ({
   animation: `${heroCopyIn} 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s both`,
@@ -79,8 +91,8 @@ const HeroPlayground: React.FC = () => {
         position: "relative",
         overflow: "hidden",
         background: s.bg,
-        pt: { xs: 14, md: 22 },
-        pb: { xs: 16, md: 26 },
+        pt: { xs: 12, md: 17 },
+        pb: { xs: 10, md: 12 },
       }}
     >
       {/* Soft indigo orb behind hero (minimal single-accent) */}
@@ -238,6 +250,75 @@ const HeroPlayground: React.FC = () => {
           >
             <Trans i18nKey="v3.hero.creatorLink" ns="landing" components={{ s: <span /> }} />
           </Typography>
+
+          {/* Quick jump links — the page is long; let visitors skip straight to what they came for. */}
+          <Box
+            component="nav"
+            aria-label={t("v3.nav.explore")}
+            data-testid="hero-jump-links"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: { xs: 1.25, sm: 2 },
+              mt: 4,
+              pt: 3,
+              borderTop: `1px solid ${s.line}`,
+              ...heroIn(0.54),
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.75,
+                fontFamily: FONT_TECH,
+                fontSize: 11,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: s.ink3,
+                mr: 0.5,
+              }}
+            >
+              {t("v3.nav.explore")}
+              <ArrowDownwardRoundedIcon
+                sx={{
+                  fontSize: 14,
+                  animation: `${heroArrowBob} 1.8s ease-in-out infinite`,
+                  "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+                }}
+              />
+            </Box>
+            {HERO_JUMP_LINKS.map(({ id, key }) => (
+              <Box
+                key={id}
+                component="a"
+                href={`#${id}`}
+                data-testid={`hero-jump-${id}`}
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  jumpToSection(id);
+                }}
+                sx={{
+                  fontFamily: FONT_TECH,
+                  fontSize: 12,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  fontWeight: 500,
+                  color: s.ink2,
+                  textDecoration: "none",
+                  pb: "2px",
+                  borderBottom: `1px solid ${s.line}`,
+                  transition: "color 160ms ease, border-color 160ms ease",
+                  "&:hover": { color: s.indigo, borderColor: s.indigo },
+                  "&:focus-visible": { outline: `2px solid ${s.indigo}`, outlineOffset: 3, borderRadius: 2 },
+                }}
+              >
+                {t(`v3.nav.${key}`)}
+              </Box>
+            ))}
+          </Box>
         </Box>
 
         {/* RIGHT — checkout demo card (supporting visual, clearly a demo) */}

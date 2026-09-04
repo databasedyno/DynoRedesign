@@ -536,6 +536,30 @@
       "b2": "Cada marca mantém o seu próprio checkout, carteiras e moeda de liquidação.",
       "b3": "Alterne entre marcas com um clique, em qualquer dispositivo.",
       "cta": "Comece a sua primeira marca"
+    },
+    "nav": {
+      "aria": "Secções da página",
+      "explore": "Explorar",
+      "howitworks": "Como funciona",
+      "usecases": "Casos de uso",
+      "features": "Funcionalidades",
+      "why": "Porquê a Dynopay",
+      "compare": "Comparar",
+      "coins": "Moedas",
+      "developers": "Developers",
+      "more": "Mais",
+      "faq": "FAQ"
+    },
+    "more": {
+      "eyebrow": "[ Mais sobre a Dynopay ]",
+      "tabs": {
+        "pain": "O problema que resolvemos",
+        "solutions": "Soluções",
+        "ways": "Formas de receber",
+        "whopays": "Quem paga a taxa",
+        "refunds": "Reembolsos e confiança",
+        "learn": "Aprender"
+      }
     }
   },
   "checkout": {
