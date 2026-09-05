@@ -1,4 +1,35 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05 (pod 4c5482a5): SETUP + EMAIL LOGO FIX + OPS ANALYSIS
+#   Restored env from vault (Katiekendra123@) -> pod-bootstrap. LIVE prod DB, SAFE MODE.
+#   Preview: https://4c5482a5-2509-48bc-800b-ec8d400e9de4.preview.emergentagent.com
+#   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
+#
+#   BUG FIX (committed 11ba6405b, already DEPLOYED to prod dynopay.com): admin + merchant
+#     notification emails showed the OLD logo. ROOT CAUSE (backend/utils/emailTemplate.ts
+#     getDynopayLogoUrl): (a) fell back to a stale EXTERNAL CDN (files.catbox.moe = OLD mark)
+#     whenever SERVER_URL was empty, and (b) reused the SAME /api/static filename so mail-client
+#     image proxies (Gmail/Outlook) kept serving the cached OLD image after bytes changed.
+#   FIX: regenerated the logo from the landing white wordmark
+#     (assets/Icons/home/dynopay-whiteLogo.svg) -> NEW versioned file
+#     backend/public/dynopay-email-logo-v2.png (cache-bust); REMOVED the catbox CDN entirely;
+#     getDynopayLogoUrl() now builds an own-domain URL via fallback chain
+#     SERVER_URL -> FRONTEND_URL -> NEXT_PUBLIC_BASE_URL -> https://dynopay.com. All email
+#     types share baseEmailTemplate, so admin + merchant both pick up the same new logo.
+#
+#   BACKEND TEST FOCUS (READ-ONLY — SAFE MODE, do NOT send real emails / no DB writes):
+#     1) GET /api/static/dynopay-email-logo-v2.png -> 200, content-type image/png (served from
+#        backend/public via `app.use("/api/static", express.static("public"))`).
+#     2) The rendered email HTML (baseEmailTemplate) must embed
+#        "<SERVER_URL>/api/static/dynopay-email-logo-v2.png" in BOTH header and footer <img>,
+#        and contain ZERO "catbox" references. Helper: getDynopayLogoUrl() in
+#        backend/utils/emailTemplate.ts. Admin emails: backend/services/email/adminOpsEmails.ts
+#        (uses baseEmailTemplate); merchant emails likewise -> identical logo.
+#     3) Legacy path GET /api/static/dynopay-email-logo.png -> 200 image/png too (the old
+#        filename was refreshed with the new logo for any in-flight references).
+# ============================================================================
+
+
+# ============================================================================
 # >>> FINAL STATUS 2026-09-02: ALL 3 ITEMS COMPLETE + VERIFIED <<<
 #   ITEM1 last commit df3eab005: TEST1 Brand terminology PASS, TEST2 Individual/Business create
 #     PASS (throwaway brand 115 deleted via API), TEST3 /settings PASS (Account-details tab:
