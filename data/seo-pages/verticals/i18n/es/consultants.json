@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en cripto para consultores y coaches · Dynopay",
+  "meta_description": "Cobra en cripto por consultoría y coaching con Dynopay. Factura a clientes de todo el mundo, sin contracargos, más de 15 criptomonedas, comisiones desde 1,5%. Empieza gratis.",
+  "h1": "Acepta pagos en cripto por consultoría y coaching, de cualquier cliente del mundo",
+  "subheading": "Dynopay permite a consultores, coaches y asesores facturar a sus clientes en Bitcoin, stablecoins y más de 15 criptomonedas directamente en una wallet que controlan, con liquidación instantánea y sin contracargos.",
+  "intro_paragraph": "Los consultores y coaches suelen facturar a clientes internacionales, donde las transferencias son lentas y caras y los contracargos de tarjeta pueden llegar tras un servicio ya prestado. Dynopay es una pasarela de pagos cripto no custodial que liquida directamente en tu wallet. Envía un enlace de pago con tu marca para un retainer, un paquete o una sesión suelta, cobra con un checkout alojado o automatiza la facturación mediante la API REST en más de 15 criptomonedas. Las comisiones comienzan en 1,5% y bajan hasta 0,5% a escala, sin contracargos, sin cuotas mensuales y con el primer pago gratis.",
+  "features": [
+    {
+      "title": "Factura a clientes globales en segundos",
+      "description": "Envía un enlace de pago por correo o chat y cobra en minutos: sin transferencia internacional, sin días de espera y sin comisiones de banca corresponsal que mermen tu factura."
+    },
+    {
+      "title": "Sin contracargos una vez entregado el trabajo",
+      "description": "Los pagos en cripto son definitivos, así que un cliente no puede disputar tus honorarios a través del emisor de la tarjeta una vez completadas las sesiones o entregables."
+    },
+    {
+      "title": "Mantén un saldo estable",
+      "description": "Acepta USDT o USDC para conservar un saldo vinculado al dólar y evitar la volatilidad, y convierte a tu moneda local cuando quieras."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo, crea un perfil de empresa y añade una dirección de wallet de cobro para la liquidación.",
+    "Crea un enlace de pago para cada cliente, retainer o paquete, o integra el checkout en tu página de reservas.",
+    "El cliente paga en su criptomoneda preferida y los fondos llegan a tu wallet en minutos."
+  ],
+  "faqs": [
+    {
+      "question": "¿Cómo cobran los consultores y coaches con Dynopay?",
+      "answer": "Crea un enlace de pago para una sesión, un paquete o un retainer y envíaselo al cliente, o integra el checkout en tu página de reservas. Cuando paga en cripto, los fondos se liquidan en tu wallet en minutos, sin demoras de transferencias internacionales."
+    },
+    {
+      "question": "¿Puedo cobrar un retainer mensual en cripto?",
+      "answer": "Sí, ciclo a ciclo. La cripto no tiene cargo automático como las tarjetas, así que cada renovación es un pago nuevo: usa la API REST y los webhooks para enviar un enlace de pago automáticamente en cada ciclo de facturación."
+    },
+    {
+      "question": "¿Con qué criptomonedas pueden pagar los clientes?",
+      "answer": "Dynopay admite más de 15 criptomonedas, incluidas Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC y stablecoins como USDT (ERC20, TRC20, Polygon), USDC (ERC20) y RLUSD."
+    },
+    {
+      "question": "¿Cuáles son las comisiones por aceptar pagos de consultoría?",
+      "answer": "Las comisiones comienzan en 1,5% más un dólar por pago exitoso y bajan hasta 0,5% a medida que crece tu volumen liquidado. Sin cuotas de alta, sin cuotas mensuales y tu primer pago es gratis."
+    },
+    {
+      "question": "¿Dynopay retiene mi dinero?",
+      "answer": "No. Dynopay es no custodial, así que los pagos se liquidan directamente en una wallet que controlas: MetaMask, Coinbase, Ledger o cualquier dirección de tu propiedad."
+    }
+  ],
+  "cta_headline": "Empieza a facturar a tus clientes en cripto en 10 minutos",
+  "cta_body": "Regístrate ahora y tu primera transacción es sin comisiones. Sin costes mensuales, y los fondos se liquidan directamente en una wallet que controlas.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "consultants",
+  "_display_name": "Consultants & Coaches"
+}

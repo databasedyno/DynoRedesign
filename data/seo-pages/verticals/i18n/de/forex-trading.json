@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Forex-Trainer & Signalanbieter · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Trading-Kurse, Signale und Mentorings mit Dynopay. 15+ Kryptowährungen, keine Rückbuchungen, Gebühren ab 1,5%. Starten Sie noch heute kostenlos.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Trading-Ausbildung, Signale und Mentorings",
+  "subheading": "Mit Dynopay werden Forex- und Trading-Trainer, Signalgruppen und Mentoren in Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in ein von ihnen kontrolliertes Wallet bezahlt – eine Hochrisiko-Branche, die von Karten regelmäßig abgelehnt wird.",
+  "intro_paragraph": "Trading-Ausbildung, Signale und Mentoring werden von Kartenzahlungsdienstleistern als Hochrisiko eingestuft, was zu abgelehnten Anträgen, eingefrorenen Geldern und Anfechtungen durch Mitglieder führt, die bei ihren eigenen Trades Geld verlieren. Dynopay ist ein non-custodial Krypto-Zahlungs-Gateway, das direkt in Ihr Wallet abwickelt. Berechnen Sie ein Signal-Abo, ein Mentoring oder einen Kurs per Zahlungslink, Hosted Checkout oder REST API über 15+ Kryptowährungen, mit Gebühren ab 1,5% bis hinunter zu 0,5% bei steigendem Volumen, ohne Rückbuchungen, ohne monatliche Gebühren und mit einer kostenlosen ersten Zahlung.",
+  "features": [
+    {
+      "title": "Freischaltung ohne Hochrisiko-Hürden",
+      "description": "Sie benötigen keinen Kartenzahlungsdienstleister, der ein Händlerkonto für 'Trading-Ausbildung' genehmigt. Fügen Sie ein Auszahlungs-Wallet hinzu und beginnen Sie noch am selben Tag, Krypto zu akzeptieren."
+    },
+    {
+      "title": "Keine Anfechtungen wegen Trading-Verlusten der Mitglieder",
+      "description": "Krypto-Zahlungen sind endgültig, sodass ein Mitglied mit einer schlechten Trading-Woche Ihr Honorar nicht per Kartenrückbuchung zurückholen kann, nachdem es die Signale erhalten hat."
+    },
+    {
+      "title": "Globales Publikum, sofortige Abwicklung",
+      "description": "Trader gibt es überall. Nehmen Sie Zahlungen weltweit an und erhalten Sie die Gelder innerhalb von Minuten in ein von Ihnen kontrolliertes Wallet – in Stablecoins, wenn Sie ein an den Dollar gekoppeltes Guthaben möchten."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und fügen Sie eine Auszahlungs-Wallet-Adresse für die Abwicklung hinzu.",
+    "Erstellen Sie einen Zahlungslink für jeden Plan oder betten Sie das Checkout auf Ihrer Community- oder Landingpage ein.",
+    "Das Mitglied zahlt in seiner bevorzugten Kryptowährung, Sie gewähren den Zugang per Webhook, und die Gelder landen innerhalb von Minuten in Ihrem Wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Warum nutzen Trading-Trainer und Signalanbieter Krypto-Zahlungen?",
+      "answer": "Trading-Ausbildung gilt als Hochrisiko, daher lehnen Kartenzahlungsdienstleister das Konto oft ab oder frieren Gelder ein, und Mitglieder fechten Zahlungen manchmal nach einer Verlustwoche an. Krypto ist non-custodial und endgültig: keine Hochrisiko-Genehmigung, keine Sperre und keine Rückbuchungen nach der Leistung."
+    },
+    {
+      "question": "Kann ich ein wiederkehrendes Signal-Abo mit Krypto betreiben?",
+      "answer": "Ja, pro Abrechnungszyklus. Krypto kennt keine automatische Belastung wie bei Karten, daher ist jede Verlängerung eine neue Zahlung – nutzen Sie die REST API und Webhooks, um in jedem Abrechnungszyklus einen Zahlungslink zu senden und den Zugang automatisch zu gewähren oder zu entziehen."
+    },
+    {
+      "question": "Mit welchen Kryptowährungen können Mitglieder zahlen?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC sowie Stablecoins wie USDT (ERC20, TRC20, Polygon), USDC (ERC20) und RLUSD."
+    },
+    {
+      "question": "Wie hoch sind die Gebühren?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken auf 0,5%, wenn das abgewickelte Volumen wächst. Keine Einrichtungsgebühren, keine monatlichen Gebühren, und Ihre erste Zahlung ist kostenlos."
+    },
+    {
+      "question": "Hält Dynopay mein Geld?",
+      "answer": "Nein. Dynopay ist non-custodial, sodass Zahlungen direkt in Ihr eigenes Wallet abgewickelt werden – MetaMask, Coinbase, Ledger oder jede Adresse, die Sie kontrollieren."
+    }
+  ],
+  "cta_headline": "Beginnen Sie in 10 Minuten, Krypto für Ihre Trading-Community zu akzeptieren",
+  "cta_body": "Melden Sie sich jetzt an, und Ihre erste Transaktion ist gebührenfrei. Keine Hochrisiko-Genehmigungen, keine monatlichen Kosten, und die Gelder werden direkt in Ihr Wallet abgewickelt.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "forex-trading",
+  "_display_name": "Trading Educators & Signal Providers"
+}

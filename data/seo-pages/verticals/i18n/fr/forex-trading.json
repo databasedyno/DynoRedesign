@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements en crypto pour formateurs de trading et signaux · Dynopay",
+  "meta_description": "Acceptez les paiements en crypto pour vos formations de trading, signaux et mentorats avec Dynopay. Plus de 15 cryptomonnaies, sans rétrofacturation, frais dès 1,5 %. Commencez gratuitement dès aujourd'hui.",
+  "h1": "Acceptez les paiements en crypto pour la formation au trading, les signaux et les mentorats",
+  "subheading": "Dynopay permet aux formateurs en forex et en trading, aux groupes de signaux et aux mentors d'être payés en Bitcoin, en stablecoins et dans plus de 15 cryptomonnaies directement sur un wallet qu'ils contrôlent — un secteur à haut risque que les cartes refusent régulièrement.",
+  "intro_paragraph": "La formation au trading, les signaux et le mentorat sont signalés comme à haut risque par les prestataires de cartes, ce qui entraîne des demandes refusées, des fonds gelés et des contestations de membres qui perdent de l'argent sur leurs propres trades. Dynopay est une passerelle de paiement crypto non dépositaire qui règle directement sur votre wallet. Facturez un abonnement de signaux, un mentorat ou une formation avec un lien de paiement, un checkout hébergé ou l'API REST sur plus de 15 cryptomonnaies, avec des frais de 1,5 % jusqu'à 0,5 % à grande échelle, sans rétrofacturation, sans frais mensuels et avec un premier paiement gratuit.",
+  "features": [
+    {
+      "title": "Une validation sans le filtrage à haut risque",
+      "description": "Vous n'avez pas besoin qu'un prestataire de cartes valide un compte marchand de « formation au trading ». Ajoutez un wallet de versement et commencez à accepter la crypto le jour même."
+    },
+    {
+      "title": "Aucune contestation liée aux pertes de trading des membres",
+      "description": "Les paiements en crypto sont définitifs : un membre qui connaît une mauvaise semaine de trading ne peut pas annuler vos honoraires par une rétrofacturation de carte après avoir reçu les signaux."
+    },
+    {
+      "title": "Un public mondial, un règlement instantané",
+      "description": "Les traders sont partout. Acceptez les paiements dans le monde entier et recevez les fonds en quelques minutes sur un wallet que vous contrôlez, en stablecoins si vous souhaitez un solde indexé sur le dollar."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail, créez un profil d'entreprise et ajoutez une adresse de wallet de versement pour le règlement.",
+    "Générez un lien de paiement pour chaque offre ou intégrez le checkout sur votre communauté ou votre page de destination.",
+    "Le membre paie dans la cryptomonnaie de son choix, vous accordez l'accès via un webhook, et les fonds arrivent sur votre wallet en quelques minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Pourquoi les formateurs de trading et les fournisseurs de signaux utilisent-ils les paiements en crypto ?",
+      "answer": "La formation au trading est classée à haut risque : les prestataires de cartes refusent donc souvent le compte ou gèlent les fonds, et les membres contestent parfois les paiements après une semaine de pertes. La crypto est non dépositaire et définitive : pas de validation à haut risque, pas de gel et pas de rétrofacturation après la livraison."
+    },
+    {
+      "question": "Puis-je proposer un abonnement de signaux récurrent avec la crypto ?",
+      "answer": "Oui, cycle par cycle. La crypto n'a pas de prélèvement automatique comme les cartes : chaque renouvellement est donc un nouveau paiement — utilisez l'API REST et les webhooks pour envoyer un lien de paiement à chaque cycle de facturation et accorder ou révoquer l'accès automatiquement."
+    },
+    {
+      "question": "Avec quelles cryptomonnaies les membres peuvent-ils payer ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, dont Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC ainsi que des stablecoins comme l'USDT (ERC20, TRC20, Polygon), l'USDC (ERC20) et le RLUSD."
+    },
+    {
+      "question": "Quels sont les frais ?",
+      "answer": "Les frais démarrent à 1,5 % plus un dollar par paiement réussi et descendent à 0,5 % à mesure que le volume réglé augmente. Aucuns frais d'installation, aucuns frais mensuels, et votre premier paiement est gratuit."
+    },
+    {
+      "question": "Dynopay détient-il mon argent ?",
+      "answer": "Non. Dynopay est non dépositaire : les paiements sont réglés directement sur votre propre wallet — MetaMask, Coinbase, Ledger ou toute adresse que vous contrôlez."
+    }
+  ],
+  "cta_headline": "Commencez à accepter la crypto pour votre communauté de trading en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Sans validations à haut risque, sans coûts mensuels, et les fonds sont réglés directement sur votre wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "forex-trading",
+  "_display_name": "Trading Educators & Signal Providers"
+}

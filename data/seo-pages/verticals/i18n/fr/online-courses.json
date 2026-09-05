@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements en crypto pour cours en ligne et e-learning · Dynopay",
+  "meta_description": "Acceptez les paiements en crypto pour vos cours en ligne et votre e-learning avec Dynopay. Sans rétrofacturation, des étudiants du monde entier, plus de 15 cryptomonnaies. Frais dès 1,5 %. Commencez gratuitement.",
+  "h1": "Acceptez les paiements en crypto pour vos cours en ligne, sans rétrofacturation",
+  "subheading": "Dynopay permet aux créateurs de cours et aux plateformes d'e-learning de vendre à des étudiants partout, d'éliminer la fraude au remboursement et de recevoir Bitcoin, stablecoins et plus de 15 cryptomonnaies directement sur un wallet qu'ils contrôlent.",
+  "intro_paragraph": "Vendre du savoir en ligne, c'est atteindre des étudiants dans des pays où les cartes échouent, tandis que la fraude par rétrofacturation grignote vos marges une fois le contenu déjà consommé. Dynopay est une passerelle de paiement crypto non dépositaire qui dépose les paiements directement sur votre wallet — aucun intermédiaire ne retient vos fonds. Vendez un cours avec un lien de paiement, intégrez le checkout sur votre page de destination ou automatisez l'inscription grâce à l'API REST, sur plus de 15 cryptomonnaies avec des frais dès 1,5 % qui descendent à 0,5 % à grande échelle. Sans rétrofacturation, sans frais mensuels, et votre premier paiement est gratuit.",
+  "features": [
+    {
+      "title": "Aucune rétrofacturation une fois le cours visionné",
+      "description": "Les paiements en crypto sont définitifs : un étudiant ne peut donc pas consommer l'intégralité de votre cours puis récupérer l'argent par une contestation de carte. Les revenus que vous gagnez restent acquis."
+    },
+    {
+      "title": "Inscrivez des étudiants du monde entier",
+      "description": "Acceptez les paiements de régions mal desservies par les réseaux de cartes. Les apprenants des marchés émergents peuvent vous payer en stablecoins ou en Bitcoin sans carte ni banque locale."
+    },
+    {
+      "title": "Automatisez l'accès avec les webhooks",
+      "description": "Déclenchez un webhook dès qu'un paiement est confirmé pour débloquer une leçon, accorder l'accès au LMS ou envoyer un lien de téléchargement — sans rapprochement manuel entre paiement et inscription."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail, créez un profil d'entreprise et ajoutez une adresse de wallet de versement pour le règlement.",
+    "Créez un lien de paiement par cours ou intégrez le widget de checkout sur votre page de vente ou votre LMS.",
+    "L'étudiant paie dans la cryptomonnaie de son choix, votre webhook accorde l'accès instantanément, et les fonds arrivent sur votre wallet en quelques minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Puis-je accorder automatiquement l'accès au cours dès qu'un paiement en crypto est confirmé ?",
+      "answer": "Oui. Dynopay envoie un webhook lorsqu'un paiement est confirmé on-chain, afin que votre LMS ou votre outil d'adhésion puisse débloquer le cours, créer le compte de l'étudiant ou envoyer un lien de téléchargement par e-mail automatiquement, sans aucune étape manuelle."
+    },
+    {
+      "question": "Avec quelles cryptomonnaies mes étudiants peuvent-ils payer ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, dont Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC ainsi que des stablecoins comme l'USDT (ERC20, TRC20, Polygon), l'USDC (ERC20) et le RLUSD — les étudiants peuvent ainsi payer dans la crypto qu'ils détiennent déjà."
+    },
+    {
+      "question": "Comment la crypto empêche-t-elle la fraude au remboursement sur les cours numériques ?",
+      "answer": "Les paiements par carte peuvent être contestés des semaines après la livraison, mais les transactions en crypto sont définitives et irréversibles. Cela supprime le schéma « tout regarder, puis rétrofacturer » qui touche les vendeurs de cours, protégeant les revenus d'un contenu déjà consommé."
+    },
+    {
+      "question": "Quels sont les frais pour vendre des cours avec Dynopay ?",
+      "answer": "Les frais démarrent à 1,5 % plus un dollar par paiement réussi et descendent automatiquement à 0,5 % à mesure que votre volume réglé augmente. Aucuns frais d'installation, aucuns frais mensuels, et votre tout premier paiement est entièrement gratuit."
+    },
+    {
+      "question": "Dois-je détenir de la crypto ou gérer un compte marchand ?",
+      "answer": "Non. Vous avez seulement besoin d'une adresse de wallet pour les cryptos que vous souhaitez recevoir. Dynopay est non dépositaire : les paiements arrivent directement sur votre MetaMask, Coinbase, Ledger ou tout wallet que vous contrôlez — aucun compte marchand requis."
+    }
+  ],
+  "cta_headline": "Commencez à vendre votre cours en crypto en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Aucun coût mensuel, aucuns frais d'installation, et les fonds sont réglés directement sur votre wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "online-courses",
+  "_display_name": "Online Courses & E-Learning"
+}

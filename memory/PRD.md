@@ -1,3 +1,7 @@
+# STATUS 2026-06 (fork): 6 NEW /for/* VERTICALS NOW LOCALIZED ×5 (de/es/fr/nl/pt) — 30 i18n JSONs under
+# data/seo-pages/verticals/i18n/<lang>/, SSR-verified (translated title/H1/<html lang>/canonical/hreflang, EN intact).
+# 6 missing OG cards generated (public/og/vertical-<slug>.png). Breadcrumbs already live. Deploy via Save-to-GitHub.
+
 # STATUS 2026-06 (pod 8b63f71b): SEO fixes SHIPPED to code — 3A audit + follow-ups A/B/C. See memory/CHANGELOG.md top entries + /app/plan/plan.md.
 # A) 7 help articles authored + translated ×6 langs, server-rendered (fully localized title/body/canonical under ?lang=).
 # B) /fees now has a visible FAQ + FAQPage & Service JSON-LD (translated ×6). /for/* already had FAQ/WebPage/Breadcrumb JSON-LD.

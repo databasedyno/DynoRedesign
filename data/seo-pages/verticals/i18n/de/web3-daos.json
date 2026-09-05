@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Web3-Projekte & DAOs · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Ihr Web3-Projekt oder Ihre DAO mit Dynopay. Non-custodial, 15+ Kryptowährungen, Hosted Checkout & API, Gebühren ab 1,5%. Kostenlos starten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Ihr Web3-Projekt oder Ihre DAO",
+  "subheading": "Dynopay bietet Web3-Teams und DAOs eine non-custodial Möglichkeit, Beiträge einzusammeln, Zugang zu verkaufen und Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in ein von ihnen kontrolliertes Wallet oder Treasury zu empfangen.",
+  "intro_paragraph": "Web3-Projekte und DAOs leben on-chain, benötigen aber dennoch eine saubere, konforme Möglichkeit, fiat-basierte Zahlungen für Mitgliedschaften, Mints, Dienstleistungen und Beiträge einzuziehen, ohne die Verwahrung an einen Zahlungsdienstleister abzugeben. Dynopay ist ein non-custodial Krypto-Zahlungs-Gateway, das direkt in Ihr Wallet oder Ihr Multisig-Treasury abwickelt. Nehmen Sie Zahlungen per Hosted Checkout, Zahlungslink oder REST API über 15+ Kryptowährungen entgegen, preisen Sie in USD aus und wickeln Sie in der von Ihnen gewählten Coin ab, mit Gebühren ab 1,5% bis hinunter zu 0,5% bei steigendem Volumen, ohne Rückbuchungen und mit einer kostenlosen ersten Zahlung.",
+  "features": [
+    {
+      "title": "Abwicklung in Ihr eigenes Wallet oder Treasury",
+      "description": "Non-custodial by design: Zahlungen landen direkt in dem Wallet oder Multisig, das Sie kontrollieren, sodass das DAO-Treasury niemals von einem Zahlungsdienstleister abhängt, der Gelder zurückhält."
+    },
+    {
+      "title": "Preisgestaltung in USD, Abwicklung in Krypto",
+      "description": "Preisen Sie Mitgliedschaften oder Dienstleistungen der Klarheit halber in Dollar aus und erhalten Sie genau die Kryptowährung, die Sie möchten – einschließlich Stablecoins für ein Treasury, das keiner Volatilität ausgesetzt ist."
+    },
+    {
+      "title": "Automatisieren Sie den Zugang mit Webhooks und API",
+      "description": "Bestätigen Sie einen Beitrag on-chain und lösen Sie einen Webhook aus, um Discord-Rollen, geschützte Inhalte oder Allowlist-Plätze zu gewähren – angebunden über eine saubere REST API."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Projektprofil und fügen Sie eine Auszahlungs-Wallet-Adresse (oder ein Treasury-Multisig) für die Abwicklung hinzu.",
+    "Erstellen Sie einen Zahlungslink oder betten Sie das Hosted Checkout für Mitgliedschaften, Mints, Dienstleistungen oder Beiträge ein.",
+    "Beitragende zahlen in ihrer bevorzugten Kryptowährung, Ihr Webhook gewährt den Zugang, und die Gelder werden innerhalb von Minuten in Ihr Wallet abgewickelt."
+  ],
+  "faqs": [
+    {
+      "question": "Ist Dynopay custodial? Wohin werden DAO-Gelder abgewickelt?",
+      "answer": "Dynopay ist non-custodial. Zahlungen werden direkt in das von Ihnen kontrollierte Wallet oder Multisig-Treasury abgewickelt, sodass Ihr Projekt niemals von einem Dritten abhängt, der seine Gelder hält."
+    },
+    {
+      "question": "Kann ich in USD auspreisen, aber Stablecoins erhalten?",
+      "answer": "Ja. Preisen Sie Mitgliedschaften oder Dienstleistungen in Dollar aus und wählen Sie, Stablecoins wie USDT oder USDC zu erhalten – für ein an den Dollar gekoppeltes Treasury-Guthaben – oder eine der anderen unterstützten Coins."
+    },
+    {
+      "question": "Welche Kryptowährungen werden unterstützt?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC sowie Stablecoins wie USDT (ERC20, TRC20, Polygon), USDC (ERC20) und RLUSD."
+    },
+    {
+      "question": "Kann ich Zugang oder Rollen automatisieren, wenn ein Beitrag bestätigt wird?",
+      "answer": "Ja. Dynopay löst einen Webhook aus, wenn eine Zahlung on-chain bestätigt wird, sodass Sie Discord-Rollen gewähren, geschützte Inhalte freischalten oder eine Allowlist automatisch über die REST API aktualisieren können."
+    },
+    {
+      "question": "Welche Gebühren berechnet Dynopay?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken auf 0,5%, wenn das abgewickelte Volumen wächst. Keine Einrichtungsgebühren, keine monatlichen Gebühren, und Ihre erste Zahlung ist kostenlos."
+    }
+  ],
+  "cta_headline": "Beginnen Sie in 10 Minuten, Zahlungen für Ihr Web3-Projekt einzusammeln",
+  "cta_body": "Melden Sie sich jetzt an, und Ihre erste Transaktion ist gebührenfrei. Non-custodial Abwicklung direkt in das von Ihnen kontrollierte Wallet oder Treasury.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "web3-daos",
+  "_display_name": "Web3 Projects & DAOs"
+}

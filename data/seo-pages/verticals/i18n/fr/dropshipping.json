@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements en crypto pour boutiques de dropshipping · Dynopay",
+  "meta_description": "Acceptez les paiements en crypto sur votre boutique de dropshipping avec Dynopay. Sans rétrofacturation, sans comptes gelés, plus de 15 cryptomonnaies. Frais dès 1,5 %. Commencez gratuitement dès aujourd'hui.",
+  "h1": "Acceptez les paiements en crypto pour le dropshipping, sans rétrofacturation ni comptes gelés",
+  "subheading": "Dynopay aide les dropshippers à échapper aux blocages des prestataires à haut risque, à supprimer la fraude par rétrofacturation et à recevoir Bitcoin, stablecoins et plus de 15 cryptomonnaies directement sur un wallet qu'ils contrôlent.",
+  "intro_paragraph": "Le dropshipping est considéré comme à haut risque par les prestataires de cartes : gels de compte soudains, réserves glissantes et rétrofacturations sur les longs délais d'expédition peuvent anéantir une boutique du jour au lendemain. Dynopay est une passerelle de paiement crypto non dépositaire qui règle les paiements directement sur votre wallet — aucun prestataire ne retient votre solde et aucune réserve. Ajoutez une option de paiement en crypto avec un lien de paiement, un widget intégré ou l'API REST sur plus de 15 cryptomonnaies, avec des frais dès 1,5 % qui descendent à 0,5 % à grande échelle. Sans rétrofacturation, sans frais mensuels, premier paiement gratuit.",
+  "features": [
+    {
+      "title": "Aucun gel de compte ni réserve glissante",
+      "description": "Dynopay est non dépositaire — les fonds arrivent directement sur votre wallet plutôt que sur un compte de prestataire susceptible d'être gelé ou de retenir un pourcentage de chaque vente en réserve."
+    },
+    {
+      "title": "Des revenus à l'épreuve des rétrofacturations sur les longs délais d'expédition",
+      "description": "Les paiements en crypto sont définitifs : un client ne peut donc pas contester le paiement pendant qu'un colis est encore en transit pendant des semaines — la première source de rétrofacturations en dropshipping."
+    },
+    {
+      "title": "Vendez dans le monde entier dès le premier jour",
+      "description": "Acceptez les paiements d'acheteurs sur des marchés mal desservis par les cartes. La crypto vous permet de prendre des commandes dans le monde entier sans validations de prestataire pays par pays."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail, créez un profil d'entreprise et ajoutez une adresse de wallet de versement pour le règlement.",
+    "Ajoutez Dynopay comme option de paiement en crypto avec un lien de paiement ou intégrez le widget sur la page de checkout de votre boutique.",
+    "Le client paie dans la cryptomonnaie de son choix et les fonds arrivent sur votre wallet en quelques minutes — sans réserve, sans blocage."
+  ],
+  "faqs": [
+    {
+      "question": "Pourquoi la crypto est-elle préférable aux prestataires de cartes pour le dropshipping ?",
+      "answer": "Les prestataires de cartes classent le dropshipping comme à haut risque et réagissent par des gels de compte, des réserves glissantes et des pénalités de rétrofacturation sur les longs délais d'expédition. Les paiements en crypto sont non dépositaires et définitifs : donc pas de réserve, pas de gel et pas de contestation après la livraison."
+    },
+    {
+      "question": "Puis-je ajouter le checkout crypto à Shopify, WooCommerce ou une boutique sur mesure ?",
+      "answer": "Oui. Utilisez un lien de paiement hébergé, intégrez le widget de checkout Dynopay ou branchez l'API REST et les webhooks à n'importe quelle boutique pour que les commandes soient marquées comme payées automatiquement dès la confirmation du paiement en crypto."
+    },
+    {
+      "question": "Avec quelles cryptomonnaies mes clients peuvent-ils payer ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, dont Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC ainsi que des stablecoins comme l'USDT (ERC20, TRC20, Polygon), l'USDC (ERC20) et le RLUSD."
+    },
+    {
+      "question": "Quels sont les frais de Dynopay pour une boutique de dropshipping ?",
+      "answer": "Les frais démarrent à 1,5 % plus un dollar par paiement réussi et descendent à 0,5 % à mesure que votre volume réglé augmente. Aucuns frais d'installation, aucuns frais mensuels, et votre premier paiement est gratuit."
+    },
+    {
+      "question": "Dois-je détenir de la crypto pour utiliser Dynopay ?",
+      "answer": "Non. Vous avez seulement besoin d'une adresse de wallet pour les cryptos que vous souhaitez recevoir. Les paiements sont réglés sur votre MetaMask, Coinbase, Ledger ou tout wallet que vous contrôlez, et vous pouvez convertir en fiat selon votre propre calendrier."
+    }
+  ],
+  "cta_headline": "Ajoutez le checkout crypto à votre boutique en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Sans réserves, sans coûts mensuels, et les fonds sont réglés directement sur votre wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "dropshipping",
+  "_display_name": "Dropshipping Stores"
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements en crypto pour projets Web3 et DAO · Dynopay",
+  "meta_description": "Acceptez les paiements en crypto pour votre projet Web3 ou votre DAO avec Dynopay. Non dépositaire, plus de 15 cryptomonnaies, checkout hébergé et API, frais dès 1,5 %. Commencez gratuitement.",
+  "h1": "Acceptez les paiements en crypto pour votre projet Web3 ou votre DAO",
+  "subheading": "Dynopay offre aux équipes Web3 et aux DAO un moyen non dépositaire de collecter des contributions, de vendre des accès et de recevoir Bitcoin, stablecoins et plus de 15 cryptomonnaies directement sur un wallet ou une trésorerie qu'ils contrôlent.",
+  "intro_paragraph": "Les projets Web3 et les DAO vivent on-chain mais ont tout de même besoin d'un moyen propre et conforme d'encaisser des paiements libellés en fiat pour des adhésions, des mints, des services et des contributions, sans confier la garde à un prestataire. Dynopay est une passerelle de paiement crypto non dépositaire qui règle directement sur votre wallet ou votre trésorerie multisig. Encaissez avec un checkout hébergé, un lien de paiement ou l'API REST sur plus de 15 cryptomonnaies, affichez les prix en USD tout en réglant dans la crypto de votre choix, avec des frais de 1,5 % jusqu'à 0,5 % à grande échelle, sans rétrofacturation et avec un premier paiement gratuit.",
+  "features": [
+    {
+      "title": "Réglez sur votre propre wallet ou trésorerie",
+      "description": "Non dépositaire par conception : les paiements arrivent directement sur le wallet ou le multisig que vous contrôlez, de sorte que la trésorerie de la DAO ne dépend jamais d'un prestataire qui retient les fonds."
+    },
+    {
+      "title": "Prix en USD, règlement en crypto",
+      "description": "Affichez le prix des adhésions ou des services en dollars pour plus de clarté, et recevez exactement la cryptomonnaie que vous voulez — y compris des stablecoins pour une trésorerie non exposée à la volatilité."
+    },
+    {
+      "title": "Automatisez l'accès avec les webhooks et l'API",
+      "description": "Confirmez une contribution on-chain et déclenchez un webhook pour accorder des rôles Discord, du contenu réservé ou des places d'allowlist — le tout branché via une API REST propre."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail, créez un profil de projet et ajoutez une adresse de wallet de versement (ou un multisig de trésorerie) pour le règlement.",
+    "Générez un lien de paiement ou intégrez le checkout hébergé pour les adhésions, les mints, les services ou les contributions.",
+    "Les contributeurs paient dans la cryptomonnaie de leur choix, votre webhook accorde l'accès, et les fonds sont réglés sur votre wallet en quelques minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Dynopay est-il dépositaire ? Où les fonds de la DAO sont-ils réglés ?",
+      "answer": "Dynopay est non dépositaire. Les paiements sont réglés directement sur le wallet ou la trésorerie multisig que vous contrôlez, de sorte que votre projet ne dépend jamais d'un tiers qui détient ses fonds."
+    },
+    {
+      "question": "Puis-je afficher les prix en USD mais recevoir des stablecoins ?",
+      "answer": "Oui. Affichez le prix des adhésions ou des services en dollars et choisissez de recevoir des stablecoins comme l'USDT ou l'USDC — en conservant un solde de trésorerie indexé sur le dollar — ou l'une des autres cryptos prises en charge."
+    },
+    {
+      "question": "Quelles cryptomonnaies sont prises en charge ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, dont Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC ainsi que des stablecoins comme l'USDT (ERC20, TRC20, Polygon), l'USDC (ERC20) et le RLUSD."
+    },
+    {
+      "question": "Puis-je automatiser l'accès ou les rôles lorsqu'une contribution est confirmée ?",
+      "answer": "Oui. Dynopay déclenche un webhook lorsqu'un paiement est confirmé on-chain, ce qui vous permet d'accorder des rôles Discord, de débloquer du contenu réservé ou de mettre à jour une allowlist automatiquement via l'API REST."
+    },
+    {
+      "question": "Combien facture Dynopay ?",
+      "answer": "Les frais démarrent à 1,5 % plus un dollar par paiement réussi et descendent à 0,5 % à mesure que le volume réglé augmente. Aucuns frais d'installation, aucuns frais mensuels, et votre premier paiement est gratuit."
+    }
+  ],
+  "cta_headline": "Commencez à collecter des paiements pour votre projet Web3 en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Règlement non dépositaire directement sur le wallet ou la trésorerie que vous contrôlez.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "web3-daos",
+  "_display_name": "Web3 Projects & DAOs"
+}

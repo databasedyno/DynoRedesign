@@ -1,3 +1,20 @@
+# 2026-06 (fork): TRANSLATED THE 6 NEW /for/* VERTICALS ×5 LOCALES + OG CARDS.
+# The 6 verticals added last session (affiliate-marketing, consultants, dropshipping, forex-trading,
+# online-courses, web3-daos) were English-only. Authored data/seo-pages/verticals/i18n/{de,es,fr,nl,pt}/<slug>.json
+# for all 6 (30 files). Direct human-quality translation (user chose this over an LLM script); Dynopay + tickers
+# (BTC/ETH/USDT/USDC/RLUSD/ERC20/TRC20/MATIC…) + numbers/percentages preserved; _slug/_kind/_display_name/
+# _generated_at/_model copied verbatim from EN source (so _display_name stays English, matching the 15 existing
+# translated verticals). getVerticalContentAllLangs() already falls back to EN per-locale, so no code change needed.
+# fr uses "1,5 %" (space), de/es/nl/pt use "1,5%" — matched existing per-locale convention.
+# Validated: 30 files valid JSON, string-leaf counts + array lengths identical to EN, meta parity, 0 errors.
+# SSR-verified on :3000 for all 5 locales: ?lang=xx renders translated <title>+H1, <html lang=xx>, self-canonical
+# (?lang=), full 6-lang hreflang + x-default, EN still clean. og:image → /og/vertical-<slug>.png.
+# OG CARDS: ran scripts/generate-og-images.py (pip pillow fonttools brotli) → generated the 6 missing
+# public/og/vertical-{affiliate-marketing,consultants,dropshipping,forex-trading,online-courses,web3-daos}.png (1200x630).
+# BREADCRUMBS: already shipped (commit 26f8b8a22) — SEOLandingPage.tsx has both the visible <nav aria-label=Breadcrumb>
+# trail AND BreadcrumbList JSON-LD; no change needed. Ships on next Save-to-GitHub → DigitalOcean deploy.
+#
+
 # FIX 2026-06 (pod 8b63f71b): Email logo now matches the landing-page logo.
 # All emails (admin + merchant) render the header logo from baseEmailTemplate → getDynopayLogoUrl() →
 # ${SERVER_URL}/api/static/dynopay-email-logo.png (backend/public/dynopay-email-logo.png).

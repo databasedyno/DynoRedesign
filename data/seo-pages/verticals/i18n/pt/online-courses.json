@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em cripto para cursos online e e-learning · Dynopay",
+  "meta_description": "Aceite pagamentos em cripto nos seus cursos online e e-learning com a Dynopay. Sem estornos, alunos em todo o mundo, mais de 15 criptomoedas. Comissões desde 1,5%. Comece grátis.",
+  "h1": "Aceite pagamentos em cripto para cursos online sem estornos",
+  "subheading": "A Dynopay permite que criadores de cursos e plataformas de e-learning vendam a alunos em qualquer lugar, eliminem a fraude por reembolso e recebam Bitcoin, stablecoins e mais de 15 criptomoedas diretamente numa wallet que controlam.",
+  "intro_paragraph": "Vender conhecimento online significa chegar a alunos em países onde os cartões falham, enquanto a fraude por estorno corrói as suas margens depois de o conteúdo já ter sido consumido. A Dynopay é uma gateway de pagamentos em cripto não custodial que deposita os pagamentos diretamente na sua wallet — sem intermediários a reter os seus fundos. Venda um curso com um link de pagamento, integre o checkout na sua página de destino ou automatize a inscrição com a API REST, em mais de 15 criptomoedas com comissões desde 1,5% que descem até 0,5% à escala. Sem estornos, sem mensalidades, e o seu primeiro pagamento é grátis.",
+  "features": [
+    {
+      "title": "Sem estornos depois de o curso ser visto",
+      "description": "Os pagamentos em cripto são definitivos, por isso um aluno não pode consumir todo o seu curso e depois recuperar o dinheiro através de uma contestação de cartão. As receitas que ganha continuam a ser suas."
+    },
+    {
+      "title": "Inscreva alunos de qualquer lugar",
+      "description": "Aceite pagamentos de regiões mal servidas pelas redes de cartões. Os alunos de mercados emergentes podem pagar-lhe em stablecoins ou Bitcoin sem um cartão ou banco local."
+    },
+    {
+      "title": "Automatize o acesso com webhooks",
+      "description": "Dispare um webhook no momento em que um pagamento é confirmado para desbloquear uma lição, conceder acesso ao LMS ou enviar um link de download — sem reconciliação manual entre pagamento e inscrição."
+    }
+  ],
+  "how_it_works": [
+    "Registe-se, verifique o seu e-mail, crie um perfil de empresa e adicione um endereço de wallet de recebimento para a liquidação.",
+    "Crie um link de pagamento por curso ou integre o widget de checkout na sua página de vendas ou LMS.",
+    "O aluno paga na criptomoeda que preferir, o seu webhook concede o acesso de imediato, e os fundos chegam à sua wallet em minutos."
+  ],
+  "faqs": [
+    {
+      "question": "Posso conceder acesso ao curso automaticamente quando um pagamento em cripto é confirmado?",
+      "answer": "Sim. A Dynopay envia um webhook quando um pagamento é confirmado on-chain, para que o seu LMS ou ferramenta de subscrição possa desbloquear o curso, criar a conta do aluno ou enviar um link de download por e-mail automaticamente, sem qualquer passo manual."
+    },
+    {
+      "question": "Com que criptomoedas podem pagar os meus alunos?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC e stablecoins como USDT (ERC20, TRC20, Polygon), USDC (ERC20) e RLUSD — para que os alunos possam pagar na moeda que já têm."
+    },
+    {
+      "question": "Como é que a cripto trava a fraude por reembolso em cursos digitais?",
+      "answer": "Os pagamentos com cartão podem ser contestados semanas após a entrega, mas as transações em cripto são definitivas e irreversíveis. Isso elimina o padrão de 'ver tudo e depois pedir estorno' que afeta os vendedores de cursos, protegendo as receitas de conteúdo que já foi consumido."
+    },
+    {
+      "question": "Quais são as comissões para vender cursos com a Dynopay?",
+      "answer": "As comissões começam em 1,5% mais um dólar por pagamento bem-sucedido e descem automaticamente até 0,5% à medida que o seu volume liquidado cresce. Não há custos de adesão, nem mensalidades, e o seu primeiríssimo pagamento é totalmente grátis."
+    },
+    {
+      "question": "Preciso de ter cripto ou de gerir uma conta de comerciante?",
+      "answer": "Não. Só precisa de um endereço de wallet para as moedas que quer receber. A Dynopay é não custodial, por isso os pagamentos vão diretamente para a sua MetaMask, Coinbase, Ledger ou qualquer wallet que controle — sem necessidade de conta de comerciante."
+    }
+  ],
+  "cta_headline": "Comece a vender o seu curso em cripto em 10 minutos",
+  "cta_body": "Registe-se agora e a sua primeira transação é sem comissões. Sem custos mensais, sem custos de adesão, e os fundos liquidam diretamente na sua wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "online-courses",
+  "_display_name": "Online Courses & E-Learning"
+}

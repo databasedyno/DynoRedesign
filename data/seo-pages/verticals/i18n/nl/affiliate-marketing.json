@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen en uitbetalingen voor affiliate-marketeers · Dynopay",
+  "meta_description": "Ontvang als affiliate-marketeer wereldwijd crypto-betalingen met Dynopay. 15+ cryptovaluta, geen terugboekingen, tarieven vanaf 1,5%. Begin vandaag nog gratis.",
+  "h1": "Accepteer crypto-betalingen als affiliate-marketeer, waar ook ter wereld",
+  "subheading": "Met Dynopay worden affiliate-marketeers en mediakopers betaald in Bitcoin, stablecoins en 15+ cryptovaluta, rechtstreeks naar een wallet die zij zelf beheren — zonder grenzen, zonder terugboekingen en zonder bevroren saldo's.",
+  "intro_paragraph": "Affiliate-inkomsten overschrijden voortdurend grenzen, en traditionele betaalkanalen brengen kosten voor valutaomrekening, trage bankoverschrijvingen en het risico van een bevroren account bij pieken in het volume met zich mee. Dynopay is een non-custodial crypto-betaalgateway die rechtstreeks naar uw wallet afwikkelt — ontvang betalingen voor promoties, media of uw eigen aanbiedingen met een betaallink, gehoste checkout of de REST API in 15+ cryptovaluta. De tarieven beginnen bij 1,5% en dalen bij schaal naar 0,5%, zonder terugboekingen, zonder maandelijkse kosten en met een gratis eerste betaling.",
+  "features": [
+    {
+      "title": "Word direct grensoverschrijdend betaald",
+      "description": "Crypto wordt binnen enkele minuten afgewikkeld naar een wallet die u beheert, zodat u internationale bankoverschrijvingen van meerdere dagen en de wisselkoersmarge omzeilt die grensoverschrijdende affiliate-inkomsten aantast."
+    },
+    {
+      "title": "Geen bevroren accounts bij pieken in het volume",
+      "description": "Een virale campagne activeert het fraudemodel van een betaaldienst niet en bevriest uw saldo niet — non-custodial afwikkeling betekent dat de fondsen al van u zijn."
+    },
+    {
+      "title": "Stablecoins om volatiliteit te vermijden",
+      "description": "Ontvang betalingen in USDT of USDC om een aan de dollar gekoppeld saldo aan te houden en zet het om naar uw lokale valuta wanneer de koers u uitkomt."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak een bedrijfsprofiel aan en voeg één uitbetalings-walletadres toe voor de afwikkeling.",
+    "Deel een betaallink, integreer de checkout of koppel de REST API om partners en kopers te factureren.",
+    "Zij betalen in hun voorkeurscryptovaluta en de fondsen komen binnen enkele minuten in uw wallet aan."
+  ],
+  "faqs": [
+    {
+      "question": "Hoe profiteren affiliate-marketeers van het accepteren van crypto?",
+      "answer": "Affiliate-inkomsten zijn wereldwijd en grillig. Crypto wordt binnen enkele minuten afgewikkeld naar een wallet die u beheert, vermijdt vertragingen bij internationale banken en wisselkoersmarges, en kan niet door een betaaldienst worden bevroren wanneer een campagne plots opschaalt."
+    },
+    {
+      "question": "Kan ik mijn inkomsten aanhouden in een stabiele, aan de dollar gekoppelde munt?",
+      "answer": "Ja. Accepteer betalingen in stablecoins zoals USDT of USDC om een saldo met dollarwaarde aan te houden en cryptovolatiliteit te vermijden, en zet het vervolgens naar eigen tempo om naar fiat."
+    },
+    {
+      "question": "Welke cryptovaluta worden ondersteund?",
+      "answer": "Dynopay ondersteunt 15+ cryptovaluta, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC en stablecoins zoals USDT (ERC20, TRC20, Polygon), USDC (ERC20) en RLUSD."
+    },
+    {
+      "question": "Wat rekent Dynopay?",
+      "answer": "De tarieven beginnen bij 1,5% plus één dollar per geslaagde betaling en dalen naar 0,5% naarmate uw afgewikkelde volume groeit. Geen opstartkosten, geen maandelijkse kosten, en uw eerste betaling is gratis."
+    },
+    {
+      "question": "Is Dynopay custodial? Waar gaan mijn fondsen heen?",
+      "answer": "Dynopay is non-custodial. Betalingen worden rechtstreeks afgewikkeld naar uw eigen wallet — MetaMask, Coinbase, Ledger of elk adres dat u beheert — zodat Dynopay uw geld nooit aanhoudt."
+    }
+  ],
+  "cta_headline": "Begin binnen 10 minuten met het ontvangen van crypto-betalingen",
+  "cta_body": "Meld u nu aan en uw eerste transactie is gratis. Geen maandelijkse kosten en de fondsen worden rechtstreeks afgewikkeld naar een wallet die u beheert.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "affiliate-marketing",
+  "_display_name": "Affiliate Marketers"
+}

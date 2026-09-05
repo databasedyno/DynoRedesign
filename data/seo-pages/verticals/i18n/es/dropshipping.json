@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en cripto para tiendas de dropshipping · Dynopay",
+  "meta_description": "Acepta pagos en cripto en tu tienda de dropshipping con Dynopay. Sin contracargos, sin cuentas congeladas, más de 15 criptomonedas. Comisiones desde 1,5%. Empieza gratis hoy.",
+  "h1": "Acepta pagos en cripto para dropshipping sin contracargos ni cuentas congeladas",
+  "subheading": "Dynopay ayuda a los dropshippers a librarse de las retenciones de procesadores de alto riesgo, eliminar el fraude por contracargos y recibir Bitcoin, stablecoins y más de 15 criptomonedas directamente en una wallet que controlan.",
+  "intro_paragraph": "Los procesadores de tarjetas tratan el dropshipping como de alto riesgo: congelaciones de cuenta repentinas, reservas rotativas y contracargos por plazos de envío largos pueden arruinar una tienda de la noche a la mañana. Dynopay es una pasarela de pagos cripto no custodial que liquida los pagos directamente en tu wallet, sin ningún procesador reteniendo tu saldo ni reserva alguna. Añade una opción de pago en cripto con un enlace de pago, un widget integrado o la API REST en más de 15 criptomonedas, con comisiones desde 1,5% que bajan hasta 0,5% a escala. Sin contracargos, sin cuotas mensuales, primer pago gratis.",
+  "features": [
+    {
+      "title": "Sin congelaciones de cuenta ni reservas rotativas",
+      "description": "Dynopay es no custodial: los fondos llegan directamente a tu wallet en lugar de a una cuenta de procesador que pueden congelar o que retiene un porcentaje de cada venta como reserva."
+    },
+    {
+      "title": "Ingresos a prueba de contracargos en envíos largos",
+      "description": "Los pagos en cripto son definitivos, así que un cliente no puede disputar el cargo mientras un paquete lleva semanas en tránsito, la principal causa de contracargos en dropshipping."
+    },
+    {
+      "title": "Vende en todo el mundo desde el primer día",
+      "description": "Acepta pagos de compradores en mercados mal atendidos por las tarjetas. La cripto te permite recibir pedidos en todo el mundo sin aprobaciones de procesador país por país."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo, crea un perfil de empresa y añade una dirección de wallet de cobro para la liquidación.",
+    "Añade Dynopay como opción de pago en cripto con un enlace de pago o integra el widget en la página de checkout de tu tienda.",
+    "El cliente paga en su criptomoneda preferida y los fondos llegan a tu wallet en minutos, sin reserva ni retención."
+  ],
+  "faqs": [
+    {
+      "question": "¿Por qué la cripto es mejor que los procesadores de tarjetas para el dropshipping?",
+      "answer": "Los procesadores de tarjetas clasifican el dropshipping como de alto riesgo y responden con congelaciones de cuenta, reservas rotativas y penalizaciones por contracargos en envíos largos. Los pagos en cripto son no custodiales y definitivos, así que no hay reserva, ni congelación, ni disputa tras la entrega."
+    },
+    {
+      "question": "¿Puedo añadir el checkout en cripto a Shopify, WooCommerce o una tienda a medida?",
+      "answer": "Sí. Usa un enlace de pago alojado, integra el widget de checkout de Dynopay o conecta la API REST y los webhooks a cualquier tienda para que los pedidos se marquen como pagados automáticamente cuando se confirma el pago en cripto."
+    },
+    {
+      "question": "¿Con qué criptomonedas pueden pagar mis clientes?",
+      "answer": "Dynopay admite más de 15 criptomonedas, incluidas Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC y stablecoins como USDT (ERC20, TRC20, Polygon), USDC (ERC20) y RLUSD."
+    },
+    {
+      "question": "¿Cuáles son las comisiones de Dynopay para una tienda de dropshipping?",
+      "answer": "Las comisiones comienzan en 1,5% más un dólar por pago exitoso y bajan hasta 0,5% a medida que crece tu volumen liquidado. Sin cuotas de alta, sin cuotas mensuales y tu primer pago es gratis."
+    },
+    {
+      "question": "¿Necesito tener cripto para usar Dynopay?",
+      "answer": "No. Solo necesitas una dirección de wallet para las monedas que quieras recibir. Los pagos se liquidan en tu MetaMask, Coinbase, Ledger o cualquier wallet que controles, y puedes convertir a fiat según tu propio calendario."
+    }
+  ],
+  "cta_headline": "Añade el checkout en cripto a tu tienda en 10 minutos",
+  "cta_body": "Regístrate ahora y tu primera transacción es sin comisiones. Sin reservas, sin costes mensuales, y los fondos se liquidan directamente en tu wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "dropshipping",
+  "_display_name": "Dropshipping Stores"
+}

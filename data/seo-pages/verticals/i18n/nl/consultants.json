@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor consultants en coaches · Dynopay",
+  "meta_description": "Word in crypto betaald voor consultancy en coaching met Dynopay. Factureer klanten wereldwijd, geen terugboekingen, 15+ cryptovaluta, tarieven vanaf 1,5%. Gratis beginnen.",
+  "h1": "Accepteer crypto-betalingen voor consultancy en coaching, van elke klant wereldwijd",
+  "subheading": "Met Dynopay kunnen consultants, coaches en adviseurs hun klanten factureren in Bitcoin, stablecoins en 15+ cryptovaluta, rechtstreeks naar een wallet die zij beheren — met directe afwikkeling en zonder terugboekingen.",
+  "intro_paragraph": "Consultants en coaches factureren vaak internationale klanten, waarbij overschrijvingen traag en duur zijn en kaartterugboekingen kunnen volgen op een reeds geleverde opdracht. Dynopay is een non-custodial crypto-betaalgateway die rechtstreeks naar uw wallet afwikkelt. Verstuur een betaallink met uw merk voor een retainer, een pakket of een losse sessie, ontvang betalingen via een gehoste checkout of automatiseer de facturatie met de REST API in 15+ cryptovaluta. De tarieven beginnen bij 1,5% en dalen bij schaal naar 0,5%, zonder terugboekingen, zonder maandelijkse kosten en met een gratis eerste betaling.",
+  "features": [
+    {
+      "title": "Factureer wereldwijde klanten in enkele seconden",
+      "description": "Verstuur een betaallink per e-mail of chat en word binnen enkele minuten betaald — geen internationale overschrijving, geen dagenlange wachttijd en geen kosten van correspondentbanken die uw factuur aantasten."
+    },
+    {
+      "title": "Geen terugboekingen nadat het werk is geleverd",
+      "description": "Crypto-betalingen zijn definitief, dus een klant kan uw honorarium niet betwisten via een kaartuitgever zodra de sessies of opgeleverde stukken klaar zijn."
+    },
+    {
+      "title": "Houd een stabiel saldo aan",
+      "description": "Accepteer USDT of USDC om een aan de dollar gekoppeld saldo aan te houden en volatiliteit te vermijden, en zet het om naar uw lokale valuta wanneer u wilt."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak een bedrijfsprofiel aan en voeg één uitbetalings-walletadres toe voor de afwikkeling.",
+    "Maak een betaallink voor elke klant, retainer of pakket — of integreer de checkout op uw boekingspagina.",
+    "De klant betaalt in zijn voorkeurscryptovaluta en de fondsen komen binnen enkele minuten in uw wallet aan."
+  ],
+  "faqs": [
+    {
+      "question": "Hoe worden consultants en coaches betaald met Dynopay?",
+      "answer": "Maak een betaallink voor een sessie, pakket of retainer en stuur die naar de klant, of integreer de checkout op uw boekingspagina. Wanneer hij in crypto betaalt, worden de fondsen binnen enkele minuten naar uw wallet afgewikkeld — zonder vertragingen van internationale overschrijvingen."
+    },
+    {
+      "question": "Kan ik een maandelijkse retainer in crypto factureren?",
+      "answer": "Ja, per cyclus. Crypto kent geen automatische kaartafschrijving, dus elke verlenging is een nieuwe betaling — gebruik de REST API en webhooks om elke factuurcyclus automatisch een betaallink te versturen."
+    },
+    {
+      "question": "Met welke cryptovaluta kunnen klanten betalen?",
+      "answer": "Dynopay ondersteunt 15+ cryptovaluta, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC en stablecoins zoals USDT (ERC20, TRC20, Polygon), USDC (ERC20) en RLUSD."
+    },
+    {
+      "question": "Wat zijn de tarieven voor het accepteren van consultancybetalingen?",
+      "answer": "De tarieven beginnen bij 1,5% plus één dollar per geslaagde betaling en dalen naar 0,5% naarmate uw afgewikkelde volume groeit. Geen opstartkosten, geen maandelijkse kosten, en uw eerste betaling is gratis."
+    },
+    {
+      "question": "Wordt mijn geld door Dynopay aangehouden?",
+      "answer": "Nee. Dynopay is non-custodial, dus betalingen worden rechtstreeks afgewikkeld naar een wallet die u beheert — MetaMask, Coinbase, Ledger of elk adres dat van u is."
+    }
+  ],
+  "cta_headline": "Begin binnen 10 minuten met het factureren van klanten in crypto",
+  "cta_body": "Meld u nu aan en uw eerste transactie is gratis. Geen maandelijkse kosten, en de fondsen worden rechtstreeks afgewikkeld naar een wallet die u beheert.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "consultants",
+  "_display_name": "Consultants & Coaches"
+}
