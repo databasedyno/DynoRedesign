@@ -344,7 +344,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   }, [i18n.language]);
 
   const SITE_URL = "https://dynopay.com";
-  const DEFAULT_OG_IMAGE = `${SITE_URL}/og/dynopay-og.png`;
+  const DEFAULT_OG_IMAGE = `${SITE_URL}/og/dynopay-og.png?v=2`;
   // Per-page branded share cards (public/og/, built by scripts/generate-og-images.py)
   const ROUTE_OG_IMAGE: Record<string, string> = {
     "/fees": `${SITE_URL}/og/fees.png`,

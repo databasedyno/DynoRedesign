@@ -1,4 +1,93 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05: OG (LINK-PREVIEW) IMAGE OLD-LOGO FIX
+#   ISSUE: sharing dynopay.com/quality unfurled a card whose baked-in OG image
+#     (public/og/dynopay-og.png) still showed the OLD black blob logo bottom-left.
+#   ROOT CAUSE: dynopay-og.png is a hand-made asset (NOT built by generate-og-images.py,
+#     which per-route cards use). The per-route cards already use the new indigo coin
+#     (assets/Images/auth/dynopay-white-logo.png -> new coin), only this one was stale.
+#   FIX: PIL-composited the new indigo conversion-coin (from favicon-512.png) over the old
+#     black mark in public/og/dynopay-og.png (erased old blob at x68-122,y504-562 with the
+#     flat bg #F7F7FB, pasted 52px coin at (70,508)); wordmark "dynopay" kept. Verified visually.
+#     Bumped og:image URL to ?v=2 in pages/_app.tsx (DEFAULT_OG_IMAGE) so social scrapers refetch.
+#   VERIFIED: / and /quality emit og:image = /og/dynopay-og.png?v=2 (HTTP 200); lint clean.
+#   NOTE: social platforms (iMessage/Slack/WA/FB/LinkedIn) cache OG cards + favicons; already-
+#     shared links refresh on their own TTL or via each platform's re-scrape/debugger.
+#   FE TEST FOCUS: screenshot the OG image URL -> must show indigo coin + "dynopay" (no black
+#     blob); confirm og:image meta on / and /quality = ...dynopay-og.png?v=2 and returns 200.
+# ============================================================================
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-05: OG IMAGE FIX — ALL TESTS PASSED ✓✓✓
+# ============================================================================
+#   Tested by: testing_agent (Playwright browser automation)
+#   Test date: 2026-09-05
+#   Preview URL: https://982c7b59-42f3-44ae-8f8d-19e990c4ac86.preview.emergentagent.com
+#
+#   CONTEXT: Verified the Open Graph (OG) image fix for Dynopay. The old black 
+#   blob logo was replaced with the NEW indigo/purple circular conversion-coin 
+#   mark (white looping arrows) to match the landing page branding.
+#
+#   TEST RESULTS SUMMARY: 4/4 VERIFICATION ITEMS PASSED
+#
+#   ✓ 1) OG IMAGE VISUAL — PASS
+#        Direct URL: /og/dynopay-og.png?v=2
+#        - HTTP Status: 200 OK
+#        - Content-Type: image/png
+#        - Visual inspection confirms: INDIGO/PURPLE circular mark with white 
+#          curved arrows forming a loop (the "conversion coin") next to the 
+#          word "dynopay" at bottom-left
+#        - Card text: "Accept crypto payments. Get paid your way."
+#        - Subline: "Bitcoin · Ethereum · USDT · USDC — settled to your own wallet"
+#        - ✓ PASS: Shows NEW indigo coin (NOT the old black blob)
+#        - Screenshot: .screenshots/og-image-direct.png
+#
+#   ✓ 2) HOMEPAGE (/) OG:IMAGE META TAG — PASS
+#        - og:image content: https://dynopay.com/og/dynopay-og.png?v=2
+#        - ✓ Contains ?v=2 version suffix (cache-bust parameter present)
+#        - ✓ References dynopay-og.png
+#        - ✓ Full production URL format
+#        - og:image:width: 1200
+#        - og:image:height: 630
+#        - Page title: "Accept Crypto Payments — Get Paid Your Way · Dynopay"
+#        - Screenshot: .screenshots/homepage-retry.png
+#
+#   ✓ 3) /quality PAGE OG:IMAGE META TAG — PASS
+#        - og:image content: https://dynopay.com/og/dynopay-og.png?v=2
+#        - ✓ Contains ?v=2 version suffix (cache-bust parameter present)
+#        - ✓ References dynopay-og.png
+#        - ✓ Full production URL format
+#        - Screenshot: .screenshots/quality-page-og-meta.png
+#
+#   ✓ 4) ASSET AVAILABILITY — PASS
+#        - GET /og/dynopay-og.png?v=2 → HTTP 200
+#        - Content-Type: image/png (correct image content-type)
+#        - Asset is publicly accessible and returns valid image data
+#
+#   OVERALL RESULT: ✓✓✓ ALL 4 VERIFICATION ITEMS PASSED ✓✓✓
+#
+#   DETAILED FINDINGS:
+#   - The OG image fix is working correctly as specified
+#   - The NEW indigo/purple conversion-coin logo is visible (not the old black blob)
+#   - Both homepage (/) and /quality page emit the correct og:image meta tag
+#   - The ?v=2 cache-busting parameter is present on all og:image references
+#   - The OG image asset is publicly accessible and returns HTTP 200
+#   - Visual branding is consistent with the landing page logo
+#   - No critical issues found
+#
+#   NOTES:
+#   - The site now correctly serves the updated OG image with new branding
+#   - Social platforms (iMessage/Slack/WhatsApp/Facebook/LinkedIn) cache OG 
+#     cards and will refresh on their own TTL or via platform-specific 
+#     re-scrape/debugger tools
+#   - The fix addresses the root cause: replaced the old black blob logo with 
+#     the new indigo conversion-coin mark in the OG image file itself
+#   - All tests performed via READ-ONLY browser automation (no data writes)
+# ============================================================================
+
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: RPC HEALTH FALSE-ALERT FIX (prod "ETH RPC unreachable — timeout")
 #   RCA (via DigitalOcean prod logs): Tatum API transiently degraded ~10:00 UTC
 #     (rate refresh took 29777ms; Tatum returned Cloudflare "error code: 524" on TRON/POLYGON).
