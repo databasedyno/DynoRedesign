@@ -98,6 +98,9 @@ const EXEMPT_PATHS = [
   // unguessable token from the change-alert email (no session/cookie exists
   // when opened from an inbox). Token itself authenticates the request.
   "/api/wallet-security/revert-change",
+  // QA Quality Center — passcode-gated internal tool. Auth is the shared
+  // passcode header (x-qa-passcode), not a session cookie, so CSRF does not apply.
+  "/api/quality",
 ];
 
 /**

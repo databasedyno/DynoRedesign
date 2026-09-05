@@ -1,4 +1,48 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05: QA QUALITY CENTER (/quality) — NEW FEATURE
+#   Built a passcode-gated end-to-end QA checklist page at /quality where testers
+#   record a status + notes per test function; all notes persist in Postgres so the
+#   team can retrieve & fix. Includes custom test items + CSV/JSON export.
+#
+#   PASSCODE (shared, gate): Dynopay123@   (backend reads process.env.QA_PASSCODE, falls back to this)
+#   NOTE: This is NOT the vault password. Vault password (setup only) = Katiekendra123@.
+#
+#   BACKEND (Node/TS, Sequelize + Postgres):
+#     - models/qaModels.ts: tbl_qa_comment (running note thread per item) + tbl_qa_custom_item.
+#       Tables auto-created lazily via ensureQaTables() (sync alter:false — additive, safe on prod DB).
+#     - routes/qualityRouter.ts mounted at /api/quality (public route, passcode-gated INSIDE via
+#       requirePasscode -> x-qa-passcode header). Endpoints:
+#         POST /api/quality/auth            validate passcode
+#         GET  /api/quality/data            all comments grouped by item_key + custom items
+#         POST /api/quality/comment         append a note {item_key,section_id,section_title,case_title,tester,status,note}
+#         DELETE /api/quality/comment/:id   delete one note
+#         POST /api/quality/custom          add custom test {area,title,description,created_by}
+#         DELETE /api/quality/custom/:id    delete custom item (+ its notes)
+#         GET  /api/quality/export?format=csv|json   download all notes
+#       status enum: pass | fail | blocked | not_tested
+#     - middleware/csrfMiddleware.ts: added "/api/quality" to EXEMPT_PATHS (passcode header auth, not cookie).
+#     - routes/index.ts: registered qualityRouter.
+#
+#   FRONTEND (Next.js, MUI): pages/quality.tsx (layout="none", standalone, noindex).
+#     Passcode gate -> catalog (data/qaCatalog.ts, extracted from pages/QA.tsx TEST_SECTIONS) rendered
+#     as accordions; each test = status select + notes box + Save (appends to DB thread) + delete;
+#     custom-test add form; CSV/JSON export; live pass/fail/blocked/untested stats; search.
+#
+#   MANUAL CURL VERIFICATION (all PASS): auth (right 200 / wrong 403), data, comment add,
+#     custom add, export csv, delete comment, delete custom -> DB clean. Frontend route compiles 200.
+#
+#   BACKEND TEST FOCUS (SAFE MODE, prod DB — only writes to the two NEW tbl_qa_* tables):
+#     Base: http://localhost:8001  | header: x-qa-passcode: Dynopay123@
+#     1) POST /api/quality/auth wrong passcode -> 401/403; correct -> 200 {ok:true}.
+#     2) All endpoints REJECT (401) when x-qa-passcode header is missing/wrong.
+#     3) POST /api/quality/comment persists; GET /api/quality/data returns it grouped by item_key.
+#     4) POST /api/quality/custom returns item_key "custom::<id>"; appears in /data.
+#     5) GET /api/quality/export?format=csv and =json return downloadable content with the rows.
+#     6) DELETE comment/:id and custom/:id remove rows. Clean up any rows you create.
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: BING WEBMASTER TOOLS SETUP (verified)
 #   Added the Bing DNS verification CNAME via the DigitalOcean DNS API:
 #     name=7023c07d2dc9c90065edb194fd8811a5  ->  verify.bing.com  (domain dynopay.com,
@@ -477,3 +521,71 @@
 #   history is preserved in git commits (use `git log --follow test_result.md`).
 #   Keep this file lean going forward — summarise, don't paste full test dumps.
 # ============================================================================
+
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-05: QA QUALITY CENTER BACKEND API — ALL TESTS PASSED ✓✓✓
+# ============================================================================
+#   Tested by: testing_agent (backend_test.py)
+#   Test date: 2026-09-05
+#   Base URL: http://localhost:8001
+#   Passcode: x-qa-passcode: Dynopay123@
+#
+#   TEST RESULTS SUMMARY: 18/18 TESTS PASSED
+#
+#   ✓ AUTHENTICATION TESTS (3/3 PASS)
+#     1. POST /api/quality/auth with correct passcode → 200 {ok:true} ✓
+#     2. POST /api/quality/auth without passcode → 401 (correctly rejected) ✓
+#     3. POST /api/quality/auth with wrong passcode → 401 (correctly rejected) ✓
+#
+#   ✓ GET /api/quality/data TESTS (2/2 PASS)
+#     4. GET /api/quality/data without passcode → 401 (correctly rejected) ✓
+#     5. GET /api/quality/data with passcode → 200 {ok, commentsByItem, customItems} ✓
+#
+#   ✓ POST /api/quality/comment TESTS (4/4 PASS)
+#     6. Create comment with valid data → 200, comment created with ID ✓
+#     7. Created comment appears in GET /data under correct item_key ✓
+#     8. Create comment with invalid status → 200, status coerced to "not_tested" ✓
+#     9. Create comment without item_key → 400 (correctly rejected) ✓
+#
+#   ✓ POST /api/quality/custom TESTS (3/3 PASS)
+#     10. Create custom item → 200, item_key format "custom::<id>" ✓
+#     11. Custom item appears in GET /data customItems array ✓
+#     12. Create custom item without title → 400 (correctly rejected) ✓
+#
+#   ✓ EXPORT TESTS (2/2 PASS)
+#     13. GET /api/quality/export?format=csv → 200, text/csv with header row ✓
+#     14. GET /api/quality/export?format=json → 200, JSON with comments array ✓
+#
+#   ✓ DELETE TESTS (3/3 PASS)
+#     15. DELETE /api/quality/comment/:id → 200 {ok:true, deleted:1} ✓
+#     16. DELETE /api/quality/comment/:id (second comment) → 200 {ok:true, deleted:1} ✓
+#     17. DELETE /api/quality/custom/:id → 200 {ok:true, deleted:1} ✓
+#
+#   ✓ CLEANUP VERIFICATION (1/1 PASS)
+#     18. All created test data successfully deleted from database ✓
+#
+#   DETAILED FINDINGS:
+#   - All endpoints correctly enforce passcode authentication (401 without/wrong passcode)
+#   - Comment creation persists to database and appears in grouped data structure
+#   - Invalid status values are safely coerced to "not_tested" (no 500 errors)
+#   - Custom item creation generates correct "custom::<id>" item_key format
+#   - CSV export returns proper Content-Type: text/csv with correct header row
+#   - JSON export returns proper Content-Type: application/json with comments array
+#   - Delete operations successfully remove rows from database
+#   - All validation errors return appropriate 400 status codes
+#   - Database cleanup successful - no orphaned test data
+#
+#   OVERALL RESULT: ✓✓✓ ALL 18 TESTS PASSED ✓✓✓
+#
+#   NOTES:
+#   - Tests performed against SAFE MODE environment (prod DB, only writes to new tbl_qa_* tables)
+#   - All test data was created and cleaned up successfully
+#   - No critical issues found
+#   - All endpoints working as specified in the review request
+#   - Passcode authentication working correctly on all endpoints
+#   - Status coercion working as expected (invalid → "not_tested")
+#   - Export functionality (CSV and JSON) working correctly
+#   - Database operations (create, read, delete) all functioning properly
+# ============================================================================
+

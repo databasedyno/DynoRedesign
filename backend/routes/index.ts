@@ -21,6 +21,7 @@ import supportChatRouter from "./supportChatRouter";
 import merchantApiRouter from "./merchantApiRouter";
 import trackRouter from "./trackRouter";
 import productRouter from "./productRouter";
+import qualityRouter from "./qualityRouter";
 
 import {
   authMiddleware,
@@ -396,6 +397,7 @@ router.use("/dashboard", authMiddleware, emailVerifiedMiddleware, dashboardRoute
 router.use("/notifications", notificationRouter);
 router.use("/kyc", kycRouter);
 router.use("/status", statusRouter); // Public status page endpoints
+router.use("/quality", qualityRouter); // QA Quality Center (passcode-gated inside)
 router.use("/subscriptions", subscriptionRouter); // Subscription management
 router.use("/team", teamRouter); // Team Members / RBAC (invite/accept/manage)
 // ─────────────────────────────────────────────────────────────────────────────
