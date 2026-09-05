@@ -1,4 +1,32 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05: BING WEBMASTER TOOLS SETUP (verified)
+#   Added the Bing DNS verification CNAME via the DigitalOcean DNS API:
+#     name=7023c07d2dc9c90065edb194fd8811a5  ->  verify.bing.com  (domain dynopay.com,
+#     DO record id 1831196731, ttl 1800). Resolves publicly (CNAME chain to Bing edge).
+#   RESULT: dynopay.com is now VERIFIED in Bing Webmaster Tools under the API key's account —
+#     GetUrlSubmissionQuota returns DailyQuota=100 (previously ErrorCode 14 NotAuthorized).
+#   Bing Webmaster API key stored in backend/.env as BING_WEBMASTER_API_KEY. NOTE: backend/.env is
+#     gitignored -> the key is POD-ONLY; it must also be added to PRODUCTION (DigitalOcean app env)
+#     for the prod readiness log to work. (Verification + IndexNow + sitemap crawl work regardless.)
+#   CODE: backend/utils/bingWebmasterSubmitter.ts -> checkBingWebmasterReadiness() (READ-ONLY: GET
+#     GetUrlSubmissionQuota; logs "verified + quota" or an actionable verify reminder). Wired in
+#     server.ts ~125s post-boot inside the job-enabled (WORKER_ROLE=primary) block, so it runs in
+#     PRODUCTION only (skipped in SAFE-MODE preview). Confirmed via ts-node: logs verified, quota 100.
+#     Design note: Bing's JSON Webmaster API has NO working SubmitSitemap/AddFeed op (both 404); Bing
+#     auto-crawls the sitemap via robots.txt and IndexNow (indexNowSubmitter.ts) pushes URLs instantly,
+#     so we intentionally do NO redundant/quota-limited API resubmission.
+#
+#   VERIFICATION FOCUS (READ-ONLY; no data writes; app in SAFE MODE on prod DB):
+#     1) DNS: `getent hosts 7023c07d2dc9c90065edb194fd8811a5.dynopay.com` resolves through
+#        verify.bing.com to a Bing edge host (CNAME live).
+#     2) Readiness fn: in /app/backend run
+#        `./node_modules/.bin/ts-node --transpile-only -e "require('dotenv/config');import('./utils/bingWebmasterSubmitter').then(m=>m.checkBingWebmasterReadiness())"`
+#        -> logs "[Bing] ✅ Webmaster Tools verified for https://dynopay.com (daily URL-submission quota: 100) ...".
+#     3) Wiring: server.ts imports checkBingWebmasterReadiness inside the job-enabled block.
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: SEO AUDIT (Google starter guide) + sitemap <lastmod> enhancement
 #   Audited dynopay.com vs https://developers.google.com/search/docs/fundamentals/seo-starter-guide
 #   RESULT = strong PASS: HTTPS, unique descriptive <title>, meta description, self-canonical,

@@ -1609,6 +1609,18 @@ const startServer = async () => {
           .then(({ submitSitemapToIndexNow }) => submitSitemapToIndexNow())
           .catch((e: Error) => log(`IndexNow submitter failed to load: ${e.message}`, "warn"));
       }, 120_000);
+
+      // ── SEO: Bing Webmaster Tools readiness check ─────────────────────────
+      // Bing already receives our URLs via IndexNow (above) and auto-crawls the
+      // sitemap from robots.txt once the site is verified. Here we just confirm,
+      // using the Webmaster API key, that dynopay.com is verified under that key's
+      // account and log the URL-submission quota — surfacing a clear reminder if
+      // verification ever lapses. Read-only; fails soft; no-op without the key.
+      setTimeout(() => {
+        import("./utils/bingWebmasterSubmitter")
+          .then(({ checkBingWebmasterReadiness }) => checkBingWebmasterReadiness())
+          .catch((e: Error) => log(`Bing readiness check failed to load: ${e.message}`, "warn"));
+      }, 125_000);
     } else {
       log('⚠️  Skipping error digest monitoring (background jobs disabled)', 'warn');
       log('⚠️  Skipping webhook URL migration (background jobs disabled)', 'warn');
