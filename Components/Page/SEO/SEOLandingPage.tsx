@@ -559,6 +559,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
               }}
             >
               <AccordionSummary
+                data-testid={`seo-faq-${idx}`}
                 expandIcon={<ExpandMoreIcon sx={{ color: theme.palette.text.primary }} />}
                 sx={{
                   px: { xs: 2.5, md: 3 },
@@ -580,7 +581,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                   {faq.question}
                 </Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ px: { xs: 2.5, md: 3 }, pt: 0, pb: 3 }}>
+              <AccordionDetails data-testid={`seo-faq-answer-${idx}`} sx={{ px: { xs: 2.5, md: 3 }, pt: 0, pb: 3 }}>
                 <Typography
                   component="p"
                   sx={{

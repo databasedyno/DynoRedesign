@@ -40,6 +40,35 @@
 
 ## Recent sessions (most recent first)
 
+<!-- 2026-06 (fork, pod bc2629eb): SEO — COMPETITOR "ALTERNATIVE" PAGES — DONE + VERIFIED (testing_agent iteration_129, 100%).
+     Context: user wants dynopay.com to rank for "crypto payment gateway"/"accept crypto" and to beat competitors
+     coinpayments.net + coingate.com. Diagnosis: on-page/technical SEO is already strong (title/meta/canonical/OG,
+     dynamic sitemap.xml, robots.txt, Organization+WebSite+SearchAction+SoftwareApplication JSON-LD in _app.tsx,
+     FAQPage JSON-LD in Home/v3/FAQCompact.tsx, /for/[vertical] industry pages, blog). Real gap = OFF-PAGE authority
+     (backlinks/listicles/site age) + missing competitor comparison pages. Built the latter in-repo.
+     WHAT SHIPPED (this repo = the Next.js Pages-Router site for dynopay.com):
+       • New programmatic-SEO kind "comparison" in utils/seoContent.ts (getComparisonContent/getAllComparisonSlugs,
+         COMPARISONS_DIR; getAllSEOPagesIndex now emits /compare/{slug} → auto in sitemap).
+       • data/seo-pages/comparisons/coingate.json + coinpayments.json — HAND-AUTHORED, honest/defensible comparison
+         copy (positions Dynopay on non-custodial + auto-convert + product breadth + first-payment-free; does NOT
+         falsely claim lower fees — both competitors are cheaper flat-fee at low volume, stated honestly for E-E-A-T).
+       • pages/compare/[slug].tsx (getServerSideProps, 404 for unknown slugs) reusing Components/Page/SEO/SEOLandingPage.tsx
+         (emits WebPage+FAQPage+BreadcrumbList JSON-LD, nav, hero, features, how-it-works, FAQ, related /for/* links,
+         CTA → /auth/register?src=seo&page={slug}&kind=comparison).
+       • SEOIllustration.tsx: widened `kind` union to include "comparison" (renders gradient monogram).
+       • public/robots.txt: Allow /compare/. public/og/comparison-{coingate,coinpayments}.png (1200x630, generated).
+       • ROOT-CAUSE FIX (was rendering blank): pages/_app.tsx layout resolver (~L292) did not treat /compare/* as a
+         public "home" layout route → fell into app/auth shell → blank. Added pathname.startsWith('/compare/').
+     VERIFIED: tsc --noEmit=0, file-size gate=0, both pages HTTP 200 + in sitemap, testing_agent iteration_129 100%
+       (full client render, FAQ accordions expand, JSON-LD present, NO console errors, NO regression on / /fees /for/ecommerce).
+       Added data-testid seo-faq-{i}/seo-faq-answer-{i} on FAQ accordions per review note.
+     NOTE: URLs live at /compare/coingate and /compare/coinpayments (dynopay.com will serve on next deploy).
+     NEXT SEO (not built): dedicated /crypto-payment-gateway head-term page; more comparison pages (BitPay/NOWPayments/
+       Coinbase Commerce); long-tail blog hub ("how to accept crypto payments", per-coin, per-industry); OFF-PAGE
+       authority = the real lever (get into "best crypto payment gateway 2026" listicles, G2/Capterra, WooCommerce/
+       Shopify plugins, Product Hunt, crypto PR, reviews). GSC already set up by user. -->
+
+
 <!-- 2026-06 (fork, pod bc2629eb): EMAIL CONTENT AUDIT — PART 2 (rewrites APPLIED) — DONE + VERIFIED.
      Scope applied per user choices: 1a KYC=ID+selfie (no proof-of-address), 2a subject house-style on ALL ~70,
      3a strip emoji from transactional/security/receipts (keep in referral/marketing), 4b EN + all 5 langs same pass.

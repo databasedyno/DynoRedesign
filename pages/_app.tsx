@@ -293,7 +293,8 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       homePaths.has(pathname) ||
       pathname.startsWith("/blog/") ||
       pathname.startsWith("/accept-crypto-payments-in/") ||
-      pathname.startsWith("/for/")
+      pathname.startsWith("/for/") ||
+      pathname.startsWith("/compare/")
     ) {
       return "home";
     }

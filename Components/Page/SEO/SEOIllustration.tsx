@@ -97,7 +97,7 @@ function _slugHash(slug: string): number {
   return Math.abs(h);
 }
 
-function _gradientFor(slug: string, kind: "country" | "vertical"): [string, string] {
+function _gradientFor(slug: string, kind: "country" | "vertical" | "comparison"): [string, string] {
   // Verticals get a hand-picked brand gradient; fall back to hash rotation if
   // we ever add a vertical without a mapped entry.
   if (kind === "vertical") {
@@ -111,7 +111,7 @@ function _gradientFor(slug: string, kind: "country" | "vertical"): [string, stri
 
 export interface SEOIllustrationProps {
   slug: string;
-  kind: "country" | "vertical";
+  kind: "country" | "vertical" | "comparison";
   /** Country flag emoji — used as the visual anchor for country cards. */
   flag?: string | null;
   /** Card diameter (defaults to 56 for cards, use ~180 for hero). */

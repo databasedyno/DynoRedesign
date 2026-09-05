@@ -12,6 +12,7 @@ Allow: /press
 Allow: /referral-program
 Allow: /help-support
 Allow: /for/
+Allow: /compare/
 
 # Private / Authenticated Pages
 Disallow: /dashboard

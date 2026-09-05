@@ -37,7 +37,7 @@ export interface SEOPageContent {
   cta_body: string;
   _generated_at: string;
   _model: string;
-  _kind: "country" | "vertical";
+  _kind: "country" | "vertical" | "comparison";
   _slug: string;
   _display_name: string;
   _currency?: string;
@@ -47,6 +47,7 @@ export interface SEOPageContent {
 const DATA_ROOT = path.join(process.cwd(), "data", "seo-pages");
 const COUNTRIES_DIR = path.join(DATA_ROOT, "countries");
 const VERTICALS_DIR = path.join(DATA_ROOT, "verticals");
+const COMPARISONS_DIR = path.join(DATA_ROOT, "comparisons");
 
 function _listSlugs(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -83,6 +84,15 @@ export function getVerticalContent(slug: string): SEOPageContent | null {
   return _readOne(VERTICALS_DIR, slug);
 }
 
+/** Competitor "alternative / vs" landing pages (/compare/{slug}). EN-only. */
+export function getAllComparisonSlugs(): string[] {
+  return _listSlugs(COMPARISONS_DIR);
+}
+
+export function getComparisonContent(slug: string): SEOPageContent | null {
+  return _readOne(COMPARISONS_DIR, slug);
+}
+
 const VERTICAL_I18N_DIR = path.join(VERTICALS_DIR, "i18n");
 export const SEO_LOCALES = ["en", "pt", "fr", "es", "de", "nl"] as const;
 export type LocalizedSEOContent = Record<string, SEOPageContent>;
@@ -106,7 +116,7 @@ export function getVerticalContentAllLangs(slug: string): LocalizedSEOContent | 
 export interface SEOPageIndexEntry {
   slug: string;
   displayName: string;
-  kind: "country" | "vertical";
+  kind: "country" | "vertical" | "comparison";
   urlPath: string;
   /** Emoji flag when available (countries). null for verticals so Next.js `getStaticProps` can serialize it. */
   flag?: string | null;
@@ -139,6 +149,19 @@ export function getAllSEOPagesIndex(): SEOPageIndexEntry[] {
         urlPath: `/for/${slug}`,
         flag: v._flag || null,
         generatedAt: v._generated_at,
+      });
+    }
+  }
+  for (const slug of getAllComparisonSlugs()) {
+    const c = getComparisonContent(slug);
+    if (c) {
+      out.push({
+        slug,
+        displayName: c._display_name,
+        kind: "comparison",
+        urlPath: `/compare/${slug}`,
+        flag: null,
+        generatedAt: c._generated_at,
       });
     }
   }

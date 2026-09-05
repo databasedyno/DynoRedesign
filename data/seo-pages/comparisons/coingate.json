@@ -1,0 +1,59 @@
+{
+  "meta_title": "CoinGate alternative — Dynopay non-custodial crypto payments",
+  "meta_description": "Looking for a CoinGate alternative? Dynopay is a non-custodial crypto payment gateway — funds settle straight to a wallet you control, auto-convert to USDT/USDC, no chargebacks. First payment free.",
+  "h1": "The non-custodial CoinGate alternative for accepting crypto",
+  "subheading": "Dynopay settles every payment directly to a wallet you control — keep the coin or auto-convert to USDC/USDT. No custodial holds, no chargebacks, live in under 10 minutes.",
+  "intro_paragraph": "CoinGate is a well-established, MiCA-licensed European processor known for settling crypto into euros in your bank account and supporting a broad list of coins. If euro bank settlement is exactly what you need, CoinGate is a strong fit. Dynopay takes a different, non-custodial approach: instead of routing your money through a processor and out to a bank, every payment settles on-chain straight to a wallet you control — keep the original coin, or auto-convert to a stablecoin like USDC or USDT the moment it confirms. Alongside checkout you also get payment links, a product catalog, creator @handle tip pages, crowdfunding campaigns and a clean REST API. Pricing starts at 1.5% with your first payment free, and drops to 0.5% as your settled volume grows — no monthly or setup fees.",
+  "features": [
+    {
+      "title": "Non-custodial by design",
+      "description": "CoinGate can hold your funds and settle them to your bank. Dynopay never holds your money — each payment lands directly in a wallet whose private keys you control, so custody stays with you at all times."
+    },
+    {
+      "title": "Keep the coin, or auto-convert to stablecoin",
+      "description": "Take BTC or ETH and settle to USDC or USDT automatically the moment a payment confirms — in your own wallet, with no volatility exposure and no custodial fiat account in between."
+    },
+    {
+      "title": "More than a payment button",
+      "description": "One platform for a hosted checkout, shareable payment links, a product catalog, creator tip pages and crowdfunding campaigns — plus a developer API with sandbox keys and webhooks."
+    },
+    {
+      "title": "Transparent volume pricing",
+      "description": "Start at 1.5% with your first payment completely free, and watch fees taper to 0.5% at scale. No monthly fee, no setup fee, and no chargebacks — crypto settles final."
+    }
+  ],
+  "how_it_works": [
+    "Create a free account and verify your email in under three minutes — no card required.",
+    "Add one payout wallet address per coin you want to accept. Dynopay is non-custodial, so funds go straight there.",
+    "Share a payment link or embed the hosted checkout, and payments settle to your wallet — keep the coin or auto-convert to stablecoin."
+  ],
+  "faqs": [
+    {
+      "question": "Is Dynopay a good CoinGate alternative?",
+      "answer": "Yes, if you want non-custodial settlement where crypto lands directly in a wallet you control, optional auto-convert to stablecoins, and a broader product suite (checkout, payment links, storefronts, creator tips, crowdfunding and an API). CoinGate remains a strong choice if you specifically need crypto settled as euros into a European bank account."
+    },
+    {
+      "question": "How do Dynopay and CoinGate fees compare?",
+      "answer": "CoinGate typically charges a flat fee of around 1%. Dynopay starts at 1.5% with your first payment free and tapers to 0.5% as your all-time settled volume grows. At low volume CoinGate's flat rate can be lower; at scale Dynopay reaches 0.5% while keeping you fully non-custodial."
+    },
+    {
+      "question": "Does Dynopay settle to a bank account like CoinGate?",
+      "answer": "No. Dynopay is crypto-native and non-custodial: you keep the coin the customer paid, or auto-convert to a stablecoin (USDC/USDT) held in your own wallet. There is no fiat off-ramp to a bank account, which is what keeps custody entirely with you."
+    },
+    {
+      "question": "Is Dynopay custodial?",
+      "answer": "No. You provide a wallet address for each cryptocurrency you accept and payments settle there directly on-chain. Dynopay never holds your funds or your private keys."
+    },
+    {
+      "question": "Can I switch from CoinGate to Dynopay?",
+      "answer": "Yes. Sign up, add your wallet address, and swap your CoinGate payment links or checkout for Dynopay's. Most merchants are fully live in under 10 minutes, with no underwriting or waiting period."
+    }
+  ],
+  "cta_headline": "Try the non-custodial CoinGate alternative",
+  "cta_body": "Your first payment is free and setup takes under 10 minutes. Keep your keys and keep your coin — or auto-convert to a stablecoin, settled straight to your wallet.",
+  "_generated_at": "2026-06-10T00:00:00Z",
+  "_model": "hand-authored",
+  "_kind": "comparison",
+  "_slug": "coingate",
+  "_display_name": "CoinGate"
+}

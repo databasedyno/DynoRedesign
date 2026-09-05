@@ -1,0 +1,59 @@
+{
+  "meta_title": "CoinPayments alternative — Dynopay non-custodial crypto checkout",
+  "meta_description": "A modern CoinPayments alternative: Dynopay is a non-custodial crypto payment gateway with a hosted checkout, auto-convert to USDT/USDC and funds straight to your wallet. No chargebacks. First payment free.",
+  "h1": "A modern, non-custodial CoinPayments alternative",
+  "subheading": "Accept Bitcoin, Ethereum, stablecoins and 15+ assets with a clean hosted checkout — settled directly to a wallet you control, or auto-converted to USDC/USDT. No custodial wallet in between.",
+  "intro_paragraph": "CoinPayments is one of the longest-running crypto processors, known for supporting a very large catalog of coins, a low flat fee, and its own integrated wallet. If maximum coin coverage and a built-in wallet are your priorities, CoinPayments delivers. Dynopay is built for merchants who prefer to hold their own funds and want a modern, conversion-focused checkout: payments settle on-chain straight to a wallet you control — never a processor-held balance — and you can auto-convert volatile coins to stablecoins the instant they confirm. You also get payment links, a product catalog, creator @handle tip pages, crowdfunding and a clean REST API with webhooks. Pricing starts at 1.5% with your first payment free and drops to 0.5% at scale, with no monthly or setup fees and zero chargebacks.",
+  "features": [
+    {
+      "title": "Funds land in your wallet, not a custodial balance",
+      "description": "Unlike a processor-held wallet you later withdraw from, Dynopay settles every payment on-chain to an address you control. You keep custody and your private keys from the very first payment."
+    },
+    {
+      "title": "Auto-convert to stablecoin on settlement",
+      "description": "Accept BTC or ETH and keep USDC or USDT instead — converted the moment the payment confirms and settled straight to your wallet, removing price-swing risk without a custodial step."
+    },
+    {
+      "title": "A checkout your customers actually finish",
+      "description": "A hosted, mobile-first checkout with QR codes, coin and network switching and instant on-chain confirmation — designed for conversion, not just coin coverage."
+    },
+    {
+      "title": "More than a gateway",
+      "description": "Payment links, a product catalog and storefront, creator tip pages, crowdfunding campaigns and a developer API with sandbox keys and webhooks — all in one place."
+    }
+  ],
+  "how_it_works": [
+    "Create a free account and verify your email in under three minutes — no card, no crypto experience needed.",
+    "Add one payout wallet address per coin you want to accept. Dynopay is non-custodial, so payments go directly to you.",
+    "Share a payment link or embed the hosted checkout, then keep the coin or auto-convert to a stablecoin — settled to your wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Is Dynopay a good CoinPayments alternative?",
+      "answer": "Yes, if you want non-custodial settlement to your own wallet, optional auto-convert to stablecoins and a modern, conversion-focused checkout with storefront, creator and crowdfunding tools. CoinPayments may suit you better if you need the widest possible coin list or a built-in custodial wallet."
+    },
+    {
+      "question": "How do Dynopay and CoinPayments fees compare?",
+      "answer": "CoinPayments is typically around 0.5% flat. Dynopay starts at 1.5% with your first payment free and tapers to 0.5% as your all-time settled volume grows. At low volume CoinPayments' flat rate is lower; Dynopay reaches parity at scale while settling funds directly to a wallet you control."
+    },
+    {
+      "question": "Is Dynopay non-custodial, unlike a built-in processor wallet?",
+      "answer": "Yes. There is no Dynopay-held wallet or balance to withdraw from. Every payment settles on-chain straight to the wallet address you provide, so you never hand custody of your funds to the platform."
+    },
+    {
+      "question": "Which cryptocurrencies does Dynopay support?",
+      "answer": "15+ assets across 9 blockchains — Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, Bitcoin Cash and Polygon, plus USDT, USDC and RLUSD stablecoins. It's a focused list of the coins merchants actually get paid in rather than a catalog of thousands."
+    },
+    {
+      "question": "Can I migrate from CoinPayments to Dynopay?",
+      "answer": "Yes. Sign up, add your wallet address, and replace your CoinPayments checkout or buttons with a Dynopay payment link or hosted checkout. Most merchants are live in under 10 minutes."
+    }
+  ],
+  "cta_headline": "Switch to a non-custodial crypto checkout",
+  "cta_body": "First payment free, live in under 10 minutes. Keep your keys, auto-convert to stablecoin, and give customers a checkout they'll actually finish.",
+  "_generated_at": "2026-06-10T00:00:00Z",
+  "_model": "hand-authored",
+  "_kind": "comparison",
+  "_slug": "coinpayments",
+  "_display_name": "CoinPayments"
+}
