@@ -7,7 +7,7 @@ import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/e
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
 
 /**
@@ -117,7 +117,7 @@ export const sendAdminFeeReceivedEmail = async (
   totalAmount: string
 ) => {
   try {
-    const subject = `Platform Fee Received - ${feeAmount} ${currency}`;
+    const subject = `Platform Fee Received - ${feeFmt} ${currency}`;
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -127,16 +127,21 @@ export const sendAdminFeeReceivedEmail = async (
     const totalAmountNum = parseFloat(totalAmount);
     const isUnderThreshold = merchantAmountNum === 0 && feeAmountNum === totalAmountNum;
 
+    // Trim noisy DECIMAL(20,8) trailing zeros for display (e.g. 3.20000000 -> 3.20).
+    const feeFmt = formatMoneyForEmail(feeAmount, currency);
+    const merchantFmt = formatMoneyForEmail(merchantAmount, currency);
+    const totalFmt = formatMoneyForEmail(totalAmount, currency);
+
     let detailContent: string;
     let noticeBlock = '';
 
     if (isUnderThreshold) {
       detailContent = `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Total Received', `<strong>${feeAmount} ${currency}</strong>`)}
+          ${dataRow('Total Received', `<strong>${feeFmt} ${currency}</strong>`)}
           ${dataRow('Status', statusBadge('Under Threshold', 'pending'))}
-          ${dataRow('Merchant Received', `${merchantAmount} ${currency}`)}
-          ${dataRow('Platform Received', `<strong>${feeAmount} ${currency} (100%)</strong>`)}
+          ${dataRow('Merchant Received', `${merchantFmt} ${currency}`)}
+          ${dataRow('Platform Received', `<strong>${feeFmt} ${currency} (100%)</strong>`)}
           ${dataRow('Date', `${dateStr} at ${timeStr}`)}
           ${dataRow('Company', companyName)}
           ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
@@ -147,10 +152,10 @@ export const sendAdminFeeReceivedEmail = async (
     } else {
       detailContent = `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Platform Fee', `<strong>${feeAmount} ${currency}</strong>`)}
+          ${dataRow('Platform Fee', `<strong>${feeFmt} ${currency}</strong>`)}
           ${dataRow('Status', statusBadge('Processed', 'success'))}
-          ${dataRow('Merchant Net', `${merchantAmount} ${currency}`)}
-          ${dataRow('Total Processed', `${totalAmount} ${currency}`)}
+          ${dataRow('Merchant Net', `${merchantFmt} ${currency}`)}
+          ${dataRow('Total Processed', `${totalFmt} ${currency}`)}
           ${dataRow('Date', `${dateStr} at ${timeStr}`)}
           ${dataRow('Company', companyName)}
           ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
@@ -185,7 +190,8 @@ export const sendAdminFeeSweepEmail = async (
   sweepMode: string
 ) => {
   try {
-    const subject = `Admin Fee Swept — ${amountSwept} ${currency}`;
+    const sweptFmt = formatMoneyForEmail(amountSwept, currency);
+    const subject = `Admin Fee Swept — ${sweptFmt} ${currency}`;
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -196,7 +202,7 @@ export const sendAdminFeeSweepEmail = async (
       ${p(`Admin fees have been swept from a pool address to the admin wallet.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Amount Swept', `<strong style="color: #166534;">${amountSwept} ${currency}</strong>`)}
+          ${dataRow('Amount Swept', `<strong style="color: #166534;">${sweptFmt} ${currency}</strong>`)}
           ${dataRow('Status', statusBadge('Swept', 'success'))}
           ${dataRow('Sweep Mode', sweepModeDisplay)}
           ${dataRow('Gas Used', gasUsed)}

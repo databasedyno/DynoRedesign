@@ -7,7 +7,7 @@ import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail } from "./emailShared";
 
 /**
  * Template 5: Wallet Update OTP
@@ -260,7 +260,7 @@ export const sendWithdrawalOTPEmail = async (
     ${otpBlock(otpCode)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('labels.amount', L), `<strong>${formatMoneyForEmail(amount, currency)} ${currency}</strong>`)}
         ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`, true)}
       </table>
     `, '#f59e0b')}
@@ -298,7 +298,7 @@ export const sendWithdrawalSuccessEmail = async (
     ${p(t('merchant.withdrawalSuccess.intro', L, { amount, currency }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('labels.amount', L), `<strong>${formatMoneyForEmail(amount, currency)} ${currency}</strong>`)}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.inProgress', L), 'pending'))}
         ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`)}
         ${dataRow(t('labels.reference', L), `<span style="font-family: monospace; font-size: 13px;">${transactionReference}</span>`)}

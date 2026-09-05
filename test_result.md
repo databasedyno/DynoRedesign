@@ -1,4 +1,95 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05: EMAIL AMOUNT FORMATTING + DEPLOY HARDENING
+#   A) EMAIL AMOUNTS (reported bug: "3.20000000 USDT-TRC20" 8-zero noise in emails)
+#      - NEW helper emailShared.formatMoneyForEmail(amount,currency): stable/fiat -> 2dp
+#        (3.20 / 216.80 / 220.00), other crypto -> up to 8dp with trailing zeros trimmed.
+#      - Applied in: adminOpsEmails.ts (Platform Fee Received: fee/merchant/total + subject;
+#        Admin Fee Swept), conversionEmails.ts (auto-convert payout/source + subject),
+#        walletEmails.ts (withdrawal amount rows). Verified via ts-node: 3.20000000->3.20,
+#        216.80000000->216.80, 220.00000000->220.00, 0.00512300 BTC->0.005123, 1.5 ETH.
+#      NOTE: merchant/customer payment emails already showed clean base amounts (2dp) +
+#        formatCryptoAmount for crypto — left unchanged.
+#   B) DEPLOY HARDENING (settlement delayed ~13min because prod redeployed mid-confirmation;
+#      payment left "processing", recovered later by startup reconciliation)
+#      - server.ts gracefulShutdown: now DRAINS the BullMQ settlement worker FIRST (right after
+#        HTTP close, before cron/error-digest/db-close), bounded by SETTLEMENT_DRAIN_MS (default
+#        18s) so in-flight settlements finish before SIGKILL but can't hang the deploy.
+#        worker.close() already waits for ACTIVE jobs; this just gives them the grace window.
+#      - "Reconciliation sooner": clean shutdown releases the leader lease early (existing step 0a),
+#        so the surviving instance promotes (~15s) and runs startup reconciliation far sooner than
+#        the SIGKILL path (~60s TTL + boot). No leader-TTL change made (too risky on live payments).
+#   BACKEND TEST FOCUS: (1) backend boots healthy after server.ts edit; (2) formatMoneyForEmail
+#     outputs (run ts-node in /app/backend); (3) /api/quality endpoints still OK (regression).
+# ============================================================================
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-05: EMAIL FORMATTING + DEPLOY HARDENING — ALL TESTS PASSED ✓✓✓
+# ============================================================================
+#   Tested by: testing_agent
+#   Test date: 2026-09-05
+#   Base URL: http://localhost:8001
+#
+#   TEST RESULTS SUMMARY: 3/3 AREAS VERIFIED
+#
+#   ✓ AREA 1: EMAIL AMOUNT FORMATTING — PASS (7/7 test cases)
+#        Created temp test script /app/backend/scripts/_verify_fmt.ts and ran:
+#        cd /app/backend && ./node_modules/.bin/ts-node --transpile-only scripts/_verify_fmt.ts
+#
+#        EXPECTED vs ACTUAL (all match perfectly):
+#        - 3.20000000 USDT-TRC20 → 3.20 ✓ (no trailing zeros)
+#        - 216.80000000 USDT-TRC20 → 216.80 ✓ (no trailing zeros)
+#        - 220.00000000 USDT-TRC20 → 220.00 ✓ (2 decimals for stablecoin)
+#        - 220 USD → 220.00 ✓ (2 decimals for fiat)
+#        - 0.00512300 BTC → 0.005123 ✓ (trailing zeros trimmed, up to 8 decimals)
+#        - 1.50000000 ETH → 1.5 ✓ (trailing zeros trimmed)
+#        - 100 USDC → 100.00 ✓ (2 decimals for stablecoin)
+#
+#        NONE contain trailing "00000000" — bug fix confirmed working.
+#
+#        Import verification (all files compile without TSError):
+#        - services/email/adminOpsEmails.ts: imports formatMoneyForEmail ✓
+#          Used in: sendAdminFeeReceivedEmail (lines 131-133), sendAdminFeeSweepEmail (line 193)
+#        - services/email/conversionEmails.ts: imports formatMoneyForEmail ✓
+#          Used in: sendAutoConversionPayoutEmail (lines 66-67)
+#        - services/email/walletEmails.ts: imports formatMoneyForEmail ✓
+#          Used in: sendWithdrawalOTPEmail (line 263), sendWithdrawalSuccessEmail (line 301)
+#
+#        Temp file cleaned up after test.
+#
+#   ✓ AREA 2: GRACEFUL SHUTDOWN REORDER — PASS
+#        Backend boots healthy after server.ts edit:
+#        - GET http://localhost:8001/health → HTTP 200
+#        - Response: {"status":"healthy","database":"connected"}
+#        - No compile/import errors detected
+#        - Server started successfully with BullMQ settlement worker drain logic in place
+#
+#        NOTE: The actual settlement worker drain behavior is production-runtime only
+#        (triggered by SIGTERM/SIGINT during deploy). This test confirms the code
+#        compiles and the backend remains healthy after the gracefulShutdown reorder.
+#
+#   ✓ AREA 3: QA QUALITY CENTER REGRESSION CHECK — PASS (3/3 endpoint tests)
+#        Base URL: http://localhost:8001/api/quality
+#        Passcode header: x-qa-passcode: Dynopay123@
+#
+#        1. POST /api/quality/auth with correct passcode → HTTP 200 {"ok":true} ✓
+#        2. POST /api/quality/auth without passcode → HTTP 401 {"ok":false,"error":"Invalid passcode"} ✓
+#        3. POST /api/quality/auth with wrong passcode → HTTP 401 {"ok":false,"error":"Invalid passcode"} ✓
+#        4. GET /api/quality/data with correct passcode → HTTP 200 with commentsByItem + customItems ✓
+#
+#        All endpoints working correctly. No regressions detected.
+#
+#   OVERALL RESULT: ✓✓✓ ALL 3 AREAS VERIFIED SUCCESSFULLY ✓✓✓
+#
+#   NOTES:
+#   - Email formatting helper working perfectly (no trailing zeros in stablecoins/fiat)
+#   - Backend boots healthy after graceful shutdown reorder
+#   - QA Quality Center endpoints remain functional (no regressions)
+#   - All tests performed via READ-ONLY verification (no data writes except temp test file)
+#   - Temp test file /app/backend/scripts/_verify_fmt.ts created and deleted after test
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: GOOGLE SEARCH FAVICON FIX (verified by frontend agent)
 #   ISSUE: Google search result for "dynopay" showed an old black jagged icon, not the
 #   landing-page logo (indigo circle + white conversion-coin).

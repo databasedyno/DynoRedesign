@@ -1747,6 +1747,24 @@ const gracefulShutdown = async (signal: string) => {
     log('HTTP server closed (no longer accepting new requests).', 'info');
   }
 
+  // 0b. Drain in-flight settlement/webhook jobs FIRST — before tearing anything
+  //     else down — so a payment that is mid-settlement when a deploy arrives
+  //     gets to finish and forward to the merchant instead of being killed and
+  //     left "stuck" (recovered only later by startup reconciliation).
+  //     shutdownWebhookQueue() -> worker.close() waits for ACTIVE jobs; we bound
+  //     it with a hard cap so a long on-chain settlement can never overrun the
+  //     platform's SIGTERM→SIGKILL grace window and hang the deploy.
+  const SETTLEMENT_DRAIN_MS = Number(process.env.SETTLEMENT_DRAIN_MS || 18000);
+  try {
+    await Promise.race([
+      shutdownWebhookQueue(),
+      new Promise<void>((resolve) => setTimeout(resolve, SETTLEMENT_DRAIN_MS)),
+    ]);
+    log('Webhook queue drained (in-flight settlements given time to finish).', 'info');
+  } catch (err) {
+    log(`Error draining webhook queue: ${err}`, 'error');
+  }
+
   // 1. Destroy all cron jobs so no new DB/Redis work is scheduled
   const cronTasks = cron.getTasks();
   cronTasks.forEach((task) => task.stop());
@@ -1758,14 +1776,6 @@ const gracefulShutdown = async (signal: string) => {
     await sendErrorDigest();
   } catch (err) {
     log(`Error flushing error digest: ${err}`, 'error');
-  }
-
-  // 3. Shutdown BullMQ webhook queue and worker
-  try {
-    await shutdownWebhookQueue();
-    log('Webhook queue shut down.', 'info');
-  } catch (err) {
-    log(`Error shutting down webhook queue: ${err}`, 'error');
   }
 
   // 4. Wait briefly for in-flight DB operations to finish

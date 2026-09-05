@@ -77,6 +77,22 @@ export const formatAmountWithCurrency = (amount: number, currency: string = 'USD
   return `${symbol}${toFixedStr(amount, 2)} ${currency}`;
 };
 
+/**
+ * Format a crypto/fiat amount for display in emails WITHOUT the noisy trailing
+ * zeros that DECIMAL(20,8) DB columns produce (e.g. "3.20000000").
+ * - Stablecoins / fiat (USDT, USDC, USD, EUR, …) → exactly 2 decimals ("3.20", "220.00").
+ * - Other crypto (BTC, ETH, …) → up to 8 decimals with trailing zeros trimmed.
+ * Accepts a number or a string; returns the input unchanged if it isn't numeric.
+ */
+export const formatMoneyForEmail = (amount: number | string, currency: string = ''): string => {
+  const num = typeof amount === 'number' ? amount : parseFloat(String(amount));
+  if (!isFinite(num)) return String(amount);
+  const upper = String(currency || '').toUpperCase();
+  const isStableOrFiat = /USDT|USDC|BUSD|DAI|TUSD|PYUSD|USD|EUR|GBP|BRL|NGN|INR|CAD|AUD|JPY|ZAR/.test(upper);
+  if (isStableOrFiat) return toFixedStr(num, 2);
+  return toFixedStr(num, 8).replace(/0+$/, '').replace(/\.$/, '');
+};
+
 // ============================================================
 // SECTION 2: GENERIC EMAIL
 // ============================================================

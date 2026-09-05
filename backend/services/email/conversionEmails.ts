@@ -7,7 +7,7 @@ import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
 
 /**
@@ -63,7 +63,9 @@ export const sendAutoConversionPayoutEmail = async (
       ? Math.abs(priceDiffSinceConversion / 100) * parseFloat(payoutAmount)
       : 0;
 
-    const subject = t('merchant.autoConversion.subject', L, { payoutAmount, targetCurrency, sourceAmount, sourceCurrency });
+    const payoutFmt = formatMoneyForEmail(payoutAmount, targetCurrency);
+    const sourceFmt = formatMoneyForEmail(sourceAmount, sourceCurrency);
+    const subject = t('merchant.autoConversion.subject', L, { payoutAmount: payoutFmt, targetCurrency, sourceAmount: sourceFmt, sourceCurrency });
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -118,14 +120,14 @@ export const sendAutoConversionPayoutEmail = async (
       binanceWithdrawalFeeUsd > 0
         ? feeRow('Withdrawal Fee (on-chain)', `-$${toFixedStr(binanceWithdrawalFeeUsd, 4)}`, true)
         : feeRow('Withdrawal Fee', '$0.00 (off-chain)'),
-      feeTotalRow('Net Payout', `${payoutAmount} ${targetCurrency}`),
+      feeTotalRow('Net Payout', `${payoutFmt} ${targetCurrency}`),
     ].filter(Boolean).join('');
 
     const htmlContent = `
       ${p(t('merchant.autoConversion.intro', L))}
       ${twoColumnStats(
-        statCard('Received', `${sourceAmount} ${sourceCurrency}`, `~$${toFixedStr(sourceAmountUsd, 2)} USD`),
-        statCard('Payout', `${payoutAmount} ${targetCurrency}`, 'Sent to your wallet', 'green')
+        statCard('Received', `${sourceFmt} ${sourceCurrency}`, `~$${toFixedStr(sourceAmountUsd, 2)} USD`),
+        statCard('Payout', `${payoutFmt} ${targetCurrency}`, 'Sent to your wallet', 'green')
       )}
       ${volatilityVisual}
       ${savingsBlock}
