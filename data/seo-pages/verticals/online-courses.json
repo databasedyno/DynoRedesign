@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for online courses & e-learning · Dynopay",
+  "meta_description": "Accept crypto payments for your online courses and e-learning with Dynopay. No chargebacks, global students, 15+ cryptocurrencies. Fees from 1.5%. Start free.",
+  "h1": "Accept crypto payments for online courses without chargebacks",
+  "subheading": "Dynopay lets course creators and e-learning platforms sell to students anywhere, eliminate refund fraud, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to a wallet they control.",
+  "intro_paragraph": "Selling knowledge online means reaching students in countries where cards fail and chargeback fraud eats your margins after the content is already consumed. Dynopay is a non-custodial crypto payment gateway that deposits payments straight into your wallet — no middleman holding your funds. Sell a course with a payment link, embed checkout on your landing page, or automate enrolment through the REST API, across 15+ cryptocurrencies with fees starting at 1.5% and dropping to 0.5% at scale. No chargebacks, no monthly fees, and your first payment is free.",
+  "features": [
+    {
+      "title": "No chargebacks after the course is watched",
+      "description": "Crypto payments are final, so a student can't consume your entire course and then claw the money back through a card dispute. Revenue you earn stays earned."
+    },
+    {
+      "title": "Enrol students from anywhere",
+      "description": "Accept payment from regions poorly served by card networks. Learners in emerging markets can pay you in stablecoins or Bitcoin without a local card or bank."
+    },
+    {
+      "title": "Automate access with webhooks",
+      "description": "Fire a webhook the moment a payment confirms to unlock a lesson, grant LMS access, or send a download link — no manual reconciliation between payment and enrolment."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and add one payout wallet address for settlement.",
+    "Create a payment link per course or embed the checkout widget on your sales page or LMS.",
+    "The student pays in their preferred cryptocurrency, your webhook grants access instantly, and funds arrive in your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Can I automatically grant course access when a crypto payment is confirmed?",
+      "answer": "Yes. Dynopay sends a webhook when a payment confirms on-chain, so your LMS or membership tool can unlock the course, create the student account, or email a download link automatically without any manual step."
+    },
+    {
+      "question": "Which cryptocurrencies can my students pay with?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC, and stablecoins like USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD — so students can pay in the coin they already hold."
+    },
+    {
+      "question": "How does crypto stop refund fraud on digital courses?",
+      "answer": "Card payments can be disputed weeks after delivery, but crypto transactions are final and irreversible. That removes the 'watch everything, then chargeback' pattern that plagues course sellers, protecting revenue on content that's already been consumed."
+    },
+    {
+      "question": "What are the fees for selling courses with Dynopay?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and automatically drop to 0.5% as your settled volume grows. There are no setup fees, no monthly fees, and your very first payment is completely free."
+    },
+    {
+      "question": "Do I need to hold crypto or run a merchant account?",
+      "answer": "No. You only need a wallet address for the coins you want to receive. Dynopay is non-custodial, so payments go straight to your MetaMask, Coinbase, Ledger, or any wallet you control — no merchant account required."
+    }
+  ],
+  "cta_headline": "Start selling your course in crypto in 10 minutes",
+  "cta_body": "Sign up now and your first transaction is fee-free. No monthly costs, no setup fees, and funds settle straight to your wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "online-courses",
+  "_display_name": "Online Courses & E-Learning"
+}

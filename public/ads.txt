@@ -1,0 +1,6 @@
+# Dynopay — https://dynopay.com
+# Dynopay is a cryptocurrency payment gateway and does NOT sell programmatic
+# advertising inventory, so there are no authorized digital sellers to declare.
+# This file exists only so crawler ads.txt/app-ads.txt probes receive a 200
+# instead of a 404 (IAB Tech Lab ads.txt spec). No ad relationships exist.
+# contact=support@dynopay.com

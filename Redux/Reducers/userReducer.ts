@@ -19,6 +19,21 @@ import {
   USER_RESEND_LOGIN_OTP,
 } from "../Actions/UserAction";
 import { applyPersistence } from "@/helpers/authPersistence";
+import { syncAttribution } from "@/utils/attribution";
+
+// Fire the first-touch signup-attribution beacon the INSTANT an auth token is
+// stored — for EVERY flow (email login, register, Google sign-in). Previously
+// this only ran on a later route change, so signups that didn't navigate again
+// (e.g. landed on a "verify your email" screen) never synced → ~76% of signups
+// had no attribution row. Deferred + fire-and-forget + idempotent server-side
+// (first write wins), so calling it on every auth event is safe.
+const fireAttribution = (): void => {
+  try {
+    setTimeout(() => syncAttribution(), 0);
+  } catch {
+    /* attribution must never break auth */
+  }
+};
 
 const userInitialState = {
   email: "",
@@ -50,6 +65,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
 
     case USER_LOGIN:
       localStorage.setItem("token", payload.accessToken);
+      fireAttribution();
       if (payload.refreshToken) {
         localStorage.setItem("refreshToken", payload.refreshToken);
       }
@@ -69,6 +85,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
       };
     case USER_REGISTER:
       localStorage.setItem("token", payload.accessToken);
+      fireAttribution();
       if (payload.refreshToken) {
         localStorage.setItem("refreshToken", payload.refreshToken);
       }
@@ -82,6 +99,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
       };
     case USER_UPDATE:
       localStorage.setItem("token", payload.accessToken);
+      fireAttribution();
       if (payload.refreshToken) {
         localStorage.setItem("refreshToken", payload.refreshToken);
       }

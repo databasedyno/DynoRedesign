@@ -1,4 +1,101 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05 (pod 4c5482a5): ANOMALY FIXES + 3 FEATURES
+#   LIVE prod DB, SAFE MODE. Preview: https://4c5482a5-2509-48bc-800b-ec8d400e9de4.preview.emergentagent.com
+#   Owner login (READ-ONLY testing only): onarrival21@gmail.com / Katiekendra123@ (user_id=1).
+#   tsc --noEmit = 0 errors; eslint clean on all touched files.
+#
+#   INFRA/SEO ANOMALY FIXES (from DO-log analysis; FastForex intentionally EXCLUDED):
+#   - Fontconfig: Dockerfile runner `apk add ... fontconfig ttf-dejavu && fc-cache -f`
+#     (fixes "Fontconfig error: Cannot load default config file" on PDF/OG render). Deploy-time.
+#   - nginx.conf: added `client_body_buffer_size 1m;` (stops "request body buffered to a temp
+#     file" warnings for normal image uploads). Deploy-time.
+#   - /ads.txt 404 -> added public/ads.txt (comment-only, valid). VERIFIED 200 text/plain.
+#   - i18n SSR payload >128kB: pages/_app.tsx getInitialProps now EXCLUDES 9 authenticated-app-only
+#     namespaces from the serialized bundle on PUBLIC pages. VERIFIED on /fees?lang=de: 12 ns
+#     shipped, 0 app-only leaked, i18nResources ~290kB->~210kB, German still renders. (common+landing
+#     are inherently large so the biggest pages may still exceed 128kB — full fix = split those ns.)
+#
+#   FEATURES:
+#   - ATTRIBUTION FIX (Redux/Reducers/userReducer.ts): fire syncAttribution() the instant the auth
+#     token is stored in USER_LOGIN/USER_REGISTER/USER_UPDATE (deferred, fire-and-forget, idempotent
+#     server-side). ROOT CAUSE of 76% missing attribution: syncAttribution only ran on a later route
+#     change, so signups that didn't navigate again (e.g. "verify your email") never synced.
+#     Endpoint unchanged: POST /api/track/attribution (auth). utils/attribution.ts unchanged.
+#   - WALLET NUDGE (Components/Page/Dashboard/WalletSetupNudge.tsx, wired into pages/dashboard.tsx
+#     owners-only after KycGraceBanner): shows ONLY when hasCompany && !hasWallet; one tap opens the
+#     existing AddWalletModal inline; auto-hides on refetchWallets after add; fires track/onboarding
+#     step_clicked/step_completed(wallet). testid=wallet-setup-nudge / wallet-setup-nudge-cta.
+#   - MORE /for/<vertical> SEO PAGES (data/seo-pages/verticals/*.json): +6 LLM-discovery verticals
+#     (online-courses, dropshipping, affiliate-marketing, forex-trading, consultants, web3-daos).
+#     Data-driven — auto-added to /for/* + sitemap + related links. VERIFIED: /for/online-courses 200
+#     with correct H1; sitemap lists all 6. (15 -> 21 verticals.)
+#
+#   FRONTEND TEST FOCUS (READ-ONLY — SAFE MODE, prod DB; do NOT create brands/wallets or write data):
+#     1) New SEO pages: GET /for/online-courses, /for/web3-daos, /for/dropshipping render 200 with an
+#        <h1> and body content (no error page). Sitemap /sitemap.xml lists the 6 new /for/ slugs.
+#     2) ads.txt: GET /ads.txt -> 200 text/plain (not 404).
+#     3) Attribution beacon: on LOGIN (2-step: login-email-input -> Continue -> password-input ->
+#        signin-submit-btn) a POST to /api/track/attribution fires shortly after auth (observe network).
+#     4) Dashboard health: after login, /dashboard renders with NO console errors introduced by the new
+#        WalletSetupNudge. The owner (user_id=1) HAS wallets, so the nudge (testid=wallet-setup-nudge)
+#        must NOT appear (correct gating). Do NOT create a throwaway brand to force it to appear.
+# ============================================================================
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-05 (pod 4c5482a5): ALL TESTS PASSED
+# ============================================================================
+#   Tested by: testing_agent (READ-ONLY verification on LIVE prod DB, SAFE MODE)
+#   Test date: 2026-09-05
+#   Preview URL: https://4c5482a5-2509-48bc-800b-ec8d400e9de4.preview.emergentagent.com
+#   Login: onarrival21@gmail.com / Katiekendra123@ (user_id=1)
+#
+#   TEST RESULTS SUMMARY:
+#   ✓ 1) NEW SEO LANDING PAGES — PASS (3/3)
+#        - /for/online-courses: HTTP 200, H1 "Accept crypto payments for online courses without chargebacks", 3007 chars
+#        - /for/dropshipping: HTTP 200, H1 "Accept crypto payments for dropshipping without chargebacks or frozen accounts", 2980 chars
+#        - /for/web3-daos: HTTP 200, H1 "Accept crypto payments for your Web3 project or DAO", 2981 chars
+#        All pages render with visible H1 and real body content (NOT 404/error pages).
+#
+#   ✓ 2) SITEMAP.XML — PASS
+#        - HTTP 200, Content-Type: application/xml
+#        - All 6 new paths FOUND in sitemap:
+#          /for/online-courses, /for/dropshipping, /for/affiliate-marketing,
+#          /for/forex-trading, /for/consultants, /for/web3-daos
+#
+#   ✓ 3) ADS.TXT — PASS
+#        - HTTP 200, Content-Type: text/plain; charset=UTF-8
+#        - Returns valid plain-text content (NOT a 404 or Next.js error page)
+#        - Content: "# Dynopay — https://dynopay.com" (comment-only file, IAB spec compliant)
+#        - Verified via curl: proper text/plain headers, 372 bytes
+#
+#   ✓ 4) ATTRIBUTION BEACON — PASS (PRIMARY FIX VERIFIED)
+#        - Login flow successful: 2-step email → Continue → password → Sign in
+#        - POST request to /api/track/attribution CAPTURED immediately after auth token storage
+#        - Request URL: https://4c5482a5-2509-48bc-800b-ec8d400e9de4.preview.emergentagent.com/api/track/attribution
+#        - Timing: Fired during navigation to /dashboard (within 3 seconds of login)
+#        - This confirms the Redux userReducer.ts fix is working (syncAttribution fires on USER_LOGIN)
+#
+#   ✓ 5) DASHBOARD HEALTH + WALLET NUDGE GATING — PASS
+#        - Dashboard renders successfully after login
+#        - Console errors: 0 (no new errors introduced by WalletSetupNudge component)
+#        - Wallet setup nudge (data-testid="wallet-setup-nudge"): NOT VISIBLE (correct gating)
+#        - Gating logic verified: owner account (user_id=1) HAS wallets → nudge correctly hidden
+#        - Dashboard screenshot captured: shows normal dashboard with balance $1,477.15, 13 active wallets
+#
+#   OVERALL RESULT: ✓✓✓ ALL 5 VERIFICATION ITEMS PASSED ✓✓✓
+#
+#   NOTES:
+#   - All tests performed in READ-ONLY mode (no data created/modified)
+#   - No critical issues found
+#   - Attribution fix is the key feature and is working correctly
+#   - Wallet nudge gating logic is correct (hidden for accounts with wallets)
+#   - All SEO pages render with proper content and H1 tags
+#   - Sitemap and ads.txt infrastructure fixes are working
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): SETUP + EMAIL LOGO FIX + OPS ANALYSIS
 #   Restored env from vault (Katiekendra123@) -> pod-bootstrap. LIVE prod DB, SAFE MODE.
 #   Preview: https://4c5482a5-2509-48bc-800b-ec8d400e9de4.preview.emergentagent.com

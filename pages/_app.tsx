@@ -887,8 +887,25 @@ App.getInitialProps = async (appContext: AppContext) => {
         "createPaymentLinkScreen", "paymentLinks", "helpAndSupport", "landing", "fees",
         "apiStatus", "termsConditions", "privacyPolicy", "amlPolicy", "referrals", "pageTitles",
       ];
+      // Perf: public marketing/auth pages never render the authenticated-app
+      // screens, so DON'T serialize those namespaces into __NEXT_DATA__ for them
+      // (they were the bulk of the 255–283 kB SSR payload on ?lang= pages). The
+      // client still lazy-loads the full set post-hydration via loadLanguageAsync,
+      // and i18next falls back to English for any not-yet-loaded key.
+      const APP_ONLY_NS = new Set([
+        "dashboardLayout", "profile", "notifications", "walletScreen",
+        "companyDialog", "companySettings", "transactions",
+        "createPaymentLinkScreen", "paymentLinks",
+      ]);
+      const publicPrefixes = ["/fees", "/help-support", "/blog", "/for", "/about",
+        "/press", "/documentation", "/how-to", "/referral-program", "/system-status",
+        "/accept-crypto-payments-in", "/auth", "/pay", "/terms-conditions",
+        "/privacy-policy", "/aml-policy", "/reset-password", "/creator", "/order"];
+      const isPublicPage = pathname === "/" ||
+        publicPrefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
+      const activeNS = isPublicPage ? NS.filter((ns) => !APP_ONLY_NS.has(ns)) : NS;
       const bundle: Record<string, object> = {};
-      for (const ns of NS) {
+      for (const ns of activeNS) {
         try {
           bundle[ns] = JSON.parse(fsMod.readFileSync(pathMod.join(dir, ns + ".json"), "utf8"));
         } catch {

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for dropshipping stores · Dynopay",
+  "meta_description": "Accept crypto payments for your dropshipping store with Dynopay. No chargebacks, no frozen accounts, 15+ cryptocurrencies. Fees from 1.5%. Start free today.",
+  "h1": "Accept crypto payments for dropshipping without chargebacks or frozen accounts",
+  "subheading": "Dynopay helps dropshippers escape high-risk processor holds, kill chargeback fraud, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to a wallet they control.",
+  "intro_paragraph": "Dropshipping is treated as high-risk by card processors: sudden account freezes, rolling reserves, and chargebacks on long shipping windows can wipe out a store overnight. Dynopay is a non-custodial crypto payment gateway that settles payments straight into your wallet — no processor holding your balance and no reserve. Add a crypto checkout option with a payment link, an embedded widget, or the REST API across 15+ cryptocurrencies, with fees from 1.5% dropping to 0.5% at scale. No chargebacks, no monthly fees, first payment free.",
+  "features": [
+    {
+      "title": "No account freezes or rolling reserves",
+      "description": "Dynopay is non-custodial — funds land directly in your wallet instead of a processor account that can be frozen or hold a percentage of every sale as reserve."
+    },
+    {
+      "title": "Chargeback-proof revenue on long shipping times",
+      "description": "Crypto payments are final, so a customer can't dispute the charge while a package is still in transit for weeks — the leading source of dropshipping chargebacks."
+    },
+    {
+      "title": "Sell globally from day one",
+      "description": "Accept payment from buyers in markets underserved by cards. Crypto lets you take orders worldwide without per-country processor approvals."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and add one payout wallet address for settlement.",
+    "Add Dynopay as a crypto checkout option with a payment link or embed the widget on your store's checkout page.",
+    "The customer pays in their preferred cryptocurrency and funds arrive in your wallet within minutes — no reserve, no hold."
+  ],
+  "faqs": [
+    {
+      "question": "Why is crypto better than card processors for dropshipping?",
+      "answer": "Card processors classify dropshipping as high-risk and respond with account freezes, rolling reserves, and chargeback penalties on long shipping windows. Crypto payments are non-custodial and final, so there's no reserve, no freeze, and no dispute after delivery."
+    },
+    {
+      "question": "Can I add crypto checkout to Shopify, WooCommerce, or a custom store?",
+      "answer": "Yes. Use a hosted payment link, embed the Dynopay checkout widget, or integrate the REST API and webhooks into any storefront so orders are marked paid automatically when the crypto payment confirms."
+    },
+    {
+      "question": "What cryptocurrencies can my customers pay with?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC, and stablecoins such as USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD."
+    },
+    {
+      "question": "What are Dynopay's fees for a dropshipping store?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop to 0.5% as your settled volume grows. No setup fees, no monthly fees, and your first payment is free."
+    },
+    {
+      "question": "Do I need to hold crypto to use Dynopay?",
+      "answer": "No. You only need a wallet address for the coins you want to receive. Payments settle to your MetaMask, Coinbase, Ledger, or any wallet you control, and you can convert to fiat on your own schedule."
+    }
+  ],
+  "cta_headline": "Add crypto checkout to your store in 10 minutes",
+  "cta_body": "Sign up now and your first transaction is fee-free. No reserves, no monthly costs, and funds settle straight to your wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "dropshipping",
+  "_display_name": "Dropshipping Stores"
+}

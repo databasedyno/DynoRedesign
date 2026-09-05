@@ -3,6 +3,7 @@ import { useWalletStore } from "@/contexts/WalletDataContext";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
 import ReferralRewardBanner from "@/Components/Page/Dashboard/ReferralRewardBanner";
 import KycGraceBanner from "@/Components/Page/Dashboard/KycGraceBanner";
+import WalletSetupNudge from "@/Components/Page/Dashboard/WalletSetupNudge";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
 import CustomButton from "@/Components/UI/Buttons";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
@@ -97,6 +98,7 @@ export default function Home({
 
       <main>
         {!isMember && <KycGraceBanner />}
+        {!isMember && <WalletSetupNudge />}
         {!isMember && <OnboardingFlow />}
         {!isMember && <AutoClaimHandle />}
         {!isMember && setupComplete && <ClaimHandleBanner />}

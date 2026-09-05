@@ -214,7 +214,10 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Install curl (healthcheck) and nginx (reverse proxy)
-RUN apk add --no-cache curl nginx
+# curl + nginx for the reverse proxy; fontconfig + a default TTF font so
+# server-side PDF/receipt/OG-image rendering has a usable default font
+# (fixes the "Fontconfig error: Cannot load default config file" at runtime).
+RUN apk add --no-cache curl nginx fontconfig ttf-dejavu && fc-cache -f
 
 ENV NODE_ENV=production
 ENV NO_UPDATE_NOTIFIER=true
