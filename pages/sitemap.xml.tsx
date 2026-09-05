@@ -53,6 +53,10 @@ function staticEntries(): SitemapEntry[] {
     // SEO pages regenerate offline every few weeks — "monthly" fits our cadence.
     changefreq: "monthly",
     priority: 0.7,
+    // Real content-generation date (from the page's JSON `_generated_at`), so
+    // Google sees an accurate <lastmod> and can prioritise recrawling new/updated
+    // pages (e.g. the newly added /for/* verticals) without a manual resubmit.
+    lastmod: toDateOnly(p.generatedAt),
   }));
   const blogEntries: SitemapEntry[] = blogPosts.map((p) => ({
     path: `/blog/${p.slug}`,

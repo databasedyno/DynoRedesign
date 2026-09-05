@@ -110,6 +110,8 @@ export interface SEOPageIndexEntry {
   urlPath: string;
   /** Emoji flag when available (countries). null for verticals so Next.js `getStaticProps` can serialize it. */
   flag?: string | null;
+  /** ISO date the page content was generated — surfaced as <lastmod> in the sitemap. */
+  generatedAt?: string;
 }
 
 export function getAllSEOPagesIndex(): SEOPageIndexEntry[] {
@@ -123,6 +125,7 @@ export function getAllSEOPagesIndex(): SEOPageIndexEntry[] {
         kind: "country",
         urlPath: `/accept-crypto-payments-in/${slug}`,
         flag: c._flag || null,
+        generatedAt: c._generated_at,
       });
     }
   }
@@ -135,6 +138,7 @@ export function getAllSEOPagesIndex(): SEOPageIndexEntry[] {
         kind: "vertical",
         urlPath: `/for/${slug}`,
         flag: v._flag || null,
+        generatedAt: v._generated_at,
       });
     }
   }
