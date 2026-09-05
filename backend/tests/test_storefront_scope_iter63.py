@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://stoic-meitner-9.preview.emergentagent.com"
+BASE = "https://setup-vault-5.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

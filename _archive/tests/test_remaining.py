@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://stoic-meitner-9.preview.emergentagent.com"
+BACKEND_URL = "https://setup-vault-5.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

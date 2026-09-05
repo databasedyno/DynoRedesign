@@ -9,7 +9,7 @@ import json
 import sys
 from typing import Dict, List, Any
 
-BASE_URL = "https://stoic-meitner-9.preview.emergentagent.com"
+BASE_URL = "https://setup-vault-5.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 COMPANY_ID = 1

@@ -15,7 +15,7 @@ import uuid
 import pytest
 import requests
 
-BASE = "https://stoic-meitner-9.preview.emergentagent.com"
+BASE = "https://setup-vault-5.preview.emergentagent.com"
 INTERNAL = "http://localhost:8001"  # for /health (not routed via /api ingress)
 
 EMAIL = "onarrival21@gmail.com"
