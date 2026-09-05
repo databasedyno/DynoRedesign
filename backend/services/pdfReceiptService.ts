@@ -7,6 +7,7 @@ import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
 import { t, normalizeLang } from "../utils/emailI18n";
+import { formatMoneyForEmail } from "./email/emailShared";
 
 // Resolve the white Dynopay logo (used on the dark header/footer bands) once.
 const DYNOPAY_LOGO_PATH: string = (() => {
@@ -221,12 +222,12 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
 
       doc.fontSize(36)
         .fillColor(BRAND_COLORS.primary)
-        .text(`${data.amount} ${data.currency}`, 70, yPos + 35);
+        .text(`${formatMoneyForEmail(data.amount, data.currency)} ${data.currency}`, 70, yPos + 35);
 
       if (data.cryptoAmount && data.cryptoCurrency) {
         doc.fontSize(14)
           .fillColor(BRAND_COLORS.text)
-          .text(t("receipt.crypto", L, { amount: data.cryptoAmount, currency: data.cryptoCurrency }), 70, yPos + 75);
+          .text(t("receipt.crypto", L, { amount: formatMoneyForEmail(data.cryptoAmount, data.cryptoCurrency), currency: data.cryptoCurrency }), 70, yPos + 75);
       }
 
       yPos += 120;
@@ -285,8 +286,8 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
         yPos += 25;
         const feeNote = t(data.breakdown.feePayer === "customer" ? "receipt.feePaidByCustomer" : "receipt.feePaidByMerchant", L);
         const paidValue = data.cryptoAmount && data.cryptoCurrency
-          ? `${data.cryptoAmount} ${data.cryptoCurrency}`
-          : `${data.amount} ${data.currency}`;
+          ? `${formatMoneyForEmail(data.cryptoAmount, data.cryptoCurrency)} ${data.cryptoCurrency}`
+          : `${formatMoneyForEmail(data.amount, data.currency)} ${data.currency}`;
         const rows = [
           { label: t("receipt.youPaid", L), value: paidValue },
           { label: t("receipt.merchantReceives", L), value: data.breakdown.merchantReceives },

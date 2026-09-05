@@ -164,6 +164,46 @@ export const formatCryptoAmount = (amount: number | string, currency: string): s
 };
 
 /**
+ * Stablecoins that should render like money (exactly 2 decimals), matching the
+ * email templates (emailShared.formatMoneyForEmail). Kept separate from
+ * CRYPTO_CURRENCY_CODES so the live checkout's `formatCryptoAmount` keeps full
+ * precision for the exact "amount to send", while dashboards/receipts read as money.
+ */
+const STABLECOIN_CODES = ['USDT', 'USDC', 'BUSD', 'DAI', 'TUSD', 'PYUSD', 'RLUSD'];
+
+export const isStablecoin = (currency?: string | null): boolean => {
+  if (!currency) return false;
+  const base = String(currency).toUpperCase().replace(/[_\s]/g, '-').split('-')[0];
+  return STABLECOIN_CODES.includes(base);
+};
+
+/**
+ * DISPLAY formatter for history/dashboard/receipt surfaces — matches the emails:
+ *   - stablecoins & fiat → exactly 2 decimals ("220.00", "3.20", "216.80")
+ *   - other crypto (BTC, ETH, …) → up to 8 decimals, trailing zeros trimmed
+ * Adds thousand separators to the integer part. Do NOT use on the live checkout
+ * "amount to send" (use formatCryptoAmount there to preserve exact precision).
+ */
+export const formatDisplayAmount = (amount: number | string, currency: string): string => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numAmount)) return '0';
+
+  if (isStablecoin(currency) || !isCryptoCurrency(currency)) {
+    // Money style: exactly 2 decimals + separators.
+    const fixed = toFixedStr(numAmount, 2);
+    const parts = fixed.split('.');
+    parts[0] = parseInt(parts[0], 10).toLocaleString('en-US');
+    return parts.join('.');
+  }
+
+  // Non-stable crypto: trim to significant decimals (max 8) + separators.
+  const trimmed = trimZeros(toFixedStr(amount, 8));
+  const parts = trimmed.split('.');
+  parts[0] = parseInt(parts[0], 10).toLocaleString('en-US');
+  return parts.join('.');
+};
+
+/**
  * Round overly-long decimal numbers inside a free-text string.
  * Fixes float artifacts stored in historical notification messages, e.g.
  * "received 0.00033163515000000004 BTC" → "received 0.00033164 BTC".

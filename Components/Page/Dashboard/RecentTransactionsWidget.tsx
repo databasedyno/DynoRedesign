@@ -1,7 +1,7 @@
 import { brandFg } from "@/constants/theme";
 import PanelCard from "@/Components/UI/PanelCard";
 import { getCurrencySymbol } from "@/helpers";
-import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
+import { formatCryptoAmount, formatDisplayAmount, isCryptoCurrency } from "@/utils/currencyFormat";
 import { useUsdRates } from "@/hooks/useUsdRates";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -661,7 +661,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {getCurrencySymbol(fiat, formatCryptoAmount(Number(amount), fiat))}
+                      {getCurrencySymbol(fiat, formatDisplayAmount(Number(amount), fiat))}
                       {crypto && (
                         <Box
                           component="span"

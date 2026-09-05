@@ -1,5 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { formatWithSeparators } from "@/utils/currencyFormat";
+import { formatWithSeparators, formatDisplayAmount } from "@/utils/currencyFormat";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import { TransactionAction } from "@/Redux/Actions";
 import { TRANSACTION_FETCH, TRANSACTION_EXPORT } from "@/Redux/Actions/TransactionAction";
@@ -275,7 +275,7 @@ const TransactionPage = () => {
         return {
           id: String((item as any).transaction_id || item.id || `TX-${Math.random().toString(36).substr(2, 9)}`),
           crypto: cryptoCurrency,
-          amount: `${cryptoAmount} ${cryptoCurrency}`,
+          amount: `${formatDisplayAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`,
           cryptoAmountRaw: cryptoAmount,
           usdValue: (() => {
             // Only show a USD figure when the backend has an actual stored

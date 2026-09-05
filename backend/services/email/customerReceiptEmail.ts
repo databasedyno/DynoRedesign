@@ -2,9 +2,8 @@ import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
 import { t, normalizeLang } from "../../utils/emailI18n";
-import { formatCryptoAmount } from "../../utils/currencyUtils";
+import { formatMoneyForEmail, dynoPayEmailTemplate } from "./emailShared";
 import { infoBox, dataRow, statusBadge, p } from "../../utils/emailTemplate";
-import { dynoPayEmailTemplate } from "./emailShared";
 
 /**
  * Template 19: Customer Payment Confirmation with PDF Receipt
@@ -37,8 +36,8 @@ export const sendCustomerPaymentConfirmationEmail = async (
       : t('customerPaymentConfirmation.subject', L, { companyName });
     const split = breakdown
       ? {
-          merchantReceives: `${formatCryptoAmount(breakdown.merchantAmount, breakdown.currency)} ${breakdown.currency}`,
-          platformFee: `${formatCryptoAmount(breakdown.feeAmount, breakdown.currency)} ${breakdown.currency}`,
+          merchantReceives: `${formatMoneyForEmail(breakdown.merchantAmount, breakdown.currency)} ${breakdown.currency}`,
+          platformFee: `${formatMoneyForEmail(breakdown.feeAmount, breakdown.currency)} ${breakdown.currency}`,
           feePayer: breakdown.feePayer,
         }
       : undefined;
@@ -87,7 +86,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.complete', L), 'success'))}
         ${dataRow(t('labels.amountPaid', L), `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatMoneyForEmail(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
         ${split ? dataRow(t('labels.merchantReceives', L), split.merchantReceives) : ''}
         ${split ? dataRow(t('labels.platformFee', L), `${split.platformFee} <span style="color:#6b7280;font-size:12px;">(${t(split.feePayer === 'customer' ? 'labels.feePaidByCustomer' : 'labels.feePaidByMerchant', L)})</span>`) : ''}
         ${description ? dataRow(t('labels.description', L), description) : ''}

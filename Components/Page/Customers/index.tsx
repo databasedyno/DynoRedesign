@@ -59,7 +59,7 @@ import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalle
 import axiosBaseApi from "@/axiosConfig";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import { useTranslation } from "react-i18next";
-import { formatCryptoAmount } from "@/utils/currencyFormat";
+import { formatCryptoAmount, formatDisplayAmount } from "@/utils/currencyFormat";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useTableCardView from "@/hooks/useTableCardView";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -1260,7 +1260,7 @@ const DetailPanel: React.FC<{
             {t("customers.walletBalance", { defaultValue: "Wallet balance" })}
           </Typography>
           <Typography className="tabular-nums" sx={{ fontSize: "14px", fontWeight: 700, fontFamily: MONO }}>
-            {formatCryptoAmount(Number(detail.wallet.amount || 0), detail.wallet.wallet_type || "USD")}{" "}
+            {formatDisplayAmount(Number(detail.wallet.amount || 0), detail.wallet.wallet_type || "USD")}{" "}
             {detail.wallet.wallet_type || "USD"}
           </Typography>
         </Box>
@@ -1303,7 +1303,7 @@ const DetailPanel: React.FC<{
                 <Typography className="tabular-nums" sx={{ fontSize: "13px", fontWeight: 700, fontFamily: MONO }}>
                   {p.usd_value > 0
                     ? fx.formatFromUsd(p.usd_value) || `$${toFixedStr(p.usd_value, 2)}`
-                    : `${formatCryptoAmount(Number(p.crypto_amount || p.base_amount || 0), p.crypto_currency || p.base_currency || "USD")} ${p.crypto_currency || p.base_currency || ""}`}
+                    : `${formatDisplayAmount(Number(p.crypto_amount || p.base_amount || 0), p.crypto_currency || p.base_currency || "USD")} ${p.crypto_currency || p.base_currency || ""}`}
                 </Typography>
                 <StatusDot tone={statusTone(p.status)}>{t(`customers.status_${p.status}`, { defaultValue: p.status })}</StatusDot>
               </Box>

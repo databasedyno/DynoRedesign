@@ -1,4 +1,22 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05: AMOUNT CONSISTENCY (dashboard + PDF match emails)
+#   Goal: dashboard & PDF receipts show clean 2-decimal money like the emails.
+#   FRONTEND: utils/currencyFormat.ts — added isStablecoin() + formatDisplayAmount()
+#     (stablecoins USDT/USDC/.../fiat -> 2dp + separators; other crypto -> trim<=8dp).
+#     Kept shared formatCryptoAmount UNCHANGED so live checkout "amount to send" keeps
+#     full precision. Applied formatDisplayAmount in: Transactions/index.tsx (table amount),
+#     Dashboard/RecentTransactionsWidget.tsx (primary amount), Customers/index.tsx (wallet +
+#     payment history). Lint clean.
+#   BACKEND (PDF + receipt emails): pdfReceiptService.ts now formats amount/cryptoAmount/
+#     youPaid via formatMoneyForEmail (covers all receipt callers). customerReceiptEmail.ts
+#     breakdown (merchantReceives/platformFee) + body crypto row switched to formatMoneyForEmail.
+#   VERIFIED: backend boots healthy; generatePaymentReceipt with "220.00000000" input
+#     produces a valid 24KB PDF (code path + formatter applied, no crash).
+#   PENDING: frontend UI visual verification of dashboard formatting (ask user before FE test).
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: EMAIL AMOUNT FORMATTING + DEPLOY HARDENING
 #   A) EMAIL AMOUNTS (reported bug: "3.20000000 USDT-TRC20" 8-zero noise in emails)
 #      - NEW helper emailShared.formatMoneyForEmail(amount,currency): stable/fiat -> 2dp
