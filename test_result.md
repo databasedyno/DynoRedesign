@@ -1,4 +1,23 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05: BRAND AUDIT (logo sweep) + admin-sidebar fix
+#   Swept all logo assets/usages (favicons, OG, landing/auth/header/footer, PDF invoice+receipt,
+#   emails, Logo component). RESULT: every RENDERED surface already uses the new indigo
+#   "dyn○pay" coin brand. Confirmed:
+#     - backend/assets/dynopay-logo.png (invoice PDF) = NEW; backend/assets/dynopay-white-logo.png
+#       (receipt PDF) = NEW coin; backend/public/dynopay-email-logo-v2.png (emails) = NEW;
+#       assets/Icons/home/dynopay-blackLogo/whiteLogo.svg (landing/header/auth) = NEW wordmark+coin;
+#       assets/Icons/Logo.tsx = NEW coin.
+#   ONE GAP FIXED: Components/Layout/BrandLogo/index.tsx (used by admin Sidebar via AdminHeader)
+#     rendered a bare Typography "D" (image commented out) -> now renders <Logo width=40 height=40/>
+#     (the new coin mark). Lint clean.
+#   DEAD/UNUSED stale files (NOT referenced anywhere, safe to ignore/delete later):
+#     assets/Images/auth/dynopay-logo.png (old blue), dynopay-logo.svg, dynopay-mobile-logo.png,
+#     backend/public/dynopay-email-logo.png (old v1).
+#   PENDING: optional FE visual check of admin sidebar (requires admin login) — ask user.
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: OG (LINK-PREVIEW) IMAGE OLD-LOGO FIX
 #   ISSUE: sharing dynopay.com/quality unfurled a card whose baked-in OG image
 #     (public/og/dynopay-og.png) still showed the OLD black blob logo bottom-left.

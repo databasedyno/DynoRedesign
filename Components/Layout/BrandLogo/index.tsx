@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useRouter } from "next/router";
+import Logo from "@/assets/Icons/Logo";
 
 const BrandLogo = ({ redirect = true }: { redirect?: boolean }) => {
   const router = useRouter();
@@ -10,16 +11,12 @@ const BrandLogo = ({ redirect = true }: { redirect?: boolean }) => {
         sx={{
           mt: 2,
           display: { lg: "block", xs: "none" },
-          "& img": {
-            width: "40px",
-            height: "auto",
-          },
           cursor: "pointer",
+          lineHeight: 0,
         }}
         onClick={() => redirect && router.push("/")}
       >
-        {/* <img src={Logo.src} alt="no logo" /> */}
-        <Typography sx={{ fontSize: "45px", lineHeight: 1 }}>D</Typography>
+        <Logo width={40} height={40} />
       </Box>
     </>
   );
