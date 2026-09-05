@@ -1,4 +1,26 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-05: RPC HEALTH FALSE-ALERT FIX (prod "ETH RPC unreachable — timeout")
+#   RCA (via DigitalOcean prod logs): Tatum API transiently degraded ~10:00 UTC
+#     (rate refresh took 29777ms; Tatum returned Cloudflare "error code: 524" on TRON/POLYGON).
+#     The single 8s ETH health ping timed out -> HIGH alert; recovered by 10:10 (ETH 3/3 healthy).
+#     => flappy false-positive; not our infra, not a dead endpoint.
+#   FIX (services/rpcHealthMonitor.ts):
+#     - DEBOUNCE: new exported registerResult(url,ok) / resetRpcHealthState() / getFailStreak().
+#       Per-endpoint consecutive-failure streak; HIGH alert fires ONLY when streak reaches
+#       FAILURE_THRESHOLD (env RPC_HEALTH_FAILURE_THRESHOLD, default 2) and only once per outage;
+#       recovery logged only if we had alerted. CRITICAL "all down" fires only when EVERY endpoint
+#       is sustained-down (>=threshold).
+#     - RETRY: pingRpc retries once (750ms) on timeout/network AND on HTTP 5xx/524.
+#     - TOLERANCE: PING_TIMEOUT_MS 8s -> 10s (env RPC_HEALTH_PING_TIMEOUT_MS).
+#   SELF-CHECK (ts-node): blip1 alert=false; blip2 alert=true; blip3 alert=false; recover recovered=true;
+#     transient single-blip-then-recover => alert=false, recovered=false (NO noise). Backend healthy.
+#   BACKEND TEST FOCUS: import {registerResult,resetRpcHealthState,getFailStreak} from
+#     services/rpcHealthMonitor and assert the above sequence (run ts-node inside /app/backend).
+#     Also confirm backend /health healthy after the change.
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: AMOUNT CONSISTENCY (dashboard + PDF match emails)
 #   Goal: dashboard & PDF receipts show clean 2-decimal money like the emails.
 #   FRONTEND: utils/currencyFormat.ts — added isStablecoin() + formatDisplayAmount()
@@ -808,5 +830,85 @@
 #   - The fix addresses the root cause: proper unconditional high-res PNG declarations
 #     that Google can index (Googlebot does not evaluate prefers-color-scheme media queries)
 #   - All tests performed via READ-ONLY browser automation (no data writes)
+# ============================================================================
+
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-05: RPC HEALTH FALSE-ALERT FIX — ALL TESTS PASSED ✓✓✓
+# ============================================================================
+#   Tested by: testing_agent
+#   Test date: 2026-09-05
+#   Base URL: http://localhost:8001
+#
+#   CONTEXT: Production sent a false "CRITICAL/HIGH — ETH RPC endpoint unreachable: 
+#   https://api.tatum.io/v3/ethereum/web3/*** — timeout" alert. Root cause was a 
+#   TRANSIENT Tatum slowdown (single 8s health-ping timeout) that recovered on the 
+#   next cycle. The fix adds debounce so a single transient blip no longer alerts; 
+#   only SUSTAINED failures (FAILURE_THRESHOLD=2 consecutive failures) trigger alerts.
+#
+#   TEST RESULTS SUMMARY: 2/2 TESTS PASSED
+#
+#   ✓ TEST 1: DEBOUNCE LOGIC — PASS (6/6 test cases)
+#        Created temp test script /app/backend/scripts/_verify_rpc.ts and ran:
+#        cd /app/backend && ./node_modules/.bin/ts-node --transpile-only scripts/_verify_rpc.ts
+#
+#        EXPECTED vs ACTUAL (all match perfectly):
+#        Test sequence 1 (sustained failure then recovery):
+#        - t1: First failure → {"alert":false,"recovered":false} ✓
+#          (Single failure does NOT alert - debounce working)
+#        - t2: Second consecutive failure → {"alert":true,"recovered":false} ✓
+#          (Threshold reached, alert fires)
+#        - t3: Third consecutive failure → {"alert":false,"recovered":false} ✓
+#          (Already alerted, no duplicate alert)
+#        - t4: Recovery → {"alert":false,"recovered":true} streak= 0 ✓
+#          (Recovered flag set because we had alerted, streak reset to 0)
+#
+#        Test sequence 2 (transient single-blip scenario):
+#        - b1: Single failure → {"alert":false,"recovered":false} ✓
+#          (First failure, no alert yet)
+#        - b2: Immediate recovery → {"alert":false,"recovered":false} ✓
+#          (CRITICAL: Single blip then recover produces NO alert and NO recovery 
+#          noise - this is the key fix for the production false-positive issue)
+#
+#        DEBOUNCE LOGIC VERIFIED:
+#        - Single transient failure: NO alert (prevents false positives) ✓
+#        - Sustained failures (2+ consecutive): Alert fires on threshold ✓
+#        - No duplicate alerts after threshold reached ✓
+#        - Recovery only logged if we had alerted ✓
+#        - Streak counter resets correctly on success ✓
+#
+#        Temp file cleaned up after test.
+#
+#   ✓ TEST 2: BACKEND HEALTH — PASS
+#        Backend boots healthy after rpcHealthMonitor.ts changes:
+#        - GET http://localhost:8001/health → HTTP 200
+#        - Response: {"status":"healthy","service":"Dynopay Backend",...}
+#        - Database: connected ✓
+#        - Redis: connected ✓
+#        - Tatum API: operational (circuit_state: CLOSED, failures: 0) ✓
+#        - No compile/import errors detected ✓
+#        - Server started successfully with debounced RPC health monitoring in place
+#
+#   OVERALL RESULT: ✓✓✓ ALL TESTS PASSED ✓✓✓
+#
+#   DETAILED FINDINGS:
+#   - The debounce logic is working exactly as designed
+#   - FAILURE_THRESHOLD=2 (from env RPC_HEALTH_FAILURE_THRESHOLD, default 2)
+#   - Single transient failures (like the production Tatum 8s timeout) will NO 
+#     LONGER trigger false alerts
+#   - Only SUSTAINED consecutive failures (2+ cycles) will alert
+#   - The fix directly addresses the production false-positive issue
+#   - Backend compiles and runs healthy with the new monitoring code
+#   - All exported functions (registerResult, resetRpcHealthState, getFailStreak) 
+#     are working correctly and are unit-testable
+#
+#   NOTES:
+#   - This fix prevents the exact production scenario: a single Tatum API slowdown 
+#     (8s timeout) that recovered on the next cycle will no longer page the admin
+#   - The retry logic (750ms retry on timeout/5xx) provides additional resilience
+#   - PING_TIMEOUT_MS increased from 8s to 10s (env RPC_HEALTH_PING_TIMEOUT_MS)
+#   - All tests performed via READ-ONLY verification (no data writes except temp 
+#     test file which was created and deleted)
+#   - Temp test file /app/backend/scripts/_verify_rpc.ts created and deleted after test
 # ============================================================================
 
