@@ -71,7 +71,7 @@ export const sendWebhookDisabledEmail = async (
 ) => {
   try {
     const L = await resolveEmailLang(lang, email);
-    const subject = `⚠️ Webhook auto-disabled for ${companyName || 'your company'} — Dynopay`;
+    const subject = `Action needed – webhook delivery paused for ${companyName || 'your company'}`;
     const displayUrl = String(webhookUrl || '').length > 80 ? String(webhookUrl).substring(0, 77) + '…' : String(webhookUrl || '(none)');
 
     const message = `
@@ -91,7 +91,7 @@ export const sendWebhookDisabledEmail = async (
       ${p(`If you don't recognize this endpoint or believe this is a mistake, please reply to this email and we'll investigate immediately.`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name || 'there', message, `Webhook auto-disabled`, false);
+    const html = dynoPayGreetingTemplate(name || 'there', message, `Webhook auto-disabled`, false, undefined, `We paused webhook delivery after ${failureCount} failed attempts — action needed.`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Webhook auto-disabled alert sent to ${email} (company="${companyName}" url="${displayUrl}" failures=${failureCount})`);
   } catch (e) {
@@ -117,7 +117,14 @@ export const sendAdminFeeReceivedEmail = async (
   totalAmount: string
 ) => {
   try {
-    const subject = `Platform Fee Received - ${feeFmt} ${currency}`;
+    // Trim noisy DECIMAL(20,8) trailing zeros for display (e.g. 3.20000000 -> 3.20).
+    // NOTE: these MUST be declared before `subject` (which uses feeFmt) — a prior
+    // ordering bug referenced feeFmt before init (TDZ) and this email never sent.
+    const feeFmt = formatMoneyForEmail(feeAmount, currency);
+    const merchantFmt = formatMoneyForEmail(merchantAmount, currency);
+    const totalFmt = formatMoneyForEmail(totalAmount, currency);
+
+    const subject = `Platform fee received – ${feeFmt} ${currency}`;
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -126,11 +133,6 @@ export const sendAdminFeeReceivedEmail = async (
     const feeAmountNum = parseFloat(feeAmount);
     const totalAmountNum = parseFloat(totalAmount);
     const isUnderThreshold = merchantAmountNum === 0 && feeAmountNum === totalAmountNum;
-
-    // Trim noisy DECIMAL(20,8) trailing zeros for display (e.g. 3.20000000 -> 3.20).
-    const feeFmt = formatMoneyForEmail(feeAmount, currency);
-    const merchantFmt = formatMoneyForEmail(merchantAmount, currency);
-    const totalFmt = formatMoneyForEmail(totalAmount, currency);
 
     let detailContent: string;
     let noticeBlock = '';

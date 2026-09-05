@@ -42,7 +42,7 @@ export const sendWelcomeEmail = async (
     `)}
     ${p(t('merchant.welcome.questions', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.welcome.heading', L), content, true, t('merchant.welcome.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.welcome.heading', L), content, true, t('merchant.welcome.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.welcome.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Welcome email sent to ${email}`);
   } catch (e) {
@@ -104,7 +104,8 @@ export const sendVolumeTierUpgradeEmail = async (
       content,
       true,
       t('merchant.volumeTierUpgrade.cta', L),
-      `${FRONTEND_BASE_URL}/dashboard`
+      `${FRONTEND_BASE_URL}/dashboard`,
+      t('merchant.volumeTierUpgrade.preheader', L, { newPercent })
     );
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Volume-tier upgrade email sent to ${email} (${previousTier}→${newTier})`);
@@ -130,7 +131,7 @@ export const sendEmailVerificationOTPEmail = async (
     ${otpBlock(otpCode)}
     ${p(t('merchant.emailVerifyOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.emailVerifyOtp.heading', L), content);
+    const html = dynoPayEmailTemplate(t('merchant.emailVerifyOtp.heading', L), content, false, "", "", t('merchant.emailVerifyOtp.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Email verification OTP sent to ${email}`);
   } catch (e) {
@@ -155,7 +156,7 @@ export const sendLoginOTPEmail = async (
     ${otpBlock(otpCode)}
     ${p(t('merchant.loginOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.loginOtp.heading', L), content);
+    const html = dynoPayEmailTemplate(t('merchant.loginOtp.heading', L), content, false, "", "", t('merchant.loginOtp.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Login OTP email sent to ${email}`);
   } catch (e) {
@@ -185,7 +186,7 @@ export const sendPasswordChangedEmail = async (
     `, '#12B76A')}
     ${warnText(t('merchant.passwordChanged.securityNotice', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.passwordChanged.heading', L), content, true, t('merchant.passwordChanged.cta', L), `${FRONTEND_BASE_URL}/settings`);
+    const html = dynoPayEmailTemplate(t('merchant.passwordChanged.heading', L), content, true, t('merchant.passwordChanged.cta', L), `${FRONTEND_BASE_URL}/settings`, t('merchant.passwordChanged.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Password changed email sent to ${email}`);
   } catch (e) {
@@ -224,7 +225,7 @@ export const sendUserProfileUpdatedEmail = async (
     `, '#12B76A')}
     ${warnText(t('merchant.profileUpdated.securityNotice', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.profileUpdated.heading', L), content, true, t('merchant.profileUpdated.cta', L), `${FRONTEND_BASE_URL}/profile`);
+    const html = dynoPayEmailTemplate(t('merchant.profileUpdated.heading', L), content, true, t('merchant.profileUpdated.cta', L), `${FRONTEND_BASE_URL}/profile`, t('merchant.profileUpdated.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
 
     if (oldEmail && oldEmail !== email) {
@@ -238,7 +239,7 @@ export const sendUserProfileUpdatedEmail = async (
         </table>
       `, '#ef4444')}`;
 
-      const oldEmailHtml = dynoPayEmailTemplate(t('merchant.profileUpdated.emailChangedHeading', L), content2, true, t('merchant.profileUpdated.emailChangedCta', L), `${FRONTEND_BASE_URL}/help-support`);
+      const oldEmailHtml = dynoPayEmailTemplate(t('merchant.profileUpdated.emailChangedHeading', L), content2, true, t('merchant.profileUpdated.emailChangedCta', L), `${FRONTEND_BASE_URL}/help-support`, t('merchant.profileUpdated.emailChangedPreheader', L));
       await mailTransporter({ to: oldEmail, name, subject: t('merchant.profileUpdated.emailChangedSubject', L), body: oldEmailHtml });
       apiLogger.info(`[ProfileUpdate] Email change notification sent to old email: ${oldEmail}`);
     }
@@ -268,7 +269,7 @@ export const sendCreatorHandleUpdatedEmail = async (
     const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
     const heading = isNew ? "Your creator handle is live" : "Your creator handle was updated";
     const subject = isNew ? `Your handle @${handle} is reserved` : `Your handle is now @${handle}`;
-    const content = `${p(name ? `Hi ${escapeHtml(firstNameOnly(name))},` : "Hi there,")}
+    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
     ${p(isNew
       ? "Your creator handle has been reserved — your public page and storefront are now available at the link below."
       : "Your creator handle has been updated. Your public page and storefront now live at the new link below — remember to update any links you've already shared.")}
@@ -279,7 +280,7 @@ export const sendCreatorHandleUpdatedEmail = async (
         ${dataRow("Date", `${date} at ${time}`, true)}
       </table>
     `, "#12B76A")}`;
-    const html = dynoPayEmailTemplate(heading, content, true, "View my page", pageUrl);
+    const html = dynoPayEmailTemplate(heading, content, true, "View my page", pageUrl, "Your public page and storefront are ready to share.");
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[CreatorHandle] Handle ${isNew ? "reserved" : "updated"} email sent to ${email} (@${handle})`);
   } catch (e) {
@@ -319,7 +320,7 @@ export const sendSecurityAlertEmail = async (
     ${p(t('merchant.securityAlert.wasThisYou', L))}
     ${p(t('merchant.securityAlert.didntPerform', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.securityAlert.heading', L), content, true, t('merchant.securityAlert.cta', L), `${FRONTEND_BASE_URL}/settings`);
+    const html = dynoPayEmailTemplate(t('merchant.securityAlert.heading', L), content, true, t('merchant.securityAlert.cta', L), `${FRONTEND_BASE_URL}/settings`, t('merchant.securityAlert.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Security alert email sent to ${email}`);
   } catch (e) {
@@ -364,7 +365,7 @@ export const sendLoginNotificationEmail = async (
     ${p(t('merchant.loginNotification.wasThisYou', L))}
     ${p(t('merchant.loginNotification.notYou', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.loginNotification.heading', L), content, true, t('merchant.loginNotification.cta', L), secureAccountUrl);
+    const html = dynoPayEmailTemplate(t('merchant.loginNotification.heading', L), content, true, t('merchant.loginNotification.cta', L), secureAccountUrl, t('merchant.loginNotification.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Login notification sent to ${email} (${deviceDisplay}, ${locationDisplay})`);
   } catch (e) {
@@ -400,7 +401,7 @@ export const sendFailedLoginAttemptsEmail = async (
     ${p(t('merchant.failedLogins.wasThisYou', L))}
     ${p(t('merchant.failedLogins.wasntYou', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.failedLogins.heading', L), content, true, t('merchant.failedLogins.cta', L), `${FRONTEND_BASE_URL}/auth/login`);
+    const html = dynoPayEmailTemplate(t('merchant.failedLogins.heading', L), content, true, t('merchant.failedLogins.cta', L), `${FRONTEND_BASE_URL}/auth/login`, t('merchant.failedLogins.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Failed login attempts alert sent to ${email} - ${attemptCount} attempts from ${ipAddress}`);
   } catch (e) {

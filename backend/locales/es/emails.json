@@ -37,15 +37,16 @@
     "expired": "Caducado"
   },
   "paymentReceived": {
-    "subject": "Pago recibido - {{amount}} {{currency}}",
+    "subject": "Pago recibido – {{amount}} {{currency}}",
     "heading": "Pago recibido",
     "intro": "¡Buenas noticias! Tu empresa <strong>{{companyName}}</strong> ha recibido un pago.",
     "outro": "Los fondos se han enviado a tu cartera de cobros. Puedes ver todos los detalles de la transacción en tu panel.",
     "cta": "Ver transacción",
-    "referralCredit": "El crédito por referidos cubrió {{amount}} de su comisión de plataforma de Dynopay en este pago; usted conservó más."
+    "referralCredit": "El crédito por referidos cubrió {{amount}} de su comisión de plataforma de Dynopay en este pago; usted conservó más.",
+    "preheader": "Los fondos se están liquidando en tu monedero de cobros."
   },
   "paymentPending": {
-    "subject": "Tu pago está pendiente de confirmación",
+    "subject": "Pago detectado – confirmando en la cadena",
     "heading": "Pago pendiente",
     "intro": "¡Se ha detectado un nuevo pago para tu empresa <strong>{{companyName}}</strong>!",
     "estimatedTimes": "Tiempos estimados de confirmación",
@@ -53,21 +54,24 @@
     "ethTime": "ETH/ERC20: 1-5 min",
     "trxTime": "TRX/TRC20: 1-3 min",
     "ltcTime": "LTC: 2-30 min &bull; DOGE: 1-10 min",
-    "outro": "Te avisaremos en cuanto el pago esté totalmente confirmado y acreditado en tu cartera. Puedes seguir el estado de la transacción en tu panel de Dynopay."
+    "outro": "Te avisaremos en cuanto el pago esté totalmente confirmado y acreditado en tu cartera. Puedes seguir el estado de la transacción en tu panel de Dynopay.",
+    "preheader": "Te avisaremos en cuanto se confirme en la cadena."
   },
   "paymentConfirming": {
-    "subject": "Confirmando pago ({{current}}/{{required}}) - Dynopay",
+    "subject": "Confirmando pago – {{current}} de {{required}} confirmaciones",
     "heading": "Confirmando pago",
     "intro": "¡Buenas noticias! Tu pago para <strong>{{companyName}}</strong> se está confirmando.",
     "confirmationsOf": "{{current}} de {{required}}",
     "completeMsg": "El pago ha alcanzado las confirmaciones necesarias y se acreditará en breve.",
-    "pendingMsg": "Faltan {{remaining}} confirmaciones para que se acredite el pago. Puedes seguir el estado completo en tu panel de Dynopay."
+    "pendingMsg": "Faltan {{remaining}} confirmaciones para que se acredite el pago. Puedes seguir el estado completo en tu panel de Dynopay.",
+    "preheader": "Tu pago está recibiendo confirmaciones de red."
   },
   "transactionConfirmed": {
-    "subject": "Transacción {{status}} - Dynopay",
+    "subject": "Transacción {{status}}",
     "heading": "Transacción {{status}}",
     "intro": "Tu transacción ha sido <strong>{{statusLower}}</strong>.",
-    "outro": "Puedes ver más detalles en tu panel de Dynopay."
+    "outro": "Puedes ver más detalles en tu panel de Dynopay.",
+    "preheader": "El estado más reciente de tu transacción."
   },
   "paymentPartial": {
     "subject": "Pago parcial recibido — se requiere acción",
@@ -76,44 +80,50 @@
     "actionRequired": "Acción requerida",
     "actionText": "Tienes <strong>{{minutes}} minutos</strong> para enviar los <strong>{{remaining}} {{currency}}</strong> restantes y completar este pago.",
     "sendTo": "Enviar a:",
-    "graceNote": "Si el importe restante se recibe en {{minutes}} minutos, se procesará el pago completo. Si el periodo de gracia caduca, el importe parcial se procesará con comisiones ajustadas."
+    "graceNote": "Si el importe restante se recibe en {{minutes}} minutos, se procesará el pago completo. Si el periodo de gracia caduca, el importe parcial se procesará con comisiones ajustadas.",
+    "preheader": "El importe recibido es inferior al total de la factura."
   },
   "paymentPartialExpired": {
-    "subjectCompleted": "Pago parcial procesado - Dynopay",
-    "subjectExpired": "Pago parcial caducado - Dynopay",
+    "subjectCompleted": "Pago parcial procesado",
+    "subjectExpired": "Pago parcial caducado",
     "headingCompleted": "Pago parcial procesado",
     "headingExpired": "El periodo de gracia del pago ha caducado",
     "introCompleted": "El pago parcial para tu empresa <strong>{{companyName}}</strong> se ha procesado.",
     "introExpired": "El periodo de gracia para el pago parcial a tu empresa <strong>{{companyName}}</strong> ha caducado.",
     "outroCompleted": "El importe recibido se ha procesado con comisiones ajustadas y se ha enviado a tu cartera.",
     "outroExpired": "Como el pago completo no se recibió dentro del periodo de gracia, se ha procesado el importe parcial. Ten en cuenta que las comisiones pueden ser más altas para pagos incompletos.",
-    "viewDetails": "Puedes ver los detalles de la transacción en tu panel de Dynopay."
+    "viewDetails": "Puedes ver los detalles de la transacción en tu panel de Dynopay.",
+    "preheaderCompleted": "Hemos procesado el importe parcial que pagaste.",
+    "preheaderExpired": "La ventana de pago se cerró antes del pago completo."
   },
   "paymentFailed": {
     "reasonExpired": "El enlace de pago ha caducado",
     "reasonUnderpaid": "Recibimos {{paidAmount}} {{currency}} pero el importe requerido era {{amount}} {{currency}}",
     "reasonCancelled": "El pago fue cancelado",
     "reasonTimeout": "La sesión de pago expiró",
-    "subjectUnderpaid": "Pago insuficiente detectado - {{paidAmount}} de {{amount}} {{currency}} recibidos",
-    "subject": "Pago fallido - {{companyName}}",
+    "subjectUnderpaid": "Pago insuficiente detectado – {{paidAmount}} de {{amount}} {{currency}} recibidos",
+    "subject": "Pago fallido – {{companyName}}",
     "heading": "Pago fallido",
     "customerIntro": "Lamentablemente, tu pago a <strong>{{companyName}}</strong> no se completó.",
     "issue": "Problema",
     "underpaidNote": "Ponte en contacto con <strong>{{companyName}}</strong> para resolver este pago insuficiente o solicitar un reembolso.",
     "expiredNote": "Ponte en contacto con <strong>{{companyName}}</strong> si aún deseas completar este pago.",
-    "merchantSubjectUnderpaid": "Pago insuficiente recibido - {{paidAmount}} de {{amount}} {{currency}}",
-    "merchantSubject": "Pago fallido - {{transactionId}}",
+    "merchantSubjectUnderpaid": "Pago insuficiente recibido – {{paidAmount}} de {{amount}} {{currency}}",
+    "merchantSubject": "Pago fallido – {{transactionId}}",
     "merchantHeading": "Alerta de pago",
     "merchantIntro": "Un pago de <strong>{{customerName}}</strong> no se completó.",
     "merchantUnderpaidNote": "Se ha notificado al cliente. Es posible que debas emitir un reembolso parcial o solicitar el importe restante.",
-    "cta": "Ver transacción"
+    "cta": "Ver transacción",
+    "preheader": "Este pago no se completó — no se cobró ningún importe.",
+    "merchantPreheader": "El pago de un cliente no se completó."
   },
   "customerPaymentConfirmation": {
-    "subject": "Pago exitoso - Recibo de {{companyName}}",
+    "subject": "Tu pago a {{companyName}} está confirmado",
     "heading": "Pago exitoso",
     "intro": "Tu pago a <strong>{{companyName}}</strong> se ha procesado correctamente.",
     "pdfAttached": "<strong>Recibo en PDF adjunto</strong> - Se adjunta un recibo detallado a este correo para tus registros.",
-    "contact": "Si tienes alguna pregunta sobre este pago, ponte en contacto directamente con <strong>{{companyName}}</strong>."
+    "contact": "Si tienes alguna pregunta sobre este pago, ponte en contacto directamente con <strong>{{companyName}}</strong>.",
+    "preheader": "Tu recibo de pago está adjunto abajo."
   },
   "invoice": {
     "title": "FACTURA",
@@ -235,25 +245,28 @@
       "heading": "Bienvenido a Dynopay",
       "intro1": "¡Bienvenido a Dynopay! Nos alegra tenerle con nosotros.",
       "intro2": "Dynopay hace que aceptar pagos en cripto sea simple y seguro — los fondos se liquidan directamente en una wallet que tú controlas. Ya sea freelancer, empresario o desarrollador, le tenemos cubierto.",
-      "promo": "🎉 Tu primer pago corre de nuestra cuenta: eximimos toda nuestra comisión de plataforma en tu primer pago liquidado, sea cual sea el importe.",
+      "promo": "Tu primer pago corre de nuestra cuenta: eximimos toda nuestra comisión de plataforma en tu primer pago liquidado, sea cual sea el importe.",
       "nextTitle": "Esto es lo que puede hacer a continuación:",
       "next1": "1. Complete el perfil de su empresa",
       "next2": "2. Añada su billetera de cobro",
       "next3": "3. Empiece a aceptar pagos",
       "questions": "Si tiene alguna pregunta, nuestro equipo de soporte está aquí para ayudar.",
-      "cta": "Empezar"
+      "cta": "Empezar",
+      "preheader": "Tu primer pago liquidado es sin comisiones — así empiezas a cobrar."
     },
     "emailVerifyOtp": {
       "subject": "Verifique su correo electrónico",
       "heading": "Verifique su correo electrónico",
       "intro": "Verifique su dirección de correo electrónico para completar su registro en Dynopay. Introduzca este código en la página de verificación:",
-      "expiry": "Este código expira en 10 minutos. Si no creó una cuenta en Dynopay, ignore este correo."
+      "expiry": "Este código expira en 10 minutos. Si no creó una cuenta en Dynopay, ignore este correo.",
+      "preheader": "Introduce este código para verificar tu correo."
     },
     "loginOtp": {
       "subject": "Su código de inicio de sesión",
       "heading": "Su código de inicio de sesión",
       "intro": "Aquí tiene su código de inicio de sesión de un solo uso para Dynopay:",
-      "expiry": "Este código expira en 5 minutos. Si no solicitó este código, proteja su cuenta de inmediato."
+      "expiry": "Este código expira en 5 minutos. Si no solicitó este código, proteja su cuenta de inmediato.",
+      "preheader": "Tu código caduca en unos minutos. Nunca lo compartas."
     },
     "forgotPasswordOtp": {
       "subject": "Código para restablecer la contraseña",
@@ -266,7 +279,8 @@
       "heading": "Contraseña actualizada",
       "intro": "Su contraseña de Dynopay se ha actualizado correctamente.",
       "securityNotice": "<strong>Aviso de seguridad:</strong> si no realizó este cambio, contacte de inmediato con nuestro equipo de soporte para proteger su cuenta.",
-      "cta": "Ver ajustes de la cuenta"
+      "cta": "Ver ajustes de la cuenta",
+      "preheader": "La contraseña de tu cuenta se acaba de cambiar."
     },
     "profileUpdated": {
       "subject": "Perfil de la cuenta actualizado",
@@ -279,7 +293,9 @@
       "emailChangedIntro": "El correo de su cuenta ha cambiado de <strong>{{oldEmail}}</strong> a <strong>{{email}}</strong>.",
       "emailChangedImportantTitle": "Importante",
       "emailChangedImportantText": "Si no realizó este cambio, su cuenta podría estar comprometida. Contacte de inmediato con nuestro equipo de soporte.",
-      "emailChangedCta": "Contactar con soporte"
+      "emailChangedCta": "Contactar con soporte",
+      "preheader": "Se realizó un cambio en el perfil de tu cuenta.",
+      "emailChangedPreheader": "La dirección de correo de tu cuenta cambió."
     },
     "securityAlert": {
       "subject": "Alerta de seguridad en su cuenta",
@@ -304,7 +320,8 @@
         "password_change": "cambio de contraseña",
         "email_verification": "verificación de correo",
         "onboarding": "configuración de la cuenta"
-      }
+      },
+      "preheader": "Detectamos actividad inusual en tu cuenta."
     },
     "newDeviceLogin": {
       "subject": "Nuevo inicio de sesión en su cuenta de Dynopay",
@@ -323,7 +340,8 @@
       "wasThisYou": "<strong>¿Fue usted?</strong><br />Si reconoce esta actividad, no es necesaria ninguna acción.",
       "notYou": "<strong>¿No fue usted?</strong><br />Si no reconoce este inicio de sesión, haga clic en el botón de abajo para proteger su cuenta de inmediato. Bloquearemos su cuenta y exigiremos verificación de identidad para recuperar el acceso.",
       "cta": "No fui yo: proteger mi cuenta",
-      "unknownLocation": "Ubicación desconocida"
+      "unknownLocation": "Ubicación desconocida",
+      "preheader": "Se detectó un nuevo inicio de sesión. ¿Fuiste tú?"
     },
     "failedLogins": {
       "subject": "Varios intentos fallidos de inicio de sesión en su cuenta",
@@ -331,7 +349,8 @@
       "intro": "Detectamos <strong>{{count}} intentos fallidos de inicio de sesión</strong> en su cuenta de Dynopay.",
       "wasThisYou": "<strong>¿Fue usted?</strong><br />Si olvidó su contraseña, puede restablecerla con el botón de abajo.",
       "wasntYou": "<strong>¿No fue usted?</strong><br />Alguien podría estar intentando acceder a su cuenta. Le recomendamos cambiar su contraseña de inmediato. Su cuenta sigue segura: bloqueamos estos intentos de inicio de sesión.",
-      "cta": "Restablecer contraseña"
+      "cta": "Restablecer contraseña",
+      "preheader": "Varios intentos de inicio de sesión fallaron en tu cuenta."
     },
     "companyCreated": {
       "subject": "Perfil completo: queda un paso",
@@ -340,7 +359,8 @@
       "intro2": "Está casi listo para empezar a aceptar pagos. El último paso es añadir la dirección de su billetera de cobro.",
       "whyTitle": "¿Por qué añadir una billetera?",
       "whyText": "Su billetera es donde enviaremos los pagos en cripto que reciba. Es rápido y seguro.",
-      "cta": "Añadir billetera"
+      "cta": "Añadir billetera",
+      "preheader": "Solo queda un paso para empezar a aceptar pagos."
     },
     "companyContactWelcome": {
       "subject": "Bienvenido a Dynopay: {{companyName}} ya está registrada",
@@ -353,14 +373,16 @@
       "means2": "2. Los fondos se liquidan directamente en una wallet que tú controlas",
       "means3": "3. Notificaciones de pago en tiempo real",
       "outro": "Si tiene alguna pregunta sobre este registro, contacte con nuestro equipo de soporte o con {{accountHolderName}}.",
-      "cta": "Más información"
+      "cta": "Más información",
+      "preheader": "Tu negocio está registrado — te damos la bienvenida."
     },
     "companyUpdated": {
       "subject": "El perfil de su empresa se ha actualizado",
       "heading": "Perfil actualizado",
       "intro": "El perfil de la empresa <strong>{{companyName}}</strong> se ha actualizado correctamente.",
       "outro": "Si no realizó estos cambios, contacte de inmediato con nuestro equipo de soporte.",
-      "cta": "Ver perfil"
+      "cta": "Ver perfil",
+      "preheader": "Se actualizaron los datos del perfil de tu empresa."
     },
     "walletOtp": {
       "subject": "Confirme su billetera de cobro",
@@ -398,7 +420,7 @@
       "cta": "Añadir billetera ahora"
     },
     "walletAdded": {
-      "subject": "Billetera añadida - {{network}}",
+      "subject": "Billetera añadida – {{network}}",
       "heading": "Billetera añadida",
       "intro": "Se ha añadido correctamente una nueva billetera de cobro a su empresa <strong>{{companyName}}</strong>.",
       "outro": "Todos los pagos en {{network}} se reenviarán a esta billetera. Puede gestionar sus billeteras en el panel.",
@@ -406,7 +428,7 @@
       "cta": "Ver billeteras"
     },
     "walletUpdated": {
-      "subject": "Billetera actualizada - {{network}}",
+      "subject": "Billetera actualizada – {{network}}",
       "heading": "Billetera actualizada",
       "intro": "Su billetera de cobro para <strong>{{companyName}}</strong> se ha actualizado.",
       "outro": "Los pagos futuros en {{network}} se reenviarán a la nueva dirección.",
@@ -420,7 +442,7 @@
       "expiry": "Este código expira en <strong>5 minutos</strong>. Si no solicitó este retiro, ignore este correo y proteja su cuenta."
     },
     "withdrawalSuccess": {
-      "subject": "Retiro enviado - {{amount}} {{currency}}",
+      "subject": "Retiro enviado – {{amount}} {{currency}}",
       "heading": "Retiro enviado",
       "intro": "Su retiro de <strong>{{amount}} {{currency}}</strong> ha sido enviado y se está procesando.",
       "outro1": "La transferencia se está transmitiendo a la blockchain. Puede tardar unos minutos en confirmarse según las condiciones de la red.",
@@ -446,7 +468,7 @@
       "expiry": "Este código expira en <strong>10 minutos</strong>. Si no solicitó esto, ignore este correo o contacte con soporte de inmediato."
     },
     "largeTransaction": {
-      "subject": "Pago elevado recibido - {{amount}} {{currency}}",
+      "subject": "Pago elevado recibido – {{amount}} {{currency}}",
       "heading": "Pago elevado recibido",
       "intro": "<strong>{{companyName}}</strong> recibió un pago elevado que podría requerir su atención.",
       "outro1": "Este pago se ha procesado automáticamente y se ha reenviado a su billetera.",
@@ -458,7 +480,8 @@
       "heading": "Enlace de pago creado",
       "intro": "Su enlace de pago se ha creado correctamente.",
       "outro": "Comparta este enlace con su cliente para recibir el pago.",
-      "cta": "Abrir enlace de pago"
+      "cta": "Abrir enlace de pago",
+      "preheader": "Tu enlace de pago está listo para compartir."
     },
     "crowdfundingCreated": {
       "subject": "Su campaña de crowdfunding está activa — {{title}}",
@@ -469,26 +492,29 @@
       "labelCampaign": "Campaña",
       "labelGoal": "Meta",
       "labelNoGoal": "Abierta (sin meta)",
-      "labelLink": "Enlace de la campaña"
+      "labelLink": "Enlace de la campaña",
+      "preheader": "Tu campaña está activa y lista para recibir contribuciones."
     },
     "kycRequired": {
-      "subject": "Verificación requerida: volumen de {{symbol}}{{threshold}} alcanzado",
+      "subject": "Verificación requerida al alcanzar {{threshold}} de volumen",
       "heading": "Verificación requerida",
       "intro": "¡Felicidades por alcanzar <strong>{{symbol}}{{volume}} {{currency}}</strong> en volumen de transacciones!",
       "intro2": "Para seguir aceptando pagos superiores a {{symbol}}{{threshold}}, necesitamos verificar su identidad. Es un requisito regulatorio y nos ayuda a mantener Dynopay seguro.",
       "needTitle": "Lo que necesita:",
-      "need1": "1. Documento de identidad oficial",
-      "need2": "2. Comprobante de domicilio (factura de servicios, extracto bancario)",
-      "need3": "3. Unos 5 minutos de su tiempo",
+      "need1": "1. Un documento de identidad oficial con foto",
+      "need2": "2. Un selfie rápido para la prueba de vida",
+      "need3": "3. Unos 5 minutos",
       "outro": "Complete su verificación ahora para seguir aceptando pagos sin interrupciones.",
-      "cta": "Iniciar verificación"
+      "cta": "Iniciar verificación",
+      "preheader": "Verifica tu identidad para seguir aceptando pagos por encima de {{threshold}}."
     },
     "kycApproved": {
       "subject": "Verificación aprobada: todo listo",
       "heading": "Verificación aprobada",
       "intro": "Su verificación de identidad ha sido aprobada.",
       "outro": "Ya puede aceptar pagos sin límites y acceder a todas las funciones de Dynopay. ¡Siga haciendo crecer su negocio con Dynopay!",
-      "cta": "Ver panel"
+      "cta": "Ver panel",
+      "preheader": "Estás verificado — sin límites para aceptar pagos."
     },
     "kycRejected": {
       "subject": "Verificación sin éxito",
@@ -498,18 +524,20 @@
       "outro1": "Puede volver a enviar sus documentos de verificación. Asegúrese de:",
       "outro2": "1. Usar imágenes nítidas y de alta calidad<br />2. Que toda la información sea visible<br />3. Que el nombre coincida con su cuenta de Dynopay",
       "outro3": "Si necesita ayuda, nuestro equipo de soporte está aquí para usted.",
-      "cta": "Reenviar documentos"
+      "cta": "Reenviar documentos",
+      "preheader": "No pudimos verificar tu identidad — esto es lo que debes hacer."
     },
     "kycStarted": {
       "subject": "Complete la verificación de su identidad",
       "heading": "Verificación de identidad",
       "intro": "Se ha creado su sesión de verificación de identidad. Complete la verificación para seguir usando Dynopay sin restricciones.",
       "needTitle": "Lo que necesitará:",
-      "need1": "1. Documento de identidad oficial",
-      "need2": "2. Comprobante de domicilio (últimos 3 meses)",
-      "need3": "3. Unos minutos para la verificación con selfie",
+      "need1": "1. Un documento de identidad oficial con foto",
+      "need2": "2. Un selfie rápido para la prueba de vida",
+      "need3": "3. Unos 5 minutos",
       "outro": "La verificación suele tardar entre 5 y 10 minutos y se revisa en 24-48 horas.",
-      "cta": "Completar verificación"
+      "cta": "Completar verificación",
+      "preheader": "Completa tu verificación de identidad para quitar los límites."
     },
     "kycResubmission": {
       "subject": "Se necesita información adicional para la verificación",
@@ -518,7 +546,8 @@
       "reasonTitle": "Motivo",
       "outro1": "Es una solicitud habitual. Para continuar:",
       "outro2": "1. Asegúrese de que los documentos estén nítidos y todo el texto sea legible<br />2. Verifique que el nombre coincida con su cuenta de Dynopay<br />3. Use documentos que no estén caducados",
-      "cta": "Reenviar documentos"
+      "cta": "Reenviar documentos",
+      "preheader": "Necesitamos una cosa más para terminar tu verificación."
     },
     "weeklySummary": {
       "subject": "Su resumen semanal de Dynopay",
@@ -528,14 +557,16 @@
       "greatWeek": "¡Gran semana! Procesó <strong>{{symbol}}{{volume}} {{currency}}</strong> en {{completed}} transacción(es) completada(s). ¡Siga así!",
       "pendingMsg": "Tiene <strong>{{pending}} transacción(es) pendiente(s)</strong> a la espera de confirmación. Consulte su panel para más detalles.",
       "genericMsg": "Tuvo {{count}} transacción(es) esta semana. Inicie sesión en su panel para ver el desglose completo.",
-      "cta": "Ver análisis completo"
+      "cta": "Ver análisis completo",
+      "preheader": "Tus pagos, cobros y comisiones de esta semana."
     },
     "invoice": {
-      "subject": "Factura {{number}} - Dynopay",
+      "subject": "Factura {{number}}",
       "heading": "Factura generada",
       "intro": "Su factura se ha generado correctamente para la transacción n.º {{transactionId}}.",
       "outro": "Puede ver y descargar su factura con el botón de abajo.",
-      "cta": "Ver factura"
+      "cta": "Ver factura",
+      "preheader": "Tu última factura de Dynopay está lista."
     },
     "apiKey": {
       "subjectCreated": "Clave de API creada: entorno de {{keyType}}",
@@ -547,50 +578,59 @@
       "productionWarn": "<strong>Importante:</strong> esta es una clave de producción. Manténgala segura y nunca la comparta públicamente.",
       "didntCreate": "<strong>¿No fue usted?</strong><br />Si no creó esta clave de API, proteja su cuenta de inmediato.",
       "didntRegenerate": "<strong>¿No fue usted?</strong><br />Si no regeneró esta clave de API, proteja su cuenta de inmediato.",
-      "cta": "Ver claves de API"
+      "cta": "Ver claves de API",
+      "preheader": "Se creó una nueva clave API en tu cuenta."
     },
     "subscriptionCreated": {
-      "custSubject": "Suscripción confirmada - {{planName}}",
+      "custSubject": "Suscripción confirmada – {{planName}}",
       "custHeading": "Suscripción activa",
       "custIntro": "Su suscripción a <strong>{{planName}}</strong> de <strong>{{companyName}}</strong> ya está activa.",
-      "custOutro": "Se le cobrará automáticamente en cada fecha de facturación. Puede gestionar o cancelar su suscripción en cualquier momento.",
-      "merchSubject": "Nuevo suscriptor - {{planName}}",
+      "custOutro": "En cada ciclo de facturación te enviaremos un enlace seguro para pagar en cripto. Puedes cancelar cuando quieras.",
+      "merchSubject": "Nuevo suscriptor – {{planName}}",
       "merchHeading": "Nueva suscripción",
       "merchIntro": "Tiene un nuevo suscriptor para <strong>{{planName}}</strong>.",
-      "cta": "Ver suscripciones"
+      "cta": "Ver suscripciones",
+      "custPreheader": "Tu suscripción ya está activa.",
+      "merchPreheader": "Tienes un nuevo suscriptor."
     },
     "subscriptionCancelled": {
-      "custSubject": "Suscripción cancelada - {{planName}}",
+      "custSubject": "Suscripción cancelada – {{planName}}",
       "heading": "Suscripción cancelada",
       "custIntro": "Su suscripción a <strong>{{planName}}</strong> de <strong>{{companyName}}</strong> ha sido cancelada.",
       "custOutro1": "Seguirá teniendo acceso hasta el {{effectiveDate}}. Después de eso, no se realizarán más cobros.",
       "custOutro2": "Si cambia de opinión, siempre puede volver a suscribirse.",
-      "merchSubject": "Suscripción cancelada - {{name}}",
+      "merchSubject": "Suscripción cancelada – {{name}}",
       "merchIntro": "Se ha cancelado una suscripción a <strong>{{planName}}</strong>.",
-      "cta": "Ver suscripciones"
+      "cta": "Ver suscripciones",
+      "custPreheader": "Tu suscripción se ha cancelado.",
+      "merchPreheader": "Un suscriptor canceló su plan."
     },
     "subscriptionPaymentFailed": {
       "custSubject": "Pago fallido para {{planName}}",
       "custHeading": "Pago fallido",
       "custIntro": "No pudimos procesar el pago de su suscripción a <strong>{{planName}}</strong> de <strong>{{companyName}}</strong>.",
-      "custSteps": "Para mantener su suscripción activa:<br />1. Actualice su método de pago<br />2. Asegúrese de tener fondos suficientes<br />3. Contacte con su banco si el problema persiste",
+      "custSteps": "Para mantener activa tu suscripción:<br />1. Abre el enlace de pago seguro de abajo<br />2. Asegúrate de que tu monedero tenga saldo suficiente, incluidas las comisiones de red<br />3. Contacta con el comercio si necesitas ayuda",
       "custWarn": "Su suscripción podría cancelarse si no se recibe el pago.",
-      "custCta": "Actualizar pago",
-      "merchSubject": "Pago de suscripción fallido - {{name}}",
+      "custCta": "Completar pago",
+      "merchSubject": "Pago de suscripción fallido – {{name}}",
       "merchHeading": "Pago de suscripción fallido",
       "merchIntro": "Ha fallado un pago de suscripción para <strong>{{planName}}</strong>.",
       "merchOutro": "Se ha notificado al cliente para que actualice su método de pago.",
-      "merchCta": "Ver suscripción"
+      "merchCta": "Ver suscripción",
+      "custPreheader": "El pago de tu suscripción no se completó.",
+      "merchPreheader": "Falló el pago de un suscriptor."
     },
     "autoConversion": {
       "subject": "Pago completado — {{payoutAmount}} {{targetCurrency}} de {{sourceAmount}} {{sourceCurrency}}",
       "heading": "Pago completado",
       "intro": "Su pago en cripto se ha convertido automáticamente y el pago se ha enviado a su billetera.",
-      "outro": "La conversión automática garantiza que reciba stablecoins, protegiendo sus ingresos de las fluctuaciones de precio de las criptomonedas. Consulte su historial completo de transacciones en el panel de Dynopay."
+      "outro": "La conversión automática garantiza que reciba stablecoins, protegiendo sus ingresos de las fluctuaciones de precio de las criptomonedas. Consulte su historial completo de transacciones en el panel de Dynopay.",
+      "preheader": "Tu cripto se convirtió y se pagó."
     },
     "weeklyConversion": {
       "heading": "Informe semanal de conversiones",
-      "intro": "Aquí tiene su informe semanal de conversión automática para <strong>{{companyName}}</strong>."
+      "intro": "Aquí tiene su informe semanal de conversión automática para <strong>{{companyName}}</strong>.",
+      "preheader": "Un resumen de tus conversiones de la última semana."
     },
     "volumeTierUpgrade": {
       "subject": "Acaba de desbloquear el nivel {{newTier}} — {{newPercent}}% de comisión",
@@ -603,7 +643,8 @@
       "applied": "Se aplica automáticamente a cada nuevo pago desde ahora — no necesitas hacer nada. Sigue procesando, el siguiente nivel te está esperando.",
       "thanks": "Gracias por construir con Dynopay.",
       "heading": "Ya eres {{newTier}} — disfruta de {{newPercent}}% de comisión",
-      "cta": "Ver tu panel"
+      "cta": "Ver tu panel",
+      "preheader": "Tu comisión de plataforma bajó a {{newPercent}}%."
     }
   },
   "contributor": {
@@ -613,7 +654,8 @@
       "intro": "El organizador de <strong>{{campaign}}</strong> acaba de publicar una novedad.",
       "outro": "Gracias por apoyar esta campaña. Recibes este correo porque hiciste una contribución.",
       "heading": "Nueva novedad de {{campaign}}",
-      "cta": "Ver campaña"
+      "cta": "Ver campaña",
+      "preheader": "Una nueva actualización de {{campaign}}."
     }
   },
   "contributionReceived": {
@@ -621,14 +663,16 @@
     "heading": "Nueva contribución recibida",
     "intro": "Alguien acaba de apoyar <strong>{{campaignName}}</strong> — aquí están los detalles.",
     "outro": "Verás la lista completa de donantes en el panel de tu campaña.",
-    "cta": "Ver campaña"
+    "cta": "Ver campaña",
+    "preheader": "Acaba de llegar una nueva contribución a tu campaña."
   },
   "contributionThankYou": {
     "subject": "Gracias por contribuir a {{campaignName}}",
     "heading": "Gracias por apoyar {{campaignName}}",
     "intro": "Tu contribución a <strong>{{campaignName}}</strong> acaba de llegar — gracias por apoyar esta campaña.",
     "outro": "El organizador puede enviarte novedades de la campaña para que veas a dónde va tu apoyo.",
-    "contact": "¿Preguntas? Responde a este correo y el organizador de {{campaignName}} te contestará."
+    "contact": "¿Preguntas? Responde a este correo y el organizador de {{campaignName}} te contestará.",
+    "preheader": "Gracias — tu recibo de contribución está adjunto."
   },
   "walletOtp": {
     "subject": "Código para validar la dirección de la billetera",
@@ -669,7 +713,9 @@
     "nothingSettled": "No se liquidó nada esta semana. Envía un enlace de pago a un cliente y consigamos el primero: {{link}}",
     "createPayLink": "Crear un enlace de pago →",
     "openDashboardBody": "Abre tu panel para explorar transacciones, ajustar billeteras o compartir un nuevo enlace de pago.",
-    "openDashboard": "Abrir panel"
+    "openDashboard": "Abrir panel",
+    "preheaderActive": "Un resumen de tus cobros de la última semana.",
+    "preheaderQuiet": "Un vistazo rápido a tu cuenta esta semana."
   },
   "referral": {
     "whyTitle": "¿Por qué Dynopay?",
@@ -681,7 +727,7 @@
     "unsubscribe": "Cancelar suscripción",
     "reminder": {
       "subjectWeek1": "No olvide su oferta exclusiva de Dynopay",
-      "subjectWeek2": "Su descuento del {{discountPercent}}% le espera - Dynopay",
+      "subjectWeek2": "Su descuento del {{discountPercent}}% le espera",
       "subjectWeek3": "Solo quedan {{daysRemaining}} días de su oferta de Dynopay",
       "subjectFinal": "Última oportunidad: su descuento de Dynopay caduca en {{daysRemaining}} días",
       "urgencyWeek1": "Todavía tienes <strong>{{daysRemaining}} días</strong> para reclamar tu descuento exclusivo.",
@@ -775,7 +821,7 @@
     "greetingNoName": "Hola,"
   },
   "orderReceipt": {
-    "subject": "Tu pedido {{ref}} está confirmado — Dynopay",
+    "subject": "Tu pedido {{ref}} está confirmado",
     "heading": "Pedido confirmado",
     "thanks": "¡Gracias por tu compra! Hemos recibido tu pago y tu pedido está confirmado.",
     "orderReference": "Referencia del pedido:",

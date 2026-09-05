@@ -1,46 +1,90 @@
-# SEO audit of dynopay.com — findings and fixes
+# Dynopay — Email Content Audit & Improvement Plan
 
-Audit run against the live domain (sitemap, robots.txt, home, /fees, /for/saas, a blog post, /help-support, /fees?lang=fr, /dashboard) plus the code that generates the `<head>` tags.
+## Objective
+Review every email Dynopay sends (merchant, customer/payer, contributor and internal admin emails) against four criteria — clarity, expected details, conciseness, premium quality — and deliver a concrete, approvable set of improvements: rewritten subject lines, preheaders and body copy, plus a short style guide so future emails stay consistent.
 
-## What passed
+Work is split in two parts. Part 1 (the audit and recommendations) is what this plan approves. Part 2 (applying the approved rewrites to the live templates) starts only after the report is reviewed.
 
-- `https://dynopay.com/sitemap.xml` — 200, valid XML, ~75 URLs, all absolute, no private routes. Storefront/creator/product entries are present, so the backend is reachable at render time.
-- `https://dynopay.com/robots.txt` — the correct (newer) file is live; declares the sitemap; blocks dashboard/auth/checkout/API.
-- Home, /fees, /for/* and blog posts each have a unique title, meta description and canonical; blog posts also ship Article JSON-LD and OG images.
-- `/dashboard` and other in-app routes carry `noindex, nofollow`.
+## Scope
+Roughly 70 distinct email templates, in these groups:
 
-## What Google will flag (to be fixed)
+| Group | Examples | Audience |
+|---|---|---|
+| Account & security | Welcome, verify-email OTP, login OTP, password reset OTP, password changed, profile updated, email changed, new sign-in, failed logins, security alert | Merchant |
+| Company & onboarding | Profile complete, add-wallet reminder, company updated, contact-person welcome, activation nudges (day 1/3/7), setup gate (brand / wallet / KYC) | Merchant |
+| Wallet | Wallet OTPs (add / edit / delete / update), wallet added / updated / removed / active, withdrawal OTP & submitted, exchange OTP | Merchant |
+| Payments | Payment pending, confirming, received, partial, partial expired, failed/underpaid, overpayment, large payment, auto-conversion payout, transaction confirmed | Merchant (+ customer for failed) |
+| Customer-facing | Payment receipt (with PDF), order confirmation, order shipped / expired / refunded, download reminder, subscription confirmed / cancelled / payment failed, contribution thank-you, campaign update | Payer / buyer / contributor |
+| Growth & reporting | Weekly summary, weekly payout digest, weekly conversion report, volume-tier upgrade, payment link created, crowdfunding live, referral invite & reminders, invoice generated, API key created/regenerated | Merchant |
+| KYC | Required, started, approved, rejected, resubmission | Merchant |
+| Internal admin | New registration, onboarding stuck / completed, first payment, new visitor, fee received / sweep, webhook disabled | Dynopay team |
 
-**1. Help Center is submitted in the sitemap but marked `noindex`.** `/help-support` and every `/help-support/{slug}` article is in the sitemap and allowed by robots.txt, yet the global head marks the whole `/help-support` prefix as private → Search Console error "Submitted URL marked noindex". Fix: stop treating `/help-support` as private.
+English copy is the source of truth; five other languages (DE, ES, FR, NL, PT) are translated from it. Some emails (creator handle, admin notifications, order/refund emails) carry English copy directly in code rather than in the translation files — these are in scope for content review and will be flagged.
 
-**2. Help articles are missing from the sitemap and invisible to crawlers.** The live Help Center lists 8 articles, but the sitemap has zero `/help-support/{slug}` entries, and the article pages fetch their content in the browser only (server sends a spinner). Fix: (a) correct the article fetch used by the sitemap so the 8 articles are listed with real `lastmod`, (b) render article content, title, description and canonical on the server so Google indexes the actual text.
+## Evaluation criteria (how each email is scored)
+Each email is scored 1–5 on each criterion, with the specific problem quoted.
 
-**3. hreflang alternates point at pages that don't exist as translations.** Every page (and the sitemap) advertises `?lang=pt|fr|es|de|nl` alternates, but the server always renders English regardless of `?lang=` (language is applied in the browser from localStorage). `/fees?lang=fr` is byte-for-byte English with `<html lang="en">`. Google will report hreflang errors and treat the six URLs as duplicates. Two ways to resolve — **decision needed**:
-   - **A (recommended now, small):** remove the hreflang alternates from the head and the sitemap; keep English as the single indexable version. Zero risk, immediately clean report. Translated pages remain available to users via the language switcher exactly as today.
-   - **B (larger, later):** make `?lang=xx` render server-side in that language with its own canonical and `<html lang>`, so the alternates become real. Requires server-side locale loading and hydration changes across the app. Proposed as a follow-up, not part of this fix.
+1. **Clarity** — Can the reader tell in one glance what happened, whether money moved, and what (if anything) they must do? Is the subject line specific (amount, company, action) rather than generic?
+2. **Expected details** — Does it contain what a recipient of that email type expects: amounts in both crypto and fiat, company name, transaction reference, date with time zone, status, next step, where to get help? Does it omit details that are irrelevant to that recipient?
+3. **Conciseness** — No filler ("Great news!", "You're so close!"), no repeated sentences, no lists of every possibility when only one applies, no sign-off ceremony on machine notifications.
+4. **Premium quality** — Consistent voice, no emoji in subject lines or body, correct typography (one dash style, proper casing), professional greeting/sign-off, no clichés, statements that are factually correct for a crypto (not card) payment product, no wording that talks down to the reader.
 
-**4. Blog posts inherit wrong hreflang.** Because of (3), a post such as `/blog/how-to-accept-crypto-payments-on-your-website` declares alternates for `/blog?lang=fr` (the index page). Resolved automatically by fix 3A.
+## Preliminary findings (first read — the full audit will confirm and extend these)
 
-**5. Creator pages emit two canonical tags.** `/{handle}` pages (e.g. `/tuhin`) output their own canonical plus the global fallback (`https://dynopay.com/`), so Google may pick the homepage as canonical and drop the creator page. Fix: one-line dedupe on the creator page.
+Cross-cutting
+- Subject lines mix three separators: `Payment received - 50 USDT`, `Partial payment received — action needed`, `Invoice 1234 - Dynopay`. Some carry a `- Dynopay` suffix, most do not. The sender name already says Dynopay, so the suffix wastes preview space.
+- Greeting is inconsistent: "Hey {{name}}," in most emails, "Hi {{name}}," in the creator-handle email, "Hello," in the company-contact welcome. Sign-off has two variants ("Thanks," and "Best regards,") and is appended even to OTP codes and admin alerts.
+- Preheader (inbox preview text) is supported by the template but effectively unused, so inboxes show the first body sentence ("Hey Alex,") instead of the key fact.
+- Dates are rendered in a fixed UK-date / US-time combination ("02 June 2026 at 03:15 PM") with no time zone, regardless of the recipient's language.
+- Emoji appear in copy and subjects (🎉 in the welcome promo; 🔴🟡🟠✅🎉👀 in admin subjects).
+- Several duplicate or near-duplicate strings exist (two identical default greetings, three variants of "Received amount", fee labels defined twice), which is how inconsistencies creep in over time.
+- Footer reads "All Rights reserved" (mis-capitalised) and the tagline "Secure Crypto Payment Gateway" doesn't match the "non-custodial" positioning used in the body copy.
+- The HTML document language is always English even when the email is sent in German, French, etc.
 
-**6. Stale duplicate robots.txt in the repo** (`assets/public-runtime/robots.txt`, older rules that block the Help Center). Not served, but a future build-config change could pick it up. Fix: delete it.
+Content correctness
+- The subscription "payment failed" email tells the customer to "update your payment method" and "contact your bank" — there is no card or bank in a crypto payment; the real fix is to complete a fresh crypto payment.
+- The payment-pending email lists estimated confirmation times for BTC, ETH, TRX, LTC and DOGE in every email, even though the payment is on one known chain.
+- KYC emails disagree with each other on requirements ("utility bill, bank statement" vs "last 3 months" vs "selfie verification") and on timing ("about 5 minutes" vs "reviewed within 24–48 hours").
+- "Password updated" CTA is "View Account Settings"; for a security event the CTA should be the same "This wasn't me — secure my account" pattern used in the sign-in email.
+- "Transaction confirmed" email has a raw status in the subject and no company or amount context in the intro.
 
-**7. Legacy IndexNow script lists only 7 URLs.** Refresh it to read the live sitemap so Bing/Yandex get the full page list. (Low priority; only relevant if Bing coverage is wanted.)
+Tone & filler
+- Frequent exclamation-led openers: "Great news!", "Good news!", "Great job!", "You're so close!", "Keep up the momentum!", "Keep growing your business with Dynopay!".
+- Clichés: "we've got you covered", "here to help you get paid", "Whether you're a freelancer, business owner, or developer".
+- Awkward pluralisation: "{{count}} transaction(s)".
 
-## Not changed (deliberately)
+Expected details
+- Payment emails to merchants don't consistently show both the crypto amount and the fiat equivalent, nor the network/chain, nor the net amount after Dynopay fee.
+- Several time-sensitive emails (pending, confirming, partial) have no button to the transaction, while low-stakes emails (profile updated) do.
+- Withdrawal / wallet emails show the address but not the network or an explorer link where one exists.
 
-- Blog has only 4 posts and the country landing pages (`/accept-crypto-payments-in/*`) are not in the sitemap — content decisions, not SEO defects.
-- JSON-LD is only on the homepage and blog; adding FAQ/Product schema to /fees and /for/* is a separate enhancement.
-- Google Analytics / Tag Manager — out of scope.
+## Deliverables (Part 1)
+1. **Audit report** (`/app/memory/email_audit.md`), organised by group, containing for every email:
+   - current subject and a one-line description of the body,
+   - scores on the four criteria with quoted evidence,
+   - recommended subject line, preheader and rewritten body copy (before/after),
+   - which recommendations are copy-only and which need a small data change (e.g. adding chain name or fiat equivalent to the email).
+2. **Priority list** — top 15 emails to fix first, ranked by send volume and money-relevance (OTPs, payment received/pending/confirming, customer receipt, welcome, failed/underpaid, weekly digest, KYC required, order confirmation).
+3. **One-page email style guide** — voice, greeting/sign-off rule, subject-line pattern, number/date/time-zone formatting, CTA verb list, when to use success/alert/error boxes, emoji policy, preheader rule.
+4. **Rendered before/after HTML previews** for the top 15, so the recommendations can be judged visually rather than as raw text.
 
-## After the fix is deployed (user, in Search Console)
+## Part 2 (after report approval)
+Apply the approved rewrites to the English templates and code-embedded copy, add preheaders, fix the content-correctness items above, remove duplicate strings, and re-render all templates to confirm nothing broke. Translation of changed strings into the five other languages is proposed as a separate follow-up (see Decisions).
 
-1. Sitemaps → submit `sitemap.xml` (or "resubmit" if already added).
-2. URL Inspection → `https://dynopay.com/help-support` → Request indexing; repeat for `/`, `/fees`, `/blog`.
-3. Expect the "Pages" report to show the Help Center and creator pages as indexed within 1–2 weeks; hreflang/duplicate warnings should not appear.
+## Decisions taken (change these if you disagree)
+- **Voice:** recommend moving from "Hey {{name}}," to "Hi {{name}}," and a single sign-off "— The Dynopay team", dropped entirely on OTP and admin/system emails. Alternatives will be shown in the report; the default recommendation is the more neutral, finance-grade tone.
+- **Subject pattern:** `<What happened> · <key fact>` with one separator throughout, no `- Dynopay` suffix, no emoji. Example: `Payment received · 50 USDT from Acme`.
+- **Admin emails are in scope** but scored lightly — recommendations focus on scannability (clear subject, table of facts) rather than polish.
+- **Languages:** the audit and rewrites cover English only. Once English is approved, changed strings are translated into DE/ES/FR/NL/PT as a follow-up so all six stay aligned. Until then, other languages keep their current wording.
+- **No emails are sent** during the audit or preview rendering; everything is rendered to local HTML files only.
+- **Design/layout** (colours, logo, dark mode, button styling) is out of scope; only words, structure and what information appears are reviewed.
 
-## Assumptions
+## Out of scope
+- PDF receipt and PDF invoice content (separate documents; can be a follow-up).
+- Email deliverability, sending infrastructure, or notification frequency (e.g. the per-visitor admin email).
+- Visual redesign of the template shell.
 
-- Fix 3 is implemented as option **A** (remove alternates) unless told otherwise.
-- The Help Center is meant to be public and indexable (it is linked from the homepage FAQ and marketing footer).
-- Changes ship on the next "Save to GitHub" push, which triggers the DigitalOcean deploy; the live re-check happens after that deploy.
+## Success criteria
+- Every email has a score, quoted evidence and a concrete rewrite where needed.
+- All content-correctness errors listed above are addressed in the recommendations.
+- The style guide is short enough to fit on one page and unambiguous enough that a new email written against it would match the rest.

@@ -108,7 +108,11 @@ export const sendCustomerPaymentConfirmationEmail = async (
       isContribution
         ? t('contributionThankYou.heading', L, { campaignName })
         : t('customerPaymentConfirmation.heading', L),
-      content
+      content,
+      false,
+      "",
+      "",
+      isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L)
     );
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
     apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);

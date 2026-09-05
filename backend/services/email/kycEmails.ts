@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { KYC_THRESHOLD_USD } from "../../helper/kycEnforcement";
 
 /**
  * Template 13: KYC Required
@@ -22,11 +23,14 @@ export const sendKYCRequiredEmail = async (
   try {
     const L = await resolveEmailLang(lang, email);
     const currencySymbol = getCurrencySymbol(currency);
-    const thresholdAmount = currency === 'USD' ? '5,000' : '5,000 USD equivalent';
-    const subject = t('merchant.kycRequired.subject', L, { symbol: currencySymbol, threshold: thresholdAmount });
+    // Threshold is a USD figure sourced from the enforcement layer (single source
+    // of truth) — always expressed in USD regardless of the merchant's display
+    // currency, so email == what the platform actually enforces.
+    const thresholdAmount = `$${KYC_THRESHOLD_USD.toLocaleString('en-US')}`;
+    const subject = t('merchant.kycRequired.subject', L, { threshold: thresholdAmount });
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.kycRequired.intro', L, { symbol: currencySymbol, volume: totalVolume, currency }))}
-    ${p(t('merchant.kycRequired.intro2', L, { symbol: currencySymbol, threshold: thresholdAmount }))}
+    ${p(t('merchant.kycRequired.intro2', L, { threshold: thresholdAmount }))}
     ${infoBox(`
       <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.needTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -37,7 +41,7 @@ export const sendKYCRequiredEmail = async (
     `)}
     ${p(t('merchant.kycRequired.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycRequired.heading', L), content, true, t('merchant.kycRequired.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.kycRequired.heading', L), content, true, t('merchant.kycRequired.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycRequired.preheader', L, { threshold: thresholdAmount }));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC required email sent to ${email}`);
   } catch (e) {
@@ -58,7 +62,7 @@ export const sendKYCApprovedEmail = async (email: string, name: string, lang?: s
     `, '#12B76A')}
     ${p(t('merchant.kycApproved.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycApproved.heading', L), content, true, t('merchant.kycApproved.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.kycApproved.heading', L), content, true, t('merchant.kycApproved.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycApproved.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC approved email sent to ${email}`);
   } catch (e) {
@@ -80,7 +84,7 @@ export const sendKYCRejectedEmail = async (email: string, name: string, rejectio
     ${p(t('merchant.kycRejected.outro2', L))}
     ${p(t('merchant.kycRejected.outro3', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycRejected.heading', L), content, true, t('merchant.kycRejected.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.kycRejected.heading', L), content, true, t('merchant.kycRejected.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycRejected.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC rejected email sent to ${email}`);
   } catch (e) {
@@ -104,7 +108,7 @@ export const sendKYCStartedEmail = async (email: string, name: string, verificat
     `)}
     ${p(t('merchant.kycStarted.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycStarted.heading', L), content, true, t('merchant.kycStarted.cta', L), verificationUrl);
+    const html = dynoPayEmailTemplate(t('merchant.kycStarted.heading', L), content, true, t('merchant.kycStarted.cta', L), verificationUrl, t('merchant.kycStarted.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC started email sent to ${email}`);
   } catch (e) {
@@ -125,7 +129,7 @@ export const sendKYCResubmissionRequiredEmail = async (email: string, name: stri
     ${p(t('merchant.kycResubmission.outro1', L))}
     ${p(t('merchant.kycResubmission.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycResubmission.heading', L), content, true, t('merchant.kycResubmission.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.kycResubmission.heading', L), content, true, t('merchant.kycResubmission.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycResubmission.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC resubmission required email sent to ${email}`);
   } catch (e) {

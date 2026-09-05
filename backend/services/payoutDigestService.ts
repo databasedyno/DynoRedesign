@@ -431,6 +431,10 @@ export async function sendPayoutDigestEmail(
     `;
 
     const html = baseEmailTemplate(heading, content, {
+      lang,
+      preheader: d.hasActivity
+        ? t("payoutDigest.preheaderActive", lang)
+        : t("payoutDigest.preheaderQuiet", lang),
       showButton: true,
       buttonText: t("payoutDigest.openDashboard", lang),
       buttonLink: `${FRONTEND_BASE_URL}/dashboard`,

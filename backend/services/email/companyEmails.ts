@@ -29,7 +29,7 @@ export const sendCompanyProfileCreatedEmail = async (
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyText', L)}</p>
     `)}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyCreated.heading', L), content, true, t('merchant.companyCreated.cta', L), `${FRONTEND_BASE_URL}/wallet`);
+    const html = dynoPayEmailTemplate(t('merchant.companyCreated.heading', L), content, true, t('merchant.companyCreated.cta', L), `${FRONTEND_BASE_URL}/wallet`, t('merchant.companyCreated.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile created email sent to ${email}`);
   } catch (e) {
@@ -62,7 +62,7 @@ export const sendCompanyContactWelcomeEmail = async (
     `)}
     ${p(t('merchant.companyContactWelcome.outro', L, { accountHolderName }))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyContactWelcome.heading', L), content, true, t('merchant.companyContactWelcome.cta', L), `${FRONTEND_BASE_URL}`);
+    const html = dynoPayEmailTemplate(t('merchant.companyContactWelcome.heading', L), content, true, t('merchant.companyContactWelcome.cta', L), `${FRONTEND_BASE_URL}`, t('merchant.companyContactWelcome.preheader', L));
     await mailTransporter({ to: companyContactEmail, name: companyName, subject, body: html });
     apiLogger.info(`Company contact welcome email sent to ${companyContactEmail}`);
   } catch (e) {
@@ -96,7 +96,7 @@ export const sendCompanyProfileUpdatedEmail = async (
     `, '#12B76A')}
     ${p(t('merchant.companyUpdated.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`);
+    const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`, t('merchant.companyUpdated.preheader', L));
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile updated email sent to ${email}`);
   } catch (e) {
@@ -119,7 +119,7 @@ export const sendTeamMemberJoinedEmail = async (
   try {
     const who = escapeHtml(memberName || memberEmail);
     const subject = `${memberName || memberEmail} joined ${companyName} on Dynopay`;
-    const content = `${p(ownerName ? `Hi ${escapeHtml(firstNameOnly(ownerName))},` : `Hi,`)}
+    const content = `${p(ownerName ? `Hey ${escapeHtml(firstNameOnly(ownerName))},` : `Hey there,`)}
     ${p(`<strong>${who}</strong> just accepted your invite and joined <strong>${escapeHtml(companyName)}</strong>.`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -129,7 +129,7 @@ export const sendTeamMemberJoinedEmail = async (
     `, '#12B76A')}
     ${p(`They now have the access you granted. You can review or change their permissions anytime from Settings → Team.`)}`;
 
-    const html = dynoPayEmailTemplate(`A teammate joined`, content, true, `Manage your team`, `${FRONTEND_BASE_URL}/settings?section=team`);
+    const html = dynoPayEmailTemplate(`A teammate joined`, content, true, `Manage your team`, `${FRONTEND_BASE_URL}/settings?section=team`, `${who} now has access to ${escapeHtml(companyName)}.`);
     await mailTransporter({ to: ownerEmail, name: ownerName, subject, body: html });
     apiLogger.info(`[Email] Teammate-joined notice sent to owner ${ownerEmail} (${memberEmail} -> ${companyName})`);
   } catch (e) {

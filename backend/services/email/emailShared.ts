@@ -41,9 +41,10 @@ export const dynoPayEmailTemplate = (
   content: string,
   showButton: boolean = false,
   buttonText: string = "",
-  buttonLink: string = ""
+  buttonLink: string = "",
+  preheader: string = ""
 ) => {
-  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink });
+  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader });
 };
 
 /**
@@ -56,7 +57,8 @@ export const dynoPayGreetingTemplate = (
   message: string,
   heading: string,
   _showImage: boolean = false,
-  lang?: string
+  lang?: string,
+  preheader?: string
 ) => {
   const cleanName = (name || '').trim();
   // Never greet someone by their raw email address: if we only know the email
@@ -69,7 +71,7 @@ export const dynoPayGreetingTemplate = (
       : tr('chrome.greetingNoName', lang)
   );
   const bodyContent = `${greeting}<div style="font-size: 15px; color: #374151; line-height: 1.65; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${message}</div>`;
-  return baseEmailTemplate(heading, bodyContent, { lang });
+  return baseEmailTemplate(heading, bodyContent, { lang, preheader });
 };
 
 export const formatAmountWithCurrency = (amount: number, currency: string = 'USD'): string => {

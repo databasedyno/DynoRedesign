@@ -45,7 +45,7 @@ export const sendWalletChangeAlertEmail = async (
       ? "Your payout wallets were changed"
       : `Your ${escapeHtml(rows[0]?.network || "payout")} wallet was changed`;
 
-    const content = `${p(name ? `Hi ${escapeHtml(name)},` : "Hi,")}
+    const content = `${p(name ? `Hey ${escapeHtml(name)},` : "Hey there,")}
     ${p(`The payout ${multiple ? "wallets" : "wallet"} for <strong>${brand}</strong> ${multiple ? "were" : "was"} just updated. Here ${multiple ? "are" : "is"} the ${multiple ? "details" : "detail"}:`)}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tableRows}</table>`, "#f59e0b")}
     ${p("If you made this change, you're all set — no action is needed.")}
@@ -57,6 +57,7 @@ export const sendWalletChangeAlertEmail = async (
       true,
       "This wasn't me — undo & lock",
       revertUrl,
+      "If this wasn't you, undo it in one tap and lock wallet changes.",
     );
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Wallet change alert sent to ${email} (${rows.length} row(s))`);
@@ -79,7 +80,7 @@ export const sendWalletSecuredEmail = async (
     const brand = escapeHtml(data.companyName || "your brand");
     const nets = (data.networks || []).map(escapeHtml).join(", ");
     const subject = "We've secured your account";
-    const content = `${p(name ? `Hi ${escapeHtml(name)},` : "Hi,")}
+    const content = `${p(name ? `Hey ${escapeHtml(name)},` : "Hey there,")}
     ${p(`As requested, we've undone the recent payout wallet change${data.networks.length > 1 ? "s" : ""} for <strong>${brand}</strong> and <strong>locked further wallet changes</strong> on your account.`)}
     ${nets ? infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow("Networks restored", nets, true)}</table>`, "#12B76A") : ""}
     ${warnText("For your safety, new payout wallets can't be added or edited until you contact support and confirm it's really you.")}
@@ -90,6 +91,7 @@ export const sendWalletSecuredEmail = async (
       true,
       "Contact support",
       `${FRONTEND_BASE_URL}/help-support`,
+      "We've undone the wallet change and locked further edits on your account.",
     );
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Wallet secured notice sent to ${email}`);

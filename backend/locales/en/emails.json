@@ -37,15 +37,16 @@
     "expired": "Expired"
   },
   "paymentReceived": {
-    "subject": "Payment received - {{amount}} {{currency}}",
+    "subject": "Payment received – {{amount}} {{currency}}",
     "heading": "Payment Received",
     "intro": "Great news! Your company <strong>{{companyName}}</strong> has received a payment.",
     "outro": "The funds have been forwarded to your payout wallet. You can view the full transaction details in your dashboard.",
     "cta": "View Transaction",
-    "referralCredit": "Referral credit covered {{amount}} of your Dynopay platform fee on this payment — you kept more of it."
+    "referralCredit": "Referral credit covered {{amount}} of your Dynopay platform fee on this payment — you kept more of it.",
+    "preheader": "Funds are settling to your payout wallet now."
   },
   "paymentPending": {
-    "subject": "Your payment is pending confirmation",
+    "subject": "Payment detected – confirming on-chain",
     "heading": "Payment Pending",
     "intro": "A new payment has been detected for your company <strong>{{companyName}}</strong>!",
     "estimatedTimes": "Estimated Confirmation Times",
@@ -53,21 +54,24 @@
     "ethTime": "ETH/ERC20: 1-5 min",
     "trxTime": "TRX/TRC20: 1-3 min",
     "ltcTime": "LTC: 2-30 min &bull; DOGE: 1-10 min",
-    "outro": "We'll notify you once the payment is fully confirmed and credited to your wallet. You can track the transaction status in your Dynopay dashboard."
+    "outro": "We'll notify you once the payment is fully confirmed and credited to your wallet. You can track the transaction status in your Dynopay dashboard.",
+    "preheader": "We'll email you the moment it settles on-chain."
   },
   "paymentConfirming": {
-    "subject": "Payment confirming ({{current}}/{{required}}) - Dynopay",
+    "subject": "Payment confirming – {{current}} of {{required}} confirmations",
     "heading": "Payment Confirming",
     "intro": "Good news! Your payment for <strong>{{companyName}}</strong> is being confirmed.",
     "confirmationsOf": "{{current}} of {{required}}",
     "completeMsg": "The payment has reached the required confirmations and will be credited shortly!",
-    "pendingMsg": "{{remaining}} more confirmations needed before the payment is credited. You can track the full status in your Dynopay dashboard."
+    "pendingMsg": "{{remaining}} more confirmations needed before the payment is credited. You can track the full status in your Dynopay dashboard.",
+    "preheader": "Your payment is gaining network confirmations."
   },
   "transactionConfirmed": {
-    "subject": "Transaction {{status}} - Dynopay",
+    "subject": "Transaction {{status}}",
     "heading": "Transaction {{status}}",
     "intro": "Your transaction has been <strong>{{statusLower}}</strong>.",
-    "outro": "You can view more details in your Dynopay dashboard."
+    "outro": "You can view more details in your Dynopay dashboard.",
+    "preheader": "The latest status of your transaction."
   },
   "paymentPartial": {
     "subject": "Partial payment received — action needed",
@@ -76,44 +80,50 @@
     "actionRequired": "Action Required",
     "actionText": "You have <strong>{{minutes}} minutes</strong> to send the remaining <strong>{{remaining}} {{currency}}</strong> to complete this payment.",
     "sendTo": "Send to:",
-    "graceNote": "If the remaining amount is received within {{minutes}} minutes, the full payment will be processed. If the grace period expires, the partial amount will be processed with adjusted fees."
+    "graceNote": "If the remaining amount is received within {{minutes}} minutes, the full payment will be processed. If the grace period expires, the partial amount will be processed with adjusted fees.",
+    "preheader": "The amount received is less than the invoice total."
   },
   "paymentPartialExpired": {
-    "subjectCompleted": "Partial payment processed - Dynopay",
-    "subjectExpired": "Partial payment expired - Dynopay",
+    "subjectCompleted": "Partial payment processed",
+    "subjectExpired": "Partial payment expired",
     "headingCompleted": "Partial Payment Processed",
     "headingExpired": "Payment Grace Period Expired",
     "introCompleted": "The partial payment for your company <strong>{{companyName}}</strong> has been processed.",
     "introExpired": "The grace period for the partial payment to your company <strong>{{companyName}}</strong> has expired.",
     "outroCompleted": "The received amount has been processed with adjusted fees and forwarded to your wallet.",
     "outroExpired": "Since the full payment was not received within the grace period, the partial amount has been processed. Please note that fees may be higher for incomplete payments.",
-    "viewDetails": "You can view the transaction details in your Dynopay dashboard."
+    "viewDetails": "You can view the transaction details in your Dynopay dashboard.",
+    "preheaderCompleted": "We've processed the partial amount you paid.",
+    "preheaderExpired": "The payment window closed before full payment."
   },
   "paymentFailed": {
     "reasonExpired": "The payment link has expired",
     "reasonUnderpaid": "We received {{paidAmount}} {{currency}} but the required amount was {{amount}} {{currency}}",
     "reasonCancelled": "The payment was cancelled",
     "reasonTimeout": "The payment session timed out",
-    "subjectUnderpaid": "Underpayment detected - {{paidAmount}} of {{amount}} {{currency}} received",
-    "subject": "Payment unsuccessful - {{companyName}}",
+    "subjectUnderpaid": "Underpayment detected – {{paidAmount}} of {{amount}} {{currency}} received",
+    "subject": "Payment unsuccessful – {{companyName}}",
     "heading": "Payment Unsuccessful",
     "customerIntro": "Unfortunately, your payment to <strong>{{companyName}}</strong> was not completed.",
     "issue": "Issue",
     "underpaidNote": "Please contact <strong>{{companyName}}</strong> to resolve this underpayment or request a refund.",
     "expiredNote": "Please contact <strong>{{companyName}}</strong> if you still wish to complete this payment.",
-    "merchantSubjectUnderpaid": "Underpayment received - {{paidAmount}} of {{amount}} {{currency}}",
-    "merchantSubject": "Payment failed - {{transactionId}}",
+    "merchantSubjectUnderpaid": "Underpayment received – {{paidAmount}} of {{amount}} {{currency}}",
+    "merchantSubject": "Payment failed – {{transactionId}}",
     "merchantHeading": "Payment Alert",
     "merchantIntro": "A payment from <strong>{{customerName}}</strong> was not completed.",
     "merchantUnderpaidNote": "The customer has been notified. You may need to issue a partial refund or request the remaining amount.",
-    "cta": "View Transaction"
+    "cta": "View Transaction",
+    "preheader": "This payment didn't go through — no funds were taken.",
+    "merchantPreheader": "A customer payment didn't complete."
   },
   "customerPaymentConfirmation": {
-    "subject": "Payment successful - Receipt from {{companyName}}",
+    "subject": "Your payment to {{companyName}} is confirmed",
     "heading": "Payment Successful",
     "intro": "Your payment to <strong>{{companyName}}</strong> has been successfully processed.",
     "pdfAttached": "<strong>PDF Receipt Attached</strong> - A detailed receipt is attached to this email for your records.",
-    "contact": "If you have any questions about this payment, please contact <strong>{{companyName}}</strong> directly."
+    "contact": "If you have any questions about this payment, please contact <strong>{{companyName}}</strong> directly.",
+    "preheader": "Your payment receipt is attached below."
   },
   "invoice": {
     "title": "INVOICE",
@@ -231,29 +241,32 @@
     "typeProduction": "production",
     "typeDevelopment": "development",
     "welcome": {
-      "subject": "Welcome to Dynopay - Let's get you paid",
+      "subject": "Welcome to Dynopay – Let's get you paid",
       "heading": "Welcome to Dynopay",
       "intro1": "Welcome to Dynopay! We're excited to have you on board.",
       "intro2": "Dynopay makes accepting crypto payments simple and secure — funds settle straight to a wallet you control. Whether you're a freelancer, business owner, or developer, we've got you covered.",
-      "promo": "🎉 Your first payment is on us — we waive our entire platform fee on your first settled payment, any amount.",
+      "promo": "Your first payment is on us — we waive our entire platform fee on your first settled payment, any amount.",
       "nextTitle": "Here's what you can do next:",
       "next1": "1. Complete your company profile",
       "next2": "2. Add your payout wallet",
       "next3": "3. Start accepting payments",
       "questions": "If you have any questions, our support team is here to help.",
-      "cta": "Get Started"
+      "cta": "Get Started",
+      "preheader": "Your first settled payment is fee-free — here's how to get paid."
     },
     "emailVerifyOtp": {
       "subject": "Verify your email",
       "heading": "Verify Your Email",
       "intro": "Please verify your email address to complete your Dynopay registration. Enter this code in the verification page:",
-      "expiry": "This code expires in 10 minutes. If you didn't create a Dynopay account, please ignore this email."
+      "expiry": "This code expires in 10 minutes. If you didn't create a Dynopay account, please ignore this email.",
+      "preheader": "Enter this code to verify your email address."
     },
     "loginOtp": {
       "subject": "Your login code",
       "heading": "Your Login Code",
       "intro": "Here's your one-time login code for Dynopay:",
-      "expiry": "This code expires in 5 minutes. If you didn't request this code, please secure your account immediately."
+      "expiry": "This code expires in 5 minutes. If you didn't request this code, please secure your account immediately.",
+      "preheader": "Your code expires in a few minutes. Never share it."
     },
     "forgotPasswordOtp": {
       "subject": "Password reset code",
@@ -266,7 +279,8 @@
       "heading": "Password Updated",
       "intro": "Your Dynopay password has been successfully updated.",
       "securityNotice": "<strong>Security Notice:</strong> If you didn't make this change, please contact our support team immediately to secure your account.",
-      "cta": "View Account Settings"
+      "cta": "View Account Settings",
+      "preheader": "Your account password was just changed."
     },
     "profileUpdated": {
       "subject": "Account profile updated",
@@ -279,7 +293,9 @@
       "emailChangedIntro": "Your account email has been changed from <strong>{{oldEmail}}</strong> to <strong>{{email}}</strong>.",
       "emailChangedImportantTitle": "Important",
       "emailChangedImportantText": "If you did not make this change, your account may be compromised. Please contact our support team immediately.",
-      "emailChangedCta": "Contact Support"
+      "emailChangedCta": "Contact Support",
+      "preheader": "A change was made to your account profile.",
+      "emailChangedPreheader": "Your account email address was changed."
     },
     "securityAlert": {
       "subject": "Security alert on your account",
@@ -304,7 +320,8 @@
         "password_change": "password change",
         "email_verification": "email verification",
         "onboarding": "account setup"
-      }
+      },
+      "preheader": "We spotted unusual activity on your account."
     },
     "newDeviceLogin": {
       "subject": "New login to your Dynopay account",
@@ -323,7 +340,8 @@
       "wasThisYou": "<strong>Was this you?</strong><br />If you recognize this activity, no further action is needed.",
       "notYou": "<strong>Not you?</strong><br />If you don't recognize this login, click the button below to secure your account immediately. We'll lock your account and require identity verification to regain access.",
       "cta": "This wasn't me — Secure my account",
-      "unknownLocation": "Unknown location"
+      "unknownLocation": "Unknown location",
+      "preheader": "A new sign-in was detected. Was it you?"
     },
     "failedLogins": {
       "subject": "Multiple failed login attempts on your account",
@@ -331,19 +349,21 @@
       "intro": "We detected <strong>{{count}} failed login attempts</strong> on your Dynopay account.",
       "wasThisYou": "<strong>Was this you?</strong><br />If you forgot your password, you can reset it using the button below.",
       "wasntYou": "<strong>Wasn't you?</strong><br />Someone may be trying to access your account. We recommend changing your password immediately. Your account is still secure - we blocked these login attempts.",
-      "cta": "Reset Password"
+      "cta": "Reset Password",
+      "preheader": "Several sign-in attempts failed on your account."
     },
     "companyCreated": {
-      "subject": "Profile complete - One step left",
+      "subject": "Profile complete – One step left",
       "heading": "Profile Complete",
       "intro1": "Great job! Your company profile for <strong>{{companyName}}</strong> is now complete.",
       "intro2": "You're almost ready to start accepting payments. The last step is to add your payout wallet address.",
       "whyTitle": "Why add a wallet?",
       "whyText": "Your wallet is where we'll send the crypto payments you receive. It's quick and secure.",
-      "cta": "Add Wallet"
+      "cta": "Add Wallet",
+      "preheader": "One quick step left before you can accept payments."
     },
     "companyContactWelcome": {
-      "subject": "Welcome to Dynopay - {{companyName}} is now registered",
+      "subject": "Welcome to Dynopay – {{companyName}} is now registered",
       "heading": "Welcome to Dynopay",
       "hello": "Hello,",
       "intro1": "<strong>{{companyName}}</strong> has been registered on Dynopay by {{accountHolderName}}.",
@@ -353,14 +373,16 @@
       "means2": "2. Funds settle straight to a wallet you control",
       "means3": "3. Real-time payment notifications",
       "outro": "If you have any questions about this registration, please contact our support team or reach out to {{accountHolderName}}.",
-      "cta": "Learn More"
+      "cta": "Learn More",
+      "preheader": "Your business is registered — welcome aboard."
     },
     "companyUpdated": {
       "subject": "Your company profile was updated",
       "heading": "Profile Updated",
       "intro": "Your company profile for <strong>{{companyName}}</strong> has been updated successfully.",
       "outro": "If you didn't make these changes, please contact our support team immediately.",
-      "cta": "View Profile"
+      "cta": "View Profile",
+      "preheader": "Your company profile details were updated."
     },
     "walletOtp": {
       "subject": "Confirm your payout wallet",
@@ -398,7 +420,7 @@
       "cta": "Add Wallet Now"
     },
     "walletAdded": {
-      "subject": "Wallet added - {{network}}",
+      "subject": "Wallet added – {{network}}",
       "heading": "Wallet Added",
       "intro": "A new payout wallet has been successfully added to your company <strong>{{companyName}}</strong>.",
       "outro": "All payments in {{network}} will be forwarded to this wallet. You can manage your wallets in the dashboard.",
@@ -406,7 +428,7 @@
       "cta": "View Wallets"
     },
     "walletUpdated": {
-      "subject": "Wallet updated - {{network}}",
+      "subject": "Wallet updated – {{network}}",
       "heading": "Wallet Updated",
       "intro": "Your payout wallet for <strong>{{companyName}}</strong> has been updated.",
       "outro": "Future payments in {{network}} will be forwarded to the new address.",
@@ -420,7 +442,7 @@
       "expiry": "This code expires in <strong>5 minutes</strong>. If you didn't request this withdrawal, please ignore this email and secure your account."
     },
     "withdrawalSuccess": {
-      "subject": "Withdrawal submitted - {{amount}} {{currency}}",
+      "subject": "Withdrawal submitted – {{amount}} {{currency}}",
       "heading": "Withdrawal Submitted",
       "intro": "Your withdrawal of <strong>{{amount}} {{currency}}</strong> has been submitted and is being processed.",
       "outro1": "The transfer is being broadcast to the blockchain. It may take a few minutes to confirm depending on network conditions.",
@@ -446,7 +468,7 @@
       "expiry": "This code expires in <strong>10 minutes</strong>. If you didn't request this, please ignore this email or contact support immediately."
     },
     "largeTransaction": {
-      "subject": "Large payment received - {{amount}} {{currency}}",
+      "subject": "Large payment received – {{amount}} {{currency}}",
       "heading": "Large Payment Received",
       "intro": "<strong>{{companyName}}</strong> received a large payment that may require your attention.",
       "outro1": "This payment has been automatically processed and forwarded to your wallet.",
@@ -458,7 +480,8 @@
       "heading": "Payment Link Created",
       "intro": "Your payment link has been created successfully.",
       "outro": "Share this link with your customer to receive payment.",
-      "cta": "Open Payment Link"
+      "cta": "Open Payment Link",
+      "preheader": "Your payment link is ready to share."
     },
     "crowdfundingCreated": {
       "subject": "Your crowdfunding campaign is live — {{title}}",
@@ -469,26 +492,29 @@
       "labelCampaign": "Campaign",
       "labelGoal": "Goal",
       "labelNoGoal": "Open-ended (no goal)",
-      "labelLink": "Campaign link"
+      "labelLink": "Campaign link",
+      "preheader": "Your campaign is live and ready for contributions."
     },
     "kycRequired": {
-      "subject": "Verification required - {{symbol}}{{threshold}} volume reached",
+      "subject": "Verification required at {{threshold}} volume",
       "heading": "Verification Required",
       "intro": "Congratulations on reaching <strong>{{symbol}}{{volume}} {{currency}}</strong> in transaction volume!",
       "intro2": "To continue accepting payments above {{symbol}}{{threshold}}, we need to verify your identity. This is a regulatory requirement and helps us keep Dynopay secure.",
       "needTitle": "What you need:",
-      "need1": "1. Government-issued ID",
-      "need2": "2. Proof of address (utility bill, bank statement)",
-      "need3": "3. About 5 minutes of your time",
+      "need1": "1. A government-issued photo ID",
+      "need2": "2. A quick selfie for liveness",
+      "need3": "3. About 5 minutes",
       "outro": "Complete your verification now to keep accepting payments without interruption.",
-      "cta": "Start Verification"
+      "cta": "Start Verification",
+      "preheader": "Verify your identity to keep accepting payments past {{threshold}}."
     },
     "kycApproved": {
-      "subject": "Verification approved - You're all set",
+      "subject": "Verification approved – You're all set",
       "heading": "Verification Approved",
       "intro": "Your identity verification has been approved.",
       "outro": "You can now accept payments without limits and access all Dynopay features. Keep growing your business with Dynopay!",
-      "cta": "View Dashboard"
+      "cta": "View Dashboard",
+      "preheader": "You're verified — no limits on accepting payments."
     },
     "kycRejected": {
       "subject": "Verification unsuccessful",
@@ -498,18 +524,20 @@
       "outro1": "You can resubmit your verification documents. Please ensure:",
       "outro2": "1. Use clear, high-quality images<br />2. All information is visible<br />3. Name matches your Dynopay account",
       "outro3": "If you need help, our support team is here for you.",
-      "cta": "Resubmit Documents"
+      "cta": "Resubmit Documents",
+      "preheader": "We couldn't verify your identity — here's what to do."
     },
     "kycStarted": {
       "subject": "Complete your identity verification",
       "heading": "Identity Verification",
       "intro": "Your identity verification session has been created. Please complete the verification to continue using Dynopay without restrictions.",
       "needTitle": "What you'll need:",
-      "need1": "1. Government-issued ID",
-      "need2": "2. Proof of address (last 3 months)",
-      "need3": "3. A few minutes for selfie verification",
+      "need1": "1. A government-issued photo ID",
+      "need2": "2. A quick selfie for liveness",
+      "need3": "3. About 5 minutes",
       "outro": "The verification typically takes 5-10 minutes to complete and is reviewed within 24-48 hours.",
-      "cta": "Complete Verification"
+      "cta": "Complete Verification",
+      "preheader": "Finish your quick identity check to lift limits."
     },
     "kycResubmission": {
       "subject": "Additional information needed for verification",
@@ -518,7 +546,8 @@
       "reasonTitle": "Reason",
       "outro1": "This is a common request. To continue, please:",
       "outro2": "1. Ensure your documents are clear and all text is readable<br />2. Make sure the name matches your Dynopay account<br />3. Use documents that are not expired",
-      "cta": "Resubmit Documents"
+      "cta": "Resubmit Documents",
+      "preheader": "We need one more thing to finish verifying you."
     },
     "weeklySummary": {
       "subject": "Your weekly Dynopay summary",
@@ -528,18 +557,20 @@
       "greatWeek": "Great week! You processed <strong>{{symbol}}{{volume}} {{currency}}</strong> across {{completed}} completed transaction(s). Keep up the momentum!",
       "pendingMsg": "You have <strong>{{pending}} pending</strong> transaction(s) awaiting confirmation. Check your dashboard for details.",
       "genericMsg": "You had {{count}} transaction(s) this week. Log in to your dashboard for the full breakdown.",
-      "cta": "View Full Analytics"
+      "cta": "View Full Analytics",
+      "preheader": "Your payments, payouts and fees this week."
     },
     "invoice": {
-      "subject": "Invoice {{number}} - Dynopay",
+      "subject": "Invoice {{number}}",
       "heading": "Invoice Generated",
       "intro": "Your invoice has been successfully generated for transaction #{{transactionId}}.",
       "outro": "You can view and download your invoice using the button below.",
-      "cta": "View Invoice"
+      "cta": "View Invoice",
+      "preheader": "Your latest Dynopay invoice is ready to view."
     },
     "apiKey": {
-      "subjectCreated": "API key created - {{keyType}} environment",
-      "subjectRegenerated": "API key regenerated - {{keyType}} environment",
+      "subjectCreated": "API key created – {{keyType}} environment",
+      "subjectRegenerated": "API key regenerated – {{keyType}} environment",
       "heading": "API Key Update",
       "introCreated": "Your <strong>{{keyType}}</strong> API key has been created.",
       "introRegenerated": "Your <strong>{{keyType}}</strong> API key has been regenerated.",
@@ -547,50 +578,59 @@
       "productionWarn": "<strong>Important:</strong> This is a production key. Keep it secure and never share it publicly.",
       "didntCreate": "<strong>Didn't do this?</strong><br />If you didn't create this API key, please secure your account immediately.",
       "didntRegenerate": "<strong>Didn't do this?</strong><br />If you didn't regenerate this API key, please secure your account immediately.",
-      "cta": "View API Keys"
+      "cta": "View API Keys",
+      "preheader": "A new API key was created on your account."
     },
     "subscriptionCreated": {
-      "custSubject": "Subscription confirmed - {{planName}}",
+      "custSubject": "Subscription confirmed – {{planName}}",
       "custHeading": "Subscription Active",
       "custIntro": "Your subscription to <strong>{{planName}}</strong> from <strong>{{companyName}}</strong> is now active.",
-      "custOutro": "You'll be charged automatically on each billing date. You can manage or cancel your subscription anytime.",
-      "merchSubject": "New subscriber - {{planName}}",
+      "custOutro": "Each billing cycle, we'll send you a secure link to pay in crypto. You can cancel anytime.",
+      "merchSubject": "New subscriber – {{planName}}",
       "merchHeading": "New Subscription",
       "merchIntro": "You have a new subscriber for <strong>{{planName}}</strong>.",
-      "cta": "View Subscriptions"
+      "cta": "View Subscriptions",
+      "custPreheader": "Your subscription is now active.",
+      "merchPreheader": "You have a new subscriber."
     },
     "subscriptionCancelled": {
-      "custSubject": "Subscription cancelled - {{planName}}",
+      "custSubject": "Subscription cancelled – {{planName}}",
       "heading": "Subscription Cancelled",
       "custIntro": "Your subscription to <strong>{{planName}}</strong> from <strong>{{companyName}}</strong> has been cancelled.",
       "custOutro1": "You will continue to have access until {{effectiveDate}}. After that, no further charges will be made.",
       "custOutro2": "If you change your mind, you can always resubscribe.",
-      "merchSubject": "Subscription cancelled - {{name}}",
+      "merchSubject": "Subscription cancelled – {{name}}",
       "merchIntro": "A subscription to <strong>{{planName}}</strong> has been cancelled.",
-      "cta": "View Subscriptions"
+      "cta": "View Subscriptions",
+      "custPreheader": "Your subscription has been cancelled.",
+      "merchPreheader": "A subscriber cancelled their plan."
     },
     "subscriptionPaymentFailed": {
       "custSubject": "Payment failed for {{planName}}",
       "custHeading": "Payment Failed",
       "custIntro": "We were unable to process your subscription payment for <strong>{{planName}}</strong> from <strong>{{companyName}}</strong>.",
-      "custSteps": "To keep your subscription active, please:<br />1. Update your payment method<br />2. Ensure sufficient funds are available<br />3. Contact your bank if the issue persists",
+      "custSteps": "To keep your subscription active:<br />1. Open the secure payment link below<br />2. Make sure your wallet has enough balance, including network fees<br />3. Contact the merchant if you need a hand",
       "custWarn": "Your subscription may be cancelled if payment is not received.",
-      "custCta": "Update Payment",
-      "merchSubject": "Subscription payment failed - {{name}}",
+      "custCta": "Complete payment",
+      "merchSubject": "Subscription payment failed – {{name}}",
       "merchHeading": "Subscription Payment Failed",
       "merchIntro": "A subscription payment has failed for <strong>{{planName}}</strong>.",
       "merchOutro": "The customer has been notified to update their payment method.",
-      "merchCta": "View Subscription"
+      "merchCta": "View Subscription",
+      "custPreheader": "Your subscription payment didn't go through.",
+      "merchPreheader": "A subscriber's payment failed."
     },
     "autoConversion": {
       "subject": "Payout Complete — {{payoutAmount}} {{targetCurrency}} from {{sourceAmount}} {{sourceCurrency}}",
       "heading": "Payout Complete",
       "intro": "Your crypto payment has been auto-converted and the payout has been sent to your wallet.",
-      "outro": "Auto-conversion ensures you receive stablecoins, protecting your revenue from crypto price swings. View your full transaction history in your Dynopay dashboard."
+      "outro": "Auto-conversion ensures you receive stablecoins, protecting your revenue from crypto price swings. View your full transaction history in your Dynopay dashboard.",
+      "preheader": "Your crypto was converted and paid out."
     },
     "weeklyConversion": {
       "heading": "Weekly Conversion Report",
-      "intro": "Here's your weekly auto-conversion report for <strong>{{companyName}}</strong>."
+      "intro": "Here's your weekly auto-conversion report for <strong>{{companyName}}</strong>.",
+      "preheader": "Your conversions from the past week, summarized."
     },
     "volumeTierUpgrade": {
       "subject": "You just unlocked the {{newTier}} tier — {{newPercent}}% fees",
@@ -603,7 +643,8 @@
       "applied": "This is applied automatically to every new payment starting now — no action needed. Keep processing, and the next tier down is waiting for you.",
       "thanks": "Thanks for building on Dynopay.",
       "heading": "You're now {{newTier}} — enjoy {{newPercent}}% fees",
-      "cta": "View your dashboard"
+      "cta": "View your dashboard",
+      "preheader": "Your platform fee just dropped to {{newPercent}}%."
     }
   },
   "contributor": {
@@ -613,7 +654,8 @@
       "intro": "The organizer of <strong>{{campaign}}</strong> just posted a new update.",
       "outro": "Thank you for supporting this campaign. You're receiving this because you previously contributed.",
       "heading": "New update from {{campaign}}",
-      "cta": "View campaign"
+      "cta": "View campaign",
+      "preheader": "A new update from {{campaign}}."
     }
   },
   "contributionReceived": {
@@ -621,14 +663,16 @@
     "heading": "New contribution received",
     "intro": "Someone just supported <strong>{{campaignName}}</strong> — here are the details.",
     "outro": "You'll find the full donor list in your campaign dashboard.",
-    "cta": "View campaign"
+    "cta": "View campaign",
+    "preheader": "A new contribution just landed for your campaign."
   },
   "contributionThankYou": {
     "subject": "Thank you for contributing to {{campaignName}}",
     "heading": "Thank you for supporting {{campaignName}}",
     "intro": "Your contribution to <strong>{{campaignName}}</strong> just landed — thank you for supporting this campaign.",
     "outro": "The organizer may email you campaign updates so you can see where your support is going.",
-    "contact": "Questions? Reply to this email and the organizer of {{campaignName}} will get back to you."
+    "contact": "Questions? Reply to this email and the organizer of {{campaignName}} will get back to you.",
+    "preheader": "Thank you — your contribution receipt is attached."
   },
   "walletOtp": {
     "subject": "Confirm your wallet address",
@@ -669,7 +713,9 @@
     "nothingSettled": "Nothing settled this week. Send a payment link to a customer and let's get the first one through: {{link}}",
     "createPayLink": "Create a payment link →",
     "openDashboardBody": "Open your dashboard to explore transactions, adjust wallets, or share a new payment link.",
-    "openDashboard": "Open dashboard"
+    "openDashboard": "Open dashboard",
+    "preheaderActive": "Your payouts from the past week, summarized.",
+    "preheaderQuiet": "A quick check-in on your account this week."
   },
   "referral": {
     "whyTitle": "Why Dynopay?",
@@ -681,7 +727,7 @@
     "unsubscribe": "Unsubscribe",
     "reminder": {
       "subjectWeek1": "Don't forget your exclusive Dynopay offer",
-      "subjectWeek2": "Your {{discountPercent}}% discount is waiting - Dynopay",
+      "subjectWeek2": "Your {{discountPercent}}% discount is waiting",
       "subjectWeek3": "Only {{daysRemaining}} days left on your Dynopay offer",
       "subjectFinal": "Last chance: your Dynopay discount expires in {{daysRemaining}} days",
       "urgencyWeek1": "You still have <strong>{{daysRemaining}} days</strong> to claim your exclusive discount.",
@@ -775,7 +821,7 @@
     "greetingNoName": "Hey there,"
   },
   "orderReceipt": {
-    "subject": "Your order {{ref}} is confirmed — Dynopay",
+    "subject": "Your order {{ref}} is confirmed",
     "heading": "Order confirmed",
     "thanks": "Thanks for your purchase! Your payment has been received and your order is confirmed.",
     "orderReference": "Order reference:",
