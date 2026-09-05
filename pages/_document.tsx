@@ -21,14 +21,23 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
         {/* Favicon — adaptive dark/light so the mark never disappears on dark browser
             themes. SVG self-switches via prefers-color-scheme; PNG media links cover
             browsers without SVG-favicon support; .ico is the final fallback.
-            v3 bump forces browsers/mobiles to drop the cached blue (and v2 dark) icon. */}
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3" media="(prefers-color-scheme: light)" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3" media="(prefers-color-scheme: light)" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32-light.png?v=3" media="(prefers-color-scheme: dark)" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16-light.png?v=3" media="(prefers-color-scheme: dark)" />
-        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
-        <link rel="apple-touch-icon" href="/dynopay-favicon.png?v=3" />
+            v4 bump forces browsers/mobiles/search crawlers to drop any cached icon.
+
+            IMPORTANT (Google Search favicon): Googlebot does NOT evaluate the
+            `prefers-color-scheme` media attribute, so the media-gated PNGs below are
+            invisible to it. We therefore ALSO declare unconditional, high-res PNG
+            icons (48/192) + a web manifest with icons — the clean, color-scheme-
+            independent signals Google uses to render the search-result favicon. */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=4" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=4" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=4" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=4" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32-light.png?v=4" media="(prefers-color-scheme: dark)" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16-light.png?v=4" media="(prefers-color-scheme: dark)" />
+        <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
+        <link rel="manifest" href="/site.webmanifest?v=4" />
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

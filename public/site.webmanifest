@@ -1,0 +1,13 @@
+{
+  "name": "Dynopay",
+  "short_name": "Dynopay",
+  "description": "Accept crypto payments — payment links, checkout, or API. Keep the coin or auto-convert to USDT/USDC.",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "theme_color": "#4338CA",
+  "background_color": "#0B0D17",
+  "display": "standalone",
+  "start_url": "/"
+}
