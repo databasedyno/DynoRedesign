@@ -2,7 +2,7 @@
 import requests
 import json
 
-BASE_URL = "https://vault-setup-4.preview.emergentagent.com"
+BASE_URL = "https://stoic-meitner-9.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Login first

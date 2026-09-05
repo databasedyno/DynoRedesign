@@ -15,6 +15,6 @@
   "seed_data_creation": "None. Read-only tests only; no sudo session created, no batch mutation executed.",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "walletSudo split is verified end-to-end. If retesting, use preview URL https://vault-setup-4.preview.emergentagent.com and the 2-step login (email -> Continue exact -> password -> signin-submit-btn). Login token is at response.data.accessToken. To assert the sudo gate for /wallet/batch, send Bearer only (no sudo cookie/session) and expect 403 SUDO_REQUIRED. Never call request-otp more than once (30s throttle) and never complete a sudo verify \u2014 SAFE MODE against LIVE PROD DB.",
+  "context_for_next_testing_agent": "walletSudo split is verified end-to-end. If retesting, use preview URL https://stoic-meitner-9.preview.emergentagent.com and the 2-step login (email -> Continue exact -> password -> signin-submit-btn). Login token is at response.data.accessToken. To assert the sudo gate for /wallet/batch, send Bearer only (no sudo cookie/session) and expect 403 SUDO_REQUIRED. Never call request-otp more than once (30s throttle) and never complete a sudo verify \u2014 SAFE MODE against LIVE PROD DB.",
   "rca of the issue": "Not applicable \u2014 the original blocker (walletSudo.ts=545 lines tripping check-file-size.mjs 500-line cap in the husky pre-commit) is already fixed via split into walletSudo.ts (269) + walletBatch.ts (288). Both are now under the limit, check-file-size.mjs exits 0, and commit 332368ef is on HEAD."
 }

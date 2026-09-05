@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://vault-setup-4.preview.emergentagent.com"
+BASE = "https://stoic-meitner-9.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]

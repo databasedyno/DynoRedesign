@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Base URL for the preview environment
-BASE_URL = "https://vault-setup-4.preview.emergentagent.com"
+BASE_URL = "https://stoic-meitner-9.preview.emergentagent.com"
 
 # Test results storage
 test_results = []
