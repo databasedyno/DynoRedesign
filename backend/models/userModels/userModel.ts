@@ -174,6 +174,20 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Last known login IP address for new device detection",
     },
+    // Signup origin fingerprint (captured once at account creation, never
+    // overwritten by later logins). Real client IP (first x-forwarded-for hop)
+    // + geo country — speeds up fraud / abuse investigations. NULL for users
+    // created before this column existed.
+    signup_ip: {
+      type: DataTypes.STRING(45),
+      allowNull: true,
+      comment: "Real client IP captured at signup (first x-forwarded-for hop, not the whole chain)",
+    },
+    signup_country: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
+      comment: "Country resolved from signup_ip at account creation (geo-IP, best-effort)",
+    },
     // Last selected company for session persistence
     last_company_id: {
       type: DataTypes.INTEGER,

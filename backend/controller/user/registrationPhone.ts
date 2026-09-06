@@ -22,6 +22,7 @@ import sequelize from "../../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
+import { captureSignupContext } from "../../utils/clientContext";
 import axios from "axios";
 import { userLogger } from "../../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
@@ -268,6 +269,9 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     
     // Create wallets
     await createUserWallets(createdUser.dataValues.user_id);
+
+    // Capture the real signup IP + country (non-blocking) for future investigations
+    captureSignupContext(createdUser.dataValues.user_id, req);
 
     // Referral: unified service — creates the referral record AND grants the
     // invitee their 50%/30d welcome discount (single source of truth; replaces

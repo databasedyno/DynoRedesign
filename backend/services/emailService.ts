@@ -84,6 +84,7 @@ import {
 import {
   sendLargeTransactionAlertEmail,
   sendWebhookDisabledEmail,
+  sendWebhookRedirectEmail,
   sendAdminFeeReceivedEmail,
   sendAdminFeeSweepEmail,
 } from "./email/adminOpsEmails";
@@ -175,6 +176,7 @@ export default {
   sendCustomerPaymentConfirmationEmail,
   sendLargeTransactionAlertEmail,
   sendWebhookDisabledEmail,
+  sendWebhookRedirectEmail,
   // Admin
   sendAdminFeeReceivedEmail,
   sendAdminFeeSweepEmail,

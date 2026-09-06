@@ -31,6 +31,7 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { getClientIp, captureSignupContext } from "../../utils/clientContext";
 
 export const googleSignIn = async (req: express.Request, res: express.Response) => {
   try {
@@ -109,10 +110,12 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
         );
       }
 
-      // Update last login IP
-      const ipAddress = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown";
+      // Update last login IP — parse the REAL client IP (first x-forwarded-for
+      // hop), never the whole comma-separated proxy chain (prior bug stored the
+      // raw header verbatim, e.g. "1.2.3.4, 10.0.0.1, 172.16.0.5").
+      const ipAddress = getClientIp(req);
       const existingUserUpdate: Record<string, unknown> = {
-        last_login_ip: typeof ipAddress === "string" ? ipAddress : String(ipAddress),
+        last_login_ip: ipAddress,
       };
       // Google verified this email — upgrade previously-unverified accounts so
       // the emailVerifiedMiddleware no longer blocks onboarding. Never downgrade.
@@ -151,6 +154,9 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
 
     // Create default wallets for new user (shared helper — identical across all signup paths)
     await createUserWallets(createdUser.dataValues.user_id);
+
+    // Capture the real signup IP + country (non-blocking) for future investigations
+    captureSignupContext(createdUser.dataValues.user_id, req);
 
     const sessionDataNew = await createSession(createdUser.dataValues, req as any);
     const { password: _pw2, telegram_id: _tid2, ...newUserDataClean } = createdUser.dataValues;
@@ -289,9 +295,9 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
         );
       }
 
-      const ipAddress = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown";
+      const ipAddress = getClientIp(req);
       await userModel.update(
-        { last_login_ip: typeof ipAddress === "string" ? ipAddress : String(ipAddress) },
+        { last_login_ip: ipAddress },
         { where: { user_id: user.dataValues.user_id } }
       );
 
@@ -324,6 +330,9 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
 
     // Create default wallets for new user (shared helper — identical across all signup paths)
     await createUserWallets(createdUser.dataValues.user_id);
+
+    // Capture the real signup IP + country (non-blocking) for future investigations
+    captureSignupContext(createdUser.dataValues.user_id, req);
 
     const sessionDataNew = await createSession(createdUser.dataValues, req as any);
     const { password: _pw2, telegram_id: _tid2, ...newUserDataClean } = createdUser.dataValues;

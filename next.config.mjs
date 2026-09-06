@@ -138,6 +138,20 @@ const nextConfig = {
   //     the blocking script in `_document.tsx` on subsequent loads.
   //     Docs: https://developer.mozilla.org/en-US/docs/Web/HTTP/Client_hints
   async headers() {
+    // Private / authenticated / transactional route prefixes (first path
+    // segment). These are CRAWLABLE (see public/robots.txt) so Googlebot can
+    // read this authoritative noindex and drop them from the index — the fix
+    // for the "Indexed, though blocked by robots.txt" Search Console warning.
+    // Kept in sync with pages/_app.tsx `isPrivatePage`. None of these are public
+    // marketing pages (e.g. /referral-program & /about stay indexable).
+    const PRIVATE_SEGMENTS = [
+      "dashboard", "transactions", "pay-links", "create-pay-link",
+      "wallet", "wallet-security", "customers", "developer-keys",
+      "invoices", "company", "profile", "notifications", "referrals",
+      "settings", "admin", "auth", "reset-password", "payouts",
+      "payment", "order", "receipt", "kyc", "unsubscribe", "storefront",
+    ].join("|");
+
     return [
       {
         source: "/:path*",
@@ -145,6 +159,14 @@ const nextConfig = {
           { key: "Accept-CH", value: "Sec-CH-Prefers-Color-Scheme" },
           { key: "Critical-CH", value: "Sec-CH-Prefers-Color-Scheme" },
           { key: "Vary", value: "Sec-CH-Prefers-Color-Scheme" },
+        ],
+      },
+      {
+        // Matches the prefix itself AND everything under it (":path*" is zero-or-more):
+        // /auth, /auth/login, /dashboard, /dashboard/settings, /reset-password, …
+        source: `/:seg(${PRIVATE_SEGMENTS})/:path*`,
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },
     ];

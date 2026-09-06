@@ -1294,6 +1294,23 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
       webhook_events?: unknown;
     };
     
+    // Session (redirect-fix): surface a "your webhook URL redirects" banner.
+    // Written by webhooks/index.ts -> recordWebhookRedirectNotice when we had to
+    // follow a 3xx on the company-configured URL. 30-day TTL, null when clean.
+    let redirectNotice: unknown = null;
+    try {
+      const notice = await getRedisItem(`webhook-redirect-notice:${company_id}`);
+      if (notice && notice.finalUrl) {
+        redirectNotice = {
+          original_url: notice.originalUrl || null,
+          final_url: notice.finalUrl,
+          status: notice.status || null,
+          detected_at: notice.detectedAt || null,
+          last_seen_at: notice.lastSeenAt || null,
+        };
+      }
+    } catch { /* non-fatal — Redis read failure just hides the banner */ }
+
     successResponseHelper(res, 200, "Webhook settings retrieved", {
       company_id,
       webhook_url: companyData?.webhook_url || null,
@@ -1303,6 +1320,8 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
       webhook_disabled: !!companyData?.webhook_disabled,
       webhook_disabled_at: companyData?.webhook_disabled_at || null,
       webhook_disabled_reason: companyData?.webhook_disabled_reason || null,
+      // Redirect notice so the dashboard can nudge the merchant to update their URL
+      redirect_notice: redirectNotice,
       // Tier-1 item #2: opt-in event subscriptions + the catalogue to render
       webhook_events: parseSubscribedEvents(companyData?.webhook_events),
       subscribable_events: OPT_IN_WEBHOOK_EVENTS,

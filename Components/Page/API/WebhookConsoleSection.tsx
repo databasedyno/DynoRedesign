@@ -155,6 +155,15 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     at: null,
     reason: null,
   });
+  // "Your webhook URL redirects" notice — set when the backend had to follow a
+  // 3xx on the company-configured URL. We now deliver successfully, but nudge
+  // the merchant to point their URL at the final address.
+  const [redirectNotice, setRedirectNotice] = useState<{
+    original_url: string | null;
+    final_url: string;
+    status: number | null;
+    detected_at: string | null;
+  } | null>(null);
 
   // Opt-in event subscriptions (backend: tbl_company.webhook_events).
   // Core payment updates are always delivered and are not listed here.
@@ -201,6 +210,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
           at: d.webhook_disabled_at ?? null,
           reason: d.webhook_disabled_reason ?? null,
         });
+        setRedirectNotice(d.redirect_notice ?? null);
       }
     } catch {
       /* non-fatal */
@@ -500,6 +510,59 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                   }}
                 >
                   {reenabling ? tr("webhook.reenabling", { defaultValue: "Re-enabling…" }) : tr("webhook.reenable", { defaultValue: "Re-enable" })}
+                </Button>
+              </Box>
+            )}
+            {redirectNotice && redirectNotice.final_url && (
+              <Box
+                data-testid="webhook-redirect-banner"
+                sx={{
+                  mb: 2, p: 1.75, borderRadius: 2,
+                  bgcolor: "rgba(245,158,11,0.10)",
+                  border: "1px solid rgba(245,158,11,0.40)",
+                  display: "flex", gap: 1.5, alignItems: "flex-start",
+                  flexDirection: isMobile ? "column" : "row",
+                }}
+              >
+                <Icon name="triangle-alert" size={20} color="#B45309" style={{ flexShrink: 0, marginTop: 2 }} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#B45309" }}>
+                    {tr("webhook.redirectTitle", { defaultValue: "Your webhook URL redirects" })}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12.5, color: t.primary, mt: 0.5 }}>
+                    {tr("webhook.redirectBody", {
+                      defaultValue:
+                        "Your endpoint responds with an HTTP {{status}} redirect. We now follow it automatically so your webhooks are still delivered — but the extra hop adds latency. Update your URL to the final address below to make delivery direct.",
+                      status: redirectNotice.status || "3xx",
+                    })}
+                  </Typography>
+                  <Typography
+                    data-testid="webhook-redirect-target"
+                    sx={{ fontSize: 11.5, color: t.secondary, mt: 0.75, fontFamily: "monospace", wordBreak: "break-word" }}
+                  >
+                    {(redirectNotice.original_url || savedUrl || "your URL")} → {redirectNotice.final_url}
+                    {redirectNotice.detected_at ? ` (${tr("webhook.since", { defaultValue: "since {{time}}", time: fmtTime(redirectNotice.detected_at) })})` : ""}
+                  </Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setUrl(redirectNotice.final_url);
+                    toast(
+                      tr("webhook.redirectFilled", {
+                        defaultValue: "Final URL filled in — review and click Save to update your endpoint.",
+                      }),
+                    );
+                  }}
+                  data-testid="webhook-redirect-use-final-btn"
+                  startIcon={<Icon name="arrow-right" size={18} />}
+                  sx={{
+                    textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap", flexShrink: 0,
+                    bgcolor: "#B45309", "&:hover": { bgcolor: "#92400E" },
+                    alignSelf: isMobile ? "stretch" : "flex-start",
+                  }}
+                >
+                  {tr("webhook.redirectUseFinal", { defaultValue: "Use final URL" })}
                 </Button>
               </Box>
             )}

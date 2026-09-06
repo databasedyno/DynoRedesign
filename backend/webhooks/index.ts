@@ -8,7 +8,6 @@ import { apiLogger, webhookLogs} from "../utils/loggers";
 import { getErrorMessage } from "../helper";
 import { ITatumWebHook, IWebHook } from "../utils/types";
 import { getRedisItem, setRedisItem, setRedisTTL, setRedisItemWithTTL } from "../utils/redisInstance";
-import axios from "axios";
 import { paymentController } from "../controller";
 import { sendPendingPaymentNotification } from "../services/pendingPaymentService";
 import { QueryTypes } from "sequelize";
@@ -21,6 +20,7 @@ import { toRedisStatus, PaymentState } from "../services/paymentStateMachine";
 import { isEventSubscribed, isOptInWebhookEvent } from "../services/webhookEvents";
 import { resolveWebhookTargets } from "./webhookTargets";
 import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
+import { postWithSafeRedirects } from "../utils/webhookRedirect";
 import { toNumber } from "../utils/money";
 
 // Build a set of all admin/fee wallet addresses for fast lookup (lowercase for case-insensitive match)
@@ -227,6 +227,82 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
 };
 
 /**
+ * Persist a "your webhook URL redirects" notice for the merchant dashboard and
+ * email them ONCE (throttled) so they update their endpoint to the final URL.
+ * Only fires for the company-configured URL (not per-link URLs). Best-effort —
+ * never throws into the delivery path.
+ */
+const recordWebhookRedirectNotice = async (
+  companyId: number,
+  originalUrl: string,
+  finalUrl: string,
+  status: number,
+): Promise<void> => {
+  try {
+    const noticeKey = `webhook-redirect-notice:${companyId}`;
+    const existing = await getRedisItem(noticeKey);
+    const isNewTarget = !existing || existing.originalUrl !== originalUrl || existing.finalUrl !== finalUrl;
+
+    // Dashboard banner data — 30-day TTL, refreshed on every redirected delivery.
+    await setRedisItemWithTTL(
+      noticeKey,
+      {
+        originalUrl,
+        finalUrl,
+        status,
+        detectedAt: isNewTarget ? new Date().toISOString() : existing.detectedAt,
+        lastSeenAt: new Date().toISOString(),
+      },
+      30 * 24 * 60 * 60,
+    );
+
+    if (!isNewTarget) return; // already warned about this exact url -> target
+
+    // Email the merchant once per (url -> target) pair, throttled 7 days.
+    const emailKey = `webhook-redirect-email:${companyId}:${crypto.createHash('sha256').update(originalUrl + '|' + finalUrl).digest('hex').substring(0, 24)}`;
+    const throttled = await getRedisItem(emailKey);
+    if (throttled) return;
+    await setRedisItemWithTTL(emailKey, { at: new Date().toISOString() }, 7 * 24 * 60 * 60);
+
+    try {
+      const sequelize = require('../utils/dbInstance').default;
+      const [ownerRows] = await sequelize.query(
+        `SELECT u.name, c.company_name, u.language
+           FROM tbl_user u
+           JOIN tbl_company c ON c.user_id = u.user_id
+          WHERE c.company_id = :cid LIMIT 1`,
+        { replacements: { cid: companyId }, type: QueryTypes.SELECT },
+      );
+      const owner = ownerRows as { name?: string; company_name?: string; language?: string } | undefined;
+      const { resolveCompanyRecipients } = await import("../utils/notificationRecipients");
+      const recipients = await resolveCompanyRecipients(Number(companyId), "config");
+      if (recipients.length > 0) {
+        const emailSvc = require('../services/emailService');
+        const sendFn = emailSvc.sendWebhookRedirectEmail || emailSvc.default?.sendWebhookRedirectEmail;
+        if (typeof sendFn === 'function') {
+          for (const r of recipients) {
+            await sendFn(
+              r.email,
+              r.name || owner?.name || 'Merchant',
+              owner?.company_name || 'your company',
+              originalUrl,
+              finalUrl,
+              status,
+              owner?.language,
+            );
+          }
+          webhookLogs.info(`[callMerchantWebhook] 📧 Sent webhook-redirect notice to ${recipients.length} recipient(s) for company_id=${companyId}`);
+        }
+      }
+    } catch (mailErr) {
+      webhookLogs.warn(`[callMerchantWebhook] Failed to send webhook-redirect email: ${(mailErr as Error).message}`);
+    }
+  } catch (e) {
+    webhookLogs.warn(`[recordWebhookRedirectNotice] non-fatal: ${(e as Error).message}`);
+  }
+};
+
+/**
  * Helper function to call a URL with webhook payload
  */
 const callUrlWithPayload = async (
@@ -290,17 +366,21 @@ const callUrlWithPayload = async (
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const response = await axios.post(url, webhookPayload, {
-          timeout: WEBHOOK_DELIVERY_TIMEOUT_MS,
-          headers,
-          maxRedirects: 0, // a redirect could re-target an internal host after the SSRF check
-          maxContentLength: 1024 * 1024,
-        });
-        
+        const { response, finalUrl, redirectChain } = await postWithSafeRedirects(url, webhookPayload, headers);
+
         const responseTimeMs = Date.now() - startTime;
         finalResponseStatus = response.status;
-        
-        webhookLogs.info(`[callMerchantWebhook] ✅ ${urlType} sent successfully, status: ${response.status}`);
+        const wasRedirected = redirectChain.length > 0;
+
+        if (wasRedirected) {
+          webhookLogs.warn(`[callMerchantWebhook] ↪️ ${urlType} to ${url} followed ${redirectChain.length} redirect(s) → ${finalUrl}`);
+          // Warn the merchant (dashboard banner + one-off email) for their CONFIGURED url only.
+          if (isCompanyUrl && companyId) {
+            await recordWebhookRedirectNotice(companyId, url, finalUrl, response.status).catch(() => {});
+          }
+        }
+
+        webhookLogs.info(`[callMerchantWebhook] ✅ ${urlType} sent successfully, status: ${response.status}${wasRedirected ? ` (after redirect → ${finalUrl})` : ""}`);
         
         // BUG-1 FIX: Reset consecutive failure counter in Redis on success
         const failKey = `webhook-404-failures:${url}`;
@@ -319,7 +399,9 @@ const callUrlWithPayload = async (
             'success',
             response.status,
             responseTimeMs,
-            null,
+            wasRedirected
+              ? `Delivered after following redirect → ${finalUrl}. Update your webhook URL to this address to remove the extra hop.`
+              : null,
             totalRetries
           );
         }
@@ -344,6 +426,14 @@ const callUrlWithPayload = async (
           : error.code === 'ETIMEDOUT'
           ? `Connection timed out - server at ${url} did not respond`
           : error.message || 'Unknown error';
+        
+        // Permanent redirect problems (SSRF-blocked target, no/invalid Location,
+        // redirect loop) are raised by postWithSafeRedirects with noRetry=true —
+        // retrying is pointless and would just re-hit the same broken hop.
+        if ((error as { noRetry?: boolean }).noRetry) {
+          webhookLogs.error(`[callMerchantWebhook] ❌ ${urlType} to ${url} not retrying (redirect problem): ${errorMessage}`);
+          break;
+        }
         
         // Don't retry on client errors (4xx) except 429 (rate limit)
         if (finalResponseStatus && finalResponseStatus >= 400 && finalResponseStatus < 500 && finalResponseStatus !== 429) {

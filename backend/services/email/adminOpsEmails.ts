@@ -99,6 +99,55 @@ export const sendWebhookDisabledEmail = async (
   }
 };
 
+/**
+ * Webhook Redirect Notice
+ *
+ * Fired the first time we detect a merchant's CONFIGURED webhook endpoint
+ * responding with a 3xx redirect (e.g. 308 apex → www). We now safely follow
+ * the redirect (after re-running the SSRF guard on the target) so delivery
+ * succeeds, but the extra hop adds latency and is fragile — so we nudge the
+ * merchant to point their webhook URL straight at the final address. Throttled
+ * to one email per (url → target) pair per 7 days in the caller.
+ */
+export const sendWebhookRedirectEmail = async (
+  email: string,
+  name: string,
+  companyName: string,
+  originalUrl: string,
+  finalUrl: string,
+  status: number,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const subject = `Heads up – your webhook URL redirects (${companyName || 'your company'})`;
+    const clip = (u: string) => (String(u || '').length > 90 ? String(u).substring(0, 87) + '…' : String(u || '(none)'));
+    const fromUrl = clip(originalUrl);
+    const toUrl = clip(finalUrl);
+
+    const message = `
+      ${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : `Hey there,`)}
+      ${p(`Your webhook endpoint for <strong>${escapeHtml(companyName || 'your company')}</strong> is responding with an <strong>HTTP ${status} redirect</strong>. Good news — we automatically follow it (after a security re-check), so <strong>your webhooks are being delivered</strong>. But the extra redirect hop adds latency and can break if the redirect ever changes.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Configured URL', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(fromUrl)}</span>`)}
+          ${dataRow('Redirects to', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(toUrl)}</span>`)}
+          ${dataRow('Redirect status', `HTTP ${status}`, true)}
+        </table>
+      `, '#f59e0b')}
+      ${p(`<strong>Recommended:</strong> update your webhook URL to the final address above so delivery is direct and reliable. You can change it on the <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
+      ${p(`Nothing is broken and no action is strictly required — this is just a recommendation to keep your integration fast and resilient.`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name || 'there', message, `Your webhook URL redirects`, false, undefined, `We're auto-following an HTTP ${status} redirect on your webhook — please update the URL.`);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Webhook redirect notice sent to ${email} (company="${companyName}" ${fromUrl} → ${toUrl} status=${status})`);
+  } catch (e) {
+    apiLogger.error("sendWebhookRedirectEmail error:", e);
+  }
+};
+
+
 // ============================================================
 // SECTION 7: ADMIN EMAILS
 // ============================================================
