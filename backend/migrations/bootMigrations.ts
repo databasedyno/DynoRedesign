@@ -91,6 +91,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { teamMemberModel } = await import("../models"); // Team Members / RBAC (0015)
   const { teamActivityModel } = await import("../models"); // Team Activity Log (0016)
   const { signupAttributionModel } = await import("../models"); // Signup Attribution (0019)
+  const { paymentReceiptModel } = await import("../models"); // Shareable receipts (0021)
   return [
     ...v1,
     ...extra,
@@ -102,6 +103,7 @@ export async function getBootModels(): Promise<unknown[]> {
     teamMemberModel,
     teamActivityModel,
     signupAttributionModel,
+    paymentReceiptModel,
   ];
 }
 
@@ -434,6 +436,17 @@ const createSignupAttributionTable = async (): Promise<void> => {
 };
 
 /**
+ * Migration 0021: shareable receipt snapshots (tbl_payment_receipt). Additive,
+ * create-only (`sync()` without alter) — safe on live prod. One immutable JSON
+ * snapshot per settled payment, addressed by an unguessable token
+ * (/receipt/<token>) so buyers can prove payment without keeping the PDF.
+ */
+const createPaymentReceiptTable = async (): Promise<void> => {
+  const { paymentReceiptModel } = await import("../models");
+  if (isSyncable(paymentReceiptModel)) await paymentReceiptModel.sync();
+};
+
+/**
  * Migration 0020: enforce at most ONE active API key per (company_id, environment).
  * A PARTIAL unique index over active rows only — revoked/inactive duplicates are
  * still permitted (regenerate/revoke history). Verified 0 duplicate active groups
@@ -473,6 +486,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0018_company_notification_routing", up: addCompanyNotificationRouting },
     { version: "0019_signup_attribution", up: createSignupAttributionTable },
     { version: "0020_api_active_key_unique", up: addApiActiveKeyUniqueIndex },
+    { version: "0021_payment_receipt", up: createPaymentReceiptTable },
     ...perfMigrations,
   ];
 }

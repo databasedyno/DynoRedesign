@@ -42,9 +42,11 @@ export const dynoPayEmailTemplate = (
   showButton: boolean = false,
   buttonText: string = "",
   buttonLink: string = "",
-  preheader: string = ""
+  preheader: string = "",
+  /** Recipient language — localizes the shared sign-off/footer chrome. Omit for English. */
+  lang?: string | null
 ) => {
-  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader });
+  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader, lang: lang || undefined });
 };
 
 /**
@@ -67,8 +69,8 @@ export const dynoPayGreetingTemplate = (
   const hasRealName = cleanName.length > 0 && !cleanName.includes('@');
   const greeting = p(
     hasRealName
-      ? tr('chrome.greeting', lang, { name: cleanName })
-      : tr('chrome.greetingNoName', lang)
+      ? tr('common.greeting', lang, { name: cleanName })
+      : tr('common.greetingDefault', lang)
   );
   const bodyContent = `${greeting}<div style="font-size: 15px; color: #374151; line-height: 1.65; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${message}</div>`;
   return baseEmailTemplate(heading, bodyContent, { lang, preheader });

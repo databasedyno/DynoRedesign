@@ -2,11 +2,7 @@
   "common": {
     "greeting": "Hallo {{name}},",
     "greetingDefault": "Hallo,",
-    "regards": "Bedankt,",
-    "team": "Het Dynopay-team",
-    "securedBy": "Deze betaling is veilig verwerkt via Dynopay, een non-custodial crypto-betaalgateway.",
-    "questions": "Als u vragen heeft, staat ons supportteam voor u klaar.",
-    "greetingNoName": "Hoi,"
+    "securedBy": "Deze betaling is veilig verwerkt via Dynopay, een non-custodial crypto-betaalgateway."
   },
   "labels": {
     "amount": "Bedrag",
@@ -27,7 +23,7 @@
     "merchantReceives": "Verkoper ontvangt",
     "platformFee": "Dynopay-kosten",
     "feePaidByMerchant": "betaald door de verkoper",
-    "feePaidByCustomer": "opgeteld bij je totaal"
+    "feePaidByCustomer": "opgeteld bij uw totaal"
   },
   "statusLabels": {
     "received": "Ontvangen",
@@ -43,7 +39,7 @@
     "outro": "De middelen zijn doorgestuurd naar uw uitbetaalwallet. U kunt alle transactiedetails bekijken in uw dashboard.",
     "cta": "Transactie bekijken",
     "referralCredit": "Referral-tegoed dekte {{amount}} van uw Dynopay-platformkosten voor deze betaling — u hield er meer aan over.",
-    "preheader": "Het geld wordt nu naar je uitbetalingswallet overgemaakt."
+    "preheader": "Het geld wordt nu naar uw uitbetalingswallet overgemaakt."
   },
   "paymentPending": {
     "subject": "Betaling gedetecteerd – wordt on-chain bevestigd",
@@ -55,7 +51,7 @@
     "trxTime": "TRX/TRC20: 1-3 min",
     "ltcTime": "LTC: 2-30 min &bull; DOGE: 1-10 min",
     "outro": "We laten het u weten zodra de betaling volledig is bevestigd en op uw wallet is bijgeschreven. U kunt de status van de transactie volgen in uw Dynopay-dashboard.",
-    "preheader": "We mailen je zodra de betaling on-chain is bevestigd."
+    "preheader": "We mailen u zodra de betaling on-chain is bevestigd."
   },
   "paymentConfirming": {
     "subject": "Betaling wordt bevestigd – {{current}} van {{required}} bevestigingen",
@@ -64,14 +60,14 @@
     "confirmationsOf": "{{current}} van {{required}}",
     "completeMsg": "De betaling heeft het vereiste aantal bevestigingen bereikt en wordt binnenkort bijgeschreven!",
     "pendingMsg": "Nog {{remaining}} bevestigingen nodig voordat de betaling wordt bijgeschreven. U kunt de volledige status volgen in uw Dynopay-dashboard.",
-    "preheader": "Je betaling krijgt netwerkbevestigingen."
+    "preheader": "Uw betaling krijgt netwerkbevestigingen."
   },
   "transactionConfirmed": {
     "subject": "Transactie {{status}}",
     "heading": "Transactie {{status}}",
     "intro": "Uw transactie is <strong>{{statusLower}}</strong>.",
     "outro": "U kunt meer details bekijken in uw Dynopay-dashboard.",
-    "preheader": "De laatste status van je transactie."
+    "preheader": "De laatste status van uw transactie."
   },
   "paymentPartial": {
     "subject": "Gedeeltelijke betaling ontvangen — actie vereist",
@@ -93,7 +89,7 @@
     "outroCompleted": "Het ontvangen bedrag is verwerkt met aangepaste kosten en doorgestuurd naar uw wallet.",
     "outroExpired": "Omdat de volledige betaling niet binnen de respijtperiode is ontvangen, is het gedeeltelijke bedrag verwerkt. Houd er rekening mee dat de kosten voor onvolledige betalingen hoger kunnen zijn.",
     "viewDetails": "U kunt de transactiedetails bekijken in uw Dynopay-dashboard.",
-    "preheaderCompleted": "We hebben het deelbedrag dat je betaalde verwerkt.",
+    "preheaderCompleted": "We hebben het deelbedrag dat u betaalde verwerkt.",
     "preheaderExpired": "Het betaalvenster sloot vóór de volledige betaling."
   },
   "paymentFailed": {
@@ -118,12 +114,13 @@
     "merchantPreheader": "Een klantbetaling is niet voltooid."
   },
   "customerPaymentConfirmation": {
-    "subject": "Je betaling aan {{companyName}} is bevestigd",
+    "subject": "Uw betaling aan {{companyName}} is bevestigd",
     "heading": "Betaling geslaagd",
     "intro": "Uw betaling aan <strong>{{companyName}}</strong> is succesvol verwerkt.",
     "pdfAttached": "<strong>PDF-bon bijgevoegd</strong> - Een gedetailleerde bon is bij deze e-mail gevoegd voor uw administratie.",
     "contact": "Als u vragen heeft over deze betaling, neem dan rechtstreeks contact op met <strong>{{companyName}}</strong>.",
-    "preheader": "Je betaalbewijs vind je hieronder in de bijlage."
+    "preheader": "Uw betaalbewijs vindt u hieronder in de bijlage.",
+    "viewOnlineCta": "Bon online bekijken"
   },
   "invoice": {
     "title": "FACTUUR",
@@ -146,35 +143,31 @@
     "underlyingTx": "Onderliggende transactie (context, niet gefactureerd): {{amount}}",
     "feeBreakdown": "  = Vast {{fixed}} + {{pct}}% van {{base}} ({{fee}})",
     "transactionReference": "Transactiereferentie: {{id}}",
-    "thankYou": "Bedankt voor uw vertrouwen!"
+    "thankYou": "Bedankt voor uw vertrouwen!",
+    "paid": "Betaald",
+    "termsSettled": "Bij afwikkeling automatisch verrekend met de opbrengst van de transactie – er is geen betaling verschuldigd."
   },
   "receipt": {
-    "title": "BETALINGSBON",
-    "successful": "BETALING GESLAAGD",
-    "amountPaid": "BETAALD BEDRAG",
-    "crypto": "Crypto: {{amount}} {{currency}}",
+    "title": "Betaalbewijs",
+    "successful": "Betaling geslaagd",
     "transactionDetails": "Transactiedetails",
-    "transactionId": "Transactie-ID",
-    "reference": "Referentie",
     "paymentMethod": "Betaalmethode",
-    "status": "Status",
     "dateTime": "Datum en tijd",
     "paidTo": "Betaald aan",
-    "customer": "Klant",
-    "description": "Omschrijving",
     "completed": "Voltooid",
     "cryptocurrency": "Cryptovaluta",
-    "tagline": "Veilige crypto-betaalgateway",
-    "rights": "© Dynopay {{year}}. Alle rechten voorbehouden.",
     "autoGenerated": "Deze bon is automatisch gegenereerd.",
     "receiptNo": "Bon nr. {{number}}",
     "verifiedMerchant": "Verkoper met geverifieerde identiteit",
     "breakdown": "Betalingsoverzicht",
-    "youPaid": "Je hebt betaald",
-    "merchantReceives": "Verkoper ontvangt",
-    "platformFee": "Dynopay-kosten",
-    "feePaidByMerchant": "betaald door de verkoper",
-    "feePaidByCustomer": "opgeteld bij je totaal"
+    "youPaid": "U heeft betaald",
+    "contactMerchant": "Vragen over deze aankoop? Neem rechtstreeks contact op met {{company}}.",
+    "network": "Netwerk",
+    "viewOnline": "Deze bon online bekijken",
+    "downloadPdf": "PDF downloaden",
+    "copyLink": "Link kopiëren",
+    "linkCopied": "Link gekopieerd",
+    "viewOnExplorer": "Bekijken in block explorer"
   },
   "merchant": {
     "labels": {
@@ -245,28 +238,28 @@
       "heading": "Welkom bij Dynopay",
       "intro1": "Welkom bij Dynopay! We zijn blij dat u erbij bent.",
       "intro2": "Dynopay maakt het accepteren van cryptobetalingen eenvoudig en veilig — tegoeden komen rechtstreeks terecht in een wallet die u beheert. Of u nu freelancer, ondernemer of ontwikkelaar bent, wij hebben alles voor u.",
-      "promo": "Je eerste betaling is van ons — we schelden onze volledige platformkosten kwijt op je eerste afgewikkelde betaling, ongeacht het bedrag.",
+      "promo": "Uw eerste betaling is van ons — we schelden onze volledige platformkosten kwijt op uw eerste afgewikkelde betaling, ongeacht het bedrag.",
       "nextTitle": "Dit kunt u nu doen:",
       "next1": "1. Vul uw bedrijfsprofiel in",
       "next2": "2. Voeg uw uitbetalingswallet toe",
       "next3": "3. Begin met het accepteren van betalingen",
       "questions": "Als u vragen heeft, staat ons supportteam voor u klaar.",
       "cta": "Aan de slag",
-      "preheader": "Je eerste afgehandelde betaling is gratis — zo word je betaald."
+      "preheader": "Uw eerste afgehandelde betaling is gratis — zo wordt u betaald."
     },
     "emailVerifyOtp": {
       "subject": "Verifieer uw e-mail",
       "heading": "Verifieer uw e-mail",
       "intro": "Verifieer uw e-mailadres om uw registratie bij Dynopay te voltooien. Voer deze code in op de verificatiepagina:",
       "expiry": "Deze code verloopt over 10 minuten. Als u geen Dynopay-account heeft aangemaakt, kunt u deze e-mail negeren.",
-      "preheader": "Voer deze code in om je e-mailadres te verifiëren."
+      "preheader": "Voer deze code in om uw e-mailadres te verifiëren."
     },
     "loginOtp": {
       "subject": "Uw inlogcode",
       "heading": "Uw inlogcode",
       "intro": "Hier is uw eenmalige inlogcode voor Dynopay:",
       "expiry": "Deze code verloopt over 5 minuten. Als u deze code niet heeft aangevraagd, beveilig dan onmiddellijk uw account.",
-      "preheader": "Je code verloopt over enkele minuten. Deel hem nooit."
+      "preheader": "Uw code verloopt over enkele minuten. Deel hem nooit."
     },
     "forgotPasswordOtp": {
       "subject": "Code om wachtwoord opnieuw in te stellen",
@@ -280,7 +273,7 @@
       "intro": "Uw Dynopay-wachtwoord is succesvol bijgewerkt.",
       "securityNotice": "<strong>Beveiligingsmelding:</strong> als u deze wijziging niet heeft aangebracht, neem dan onmiddellijk contact op met ons supportteam om uw account te beveiligen.",
       "cta": "Accountinstellingen bekijken",
-      "preheader": "Het wachtwoord van je account is zojuist gewijzigd."
+      "preheader": "Het wachtwoord van uw account is zojuist gewijzigd."
     },
     "profileUpdated": {
       "subject": "Accountprofiel bijgewerkt",
@@ -294,8 +287,8 @@
       "emailChangedImportantTitle": "Belangrijk",
       "emailChangedImportantText": "Als u deze wijziging niet heeft aangebracht, is uw account mogelijk gecompromitteerd. Neem onmiddellijk contact op met ons supportteam.",
       "emailChangedCta": "Contact opnemen met support",
-      "preheader": "Er is een wijziging aangebracht in je accountprofiel.",
-      "emailChangedPreheader": "Het e-mailadres van je account is gewijzigd."
+      "preheader": "Er is een wijziging aangebracht in uw accountprofiel.",
+      "emailChangedPreheader": "Het e-mailadres van uw account is gewijzigd."
     },
     "securityAlert": {
       "subject": "Beveiligingswaarschuwing voor uw account",
@@ -321,7 +314,7 @@
         "email_verification": "e-mailverificatie",
         "onboarding": "accountinstelling"
       },
-      "preheader": "We zagen ongebruikelijke activiteit op je account."
+      "preheader": "We zagen ongebruikelijke activiteit op uw account."
     },
     "newDeviceLogin": {
       "subject": "Nieuwe aanmelding op uw Dynopay-account",
@@ -341,7 +334,7 @@
       "notYou": "<strong>Niet u?</strong><br />Als u deze aanmelding niet herkent, klik dan op de knop hieronder om uw account onmiddellijk te beveiligen. We vergrendelen uw account en vereisen identiteitsverificatie om de toegang te herstellen.",
       "cta": "Dit was ik niet — beveilig mijn account",
       "unknownLocation": "Onbekende locatie",
-      "preheader": "Er is een nieuwe aanmelding gedetecteerd. Was jij dat?"
+      "preheader": "Er is een nieuwe aanmelding gedetecteerd. Was u dat?"
     },
     "failedLogins": {
       "subject": "Meerdere mislukte aanmeldpogingen op uw account",
@@ -350,7 +343,7 @@
       "wasThisYou": "<strong>Was u dit?</strong><br />Als u uw wachtwoord bent vergeten, kunt u het opnieuw instellen met de knop hieronder.",
       "wasntYou": "<strong>Niet u?</strong><br />Mogelijk probeert iemand toegang te krijgen tot uw account. We raden aan om uw wachtwoord onmiddellijk te wijzigen. Uw account is nog steeds veilig - we hebben deze aanmeldpogingen geblokkeerd.",
       "cta": "Wachtwoord opnieuw instellen",
-      "preheader": "Meerdere aanmeldpogingen op je account zijn mislukt."
+      "preheader": "Meerdere aanmeldpogingen op uw account zijn mislukt."
     },
     "companyCreated": {
       "subject": "Profiel compleet – nog één stap",
@@ -360,7 +353,7 @@
       "whyTitle": "Waarom een wallet toevoegen?",
       "whyText": "Naar uw wallet sturen we de cryptobetalingen die u ontvangt. Het is snel en veilig.",
       "cta": "Wallet toevoegen",
-      "preheader": "Nog één stap voordat je betalingen kunt accepteren."
+      "preheader": "Nog één stap voordat u betalingen kunt accepteren."
     },
     "companyContactWelcome": {
       "subject": "Welkom bij Dynopay – {{companyName}} is nu geregistreerd",
@@ -374,7 +367,7 @@
       "means3": "3. Realtime betalingsmeldingen",
       "outro": "Als u vragen heeft over deze registratie, neem dan contact op met ons supportteam of met {{accountHolderName}}.",
       "cta": "Meer informatie",
-      "preheader": "Je bedrijf is geregistreerd — welkom aan boord."
+      "preheader": "Uw bedrijf is geregistreerd — welkom aan boord."
     },
     "companyUpdated": {
       "subject": "Uw bedrijfsprofiel is bijgewerkt",
@@ -382,13 +375,7 @@
       "intro": "Het bedrijfsprofiel voor <strong>{{companyName}}</strong> is succesvol bijgewerkt.",
       "outro": "Als u deze wijzigingen niet heeft aangebracht, neem dan onmiddellijk contact op met ons supportteam.",
       "cta": "Profiel bekijken",
-      "preheader": "De gegevens van je bedrijfsprofiel zijn bijgewerkt."
-    },
-    "walletOtp": {
-      "subject": "Bevestig uw uitbetalingswallet",
-      "heading": "Bevestig uw wallet",
-      "intro": "U voegt een nieuwe uitbetalingswallet toe aan uw Dynopay-account. Bevestig deze actie met de onderstaande code:",
-      "expiry": "Deze code verloopt over 10 minuten. Als u dit niet heeft aangevraagd, kunt u deze e-mail negeren."
+      "preheader": "De gegevens van uw bedrijfsprofiel zijn bijgewerkt."
     },
     "walletVerified": {
       "subject": "Uitbetalingswallet actief",
@@ -481,7 +468,7 @@
       "intro": "Uw betaallink is succesvol aangemaakt.",
       "outro": "Deel deze link met uw klant om de betaling te ontvangen.",
       "cta": "Betaallink openen",
-      "preheader": "Je betaallink is klaar om te delen."
+      "preheader": "Uw betaallink is klaar om te delen."
     },
     "crowdfundingCreated": {
       "subject": "Uw crowdfundingcampagne is live — {{title}}",
@@ -493,7 +480,7 @@
       "labelGoal": "Doel",
       "labelNoGoal": "Open (geen doel)",
       "labelLink": "Campagnelink",
-      "preheader": "Je campagne is live en klaar voor bijdragen."
+      "preheader": "Uw campagne is live en klaar voor bijdragen."
     },
     "kycRequired": {
       "subject": "Verificatie vereist bij {{threshold}} volume",
@@ -506,7 +493,7 @@
       "need3": "3. Ongeveer 5 minuten",
       "outro": "Voltooi nu uw verificatie om zonder onderbreking betalingen te blijven accepteren.",
       "cta": "Verificatie starten",
-      "preheader": "Verifieer je identiteit om betalingen boven {{threshold}} te blijven accepteren."
+      "preheader": "Verifieer uw identiteit om betalingen boven {{threshold}} te blijven accepteren."
     },
     "kycApproved": {
       "subject": "Verificatie goedgekeurd – alles is klaar",
@@ -514,7 +501,7 @@
       "intro": "Uw identiteitsverificatie is goedgekeurd.",
       "outro": "U kunt nu betalingen zonder limieten accepteren en toegang krijgen tot alle Dynopay-functies. Laat uw bedrijf groeien met Dynopay!",
       "cta": "Dashboard bekijken",
-      "preheader": "Je bent geverifieerd — geen limieten op betalingen accepteren."
+      "preheader": "U bent geverifieerd — geen limieten op het accepteren van betalingen."
     },
     "kycRejected": {
       "subject": "Verificatie niet geslaagd",
@@ -525,7 +512,7 @@
       "outro2": "1. Scherpe afbeeldingen van hoge kwaliteit gebruikt<br />2. Alle informatie zichtbaar is<br />3. De naam overeenkomt met uw Dynopay-account",
       "outro3": "Als u hulp nodig heeft, staat ons supportteam voor u klaar.",
       "cta": "Documenten opnieuw indienen",
-      "preheader": "We konden je identiteit niet verifiëren — dit kun je doen."
+      "preheader": "We konden uw identiteit niet verifiëren — dit kunt u doen."
     },
     "kycStarted": {
       "subject": "Voltooi uw identiteitsverificatie",
@@ -537,7 +524,7 @@
       "need3": "3. Ongeveer 5 minuten",
       "outro": "De verificatie duurt doorgaans 5 tot 10 minuten en wordt binnen 24 tot 48 uur beoordeeld.",
       "cta": "Verificatie voltooien",
-      "preheader": "Rond je snelle identiteitscontrole af om limieten op te heffen."
+      "preheader": "Rond uw snelle identiteitscontrole af om limieten op te heffen."
     },
     "kycResubmission": {
       "subject": "Aanvullende informatie nodig voor de verificatie",
@@ -547,7 +534,7 @@
       "outro1": "Dit is een veelvoorkomend verzoek. Om door te gaan:",
       "outro2": "1. Zorg ervoor dat uw documenten scherp zijn en alle tekst leesbaar is<br />2. Zorg ervoor dat de naam overeenkomt met uw Dynopay-account<br />3. Gebruik documenten die niet verlopen zijn",
       "cta": "Documenten opnieuw indienen",
-      "preheader": "We hebben nog één ding nodig om je verificatie af te ronden."
+      "preheader": "We hebben nog één ding nodig om uw verificatie af te ronden."
     },
     "weeklySummary": {
       "subject": "Uw wekelijkse Dynopay-overzicht",
@@ -558,7 +545,7 @@
       "pendingMsg": "U heeft <strong>{{pending}} transactie(s) in behandeling</strong> die op bevestiging wachten. Bekijk uw dashboard voor details.",
       "genericMsg": "U had deze week {{count}} transactie(s). Meld u aan bij uw dashboard voor het volledige overzicht.",
       "cta": "Volledige analyses bekijken",
-      "preheader": "Je betalingen, uitbetalingen en kosten van deze week."
+      "preheader": "Uw betalingen, uitbetalingen en kosten van deze week."
     },
     "invoice": {
       "subject": "Factuur {{number}}",
@@ -566,7 +553,7 @@
       "intro": "Uw factuur is succesvol gegenereerd voor transactie #{{transactionId}}.",
       "outro": "U kunt uw factuur bekijken en downloaden via de knop hieronder.",
       "cta": "Factuur bekijken",
-      "preheader": "Je nieuwste Dynopay-factuur staat klaar."
+      "preheader": "Uw nieuwste Dynopay-factuur staat klaar."
     },
     "apiKey": {
       "subjectCreated": "API-sleutel aangemaakt – {{keyType}}-omgeving",
@@ -579,19 +566,19 @@
       "didntCreate": "<strong>Niet u?</strong><br />Als u deze API-sleutel niet heeft aangemaakt, beveilig dan onmiddellijk uw account.",
       "didntRegenerate": "<strong>Niet u?</strong><br />Als u deze API-sleutel niet opnieuw heeft gegenereerd, beveilig dan onmiddellijk uw account.",
       "cta": "API-sleutels bekijken",
-      "preheader": "Er is een nieuwe API-sleutel op je account aangemaakt."
+      "preheader": "Er is een nieuwe API-sleutel op uw account aangemaakt."
     },
     "subscriptionCreated": {
       "custSubject": "Abonnement bevestigd – {{planName}}",
       "custHeading": "Abonnement actief",
       "custIntro": "Uw abonnement op <strong>{{planName}}</strong> van <strong>{{companyName}}</strong> is nu actief.",
-      "custOutro": "Bij elke factuurcyclus sturen we je een beveiligde link om in crypto te betalen. Je kunt altijd opzeggen.",
+      "custOutro": "Bij elke factuurcyclus sturen we u een beveiligde link om in crypto te betalen. U kunt altijd opzeggen.",
       "merchSubject": "Nieuwe abonnee – {{planName}}",
       "merchHeading": "Nieuw abonnement",
       "merchIntro": "U heeft een nieuwe abonnee voor <strong>{{planName}}</strong>.",
       "cta": "Abonnementen bekijken",
-      "custPreheader": "Je abonnement is nu actief.",
-      "merchPreheader": "Je hebt een nieuwe abonnee."
+      "custPreheader": "Uw abonnement is nu actief.",
+      "merchPreheader": "U heeft een nieuwe abonnee."
     },
     "subscriptionCancelled": {
       "custSubject": "Abonnement opgezegd – {{planName}}",
@@ -602,14 +589,14 @@
       "merchSubject": "Abonnement opgezegd – {{name}}",
       "merchIntro": "Een abonnement op <strong>{{planName}}</strong> is opgezegd.",
       "cta": "Abonnementen bekijken",
-      "custPreheader": "Je abonnement is opgezegd.",
+      "custPreheader": "Uw abonnement is opgezegd.",
       "merchPreheader": "Een abonnee heeft zijn abonnement opgezegd."
     },
     "subscriptionPaymentFailed": {
       "custSubject": "Betaling mislukt voor {{planName}}",
       "custHeading": "Betaling mislukt",
       "custIntro": "We konden uw abonnementsbetaling voor <strong>{{planName}}</strong> van <strong>{{companyName}}</strong> niet verwerken.",
-      "custSteps": "Zo houd je je abonnement actief:<br />1. Open de beveiligde betaallink hieronder<br />2. Zorg dat je wallet genoeg saldo heeft, inclusief netwerkkosten<br />3. Neem contact op met de verkoper als je hulp nodig hebt",
+      "custSteps": "Zo houdt u uw abonnement actief:<br />1. Open de beveiligde betaallink hieronder<br />2. Zorg dat uw wallet genoeg saldo heeft, inclusief netwerkkosten<br />3. Neem contact op met de verkoper als u hulp nodig heeft",
       "custWarn": "Uw abonnement kan worden opgezegd als de betaling niet wordt ontvangen.",
       "custCta": "Betaling voltooien",
       "merchSubject": "Abonnementsbetaling mislukt – {{name}}",
@@ -617,7 +604,7 @@
       "merchIntro": "Een abonnementsbetaling voor <strong>{{planName}}</strong> is mislukt.",
       "merchOutro": "De klant is op de hoogte gebracht om de betaalmethode bij te werken.",
       "merchCta": "Abonnement bekijken",
-      "custPreheader": "Je abonnementsbetaling is mislukt.",
+      "custPreheader": "Uw abonnementsbetaling is mislukt.",
       "merchPreheader": "De betaling van een abonnee is mislukt."
     },
     "autoConversion": {
@@ -625,12 +612,12 @@
       "heading": "Uitbetaling voltooid",
       "intro": "Uw cryptobetaling is automatisch omgezet en de uitbetaling is naar uw wallet verzonden.",
       "outro": "Automatische omzetting zorgt ervoor dat u stablecoins ontvangt en beschermt uw omzet tegen prijsschommelingen van crypto. Bekijk uw volledige transactiegeschiedenis in uw Dynopay-dashboard.",
-      "preheader": "Je crypto is omgezet en uitbetaald."
+      "preheader": "Uw crypto is omgezet en uitbetaald."
     },
     "weeklyConversion": {
       "heading": "Wekelijks omzettingsrapport",
       "intro": "Hier is uw wekelijkse rapport voor automatische omzetting voor <strong>{{companyName}}</strong>.",
-      "preheader": "Een overzicht van je conversies van afgelopen week."
+      "preheader": "Een overzicht van uw conversies van afgelopen week."
     },
     "volumeTierUpgrade": {
       "subject": "U heeft zojuist het {{newTier}}-niveau ontgrendeld — {{newPercent}}% kosten",
@@ -644,7 +631,7 @@
       "thanks": "Bedankt dat u op Dynopay bouwt.",
       "heading": "U bent nu {{newTier}} — profiteer van {{newPercent}}% kosten",
       "cta": "Naar uw dashboard",
-      "preheader": "Je platformtarief is zojuist verlaagd naar {{newPercent}}%."
+      "preheader": "Uw platformtarief is zojuist verlaagd naar {{newPercent}}%."
     }
   },
   "contributor": {
@@ -652,32 +639,32 @@
       "subject": "{{title}} — update van {{campaign}}",
       "friend": "vriend",
       "intro": "De organisator van <strong>{{campaign}}</strong> heeft zojuist een update geplaatst.",
-      "outro": "Bedankt voor je steun aan deze campagne. Je ontvangt deze e-mail omdat je eerder hebt bijgedragen.",
+      "outro": "Bedankt voor uw steun aan deze campagne. U ontvangt deze e-mail omdat u eerder heeft bijgedragen.",
       "heading": "Nieuwe update van {{campaign}}",
       "cta": "Campagne bekijken",
       "preheader": "Een nieuwe update van {{campaign}}."
     }
   },
   "contributionReceived": {
-    "subject": "Je hebt zojuist een bijdrage ontvangen — {{amount}} {{currency}}",
+    "subject": "U heeft zojuist een bijdrage ontvangen – {{amount}} {{currency}}",
     "heading": "Nieuwe bijdrage ontvangen",
     "intro": "Iemand heeft zojuist <strong>{{campaignName}}</strong> gesteund — hier zijn de details.",
-    "outro": "De volledige donateurslijst vind je in het dashboard van je campagne.",
+    "outro": "De volledige donateurslijst vindt u in het dashboard van uw campagne.",
     "cta": "Campagne bekijken",
-    "preheader": "Er is zojuist een nieuwe bijdrage voor je campagne binnengekomen."
+    "preheader": "Er is zojuist een nieuwe bijdrage voor uw campagne binnengekomen."
   },
   "contributionThankYou": {
-    "subject": "Bedankt voor je bijdrage aan {{campaignName}}",
-    "heading": "Bedankt dat je {{campaignName}} steunt",
-    "intro": "Je bijdrage aan <strong>{{campaignName}}</strong> is zojuist binnengekomen — bedankt voor je steun.",
-    "outro": "De organisator kan je campagne-updates sturen zodat je ziet waar je steun naartoe gaat.",
+    "subject": "Bedankt voor uw bijdrage aan {{campaignName}}",
+    "heading": "Bedankt dat u {{campaignName}} steunt",
+    "intro": "Uw bijdrage aan <strong>{{campaignName}}</strong> is zojuist binnengekomen — bedankt voor uw steun.",
+    "outro": "De organisator kan u campagne-updates sturen zodat u ziet waar uw steun naartoe gaat.",
     "contact": "Vragen? Beantwoord deze e-mail en de organisator van {{campaignName}} reageert.",
-    "preheader": "Bedankt — je bijdragebewijs zit in de bijlage."
+    "preheader": "Bedankt — uw bijdragebewijs zit in de bijlage."
   },
   "walletOtp": {
     "subject": "Code voor validatie van walletadres",
     "heading": "Verificatiecode wallet",
-    "intro": "Je valideert een nieuw walletadres voor {{currency}}.",
+    "intro": "U valideert een nieuw walletadres voor {{currency}}.",
     "walletAddress": "Walletadres",
     "currency": "Valuta",
     "expiry": "Deze code verloopt over {{minutes}} minuten."
@@ -688,15 +675,15 @@
     "merchantIntro": "Een klant heeft zojuist een betaling aan {{company}} voltooid en MEER dan het verschuldigde bedrag verzonden.",
     "overpaidBy": "Te veel betaald",
     "statusOverpaid": "Te veel betaald",
-    "merchantBody": "Het volledige verwachte bedrag is aan je bijgeschreven. Het overschot van {{excess}} (≈ {{excessFiat}}) is volgens het beleid voor te veel betalen van je account doorgestuurd naar Dynopay, dus je hoeft niets te doen.",
+    "merchantBody": "Het volledige verwachte bedrag is aan u bijgeschreven. Het overschot van {{excess}} (≈ {{excessFiat}}) is volgens het beleid voor te veel betalen van uw account doorgestuurd naar Dynopay, dus u hoeft niets te doen.",
     "viewTransactions": "Transacties bekijken"
   },
   "payoutDigest": {
     "subjectActive": "Wekelijks uitbetalingsoverzicht — {{amount}}",
     "subjectQuiet": "Wekelijks uitbetalingsoverzicht — een rustige week voor een nieuwe",
-    "headingActive": "Je wekelijkse uitbetalingsoverzicht",
+    "headingActive": "Uw wekelijkse uitbetalingsoverzicht",
     "headingQuiet": "Wekelijks uitbetalingsoverzicht — rustige week",
-    "intro": "Zo zagen de afgelopen 7 dagen eruit voor je bedrijf op Dynopay.",
+    "intro": "Zo zagen de afgelopen 7 dagen eruit voor uw bedrijf op Dynopay.",
     "settledThisWeek": "Deze week afgewikkeld",
     "platformFees": "Platformkosten",
     "feeTierContext": "{{name}}-niveau — {{percent}}%",
@@ -709,13 +696,13 @@
     "paymentSingular": "betaling",
     "paymentPlural": "betalingen",
     "compareToLast": "Vergeleken met vorige week ({{prevAmount}}, {{prevCountLabel}}): {{delta}}",
-    "firstActiveWeek": "Dit is je eerste actieve week — welkom bij het wekelijkse overzicht. {{delta}}",
+    "firstActiveWeek": "Dit is uw eerste actieve week — welkom bij het wekelijkse overzicht. {{delta}}",
     "nothingSettled": "Deze week is er niets afgewikkeld. Stuur een klant een betaallink en laten we de eerste binnenhalen: {{link}}",
     "createPayLink": "Een betaallink maken →",
-    "openDashboardBody": "Open je dashboard om transacties te bekijken, wallets aan te passen of een nieuwe betaallink te delen.",
+    "openDashboardBody": "Open uw dashboard om transacties te bekijken, wallets aan te passen of een nieuwe betaallink te delen.",
     "openDashboard": "Dashboard openen",
-    "preheaderActive": "Een overzicht van je uitbetalingen van afgelopen week.",
-    "preheaderQuiet": "Een korte update over je account deze week."
+    "preheaderActive": "Een overzicht van uw uitbetalingen van afgelopen week.",
+    "preheaderQuiet": "Een korte update over uw account deze week."
   },
   "referral": {
     "whyTitle": "Waarom Dynopay?",
@@ -757,77 +744,76 @@
   "activation": {
     "step": {
       "d1": {
-        "subject": "Alles klaar — zo ontvang je je eerste betaling",
-        "heading": "Laten we je eerste betaling binnenhalen",
-        "intro": "Je Dynopay-account is klaar. Je eerste cryptobetaling ontvangen duurt ongeveer 2 minuten — dit is de volgende stap."
+        "subject": "Alles klaar — zo ontvangt u uw eerste betaling",
+        "heading": "Laten we uw eerste betaling binnenhalen",
+        "intro": "Uw Dynopay-account is klaar. Uw eerste cryptobetaling ontvangen duurt ongeveer 2 minuten — dit is de volgende stap."
       },
       "d3": {
-        "subject": "We helpen je nog steeds om betaald te worden",
-        "heading": "Eén stap van je eerste betaling",
-        "intro": "Kleine herinnering: nog een paar stappen en je accepteert crypto. Laten we de volgende doen."
+        "subject": "We helpen u nog steeds om betaald te worden",
+        "heading": "Eén stap van uw eerste betaling",
+        "intro": "Kleine herinnering: nog een paar stappen en u accepteert crypto. Laten we de volgende doen."
       },
       "d7": {
-        "subject": "Je Dynopay-account is klaar wanneer jij dat bent",
-        "heading": "Ga verder waar je gebleven was",
-        "intro": "Je hebt Dynopay een week geleden ingesteld. Wanneer je maar wilt: dit is de snelste weg naar je eerste betaling."
+        "subject": "Uw Dynopay-account is klaar wanneer u dat bent",
+        "heading": "Ga verder waar u gebleven was",
+        "intro": "U heeft Dynopay een week geleden ingesteld. Wanneer u maar wilt: dit is de snelste weg naar uw eerste betaling."
       }
     },
     "seg": {
       "madeLink": {
-        "line": "Je hebt al een betaallink gemaakt — mooi. Voeg een uitbetalingswallet toe zodat we, zodra iemand betaalt, direct uitbetalen naar een wallet die jij beheert.",
+        "line": "U heeft al een betaallink gemaakt — mooi. Voeg een uitbetalingswallet toe zodat we, zodra iemand betaalt, direct uitbetalen naar een wallet die u beheert.",
         "cta": "Uitbetalingswallet toevoegen"
       },
       "noLink": {
-        "line": "Maak je eerste betaallink — deel hem overal en accepteer Bitcoin, Ethereum of stablecoins, zonder terugboekingen.",
-        "cta": "Maak je eerste link"
+        "line": "Maak uw eerste betaallink — deel hem overal en accepteer Bitcoin, Ethereum of stablecoins, zonder terugboekingen.",
+        "cta": "Maak uw eerste link"
       },
       "fundraiser": {
-        "line": "Lanceer je inzamelingspagina in enkele minuten — deel één link en ontvang cryptodonaties van over de hele wereld.",
+        "line": "Lanceer uw inzamelingspagina in enkele minuten — deel één link en ontvang cryptodonaties van over de hele wereld.",
         "cta": "Inzamelingspagina maken"
       }
     },
     "common": {
       "videoCta": "Bekijk de video van 2 minuten →",
-      "unsubscribe": "Wil je deze installatietips niet?",
+      "unsubscribe": "Wilt u deze installatietips niet?",
       "unsubscribeAction": "Uitschrijven"
     },
     "gate": {
-      "subject": "Rond je installatie af om betaald te worden",
-      "heading": "Je bent één stap verwijderd van je eerste betaling",
-      "outro": "Het duurt maar een minuut en je gaat precies verder waar je was gebleven.",
+      "subject": "Rond uw installatie af om betaald te worden",
+      "heading": "U bent één stap verwijderd van uw eerste betaling",
+      "outro": "Het duurt maar een minuut en u gaat precies verder waar u was gebleven.",
       "brand": {
-        "intro": "Je probeerde een betaallink te maken, maar je account heeft nog geen merk. Je merknaam staat op je checkout, facturen en bonnen — toevoegen duurt ongeveer 30 seconden.",
+        "intro": "U probeerde een betaallink te maken, maar uw account heeft nog geen merk. Uw merknaam staat op uw checkout, facturen en bonnen — toevoegen duurt ongeveer 30 seconden.",
         "cta": "Merk toevoegen"
       },
       "wallet": {
-        "intro": "Je probeerde een betaallink te maken, maar er is nog geen uitbetaalwallet aan je account gekoppeld. Betalingen worden rechtstreeks afgewikkeld naar een wallet die jij beheert, dus we hebben een adres nodig voordat je betaald kunt worden.",
+        "intro": "U probeerde een betaallink te maken, maar er is nog geen uitbetaalwallet aan uw account gekoppeld. Betalingen worden rechtstreeks afgewikkeld naar een wallet die u beheert, dus we hebben een adres nodig voordat u betaald kunt worden.",
         "cta": "Uitbetaalwallet toevoegen"
       },
       "kyc": {
-        "intro": "Je hebt al meer dan $10.000 aan betalingen verwerkt — goed bezig. Daarom is nu een korte identiteitscontrole vereist voordat je nieuwe betaallinks kunt maken. Dit duurt meestal ongeveer 5 minuten.",
+        "intro": "U heeft al meer dan $10.000 aan betalingen verwerkt — goed bezig. Daarom is nu een korte identiteitscontrole vereist voordat u nieuwe betaallinks kunt maken. Dit duurt meestal ongeveer 5 minuten.",
         "cta": "Mijn identiteit verifiëren"
       }
     }
   },
   "chrome": {
-    "greeting": "Hoi {{name}},",
     "bestRegards": "Met vriendelijke groet,",
     "teamSignature": "Het Dynopay-team",
     "tagline": "Veilige crypto-betaalgateway",
     "rights": "© Dynopay {{year}}. Alle rechten voorbehouden.",
     "privacy": "Privacy",
     "terms": "Voorwaarden",
-    "support": "Support",
-    "greetingNoName": "Hoi,"
+    "support": "Support"
   },
   "orderReceipt": {
-    "subject": "Je bestelling {{ref}} is bevestigd",
+    "subject": "Uw bestelling {{ref}} is bevestigd",
     "heading": "Bestelling bevestigd",
-    "thanks": "Bedankt voor je aankoop! We hebben je betaling ontvangen en je bestelling is bevestigd.",
+    "preheader": "Betaling ontvangen – bestelling {{ref}} is bevestigd.",
+    "thanks": "Bedankt voor uw aankoop! We hebben uw betaling ontvangen en uw bestelling is bevestigd.",
     "orderReference": "Bestelreferentie:",
-    "digitalNote": "De downloadlinks hierboven zijn 24 uur geldig. Heb je een nieuwe link nodig?",
-    "openOrderPage": "Open je bestelpagina",
-    "physicalNote": "De verkoper mailt je een trackingnummer zodra je artikelen worden verzonden.",
+    "digitalNote": "De downloadlinks hierboven zijn 24 uur geldig. Heeft u een nieuwe link nodig?",
+    "openOrderPage": "Open uw bestelpagina",
+    "physicalNote": "De verkoper mailt u een trackingnummer zodra uw artikelen worden verzonden.",
     "viewOrderDetails": "Bestelgegevens bekijken →"
   },
   "orderTable": {
@@ -840,8 +826,8 @@
     "item": "Item",
     "download": "Downloaden",
     "licenseKey": "Licentiesleutel:",
-    "accessPurchase": "Toegang tot je aankoop →",
-    "bookSession": "Boek je sessie →",
+    "accessPurchase": "Toegang tot uw aankoop →",
+    "bookSession": "Boek uw sessie →",
     "inclusive": "incl.",
     "reverseCharge": "Verlegging (EU B2B). Koper draagt de belasting af.",
     "merchantTaxId": "{{label}}-ID van verkoper:"

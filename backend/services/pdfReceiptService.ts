@@ -8,6 +8,8 @@ import path from "path";
 import fs from "fs";
 import { t, normalizeLang } from "../utils/emailI18n";
 import { formatMoneyForEmail } from "./email/emailShared";
+import { renderCurrencyBadgePng } from "../utils/qrCodeWithLogo";
+import { getCoinSymbol, getNetworkDisplayName } from "../utils/networkLabels";
 
 // Resolve the white Dynopay logo (used on the dark header/footer bands) once.
 const DYNOPAY_LOGO_PATH: string = (() => {
@@ -73,10 +75,10 @@ const BRAND_COLORS = {
   dark: "#050505",         // Header/footer near-black (matches email header/footer)
   text: "#374151",         // Body text
   lightBg: "#f5f3ff",      // Subtle indigo tint for the amount card
-  border: "#e5e7eb",       // Border color
+  border: "#e5e7eb",       // Border color / hairlines
 };
 
-interface ReceiptData {
+export interface ReceiptData {
   // Transaction details
   transactionId: string;
   transactionReference?: string;
@@ -108,6 +110,8 @@ interface ReceiptData {
   lang?: string;
   // Exact "merchant receives / Dynopay fee" split (crypto strings, already formatted)
   breakdown?: { merchantReceives: string; platformFee: string; feePayer: "customer" | "company" };
+  // Public shareable receipt URL — printed in the footer as "View this receipt online".
+  receiptUrl?: string;
 }
 
 /**
@@ -115,15 +119,23 @@ interface ReceiptData {
  * Returns a Buffer containing the PDF data
  */
 export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer> => {
-  // Resolve the merchant brand logo up-front (best-effort) so rendering stays sync.
+  // Resolve the merchant brand logo + coin badge up-front (best-effort) so rendering stays sync.
   const merchantLogoBuf = await loadImageBuffer(data.companyLogo);
+  const coinBadge = data.cryptoCurrency ? await renderCurrencyBadgePng(data.cryptoCurrency, 96) : null;
+  const coinSymbol = getCoinSymbol(data.cryptoCurrency);
+  const networkName = getNetworkDisplayName(data.cryptoCurrency);
   return new Promise((resolve, reject) => {
     try {
       const L = normalizeLang(data.lang);
       const dateLocale = L === "en" ? "en-US" : L;
+      // margins.bottom = 0 — pdfkit silently ADDS A PAGE whenever a text run
+      // crosses the bottom margin. With the default 50pt margin the footer band
+      // (drawn at the very bottom) pushed the receipt across up to 6 pages.
+      // Every block below is positioned explicitly and clamped above the footer,
+      // so the receipt is always exactly ONE page.
       const doc = new PDFDocument({
         size: "A4",
-        margin: 50,
+        margins: { top: 0, bottom: 0, left: 50, right: 50 },
         info: {
           Title: `Payment Receipt - ${data.transactionId}`,
           Author: "Dynopay",
@@ -137,205 +149,193 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       doc.on("end", () => resolve(Buffer.concat(chunks)));
       doc.on("error", reject);
 
-      const pageWidth = doc.page.width - 100; // Account for margins
+      const PAGE_W = doc.page.width;
+      const PAGE_H = doc.page.height;
+      const X = 50;
+      const W = PAGE_W - 100;
+      const FONT = "Helvetica";
+      const BOLD = "Helvetica-Bold";
+      const MONO = "Courier";
+      const MUTED = "#6B7280";
+      const FOOTER_H = 92;
+      const footerY = PAGE_H - FOOTER_H;
+      const CONTENT_BOTTOM = footerY - 14; // nothing may be drawn below this line
+
+      // ---- small drawing helpers -------------------------------------------
+      const eyebrow = (text: string, x: number, y: number, color = MUTED, opts: PDFKit.Mixins.TextOptions = {}) =>
+        doc.font(BOLD).fontSize(8.5).fillColor(color).text(text.toUpperCase(), x, y, { characterSpacing: 0.8, lineBreak: false, ...opts });
+      const sectionTitle = (text: string, y: number) => {
+        doc.font(BOLD).fontSize(12).fillColor(BRAND_COLORS.dark).text(text, X, y, { lineBreak: false });
+        return y + 20;
+      };
+      const hairline = (y: number) => doc.moveTo(X, y).lineTo(X + W, y).lineWidth(1).stroke(BRAND_COLORS.border);
+      const divider = (y: number) => {
+        hairline(y + 10);
+        return y + 26;
+      };
+
+      // Key/value rows with DYNAMIC height — long blockchain hashes wrap inside
+      // their own row (monospace) instead of colliding with the next one.
+      const LABEL_W = 140;
+      const VALUE_X = X + LABEL_W + 10;
+      const VALUE_W = W - LABEL_W - 20;
+      type Row = { label: string; value: string; mono?: boolean; note?: string };
+      const rowsBlock = (rows: Row[], y: number) => {
+        rows.forEach((r, i) => {
+          const font = r.mono ? MONO : FONT;
+          const size = r.mono ? 9 : 10.5;
+          doc.font(font).fontSize(size);
+          const h = Math.max(24, doc.heightOfString(r.value, { width: VALUE_W }) + 12);
+          if (i % 2 === 0) doc.rect(X, y, W, h).fill("#FAFAFA");
+          doc.font(FONT).fontSize(10.5).fillColor(BRAND_COLORS.text).text(r.label, X + 10, y + 6, { width: LABEL_W, lineBreak: false });
+          doc.font(font).fontSize(size).fillColor(BRAND_COLORS.dark);
+          if (r.note) {
+            doc.text(r.value, VALUE_X, y + 6, { width: VALUE_W, continued: true })
+              .font(FONT).fontSize(9.5).fillColor(MUTED).text(`  ${r.note}`, { continued: false });
+          } else {
+            doc.text(r.value, VALUE_X, y + 6 + (r.mono ? 1 : 0), { width: VALUE_W });
+          }
+          y += h;
+        });
+        return y;
+      };
 
       // ============================================
-      // HEADER SECTION
+      // HEADER — indigo accent bar + near-black band (matches the email chrome)
       // ============================================
-      
-      // Indigo accent bar (matches the email template's neon top bar)
-      doc.rect(0, 0, doc.page.width, 6).fill(BRAND_COLORS.primary);
-      // Header background (near-black, matches the email header band)
-      doc.rect(0, 6, doc.page.width, 114).fill(BRAND_COLORS.dark);
+      doc.rect(0, 0, PAGE_W, 6).fill(BRAND_COLORS.primary);
+      doc.rect(0, 6, PAGE_W, 98).fill(BRAND_COLORS.dark);
 
-      // Dynopay logo (white wordmark on the dark band) — falls back to text.
       let headerLogoDrawn = false;
       if (DYNOPAY_LOGO_PATH) {
         try {
-          doc.image(DYNOPAY_LOGO_PATH, 50, 40, { fit: [150, 38] });
+          doc.image(DYNOPAY_LOGO_PATH, X, 30, { fit: [140, 34] });
           headerLogoDrawn = true;
         } catch {
           /* fall back to the text wordmark below */
         }
       }
       if (!headerLogoDrawn) {
-        doc.fontSize(28)
-          .fillColor("#ffffff")
-          .text("Dyno", 50, 45, { continued: true })
-          .fillColor(BRAND_COLORS.accent)
-          .text("Pay", { continued: false });
+        doc.font(BOLD).fontSize(26).fillColor("#ffffff").text("dyno", X, 34, { continued: true, lineBreak: false })
+          .fillColor(BRAND_COLORS.accent).text("pay", { continued: false, lineBreak: false });
       }
+      eyebrow(t("receipt.title", L), X, 80, "#C7D2FE");
 
-      // Receipt label
-      doc.fontSize(12)
-        .fillColor("#ffffff")
-        .text(t("receipt.title", L), 50, 88);
-
-      // Receipt number on right
-      doc.fontSize(10)
-        .fillColor("#ffffff")
-        .text(t("receipt.receiptNo", L, { number: data.transactionId.substring(0, 8).toUpperCase() }), 400, 50, { align: "right", width: 150 });
-
-      // Date on right
-      const formattedDate = data.paymentDate.toLocaleDateString(dateLocale, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      doc.text(formattedDate, 400, 70, { align: "right", width: 150 });
+      const RIGHT_W = 220;
+      doc.font(BOLD).fontSize(10).fillColor("#ffffff")
+        .text(t("receipt.receiptNo", L, { number: data.transactionId.substring(0, 8).toUpperCase() }), X + W - RIGHT_W, 36, { width: RIGHT_W, align: "right", lineBreak: false });
+      const formattedDate = data.paymentDate.toLocaleDateString(dateLocale, { year: "numeric", month: "long", day: "numeric" });
+      doc.font(FONT).fontSize(9.5).fillColor("#9CA3AF")
+        .text(formattedDate, X + W - RIGHT_W, 54, { width: RIGHT_W, align: "right", lineBreak: false });
 
       // ============================================
-      // STATUS BANNER
+      // STATUS BANNER — crisp vector check + label (core fonts have no ✓ glyph)
       // ============================================
-      doc.rect(0, 120, doc.page.width, 40).fill("#10b981"); // Green for success
-      // Draw a crisp vector check + centered label (pdfkit's core font can't
-      // render a ✓ glyph — the old \u2713 rendered as a stray apostrophe).
-      const bannerLabel = t("receipt.successful", L);
-      doc.fontSize(14).font("Helvetica-Bold").fillColor("#ffffff");
-      const bannerLabelW = doc.widthOfString(bannerLabel);
-      const bannerGap = 13;
-      const bannerStartX = (doc.page.width - (bannerLabelW + bannerGap)) / 2;
-      const bannerTextY = 132;
+      const BANNER_Y = 104;
+      const BANNER_H = 34;
+      doc.rect(0, BANNER_Y, PAGE_W, BANNER_H).fill("#10B981");
+      const bannerLabel = t("receipt.successful", L).toUpperCase();
+      doc.font(BOLD).fontSize(11.5).fillColor("#ffffff");
+      const bannerLabelW = doc.widthOfString(bannerLabel, { characterSpacing: 0.6 });
+      const bannerGap = 14;
+      const bannerStartX = (PAGE_W - (bannerLabelW + bannerGap)) / 2;
+      const bannerTextY = BANNER_Y + 11;
       doc.save();
       doc.lineWidth(2).strokeColor("#ffffff").lineJoin("round").lineCap("round");
-      doc
-        .moveTo(bannerStartX, bannerTextY + 8)
-        .lineTo(bannerStartX + 4, bannerTextY + 12)
-        .lineTo(bannerStartX + 10, bannerTextY + 3)
-        .stroke();
+      doc.moveTo(bannerStartX, bannerTextY + 6).lineTo(bannerStartX + 3.5, bannerTextY + 9.5).lineTo(bannerStartX + 10, bannerTextY + 2).stroke();
       doc.restore();
-      doc.fillColor("#ffffff").text(bannerLabel, bannerStartX + bannerGap, bannerTextY);
-      doc.font("Helvetica");
+      doc.fillColor("#ffffff").text(bannerLabel, bannerStartX + bannerGap, bannerTextY, { characterSpacing: 0.6, lineBreak: false });
 
       // ============================================
-      // MAIN CONTENT
+      // AMOUNT CARD
       // ============================================
-      let yPos = 190;
-
-      // Payment Amount Section
-      doc.roundedRect(50, yPos, pageWidth, 100, 8)
-        .fillAndStroke(BRAND_COLORS.lightBg, BRAND_COLORS.border);
-
-      doc.fontSize(12)
-        .fillColor(BRAND_COLORS.text)
-        .text(t("receipt.amountPaid", L), 70, yPos + 15);
-
-      doc.fontSize(36)
-        .fillColor(BRAND_COLORS.primary)
-        .text(`${formatMoneyForEmail(data.amount, data.currency)} ${data.currency}`, 70, yPos + 35);
-
+      let y = BANNER_Y + BANNER_H + 20;
+      const CARD_H = 94;
+      doc.roundedRect(X, y, W, CARD_H, 10).fillAndStroke(BRAND_COLORS.lightBg, BRAND_COLORS.border);
+      eyebrow(t("labels.amountPaid", L), X + 20, y + 16);
+      doc.font(BOLD).fontSize(30).fillColor(BRAND_COLORS.primary)
+        .text(`${formatMoneyForEmail(data.amount, data.currency)} ${data.currency}`, X + 20, y + 30, { lineBreak: false });
       if (data.cryptoAmount && data.cryptoCurrency) {
-        doc.fontSize(14)
-          .fillColor(BRAND_COLORS.text)
-          .text(t("receipt.crypto", L, { amount: formatMoneyForEmail(data.cryptoAmount, data.cryptoCurrency), currency: data.cryptoCurrency }), 70, yPos + 75);
+        // Coin badge + "0.0031245 BTC · Bitcoin" — reads at a glance which coin/network settled the payment.
+        const lineY = y + 66;
+        const badgePx = 20;
+        let tx = X + 20;
+        if (coinBadge) {
+          try {
+            doc.image(coinBadge, tx, lineY - 3, { width: badgePx, height: badgePx });
+            tx += badgePx + 8;
+          } catch {
+            /* text-only fallback */
+          }
+        }
+        doc.font(BOLD).fontSize(11.5).fillColor(BRAND_COLORS.dark)
+          .text(`${formatMoneyForEmail(data.cryptoAmount, data.cryptoCurrency)} ${coinSymbol}`, tx, lineY, { continued: !!networkName, lineBreak: false });
+        if (networkName) {
+          doc.font(FONT).fontSize(10.5).fillColor(MUTED).text(`  \u00B7  ${networkName}`, { continued: false, lineBreak: false });
+        }
       }
-
-      yPos += 120;
+      y += CARD_H + 22;
 
       // ============================================
       // TRANSACTION DETAILS
       // ============================================
-      doc.fontSize(14)
-        .fillColor(BRAND_COLORS.primary)
-        .text(t("receipt.transactionDetails", L), 50, yPos);
-
-      yPos += 25;
-
-      // Details table
-      const details = [
-        { label: t("receipt.transactionId", L), value: data.transactionId },
-        ...(data.transactionReference ? [{ label: t("receipt.reference", L), value: data.transactionReference }] : []),
-        { label: t("receipt.paymentMethod", L), value: data.paymentMethod || t("receipt.cryptocurrency", L) },
-        { label: t("receipt.status", L), value: data.status || t("receipt.completed", L) },
-        { label: t("receipt.dateTime", L), value: data.paymentDate.toLocaleString(dateLocale, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZoneName: "short",
-        })},
+      y = sectionTitle(t("receipt.transactionDetails", L), y);
+      const details: Row[] = [
+        { label: t("labels.transactionId", L), value: data.transactionId, mono: true },
+        ...(data.transactionReference ? [{ label: t("labels.reference", L), value: data.transactionReference, mono: true }] : []),
+        {
+          label: t("receipt.paymentMethod", L),
+          value: data.paymentMethod || (data.cryptoCurrency ? `${t("receipt.cryptocurrency", L)} (${networkName ? coinSymbol : data.cryptoCurrency})` : t("receipt.cryptocurrency", L)),
+        },
+        ...(networkName ? [{ label: t("receipt.network", L), value: networkName }] : []),
+        { label: t("labels.status", L), value: data.status || t("receipt.completed", L) },
+        {
+          label: t("receipt.dateTime", L),
+          value: data.paymentDate.toLocaleString(dateLocale, {
+            year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", timeZoneName: "short",
+          }),
+        },
       ];
-
-      details.forEach((item, index) => {
-        const rowY = yPos + (index * 30);
-        
-        // Alternating background
-        if (index % 2 === 0) {
-          doc.rect(50, rowY - 5, pageWidth, 28).fill("#fafafa");
-        }
-        
-        doc.fontSize(11)
-          .fillColor(BRAND_COLORS.text)
-          .text(item.label, 60, rowY + 3);
-        
-        doc.fontSize(11)
-          .fillColor(BRAND_COLORS.dark)
-          .text(item.value, 250, rowY + 3, { width: 280, align: "left" });
-      });
-
-      yPos += details.length * 30 + 20;
+      y = rowsBlock(details, y);
 
       // ============================================
       // PAYMENT BREAKDOWN (you paid / merchant receives / Dynopay fee)
       // ============================================
       if (data.breakdown) {
-        doc.moveTo(50, yPos).lineTo(50 + pageWidth, yPos).stroke(BRAND_COLORS.border);
-        yPos += 20;
-        doc.fontSize(14).fillColor(BRAND_COLORS.primary).text(t("receipt.breakdown", L), 50, yPos);
-        yPos += 25;
-        const feeNote = t(data.breakdown.feePayer === "customer" ? "receipt.feePaidByCustomer" : "receipt.feePaidByMerchant", L);
+        y = divider(y);
+        y = sectionTitle(t("receipt.breakdown", L), y);
+        const feeNote = t(data.breakdown.feePayer === "customer" ? "labels.feePaidByCustomer" : "labels.feePaidByMerchant", L);
         const paidValue = data.cryptoAmount && data.cryptoCurrency
           ? `${formatMoneyForEmail(data.cryptoAmount, data.cryptoCurrency)} ${data.cryptoCurrency}`
           : `${formatMoneyForEmail(data.amount, data.currency)} ${data.currency}`;
-        const rows = [
+        y = rowsBlock([
           { label: t("receipt.youPaid", L), value: paidValue },
-          { label: t("receipt.merchantReceives", L), value: data.breakdown.merchantReceives },
-          { label: t("receipt.platformFee", L), value: `${data.breakdown.platformFee}  (${feeNote})` },
-        ];
-        rows.forEach((item, index) => {
-          const rowY = yPos + index * 30;
-          if (index % 2 === 0) doc.rect(50, rowY - 5, pageWidth, 28).fill("#fafafa");
-          doc.fontSize(11).fillColor(BRAND_COLORS.text).text(item.label, 60, rowY + 3);
-          doc.fontSize(11).fillColor(BRAND_COLORS.dark).text(item.value, 250, rowY + 3, { width: 280, align: "left" });
-        });
-        yPos += rows.length * 30 + 20;
+          { label: t("labels.merchantReceives", L), value: data.breakdown.merchantReceives },
+          { label: t("labels.platformFee", L), value: data.breakdown.platformFee, note: `(${feeNote})` },
+        ], y);
       }
 
       // ============================================
-      // MERCHANT & CUSTOMER INFO
+      // PAID TO / CUSTOMER
       // ============================================
-      doc.moveTo(50, yPos).lineTo(50 + pageWidth, yPos).stroke(BRAND_COLORS.border);
-      yPos += 20;
+      y = divider(y);
+      const colW = (W - 30) / 2;
+      const rightColX = X + colW + 30;
 
-      // Two columns
-      const colWidth = (pageWidth - 30) / 2;
-
-      // Merchant column — brand logo badge + name (premium "Paid to" block)
-      doc.fontSize(12)
-        .fillColor(BRAND_COLORS.primary)
-        .text(t("receipt.paidTo", L), 50, yPos);
-
-      const badgeSize = 42;
-      const badgeX = 50;
-      const badgeY = yPos + 18;
-      const nameX = badgeX + badgeSize + 12;
-      const nameW = colWidth - badgeSize - 12;
+      eyebrow(t("receipt.paidTo", L), X, y);
+      const badgeSize = 40;
+      const badgeY = y + 16;
+      const nameX = X + badgeSize + 12;
+      const nameW = colW - badgeSize - 12;
 
       let brandDrawn = false;
       if (merchantLogoBuf) {
         try {
           doc.save();
-          doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 11).clip();
-          doc.image(merchantLogoBuf, badgeX, badgeY, {
-            cover: [badgeSize, badgeSize],
-            align: "center",
-            valign: "center",
-          });
+          doc.roundedRect(X, badgeY, badgeSize, badgeSize, 10).clip();
+          doc.image(merchantLogoBuf, X, badgeY, { cover: [badgeSize, badgeSize], align: "center", valign: "center" });
           doc.restore();
-          doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 11)
-            .lineWidth(1)
-            .stroke(BRAND_COLORS.border);
+          doc.roundedRect(X, badgeY, badgeSize, badgeSize, 10).lineWidth(1).stroke(BRAND_COLORS.border);
           brandDrawn = true;
         } catch {
           brandDrawn = false;
@@ -344,110 +344,77 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       if (!brandDrawn) {
         // Monogram fallback — first letter of the brand on a soft indigo tile.
         const letter = ((data.companyName || "M").trim().charAt(0) || "M").toUpperCase();
-        doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 11)
-          .fillAndStroke(BRAND_COLORS.lightBg, BRAND_COLORS.border);
-        doc.fontSize(21)
-          .font("Helvetica-Bold")
-          .fillColor(BRAND_COLORS.primary)
-          .text(letter, badgeX, badgeY + 11, { width: badgeSize, align: "center" })
-          .font("Helvetica");
+        doc.roundedRect(X, badgeY, badgeSize, badgeSize, 10).fillAndStroke(BRAND_COLORS.lightBg, BRAND_COLORS.border);
+        doc.font(BOLD).fontSize(20).fillColor(BRAND_COLORS.primary).text(letter, X, badgeY + 10, { width: badgeSize, align: "center", lineBreak: false });
       }
-
-      doc.fontSize(14)
-        .fillColor(BRAND_COLORS.dark)
-        .text(data.companyName, nameX, badgeY + 8, { width: nameW });
-
-      // Identity-verified marker — a small drawn green check (pdfkit's default
-      // font can't render a ✓ glyph) + localized label, matching the on-screen
-      // and email receipts. Only shown for a KYC-verified merchant.
+      doc.font(BOLD).fontSize(13).fillColor(BRAND_COLORS.dark).text(data.companyName, nameX, badgeY + (data.merchantVerified ? 4 : 12), { width: nameW, lineBreak: false, ellipsis: true });
       if (data.merchantVerified) {
-        const vy = badgeY + 27;
+        // Identity-verified marker — drawn green check + localized label (matches the on-screen/email receipts).
+        const vy = badgeY + 24;
         doc.save();
         doc.lineWidth(1.6).strokeColor("#12B76A").lineJoin("round").lineCap("round");
         doc.moveTo(nameX, vy + 4).lineTo(nameX + 3.5, vy + 7.5).lineTo(nameX + 9, vy).stroke();
         doc.restore();
-        doc.fontSize(10)
-          .fillColor("#12B76A")
-          .text(t("receipt.verifiedMerchant", L), nameX + 14, vy);
-        doc.fillColor(BRAND_COLORS.text);
+        doc.font(FONT).fontSize(9.5).fillColor("#12B76A").text(t("receipt.verifiedMerchant", L), nameX + 14, vy, { lineBreak: false });
       }
 
-      // Customer column
-      doc.fontSize(12)
-        .fillColor(BRAND_COLORS.primary)
-        .text(t("receipt.customer", L), 50 + colWidth + 30, yPos);
-      
-      doc.fontSize(14)
-        .fillColor(BRAND_COLORS.dark)
-        .text(data.customerName || data.customerEmail, 50 + colWidth + 30, yPos + 20);
-
+      eyebrow(t("labels.customer", L), rightColX, y);
+      doc.font(BOLD).fontSize(13).fillColor(BRAND_COLORS.dark)
+        .text(data.customerName || data.customerEmail, rightColX, badgeY + (data.customerName ? 4 : 12), { width: colW, lineBreak: false, ellipsis: true });
       if (data.customerName) {
-        doc.fontSize(11)
-          .fillColor(BRAND_COLORS.text)
-          .text(data.customerEmail, 50 + colWidth + 30, yPos + 40);
+        doc.font(FONT).fontSize(10).fillColor(MUTED).text(data.customerEmail, rightColX, badgeY + 23, { width: colW, lineBreak: false, ellipsis: true });
+      }
+      y = badgeY + badgeSize;
+
+      // ============================================
+      // DESCRIPTION (optional, clamped to two lines so it can never spill)
+      // ============================================
+      if (data.description && y + 26 + 30 < CONTENT_BOTTOM) {
+        y = divider(y);
+        eyebrow(t("labels.description", L), X, y);
+        doc.font(FONT).fontSize(10.5).fillColor(BRAND_COLORS.text);
+        const descH = Math.min(30, doc.heightOfString(data.description, { width: W }));
+        doc.text(data.description, X, y + 14, { width: W, height: 30, ellipsis: true });
+        y += 14 + descH;
       }
 
-      yPos += 80;
-
-      // ============================================
-      // DESCRIPTION (if provided)
-      // ============================================
-      if (data.description) {
-        doc.moveTo(50, yPos).lineTo(50 + pageWidth, yPos).stroke(BRAND_COLORS.border);
-        yPos += 20;
-
-        doc.fontSize(12)
-          .fillColor(BRAND_COLORS.primary)
-          .text(t("receipt.description", L), 50, yPos);
-        
-        doc.fontSize(11)
-          .fillColor(BRAND_COLORS.text)
-          .text(data.description, 50, yPos + 20, { width: pageWidth });
-
-        yPos += 60;
+      // "Questions about this purchase? Contact <merchant> directly." — buyers
+      // otherwise write to Dynopay for order questions the merchant must answer.
+      if (y + 30 < CONTENT_BOTTOM) {
+        doc.font(FONT).fontSize(9.5).fillColor(MUTED)
+          .text(t("receipt.contactMerchant", L, { company: data.companyName }), X, y + 16, { width: W, lineBreak: false, ellipsis: true });
       }
 
       // ============================================
-      // FOOTER
+      // FOOTER — dark band, localized chrome (same strings as the email footer)
       // ============================================
-      const footerY = doc.page.height - 120;
-
-      doc.rect(0, footerY, doc.page.width, 120).fill(BRAND_COLORS.dark);
-
+      doc.rect(0, footerY, PAGE_W, FOOTER_H).fill(BRAND_COLORS.dark);
       let footerLogoDrawn = false;
       if (DYNOPAY_LOGO_PATH) {
         try {
-          doc.image(DYNOPAY_LOGO_PATH, 50, footerY + 22, { fit: [112, 30] });
+          doc.image(DYNOPAY_LOGO_PATH, X, footerY + 18, { fit: [96, 24] });
           footerLogoDrawn = true;
         } catch {
           /* fall back to the text wordmark */
         }
       }
       if (!footerLogoDrawn) {
-        doc.fontSize(16)
-          .fillColor("#ffffff")
-          .text("Dyno", 50, footerY + 25, { continued: true })
-          .fillColor(BRAND_COLORS.accent)
-          .text("Pay", { continued: false });
+        doc.font(BOLD).fontSize(15).fillColor("#ffffff").text("dyno", X, footerY + 20, { continued: true, lineBreak: false })
+          .fillColor(BRAND_COLORS.accent).text("pay", { continued: false, lineBreak: false });
+      }
+      doc.font(FONT).fontSize(9).fillColor("#9CA3AF").text(t("chrome.tagline", L), X, footerY + 50, { lineBreak: false });
+      doc.fontSize(8).fillColor(MUTED).text(t("chrome.rights", L, { year: new Date().getFullYear() }), X, footerY + 64, { lineBreak: false });
+      doc.fontSize(8).fillColor(MUTED).text(t("receipt.autoGenerated", L), X, footerY + 76, { lineBreak: false });
+
+      doc.fontSize(9).fillColor("#C7D2FE")
+        .text("dynopay.com", X + W - RIGHT_W, footerY + 50, { width: RIGHT_W, align: "right", lineBreak: false, link: "https://dynopay.com" })
+        .fillColor("#9CA3AF")
+        .text(t("chrome.support", L), X + W - RIGHT_W, footerY + 64, { width: RIGHT_W, align: "right", lineBreak: false, link: "https://dynopay.com/help-support" });
+      if (data.receiptUrl) {
+        doc.fontSize(8.5).fillColor("#C7D2FE")
+          .text(t("receipt.viewOnline", L), X + W - RIGHT_W, footerY + 78, { width: RIGHT_W, align: "right", lineBreak: false, link: data.receiptUrl, underline: true });
       }
 
-      doc.fontSize(10)
-        .fillColor("#9ca3af")
-        .text(t("receipt.tagline", L), 50, footerY + 50);
-
-      doc.fontSize(9)
-        .fillColor("#9ca3af")
-        .text(t("receipt.rights", L, { year: new Date().getFullYear() }), 50, footerY + 70);
-
-      doc.text(t("receipt.autoGenerated", L), 50, footerY + 85);
-
-      // Links on right
-      doc.fontSize(9)
-        .fillColor("#9ca3af")
-        .text("dynopay.com", 400, footerY + 50, { align: "right", width: 150, link: "https://dynopay.com" })
-        .text("Help & Support", 400, footerY + 65, { align: "right", width: 150, link: "https://dynopay.com/help-support" });
-
-      // End document
       doc.end();
     } catch (error) {
       reject(error);

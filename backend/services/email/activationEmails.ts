@@ -64,7 +64,7 @@ export const sendActivationEmail = async (a: ActivationEmailArgs): Promise<boole
       ${videoBlock}
       ${footer}`;
 
-    const html = dynoPayEmailTemplate(heading, content, true, ctaLabel, ctaUrl);
+    const html = dynoPayEmailTemplate(heading, content, true, ctaLabel, ctaUrl, "", L);
     await mailTransporter({ to: a.email, name, subject, body: html });
     apiLogger.info(`[Activation] ${a.step}/${a.segment} email sent to ${a.email}`);
     return true;

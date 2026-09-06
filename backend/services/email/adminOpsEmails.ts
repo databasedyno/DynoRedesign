@@ -42,7 +42,7 @@ export const sendLargeTransactionAlertEmail = async (
     ${p(t('merchant.largeTransaction.outro1', L))}
     ${p(t('merchant.largeTransaction.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.largeTransaction.heading', L), content, true, t('merchant.largeTransaction.cta', L), `${FRONTEND_BASE_URL}/transactions`);
+    const html = dynoPayEmailTemplate(t('merchant.largeTransaction.heading', L), content, true, t('merchant.largeTransaction.cta', L), `${FRONTEND_BASE_URL}/transactions`, "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Large transaction alert sent to ${email} - ${amount} ${currency}`);
   } catch (e) {

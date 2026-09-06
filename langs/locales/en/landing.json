@@ -694,7 +694,11 @@
       "preparing": "Preparing receipt…",
       "downloaded": "Receipt downloaded",
       "download": "Download receipt",
-      "error": "Could not fetch the receipt — please try again."
+      "error": "Could not fetch the receipt — please try again.",
+      "copyLink": "Copy receipt link",
+      "copying": "Creating link…",
+      "linkCopied": "Receipt link copied",
+      "linkError": "Could not create the link — please try again."
     },
     "processingFee": "Processing fee",
     "totalYouPay": "Total you pay",

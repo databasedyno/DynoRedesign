@@ -1,7 +1,6 @@
 import PDFDocument from "pdfkit";
-import path from "path";
-import fs from "fs";
 import { getCurrencySymbol as getCurrencySymbolShared } from "../utils/currencyUtils";
+import { INK, EYEBROW, drawInvoiceBrandBar, drawInvoiceHeader, drawInvoiceProvider, drawInvoiceFooter } from "./pdf/invoiceChrome";
 import { t, normalizeLang } from "../utils/emailI18n";
 import { toFixedStr } from "../utils/money";
 
@@ -53,6 +52,7 @@ interface InvoiceData {
  */
 const getCurrencySymbol = (currency: string): string =>
   getCurrencySymbolShared(currency, 'pdf');
+
 
 /**
  * Generate PDF invoice
@@ -118,61 +118,16 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     });
   };
 
-  // --- Add Dynopay Logo ---
-  // Try multiple possible logo locations
-  const possibleLogoPaths = [
-    path.join(__dirname, "../assets/dynopay-logo.png"),
-    path.join(__dirname, "../../assets/dynopay-logo.png"),
-    path.resolve("/app/backend/assets/dynopay-logo.png"),
-  ];
-  
-  let logoPath = "";
-  for (const p of possibleLogoPaths) {
-    if (fs.existsSync(p)) {
-      logoPath = p;
-      break;
-    }
-  }
-  
-  let logoY = 50;
-  if (logoPath) {
-    try {
-      // Use `fit` so pdfkit preserves the source aspect ratio inside the box
-      // (avoids any subtle stretching that would re-introduce a fuzzy look).
-      // The bbox is 120×42 — gives a crisp 3:1 logo on print and screen.
-      doc.image(logoPath, 50, 50, { fit: [120, 42] });
-      logoY = 95; // Adjust starting position after logo
-    } catch (err) {
-      console.error("Error adding logo to PDF:", err);
-    }
-  }
-
-  // --- Header (INVOICE - right aligned) ---
-  doc
-    .fontSize(24)
-    .font("Helvetica-Bold")
-    .text(t("invoice.title", L), 50, 50, { align: "right" })
-    .fontSize(10)
-    .font("Helvetica")
-    .text(t("invoice.number", L, { number: invoiceData.invoice_number }), 50, 80, { align: "right" })
-    .text(t("invoice.date", L, { date: formatDate(invoiceData.invoice_date) }), 50, 95, {
-      align: "right",
-    });
-
-  // --- Provider (From) with full Dynopay branding ---
+  // --- Brand bar + logo, right-aligned header (+ PAID stamp for settled v2 invoices), provider block ---
+  const logoY = drawInvoiceBrandBar(doc);
+  const isSettledInvoice = invoiceData.invoice_version === "v2";
+  drawInvoiceHeader(doc, L, {
+    invoiceNumber: invoiceData.invoice_number,
+    dateLabel: formatDate(invoiceData.invoice_date),
+    settled: isSettledInvoice,
+  });
   const providerStartY = logoY + 20;
-  doc
-    .fontSize(12)
-    .font("Helvetica-Bold")
-    .text(t("invoice.from", L), 50, providerStartY)
-    .fontSize(10)
-    .font("Helvetica-Bold")
-    .text("Dynopay Innovations, LTD", 50, providerStartY + 20)
-    .fontSize(9)
-    .font("Helvetica-Bold")
-    .fillColor("#1976D2")
-    .text("Dynopay.com", 50, providerStartY + 35)
-    .fillColor("#000000");
+  drawInvoiceProvider(doc, L, providerStartY);
 
   // --- Customer (Bill To) ---
   doc
@@ -209,13 +164,14 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
   // --- Table Header ---
   const tableTop = lineY + 20;
   doc
-    .fontSize(10)
+    .fontSize(8.5)
     .font("Helvetica-Bold")
-    .fillColor("#000000")
-    .text(t("invoice.description", L), 50, tableTop)
-    .text(t("invoice.qty", L), 300, tableTop, { width: 50, align: "right" })
-    .text(t("invoice.price", L), 360, tableTop, { width: 80, align: "right" })
-    .text(t("invoice.amount", L), 460, tableTop, { width: 90, align: "right" });
+    .fillColor(INK.muted)
+    .text(t("invoice.description", L).toUpperCase(), 50, tableTop, { ...EYEBROW })
+    .text(t("invoice.qty", L).toUpperCase(), 300, tableTop, { width: 50, align: "right", ...EYEBROW })
+    .text(t("invoice.price", L).toUpperCase(), 360, tableTop, { width: 80, align: "right", ...EYEBROW })
+    .text(t("invoice.amount", L).toUpperCase(), 460, tableTop, { width: 90, align: "right", ...EYEBROW })
+    .fillColor(INK.text);
 
   // --- Table Header Line ---
   doc
@@ -457,28 +413,10 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .fontSize(9)
     .font("Helvetica")
     .fillColor("#333333")
-    .text(invoiceData.payment_terms, 50, yPosition + 18, { width: 500 })
+    .text(isSettledInvoice ? t("invoice.termsSettled", L) : invoiceData.payment_terms, 50, yPosition + 18, { width: 500 })
     .fillColor("#000000");
 
-  // --- Footer ---
-  const footerY = 730;
-  doc
-    .fontSize(8)
-    .font("Helvetica")
-    .fillColor("#999999")
-    .text(
-      t("invoice.transactionReference", L, { id: invoiceData.transaction_id }),
-      50,
-      footerY,
-      { align: "center" }
-    )
-    .fontSize(9)
-    .fillColor("#333333")
-    .text(t("invoice.thankYou", L), 50, footerY + 20, { align: "center" })
-    .fontSize(8)
-    .fillColor("#1976D2")
-    .text("Powered by Dynopay - dynopay.com", 50, footerY + 35, { align: "center" })
-    .fillColor("#000000");
+  drawInvoiceFooter(doc, L, invoiceData.transaction_id);
 
   // Finalize PDF
   doc.end();

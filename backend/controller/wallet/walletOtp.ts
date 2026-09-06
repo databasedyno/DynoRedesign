@@ -54,7 +54,7 @@ export async function updateOtp(userData, wallet_address, currency) {
   const htmlBody = dynoPayEmailTemplate(
     t("walletOtp.heading", lang),
     otpContent,
-    false
+    false, "", "", "", lang
   );
 
   await mailTransporter({

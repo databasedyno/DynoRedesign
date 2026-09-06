@@ -1,3 +1,30 @@
+# FIX 2026-09-06 (pod 1a75b74d): COMMIT BLOCKER — husky pre-commit R2 rule (new backend .ts > 500 lines blocks). pdfService.ts had grown
+#   491 -> 528; extracted services/pdf/invoiceChrome.ts (palette/logo/header+PAID/provider/footer) -> pdfService.ts 429 lines.
+#   `sh .husky/pre-commit` exit 0 verified by testing agent. RULE FOR FUTURE WORK: keep every NEW backend .ts file <= 500 lines
+#   (backend/scripts/check-file-size.mjs; legacy files grandfathered in backend/scripts/file-size-baseline.json).
+
+# STATUS 2026-09-06 (pod 1a75b74d, part 2): COIN LOGO ON PDF + SHAREABLE RECEIPT LINK + DE/NL FORMAL REGISTER — DONE, backend 10/10.
+#   Shareable receipt: /receipt/<token> (pages/receipt/[token].tsx, SSR, labels pre-localized by the API) backed by NEW table
+#   tbl_payment_receipt (migration 0021 APPLIED on prod) = immutable snapshot of the settlement figures, 22-char token, masked
+#   buyer email, dedupe by on-chain hash. Endpoints: GET /api/pay/receipt/:token (+/pdf), POST /api/pay/receipt/link (customer auth).
+#   Surfaced: customer confirmation email CTA "View receipt online", PDF footer link, checkout paid card "Copy receipt link".
+#   PDF receipt: coin badge + "0.0031245 BTC · Bitcoin" + Network row (backend/utils/networkLabels.ts, renderCurrencyBadgePng).
+#   Register: scripts/apply_register_sweep.py (18 DE + 83 NL strings -> Sie/u), lint-guarded. NL checkout "ontvangst"->"bon".
+#   Test snapshot kept for the user to click: /receipt/GwVgV4tgx8YUD5BySU7QtY (remove: seed_test_receipt.ts --cleanup).
+#   Frontend page + checkout button verified by screenshot only (no automated frontend test run yet — needs user OK).
+
+# STATUS 2026-09-06 (pod 1a75b74d): EMAIL FOOTER LOCALIZATION + COPY DE-DUPE + PDF RECEIPT/INVOICE AUDIT — DONE, backend-tested 8/8.
+#   The former "KNOWN FOLLOW-UP" is closed: dynoPayEmailTemplate forwards `lang` (7th param) -> footer chrome + <html lang> localized
+#   at 57 localized call sites (scripts/apply_footer_lang_wiring.py); English code-embedded emails deliberately untouched.
+#   De-dupe (scripts/apply_email_dedupe.py): greeting = common.*, sign-off = chrome.*, PDF labels = labels.*/chrome.*, dead
+#   merchant.walletOtp removed, orderReceipt.preheader added (was a raw-key leak), DE/NL receipt register made formal.
+#   PDF: receipt was 4-6 PAGES (pdfkit auto-pagination) -> always 1 page, dynamic rows, mono IDs, localized footer/payment method,
+#   contact-merchant line; invoice: brand indigo + PAID pill + localized settled terms for v2 (fee already collected at settlement;
+#   controller default payment_terms/description updated for new rows). Verify: scripts/verify_footer_lang.ts,
+#   scripts/render_pdf_previews.ts (+pdf_to_png.py); previews in memory/email_previews_v3 + memory/pdf_previews/{before,after}.
+#   NOT touched: frontend, Binance/conversion, money math in pdfService.ts. Items Transactions/PayLinks polish, checkout copy pulse,
+#   confirmed check-mark were already shipped last session (verified in code).
+
 # STATUS 2026-06 (pod dbd52123): DESIGN POLISH — DASHBOARD + CHECKOUT (light touch, both themes). User-approved
 # scope: keep layout; refine spacing/type hierarchy/hover+focus; consistent indigo accent; status dot+text; de-clutter the
 # dashboard top area; checkout amount + "Send exactly" as mono heroes; calmer flat surfaces (no orbs / tinted boxes);

@@ -6,7 +6,7 @@
 import { getCurrencySymbol as getCurrencySymbolShared } from "./currencyUtils";
 import config from "./config";
 import { EMAIL_TOKENS as T } from "./brandTokens";
-import { t as tr } from "./emailI18n";
+import { t as tr, normalizeLang } from "./emailI18n";
 
 // Cache-busted email logo filename. Regenerated from the CURRENT landing white
 // wordmark (assets/Icons/home/dynopay-whiteLogo.svg) baked onto the dark #050505
@@ -75,6 +75,8 @@ export const baseEmailTemplate = (
   const LOGO_URL = getDynopayLogoUrl();
   const year = new Date().getFullYear();
   const { showButton = false, buttonText = '', buttonLink = '', preheader = '', lang } = options || {};
+  // <html lang> follows the recipient language (screen readers / client hyphenation).
+  const htmlLang = normalizeLang(lang);
   // Localized chrome strings (English when no lang passed → unchanged for all
   // existing callers; t() falls back to English for any missing key).
   const chrome = {
@@ -122,7 +124,7 @@ export const baseEmailTemplate = (
                 </tr>` : '';
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="${htmlLang}">
 <head>
   <meta charset="UTF-8" />
   <meta content="width=device-width, initial-scale=1" name="viewport" />

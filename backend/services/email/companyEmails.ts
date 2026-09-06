@@ -29,7 +29,7 @@ export const sendCompanyProfileCreatedEmail = async (
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyText', L)}</p>
     `)}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyCreated.heading', L), content, true, t('merchant.companyCreated.cta', L), `${FRONTEND_BASE_URL}/wallet`, t('merchant.companyCreated.preheader', L));
+    const html = dynoPayEmailTemplate(t('merchant.companyCreated.heading', L), content, true, t('merchant.companyCreated.cta', L), `${FRONTEND_BASE_URL}/wallet`, t('merchant.companyCreated.preheader', L), L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile created email sent to ${email}`);
   } catch (e) {
@@ -62,7 +62,7 @@ export const sendCompanyContactWelcomeEmail = async (
     `)}
     ${p(t('merchant.companyContactWelcome.outro', L, { accountHolderName }))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyContactWelcome.heading', L), content, true, t('merchant.companyContactWelcome.cta', L), `${FRONTEND_BASE_URL}`, t('merchant.companyContactWelcome.preheader', L));
+    const html = dynoPayEmailTemplate(t('merchant.companyContactWelcome.heading', L), content, true, t('merchant.companyContactWelcome.cta', L), `${FRONTEND_BASE_URL}`, t('merchant.companyContactWelcome.preheader', L), L);
     await mailTransporter({ to: companyContactEmail, name: companyName, subject, body: html });
     apiLogger.info(`Company contact welcome email sent to ${companyContactEmail}`);
   } catch (e) {
@@ -96,7 +96,7 @@ export const sendCompanyProfileUpdatedEmail = async (
     `, '#12B76A')}
     ${p(t('merchant.companyUpdated.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`, t('merchant.companyUpdated.preheader', L));
+    const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`, t('merchant.companyUpdated.preheader', L), L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile updated email sent to ${email}`);
   } catch (e) {

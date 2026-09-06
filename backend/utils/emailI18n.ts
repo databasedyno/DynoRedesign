@@ -109,7 +109,7 @@ export const t = (key: string, lang?: string | null, vars?: Record<string, unkno
     value = getByPath(loadCatalog(DEFAULT_EMAIL_LANGUAGE), key);
   }
   if (typeof value !== "string") return key;
-  // Greeting keys (common.greeting / chrome.greeting) always take a person's
+  // The greeting key (common.greeting — single source) always takes a person's
   // name — greet by FIRST name only, everywhere, without touching other keys
   // that reuse a {{name}} placeholder for non-person values (tiers, subjects).
   const effVars =

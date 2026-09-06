@@ -60,6 +60,7 @@ import loginActivityModel from "./loginActivityModel";
 import signupAttributionModel from "./signupAttributionModel";
 import teamMemberModel from "./teamMemberModel"; // Team Members / RBAC
 import teamActivityModel from "./teamActivityModel"; // Team Activity Log (audit trail)
+import paymentReceiptModel from "./paymentReceiptModel"; // Shareable receipt snapshots (/receipt/<token>)
 
 // Publishable Keys (Phase 2 — Buy Button)
 import publishableKeyModel from "./publishableKeyModel";
@@ -153,6 +154,7 @@ export {
   signupAttributionModel,
   teamMemberModel,
   teamActivityModel,
+  paymentReceiptModel,
   // Publishable Keys (Phase 2 — Buy Button)
   publishableKeyModel,
   // Buy Buttons (Phase 2D)

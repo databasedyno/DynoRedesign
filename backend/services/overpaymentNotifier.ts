@@ -105,6 +105,8 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
         true,
         t("overpayment.viewTransactions", merchantLang),
         `${FRONTEND_BASE_URL}/transactions`,
+        "",
+        merchantLang
       );
       await mailTransporter({
         to: merchantEmail,

@@ -691,10 +691,14 @@
     "supportFallbackTitle": "Steun deze campagne",
     "completePaymentTitle": "Voltooi je betaling",
     "receipt": {
-      "preparing": "Ontvangst aan het voorbereiden…",
-      "downloaded": "Ontvangst gedownload",
-      "download": "Download ontvangst",
-      "error": "Kon de ontvangst niet ophalen — probeer het opnieuw."
+      "preparing": "Bon wordt voorbereid…",
+      "downloaded": "Bon gedownload",
+      "download": "Bon downloaden",
+      "error": "Kon de ontvangst niet ophalen — probeer het opnieuw.",
+      "copyLink": "Bonlink kopiëren",
+      "copying": "Link wordt gemaakt…",
+      "linkCopied": "Bonlink gekopieerd",
+      "linkError": "De link kon niet worden gemaakt – probeer het opnieuw."
     },
     "processingFee": "Verwerkingskosten",
     "totalYouPay": "Totaal dat je betaalt",

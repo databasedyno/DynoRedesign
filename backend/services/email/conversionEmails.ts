@@ -144,7 +144,7 @@ export const sendAutoConversionPayoutEmail = async (
       `)}
       ${p(t('merchant.autoConversion.outro', L))}`;
 
-    const htmlBody = dynoPayEmailTemplate(t('merchant.autoConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, false, "", "", t('merchant.autoConversion.preheader', L));
+    const htmlBody = dynoPayEmailTemplate(t('merchant.autoConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, false, "", "", t('merchant.autoConversion.preheader', L), L);
     const info = await mailTransporter({
       to: recipientEmail,
       name,
@@ -286,7 +286,7 @@ export const sendWeeklyConversionSummaryEmail = async (
 
       ${p(`<span style="font-size: 13px; color: #9ca3af;">Report period: ${periodStart} to ${periodEnd}. Auto-conversion protects your revenue from crypto price volatility by automatically converting to stablecoins.</span>`)}`;
 
-    const htmlBody = dynoPayEmailTemplate(t('merchant.weeklyConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, false, "", "", t('merchant.weeklyConversion.preheader', L));
+    const htmlBody = dynoPayEmailTemplate(t('merchant.weeklyConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, false, "", "", t('merchant.weeklyConversion.preheader', L), L);
     const info = await mailTransporter({
       to: recipientEmail,
       name,

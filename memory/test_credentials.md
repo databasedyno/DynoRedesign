@@ -12,6 +12,7 @@
 # - VERIFIED: :8001/health healthy (db+redis connected, tatum operational CLOSED, bg_jobs.eligible=false, binance geo_blocked
 #   REST fallback); /api/public/tickers live via ingress (BTC ~$79.9k, ETH ~$2.5k); /auth/login external -> 200 "Log in · Dynopay"
 #   + Playwright screenshot renders login card. webhook-crond supervisor FATAL = harmless (no cron daemon in image).
+# - PUBLIC RECEIPT TEST LINK (seeded snapshot, safe to open): /receipt/GwVgV4tgx8YUD5BySU7QtY  (PDF: /api/pay/receipt/GwVgV4tgx8YUD5BySU7QtY/pdf)
 # - NOTE: WIRED TO PRODUCTION DB — prefer READ-ONLY checks. Next.js dev never hits 'networkidle' -> wait on selectors.
 # ============================================================================
 

@@ -694,7 +694,11 @@
       "preparing": "Préparation du reçu…",
       "downloaded": "Reçu téléchargé",
       "download": "Télécharger le reçu",
-      "error": "Impossible de récupérer le reçu — veuillez réessayer."
+      "error": "Impossible de récupérer le reçu — veuillez réessayer.",
+      "copyLink": "Copier le lien du reçu",
+      "copying": "Création du lien…",
+      "linkCopied": "Lien du reçu copié",
+      "linkError": "Impossible de créer le lien – veuillez réessayer."
     },
     "processingFee": "Frais de traitement",
     "totalYouPay": "Total que vous payez",

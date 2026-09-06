@@ -56,7 +56,10 @@ export const LanguageOnboardingBar = () => {
         const hasToken = !!localStorage.getItem("token");
         const chose = localStorage.getItem("lang_manual") === "true";
         const dismissed = localStorage.getItem(DISMISS_KEY) === "1";
-        eligible = isMobile && !hasToken && !chose && !dismissed;
+        // Public receipts render in the BUYER's language (server-localized) — a UI
+        // language switch would change nothing there, so never nudge on /receipt/.
+        const isReceipt = router.pathname.startsWith("/receipt/");
+        eligible = isMobile && !hasToken && !chose && !dismissed && !isReceipt;
       } catch {
         /* localStorage unavailable — never block the page */
       }

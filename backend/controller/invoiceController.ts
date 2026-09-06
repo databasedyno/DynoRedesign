@@ -402,7 +402,7 @@ export const autoGenerateInvoice = async (
       customer_name: companyData.company_name,
       customer_address: customerAddress,
       customer_tax_id: companyData.vat_number || null,
-      description: `Payment processing service - Transaction ${txData.transaction_reference || transactionId}`,
+      description: `Payment processing service – Transaction ${txData.transaction_reference || transactionId}`,
       unit_price: unitPrice,
       quantity: 1,
       vat_rate: vatRate,
@@ -417,7 +417,9 @@ export const autoGenerateInvoice = async (
       total_usd: totalAmount,
       total_crypto: parseFloat(txData.crypto_amount || 0) || totalAmount,
       crypto_currency: txData.crypto_currency || preferredCurrency,
-      payment_terms: "Payment due upon receipt",
+      // The invoice is created only after settlement — the fee was already
+      // collected from the proceeds. (PDF renders the localized settled text.)
+      payment_terms: "Settled automatically from the transaction proceeds – no payment due",
       invoice_date: new Date(),
     };
 

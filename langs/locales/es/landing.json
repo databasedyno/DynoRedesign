@@ -694,7 +694,11 @@
       "preparing": "Preparando recibo…",
       "downloaded": "Recibo descargado",
       "download": "Descargar recibo",
-      "error": "No se pudo obtener el recibo — por favor intenta de nuevo."
+      "error": "No se pudo obtener el recibo — por favor intenta de nuevo.",
+      "copyLink": "Copiar enlace del recibo",
+      "copying": "Creando enlace…",
+      "linkCopied": "Enlace del recibo copiado",
+      "linkError": "No se pudo crear el enlace. Inténtalo de nuevo."
     },
     "processingFee": "Tarifa de procesamiento",
     "totalYouPay": "Total que pagas",

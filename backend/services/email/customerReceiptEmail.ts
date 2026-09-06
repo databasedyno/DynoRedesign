@@ -1,6 +1,8 @@
 import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
-import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
+import { generatePaymentReceipt, getReceiptFilename, type ReceiptData } from "../pdfReceiptService";
+import { ensureReceiptLink } from "../receiptLinkService";
+import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
 import { t, normalizeLang } from "../../utils/emailI18n";
 import { formatMoneyForEmail, dynoPayEmailTemplate } from "./emailShared";
 import { infoBox, dataRow, statusBadge, p } from "../../utils/emailTemplate";
@@ -24,7 +26,9 @@ export const sendCustomerPaymentConfirmationEmail = async (
   lang: string = 'en',
   campaignName?: string,
   breakdown?: { merchantAmount: number; feeAmount: number; feePayer: 'customer' | 'company'; currency: string } | null,
-  companyLogo?: string | null
+  companyLogo?: string | null,
+  /** Merchant company id + owner — mints the shareable /receipt/<token> link and the verified marker. */
+  company?: { companyId?: number | null; ownerUserId?: number | null } | null
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -42,9 +46,20 @@ export const sendCustomerPaymentConfirmationEmail = async (
         }
       : undefined;
 
+    // Identity-verified merchant marker (best-effort, read-only) — same signal as the checkout card.
+    let merchantVerified = false;
+    if (company?.companyId || company?.ownerUserId) {
+      try {
+        merchantVerified = await isMerchantIdentityVerified(company?.ownerUserId ?? null, company?.companyId ?? null);
+      } catch {
+        merchantVerified = false;
+      }
+    }
+
     let pdfAttachment: { name: string; content: string; contentType: string } | undefined;
+    let receiptUrl: string | undefined;
     try {
-      const receiptData = {
+      const receiptData: ReceiptData = {
         transactionId,
         transactionReference,
         amount,
@@ -53,17 +68,22 @@ export const sendCustomerPaymentConfirmationEmail = async (
         cryptoCurrency,
         companyName,
         companyLogo: companyLogo || undefined,
+        merchantVerified,
         customerEmail,
         customerName: displayName,
         paymentDate: new Date(`${date} ${time}`),
         description: description || undefined,
-        paymentMethod: cryptoCurrency ? `${t('receipt.cryptocurrency', L)} (${cryptoCurrency})` : t('receipt.cryptocurrency', L),
+        paymentMethod: undefined, // pdfReceiptService renders localized "Cryptocurrency (<coin>)" + network row
         status: t('receipt.completed', L),
         lang: L,
         breakdown: split,
       };
 
-      const pdfBuffer = await generatePaymentReceipt(receiptData);
+      // Shareable proof-of-payment link (snapshot of exactly these figures). Best-effort.
+      const link = await ensureReceiptLink(receiptData, company?.companyId ?? null);
+      receiptUrl = link?.url;
+
+      const pdfBuffer = await generatePaymentReceipt({ ...receiptData, receiptUrl });
       const filename = getReceiptFilename(transactionId);
 
       pdfAttachment = {
@@ -76,7 +96,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
       apiLogger.error("[Email] Failed to generate PDF receipt:", pdfError);
     }
 
-    const content = `${p(hasRealName ? t('common.greeting', L, { name: displayName }) : t('common.greetingNoName', L))}
+    const content = `${p(hasRealName ? t('common.greeting', L, { name: displayName }) : t('common.greetingDefault', L))}
     ${p(
       isContribution
         ? t('contributionThankYou.intro', L, { campaignName })
@@ -109,10 +129,10 @@ export const sendCustomerPaymentConfirmationEmail = async (
         ? t('contributionThankYou.heading', L, { campaignName })
         : t('customerPaymentConfirmation.heading', L),
       content,
-      false,
-      "",
-      "",
-      isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L)
+      !!receiptUrl,
+      receiptUrl ? t('customerPaymentConfirmation.viewOnlineCta', L) : "",
+      receiptUrl || "",
+      isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L), L
     );
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
     apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);

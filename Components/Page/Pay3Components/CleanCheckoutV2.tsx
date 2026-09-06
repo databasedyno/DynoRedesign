@@ -74,7 +74,7 @@ import {
 import {
   formatCryptoAmount, buildPaymentUri, copyToClipboard, readCheckoutPref, writeCheckoutPref,
 } from './checkout/checkoutHelpers'
-import { checkoutApi as api, fetchReceiptBlob, checkoutStreamUrl } from './checkout/checkoutApi'
+import { checkoutApi as api, fetchReceiptBlob, fetchReceiptLink, checkoutStreamUrl } from './checkout/checkoutApi'
 import { PanelShell, CheckoutStatusTimeline } from './checkout/checkoutPrimitives'
 
 // Preserve existing external import contracts (scripts/qa + legacy importers).
@@ -140,6 +140,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   const [shareCopied, setShareCopied] = useState(false)
   // "Download receipt" on the paid card — proof of payment for the customer.
   const [receiptState, setReceiptState] = useState<'idle' | 'busy' | 'done' | 'error'>('idle')
+  // "Copy receipt link" — a shareable /receipt/<token> URL (proof of payment without a file).
+  const [receiptLinkState, setReceiptLinkState] = useState<'idle' | 'busy' | 'copied' | 'error'>('idle')
   const [showRefundInput, setShowRefundInput] = useState<boolean>(false)
   const [refundAddress, setRefundAddress] = useState<string>('')
   // Optional buyer receipt email ("Email me a receipt"). Saved to the checkout
@@ -854,6 +856,33 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     }
   }
 
+  // Copy a shareable receipt link (POST /pay/receipt/link → clipboard). The link
+  // is minted once per payment and reused — the same URL the receipt email carries.
+  const handleCopyReceiptLink = async () => {
+    if (receiptLinkState === 'busy') return
+    if (!cryptoInfo?.address || !meta_?.token) {
+      setReceiptLinkState('error')
+      setTimeout(() => setReceiptLinkState('idle'), 4000)
+      return
+    }
+    setReceiptLinkState('busy')
+    try {
+      const { url } = await fetchReceiptLink(cryptoInfo.address, meta_.token)
+      try {
+        await navigator.clipboard.writeText(url)
+        setReceiptLinkState('copied')
+        setTimeout(() => setReceiptLinkState('idle'), 2500)
+      } catch {
+        // Clipboard blocked (no user gesture / insecure context) — open the receipt instead.
+        window.open(url, '_blank', 'noopener,noreferrer')
+        setReceiptLinkState('idle')
+      }
+    } catch {
+      setReceiptLinkState('error')
+      setTimeout(() => setReceiptLinkState('idle'), 4000)
+    }
+  }
+
   // Fiat amount formatted using the same helper as the rest of the app
   const fiatSymbol = meta_ ? getCurrencySymbolFromFormat(meta_.base_currency) : '$'
   const fiatAmount = meta_ ? formatWithSeparators(Number(meta_.amount || 0), meta_.base_currency) : '0.00'
@@ -1099,6 +1128,44 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           {receiptState === 'error' && (
             <Typography data-testid="clean-checkout-receipt-error" sx={{ fontSize: 12, color: errFg, mt: 0.75 }}>
               {t('checkout.receipt.error', { defaultValue: 'Could not fetch the receipt — please try again.' })}
+            </Typography>
+          )}
+
+          {/* Copy receipt link — shareable proof of payment, no file needed */}
+          <Button
+            variant="text"
+            disableElevation
+            data-testid="clean-checkout-receipt-link-btn"
+            onClick={handleCopyReceiptLink}
+            disabled={receiptLinkState === 'busy'}
+            startIcon={
+              receiptLinkState === 'busy'
+                ? <Icon icon="mdi:loading" width={17} className="dyno-spin" />
+                : <Icon icon={receiptLinkState === 'copied' ? 'mdi:check' : 'mdi:link-variant'} width={17} />
+            }
+            sx={{
+              mt: 0.75,
+              textTransform: 'none',
+              borderRadius: '999px',
+              fontWeight: 600,
+              fontSize: 13,
+              px: 1.75,
+              minHeight: 36,
+              color: receiptLinkState === 'copied' ? LIME : muted,
+              '&:hover': { backgroundColor: 'transparent', color: theme.palette.text.primary },
+              '& .dyno-spin': { animation: 'dynospin 800ms linear infinite' },
+              '@keyframes dynospin': { to: { transform: 'rotate(360deg)' } },
+            }}
+          >
+            {receiptLinkState === 'busy'
+              ? t('checkout.receipt.copying', { defaultValue: 'Creating link…' })
+              : receiptLinkState === 'copied'
+                ? t('checkout.receipt.linkCopied', { defaultValue: 'Receipt link copied' })
+                : t('checkout.receipt.copyLink', { defaultValue: 'Copy receipt link' })}
+          </Button>
+          {receiptLinkState === 'error' && (
+            <Typography data-testid="clean-checkout-receipt-link-error" sx={{ fontSize: 12, color: errFg, mt: 0.5 }}>
+              {t('checkout.receipt.linkError', { defaultValue: 'Could not create the link — please try again.' })}
             </Typography>
           )}
         </Box>

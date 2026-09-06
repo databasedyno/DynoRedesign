@@ -77,6 +77,19 @@ export async function fetchReceiptBlob(
 }
 
 /**
+ * Create-or-reuse the public shareable receipt URL (POST /pay/receipt/link) —
+ * same auth + data as the PDF, so the page and the file always agree.
+ */
+export async function fetchReceiptLink(
+  address: string,
+  token: string,
+): Promise<{ url: string; token: string }> {
+  const res = await checkoutApi('/pay/receipt/link', { address }, token)
+  if (!res.ok || !res.data?.url) throw new Error(res.message || `HTTP ${res.status}`)
+  return { url: String(res.data.url), token: String(res.data.token || '') }
+}
+
+/**
  * Authenticated (merchant-session) transport for the LEGACY `cryptoTransfer`
  * checkout, which uses the app-wide axios instance (request interceptor +
  * localStorage token) — a DIFFERENT auth model from the fetch/Bearer client

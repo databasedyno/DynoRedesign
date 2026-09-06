@@ -20,6 +20,7 @@
 
 export { settleCryptoTransaction } from "./settlement/settleTransaction";
 export { verifyCryptoPayment } from "./settlement/verifyPayment";
-export { downloadReceipt } from "./settlement/receipt";
+export { downloadReceipt, createReceiptLink } from "./settlement/receipt";
+export { getPublicReceipt, getPublicReceiptPdf } from "./settlement/publicReceipt";
 export { checkoutStatusStream, tokenFromQuery } from "./settlement/checkoutStream";
 export { cryptoVerification } from "./settlement/chainVerification";

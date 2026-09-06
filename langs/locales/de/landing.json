@@ -694,7 +694,11 @@
       "preparing": "Beleg wird vorbereitet…",
       "downloaded": "Beleg heruntergeladen",
       "download": "Beleg herunterladen",
-      "error": "Beleg konnte nicht abgerufen werden — bitte versuchen Sie es erneut."
+      "error": "Beleg konnte nicht abgerufen werden — bitte versuchen Sie es erneut.",
+      "copyLink": "Beleg-Link kopieren",
+      "copying": "Link wird erstellt…",
+      "linkCopied": "Beleg-Link kopiert",
+      "linkError": "Link konnte nicht erstellt werden – bitte erneut versuchen."
     },
     "processingFee": "Bearbeitungsgebühr",
     "totalYouPay": "Gesamtbetrag, den Sie zahlen",

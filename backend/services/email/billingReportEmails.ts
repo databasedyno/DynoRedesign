@@ -58,7 +58,7 @@ export const sendWeeklySummaryEmail = async (
     `)}
     ${contextMessage}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.weeklySummary.heading', L), content, true, t('merchant.weeklySummary.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.weeklySummary.preheader', L));
+    const html = dynoPayEmailTemplate(t('merchant.weeklySummary.heading', L), content, true, t('merchant.weeklySummary.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.weeklySummary.preheader', L), L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Weekly summary email sent to ${email}`);
   } catch (e) {
@@ -102,7 +102,7 @@ export const sendInvoiceGeneratedEmail = async (
     `)}
     ${p(t('merchant.invoice.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.invoice.heading', L), content, true, t('merchant.invoice.cta', L), invoiceData.invoice_url, t('merchant.invoice.preheader', L));
+    const html = dynoPayEmailTemplate(t('merchant.invoice.heading', L), content, true, t('merchant.invoice.cta', L), invoiceData.invoice_url, t('merchant.invoice.preheader', L), L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Invoice email sent to ${email} for invoice ${invoiceData.invoice_number}`);
   } catch (error) {
@@ -140,7 +140,7 @@ export const sendApiKeyCreatedEmail = async (
     ${keyType === 'production' ? warnText(t('merchant.apiKey.productionWarn', L)) : ''}
     ${p(action === 'created' ? t('merchant.apiKey.didntCreate', L) : t('merchant.apiKey.didntRegenerate', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.apiKey.heading', L), content, true, t('merchant.apiKey.cta', L), `${FRONTEND_BASE_URL}/developer-keys`, t('merchant.apiKey.preheader', L));
+    const html = dynoPayEmailTemplate(t('merchant.apiKey.heading', L), content, true, t('merchant.apiKey.cta', L), `${FRONTEND_BASE_URL}/developer-keys`, t('merchant.apiKey.preheader', L), L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] API key ${action} notification sent to ${email} for ${keyType} environment`);
   } catch (e) {
@@ -169,7 +169,7 @@ export const sendSubscriptionCreatedEmail = async (
     `, '#12B76A')}
     ${p(t('merchant.subscriptionCreated.custOutro', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent, false, "", "", t('merchant.subscriptionCreated.custPreheader', CL));
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent, false, "", "", t('merchant.subscriptionCreated.custPreheader', CL), CL);
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionCreated.merchSubject', ML, { planName });
@@ -184,7 +184,7 @@ export const sendSubscriptionCreatedEmail = async (
       </table>
     `, '#12B76A')}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCreated.merchPreheader', ML));
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCreated.merchPreheader', ML), ML);
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription created notifications sent for ${planName}`);
   } catch (e) {
@@ -214,7 +214,7 @@ export const sendSubscriptionCancelledEmail = async (
     ${p(t('merchant.subscriptionCancelled.custOutro1', CL, { effectiveDate }))}
     ${p(t('merchant.subscriptionCancelled.custOutro2', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', CL), customerContent, false, "", "", t('merchant.subscriptionCancelled.custPreheader', CL));
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', CL), customerContent, false, "", "", t('merchant.subscriptionCancelled.custPreheader', CL), CL);
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionCancelled.merchSubject', ML, { name: displayName });
@@ -229,7 +229,7 @@ export const sendSubscriptionCancelledEmail = async (
       </table>
     `, '#f59e0b')}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCancelled.merchPreheader', ML));
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCancelled.merchPreheader', ML), ML);
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription cancelled notifications sent for ${planName}`);
   } catch (e) {
@@ -259,7 +259,7 @@ export const sendSubscriptionPaymentFailedEmail = async (
     ${p(t('merchant.subscriptionPaymentFailed.custSteps', CL))}
     ${warnText(t('merchant.subscriptionPaymentFailed.custWarn', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.custHeading', CL), customerContent, true, t('merchant.subscriptionPaymentFailed.custCta', CL), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.custPreheader', CL));
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.custHeading', CL), customerContent, true, t('merchant.subscriptionPaymentFailed.custCta', CL), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.custPreheader', CL), CL);
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionPaymentFailed.merchSubject', ML, { name: displayName });
@@ -276,7 +276,7 @@ export const sendSubscriptionPaymentFailedEmail = async (
     `, '#f59e0b')}
     ${p(t('merchant.subscriptionPaymentFailed.merchOutro', ML))}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.merchHeading', ML), merchantContent, true, t('merchant.subscriptionPaymentFailed.merchCta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.merchPreheader', ML));
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.merchHeading', ML), merchantContent, true, t('merchant.subscriptionPaymentFailed.merchCta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.merchPreheader', ML), ML);
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription payment failed notifications sent for ${planName}`);
   } catch (e) {

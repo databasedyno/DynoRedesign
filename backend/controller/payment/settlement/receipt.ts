@@ -44,7 +44,8 @@ import {
 import {
   sendCustomerPaymentConfirmationEmail,
 } from "../../../services/emailService";
-import { generatePaymentReceipt, getReceiptFilename } from "../../../services/pdfReceiptService";
+import { generatePaymentReceipt, getReceiptFilename, type ReceiptData } from "../../../services/pdfReceiptService";
+import { ensureReceiptLink } from "../../../services/receiptLinkService";
 import { isMerchantIdentityVerified } from "../../../helper/merchantVerification";
 import crypto from "crypto";
 import { safeDeleteSubscription } from "../../../helper/subscriptionHelpers";
@@ -73,101 +74,112 @@ import { PaymentState, parseState, toRedisStatus } from "../../../services/payme
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 import { toFixedStr } from "../../../utils/money";
 
-export const downloadReceipt = async (
+type CheckoutReceiptResolution =
+  | { ok: true; data: ReceiptData; companyId: number | null }
+  | { ok: false; status: number; message: string };
+
+/**
+ * Resolve the receipt data for the buyer's CURRENT checkout (customer-session
+ * token + payment address → Redis checkout state). Shared by the PDF download
+ * and the "shareable link" endpoint so both surfaces show identical figures.
+ */
+const resolveCheckoutReceipt = async (
   req: express.Request,
   res: express.Response
-) => {
-  try {
-    const { address, destination_tag, lang } = req.body || {};
-    const userData = jwt.decode(res.locals.token) as { ref?: string; [key: string]: unknown } | null;
+): Promise<CheckoutReceiptResolution> => {
+  const { address, destination_tag, lang } = req.body || {};
+  const userData = jwt.decode(res.locals.token) as { ref?: string; [key: string]: unknown } | null;
 
-    if (!address || typeof address !== "string") {
-      return errorResponseHelper(res, 400, "address is required");
-    }
+  if (!address || typeof address !== "string") {
+    return { ok: false, status: 400, message: "address is required" };
+  }
 
-    // Resolve destination_tag from customer session if not provided (XRP/RLUSD)
-    let resolvedTag = destination_tag ? Number(destination_tag) : null;
-    if (!resolvedTag && userData?.ref) {
-      try {
-        const customerSession = await getRedisItem(`customer-${userData.ref}`);
-        const sessionTag = customerSession?.active_crypto_address?.destination_tag || customerSession?.destination_tag;
-        if (sessionTag) resolvedTag = Number(sessionTag);
-      } catch {
-        /* best effort — fall through to untagged key */
-      }
-    }
-
-    const receiptRedisKey = resolvedTag ? getCryptoRedisKey(address, resolvedTag) : `crypto-${address}`;
-    const tempData = await getRedisItem(receiptRedisKey);
-
-    if (!tempData || Object.keys(tempData).length === 0) {
-      return errorResponseHelper(res, 404, "Payment not found or receipt no longer available");
-    }
-
-    // Receipt only exists for a COMPLETED payment
-    const parsedState = parseState(tempData?.status);
-    if (parsedState !== PaymentState.PAYOUT_COMPLETE) {
-      return errorResponseHelper(res, 409, "Receipt is available once the payment is confirmed");
-    }
-
-    const customerData = (await getRedisItem(tempData?.ref)) || {};
-
-    // Merchant (company) name — read-only lookup
-    let companyName = "Merchant";
-    let companyOwnerUserId: number | null = null;
-    let companyLogo: string | null = null;
-    const companyId = customerData?.company_id || tempData?.company_id;
-    if (companyId) {
-      try {
-        const company = await companyModel.findOne({ where: { company_id: companyId } });
-        if (company?.dataValues?.company_name) companyName = company.dataValues.company_name;
-        if (company?.dataValues?.user_id) companyOwnerUserId = Number(company.dataValues.user_id);
-        if (company?.dataValues?.photo) companyLogo = String(company.dataValues.photo);
-      } catch {
-        /* keep fallback name */
-      }
-    }
-
-    // Identity-verified merchant marker for the PDF (best-effort, read-only).
-    let merchantVerified = false;
+  // Resolve destination_tag from customer session if not provided (XRP/RLUSD)
+  let resolvedTag = destination_tag ? Number(destination_tag) : null;
+  if (!resolvedTag && userData?.ref) {
     try {
-      merchantVerified = await isMerchantIdentityVerified(
-        companyOwnerUserId,
-        companyId ? Number(companyId) : null
-      );
+      const customerSession = await getRedisItem(`customer-${userData.ref}`);
+      const sessionTag = customerSession?.active_crypto_address?.destination_tag || customerSession?.destination_tag;
+      if (sessionTag) resolvedTag = Number(sessionTag);
     } catch {
-      merchantVerified = false;
+      /* best effort — fall through to untagged key */
     }
+  }
 
-    // Amounts — same sources verifyCryptoPayment uses for its confirmed payload
-    const receivedAmount = parseFloat(tempData?.receivedAmount || tempData?.amount || "0");
-    const baseCurrency = tempData?.base_currency || customerData?.base_currency || "USD";
-    const baseAmount = parseFloat(
-      tempData?.base_amount || tempData?.base_amount_usd || customerData?.base_amount || "0"
+  const receiptRedisKey = resolvedTag ? getCryptoRedisKey(address, resolvedTag) : `crypto-${address}`;
+  const tempData = await getRedisItem(receiptRedisKey);
+
+  if (!tempData || Object.keys(tempData).length === 0) {
+    return { ok: false, status: 404, message: "Payment not found or receipt no longer available" };
+  }
+
+  // Receipt only exists for a COMPLETED payment
+  const parsedState = parseState(tempData?.status);
+  if (parsedState !== PaymentState.PAYOUT_COMPLETE) {
+    return { ok: false, status: 409, message: "Receipt is available once the payment is confirmed" };
+  }
+
+  const customerData = (await getRedisItem(tempData?.ref)) || {};
+
+  // Merchant (company) name — read-only lookup
+  let companyName = "Merchant";
+  let companyOwnerUserId: number | null = null;
+  let companyLogo: string | null = null;
+  const companyId = customerData?.company_id || tempData?.company_id;
+  if (companyId) {
+    try {
+      const company = await companyModel.findOne({ where: { company_id: companyId } });
+      if (company?.dataValues?.company_name) companyName = company.dataValues.company_name;
+      if (company?.dataValues?.user_id) companyOwnerUserId = Number(company.dataValues.user_id);
+      if (company?.dataValues?.photo) companyLogo = String(company.dataValues.photo);
+    } catch {
+      /* keep fallback name */
+    }
+  }
+
+  // Identity-verified merchant marker for the PDF (best-effort, read-only).
+  let merchantVerified = false;
+  try {
+    merchantVerified = await isMerchantIdentityVerified(
+      companyOwnerUserId,
+      companyId ? Number(companyId) : null
     );
-    const currency = tempData?.currency || "";
+  } catch {
+    merchantVerified = false;
+  }
 
-    const transactionId = String(
-      tempData?.payment_id || tempData?.unique_tx_id || tempData?.txId || userData?.ref || "unknown"
-    );
-    const blockchainTx = tempData?.txId ? String(tempData.txId) : undefined;
+  // Amounts — same sources verifyCryptoPayment uses for its confirmed payload
+  const receivedAmount = parseFloat(tempData?.receivedAmount || tempData?.amount || "0");
+  const baseCurrency = tempData?.base_currency || customerData?.base_currency || "USD";
+  const baseAmount = parseFloat(
+    tempData?.base_amount || tempData?.base_amount_usd || customerData?.base_amount || "0"
+  );
+  const currency = tempData?.currency || "";
 
-    const customerEmail = String(
-      customerData?.customer_email || customerData?.email || tempData?.customer_email || ""
-    );
-    const customerName = customerData?.customer_name || customerData?.name || undefined;
+  const transactionId = String(
+    tempData?.payment_id || tempData?.unique_tx_id || tempData?.txId || userData?.ref || "unknown"
+  );
+  const blockchainTx = tempData?.txId ? String(tempData.txId) : undefined;
 
-    const L = normalizeLang(
-      resolveCustomerLanguage({
-        transactionLang: typeof lang === "string" ? lang : null,
-        checkoutLang: customerData?.lang || customerData?.language || null,
-        merchantLang: null,
-      })
-    );
+  const customerEmail = String(
+    customerData?.customer_email || customerData?.email || tempData?.customer_email || ""
+  );
+  const customerName = customerData?.customer_name || customerData?.name || undefined;
 
-    const paymentDate = tempData?.completedAt ? new Date(tempData.completedAt) : new Date();
+  const L = normalizeLang(
+    resolveCustomerLanguage({
+      transactionLang: typeof lang === "string" ? lang : null,
+      checkoutLang: customerData?.lang || customerData?.language || null,
+      merchantLang: null,
+    })
+  );
 
-    const pdfBuffer = await generatePaymentReceipt({
+  const paymentDate = tempData?.completedAt ? new Date(tempData.completedAt) : new Date();
+
+  return {
+    ok: true,
+    companyId: companyId ? Number(companyId) : null,
+    data: {
       transactionId,
       transactionReference: blockchainTx,
       amount: `${toFixedStr(baseAmount || 0, 2)}`,
@@ -181,13 +193,28 @@ export const downloadReceipt = async (
       customerName,
       paymentDate: isNaN(paymentDate.getTime()) ? new Date() : paymentDate,
       description: customerData?.description || customerData?.title || undefined,
-      paymentMethod: currency ? `Cryptocurrency (${currency})` : "Cryptocurrency",
+      paymentMethod: undefined, // pdfReceiptService renders localized "Cryptocurrency (<coin>)"
       status: undefined, // pdfReceiptService renders localized "Completed" by default
       lang: L,
       breakdown: formatBreakdown(resolveSettledBreakdown(tempData, currency)),
-    });
+    },
+  };
+};
 
-    const filename = getReceiptFilename(transactionId);
+/** POST /pay/receipt — branded PDF receipt for the buyer's confirmed checkout. */
+export const downloadReceipt = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const resolved = await resolveCheckoutReceipt(req, res);
+    if (resolved.ok === false) return errorResponseHelper(res, resolved.status, resolved.message);
+
+    // Best-effort: mint the shareable link so the PDF footer can carry it.
+    const link = await ensureReceiptLink(resolved.data, resolved.companyId);
+    const pdfBuffer = await generatePaymentReceipt({ ...resolved.data, receiptUrl: link?.url });
+
+    const filename = getReceiptFilename(resolved.data.transactionId);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.setHeader("Content-Length", String(pdfBuffer.length));
@@ -199,3 +226,23 @@ export const downloadReceipt = async (
   }
 };
 
+/**
+ * POST /pay/receipt/link — create-or-reuse the public shareable receipt URL for
+ * the buyer's confirmed checkout (same auth + data as the PDF download).
+ */
+export const createReceiptLink = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const resolved = await resolveCheckoutReceipt(req, res);
+    if (resolved.ok === false) return errorResponseHelper(res, resolved.status, resolved.message);
+    const link = await ensureReceiptLink(resolved.data, resolved.companyId);
+    if (!link) return errorResponseHelper(res, 500, "Could not create receipt link");
+    return successResponseHelper(res, 200, "Receipt link ready", { url: link.url, token: link.token });
+  } catch (e) {
+    const message = getErrorMessage(e);
+    apiLogger.error("[createReceiptLink] " + message, new Error(e));
+    return errorResponseHelper(res, 500, "Could not create receipt link");
+  }
+};

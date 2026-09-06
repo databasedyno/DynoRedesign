@@ -36,7 +36,7 @@ export const sendWalletUpdateOTPEmail = async (
     `)}
     ${warnText(t('merchant.walletUpdateOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.walletUpdateOtp.heading', L), content);
+    const html = dynoPayEmailTemplate(t('merchant.walletUpdateOtp.heading', L), content, false, "", "", "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet update OTP email sent to ${email}`);
   } catch (e) {
@@ -125,7 +125,7 @@ export const sendWalletDeletedEmail = async (
     ${p(t('merchant.walletDeleted.outro', L))}
     ${p(t('merchant.walletDeleted.didntDoThis', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.walletDeleted.heading', L), content, true, t('merchant.walletAdded.cta', L), `${FRONTEND_BASE_URL}/wallet`);
+    const html = dynoPayEmailTemplate(t('merchant.walletDeleted.heading', L), content, true, t('merchant.walletAdded.cta', L), `${FRONTEND_BASE_URL}/wallet`, "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Wallet deleted notification sent to ${email} for ${network}`);
   } catch (e) {
@@ -153,7 +153,7 @@ export const sendAddWalletReminderEmail = async (
     `)}
     ${p(t('merchant.addWalletReminder.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.addWalletReminder.heading', L), content, true, t('merchant.addWalletReminder.cta', L), `${FRONTEND_BASE_URL}/wallet`);
+    const html = dynoPayEmailTemplate(t('merchant.addWalletReminder.heading', L), content, true, t('merchant.addWalletReminder.cta', L), `${FRONTEND_BASE_URL}/wallet`, "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Add wallet reminder email sent to ${email}`);
   } catch (e) {
@@ -190,7 +190,7 @@ export const sendWalletAddedEmail = async (
     ${p(t('merchant.walletAdded.outro', L, { network }))}
     ${warnText(t('merchant.walletAdded.didntDoThis', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.walletAdded.heading', L), content, true, t('merchant.walletAdded.cta', L), `${FRONTEND_BASE_URL}/wallet`);
+    const html = dynoPayEmailTemplate(t('merchant.walletAdded.heading', L), content, true, t('merchant.walletAdded.cta', L), `${FRONTEND_BASE_URL}/wallet`, "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet added email sent to ${email} for ${network}`);
   } catch (e) {
@@ -231,7 +231,7 @@ export const sendWalletUpdatedEmail = async (
     ${p(t('merchant.walletUpdated.outro', L, { network }))}
     ${warnText(t('merchant.walletUpdated.didntDoThis', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.walletUpdated.heading', L), content, true, t('merchant.walletUpdated.cta', L), `${FRONTEND_BASE_URL}/wallet`);
+    const html = dynoPayEmailTemplate(t('merchant.walletUpdated.heading', L), content, true, t('merchant.walletUpdated.cta', L), `${FRONTEND_BASE_URL}/wallet`, "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet updated email sent to ${email} for ${network}`);
   } catch (e) {
@@ -266,7 +266,7 @@ export const sendWithdrawalOTPEmail = async (
     `, '#f59e0b')}
     ${warnText(t('merchant.withdrawalOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.withdrawalOtp.heading', L), content);
+    const html = dynoPayEmailTemplate(t('merchant.withdrawalOtp.heading', L), content, false, "", "", "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Withdrawal OTP email sent to ${email}`);
   } catch (e) {
@@ -308,7 +308,7 @@ export const sendWithdrawalSuccessEmail = async (
     ${p(t('merchant.withdrawalSuccess.outro1', L))}
     ${p(t('merchant.withdrawalSuccess.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.withdrawalSuccess.heading', L), content, true, t('merchant.withdrawalSuccess.cta', L), `${FRONTEND_BASE_URL}/transactions`);
+    const html = dynoPayEmailTemplate(t('merchant.withdrawalSuccess.heading', L), content, true, t('merchant.withdrawalSuccess.cta', L), `${FRONTEND_BASE_URL}/transactions`, "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Withdrawal success email sent to ${email}`);
   } catch (e) {
@@ -346,7 +346,7 @@ export const sendExchangeOTPEmail = async (
     `, EMAIL_TOKENS.brand)}
     ${p(t('merchant.exchangeOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.exchangeOtp.heading', L), content);
+    const html = dynoPayEmailTemplate(t('merchant.exchangeOtp.heading', L), content, false, "", "", "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Exchange OTP email sent to ${email}`);
   } catch (e) {
@@ -381,7 +381,7 @@ export const sendWalletDeleteOTPEmail = async (
     `, '#ef4444')}
     ${warnText(t('merchant.walletDeleteOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.walletDeleteOtp.heading', L), content);
+    const html = dynoPayEmailTemplate(t('merchant.walletDeleteOtp.heading', L), content, false, "", "", "", L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet delete OTP email sent to ${email}`);
   } catch (e) {

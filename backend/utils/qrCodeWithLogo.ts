@@ -237,4 +237,23 @@ export async function generateQRCodeWithLogo(
   }
 }
 
+// ─── Standalone coin badge (PDF receipt, public receipt page) ───────────────
+/**
+ * Render the same circular currency badge used inside QR codes as a standalone
+ * PNG (transparent outside the white ring). Never throws — returns null when
+ * sharp can't rasterize, so callers fall back to text.
+ *
+ * @param currency - Currency code (BTC, ETH, USDT-TRC20, ...)
+ * @param sizePx   - Output size in pixels (render at 2-4x the display size for crisp print)
+ */
+export async function renderCurrencyBadgePng(currency: string, sizePx: number = 96): Promise<Buffer | null> {
+  try {
+    const svg = generateLogoSvg(currency, sizePx);
+    return await sharp(svg).resize(sizePx, sizePx).png().toBuffer();
+  } catch (err) {
+    log(`[QR] Coin badge render failed for ${currency}: ${(err as Error).message}`, "warn");
+    return null;
+  }
+}
+
 export default generateQRCodeWithLogo;

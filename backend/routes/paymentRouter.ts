@@ -119,6 +119,19 @@ paymentRouter.post(
   paymentController.downloadReceipt
 );
 
+// Shareable receipt link — same auth/data as the PDF; create-or-reuse the
+// public /receipt/<token> URL for the buyer's confirmed checkout.
+paymentRouter.post(
+  "/receipt/link",
+  paymentRateLimiter,
+  customerAuthMiddleware,
+  paymentController.createReceiptLink
+);
+
+// PUBLIC (token is the credential): JSON for the /receipt/<token> page + PDF.
+paymentRouter.get("/receipt/:token", paymentRateLimiter, paymentController.getPublicReceipt);
+paymentRouter.get("/receipt/:token/pdf", paymentRateLimiter, paymentController.getPublicReceiptPdf);
+
 paymentRouter.post(
   "/confirmPayment",
   customerAuthMiddleware,
