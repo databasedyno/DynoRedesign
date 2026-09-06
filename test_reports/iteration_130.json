@@ -85,6 +85,6 @@
   "seed_data_creation": "None. Only typed 'test@example.com' into receipt-email field on live link. No payment links created / deleted.",
   "retest_needed": false,
   "should_main_agent_self_test": true,
-  "context_for_next_testing_agent": "Preview URL for this pod: https://dbd52123-ef2a-4e4c-92f3-c7bcdcccfc6a.preview.emergentagent.com (URL in /app/memory/test_credentials.md top block is stale for this pod). Header + New button testid is 'header-create-new' (not 'header-create-new-btn'). Checkout theme toggle: role=button div with aria-label='Toggle theme'. Range pill buttons on dashboard are not always <button> elements; use text or CSS selector, not get_by_role.",
+  "context_for_next_testing_agent": "Preview URL for this pod: https://onboard-app-11.preview.emergentagent.com (URL in /app/memory/test_credentials.md top block is stale for this pod). Header + New button testid is 'header-create-new' (not 'header-create-new-btn'). Checkout theme toggle: role=button div with aria-label='Toggle theme'. Range pill buttons on dashboard are not always <button> elements; use text or CSS selector, not get_by_role.",
   "rca of the issue": "Testid naming mismatch — developer set data-testid='header-create-new' while spec/files_of_reference wanted 'header-create-new-btn'. Fix by updating the attribute in Components/Layout/NewHeader/CreateNewButton.tsx."
 }

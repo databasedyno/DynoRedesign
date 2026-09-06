@@ -40,7 +40,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://setup-vault-5.preview.emergentagent.com
+#   Preview URL: https://onboard-app-11.preview.emergentagent.com
 #
 #   CONTEXT: Verified the Open Graph (OG) image fix for Dynopay. The old black 
 #   blob logo was replaced with the NEW indigo/purple circular conversion-coin 
@@ -352,7 +352,7 @@
 #   show their real date (e.g. /for/saas 2026-08-29); lastmod URL count 10 -> 31. eslint clean.
 #
 #   BACKEND/HTTP TEST FOCUS (READ-ONLY curl; no data writes):
-#     Preview base: https://setup-vault-5.preview.emergentagent.com
+#     Preview base: https://onboard-app-11.preview.emergentagent.com
 #     1) GET /sitemap.xml -> HTTP 200, valid XML (<urlset>), not an error page.
 #     2) Each of the 6 new verticals has a <url> block with <lastmod>2026-09-05</lastmod>:
 #        /for/online-courses, /for/dropshipping, /for/affiliate-marketing, /for/forex-trading,
@@ -366,7 +366,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY curl verification on preview)
 #   Test date: 2026-09-05
-#   Preview URL: https://setup-vault-5.preview.emergentagent.com
+#   Preview URL: https://onboard-app-11.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY:
 #   ✓ 1) GET /sitemap.xml — PASS
@@ -414,7 +414,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): ANOMALY FIXES + 3 FEATURES
-#   LIVE prod DB, SAFE MODE. Preview: https://setup-vault-5.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://onboard-app-11.preview.emergentagent.com
 #   Owner login (READ-ONLY testing only): onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #   tsc --noEmit = 0 errors; eslint clean on all touched files.
 #
@@ -460,7 +460,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY verification on LIVE prod DB, SAFE MODE)
 #   Test date: 2026-09-05
-#   Preview URL: https://setup-vault-5.preview.emergentagent.com
+#   Preview URL: https://onboard-app-11.preview.emergentagent.com
 #   Login: onarrival21@gmail.com / Katiekendra123@ (user_id=1)
 #
 #   TEST RESULTS SUMMARY:
@@ -485,7 +485,7 @@
 #   ✓ 4) ATTRIBUTION BEACON — PASS (PRIMARY FIX VERIFIED)
 #        - Login flow successful: 2-step email → Continue → password → Sign in
 #        - POST request to /api/track/attribution CAPTURED immediately after auth token storage
-#        - Request URL: https://setup-vault-5.preview.emergentagent.com/api/track/attribution
+#        - Request URL: https://onboard-app-11.preview.emergentagent.com/api/track/attribution
 #        - Timing: Fired during navigation to /dashboard (within 3 seconds of login)
 #        - This confirms the Redux userReducer.ts fix is working (syncAttribution fires on USER_LOGIN)
 #
@@ -512,7 +512,7 @@
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): SETUP + EMAIL LOGO FIX + OPS ANALYSIS
 #   Restored env from vault (Katiekendra123@) -> pod-bootstrap. LIVE prod DB, SAFE MODE.
-#   Preview: https://setup-vault-5.preview.emergentagent.com
+#   Preview: https://onboard-app-11.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   BUG FIX (committed 11ba6405b, already DEPLOYED to prod dynopay.com): admin + merchant
@@ -557,7 +557,7 @@
 # CURRENT SESSION — 2026-09-02 (pod 054d2272): SETUP + TEST LAST COMMIT + FEATURE + BUG
 #   Restored env from encrypted vault (passphrase Katiekendra123@) -> pod-bootstrap --skip-env.
 #   LIVE prod DB, SAFE MODE (bg jobs off, email off, Redis /1, Binance/SSH tunnel blanked).
-#   Preview: https://setup-vault-5.preview.emergentagent.com
+#   Preview: https://onboard-app-11.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
 #
 #   PLAN (user-approved):
@@ -639,7 +639,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-01 (fork, pod d4fef0d9): FLICKER FIX + DOCS + LANDING BRANDS
-#   LIVE prod DB, SAFE MODE. Preview: https://setup-vault-5.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://onboard-app-11.preview.emergentagent.com
 #   Respond in English. Owner: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   (P0) ISSUE #4 — payment-link "double-load / flicker" — FIXED + VERIFIED.
@@ -857,7 +857,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://setup-vault-5.preview.emergentagent.com
+#   Preview URL: https://onboard-app-11.preview.emergentagent.com
 #
 #   CONTEXT: Verified the favicon fix for Dynopay (Next.js app). Google search was 
 #   showing an old/wrong black icon. The fix ensures the site exposes a correct, 

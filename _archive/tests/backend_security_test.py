@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Base URL for the preview environment
-BASE_URL = "https://setup-vault-5.preview.emergentagent.com"
+BASE_URL = "https://onboard-app-11.preview.emergentagent.com"
 
 # Test results storage
 test_results = []

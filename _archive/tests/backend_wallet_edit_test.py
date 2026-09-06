@@ -13,7 +13,7 @@ import json
 import sys
 
 # Configuration - use the external URL from backend/.env
-BASE_URL = "https://setup-vault-5.preview.emergentagent.com"
+BASE_URL = "https://onboard-app-11.preview.emergentagent.com"
 
 # Test credentials (returns JWT directly, NO OTP for this account)
 LOGIN_EMAIL = "moxxcompany@gmail.com"
