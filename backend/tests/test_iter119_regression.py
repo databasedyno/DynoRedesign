@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import requests
 
-BASE = "https://onboard-app-11.preview.emergentagent.com"
+BASE = "https://great-moore-13.preview.emergentagent.com"
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 SNAP_DIR = Path("/app/backend/scripts/audit/snap")

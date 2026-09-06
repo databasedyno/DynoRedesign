@@ -19,7 +19,7 @@ import time
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://onboard-app-11.preview.emergentagent.com"
+EXTERNAL_BASE = "https://great-moore-13.preview.emergentagent.com"
 API_BASE = f"{EXTERNAL_BASE}/api"
 
 # Performance threshold

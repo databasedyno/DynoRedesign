@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://onboard-app-11.preview.emergentagent.com"
+BACKEND_URL = "https://great-moore-13.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

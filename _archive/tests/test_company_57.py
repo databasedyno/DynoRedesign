@@ -2,7 +2,7 @@
 import requests
 import json
 
-BASE_URL = "https://onboard-app-11.preview.emergentagent.com"
+BASE_URL = "https://great-moore-13.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Login first

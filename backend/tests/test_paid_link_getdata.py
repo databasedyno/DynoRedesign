@@ -3,7 +3,7 @@ import os
 import requests
 import pytest
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://onboard-app-11.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://great-moore-13.preview.emergentagent.com").rstrip("/")
 ENDPOINT = f"{BASE_URL}/api/pay/getData"
 
 PAID_REF_1 = "818c7e420fa49355ad16bbd20bd6bc25cbc94428dc1d4678"

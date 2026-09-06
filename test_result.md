@@ -1,6 +1,16 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-06 (pod 1a75b74d): POD SET-UP ONLY (no code changes)
+#   Preview: https://1a75b74d-a54a-4c67-bfb3-5b35437dedd5.preview.emergentagent.com
+#   Ran `bash scripts/pod-bootstrap.sh --pass '<vault pass>'` -> POD READY in 74s. Env restored from env.vault.enc,
+#   URL keys synced to this pod, SAFE MODE enforced (bg jobs OFF, worker secondary, email OFF, Redis /1).
+#   Verified: :8001/health healthy (db+redis, tatum OK), tickers live via ingress, /auth/login 200 + renders.
+#   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step). ⚠ Preview wired to LIVE prod DB — READ-ONLY checks.
+#   Awaiting user's next task.
+# ============================================================================
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 4afb1c97): 4 MERCHANT UX FIXES + CHECKOUT REAL-TIME STATUS
-#   Preview: https://4afb1c97-1770-4379-a4ad-47899915d230.preview.emergentagent.com
+#   Preview: https://great-moore-13.preview.emergentagent.com
 #   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step: email -> Continue -> password)
 #   ⚠ Preview is wired to the LIVE prod DB — READ-ONLY checks preferred; do not create/save records
 #     unless explicitly asked. Do NOT touch Binance/conversion code (out of scope this session).
@@ -126,7 +136,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://onboard-app-11.preview.emergentagent.com
+#   Preview URL: https://great-moore-13.preview.emergentagent.com
 #
 #   CONTEXT: Verified the Open Graph (OG) image fix for Dynopay. The old black 
 #   blob logo was replaced with the NEW indigo/purple circular conversion-coin 
@@ -438,7 +448,7 @@
 #   show their real date (e.g. /for/saas 2026-08-29); lastmod URL count 10 -> 31. eslint clean.
 #
 #   BACKEND/HTTP TEST FOCUS (READ-ONLY curl; no data writes):
-#     Preview base: https://onboard-app-11.preview.emergentagent.com
+#     Preview base: https://great-moore-13.preview.emergentagent.com
 #     1) GET /sitemap.xml -> HTTP 200, valid XML (<urlset>), not an error page.
 #     2) Each of the 6 new verticals has a <url> block with <lastmod>2026-09-05</lastmod>:
 #        /for/online-courses, /for/dropshipping, /for/affiliate-marketing, /for/forex-trading,
@@ -452,7 +462,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY curl verification on preview)
 #   Test date: 2026-09-05
-#   Preview URL: https://onboard-app-11.preview.emergentagent.com
+#   Preview URL: https://great-moore-13.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY:
 #   ✓ 1) GET /sitemap.xml — PASS
@@ -500,7 +510,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): ANOMALY FIXES + 3 FEATURES
-#   LIVE prod DB, SAFE MODE. Preview: https://onboard-app-11.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://great-moore-13.preview.emergentagent.com
 #   Owner login (READ-ONLY testing only): onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #   tsc --noEmit = 0 errors; eslint clean on all touched files.
 #
@@ -546,7 +556,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY verification on LIVE prod DB, SAFE MODE)
 #   Test date: 2026-09-05
-#   Preview URL: https://onboard-app-11.preview.emergentagent.com
+#   Preview URL: https://great-moore-13.preview.emergentagent.com
 #   Login: onarrival21@gmail.com / Katiekendra123@ (user_id=1)
 #
 #   TEST RESULTS SUMMARY:
@@ -571,7 +581,7 @@
 #   ✓ 4) ATTRIBUTION BEACON — PASS (PRIMARY FIX VERIFIED)
 #        - Login flow successful: 2-step email → Continue → password → Sign in
 #        - POST request to /api/track/attribution CAPTURED immediately after auth token storage
-#        - Request URL: https://onboard-app-11.preview.emergentagent.com/api/track/attribution
+#        - Request URL: https://great-moore-13.preview.emergentagent.com/api/track/attribution
 #        - Timing: Fired during navigation to /dashboard (within 3 seconds of login)
 #        - This confirms the Redux userReducer.ts fix is working (syncAttribution fires on USER_LOGIN)
 #
@@ -598,7 +608,7 @@
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): SETUP + EMAIL LOGO FIX + OPS ANALYSIS
 #   Restored env from vault (Katiekendra123@) -> pod-bootstrap. LIVE prod DB, SAFE MODE.
-#   Preview: https://onboard-app-11.preview.emergentagent.com
+#   Preview: https://great-moore-13.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   BUG FIX (committed 11ba6405b, already DEPLOYED to prod dynopay.com): admin + merchant
@@ -643,7 +653,7 @@
 # CURRENT SESSION — 2026-09-02 (pod 054d2272): SETUP + TEST LAST COMMIT + FEATURE + BUG
 #   Restored env from encrypted vault (passphrase Katiekendra123@) -> pod-bootstrap --skip-env.
 #   LIVE prod DB, SAFE MODE (bg jobs off, email off, Redis /1, Binance/SSH tunnel blanked).
-#   Preview: https://onboard-app-11.preview.emergentagent.com
+#   Preview: https://great-moore-13.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
 #
 #   PLAN (user-approved):
@@ -725,7 +735,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-01 (fork, pod d4fef0d9): FLICKER FIX + DOCS + LANDING BRANDS
-#   LIVE prod DB, SAFE MODE. Preview: https://onboard-app-11.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://great-moore-13.preview.emergentagent.com
 #   Respond in English. Owner: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   (P0) ISSUE #4 — payment-link "double-load / flicker" — FIXED + VERIFIED.
@@ -943,7 +953,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://onboard-app-11.preview.emergentagent.com
+#   Preview URL: https://great-moore-13.preview.emergentagent.com
 #
 #   CONTEXT: Verified the favicon fix for Dynopay (Next.js app). Google search was 
 #   showing an old/wrong black icon. The fix ensures the site exposes a correct, 
@@ -1224,7 +1234,7 @@
 #   backend directly on port 3300 where SSE works correctly.
 #
 #   PRODUCTION IMPACT: The preview environment uses the Python proxy, so SSE will NOT
-#   work on https://4afb1c97-1770-4379-a4ad-47899915d230.preview.emergentagent.com/api/pay/stream.
+#   work on https://great-moore-13.preview.emergentagent.com/api/pay/stream.
 #   However, production (dynopay.com) uses nginx directly to the Node backend, so SSE
 #   will work correctly in production. The proxy is only used in the preview environment.
 #

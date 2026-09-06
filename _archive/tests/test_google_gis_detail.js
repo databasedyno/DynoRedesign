@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://onboard-app-11.preview.emergentagent.com';
+const PREVIEW_URL = 'https://great-moore-13.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));

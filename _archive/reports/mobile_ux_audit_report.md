@@ -1,7 +1,7 @@
 # COMPREHENSIVE MOBILE UX/QA AUDIT REPORT
 **Date:** 2026-07-17  
 **Viewport:** 390x844 (iPhone 14/15)  
-**App:** https://onboard-app-11.preview.emergentagent.com  
+**App:** https://great-moore-13.preview.emergentagent.com  
 **Mode:** READ-ONLY AUDIT (No changes made)
 
 ---

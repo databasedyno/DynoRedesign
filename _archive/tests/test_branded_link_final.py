@@ -13,7 +13,7 @@ import sys
 BASE_URL = "http://localhost:8001"
 LOGIN_EMAIL = "onarrival21@gmail.com"
 LOGIN_PASSWORD = "Katiekendra123@"
-SERVER_URL = "https://onboard-app-11.preview.emergentagent.com"
+SERVER_URL = "https://great-moore-13.preview.emergentagent.com"
 
 def log(msg):
     print(f"[TEST] {msg}")

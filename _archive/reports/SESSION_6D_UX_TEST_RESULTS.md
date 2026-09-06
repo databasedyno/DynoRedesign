@@ -1,7 +1,7 @@
 # SESSION 6d UX VERIFICATION RESULTS
 **Date:** 2026-07-08  
 **Tester:** Testing Agent (auto_frontend_testing_agent)  
-**App URL:** https://onboard-app-11.preview.emergentagent.com  
+**App URL:** https://great-moore-13.preview.emergentagent.com  
 **Method:** Playwright UI automation with JWT injection (READ-ONLY, no mutations)
 
 ---

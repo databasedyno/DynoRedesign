@@ -1,5 +1,5 @@
 {
-  "summary": "Frontend-only, strictly read-only verification of the polished checkout price-breakdown trust cue on the public hosted checkout https://onboard-app-11.preview.emergentagent.com/pay?d=t4jBc2 (The Dev Store, $100). No crypto selection, no pay/continue click, no form submission. Verified: page renders (clean-checkout-h1 = 'Pay The Dev Store'), the framed breakdown card, all 4 rows + testids, the trust note line with shield icon under a dashed hairline, zero console/page errors, and clean layout at 1440px and 390px.",
+  "summary": "Frontend-only, strictly read-only verification of the polished checkout price-breakdown trust cue on the public hosted checkout https://great-moore-13.preview.emergentagent.com/pay?d=t4jBc2 (The Dev Store, $100). No crypto selection, no pay/continue click, no form submission. Verified: page renders (clean-checkout-h1 = 'Pay The Dev Store'), the framed breakdown card, all 4 rows + testids, the trust note line with shield icon under a dashed hairline, zero console/page errors, and clean layout at 1440px and 390px.",
   "backend_issues": { "critical": [], "minor": [] },
   "frontend_issues": {
     "ui_bugs": [],

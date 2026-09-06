@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://onboard-app-11.preview.emergentagent.com"
+BASE = "https://great-moore-13.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]

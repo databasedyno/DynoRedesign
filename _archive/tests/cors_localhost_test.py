@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://onboard-app-11.preview.emergentagent.com",
+        "origin": "https://great-moore-13.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
