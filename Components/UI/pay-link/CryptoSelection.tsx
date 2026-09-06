@@ -2,8 +2,9 @@ import CheckIcon from "@/assets/Icons/Check-icon.svg";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import { CryptoSelectionProps } from "@/utils/types/create-pay-link";
-import { Box, Grid, useTheme } from "@mui/material";
+import { Box, Grid, useTheme, Typography } from "@mui/material";
 import Image from "next/image";
+import { FormSectionHeader } from "../../Page/CreatePaymentLink/styled";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Text } from "../../Page/CreatePaymentLink/styled";
@@ -47,35 +48,19 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
             gap: "4px",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: isMobile ? "4px" : "8px",
-            }}
-          >
-            <Text
-              sx={{
-                fontSize: isMobile ? "15px" : "20px",
-                color: theme.palette.text.primary,
-              }}
-            >
-              {t("acceptedCryptocurrencies")}
-            </Text>
-            <Text
-              sx={{
-                fontSize: isMobile ? "12px" : "15px",
-                color: theme.palette.text.secondary,
-              }}
-            >
-              {t("whichCryptoCanCustomersUseToPay")}
-            </Text>
-          </Box>
+          {/* Redesign (2026-09): numbered header, matching sections 01–03 */}
+          <FormSectionHeader>
+            <span className="step">04</span>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography className="title">{t("acceptedCryptocurrencies")}</Typography>
+              <Typography className="subtitle">{t("whichCryptoCanCustomersUseToPay")}</Typography>
+            </Box>
+          </FormSectionHeader>
           <Text
             sx={{
               alignSelf: isMobile ? "flex-start" : "flex-end",
-              fontSize: isMobile ? "12px" : "15px",
-              color: theme.palette.text.primary,
+              fontSize: isMobile ? "12px" : "13px",
+              color: theme.palette.text.secondary,
             }}
           >
             {t("atLeastOneCurrencyMustBeSelected")}

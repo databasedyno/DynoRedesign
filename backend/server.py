@@ -184,13 +184,44 @@ async def proxy_request(scope, receive, send):
     method = scope.get('method', 'GET')
 
     try:
-        # Forward to Node.js
-        response = await HTTP_CLIENT.request(
+        # SSE (EventSource) requests must be streamed chunk-by-chunk — buffering
+        # the whole body would hold the stream open forever. Detect by the
+        # request's Accept header and by the backend's response content-type.
+        wants_stream = 'text/event-stream' in headers.get('accept', '').lower()
+        request = HTTP_CLIENT.build_request(
             method=method,
             url=path,
             headers=headers,
-            content=body if body else None
+            content=body if body else None,
+            timeout=httpx.Timeout(None, connect=10.0) if wants_stream else httpx.USE_CLIENT_DEFAULT,
         )
+        response = await HTTP_CLIENT.send(request, stream=True)
+
+        if response.headers.get('content-type', '').lower().startswith('text/event-stream'):
+            stream_headers = [
+                (k.lower().encode(), v.encode())
+                for k, v in response.headers.items()
+                if k.lower() not in ('transfer-encoding', 'content-encoding', 'content-length')
+            ]
+            await send({
+                'type': 'http.response.start',
+                'status': response.status_code,
+                'headers': stream_headers,
+            })
+            try:
+                async for chunk in response.aiter_raw():
+                    if chunk:
+                        await send({'type': 'http.response.body', 'body': chunk, 'more_body': True})
+            finally:
+                await response.aclose()
+                try:
+                    await send({'type': 'http.response.body', 'body': b'', 'more_body': False})
+                except Exception:
+                    pass  # client already disconnected
+            return
+
+        # Non-streaming: read the full body, then forward as before.
+        await response.aread()
         
         # Send response. Drop the backend's content-length/encoding and set a
         # single authoritative content-length for the (decoded) body we forward

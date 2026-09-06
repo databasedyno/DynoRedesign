@@ -1,5 +1,6 @@
 import { raw as envRaw } from "../utils/config";
 import express from "express";
+import { publishCheckoutStatus } from "../services/checkoutStreamService";
 import crypto from "crypto";
 import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
 import { verifyFlutterwaveHash } from "../utils/webhookSignature";
@@ -602,6 +603,12 @@ const tatumCryptoWebHook = async (
       txId: payload.txId,
       asset: payload.asset,
     });
+
+    // Live checkout: the buyer's tab learns "payment detected" the moment the
+    // chain watcher reports the tx (before verification/settlement runs).
+    if (payload.txId && payload.address) {
+      publishCheckoutStatus(payload.address, "pending", { txId: payload.txId, asset: payload.asset });
+    }
 
     // Basic validation before enqueue
     if (!payload.txId) {

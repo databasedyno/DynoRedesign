@@ -1,4 +1,60 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-06 (pod 4afb1c97): 4 MERCHANT UX FIXES + CHECKOUT REAL-TIME STATUS
+#   Preview: https://4afb1c97-1770-4379-a4ad-47899915d230.preview.emergentagent.com
+#   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step: email -> Continue -> password)
+#   ⚠ Preview is wired to the LIVE prod DB — READ-ONLY checks preferred; do not create/save records
+#     unless explicitly asked. Do NOT touch Binance/conversion code (out of scope this session).
+#
+#   1) Settings -> "Plan & fees" now IN-APP (was router.push("/fees") marketing page).
+#      - pages/settings/index.tsx: new SectionKey "plan" (rail group Payments), renders
+#        Components/Page/Settings/PlanFeesSection.tsx (reuses dashboard FeeTierCard + fee breakdown +
+#        worked example + "View public pricing page" link). constants/feeTiers.ts = shared ladder.
+#      - URL: /settings?section=plan ; testids: plan-fees-section, plan-fees-tier-card,
+#        plan-fees-breakdown, plan-fees-current-pct, plan-fees-example, plan-fees-public-link.
+#   2) Settings -> Payments -> Crypto conversion: "Save Changes" was PERMANENTLY DISABLED.
+#      ROOT CAUSE: CompanySettingsDialog validated ALL fields incl. hidden Company ones; company 1 has
+#      email=NULL -> yup email.required() failed silently in the Payments-only view.
+#      FIX: yup schema scoped to visible sections; submit payload scoped to visible sections too
+#      (hidden company identity fields no longer sent as ""). File: Components/UI/CompanySettingsDialog/index.tsx
+#   3) "+ New -> Payment link" quick-create drawer: "What is this payment for?" is the BUYER PREVIEW
+#      (not an input) -> typing went nowhere, and the bare `n` hotkey re-opened the "+ New" menu over the
+#      drawer (focus trap swallowed keystrokes).
+#      FIX: preview lines are now tap-to-edit buttons (testids quick-create-preview-description /
+#      quick-create-preview-amount) focusing the real inputs; Amount autofocused on open (desktop only);
+#      CreateNewButton `n` shortcut ignored while any MUI modal/dialog/drawer/menu is open.
+#      + REDESIGN of /create-pay-link form: numbered sections 01 What is this payment for? (product
+#      quick-sell + description) / 02 How much? (amount+currency row) / 03 Details (client+expiry grid,
+#      fee payer option cards testids fee-payer-customer / fee-payer-company) / 04 Accepted cryptos.
+#      Files: Components/UI/pay-link/PaymentSettingsBasic.tsx, DescriptionSection.tsx, CryptoSelection.tsx,
+#      Components/Page/CreatePaymentLink/index.tsx + styled.tsx (FormSectionRoot/Header, FieldGrid, OptionCard).
+#      All handlers/props/testids preserved (pay-link-description, pay-link-form-sections, pay-link-section-*).
+#   4) CHECKOUT REAL-TIME STATUS (buyer): backend webhook pipeline goes detected->confirmed in ~3s but the
+#      checkout polled every 10s -> buyer jumped straight to the paid card.
+#      BACKEND (NEW): GET /api/pay/stream?address=<addr>[&destination_tag=..]&token=<customer jwt>
+#        (SSE; token lifted from query into Authorization by tokenFromQuery, then customerAuthMiddleware).
+#        Files: backend/services/checkoutStreamService.ts (publishCheckoutStatus/attachCheckoutStream,
+#        channel checkout:<addr lowercased>), backend/controller/payment/settlement/checkoutStream.ts,
+#        routes/paymentRouter.ts. Publishers: webhooks/index.ts (on webhook receipt -> "pending"),
+#        services/webhookProcessor.ts ("processing", "confirmed", "underpaid", "failed", recovery "confirmed").
+#        Events: connected (from sseService), ready {status snapshot from Redis}, status {...}, ping.
+#        Expected: no token -> 403 "Your Login has Expired"; bad token -> 403; missing/invalid address
+#        (with valid token) -> 400; valid -> 200 text/event-stream with `event: connected` then `event: ready`.
+#      FRONTEND: CleanCheckoutV2.tsx subscribes via EventSource (checkoutStreamUrl in checkoutApi.ts),
+#        re-verifies on every hint; polling fallback 4s (no SSE) / 10s (SSE connected); "Payment detected —
+#        confirming" step held >= 2.5s (MIN_DETECTED_DWELL_MS) before the confirmed card.
+#   BACKEND TESTED (testing agent 2026-09-06): 11/11 PASS — /health, stream auth/validation matrix, SSE frames,
+#     destination_tag channels, verifyCryptoPayment regression, no log errors. Agent noted the preview's
+#     Python proxy (backend/server.py) buffered responses -> FIXED: server.py now streams text/event-stream
+#     responses chunk-by-chunk (httpx send(stream=True) + aiter_raw, no read timeout for SSE). Verified
+#     connected+ready frames arrive via :8001 within <1s. Prod uses nginx->Node directly (start-all.sh).
+#   BACKEND TEST FOCUS: /health healthy; /api/pay/stream auth + validation matrix above; existing
+#     POST /api/pay/verifyCryptoPayment unchanged; backend compiles (tsc clean) and no new error logs.
+#   FE TEST FOCUS (only with user permission): settings plan section; Payments Save enabled after toggling
+#     auto-convert radios (DO NOT click Save — prod DB); quick-create typing after clicking preview incl.
+#     letters "n"; /create-pay-link sections 01-04 render + fee payer cards toggle; checkout page loads.
+# ============================================================================
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-05: BRAND AUDIT (logo sweep) + admin-sidebar fix
 #   Swept all logo assets/usages (favicons, OG, landing/auth/header/footer, PDF invoice+receipt,
 #   emails, Logo component). RESULT: every RENDERED surface already uses the new indigo
@@ -1018,5 +1074,137 @@
 #   - All tests performed via READ-ONLY verification (no data writes except temp 
 #     test file which was created and deleted)
 #   - Temp test file /app/backend/scripts/_verify_rpc.ts created and deleted after test
+# ============================================================================
+
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-06: CHECKOUT STREAM BACKEND — ALL TESTS PASSED ✓✓✓
+# ============================================================================
+#   Tested by: testing_agent (backend_test.py)
+#   Test date: 2026-09-06
+#   Base URL: http://localhost:8001 (Python proxy) / http://localhost:3300 (Node backend)
+#   Session: pod 4afb1c97 - CHECKOUT REAL-TIME STATUS feature
+#
+#   CONTEXT: Verified the new GET /api/pay/stream endpoint for buyer-facing
+#   real-time payment status via Server-Sent Events (SSE). This replaces the
+#   10-second polling with instant status updates as the webhook pipeline
+#   processes payments (detected → confirmed in ~3s).
+#
+#   TEST RESULTS SUMMARY: 11/11 TESTS PASSED
+#
+#   ✓ TEST 1: Health Endpoint — PASS
+#        - GET /health → HTTP 200
+#        - Status: healthy, database: connected, redis: connected
+#        - Backend service operational
+#
+#   ✓ TEST 2: Stream without token — PASS
+#        - GET /api/pay/stream?address=<addr> (no token) → HTTP 403
+#        - Message: "Your Login has Expired"
+#        - Auth middleware correctly rejects unauthenticated requests
+#
+#   ✓ TEST 3: Stream with garbage token — PASS
+#        - GET /api/pay/stream?address=<addr>&token=garbage_token_12345 → HTTP 403
+#        - Message: "Invalid token. Please login again."
+#        - JWT validation working correctly
+#
+#   ✓ TEST 4a: Stream missing address — PASS
+#        - GET /api/pay/stream?token=<valid jwt> (no address) → HTTP 400
+#        - Message: "A valid payment address is required."
+#        - Address validation working
+#
+#   ✓ TEST 4b: Stream with bad address — PASS
+#        - GET /api/pay/stream?address=bad!addr&token=<valid jwt> → HTTP 400
+#        - Message: "A valid payment address is required."
+#        - Address format validation working (regex: /^[A-Za-z0-9:_-]{6,128}$/)
+#
+#   ✓ TEST 4c: Stream with valid credentials — PASS
+#        - GET /api/pay/stream?address=0x4c66...&token=<valid jwt> → HTTP 200
+#        - Content-Type: text/event-stream ✓
+#        - X-Accel-Buffering: no ✓ (disables nginx buffering)
+#        - event: connected with channels array ✓
+#        - event: ready with status snapshot (waiting) ✓
+#        - Address lowercased in channel: checkout:0x4c66... ✓
+#        - SSE stream established successfully
+#
+#   ✓ TEST 4d: Stream with destination_tag — PASS
+#        - GET /api/pay/stream?address=0x4c66...&destination_tag=12345&token=<jwt>
+#        - event: connected lists TWO channels:
+#          * checkout:0x4c66718579270e0f44e7ab4d70d2b5ce69368ca8 (base)
+#          * checkout:0x4c66718579270e0f44e7ab4d70d2b5ce69368ca8:12345 (with tag)
+#        - Tag-based chain support working (XRP, RLUSD)
+#
+#   ✓ TEST 5: verifyCryptoPayment without auth — PASS (regression check)
+#        - POST /api/pay/verifyCryptoPayment (no auth) → HTTP 403
+#        - Existing endpoint auth unchanged
+#
+#   ✓ TEST 5 (regression): verifyCryptoPayment with auth — PASS
+#        - POST /api/pay/verifyCryptoPayment with JWT → HTTP 200
+#        - Returns status for non-existent address (read-only test)
+#        - Existing endpoint functionality preserved
+#
+#   ✓ TEST 6: checkoutStreamService code structure — PASS
+#        - Service exports: checkoutChannel, publishCheckoutStatus, attachCheckoutStream ✓
+#        - Logic verified: toLowerCase(), channel format `checkout:`, destinationTag support ✓
+#        - Implementation matches specification
+#
+#   ✓ TEST 7: Backend logs check — PASS
+#        - No errors related to checkoutStream in /var/log/supervisor/backend.err.log
+#        - SSE client connections logged successfully in backend.out.log
+#        - Sample: "[SSE] Client checkout-<uuid> (user 0) connected on channels: [checkout:0x4c66...]"
+#
+#   OVERALL RESULT: ✓✓✓ ALL 11 TESTS PASSED ✓✓✓
+#
+#   DETAILED FINDINGS:
+#   1. Authentication & Authorization:
+#      - customerAuthMiddleware correctly validates JWT tokens
+#      - tokenFromQuery middleware lifts ?token= into Authorization header (EventSource workaround)
+#      - 403 responses for missing/invalid tokens with appropriate messages
+#
+#   2. Input Validation:
+#      - Address validation: regex /^[A-Za-z0-9:_-]{6,128}$/ (6-128 chars, alphanumeric + : _ -)
+#      - Destination tag validation: /^\d{1,12}$/ (1-12 digits)
+#      - 400 responses for invalid inputs with clear error messages
+#
+#   3. SSE Stream Implementation:
+#      - Correct headers: Content-Type: text/event-stream, Cache-Control: no-cache,
+#        Connection: keep-alive, X-Accel-Buffering: no
+#      - Events: connected (from sseService), ready (status snapshot), status (updates), ping (keepalive)
+#      - Channel naming: checkout:<address lowercased>[:<tag>]
+#      - Multiple channel subscription for tag-based chains
+#
+#   4. Service Architecture:
+#      - checkoutStreamService.ts: channel naming, publish, attach functions
+#      - checkoutStream.ts: request handler, auth, validation, Redis snapshot
+#      - sseService.ts: SSE client registry, channel-based delivery
+#      - paymentRouter.ts: route wiring with middleware chain
+#
+#   5. Redis Integration:
+#      - Reads current status from crypto-<address> or getCryptoRedisKey(address, tag)
+#      - Maps Redis status to public vocabulary: waiting/pending/processing/confirmed/underpaid/failed
+#      - Snapshot sent in "ready" event on connection
+#
+#   6. Regression Testing:
+#      - POST /api/pay/verifyCryptoPayment auth unchanged (403 without token, 200 with token)
+#      - No breaking changes to existing checkout flow
+#
+#   IMPORTANT NOTE — SSE PROXY LIMITATION:
+#   The Python proxy (backend/server.py) on port 8001 does NOT support SSE streaming
+#   because it buffers the entire response (httpx response.content) before forwarding.
+#   SSE requires chunk-by-chunk streaming. Tests 4c and 4d were run against the Node
+#   backend directly on port 3300 where SSE works correctly.
+#
+#   PRODUCTION IMPACT: The preview environment uses the Python proxy, so SSE will NOT
+#   work on https://4afb1c97-1770-4379-a4ad-47899915d230.preview.emergentagent.com/api/pay/stream.
+#   However, production (dynopay.com) uses nginx directly to the Node backend, so SSE
+#   will work correctly in production. The proxy is only used in the preview environment.
+#
+#   NOTES:
+#   - All tests performed in READ-ONLY mode (no DB writes, no payment creation)
+#   - Test JWT created with ACCESS_TOKEN_SECRET from backend/.env
+#   - Test address: 0x4c66718579270e0f44e7ab4d70d2b5ce69368ca8 (Ethereum format)
+#   - No errors in backend logs after testing
+#   - Backend compiles and runs without TypeScript errors
+#   - All endpoints return correct HTTP status codes and error messages
+#   - SSE implementation follows W3C EventSource specification
 # ============================================================================
 

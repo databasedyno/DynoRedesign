@@ -6,43 +6,79 @@ import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomRadio from "@/Components/UI/RadioGroup";
 import { PaymentSettingsBasicProps } from "@/utils/types/create-pay-link";
-import { Box, FormControl, FormControlLabel, RadioGroup, useTheme } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import React from "react";
-import { PaymentSettingsLabel } from "../../Page/CreatePaymentLink/styled";
+import {
+  FieldGrid,
+  FormSectionHeader,
+  FormSectionRoot,
+  OptionCard,
+  PaymentSettingsLabel,
+} from "../../Page/CreatePaymentLink/styled";
 import CurrencySelector from "../CurrencySelector";
 import ExpireSelector from "./ExpireSelector";
 
+/**
+ * Redesign (2026-09): the amount / details block of the create form.
+ *
+ * Previously rendered as a 48%-wide column inside a half-width flex child, so
+ * every field was ~a quarter of the card and helper text wrapped onto 3 lines.
+ * Now two full-width, numbered sections:
+ *   02 How much?  — Amount + Currency on one row
+ *   03 Details    — Client name + Expiry grid, fee payer as two option cards
+ * All props, handlers and field semantics are unchanged.
+ */
 const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
-  isMobile,
   tPaymentLink,
   paymentSettings,
   paymentSettingsTouched,
   paymentSettingsErrors,
   blockchainFees,
+  disable,
   handlePaymentSettingsChange,
   handlePaymentSettingsBlur,
   handleCurrencySelect,
   handleExpireSelect,
   handleBlockchainFeesChange,
 }) => {
-  const theme = useTheme();
+  const feeOptions: Array<{ value: "customer" | "company"; title: string; sub: string }> = [
+    {
+      value: "customer",
+      title: tPaymentLink("feePayerCustomerTitle", { defaultValue: "Customer pays" }),
+      sub: tPaymentLink("customerFeesAdded"),
+    },
+    {
+      value: "company",
+      title: tPaymentLink("feePayerCompanyTitle", { defaultValue: "I pay" }),
+      sub: tPaymentLink("companyPaysFees"),
+    },
+  ];
 
   return (
     <>
-      <Box
-        sx={{
-          width: isMobile ? "100%" : "48%",
-          display: "flex",
-          flexDirection: "column",
-          gap: { xs: 1.5, md: 2 },
-        }}
-      >
+      {/* ── 02 · How much? ── */}
+      <FormSectionRoot data-testid="pay-link-section-amount">
+        <FormSectionHeader>
+          <span className="step">02</span>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography className="title">
+              {tPaymentLink("sectionAmountTitle", { defaultValue: "How much?" })}
+            </Typography>
+            <Typography className="subtitle">
+              {tPaymentLink("sectionAmountSub", {
+                defaultValue: "Set the price in your currency — the crypto amount is calculated live at checkout.",
+              })}
+            </Typography>
+          </Box>
+        </FormSectionHeader>
+
         <Box
           sx={{
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            gap: isMobile ? "12px" : "16px",
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "minmax(0, 1.6fr) minmax(0, 1fr)" },
+            gap: { xs: 1.5, md: 2.5 },
+            alignItems: "start",
           }}
         >
           <InputField
@@ -60,150 +96,139 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
               </PaymentSettingsLabel>
             }
             value={paymentSettings.value}
-            onChange={(e) =>
-              handlePaymentSettingsChange("value", e.target.value)
-            }
+            onChange={(e) => handlePaymentSettingsChange("value", e.target.value)}
             onBlur={() => handlePaymentSettingsBlur("value")}
             type="number"
             inputMode="decimal"
-            // Placeholder uses "0.00" — the universal money-input convention. Was
-            // previously "10", which merchants read as a pre-filled default value.
             placeholder="0.00"
-            error={
-              paymentSettingsTouched.value &&
-              Boolean(paymentSettingsErrors.value)
-            }
+            error={paymentSettingsTouched.value && Boolean(paymentSettingsErrors.value)}
             helperText={
               paymentSettingsTouched.value && paymentSettingsErrors.value
                 ? paymentSettingsErrors.value
                 : tPaymentLink("valueHelper")
             }
-            sx={{
-              width: "100%",
-            }}
+            sx={{ width: "100%" }}
           />
 
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-            }}
-          >
+          <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: "6px" }}>
             <PaymentSettingsLabel>
               <Image src={CurrencyIcon} alt="currency" draggable={false} className="themed-icon" />
               <span>{tPaymentLink("currency")}</span>
             </PaymentSettingsLabel>
-
             <CurrencySelector
               fullWidth
               name="base_currency"
               value={paymentSettings.currency || "USD"}
               onChange={(value) => handleCurrencySelect(value)}
               required
-              error={
-                paymentSettingsTouched.currency &&
-                Boolean(paymentSettingsErrors.currency)
-              }
+              error={paymentSettingsTouched.currency && Boolean(paymentSettingsErrors.currency)}
               helperText={
-                paymentSettingsTouched.currency &&
-                paymentSettingsErrors.currency
+                paymentSettingsTouched.currency && paymentSettingsErrors.currency
                   ? paymentSettingsErrors.currency
                   : undefined
               }
             />
           </Box>
         </Box>
+      </FormSectionRoot>
 
-        <InputField
-          label={
-            <PaymentSettingsLabel>
-              <Image
-                src={ClientIcon}
-                alt="clientName"
-                draggable={false}
-                className="themed-icon"
-              />
-              <span>{tPaymentLink("clientName")}</span>
-            </PaymentSettingsLabel>
-          }
-          value={paymentSettings.clientName}
-          onChange={(e) =>
-            handlePaymentSettingsChange("clientName", e.target.value)
-          }
-          type="text"
-          inputMode="text"
-          helperText={tPaymentLink("clientNameHelper")}
-          sx={{
-            width: "100%",
-          }}
-        />
+      {/* ── 03 · Details ── */}
+      <FormSectionRoot data-testid="pay-link-section-details">
+        <FormSectionHeader>
+          <span className="step">03</span>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography className="title">
+              {tPaymentLink("sectionDetailsTitle", { defaultValue: "Details" })}
+            </Typography>
+            <Typography className="subtitle">
+              {tPaymentLink("sectionDetailsSub", {
+                defaultValue: "Who it's for, how long the link stays open, and who covers network fees.",
+              })}
+            </Typography>
+          </Box>
+        </FormSectionHeader>
 
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-          }}
-        >
-          <PaymentSettingsLabel>
-            <Image src={HourglassIcon} alt="expire" draggable={false} className="themed-icon" />
-            <span>{tPaymentLink("expire")}</span>
-          </PaymentSettingsLabel>
-
-          <ExpireSelector
-            tPaymentLink={tPaymentLink}
-            value={paymentSettings.expire}
-            onChange={(val) => handleExpireSelect(val)}
-            required
-            helperText={
-              paymentSettings.expire === "no" || paymentSettings.expire === "No"
-                ? tPaymentLink("expiryRecommendation")
-                : undefined
+        <FieldGrid>
+          <InputField
+            label={
+              <PaymentSettingsLabel>
+                <Image src={ClientIcon} alt="clientName" draggable={false} className="themed-icon" />
+                <span>{tPaymentLink("clientName")}</span>
+              </PaymentSettingsLabel>
             }
+            value={paymentSettings.clientName}
+            onChange={(e) => handlePaymentSettingsChange("clientName", e.target.value)}
+            type="text"
+            inputMode="text"
+            helperText={tPaymentLink("clientNameHelper")}
+            sx={{ width: "100%" }}
           />
-        </Box>
+
+          <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: "6px" }}>
+            <PaymentSettingsLabel>
+              <Image src={HourglassIcon} alt="expire" draggable={false} className="themed-icon" />
+              <span>{tPaymentLink("expire")}</span>
+            </PaymentSettingsLabel>
+            <ExpireSelector
+              tPaymentLink={tPaymentLink}
+              value={paymentSettings.expire}
+              onChange={(val) => handleExpireSelect(val)}
+              required
+              helperText={
+                paymentSettings.expire === "no" || paymentSettings.expire === "No"
+                  ? tPaymentLink("expiryRecommendation")
+                  : undefined
+              }
+            />
+          </Box>
+        </FieldGrid>
 
         <Box>
           <PaymentSettingsLabel>
             <Image src={PaymentIcon} alt="blockchain fees" draggable={false} className="themed-icon" />
             <span>{tPaymentLink("blockchainFeesPaidBy")}</span>
           </PaymentSettingsLabel>
-          <Box sx={{ marginTop: { xs: "8px", md: "8px" } }}>
-            <FormControl component="fieldset">
-              <RadioGroup
-                value={blockchainFees}
-                onChange={(e) => handleBlockchainFeesChange(e.target.value)}
-                sx={{
-                  "& .MuiFormControlLabel-label": {
-                    fontSize: { xs: "13px", md: "15px" },
-                    fontFamily: "var(--font-sans)",
-                    color: theme.palette.text.primary,
-                    paddingLeft: "8px",
-                    lineHeight: 1.2,
-                  },
-                  gap: { xs: "6px", md: "6px" },
-                }}
-              >
-                <FormControlLabel
-                  value="customer"
-                  control={<CustomRadio />}
-                  label={tPaymentLink("customerFeesAdded")}
-                  sx={{ margin: "0px" }}
-                />
-                <FormControlLabel
-                  value="company"
-                  control={<CustomRadio />}
-                  label={tPaymentLink("companyPaysFees")}
-                  sx={{ margin: "0px" }}
-                />
-              </RadioGroup>
-            </FormControl>
+          <Box
+            role="radiogroup"
+            aria-label={tPaymentLink("blockchainFeesPaidBy")}
+            sx={{
+              mt: 1,
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: { xs: 1, md: 1.5 },
+            }}
+          >
+            {feeOptions.map((opt) => {
+              const selected = blockchainFees === opt.value;
+              return (
+                <OptionCard
+                  key={opt.value}
+                  role="radio"
+                  aria-checked={selected}
+                  tabIndex={disable ? -1 : 0}
+                  selected={selected}
+                  disabled={disable}
+                  data-testid={`fee-payer-${opt.value}`}
+                  onClick={() => !disable && handleBlockchainFeesChange(opt.value)}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (disable) return;
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleBlockchainFeesChange(opt.value);
+                    }
+                  }}
+                >
+                  <CustomRadio checked={selected} tabIndex={-1} value={opt.value} sx={{ p: 0, mt: "1px" }} />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography className="opt-title">{opt.title}</Typography>
+                    <Typography className="opt-sub">{opt.sub}</Typography>
+                  </Box>
+                </OptionCard>
+              );
+            })}
           </Box>
         </Box>
-      </Box>
+      </FormSectionRoot>
     </>
   );
 };

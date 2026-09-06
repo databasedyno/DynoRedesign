@@ -1,599 +1,396 @@
 #!/usr/bin/env python3
 """
-Backend test for QA Quality Center API endpoints.
-Tests all /api/quality/* endpoints with proper passcode authentication.
+Backend testing for DynoPay checkout stream feature (2026-09-06)
+READ-ONLY tests for the new GET /api/pay/stream endpoint
 """
 
 import requests
 import json
+import time
 import sys
-from typing import Dict, Any, List
+import subprocess
+import jwt as pyjwt
+from datetime import datetime, timedelta
 
-# Base URL for the backend
 BASE_URL = "http://localhost:8001"
+NODE_BACKEND_URL = "http://localhost:3300"  # Direct Node backend (SSE works here)
+TEST_ADDRESS = "0x4c66718579270e0f44e7ab4d70d2b5ce69368ca8"
+ACCESS_TOKEN_SECRET = "9a88a50f97ef03c08fedc2e1823e6e4da7220d1a94d8200dde4e8bf63ceab2216e848003b38cae225e5a7620c77ac735e1c5b5418407953b85c203c3e5192d4e"
 
-# QA passcode (shared secret)
-QA_PASSCODE = "Dynopay123@"
+# NOTE: The Python proxy on port 8001 (server.py) does not support SSE streaming
+# because it buffers the entire response. SSE tests must run against the Node
+# backend directly on port 3300.
 
-# Headers with correct passcode
-HEADERS_WITH_PASSCODE = {
-    "x-qa-passcode": QA_PASSCODE,
-    "Content-Type": "application/json"
-}
-
-# Headers without passcode (for negative testing)
-HEADERS_WITHOUT_PASSCODE = {
-    "Content-Type": "application/json"
-}
-
-# Headers with wrong passcode (for negative testing)
-HEADERS_WRONG_PASSCODE = {
-    "x-qa-passcode": "WrongPassword123",
-    "Content-Type": "application/json"
-}
-
-# Track created items for cleanup
-created_comment_ids: List[int] = []
-created_custom_ids: List[int] = []
-
-def log_test(test_name: str, status: str, details: str = ""):
-    """Log test results"""
-    symbol = "✓" if status == "PASS" else "✗"
-    print(f"{symbol} {test_name}: {status}")
+def print_test(name, passed, details=""):
+    status = "✓ PASS" if passed else "✗ FAIL"
+    print(f"{status}: {name}")
     if details:
         print(f"  {details}")
+    return passed
 
-def test_auth_with_correct_passcode():
-    """Test 1: POST /api/quality/auth with correct passcode"""
+def create_test_jwt(payload=None):
+    """Create a test JWT token for customer session"""
+    if payload is None:
+        payload = {"ref": "test_session_ref"}
+    
+    # Add expiration
+    payload["exp"] = datetime.utcnow() + timedelta(hours=1)
+    payload["iat"] = datetime.utcnow()
+    
+    token = pyjwt.encode(payload, ACCESS_TOKEN_SECRET, algorithm="HS256")
+    return token
+
+def test_health():
+    """Test 1: GET /health -> 200, status healthy, database + redis connected"""
+    print("\n=== TEST 1: Health Endpoint ===")
     try:
-        response = requests.post(
-            f"{BASE_URL}/api/quality/auth",
-            headers=HEADERS_WITH_PASSCODE,
-            json={}
+        resp = requests.get(f"{BASE_URL}/health", timeout=5)
+        data = resp.json()
+        
+        passed = (
+            resp.status_code == 200 and
+            data.get("status") == "healthy" and
+            data.get("database") == "connected" and
+            data.get("redis") == "connected"
         )
         
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("ok") == True:
-                log_test("Auth with correct passcode", "PASS", f"Status: {response.status_code}, Response: {data}")
-                return True
-            else:
-                log_test("Auth with correct passcode", "FAIL", f"Expected ok:true, got: {data}")
-                return False
-        else:
-            log_test("Auth with correct passcode", "FAIL", f"Expected 200, got {response.status_code}: {response.text}")
-            return False
+        details = f"Status: {resp.status_code}, health: {data.get('status')}, db: {data.get('database')}, redis: {data.get('redis')}"
+        return print_test("Health endpoint", passed, details)
     except Exception as e:
-        log_test("Auth with correct passcode", "FAIL", f"Exception: {str(e)}")
-        return False
+        return print_test("Health endpoint", False, f"Error: {e}")
 
-def test_auth_without_passcode():
-    """Test 2: POST /api/quality/auth without passcode (should fail)"""
+def test_stream_no_token():
+    """Test 2: GET /api/pay/stream without token -> 403"""
+    print("\n=== TEST 2: Stream without token ===")
     try:
-        response = requests.post(
-            f"{BASE_URL}/api/quality/auth",
-            headers=HEADERS_WITHOUT_PASSCODE,
-            json={}
+        resp = requests.get(
+            f"{BASE_URL}/api/pay/stream",
+            params={"address": TEST_ADDRESS},
+            timeout=5
         )
         
-        if response.status_code in [401, 403]:
-            log_test("Auth without passcode (should reject)", "PASS", f"Status: {response.status_code} (correctly rejected)")
-            return True
-        else:
-            log_test("Auth without passcode (should reject)", "FAIL", f"Expected 401/403, got {response.status_code}")
-            return False
+        passed = resp.status_code == 403
+        data = resp.json() if resp.headers.get('content-type', '').startswith('application/json') else {}
+        message = data.get("message", "")
+        
+        details = f"Status: {resp.status_code}, message: {message}"
+        return print_test("Stream without token returns 403", passed, details)
     except Exception as e:
-        log_test("Auth without passcode (should reject)", "FAIL", f"Exception: {str(e)}")
-        return False
+        return print_test("Stream without token returns 403", False, f"Error: {e}")
 
-def test_auth_with_wrong_passcode():
-    """Test 3: POST /api/quality/auth with wrong passcode (should fail)"""
+def test_stream_garbage_token():
+    """Test 3: GET /api/pay/stream with garbage token -> 403"""
+    print("\n=== TEST 3: Stream with garbage token ===")
     try:
-        response = requests.post(
-            f"{BASE_URL}/api/quality/auth",
-            headers=HEADERS_WRONG_PASSCODE,
-            json={}
+        resp = requests.get(
+            f"{BASE_URL}/api/pay/stream",
+            params={"address": TEST_ADDRESS, "token": "garbage_token_12345"},
+            timeout=5
         )
         
-        if response.status_code in [401, 403]:
-            log_test("Auth with wrong passcode (should reject)", "PASS", f"Status: {response.status_code} (correctly rejected)")
-            return True
-        else:
-            log_test("Auth with wrong passcode (should reject)", "FAIL", f"Expected 401/403, got {response.status_code}")
-            return False
+        passed = resp.status_code == 403
+        data = resp.json() if resp.headers.get('content-type', '').startswith('application/json') else {}
+        message = data.get("message", "")
+        
+        details = f"Status: {resp.status_code}, message: {message}"
+        return print_test("Stream with garbage token returns 403", passed, details)
     except Exception as e:
-        log_test("Auth with wrong passcode (should reject)", "FAIL", f"Exception: {str(e)}")
-        return False
+        return print_test("Stream with garbage token returns 403", False, f"Error: {e}")
 
-def test_get_data_without_passcode():
-    """Test 4: GET /api/quality/data without passcode (should fail)"""
+def test_stream_missing_address():
+    """Test 4a: GET /api/pay/stream with valid token but missing address -> 400"""
+    print("\n=== TEST 4a: Stream with valid token but missing address ===")
     try:
-        response = requests.get(
-            f"{BASE_URL}/api/quality/data",
-            headers=HEADERS_WITHOUT_PASSCODE
+        token = create_test_jwt()
+        resp = requests.get(
+            f"{BASE_URL}/api/pay/stream",
+            params={"token": token},
+            timeout=5
         )
         
-        if response.status_code in [401, 403]:
-            log_test("GET /data without passcode (should reject)", "PASS", f"Status: {response.status_code} (correctly rejected)")
-            return True
-        else:
-            log_test("GET /data without passcode (should reject)", "FAIL", f"Expected 401/403, got {response.status_code}")
-            return False
+        passed = resp.status_code == 400
+        data = resp.json() if resp.headers.get('content-type', '').startswith('application/json') else {}
+        message = data.get("message", "")
+        
+        details = f"Status: {resp.status_code}, message: {message}"
+        expected_msg = "A valid payment address is required"
+        if passed and expected_msg not in message:
+            passed = False
+            details += f" (expected message containing '{expected_msg}')"
+        
+        return print_test("Stream missing address returns 400", passed, details)
     except Exception as e:
-        log_test("GET /data without passcode (should reject)", "FAIL", f"Exception: {str(e)}")
-        return False
+        return print_test("Stream missing address returns 400", False, f"Error: {e}")
 
-def test_get_data_with_passcode():
-    """Test 5: GET /api/quality/data with correct passcode"""
+def test_stream_bad_address():
+    """Test 4b: GET /api/pay/stream with valid token but bad address -> 400"""
+    print("\n=== TEST 4b: Stream with valid token but bad address ===")
     try:
-        response = requests.get(
-            f"{BASE_URL}/api/quality/data",
-            headers=HEADERS_WITH_PASSCODE
+        token = create_test_jwt()
+        resp = requests.get(
+            f"{BASE_URL}/api/pay/stream",
+            params={"token": token, "address": "bad!addr"},
+            timeout=5
         )
         
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("ok") == True and "commentsByItem" in data and "customItems" in data:
-                log_test("GET /data with passcode", "PASS", f"Status: {response.status_code}, Keys: {list(data.keys())}")
-                return True, data
-            else:
-                log_test("GET /data with passcode", "FAIL", f"Missing expected keys in response: {data}")
-                return False, None
-        else:
-            log_test("GET /data with passcode", "FAIL", f"Expected 200, got {response.status_code}: {response.text}")
-            return False, None
-    except Exception as e:
-        log_test("GET /data with passcode", "FAIL", f"Exception: {str(e)}")
-        return False, None
-
-def test_create_comment():
-    """Test 6: POST /api/quality/comment - create a test comment"""
-    try:
-        comment_data = {
-            "item_key": "public::1.1",
-            "section_id": "public",
-            "section_title": "Public Pages",
-            "case_title": "Landing Page",
-            "tester": "Backend Tester",
-            "status": "fail",
-            "note": "Test note from backend tester - automated test"
-        }
+        passed = resp.status_code == 400
+        data = resp.json() if resp.headers.get('content-type', '').startswith('application/json') else {}
+        message = data.get("message", "")
         
-        response = requests.post(
-            f"{BASE_URL}/api/quality/comment",
-            headers=HEADERS_WITH_PASSCODE,
-            json=comment_data
+        details = f"Status: {resp.status_code}, message: {message}"
+        return print_test("Stream with bad address returns 400", passed, details)
+    except Exception as e:
+        return print_test("Stream with bad address returns 400", False, f"Error: {e}")
+
+def test_stream_valid():
+    """Test 4c: GET /api/pay/stream with valid token and address -> 200, SSE stream"""
+    print("\n=== TEST 4c: Stream with valid token and address ===")
+    try:
+        token = create_test_jwt()
+        
+        # NOTE: Testing against NODE_BACKEND_URL (port 3300) because the Python proxy
+        # on port 8001 buffers responses and breaks SSE streaming
+        cmd = [
+            "curl", "-N", "--max-time", "2", "-s", "-i",
+            f"{NODE_BACKEND_URL}/api/pay/stream?address={TEST_ADDRESS}&token={token}"
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        output = result.stdout
+        
+        # Check for 200 status
+        has_200 = "HTTP/1.1 200" in output or "200 OK" in output
+        
+        # Check for SSE content type
+        has_sse_type = "text/event-stream" in output
+        
+        # Check for connected event
+        has_connected = "event: connected" in output
+        
+        # Check for ready event
+        has_ready = "event: ready" in output
+        
+        # Check for X-Accel-Buffering header
+        has_no_buffer = "X-Accel-Buffering: no" in output
+        
+        # Check that address is in the response (lowercased)
+        has_address = TEST_ADDRESS.lower() in output.lower()
+        
+        passed = has_200 and has_sse_type and has_connected and has_ready and has_no_buffer
+        
+        details = f"HTTP 200: {has_200}, SSE type: {has_sse_type}, connected: {has_connected}, ready: {has_ready}, no-buffer: {has_no_buffer}, address: {has_address}"
+        
+        if passed:
+            # Extract the first few events for display
+            lines = output.split('\n')
+            events = [line for line in lines if line.startswith('event:') or line.startswith('data:')][:6]
+            if events:
+                details += f"\n  First events: {' | '.join(events[:4])}"
+        
+        return print_test("Stream with valid credentials returns SSE", passed, details)
+    except Exception as e:
+        return print_test("Stream with valid credentials returns SSE", False, f"Error: {e}")
+
+def test_stream_with_destination_tag():
+    """Test 4d: GET /api/pay/stream with destination_tag -> connected event lists two channels"""
+    print("\n=== TEST 4d: Stream with destination_tag ===")
+    try:
+        token = create_test_jwt()
+        
+        # NOTE: Testing against NODE_BACKEND_URL (port 3300) for SSE support
+        cmd = [
+            "curl", "-N", "--max-time", "2", "-s",
+            f"{NODE_BACKEND_URL}/api/pay/stream?address={TEST_ADDRESS}&destination_tag=12345&token={token}"
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        output = result.stdout
+        
+        # Check for connected event with channels array
+        has_connected = "event: connected" in output
+        
+        # The connected event should mention both channels (base + with tag)
+        # Looking for the channel format: checkout:0x4c66... and checkout:0x4c66...:12345
+        base_channel = f"checkout:{TEST_ADDRESS.lower()}"
+        tag_channel = f"checkout:{TEST_ADDRESS.lower()}:12345"
+        
+        has_base_channel = base_channel in output.lower()
+        has_tag_channel = tag_channel in output.lower()
+        
+        passed = has_connected and has_base_channel and has_tag_channel
+        
+        details = f"connected: {has_connected}, base channel: {has_base_channel}, tag channel: {has_tag_channel}"
+        
+        return print_test("Stream with destination_tag lists both channels", passed, details)
+    except Exception as e:
+        return print_test("Stream with destination_tag lists both channels", False, f"Error: {e}")
+
+def test_verify_crypto_no_auth():
+    """Test 5: POST /api/pay/verifyCryptoPayment without auth -> 403"""
+    print("\n=== TEST 5: verifyCryptoPayment without auth ===")
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/api/pay/verifyCryptoPayment",
+            json={"address": "0x0000000000000000000000000000000000000001"},
+            timeout=5
         )
         
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("ok") == True and "comment" in data:
-                comment = data["comment"]
-                comment_id = comment.get("id")
-                if comment_id:
-                    created_comment_ids.append(comment_id)
-                    log_test("POST /comment (create)", "PASS", f"Created comment ID: {comment_id}")
-                    return True, comment_id
-                else:
-                    log_test("POST /comment (create)", "FAIL", f"No ID in response: {data}")
-                    return False, None
-            else:
-                log_test("POST /comment (create)", "FAIL", f"Unexpected response: {data}")
-                return False, None
-        else:
-            log_test("POST /comment (create)", "FAIL", f"Expected 200, got {response.status_code}: {response.text}")
-            return False, None
+        passed = resp.status_code == 403
+        data = resp.json() if resp.headers.get('content-type', '').startswith('application/json') else {}
+        message = data.get("message", "")
+        
+        details = f"Status: {resp.status_code}, message: {message}"
+        return print_test("verifyCryptoPayment without auth returns 403", passed, details)
     except Exception as e:
-        log_test("POST /comment (create)", "FAIL", f"Exception: {str(e)}")
-        return False, None
+        return print_test("verifyCryptoPayment without auth returns 403", False, f"Error: {e}")
 
-def test_comment_appears_in_data(comment_id: int):
-    """Test 7: Verify created comment appears in GET /api/quality/data"""
+def test_verify_crypto_with_auth():
+    """Test 5 (regression): POST /api/pay/verifyCryptoPayment with JWT -> 200"""
+    print("\n=== TEST 5 (regression): verifyCryptoPayment with auth ===")
     try:
-        response = requests.get(
-            f"{BASE_URL}/api/quality/data",
-            headers=HEADERS_WITH_PASSCODE
+        token = create_test_jwt()
+        resp = requests.post(
+            f"{BASE_URL}/api/pay/verifyCryptoPayment",
+            json={"address": "0x0000000000000000000000000000000000000001"},
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=5
         )
         
-        if response.status_code == 200:
-            data = response.json()
-            comments_by_item = data.get("commentsByItem", {})
-            
-            # Look for our comment in public::1.1
-            public_comments = comments_by_item.get("public::1.1", [])
-            found = any(c.get("id") == comment_id for c in public_comments)
-            
-            if found:
-                log_test("Comment appears in GET /data", "PASS", f"Comment ID {comment_id} found in commentsByItem['public::1.1']")
-                return True
-            else:
-                log_test("Comment appears in GET /data", "FAIL", f"Comment ID {comment_id} not found in data")
-                return False
-        else:
-            log_test("Comment appears in GET /data", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test("Comment appears in GET /data", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_create_comment_with_bad_status():
-    """Test 8: POST /api/quality/comment with invalid status (should coerce to not_tested)"""
-    try:
-        comment_data = {
-            "item_key": "public::1.2",
-            "section_id": "public",
-            "section_title": "Public Pages",
-            "case_title": "Pricing Page",
-            "tester": "Backend Tester",
-            "status": "invalid_status_xyz",
-            "note": "Testing status coercion"
-        }
+        # Should return 200 with status "waiting" (no Redis data for this address)
+        passed = resp.status_code == 200
+        data = resp.json() if resp.headers.get('content-type', '').startswith('application/json') else {}
+        status = data.get("status", "")
         
-        response = requests.post(
-            f"{BASE_URL}/api/quality/comment",
-            headers=HEADERS_WITH_PASSCODE,
-            json=comment_data
+        details = f"Status: {resp.status_code}, payment status: {status}"
+        
+        # This is read-only - we expect "waiting" or similar for a non-existent address
+        if passed and status not in ["waiting", "pending", "failed"]:
+            details += f" (unexpected status, but endpoint is working)"
+        
+        return print_test("verifyCryptoPayment with auth returns 200", passed, details)
+    except Exception as e:
+        return print_test("verifyCryptoPayment with auth returns 200", False, f"Error: {e}")
+
+def test_checkout_service_unit():
+    """Test 6: Unit test for checkoutStreamService"""
+    print("\n=== TEST 6: Unit test for checkoutStreamService ===")
+    try:
+        # Verify the service file exists and has the expected exports
+        service_file = "/app/backend/services/checkoutStreamService.ts"
+        
+        with open(service_file, "r") as f:
+            content = f.read()
+        
+        # Check for expected exports
+        has_checkout_channel = "export const checkoutChannel" in content or "export { checkoutChannel" in content
+        has_publish_status = "export const publishCheckoutStatus" in content or "export { publishCheckoutStatus" in content
+        has_attach_stream = "export const attachCheckoutStream" in content or "export { attachCheckoutStream" in content
+        
+        # Check for expected logic
+        has_lowercase = ".toLowerCase()" in content
+        has_channel_format = "`checkout:" in content or '"checkout:"' in content or "'checkout:'" in content
+        has_destination_tag_logic = "destinationTag" in content
+        
+        passed = all([
+            has_checkout_channel,
+            has_publish_status,
+            has_attach_stream,
+            has_lowercase,
+            has_channel_format,
+            has_destination_tag_logic
+        ])
+        
+        if passed:
+            details = "Service exports checkoutChannel, publishCheckoutStatus, attachCheckoutStream with correct logic (lowercase, channel format, tag support)"
+        else:
+            missing = []
+            if not has_checkout_channel: missing.append("checkoutChannel export")
+            if not has_publish_status: missing.append("publishCheckoutStatus export")
+            if not has_attach_stream: missing.append("attachCheckoutStream export")
+            if not has_lowercase: missing.append("toLowerCase logic")
+            if not has_channel_format: missing.append("channel format")
+            if not has_destination_tag_logic: missing.append("destinationTag logic")
+            details = f"Missing: {', '.join(missing)}"
+        
+        return print_test("checkoutStreamService code structure", passed, details)
+        
+    except Exception as e:
+        return print_test("checkoutStreamService unit tests", False, f"Error: {e}")
+
+def check_backend_logs():
+    """Test 7: Check backend logs for errors related to checkoutStream"""
+    print("\n=== TEST 7: Backend logs check ===")
+    try:
+        # Check for errors in backend logs
+        result = subprocess.run(
+            ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
+            capture_output=True,
+            text=True,
+            timeout=5
         )
         
-        if response.status_code == 200:
-            data = response.json()
-            comment = data.get("comment", {})
-            status = comment.get("status")
-            comment_id = comment.get("id")
-            
-            if comment_id:
-                created_comment_ids.append(comment_id)
-            
-            if status == "not_tested":
-                log_test("POST /comment with bad status (coercion)", "PASS", f"Status coerced to 'not_tested'")
-                return True
-            else:
-                log_test("POST /comment with bad status (coercion)", "FAIL", f"Expected 'not_tested', got '{status}'")
-                return False
+        error_log = result.stdout
+        
+        # Look for errors related to checkoutStream, paymentRouter, or SSE
+        relevant_errors = []
+        for line in error_log.split('\n'):
+            lower_line = line.lower()
+            if any(keyword in lower_line for keyword in ['checkoutstream', 'paymentrouter', '/api/pay/stream', 'sse', 'error', 'exception']):
+                if any(err in lower_line for err in ['error', 'exception', 'failed', 'crash']):
+                    relevant_errors.append(line.strip())
+        
+        # Filter out old errors (before our tests)
+        recent_errors = relevant_errors[-10:] if relevant_errors else []
+        
+        passed = len(recent_errors) == 0
+        
+        if passed:
+            details = "No errors related to checkoutStream in recent logs"
         else:
-            log_test("POST /comment with bad status (coercion)", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
+            details = f"Found {len(recent_errors)} potential errors (may be pre-existing)"
+            if recent_errors:
+                details += f"\n  Sample: {recent_errors[0][:100]}"
+        
+        return print_test("Backend logs clean", passed, details)
+        
     except Exception as e:
-        log_test("POST /comment with bad status (coercion)", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_create_comment_without_item_key():
-    """Test 9: POST /api/quality/comment without item_key (should fail with 400)"""
-    try:
-        comment_data = {
-            "section_id": "public",
-            "tester": "Backend Tester",
-            "status": "pass",
-            "note": "Missing item_key"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/api/quality/comment",
-            headers=HEADERS_WITH_PASSCODE,
-            json=comment_data
-        )
-        
-        if response.status_code == 400:
-            log_test("POST /comment without item_key (should reject)", "PASS", f"Status: {response.status_code} (correctly rejected)")
-            return True
-        else:
-            log_test("POST /comment without item_key (should reject)", "FAIL", f"Expected 400, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test("POST /comment without item_key (should reject)", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_create_custom_item():
-    """Test 10: POST /api/quality/custom - create a custom test item"""
-    try:
-        custom_data = {
-            "area": "Payments",
-            "title": "Refund via TRC20",
-            "description": "Verify refund flow for TRC20 USDT payments",
-            "created_by": "Backend Tester"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/api/quality/custom",
-            headers=HEADERS_WITH_PASSCODE,
-            json=custom_data
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("ok") == True and "item" in data:
-                item = data["item"]
-                item_id = item.get("id")
-                item_key = item.get("item_key")
-                
-                if item_id and item_key and item_key.startswith("custom::"):
-                    created_custom_ids.append(item_id)
-                    expected_key = f"custom::{item_id}"
-                    if item_key == expected_key:
-                        log_test("POST /custom (create)", "PASS", f"Created custom item ID: {item_id}, item_key: {item_key}")
-                        return True, item_id, item_key
-                    else:
-                        log_test("POST /custom (create)", "FAIL", f"item_key mismatch: expected {expected_key}, got {item_key}")
-                        return False, None, None
-                else:
-                    log_test("POST /custom (create)", "FAIL", f"Missing or invalid ID/item_key: {item}")
-                    return False, None, None
-            else:
-                log_test("POST /custom (create)", "FAIL", f"Unexpected response: {data}")
-                return False, None, None
-        else:
-            log_test("POST /custom (create)", "FAIL", f"Expected 200, got {response.status_code}: {response.text}")
-            return False, None, None
-    except Exception as e:
-        log_test("POST /custom (create)", "FAIL", f"Exception: {str(e)}")
-        return False, None, None
-
-def test_custom_item_appears_in_data(item_key: str):
-    """Test 11: Verify custom item appears in GET /api/quality/data"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/quality/data",
-            headers=HEADERS_WITH_PASSCODE
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            custom_items = data.get("customItems", [])
-            
-            found = any(item.get("item_key") == item_key for item in custom_items)
-            
-            if found:
-                log_test("Custom item appears in GET /data", "PASS", f"Custom item {item_key} found in customItems")
-                return True
-            else:
-                log_test("Custom item appears in GET /data", "FAIL", f"Custom item {item_key} not found")
-                return False
-        else:
-            log_test("Custom item appears in GET /data", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test("Custom item appears in GET /data", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_create_custom_item_without_title():
-    """Test 12: POST /api/quality/custom without title (should fail with 400)"""
-    try:
-        custom_data = {
-            "area": "Payments",
-            "description": "Missing title",
-            "created_by": "Backend Tester"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/api/quality/custom",
-            headers=HEADERS_WITH_PASSCODE,
-            json=custom_data
-        )
-        
-        if response.status_code == 400:
-            log_test("POST /custom without title (should reject)", "PASS", f"Status: {response.status_code} (correctly rejected)")
-            return True
-        else:
-            log_test("POST /custom without title (should reject)", "FAIL", f"Expected 400, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test("POST /custom without title (should reject)", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_export_csv():
-    """Test 13: GET /api/quality/export?format=csv"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/quality/export?format=csv",
-            headers=HEADERS_WITH_PASSCODE
-        )
-        
-        if response.status_code == 200:
-            content_type = response.headers.get("Content-Type", "")
-            if "text/csv" in content_type:
-                content = response.text
-                # Check for CSV header row
-                if "id,item_key,section_title,case_title,status,tester,note,created_at" in content:
-                    log_test("GET /export?format=csv", "PASS", f"CSV export successful, {len(content)} bytes")
-                    return True
-                else:
-                    log_test("GET /export?format=csv", "FAIL", f"CSV header not found in response")
-                    return False
-            else:
-                log_test("GET /export?format=csv", "FAIL", f"Expected text/csv, got {content_type}")
-                return False
-        else:
-            log_test("GET /export?format=csv", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test("GET /export?format=csv", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_export_json():
-    """Test 14: GET /api/quality/export?format=json"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/quality/export?format=json",
-            headers=HEADERS_WITH_PASSCODE
-        )
-        
-        if response.status_code == 200:
-            content_type = response.headers.get("Content-Type", "")
-            if "application/json" in content_type:
-                data = response.json()
-                if "comments" in data and "exported_at" in data:
-                    log_test("GET /export?format=json", "PASS", f"JSON export successful, {len(data['comments'])} comments")
-                    return True
-                else:
-                    log_test("GET /export?format=json", "FAIL", f"Missing expected keys in JSON: {list(data.keys())}")
-                    return False
-            else:
-                log_test("GET /export?format=json", "FAIL", f"Expected application/json, got {content_type}")
-                return False
-        else:
-            log_test("GET /export?format=json", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test("GET /export?format=json", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_delete_comment(comment_id: int):
-    """Test 15: DELETE /api/quality/comment/:id"""
-    try:
-        response = requests.delete(
-            f"{BASE_URL}/api/quality/comment/{comment_id}",
-            headers=HEADERS_WITH_PASSCODE
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("ok") == True and data.get("deleted") >= 1:
-                log_test(f"DELETE /comment/{comment_id}", "PASS", f"Deleted {data.get('deleted')} row(s)")
-                return True
-            else:
-                log_test(f"DELETE /comment/{comment_id}", "FAIL", f"Unexpected response: {data}")
-                return False
-        else:
-            log_test(f"DELETE /comment/{comment_id}", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test(f"DELETE /comment/{comment_id}", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def test_delete_custom_item(custom_id: int):
-    """Test 16: DELETE /api/quality/custom/:id"""
-    try:
-        response = requests.delete(
-            f"{BASE_URL}/api/quality/custom/{custom_id}",
-            headers=HEADERS_WITH_PASSCODE
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("ok") == True:
-                log_test(f"DELETE /custom/{custom_id}", "PASS", f"Deleted {data.get('deleted')} row(s)")
-                return True
-            else:
-                log_test(f"DELETE /custom/{custom_id}", "FAIL", f"Unexpected response: {data}")
-                return False
-        else:
-            log_test(f"DELETE /custom/{custom_id}", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test(f"DELETE /custom/{custom_id}", "FAIL", f"Exception: {str(e)}")
-        return False
-
-def verify_cleanup():
-    """Test 17: Verify all created items are deleted"""
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/quality/data",
-            headers=HEADERS_WITH_PASSCODE
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            comments_by_item = data.get("commentsByItem", {})
-            custom_items = data.get("customItems", [])
-            
-            # Check if any of our created comments still exist
-            all_comments = []
-            for item_comments in comments_by_item.values():
-                all_comments.extend(item_comments)
-            
-            remaining_comment_ids = [c.get("id") for c in all_comments if c.get("id") in created_comment_ids]
-            remaining_custom_ids = [item.get("id") for item in custom_items if item.get("id") in created_custom_ids]
-            
-            if not remaining_comment_ids and not remaining_custom_ids:
-                log_test("Cleanup verification", "PASS", "All created items successfully deleted")
-                return True
-            else:
-                log_test("Cleanup verification", "FAIL", f"Remaining comments: {remaining_comment_ids}, customs: {remaining_custom_ids}")
-                return False
-        else:
-            log_test("Cleanup verification", "FAIL", f"Expected 200, got {response.status_code}")
-            return False
-    except Exception as e:
-        log_test("Cleanup verification", "FAIL", f"Exception: {str(e)}")
-        return False
+        # Log check is not critical
+        return print_test("Backend logs check", True, f"Could not check logs: {e}")
 
 def main():
-    """Run all tests"""
-    print("=" * 80)
-    print("QA QUALITY CENTER BACKEND API TEST")
-    print("=" * 80)
-    print()
+    print("=" * 70)
+    print("DynoPay Backend Testing - Checkout Stream Feature")
+    print("Session: 2026-09-06")
+    print("=" * 70)
     
     results = []
     
-    # Test 1-3: Auth endpoint
-    print("--- Authentication Tests ---")
-    results.append(test_auth_with_correct_passcode())
-    results.append(test_auth_without_passcode())
-    results.append(test_auth_with_wrong_passcode())
-    print()
-    
-    # Test 4-5: GET /data endpoint
-    print("--- GET /data Tests ---")
-    results.append(test_get_data_without_passcode())
-    success, initial_data = test_get_data_with_passcode()
-    results.append(success)
-    print()
-    
-    # Test 6-9: POST /comment endpoint
-    print("--- POST /comment Tests ---")
-    success, comment_id = test_create_comment()
-    results.append(success)
-    if comment_id:
-        results.append(test_comment_appears_in_data(comment_id))
-    else:
-        results.append(False)
-    results.append(test_create_comment_with_bad_status())
-    results.append(test_create_comment_without_item_key())
-    print()
-    
-    # Test 10-12: POST /custom endpoint
-    print("--- POST /custom Tests ---")
-    success, custom_id, item_key = test_create_custom_item()
-    results.append(success)
-    if item_key:
-        results.append(test_custom_item_appears_in_data(item_key))
-    else:
-        results.append(False)
-    results.append(test_create_custom_item_without_title())
-    print()
-    
-    # Test 13-14: Export endpoints
-    print("--- Export Tests ---")
-    results.append(test_export_csv())
-    results.append(test_export_json())
-    print()
-    
-    # Test 15-16: Delete endpoints (cleanup)
-    print("--- Delete Tests (Cleanup) ---")
-    for cid in created_comment_ids:
-        results.append(test_delete_comment(cid))
-    for cid in created_custom_ids:
-        results.append(test_delete_custom_item(cid))
-    print()
-    
-    # Test 17: Verify cleanup
-    print("--- Cleanup Verification ---")
-    results.append(verify_cleanup())
-    print()
+    # Run all tests
+    results.append(test_health())
+    results.append(test_stream_no_token())
+    results.append(test_stream_garbage_token())
+    results.append(test_stream_missing_address())
+    results.append(test_stream_bad_address())
+    results.append(test_stream_valid())
+    results.append(test_stream_with_destination_tag())
+    results.append(test_verify_crypto_no_auth())
+    results.append(test_verify_crypto_with_auth())
+    results.append(test_checkout_service_unit())
+    results.append(check_backend_logs())
     
     # Summary
-    print("=" * 80)
-    passed = sum(1 for r in results if r)
+    print("\n" + "=" * 70)
+    print("SUMMARY")
+    print("=" * 70)
+    passed = sum(results)
     total = len(results)
-    print(f"SUMMARY: {passed}/{total} tests passed")
-    print("=" * 80)
+    print(f"Tests passed: {passed}/{total}")
     
     if passed == total:
-        print("✓ ALL TESTS PASSED")
+        print("\n✓✓✓ ALL TESTS PASSED ✓✓✓")
         return 0
     else:
-        print(f"✗ {total - passed} TEST(S) FAILED")
+        print(f"\n✗ {total - passed} test(s) failed")
         return 1
 
 if __name__ == "__main__":

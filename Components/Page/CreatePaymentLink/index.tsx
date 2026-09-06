@@ -14,7 +14,7 @@ import { ApiAction } from "@/Redux/Actions";
 import { API_FETCH } from "@/Redux/Actions/ApiAction";
 import { PAYLINK_CREATE, PAYLINK_UPDATE, PAYLINK_FEE_PREVIEW } from "@/Redux/Actions/PaymentLinkAction";
 import PaymentLinkSuccessModal from "./PaymentLinkSuccessModal";
-import { TabContentContainer } from "./styled";
+import { TabContentContainer, FormSectionRoot, FormSectionHeader } from "./styled";
 
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
@@ -1566,13 +1566,29 @@ const CreatePaymentLinkPage = ({
                 />
               ) : (
               <Box
+                data-testid="pay-link-form-sections"
                 sx={{
                   display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  gap: { xs: "12px", md: 3 },
+                  flexDirection: "column",
+                  gap: { xs: 2, md: 3 },
                 }}
               >
-                <Box sx={{ flex: 1, minWidth: 0 }}>
+                {/* ── 01 · What is this payment for? ── */}
+                <FormSectionRoot data-testid="pay-link-section-purpose">
+                  <FormSectionHeader>
+                    <span className="step">01</span>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography className="title">
+                        {tPaymentLink("sectionPurposeTitle", { defaultValue: "What is this payment for?" })}
+                      </Typography>
+                      <Typography className="subtitle">
+                        {tPaymentLink("sectionPurposeSub", {
+                          defaultValue: "Pick a product from your store or describe the payment in your own words.",
+                        })}
+                      </Typography>
+                    </Box>
+                  </FormSectionHeader>
+
                   {/* Quick-sell product picker (session 49 round 3) —
                       only in CREATE mode + standard link_type. Hidden in
                       edit mode because we don't want to imply the link is
@@ -1586,6 +1602,19 @@ const CreatePaymentLinkPage = ({
                       isMobile={isMobile}
                     />
                   )}
+
+                  <DescriptionSection
+                    isMobile={isMobile}
+                    tPaymentLink={tPaymentLink}
+                    paymentSettings={paymentSettings}
+                    paymentSettingsTouched={paymentSettingsTouched}
+                    paymentSettingsErrors={paymentSettingsErrors}
+                    handlePaymentSettingsChange={handlePaymentSettingsChange}
+                    handlePaymentSettingsBlur={handlePaymentSettingsBlur}
+                  />
+                </FormSectionRoot>
+
+                {/* ── 02 · How much?  +  03 · Details ── */}
                 <PaymentSettingsBasic
                   isMobile={isMobile}
                   tPaymentLink={tPaymentLink}
@@ -1611,18 +1640,6 @@ const CreatePaymentLinkPage = ({
                   expireAnchorEl={expireAnchorEl}
                   expireTriggerRef={expireTriggerRef}
                 />
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  <DescriptionSection
-                    isMobile={isMobile}
-                    tPaymentLink={tPaymentLink}
-                    paymentSettings={paymentSettings}
-                    paymentSettingsTouched={paymentSettingsTouched}
-                    paymentSettingsErrors={paymentSettingsErrors}
-                    handlePaymentSettingsChange={handlePaymentSettingsChange}
-                    handlePaymentSettingsBlur={handlePaymentSettingsBlur}
-                  />
-                </Box>
               </Box>
               )}
 

@@ -294,3 +294,106 @@ export const AppSwitch = styled(Switch)(({ theme }) => ({
     boxSizing: "border-box",
   },
 }));
+
+/* ── Redesign (2026-09): numbered form sections ─────────────────────────────
+   The create form used to split its fields into two 50% columns, which made
+   every input narrow and the hierarchy unclear. Sections now stack vertically
+   with a numbered eyebrow so the merchant reads the form top-to-bottom:
+   01 What is it for → 02 How much → 03 Details → 04 Accepted coins. */
+export const FormSectionRoot = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(1.75),
+  paddingBottom: theme.spacing(3),
+  borderBottom: `1px solid ${theme.palette.border?.main || theme.palette.divider}`,
+  "&:last-of-type": { borderBottom: 0, paddingBottom: 0 },
+  [theme.breakpoints.down("md")]: {
+    gap: theme.spacing(1.25),
+    paddingBottom: theme.spacing(2),
+  },
+}));
+
+export const FormSectionHeader = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 12,
+  "& .step": {
+    flex: "0 0 auto",
+    minWidth: 28,
+    height: 28,
+    borderRadius: 999,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "var(--font-tech), monospace",
+    fontSize: 11.5,
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    color: theme.palette.mode === "dark" ? "#C7D2FE" : "#4338CA",
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.16)" : "#EEF0FD",
+  },
+  "& .title": {
+    fontFamily: "var(--font-sans)",
+    fontSize: 16,
+    fontWeight: 700,
+    lineHeight: "28px",
+    color: theme.palette.text.primary,
+  },
+  "& .subtitle": {
+    fontFamily: "var(--font-sans)",
+    fontSize: 13,
+    lineHeight: 1.5,
+    color: theme.palette.text.secondary,
+    marginTop: 2,
+  },
+  [theme.breakpoints.down("md")]: {
+    "& .title": { fontSize: 15, lineHeight: "26px" },
+    "& .step": { minWidth: 26, height: 26, fontSize: 11 },
+  },
+}));
+
+export const FieldGrid = styled(Box)(({ theme }) => ({
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: theme.spacing(2),
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "1fr 1fr",
+    columnGap: theme.spacing(2.5),
+  },
+}));
+
+/** Selectable option card (used for "Blockchain fees paid by"). */
+export const OptionCard = styled(Box, {
+  shouldForwardProp: (p) => p !== "selected" && p !== "disabled",
+})<{ selected?: boolean; disabled?: boolean }>(({ theme, selected, disabled }) => ({
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 10,
+  padding: "12px 14px",
+  borderRadius: 12,
+  cursor: disabled ? "not-allowed" : "pointer",
+  opacity: disabled ? 0.6 : 1,
+  border: `1px solid ${selected ? theme.palette.primary.main : theme.palette.border?.main || theme.palette.divider}`,
+  boxShadow: selected ? `0 0 0 3px ${theme.palette.mode === "dark" ? "rgba(129,140,248,0.22)" : "rgba(79,70,229,0.12)"}` : "none",
+  backgroundColor: selected
+    ? theme.palette.mode === "dark"
+      ? "rgba(129,140,248,0.08)"
+      : "#F7F7FE"
+    : "transparent",
+  transition: "border-color .15s ease, box-shadow .15s ease, background-color .15s ease",
+  "&:hover": disabled ? {} : { borderColor: theme.palette.primary.main },
+  "& .opt-title": {
+    fontFamily: "var(--font-sans)",
+    fontSize: 14,
+    fontWeight: 600,
+    color: theme.palette.text.primary,
+    lineHeight: 1.3,
+  },
+  "& .opt-sub": {
+    fontFamily: "var(--font-sans)",
+    fontSize: 12.5,
+    color: theme.palette.text.secondary,
+    lineHeight: 1.45,
+    marginTop: 2,
+  },
+}));

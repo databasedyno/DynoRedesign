@@ -211,23 +211,31 @@ export default function CompanySettingsDialog({
   }, [company, autoConvertData]);
 
   const schema = useMemo(
-    () =>
-      yup.object().shape({
-        company_name: yup
-          .string()
-          .required(t("validation.companyNameRequired")),
-        email: yup
-          .string()
-          .email(t("validation.emailInvalid"))
-          .required(t("validation.emailRequired")),
-        mobile: yup
-          .string()
-          .notRequired()
-          .test(
-            "mobile-len",
-            t("validation.mobileMin"),
-            (v) => !v || v.replace(/\D/g, "").length >= 10
-          ),
+    () => {
+      // Only validate fields the user can actually see. The Payments-only view
+      // (Settings → Payments) hides the Company fields, so a missing company
+      // email must not silently disable "Save Changes" there.
+      const showsCompany = sections.includes("company");
+      return yup.object().shape({
+        company_name: showsCompany
+          ? yup.string().required(t("validation.companyNameRequired"))
+          : yup.string().nullable(),
+        email: showsCompany
+          ? yup
+              .string()
+              .email(t("validation.emailInvalid"))
+              .required(t("validation.emailRequired"))
+          : yup.string().nullable(),
+        mobile: showsCompany
+          ? yup
+              .string()
+              .notRequired()
+              .test(
+                "mobile-len",
+                t("validation.mobileMin"),
+                (v) => !v || v.replace(/\D/g, "").length >= 10
+              )
+          : yup.string().nullable(),
         website: yup.string().nullable(),
         country: yup.string().nullable(),
         state: yup.string().nullable(),
@@ -242,8 +250,9 @@ export default function CompanySettingsDialog({
         grace_period_minutes: yup.string().nullable(),
         auto_convert_volatile_crypto: yup.string().nullable(),
         convert_to_stablecoin: yup.string().nullable(),
-      }),
-    [t],
+      });
+    },
+    [t, sections],
   );
 
   // When dialog opens with a company, remount form and expand first visible section
@@ -398,8 +407,32 @@ export default function CompanySettingsDialog({
       }
     }
 
+    // Only send the fields that belong to the sections on screen. In the
+    // Payments-only view this keeps hidden Company identity fields (email,
+    // address, …) from being overwritten with empty strings.
+    const COMPANY_FIELDS = [
+      "company_name", "email", "mobile", "website", "country", "state", "city",
+      "address_line_1", "address_line_2", "zip_code", "VAT_number", "first_name", "last_name",
+    ];
+    const PAYMENT_FIELDS = ["underpayment_threshold_usd", "grace_period_minutes"];
+    const WEBHOOK_FIELDS = ["webhook_notification_url", "webhook_secret_key"];
+    const CRYPTO_FIELDS = ["auto_convert_volatile_crypto", "convert_to_stablecoin"];
+    const allowedKeys = new Set<string>([
+      ...(sections.includes("company") ? COMPANY_FIELDS : []),
+      ...(sections.includes("payment") ? PAYMENT_FIELDS : []),
+      ...(sections.includes("webhook") ? WEBHOOK_FIELDS : []),
+      ...(sections.includes("crypto") ? CRYPTO_FIELDS : []),
+    ]);
+    const KNOWN_FIELDS = new Set([...COMPANY_FIELDS, ...PAYMENT_FIELDS, ...WEBHOOK_FIELDS, ...CRYPTO_FIELDS]);
+    const scopedValues = Object.fromEntries(
+      Object.entries(values as Record<string, unknown>).filter(
+        // keep visible-section fields; pass through anything not owned by a section
+        ([k]) => allowedKeys.has(k) || !KNOWN_FIELDS.has(k),
+      ),
+    );
+
     const formData = new FormData();
-    formData.append("data", JSON.stringify(values));
+    formData.append("data", JSON.stringify(scopedValues));
     if (mediaFile) formData.append("image", mediaFile);
 
     try {

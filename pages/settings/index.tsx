@@ -67,6 +67,10 @@ const TeamSettingsSection = dynamic(() => import("@/Components/Page/Settings/Tea
   ssr: false,
   loading: () => <SectionLoading />,
 });
+const PlanFeesSection = dynamic(() => import("@/Components/Page/Settings/PlanFeesSection"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
 const CompanySettingsDialog = dynamic(() => import("@/Components/UI/CompanySettingsDialog"), {
   ssr: false,
   loading: () => <SectionLoading />,
@@ -84,12 +88,14 @@ type SectionKey =
   | "payments"
   | "tax"
   | "notifications"
-  | "team";
+  | "team"
+  | "plan";
 
 const SECTION_KEYS: SectionKey[] = [
   "profile",
   "company",
   "payments",
+  "plan",
   "tax",
   "notifications",
   "team",
@@ -360,6 +366,15 @@ const SettingsPage = ({
         scope: "company" as const,
       },
       {
+        key: "plan" as SectionKey,
+        label: t("settingsPage.planFees", { defaultValue: "Plan & fees" }),
+        description: t("settingsPage.planFeesDesc", {
+          defaultValue: "Your current fee tier, what each payment costs, and how to unlock lower rates.",
+        }),
+        icon: <PercentRounded sx={{ fontSize: 19 }} />,
+        scope: "account" as const,
+      },
+      {
         key: "tax" as SectionKey,
         label: t("settingsPage.tax", { defaultValue: "Tax" }),
         description: t("settingsPage.taxDesc", {
@@ -408,7 +423,7 @@ const SettingsPage = ({
       {
         id: "payments",
         label: t("settingsPage.groupPayments", { defaultValue: "Payments" }),
-        keys: ["payments"] as SectionKey[],
+        keys: ["payments", "plan"] as SectionKey[],
       },
     ],
     [t],
@@ -580,37 +595,6 @@ const SettingsPage = ({
                   </Box>
                 );
               })}
-              {/* Plan & fees is a *plan* concern → it belongs to the Payments
-                  group (F6 + F11). It navigates away, hence the outward arrow. */}
-              {group.id === "payments" && (
-                <Box
-                  role="button"
-                  tabIndex={0}
-                  data-testid="settings-rail-plan-fees"
-                  onClick={() => router.push("/fees")}
-                  onKeyDown={(e: React.KeyboardEvent) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      router.push("/fees");
-                    }
-                  }}
-                  sx={railItemSx(false)}
-                >
-                  <PercentRounded sx={{ fontSize: 19 }} />
-                  <Typography
-                    sx={{
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      fontFamily: "var(--font-sans)",
-                      color: "inherit",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {t("settingsPage.planFees", { defaultValue: "Plan & fees" })}
-                  </Typography>
-                  <ArrowOutwardRounded sx={{ fontSize: 14, ml: "auto", opacity: 0.55 }} />
-                </Box>
-              )}
             </React.Fragment>
           ))}
 
@@ -761,6 +745,7 @@ const SettingsPage = ({
           {active === "payments" && (
             <CompanyConfigSection visibleSections={["crypto", "payment"]} showDisplayCurrency />
           )}
+          {active === "plan" && <PlanFeesSection />}
           {active === "tax" && <TaxSettingsSection />}
           {active === "team" && <TeamSettingsSection />}
           {active === "notifications" && <NotificationPage />}

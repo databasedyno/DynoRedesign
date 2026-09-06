@@ -9,8 +9,19 @@
 import axiosBaseApi from '@/axiosConfig'
 import { API_ENDPOINTS } from '@/api/endpoints'
 
-function apiBase(): string {
+export function apiBase(): string {
   return (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '')
+}
+
+/**
+ * URL of the buyer-facing SSE status stream for a payment address.
+ * EventSource cannot set headers, so the customer-session token rides in the
+ * query string (the backend lifts it into Authorization).
+ */
+export function checkoutStreamUrl(address: string, token: string, destinationTag?: string | number | null): string {
+  const q = new URLSearchParams({ address, token })
+  if (destinationTag) q.set('destination_tag', String(destinationTag))
+  return `${apiBase()}/api/pay/stream?${q.toString()}`
 }
 
 export interface CheckoutApiResult {

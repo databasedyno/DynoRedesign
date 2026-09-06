@@ -74,7 +74,7 @@ import {
 import {
   formatCryptoAmount, buildPaymentUri, copyToClipboard, readCheckoutPref, writeCheckoutPref,
 } from './checkout/checkoutHelpers'
-import { checkoutApi as api, fetchReceiptBlob } from './checkout/checkoutApi'
+import { checkoutApi as api, fetchReceiptBlob, checkoutStreamUrl } from './checkout/checkoutApi'
 import { PanelShell, CheckoutStatusTimeline } from './checkout/checkoutPrimitives'
 
 // Preserve existing external import contracts (scripts/qa + legacy importers).
@@ -168,6 +168,15 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   const mountedRef = useRef(true)
   const pollRef = useRef<any>(null)
   const timerRef = useRef<any>(null)
+  // Real-time status (2026-09): the webhook pipeline goes detected → confirmed in
+  // ~3s while polling ran every 10s, so buyers jumped straight to the paid card.
+  // We now (a) subscribe to the per-address SSE stream and re-verify on every
+  // hint, and (b) keep the "Payment detected — confirming" step on screen for a
+  // minimum dwell so the transition is actually visible.
+  const MIN_DETECTED_DWELL_MS = 2500
+  const detectedAtRef = useRef<number | null>(null)
+  const confirmTimerRef = useRef<any>(null)
+  const [sseConnected, setSseConnected] = useState(false)
   // Browser "Payment confirmed" alert (opt-in). Lets the buyer switch tabs
   // while the network confirms and still get pinged on settlement.
   const notif = usePaymentNotification()
@@ -551,8 +560,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     }
     // Live "detected" signal: backend 'pending' = tx seen, awaiting
     // confirmation; 'underpaid' also means funds were received (partial).
-    if (s === 'pending') {
+    if (s === 'pending' || s === 'processing') {
       setDetected(true)
+      if (detectedAtRef.current == null) detectedAtRef.current = Date.now()
     } else if (s === 'underpaid') {
       setDetected(true)
       setPhase('underpaid')
@@ -564,24 +574,45 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         baseCurrency: String(d_.baseCurrency || meta_.base_currency),
       })
     } else if (s === 'waiting') {
-      setDetected(false)
+      // Don't flicker back to "waiting" right after a live "detected" hint — the
+      // stream fires on webhook receipt, a beat before Redis reflects the status.
+      const recentlyDetected = detectedAtRef.current != null && Date.now() - detectedAtRef.current < 15_000
+      if (!recentlyDetected) setDetected(false)
     }
     if (s === 'confirmed' || s === 'overpaid') {
+      if (confirmTimerRef.current) return // already committing after the dwell
       const settledMerchant = Number(d_.merchantAmount)
       const settledFee = Number(d_.feeAmount)
       const hasSettled = Number.isFinite(settledMerchant) && settledMerchant > 0 && Number.isFinite(settledFee) && settledFee >= 0
-      setConfirmedAmount({
-        crypto: Number(d_.paidAmount || d_.expectedAmount || cryptoInfo.expected_amount),
-        fiat: Number(d_.paidAmountUsd || meta_.amount),
-        fiatCurrency: String(d_.baseCurrency || meta_.base_currency),
-        merchant: hasSettled ? settledMerchant : split?.merchant,
-        fee: hasSettled ? settledFee : split?.fee,
-        feePayer: d_.feePayer === 'customer' || d_.feePayer === 'company' ? d_.feePayer : split?.feePayer,
-      })
-      setPhase('confirmed')
-      if (pollRef.current) clearInterval(pollRef.current)
-      if (timerRef.current) clearInterval(timerRef.current)
-      if (onSuccess) { try { onSuccess() } catch { /* ignore */ } }
+      const commitConfirmed = () => {
+        if (!mountedRef.current) return
+        setConfirmedAmount({
+          crypto: Number(d_.paidAmount || d_.expectedAmount || cryptoInfo.expected_amount),
+          fiat: Number(d_.paidAmountUsd || meta_.amount),
+          fiatCurrency: String(d_.baseCurrency || meta_.base_currency),
+          merchant: hasSettled ? settledMerchant : split?.merchant,
+          fee: hasSettled ? settledFee : split?.fee,
+          feePayer: d_.feePayer === 'customer' || d_.feePayer === 'company' ? d_.feePayer : split?.feePayer,
+        })
+        setPhase('confirmed')
+        if (pollRef.current) clearInterval(pollRef.current)
+        if (timerRef.current) clearInterval(timerRef.current)
+        if (onSuccess) { try { onSuccess() } catch { /* ignore */ } }
+      }
+      // Always walk the buyer through "detected → confirming" before the paid
+      // card, even when the network already confirmed between two checks.
+      setDetected(true)
+      if (detectedAtRef.current == null) detectedAtRef.current = Date.now()
+      const elapsed = Date.now() - detectedAtRef.current
+      const wait = Math.max(0, MIN_DETECTED_DWELL_MS - elapsed)
+      if (wait === 0) {
+        commitConfirmed()
+      } else {
+        confirmTimerRef.current = setTimeout(() => {
+          confirmTimerRef.current = null
+          commitConfirmed()
+        }, wait)
+      }
       return
     }
     if (s === 'expired') {
@@ -603,10 +634,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       applyVerifyResult(r)
     }
     poll()
-    pollRef.current = setInterval(poll, 10_000)
+    pollRef.current = setInterval(poll, sseConnected ? 10_000 : 4_000)
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, cryptoInfo, meta_, SWR_ON])
+  }, [phase, cryptoInfo, meta_, SWR_ON, sseConnected])
 
   // Phase C (flag ON): SWR drives the verify polling with the SAME 10s cadence.
   // The key nulls out the moment we leave awaiting/underpaid (or lose the
@@ -621,12 +652,63 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   const verifySwr = useSWR(
     verifyActive ? ['checkout/verify', cryptoInfo!.address, meta_!.token] : null,
     async () => api('/pay/verifyCryptoPayment', { address: cryptoInfo!.address }, meta_!.token),
-    { refreshInterval: 10_000, refreshWhenHidden: true, revalidateOnFocus: false, shouldRetryOnError: false },
+    { refreshInterval: sseConnected ? 10_000 : 4_000, refreshWhenHidden: true, revalidateOnFocus: false, shouldRetryOnError: false },
   )
   useEffect(() => {
     if (!SWR_ON) return
     if (verifySwr.data) applyVerifyResult(verifySwr.data)
   }, [SWR_ON, verifySwr.data, applyVerifyResult])
+
+  // ─── Real-time status stream (SSE) ────────────────────────────────
+  // Every hint triggers an immediate re-verify against verifyCryptoPayment (the
+  // source of truth); polling stays on as a fallback (4s without SSE, 10s with).
+  const streamActive =
+    (phase === 'awaiting_payment' || phase === 'underpaid') &&
+    !!cryptoInfo?.address &&
+    !!meta_?.token
+  const verifyNow = useCallback(async () => {
+    if (!cryptoInfo?.address || !meta_?.token) return
+    if (SWR_ON) { try { await verifySwr.mutate() } catch { /* ignore */ } ; return }
+    const r = await api('/pay/verifyCryptoPayment', { address: cryptoInfo.address }, meta_.token)
+    applyVerifyResult(r)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cryptoInfo?.address, meta_?.token, SWR_ON, applyVerifyResult, verifySwr.mutate])
+  useEffect(() => {
+    if (!streamActive || typeof window === 'undefined' || typeof EventSource === 'undefined') return
+    let es: EventSource | null = null
+    let closed = false
+    try {
+      es = new EventSource(checkoutStreamUrl(cryptoInfo!.address, meta_!.token, cryptoInfo!.memo || null))
+    } catch {
+      return
+    }
+    const onHint = (ev: MessageEvent) => {
+      let status = ''
+      try { status = String(JSON.parse(ev.data || '{}').status || '') } catch { /* ignore */ }
+      if (status === 'pending' || status === 'processing') {
+        setDetected(true)
+        if (detectedAtRef.current == null) detectedAtRef.current = Date.now()
+      }
+      if (status && status !== 'waiting') void verifyNow()
+    }
+    es.addEventListener('connected', () => { if (!closed) setSseConnected(true) })
+    es.addEventListener('ready', onHint as EventListener)
+    es.addEventListener('status', onHint as EventListener)
+    es.onerror = () => { if (!closed) setSseConnected(false) }
+    return () => {
+      closed = true
+      setSseConnected(false)
+      try { es?.close() } catch { /* ignore */ }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streamActive, cryptoInfo?.address, meta_?.token])
+
+  // Reset the dwell tracker whenever a new address/payment attempt starts.
+  useEffect(() => {
+    detectedAtRef.current = null
+    if (confirmTimerRef.current) { clearTimeout(confirmTimerRef.current); confirmTimerRef.current = null }
+  }, [cryptoInfo?.address])
+  useEffect(() => () => { if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current) }, [])
 
   // ─── Timer countdown ──────────────────────────────────────────────
   useEffect(() => {

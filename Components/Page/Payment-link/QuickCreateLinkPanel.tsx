@@ -78,6 +78,12 @@ const QuickCreateLinkPanel = ({
   const [created, setCreated] = useState<CreatedLink | null>(null);
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
+  // The "Buyer will see" card is a preview, not a field — but it *looks* like one,
+  // so tapping any line of it focuses the matching input (works with touch too).
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const descriptionInputRef = useRef<HTMLInputElement>(null);
+  const focusAmount = () => amountInputRef.current?.focus();
+  const focusDescription = () => descriptionInputRef.current?.focus();
 
   const preview = useMemo(() => fmtAmount(amount, currency), [amount, currency]);
 
@@ -216,6 +222,13 @@ const QuickCreateLinkPanel = ({
       anchor="right"
       open={open}
       onClose={handleClose}
+      SlideProps={{
+        onEntered: () => {
+          if (created) return;
+          const coarse = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
+          if (!coarse) amountInputRef.current?.focus();
+        },
+      }}
       PaperProps={{
         sx: {
           width: { xs: "100%", sm: 480 },
@@ -269,13 +282,45 @@ const QuickCreateLinkPanel = ({
                 mb: 2.5,
               }}
             >
-              <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
-                {t("quickCreate.previewLabel", { defaultValue: "Buyer will see" })}
-              </Typography>
-              <Typography noWrap sx={{ fontFamily: "var(--font-sans)", fontSize: 14.5, fontWeight: 600, mt: 0.75, color: description.trim() ? theme.palette.text.primary : theme.palette.text.secondary }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+                  {t("quickCreate.previewLabel", { defaultValue: "Buyer will see" })}
+                </Typography>
+                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 11, color: theme.palette.text.secondary }}>
+                  {t("quickCreate.previewHint", { defaultValue: "Tap a line to edit" })}
+                </Typography>
+              </Box>
+              <Typography
+                noWrap
+                component="button"
+                type="button"
+                onClick={focusDescription}
+                data-testid="quick-create-preview-description"
+                aria-label={t("quickCreate.editDescription", { defaultValue: "Edit description" })}
+                sx={{
+                  display: "block", width: "100%", textAlign: "left", background: "none", border: 0, p: 0, cursor: "text",
+                  fontFamily: "var(--font-sans)", fontSize: 14.5, fontWeight: 600, mt: 0.75,
+                  color: description.trim() ? theme.palette.text.primary : theme.palette.text.secondary,
+                  borderRadius: "6px",
+                  "&:hover, &:focus-visible": { color: theme.palette.text.primary, outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: 2 },
+                }}
+              >
                 {description.trim() || t("quickCreate.previewPlaceholder", { defaultValue: "What is this payment for?" })}
               </Typography>
-              <Typography sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 22, fontWeight: 700, mt: 0.5, color: preview ? theme.palette.text.primary : theme.palette.text.secondary }}>
+              <Typography
+                component="button"
+                type="button"
+                onClick={focusAmount}
+                data-testid="quick-create-preview-amount"
+                aria-label={t("quickCreate.editAmount", { defaultValue: "Edit amount" })}
+                sx={{
+                  display: "block", width: "100%", textAlign: "left", background: "none", border: 0, p: 0, cursor: "text",
+                  fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 22, fontWeight: 700, mt: 0.5,
+                  color: preview ? theme.palette.text.primary : theme.palette.text.secondary,
+                  borderRadius: "6px",
+                  "&:hover, &:focus-visible": { color: theme.palette.text.primary, outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: 2 },
+                }}
+              >
                 {preview || "—"}
               </Typography>
             </Box>
@@ -291,6 +336,7 @@ const QuickCreateLinkPanel = ({
                 helperText={errors.amount || ""}
                 fullWidth
                 size="small"
+                inputRef={amountInputRef}
                 inputProps={{ "data-testid": "quick-create-amount", style: { fontFamily: "var(--font-mono, monospace)" } }}
               />
               <TextField
@@ -319,6 +365,7 @@ const QuickCreateLinkPanel = ({
               fullWidth
               size="small"
               sx={{ mb: 2 }}
+              inputRef={descriptionInputRef}
               inputProps={{ "data-testid": "quick-create-description", maxLength: 120 }}
             />
 

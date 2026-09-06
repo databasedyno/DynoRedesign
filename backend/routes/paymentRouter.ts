@@ -101,6 +101,15 @@ paymentRouter.post(
   paymentController.verifyCryptoPayment
 );
 
+// Real-time checkout status (SSE). EventSource can't send headers, so the
+// customer-session JWT arrives as ?token= and is lifted into Authorization.
+paymentRouter.get(
+  "/stream",
+  paymentController.tokenFromQuery,
+  customerAuthMiddleware,
+  paymentController.checkoutStatusStream
+);
+
 // Buyer-facing PDF receipt for a CONFIRMED payment (checkout "paid" card).
 // Same customer-session auth + rate limit as the rest of the checkout flow.
 paymentRouter.post(

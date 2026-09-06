@@ -47,14 +47,20 @@ const CreateNewButton: React.FC = () => {
     [close, router],
   );
 
-  // `n` shortcut. Ignored when the user is typing or holding a modifier.
+  // `n` shortcut. Ignored when the user is typing, holding a modifier, or while
+  // any drawer / dialog / menu is open — otherwise typing an "n" inside an open
+  // panel (e.g. the quick-create drawer) re-opens this menu on top of it and its
+  // focus trap swallows every following keystroke.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "n" && e.key !== "N") return;
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.isComposing) return;
       const el = document.activeElement as HTMLElement | null;
       const tag = el?.tagName?.toLowerCase();
       if (tag === "input" || tag === "textarea" || tag === "select" || el?.isContentEditable) return;
+      // Any open MUI modal layer (Drawer, Dialog, Menu, Popover) or native <dialog>
+      if (document.querySelector(".MuiModal-root:not(.MuiModal-hidden), [role='dialog'], [role='alertdialog'], dialog[open]")) return;
       e.preventDefault();
       if (buttonRef.current) setAnchorEl(buttonRef.current);
     };

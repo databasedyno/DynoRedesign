@@ -26,6 +26,7 @@ import tatumApi from "../apis/tatumApi";
 import { deliverMerchantWebhook } from "./outbox/merchantWebhookOutbox";
 import { WebhookJobData } from "./webhookQueue";
 import { validateTransition, parseState, PaymentState } from "./paymentStateMachine";
+import { publishCheckoutStatus } from "./checkoutStreamService";
 import { Op } from "sequelize";
 import { toBaseUnits, toFixedStr } from "../utils/money";
 
@@ -745,6 +746,7 @@ async function handleCrashRecovery(
 
     // Soft-enforce: processing → successful (PROCESSING → PAYOUT_COMPLETE)
     softValidate(items.status, "successful", paymentId, "crash-recovery-success");
+    publishCheckoutStatus(address, "confirmed", { txId: payload.txId, recovered: true });
 
     await setRedisItem(redisKey, {
       ...items,
@@ -1039,6 +1041,7 @@ async function handleNewTransaction(
 
       // Soft-enforce: pending → underpaid (PENDING → UNDERPAID — skips DETECTED)
       softValidate(items.status, "underpaid", paymentId, "payment-link-underpayment");
+      publishCheckoutStatus(address, "underpaid", { txId: payload.txId });
 
       await setRedisItem(redisKey, {
         ...items, status: "underpaid", incomplete: "true",
@@ -1120,6 +1123,7 @@ async function handleNewTransaction(
   try {
     // Soft-enforce: varies → processing (pre-cryptoVerification)
     softValidate(items.status, "processing", paymentId, "pre-crypto-verification");
+    publishCheckoutStatus(address, "processing", { txId: payload.txId });
 
     // Set early processing guard to prevent duplicate webhooks from re-triggering settlement
     await setRedisItem(`processed-tx-${payload.txId}`, {
@@ -1210,6 +1214,7 @@ async function handleNewTransaction(
     // Success: update Redis
     // Soft-enforce: processing → successful (PROCESSING → PAYOUT_COMPLETE)
     softValidate("processing", "successful", paymentId, "crypto-verification-success");
+    publishCheckoutStatus(address, "confirmed", { txId: payload.txId });
 
     // ── RELIABILITY: Journal payment completion to PostgreSQL ──
     try {
@@ -1351,6 +1356,7 @@ async function handleNewTransaction(
 
     // Soft-enforce: processing → failed (PROCESSING → FAILED)
     softValidate("processing", "failed", paymentId, "crypto-verification-failure");
+    publishCheckoutStatus(address, "failed", { txId: payload.txId });
 
     await setRedisItem(redisKey, {
       ...items, status: "failed", receivedAmount: incomingAmount,

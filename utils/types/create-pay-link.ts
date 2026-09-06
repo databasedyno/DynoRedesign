@@ -18,7 +18,7 @@ export interface ActionButtonsProps {
   isMobile: boolean;
   hasPaymentLinkData: boolean;
   disabled: boolean;
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   handleCreatePaymentLink: () => void;
   paymentSettingsErrors: any;
   paymentSettings: any;
@@ -61,7 +61,7 @@ export interface CryptoSelectionProps {
 
 export interface DescriptionSectionProps {
   isMobile: boolean;
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   paymentSettings: any;
   paymentSettingsTouched: any;
   paymentSettingsErrors: any;
@@ -70,7 +70,7 @@ export interface DescriptionSectionProps {
 }
 
 export interface PaymentLinkHeaderProps {
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   paymentLinkData: PaymentLink;
   disabled: boolean;
   isMobile: boolean;
@@ -90,7 +90,7 @@ export interface DatePickerOpenEvent {
 
 export interface PaymentSettingsBasicProps {
   isMobile: boolean;
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   paymentSettings: any;
   paymentSettingsTouched: any;
   paymentSettingsErrors: any;
@@ -117,7 +117,7 @@ export interface PaymentSettingsBasicProps {
 export interface PostPaymentSettingsProps {
   hasPaymentLinkData: boolean;
   isMobile: boolean;
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   postPaymentSettings: any;
   handleChange: (field: string, value: string) => void;
   showHelpers?: boolean;
@@ -129,13 +129,13 @@ export interface PostPaymentSettingsProps {
 export interface TabNavigationProps {
   activeTab: number;
   onChange: (tab: number) => void;
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   hasPaymentLinkData: boolean;
 }
 
 export interface TaxSectionProps {
   isMobile: boolean;
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   includeTax: boolean;
   setIncludeTax: React.Dispatch<React.SetStateAction<boolean>>;
   currentLng: string;
@@ -149,13 +149,13 @@ export interface CryptoItemCardProps {
   walletNotSetUp: string[];
   paymentSettings: any;
   setPaymentSettings: React.Dispatch<React.SetStateAction<any>>;
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   isLarge: boolean;
   isSmall: boolean;
 }
 
 export interface ExpireSelectorProps {
-  tPaymentLink: (key: string) => string;
+  tPaymentLink: (key: string, options?: Record<string, unknown>) => string;
   label?: string;
   // Preset expiry windows accepted by the backend: 'No' | '24h' | '7d' | '30d'
   // (legacy 'yes'/'no' values are normalised inside the component). Typed as
