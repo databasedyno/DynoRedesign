@@ -95,9 +95,15 @@ const CreateNewButton: React.FC = () => {
           minHeight: 44,
           gap: 0.25,
           lineHeight: 1.2,
-          backgroundColor: isDark ? "#818CF8" : "#0A0A0B",
+          backgroundColor: isDark ? "#818CF8" : "#4F46E5",
           color: isDark ? "#0A0A0B" : "#FFFFFF",
-          "&:hover": { backgroundColor: isDark ? "#A5B4FC" : "#26262B" },
+          transition: "background-color 150ms ease, transform 100ms ease",
+          "&:hover": { backgroundColor: isDark ? "#A5B4FC" : "#4338CA" },
+          "&:active": { transform: "scale(0.97)" },
+          "&:focus-visible": {
+            outline: `2px solid ${isDark ? "#A5B4FC" : "#4F46E5"}`,
+            outlineOffset: 2,
+          },
         }}
       >
         <AddRounded sx={{ fontSize: 18 }} />

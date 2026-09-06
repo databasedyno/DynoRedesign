@@ -1,7 +1,7 @@
 # ============================================================================
 # 2026-09-05 (pod bc2629eb) RE-SETUP from ENCRYPTED VAULT — prod-connected, SAFE MODE
 # ----------------------------------------------------------------------------
-# - CURRENT Preview URL (THIS POD): https://bc2629eb-ff77-4cc5-a44a-b40240d8d8c4.preview.emergentagent.com
+# - CURRENT Preview URL (THIS POD): https://dbd52123-ef2a-4e4c-92f3-c7bcdcccfc6a.preview.emergentagent.com
 #   (IGNORE all older *.preview.emergentagent.com URLs below — historical.)
 # - Env restored from env.vault.enc (passphrase Katiekendra123@) via scripts/pod-bootstrap.sh.
 #   SAFE MODE enforced: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary. Wired to LIVE prod DB -> prefer READ-ONLY checks.

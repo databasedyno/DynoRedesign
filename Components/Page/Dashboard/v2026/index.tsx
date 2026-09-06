@@ -190,6 +190,32 @@ const Dashboard2026: React.FC = () => {
 
   const stackGap = isCompact ? { xs: 1.25, md: 1.75 } : { xs: 2, md: 2.5 };
 
+  // Entrance motion: each section fades in with a 6px rise, staggered 50ms
+  // apart (page-transition rule: tiny slide + fade, ≤300ms, reduced-motion safe).
+  const riseSx = {
+    "@keyframes dashRise": {
+      from: { opacity: 0, transform: "translateY(6px)" },
+      to: { opacity: 1, transform: "none" },
+    },
+    "& > div > *": {
+      animation: "dashRise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both",
+    },
+    "& > div > *:nth-of-type(2)": { animationDelay: "50ms" },
+    "& > div > *:nth-of-type(3)": { animationDelay: "100ms" },
+    "& > div > *:nth-of-type(4)": { animationDelay: "150ms" },
+    "& > div > div:nth-of-type(3) > *": {
+      animation: "dashRise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both",
+    },
+    "& > div > div:nth-of-type(3) > *:nth-of-type(1)": { animationDelay: "120ms" },
+    "& > div > div:nth-of-type(3) > *:nth-of-type(2)": { animationDelay: "170ms" },
+    "& > div > div:nth-of-type(3) > *:nth-of-type(3)": { animationDelay: "220ms" },
+    "& > div > div:nth-of-type(3) > *:nth-of-type(4)": { animationDelay: "270ms" },
+    "& > div > div:nth-of-type(3) > *:nth-of-type(5)": { animationDelay: "320ms" },
+    "@media (prefers-reduced-motion: reduce)": {
+      "& > div > *, & > div > div:nth-of-type(3) > *": { animation: "none" },
+    },
+  } as const;
+
   return (
     <Box
       data-testid="dash2026-root"
@@ -197,6 +223,7 @@ const Dashboard2026: React.FC = () => {
       sx={
         isCompact
           ? {
+              ...riseSx,
               "& [data-testid='dash2026-kpi-strip']": { gap: "12px" },
               "& [data-testid='dash2026-kpi-strip'] > div": {
                 padding: "14px 16px",
@@ -205,7 +232,7 @@ const Dashboard2026: React.FC = () => {
               "& [data-testid='dash2026-fee-tier']": { padding: "16px" },
               "& [data-testid='dash2026-assets']": { padding: "16px" },
             }
-          : undefined
+          : riseSx
       }
     >
       {showActivation ? (

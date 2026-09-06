@@ -51,6 +51,8 @@ const ActionsRow: React.FC = () => {
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
   const ink = isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight;
+  const iconInk = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
+  const surface = isDark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light;
 
   return (
     <Box
@@ -75,20 +77,29 @@ const ActionsRow: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
               gap: 1,
-              minHeight: 46,
+              minHeight: 44,
               px: 1.5,
               py: 1.25,
-              borderRadius: "10px",
+              borderRadius: "12px",
               border: `1px solid ${border}`,
               textDecoration: "none",
               color: ink,
-              backgroundColor: "transparent",
-              transition: "border-color 150ms ease, color 150ms ease, background-color 150ms ease",
-              "&:hover, &:focus-visible": {
+              backgroundColor: surface,
+              transition:
+                "border-color 150ms ease, color 150ms ease, background-color 150ms ease, transform 100ms ease",
+              "& svg": { color: iconInk, transition: "color 150ms ease" },
+              "&:hover": {
                 borderColor: indigo,
                 color: indigo,
-                backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "rgba(10,10,15,0.015)",
-                outline: "none",
+                backgroundColor: isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow,
+                "& svg": { color: indigo },
+              },
+              "&:active": { transform: "scale(0.985)" },
+              "&:focus-visible": {
+                outline: `2px solid ${indigo}`,
+                outlineOffset: 2,
+                borderColor: indigo,
+                color: indigo,
               },
             }}
           >

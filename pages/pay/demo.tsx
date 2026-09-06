@@ -39,7 +39,7 @@ import usePaymentNotification from '@/hooks/usePaymentNotification'
  */
 
 // Design tokens — kept identical to CleanCheckoutV2 so the demo matches 1:1.
-const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
+const MONO = 'var(--font-tech), "IBM Plex Mono", ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace'
 const LIME = BRAND_ACCENT
 
 type Cur = { symbol: string; amount: number; address: string; scheme: string }
@@ -92,9 +92,9 @@ const PaymentDemo = () => {
   const notif = usePaymentNotification()
 
   // Theme tokens — mirror CleanCheckoutV2.
-  const border = isDark ? 'rgba(255,255,255,0.10)' : '#E4E4E7'
-  const surface = isDark ? 'rgba(255,255,255,0.03)' : '#F6F6F7'
-  const muted = isDark ? '#A1A1AA' : '#71717A'
+  const border = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(10,10,15,0.08)'
+  const muted = isDark ? '#A1A1AA' : '#6B6B76'
+  const labelSx = { fontSize: 11, fontWeight: 700, color: muted, mb: 0.75, letterSpacing: '0.08em', textTransform: 'uppercase' as const }
 
   const [phase, setPhase] = useState<Phase>('awaiting')
   const [selectedNetwork, setSelectedNetwork] = useState<string>('Litecoin')
@@ -181,12 +181,10 @@ const PaymentDemo = () => {
             width: '100%',
             maxWidth: 440,
             p: { xs: 2.5, sm: 4 },
-            borderRadius: '14px',
+            borderRadius: '16px',
             border: `1px solid ${border}`,
-            backgroundColor: isDark ? '#0F0F10' : '#FFFFFF',
-            boxShadow: isDark
-              ? '0 8px 32px rgba(0,0,0,0.4)'
-              : '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03)',
+            backgroundColor: isDark ? '#111114' : '#FFFFFF',
+            boxShadow: isDark ? 'none' : '0 1px 2px rgba(10,10,15,0.04)',
           }}
         >
           {/* ═══ CONFIRMED (success) ═══════════════════════════════════ */}
@@ -247,15 +245,20 @@ const PaymentDemo = () => {
                 Pay {MERCHANT}
               </Typography>
 
-              {/* Amount */}
-              <Typography sx={{ fontFamily: MONO, fontSize: 18, fontWeight: 500, color: muted, mt: 0.75, mb: 3.5 }} data-testid="demo-amount">
-                {FIAT_SYMBOL}{toFixedStr(FIAT_AMOUNT, 2)} {FIAT_CURRENCY}
+              {/* Amount hero — total as the mono headline (mirrors CleanCheckoutV2) */}
+              <Typography sx={{ ...labelSx, mt: 2.25 }}>Total you pay</Typography>
+              <Typography
+                data-testid="demo-amount"
+                sx={{ fontFamily: MONO, fontVariantNumeric: 'tabular-nums', fontSize: { xs: 34, sm: 40 }, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.05, color: theme.palette.text.primary, mb: 3 }}
+              >
+                {FIAT_SYMBOL}{toFixedStr(FIAT_AMOUNT, 2)}
+                <Box component="span" sx={{ fontSize: '0.42em', fontWeight: 500, color: muted, ml: 1, verticalAlign: 'middle' }}>{FIAT_CURRENCY}</Box>
               </Typography>
 
               {/* Reference row */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1.5, borderRadius: '10px', border: `1px solid ${border}`, backgroundColor: surface, mb: 2.5 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pb: 2, mb: 2.5, borderBottom: `1px solid ${border}` }}>
                 <Typography fontSize={13} color={theme.palette.text.primary}>{ORDER_DESCRIPTION}</Typography>
-                <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted }}>
+                <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted, letterSpacing: '0.04em' }}>
                   REFERENCE · {ORDER_REFERENCE}
                 </Typography>
               </Box>
@@ -263,7 +266,7 @@ const PaymentDemo = () => {
               {/* Network + Currency selects */}
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.25, mb: 2.5 }}>
                 <Box>
-                  <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>NETWORK</Typography>
+                  <Typography sx={labelSx}>NETWORK</Typography>
                   <Select
                     fullWidth
                     size="small"
@@ -271,9 +274,10 @@ const PaymentDemo = () => {
                     value={selectedNetwork}
                     onChange={(e) => onNetworkChange(String(e.target.value))}
                     sx={{
-                      borderRadius: '8px', minHeight: 46,
+                      borderRadius: '10px', minHeight: 46, fontWeight: 600,
                       '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
                       '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: LIME, borderWidth: 1.5 },
                     }}
                   >
                     {Object.keys(NETWORKS).map((n) => (
@@ -287,7 +291,7 @@ const PaymentDemo = () => {
                   </Select>
                 </Box>
                 <Box>
-                  <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>CURRENCY</Typography>
+                  <Typography sx={labelSx}>CURRENCY</Typography>
                   <Select
                     fullWidth
                     size="small"
@@ -295,9 +299,10 @@ const PaymentDemo = () => {
                     value={selectedCurrency}
                     onChange={(e) => { setSelectedCurrency(String(e.target.value)); setPhase('awaiting') }}
                     sx={{
-                      borderRadius: '8px', minHeight: 46,
+                      borderRadius: '10px', minHeight: 46, fontWeight: 600,
                       '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
                       '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: LIME, borderWidth: 1.5 },
                     }}
                   >
                     {currenciesInNetwork.map((code) => (
@@ -328,9 +333,13 @@ const PaymentDemo = () => {
               />
 
               {/* Instruction sentence */}
-              <Typography data-testid="demo-instruction" sx={{ fontSize: 14, color: theme.palette.text.primary, textAlign: 'center', mb: 2 }}>
-                Pay <strong>{coin.amount} {coin.symbol}</strong> on {net.label}
-              </Typography>
+              <Box data-testid="demo-instruction" sx={{ textAlign: 'center', mb: 2.5, mt: 0.5 }}>
+                <Typography sx={{ ...labelSx, mb: 0.5 }}>Send exactly</Typography>
+                <Typography component="strong" sx={{ display: 'block', fontFamily: MONO, fontVariantNumeric: 'tabular-nums', fontSize: { xs: 24, sm: 28 }, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.15, color: theme.palette.text.primary, wordBreak: 'break-word' }}>
+                  {coin.amount} {coin.symbol}
+                </Typography>
+                <Typography sx={{ fontSize: 13, color: muted, mt: 0.5 }}>on {net.label}</Typography>
+              </Box>
 
               {/* Opt-in browser alert */}
               <NotifyMeInline
@@ -353,9 +362,12 @@ const PaymentDemo = () => {
                   aria-label="Tap to copy payment address"
                   data-testid="demo-qr-panel"
                   sx={{
-                    p: 2, borderRadius: '16px', border: `1px solid ${border}`, backgroundColor: '#FFFFFF',
-                    boxShadow: '0 4px 22px rgba(0,0,0,0.08)', width: '100%', maxWidth: 264, mx: 'auto', cursor: 'pointer',
+                    p: 2, borderRadius: '14px', border: `1px solid ${isDark ? 'rgba(255,255,255,0.14)' : border}`, backgroundColor: '#FFFFFF',
+                    width: '100%', maxWidth: 264, mx: 'auto', cursor: 'pointer',
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    transition: 'transform .15s ease, border-color .15s ease',
+                    '&:hover': { borderColor: LIME },
+                    '&:active': { transform: 'scale(0.98)' },
                   }}
                 >
                   <QRCodeSVG
@@ -382,8 +394,9 @@ const PaymentDemo = () => {
                 data-testid="demo-simulate-btn"
                 sx={{
                   mt: 1, textTransform: 'none', borderRadius: '999px', fontWeight: 700, minHeight: 46,
-                  backgroundColor: LIME, color: '#fff', boxShadow: '0 4px 14px rgba(79,70,229,0.28)',
-                  '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
+                  backgroundColor: LIME, color: '#fff', boxShadow: 'none',
+                  '&:hover': { backgroundColor: '#4338CA', boxShadow: 'none' },
+                  '&:active': { transform: 'scale(0.99)' },
                 }}
               >
                 {phase === 'confirming' ? 'Confirming…' : 'Simulate payment received'}

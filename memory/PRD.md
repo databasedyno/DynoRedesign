@@ -1,3 +1,25 @@
+# STATUS 2026-06 (pod dbd52123): DESIGN POLISH — DASHBOARD + CHECKOUT (light touch, both themes). User-approved
+# scope: keep layout; refine spacing/type hierarchy/hover+focus; consistent indigo accent; status dot+text; de-clutter the
+# dashboard top area; checkout amount + "Send exactly" as mono heroes; calmer flat surfaces (no orbs / tinted boxes);
+# visible countdown bar in the status strip. Tested: test_reports/iteration_130.json (frontend, ~98%, no defects).
+# DASHBOARD: pages/dashboard.tsx H1 = greeting ("Good evening, John"), description = today's date; page-level
+#   "Create payment link" button RETIRED (header "+ New" is the ONE create control, now brand indigo — CreateNewButton.tsx);
+#   ReferralRewardBanner removed from dashboard (referral lives in rail: Grow slot + Referral code card).
+#   BalanceStrip: greeting eyebrow gone; metric dropdown moved to top-left; hero value 2 decimals (formatWithSeparators).
+#   DeltaChip text-only; SurfaceCard/StatCard radius 16; PanelCard widgets get DASH_PANEL_SX/DASH_PANEL_HEADER_SX
+#   (v2026/styled.tsx); RecentTransactionsWidget status = StatusDot dot+text, mono amounts, keyboard-focusable rows;
+#   GrowPanel/ReferralCodeCard neutral surfaces + indigo accent (no pink/amber); 🎉 removed from growTrialCompleteTitle ×6 langs;
+#   ActionsRow surface buttons w/ indigo hover+focus ring; AssetsCard bars solid; staggered dashRise entrance (reduced-motion safe).
+# CHECKOUT: Pay3Layout orbs removed (flat #F4F5F9 / #0B0B0E); PanelShell flat 16px hairline card (no shadow) + rise-in;
+#   CheckoutStatusStrip neutral surface, NEW totalSeconds prop → 3px countdown bar (checkout-strip-progress) + always-on
+#   MM:SS timer (checkout-strip-timer; checkout-strip-countdown when ≤60s); breathing ring replaces aurora blob.
+#   CleanCheckoutV2: "TOTAL YOU PAY" eyebrow + big mono total (clean-checkout-amount) with quiet breakdown rows; flat
+#   reference row; uppercase labelSx overlines; "SEND EXACTLY / <big mono amount> / on <Network>" (clean-checkout-instruction,
+#   clean-checkout-instruction-amount); QR panel hairline (no shadow); address/amount rows unfilled; softer amber warn;
+#   timeline hideBar when strip shows the bar; MONO now IBM Plex Mono first (checkoutConstants.ts). ReceiptEmailField flat.
+#   pages/pay/demo.tsx mirrored (landing showcase stays 1:1).
+# Cleanup: test pay link 338 (5H7px8) created for screenshots was DELETED. Prod data otherwise untouched.
+#
 # STATUS 2026-06 (fork): 6 NEW /for/* VERTICALS NOW LOCALIZED ×5 (de/es/fr/nl/pt) — 30 i18n JSONs under
 # data/seo-pages/verticals/i18n/<lang>/, SSR-verified (translated title/H1/<html lang>/canonical/hreflang, EN intact).
 # 6 missing OG cards generated (public/og/vertical-<slug>.png). Breadcrumbs already live. Deploy via Save-to-GitHub.

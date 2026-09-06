@@ -1,19 +1,14 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
-import ReferralRewardBanner from "@/Components/Page/Dashboard/ReferralRewardBanner";
 import KycGraceBanner from "@/Components/Page/Dashboard/KycGraceBanner";
 import WalletSetupNudge from "@/Components/Page/Dashboard/WalletSetupNudge";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
-import CustomButton from "@/Components/UI/Buttons";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
 import Dashboard2026 from "@/Components/Page/Dashboard/v2026";
-import useIsMobile from "@/hooks/useIsMobile";
 import { pageProps, rootReducer } from "@/utils/types";
-import { AddRounded } from "@mui/icons-material";
 import Head from "next/head";
-import router from "next/router";
-import { useCallback, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
@@ -21,16 +16,18 @@ import { useSelector } from "react-redux";
  * Dashboard — 2026 merchant command center (default & only layout).
  *
  * The dashboard renders `Dashboard2026` (Components/Page/Dashboard/v2026),
- * a bento command center: a personalised CommandBar (greeting + global time
- * range + settings), a Volume hero, a KPI strip, recent activity, an assets
- * breakdown, a merchant quick-actions dock, the fee-tier card, grow/storefront
- * slots, and a first-run activation checklist.
+ * a bento command center: a BalanceStrip (metric + global time range +
+ * settings + big mono volume), a quiet ActionsRow, the Volume chart, a KPI
+ * strip, recent activity, an assets breakdown, the fee-tier card, grow /
+ * storefront slots, and a first-run activation checklist.
  *
- * The classic two-column layout (and its localStorage feature flag) was
- * retired once the 2026 design was approved. Auxiliary chrome
- * (OnboardingFlow, AutoClaimHandle, ClaimHandleBanner) still lives here. The
- * mobile-only referral banner was removed (Aug 2026) so the balance stays the
- * hero on mobile — referral/invite still lives in the "Grow with Dynopay" slot.
+ * Top-area polish (Jun 2026): the page H1 IS the personalised greeting (with
+ * today's date as the description) — the old "Dashboard / Overview of…" title
+ * pair and the in-card greeting eyebrow were three competing headers. The
+ * page-level "Create payment link" button was retired: the header's `+ New`
+ * is the ONE create control (IA audit Law 3). The dismissible referral banner
+ * left the dashboard too — the referral offer already lives in the right rail
+ * (Grow slot + Referral code card).
  */
 export default function Home({
   setPageName,
@@ -38,13 +35,7 @@ export default function Home({
   setPageAction,
 }: pageProps) {
   const namespaces = ["dashboardLayout", "common"];
-
-  const isMobile = useIsMobile("md");
-  const { t } = useTranslation(namespaces);
-  const tDashboard = useCallback(
-    (key: string) => t(key, { ns: "dashboardLayout" }),
-    [t],
-  );
+  const { t, i18n } = useTranslation(namespaces);
 
   const companyState = useCompanyStore();
   const walletState = useWalletStore();
@@ -54,41 +45,46 @@ export default function Home({
   // A team member never sees merchant onboarding — the business is already set up.
   const setupComplete = isMember || (hasCompany && hasWallet);
 
+  const name = useSelector(
+    (s: rootReducer) => (s as any).userReducer?.profile?.name,
+  ) as string | undefined;
+
+  const greeting = useMemo(() => {
+    const h = new Date().getHours();
+    const base =
+      h < 12
+        ? t("greetMorning", { ns: "dashboardLayout", defaultValue: "Good morning" })
+        : h < 18
+          ? t("greetAfternoon", { ns: "dashboardLayout", defaultValue: "Good afternoon" })
+          : t("greetEvening", { ns: "dashboardLayout", defaultValue: "Good evening" });
+    const first = name ? String(name).trim().split(/\s+/)[0] : "";
+    return first ? `${base}, ${first}` : base;
+  }, [t, name]);
+
+  const dateLine = useMemo(() => {
+    try {
+      return new Date().toLocaleDateString(i18n.language || "en", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      });
+    } catch {
+      return "";
+    }
+  }, [i18n.language]);
+
   useEffect(() => {
     if (setPageName && setPageDescription) {
-      setPageName(tDashboard("dashboard"));
-      setPageDescription(tDashboard("dashboardDescription"));
+      setPageName(greeting);
+      setPageDescription(dateLine);
     }
-  }, [setPageName, setPageDescription, tDashboard]);
+  }, [setPageName, setPageDescription, greeting, dateLine]);
 
   useEffect(() => {
     if (!setPageAction) return;
-    if (setupComplete) {
-      setPageAction(
-        <CustomButton
-          data-testid="create-payment-link-btn"
-          label={
-            isMobile ? tDashboard("create") : tDashboard("createPaymentLink")
-          }
-          variant="primary"
-          size="medium"
-          endIcon={<AddRounded sx={{ fontSize: isMobile ? 18 : 20 }} />}
-          onClick={() => router.push("/create-pay-link")}
-          sx={{
-            height: isMobile ? 34 : 40,
-            px: isMobile ? 1.5 : 2.5,
-            fontSize: isMobile ? 13 : 15,
-          }}
-          labelSx={{
-            fontSize: "15px !important",
-          }}
-        />,
-      );
-    } else {
-      setPageAction(null);
-    }
+    setPageAction(null);
     return () => setPageAction(null);
-  }, [setPageAction, tDashboard, isMobile, setupComplete]);
+  }, [setPageAction]);
 
   return (
     <>
@@ -102,11 +98,7 @@ export default function Home({
         {!isMember && <OnboardingFlow />}
         {!isMember && <AutoClaimHandle />}
         {!isMember && setupComplete && <ClaimHandleBanner />}
-        {!isMember && setupComplete && <ReferralRewardBanner />}
 
-        {/* Coinbase look: scope Inter to the dashboard by redefining --font-sans
-            here (every dashboard text uses var(--font-sans)); numbers already
-            render in Roboto Mono via the UI-Kit MONO stack. */}
         <div
           style={
             {

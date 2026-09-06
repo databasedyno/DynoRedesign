@@ -13,6 +13,8 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { CB_TOKENS } from "./coinbase/styled";
+import { DASH_PANEL_SX, DASH_PANEL_HEADER_SX } from "./v2026/styled";
 
 /**
  * GrowPanel — consolidates the old {FeeFreeWidget, PremiumTierCard,
@@ -64,6 +66,10 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
   const isMobile = useIsMobile("sm");
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
+  const isDark = theme.palette.mode === "dark";
+  // Quiet Money: one brand accent for every offer (the icon differs, the colour
+  // doesn't) — no more pink/amber/green competing tints in the right rail.
+  const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
 
   const feeFreeOffer: OfferConfig = {
     key: "fee_free",
@@ -72,7 +78,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
     ctaLabel: t("createPaymentLink"),
     onCtaClick: onFeeFreeCta || (() => router.push("/create-pay-link")),
     icon: <LocalOfferRounded sx={{ fontSize: 22 }} />,
-    accent: theme.palette.success.dark || "#10B981",
+    accent: indigo,
   };
 
   const trialCompleteOffer: OfferConfig = {
@@ -86,7 +92,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
     ctaLabel: t("growReferralCta"),
     onCtaClick: onReferralCta || (() => router.push("/referrals")),
     icon: <CelebrationRounded sx={{ fontSize: 22 }} />,
-    accent: "#F59E0B", // amber — celebratory, distinct from the fee-free green
+    accent: indigo,
   };
 
   const premiumOffer: OfferConfig = {
@@ -98,7 +104,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
     // (/settings/billing) 404'd because no such page exists.
     onCtaClick: onPremiumCta || (() => router.push("/fees")),
     icon: <DiamondRounded sx={{ fontSize: 22 }} />,
-    accent: theme.palette.primary.main,
+    accent: indigo,
   };
 
   const referralOffer: OfferConfig = {
@@ -110,7 +116,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
     // (/settings/referral) 404'd because no such page exists.
     onCtaClick: onReferralCta || (() => router.push("/referrals")),
     icon: <CardGiftcardRounded sx={{ fontSize: 22 }} />,
-    accent: "#EC4899",
+    accent: indigo,
   };
 
   // Priority: fee-free (highest, has expiry) > trial-complete (celebration) >
@@ -126,6 +132,8 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
   return (
     <Box sx={{ px: { xs: 2, md: 0 } }} data-testid="dashboard-grow-panel">
       <PanelCard
+        sx={DASH_PANEL_SX}
+        headerSx={DASH_PANEL_HEADER_SX}
         showHeaderBorder={false}
         headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
         bodyPadding={theme.spacing(2, 2.5, 2.5, 2.5)}
@@ -136,10 +144,10 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
           data-testid={`grow-offer-${active.key}`}
           sx={{
             position: "relative",
-            borderRadius: "14px",
-            p: isMobile ? 2 : 2.5,
-            border: `1px solid ${active.accent}33`,
-            background: `linear-gradient(135deg, ${active.accent}0d 0%, ${active.accent}03 100%)`,
+            borderRadius: "12px",
+            p: isMobile ? 2 : 2.25,
+            border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+            backgroundColor: isDark ? "rgba(255,255,255,0.025)" : "#FAFAFC",
             display: "flex",
             flexDirection: "column",
             gap: 1.25,
@@ -148,13 +156,13 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
             <Box
               sx={{
-                width: 40,
-                height: 40,
-                borderRadius: "12px",
+                width: 36,
+                height: 36,
+                borderRadius: "10px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: `${active.accent}1F`,
+                backgroundColor: isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow,
                 color: active.accent,
                 flexShrink: 0,
               }}
@@ -165,7 +173,8 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
               sx={{
                 fontFamily: "var(--font-sans)",
                 fontWeight: 700,
-                fontSize: isMobile ? "15px" : "16px",
+                fontSize: isMobile ? "14.5px" : "15px",
+                letterSpacing: "-0.01em",
                 color: theme.palette.text.primary,
                 lineHeight: 1.25,
               }}
@@ -183,7 +192,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
           >
             {active.body}
           </Typography>
-          <Box sx={{ mt: 0.5 }}>
+          <Box sx={{ mt: 0.25 }}>
             <CustomButton
               data-testid={`grow-offer-cta-${active.key}`}
               label={active.ctaLabel}

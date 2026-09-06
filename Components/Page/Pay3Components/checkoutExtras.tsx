@@ -24,27 +24,14 @@ export const ReceiptEmailField: React.FC<{
   border: string
   accent?: string
 }> = ({ value, onChange, onSave, saved, invalid, label, helper, savedLabel, invalidLabel, muted, border, accent = '#4338CA' }) => (
-  <Box
-    sx={{
-      mb: 2.5,
-      p: 1.75,
-      borderRadius: '12px',
-      border: `1px solid ${accent}33`,
-      backgroundColor: `${accent}0F`,
-    }}
-    data-testid="checkout-receipt-email-field"
-  >
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.85, mb: 1 }}>
-      <Box
-        sx={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: 26, height: 26, borderRadius: '8px', flexShrink: 0,
-          backgroundColor: `${accent}1F`,
-        }}
+  <Box sx={{ mb: 2.5 }} data-testid="checkout-receipt-email-field">
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
+      <Icon icon="mdi:email-fast-outline" width={15} color={muted} />
+      <Typography
+        component="label"
+        htmlFor="checkout-receipt-email"
+        sx={{ fontSize: 11.5, fontWeight: 700, color: muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}
       >
-        <Icon icon="mdi:email-fast-outline" width={16} color={accent} />
-      </Box>
-      <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: 'text.primary', letterSpacing: '0.01em' }}>
         {label}
       </Typography>
     </Box>
@@ -52,6 +39,7 @@ export const ReceiptEmailField: React.FC<{
       fullWidth
       size="small"
       type="email"
+      id="checkout-receipt-email"
       inputMode="email"
       autoComplete="email"
       placeholder="you@example.com"
@@ -61,9 +49,10 @@ export const ReceiptEmailField: React.FC<{
       error={invalid}
       inputProps={{ 'data-testid': 'checkout-receipt-email-input', 'aria-label': label }}
       sx={{
-        '& .MuiOutlinedInput-root': { borderRadius: '8px', minHeight: 46, backgroundColor: 'background.paper' },
-        '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
-        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: accent },
+        '& .MuiOutlinedInput-root': { borderRadius: '10px', minHeight: 46, backgroundColor: 'transparent' },
+        '& .MuiOutlinedInput-notchedOutline': { borderColor: border, transition: 'border-color 150ms ease' },
+        '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: muted },
+        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: accent, borderWidth: 1.5 },
       }}
     />
     {invalid ? (
@@ -127,7 +116,9 @@ export const NotifyMeInline: React.FC<{
         minHeight: 44,
         color: muted,
         borderColor: border,
+        transition: 'border-color 150ms ease, color 150ms ease',
         '&:hover': { borderColor: accent, color: accent, backgroundColor: 'transparent' },
+        '&:focus-visible': { outline: `2px solid ${accent}`, outlineOffset: 2 },
       }}
     >
       {ctaLabel}

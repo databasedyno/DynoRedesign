@@ -64,7 +64,7 @@ export const CB_TOKENS = {
  */
 export const SurfaceCard = styled(Box)(({ theme }) => ({
   position: "relative",
-  borderRadius: 20,
+  borderRadius: 16,
   padding: theme.spacing(3),
   backgroundColor:
     theme.palette.mode === "dark" ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
@@ -74,11 +74,11 @@ export const SurfaceCard = styled(Box)(({ theme }) => ({
   boxShadow:
     theme.palette.mode === "dark"
       ? "0 1px 0 rgba(255,255,255,0.02) inset"
-      : "0 1px 3px rgba(10,10,15,0.04)",
+      : "0 1px 2px rgba(10,10,15,0.03)",
   transition: "border-color 200ms ease, box-shadow 200ms ease",
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(2.25),
-    borderRadius: 16,
+    borderRadius: 14,
   },
 }));
 
@@ -120,6 +120,12 @@ export const PillButton = styled(Button, {
       : theme.palette.mode === "dark"
         ? "rgba(255,255,255,0.05)"
         : "rgba(10,10,15,0.04)",
+  },
+  "&:focus-visible": {
+    outline: `2px solid ${
+      theme.palette.mode === "dark" ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light
+    }`,
+    outlineOffset: 2,
   },
 }));
 
@@ -204,22 +210,23 @@ export const ActionIconBadge = styled(Box)(({ theme }) => ({
 }));
 
 /**
- * DeltaChip — the coloured ±X% pill next to a KPI number.
- * Positive = green (money-in / up), Negative = a muted red (down). Semantic
- * colour so the trend direction reads at a glance while staying tasteful.
+ * DeltaChip — the ±X% trend indicator next to a KPI number.
+ * Quiet Money: tinted TEXT only (no filled pill) — positive = emerald,
+ * negative = rose — so the trend reads at a glance without a colour chip
+ * competing with the headline number.
  */
 export const DeltaChip = styled(Box, {
   shouldForwardProp: (prop) => prop !== "positive",
 })<{ positive?: boolean }>(({ theme, positive }) => ({
   display: "inline-flex",
   alignItems: "center",
-  gap: 4,
-  padding: "4px 8px",
-  borderRadius: 6,
+  gap: 2,
+  padding: 0,
   fontFamily: "var(--font-sans)",
   fontSize: 13,
   fontWeight: 600,
   lineHeight: 1,
+  fontVariantNumeric: "tabular-nums",
   color: positive
     ? theme.palette.mode === "dark"
       ? CB_TOKENS.semantic.positive.dark
@@ -227,13 +234,6 @@ export const DeltaChip = styled(Box, {
     : theme.palette.mode === "dark"
       ? CB_TOKENS.semantic.negative.dark
       : CB_TOKENS.semantic.negative.light,
-  backgroundColor: positive
-    ? theme.palette.mode === "dark"
-      ? CB_TOKENS.semantic.positive.glowDark
-      : CB_TOKENS.semantic.positive.glowLight
-    : theme.palette.mode === "dark"
-      ? CB_TOKENS.semantic.negative.glowDark
-      : CB_TOKENS.semantic.negative.glowLight,
 }));
 
 /**

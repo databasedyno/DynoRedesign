@@ -14,7 +14,7 @@ export const StatCard = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(1),
-  borderRadius: 18,
+  borderRadius: 16,
   padding: theme.spacing(2.25),
   minWidth: 0,
   overflow: "hidden",
@@ -28,7 +28,7 @@ export const StatCard = styled(Box)(({ theme }) => ({
   boxShadow:
     theme.palette.mode === "dark"
       ? "0 1px 0 rgba(255,255,255,0.02) inset"
-      : "0 1px 3px rgba(10,10,15,0.04)",
+      : "0 1px 2px rgba(10,10,15,0.03)",
   transition: "border-color 200ms ease, transform 200ms ease",
   "&:hover": {
     borderColor:
@@ -38,7 +38,7 @@ export const StatCard = styled(Box)(({ theme }) => ({
   },
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1.75),
-    borderRadius: 16,
+    borderRadius: 14,
   },
 }));
 
@@ -68,7 +68,22 @@ export const GhostIconButton = styled(IconButton)(({ theme }) => ({
         ? CB_TOKENS.ink.primaryDark
         : CB_TOKENS.ink.primaryLight,
   },
+  "&:focus-visible": {
+    outline: `2px solid ${
+      theme.palette.mode === "dark" ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light
+    }`,
+    outlineOffset: 2,
+  },
 }));
+
+/** Shared dashboard card shell props for PanelCard-based widgets (radius + quiet header). */
+export const DASH_PANEL_SX = { borderRadius: "16px" } as const;
+export const DASH_PANEL_HEADER_SX = {
+  fontSize: 16,
+  fontWeight: 700,
+  letterSpacing: -0.2,
+  lineHeight: 1.25,
+} as const;
 
 /** SectionTitle — section / card heading. */
 export const SectionTitle = styled(Box)(({ theme }) => ({

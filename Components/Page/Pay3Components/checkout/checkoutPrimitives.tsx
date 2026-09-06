@@ -21,15 +21,17 @@ export const CheckoutStatusTimeline: React.FC<{
   secondsRemaining?: number
   totalSeconds?: number
   isDark: boolean
+  /** Hide the countdown bar here when the top status strip already shows one. */
+  hideBar?: boolean
   t: (key: string, opts?: { defaultValue?: string }) => string
-}> = ({ phase, detected, timerLabel, secondsRemaining = 0, totalSeconds = 0, isDark, t }) => {
+}> = ({ phase, detected, timerLabel, secondsRemaining = 0, totalSeconds = 0, isDark, hideBar = false, t }) => {
   const theme = useTheme()
   const border = isDark ? 'rgba(255,255,255,0.10)' : '#E4E4E7'
   const muted = isDark ? '#A1A1AA' : '#71717A'
   const warnFg = '#B45309'
   const pct = totalSeconds > 0 ? Math.max(0, Math.min(100, (secondsRemaining / totalSeconds) * 100)) : 0
   const barColor = pct <= 20 ? warnFg : LIME
-  const showTimerBar = phase !== 'confirmed' && phase !== 'expired' && totalSeconds > 0
+  const showTimerBar = !hideBar && phase !== 'confirmed' && phase !== 'expired' && totalSeconds > 0
   const stepIndex = phase === 'confirmed' ? 2 : detected ? 1 : 0
   const isUnderpaid = phase === 'underpaid'
   const dotColor = isUnderpaid ? warnFg : detected ? LIME : '#22c55e'
@@ -133,7 +135,7 @@ export const CheckoutStatusTimeline: React.FC<{
   )
 }
 
-/** Panel container shell — Stripe-style single card. */
+/** Panel container shell — Stripe-style single flat card (hairline border, no drop shadow). */
 export const PanelShell: React.FC<{
   children: React.ReactNode
   isDark: boolean
@@ -156,12 +158,16 @@ export const PanelShell: React.FC<{
         width: '100%',
         maxWidth: 440,
         p: { xs: 2.5, sm: 4 },
-        borderRadius: '14px',
+        borderRadius: '16px',
         border: `1px solid ${border}`,
-        backgroundColor: isDark ? '#0F0F10' : '#FFFFFF',
-        boxShadow: isDark
-          ? '0 8px 32px rgba(0,0,0,0.4)'
-          : '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03)',
+        backgroundColor: isDark ? '#111114' : '#FFFFFF',
+        boxShadow: isDark ? 'none' : '0 1px 2px rgba(10,10,15,0.04)',
+        '@keyframes checkoutRise': {
+          from: { opacity: 0, transform: 'translateY(6px)' },
+          to: { opacity: 1, transform: 'none' },
+        },
+        animation: 'checkoutRise 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both',
+        '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
       }}
     >
       {children}

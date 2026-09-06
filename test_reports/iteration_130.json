@@ -1,0 +1,90 @@
+{
+  "summary": "Visual/UX polish review for DynoPay dashboard + checkout (light & dark, desktop & mobile). Logged in as onarrival21@gmail.com, verified /dashboard, /pay?d=5H7px8, /pay/demo and light regression on /transactions. Overall the design polish is applied correctly and every visual + behavioural requirement is met, with only one MINOR data-testid naming mismatch.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "NewHeader / CreateNewButton",
+        "issue": "Header '+ New' button uses data-testid='header-create-new' but the review request expects data-testid='header-create-new-btn'. Button is visually and functionally correct (indigo #4F46E5 in light, #818CF8 in dark, opens Payment link / Product menu). Naming mismatch only.",
+        "selector": "[data-testid='header-create-new'] (found) vs [data-testid='header-create-new-btn'] (expected)",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_dashboard": {
+    "H1": "Good morning, John",
+    "description": "Sunday, September 6",
+    "no_page-level_create_payment_link_btn": true,
+    "no_create-payment-link-btn_testid": true,
+    "no_referral-reward-banner": true,
+    "no_dash2026-greeting_eyebrow": true,
+    "header_New_indigo_light": "rgb(79,70,229) #4F46E5",
+    "header_New_dark": "rgb(129,140,248) #818CF8 with dark text",
+    "quick_create_panel_opens": true,
+    "dash2026-metric_topRow_present": true,
+    "dash2026-hero-value": "$1,619.70 (2 decimals)",
+    "dash2026-hero-delta": "112.24% coloured text, transparent bg (no filled pill)",
+    "metric_dropdown_items": ["This period", "Lifetime volume", "Today's revenue"],
+    "range_pills_present": true,
+    "ActionsRow_4_items": ["dash2026-action-wallet", "dash2026-action-paylinks", "dash2026-action-creator", "dash2026-action-transactions"],
+    "ActionsRow_surface_bg_with_border": "bg #FFF, border rgba(10,10,15,0.08)",
+    "recent-txn-row_count": 5,
+    "recent-txn-status_dot_plus_text": true,
+    "recent-txn-row_tabindex_0": true,
+    "grow-offer_no_emoji": true,
+    "grow-offer_title": "First payment complete",
+    "dark_body_bg": "rgb(9,9,11)",
+    "mobile_390_no_overflow": true
+  },
+  "verified_checkout": {
+    "page_bg_light": "rgb(238,241,246) flat, no orbs",
+    "clean-checkout-panel_flat_white": "bg #FFF, boxShadow ~1px hairline only",
+    "blurred_orbs_count": 0,
+    "pay-status-strip_neutral_surface": "rgb(250,250,252) (not lavender)",
+    "checkout-strip-timer_visible": "14:59 mm:ss",
+    "checkout-strip-progress_shrinking": "inner width 371.97 -> 369.48 after 4s",
+    "H1": "Pay The Dev Store",
+    "clean-checkout-amount": "$2.00 USD (IBM Plex Mono)",
+    "breakdown_rows_flat_no_box": true,
+    "reference_row_flat_hairline": "Design polish preview (test) / REFERENCE · INV-2026-338",
+    "clean-checkout-instruction": "Send exactly 0.00002504 BTC on Bitcoin",
+    "clean-checkout-instruction-amount": "0.00002504 BTC (mono)",
+    "receipt_email_input_flat_no_tint": true,
+    "copy_address_and_amount_buttons_present": true,
+    "sticky_bottom_bar_mobile": "checkout-sticky-copy-address present",
+    "mobile_390_no_overflow": true,
+    "dark_body_bg": "rgb(6,6,6) near-black",
+    "dark_panel_hairline_QR_stays_white": true
+  },
+  "verified_demo": {
+    "demo-checkout-panel_flat_white": true,
+    "demo-amount": "$20.00 USD",
+    "demo-instruction": "Send exactly 0.40707496 LTC on Litecoin",
+    "blur_orbs": 0,
+    "Simulate_payment_button_present": true,
+    "dark_mode_works": true
+  },
+  "regression": {
+    "/transactions_header_New_indigo": "rgb(79,70,229) ✓ page renders normally",
+    "/payment-links": "Preview returned 'This page isn't available' — route path likely differs (unrelated to polish pass); not blocking"
+  },
+  "test_report_links": [],
+  "action_items": [
+    "OPTIONAL: rename data-testid on the header + New button from 'header-create-new' to 'header-create-new-btn' in Components/Layout/NewHeader/CreateNewButton.tsx to match spec."
+  ],
+  "critical_code_review_comments": [
+    "Design polish pass is executed cleanly and consistently across dashboard + checkout + demo in both themes and at mobile width.",
+    "No blurred orbs, no lavender strip, no gradient cards, no filled-pill status — all requirements met.",
+    "Minor: header + New button testid should be 'header-create-new-btn' per spec."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "~98% (1 minor testid naming mismatch)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (SAFE MODE, read-only interactions)",
+  "seed_data_creation": "None. Only typed 'test@example.com' into receipt-email field on live link. No payment links created / deleted.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preview URL for this pod: https://dbd52123-ef2a-4e4c-92f3-c7bcdcccfc6a.preview.emergentagent.com (URL in /app/memory/test_credentials.md top block is stale for this pod). Header + New button testid is 'header-create-new' (not 'header-create-new-btn'). Checkout theme toggle: role=button div with aria-label='Toggle theme'. Range pill buttons on dashboard are not always <button> elements; use text or CSS selector, not get_by_role.",
+  "rca of the issue": "Testid naming mismatch — developer set data-testid='header-create-new' while spec/files_of_reference wanted 'header-create-new-btn'. Fix by updating the attribute in Components/Layout/NewHeader/CreateNewButton.tsx."
+}

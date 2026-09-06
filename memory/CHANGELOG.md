@@ -1,3 +1,8 @@
+# 2026-06 (pod dbd52123): DESIGN POLISH — dashboard + checkout, light touch, light+dark. See PRD.md top block for the
+# full file list. Key testids added: clean-checkout-instruction-amount, clean-checkout-reference, checkout-strip-progress,
+# checkout-strip-timer, recent-txn-status. Removed testids: create-payment-link-btn, dash2026-greeting, referral-reward-banner
+# (from dashboard only). Verified: test_reports/iteration_130.json.
+#
 # 2026-06 (fork): TRANSLATED THE 6 NEW /for/* VERTICALS ×5 LOCALES + OG CARDS.
 # The 6 verticals added last session (affiliate-marketing, consultants, dropshipping, forex-trading,
 # online-courses, web3-daos) were English-only. Authored data/seo-pages/verticals/i18n/{de,es,fr,nl,pt}/<slug>.json

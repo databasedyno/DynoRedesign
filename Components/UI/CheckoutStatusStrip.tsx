@@ -2,7 +2,7 @@ import { Box, Typography, useTheme, keyframes } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { StatusPill, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
+import { StatusPill } from "@/Components/UI/_shared";
 import type { CheckoutState } from "@/Components/UI/CheckoutShell";
 import { BRAND_ACCENT } from "@/constants/theme";
 
@@ -66,14 +66,17 @@ interface Props {
   caption?: string;
   /** Seconds remaining on the pay-link timer. Undefined = urgency logic disabled. */
   secondsRemaining?: number;
+  /** Total reservation window (seconds). When > 0 a thin countdown progress bar
+   *  runs along the strip's bottom edge and the MM:SS timer is always visible. */
+  totalSeconds?: number;
   /** Test hook. */
   "data-testid"?: string;
 }
 
 const auroraPulse = keyframes`
-  0%   { opacity: 0.30; transform: scale(1);   }
-  50%  { opacity: 0.55; transform: scale(1.08); }
-  100% { opacity: 0.30; transform: scale(1);   }
+  0%   { opacity: 0.35; transform: scale(1);   }
+  50%  { opacity: 0.10; transform: scale(1.06); }
+  100% { opacity: 0.35; transform: scale(1);   }
 `;
 
 const skySpin = keyframes`
@@ -118,7 +121,7 @@ const FALLBACK_COPY: Record<CheckoutState, { pill: string; title: string; captio
   failed:     { pill: "FAILED",     title: "Something went wrong",      caption: "The payment didn't complete. Nothing was charged — you can try again below." },
 };
 
-export default function CheckoutStatusStrip({ state, title, caption, secondsRemaining, ...rest }: Props) {
+export default function CheckoutStatusStrip({ state, title, caption, secondsRemaining, totalSeconds, ...rest }: Props) {
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   const { t } = useTranslation("landing");
@@ -199,6 +202,19 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
 
   const showPulse = !isUrgent && (state === "pending" || state === "confirming");
 
+  // Countdown progress (0–100) — only when the parent supplies a window.
+  const hasTimer =
+    typeof secondsRemaining === "number" && secondsRemaining > 0 && state !== "failed" && state !== "confirmed";
+  const hasBar = hasTimer && typeof totalSeconds === "number" && totalSeconds > 0;
+  const barPct = hasBar
+    ? Math.max(0, Math.min(100, ((secondsRemaining as number) / (totalSeconds as number)) * 100))
+    : 0;
+
+  const coral = dark ? "#FF7A6B" : "#B91C1C";
+  const indigo = dark ? "#818CF8" : BRAND_ACCENT;
+  const hairline = dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,15,0.08)";
+  const quietSurface = dark ? "rgba(255,255,255,0.03)" : "#FAFAFC";
+
   return (
     <Box
       data-testid={rest["data-testid"] || "checkout-status-strip"}
@@ -207,22 +223,23 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
       sx={{
         position: "relative",
         overflow: "hidden",
-        borderRadius: "14px",
-        padding: { xs: "12px 14px", md: "14px 18px" },
+        borderRadius: "12px",
+        padding: { xs: "12px 14px", md: "14px 16px" },
+        paddingBottom: hasBar ? { xs: "15px", md: "17px" } : undefined,
         marginBottom: { xs: 2, md: 2.5 },
         border: `1px solid ${
           isUrgent
             ? (dark ? "rgba(255,91,73,0.42)" : "rgba(255,91,73,0.34)")
             : state === "failed"
               ? (dark ? "rgba(255,91,73,0.28)" : "rgba(255,91,73,0.22)")
-              : (dark ? "rgba(129,140,248,0.22)" : "rgba(79,70,229,0.14)")
+              : hairline
         }`,
         backgroundColor:
           isUrgent
             ? (dark ? "rgba(255,91,73,0.08)" : "rgba(255,91,73,0.06)")
             : state === "failed"
               ? (dark ? "rgba(255,91,73,0.06)" : "rgba(255,91,73,0.05)")
-              : (dark ? "rgba(129,140,248,0.05)" : "rgba(79,70,229,0.03)"),
+              : quietSurface,
         animation: isUrgent
           ? `${coralUrgent} 2.4s ease-in-out infinite`
           : state === "failed" ? `${coralShake} 520ms cubic-bezier(0.36, 0.07, 0.19, 0.97) 1` : "none",
@@ -232,29 +249,6 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
         gap: { xs: 1.25, md: 1.5 },
       }}
     >
-      {/* Aurora pulse blob — only during waiting states + only when not urgent
-          (the urgent coral pulse takes over the visual channel). */}
-      {showPulse && (
-        <Box
-          aria-hidden
-          sx={{
-            position: "absolute",
-            top: -110,
-            right: -110,
-            width: 240,
-            height: 240,
-            borderRadius: "50%",
-            background: AURORA_GRADIENT_SOFT,
-            filter: "blur(50px)",
-            opacity: dark ? 0.4 : 0.5,
-            pointerEvents: "none",
-            zIndex: 0,
-            animation: `${auroraPulse} 3.2s ease-in-out infinite`,
-            "@media (prefers-reduced-motion: reduce)": { animation: "none" },
-          }}
-        />
-      )}
-
       {/* State icon */}
       <Box
         sx={{
@@ -270,14 +264,25 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
           backgroundColor:
             isUrgent ? "rgba(255,91,73,0.14)"
             : state === "failed" ? "rgba(255,91,73,0.14)"
-            : state === "confirmed" ? "rgba(129,140,248,0.14)"
-            : (dark ? "rgba(129,140,248,0.12)" : "rgba(79,70,229,0.10)"),
-          color:
-            isUrgent ? (dark ? "#FF7A6B" : "#B91C1C")
-            : state === "failed" ? (dark ? "#FF7A6B" : "#B91C1C")
-            : (dark ? "#818CF8" : BRAND_ACCENT),
+            : (dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.10)"),
+          color: isUrgent || state === "failed" ? coral : indigo,
         }}
       >
+        {/* Gentle breathing ring while we wait — replaces the old blurred aurora blob. */}
+        {showPulse && state === "pending" && (
+          <Box
+            aria-hidden
+            sx={{
+              position: "absolute",
+              inset: -3,
+              borderRadius: "12px",
+              border: `1.5px solid ${indigo}`,
+              opacity: 0.35,
+              animation: `${auroraPulse} 2.4s ease-in-out infinite`,
+              "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+            }}
+          />
+        )}
         {state === "confirming" && !isUrgent && (
           <Box
             aria-hidden
@@ -286,10 +291,10 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
               inset: -3,
               borderRadius: "11px",
               border: "2px solid transparent",
-              borderTopColor: "#4FD1FF",
-              borderRightColor: "#4FD1FF",
+              borderTopColor: indigo,
+              borderRightColor: indigo,
               animation: `${skySpin} 1.1s linear infinite`,
-              "@media (prefers-reduced-motion: reduce)": { animation: "none", borderColor: "#4FD1FF" },
+              "@media (prefers-reduced-motion: reduce)": { animation: "none", borderColor: indigo },
             }}
           />
         )}
@@ -299,7 +304,9 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
       {/* Copy */}
       <Box sx={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.35 }}>
-          <StatusPill tone={displayPillTone}>{displayPill}</StatusPill>
+          <StatusPill tone={displayPillTone} sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em" }}>
+            {displayPill}
+          </StatusPill>
         </Box>
         <Typography
           sx={{
@@ -326,37 +333,64 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
         </Typography>
       </Box>
 
-      {/* MM:SS live countdown — only while urgent, right-aligned. The number
-          re-renders on every prop change because the parent's timeLeft state
-          ticks once per second. Rendered in tabular-nums so the width stays
-          stable (no shift between "1:00" and "0:59"). Coral tone to match
-          the urgent framing. */}
-      {isUrgent && (
+      {/* MM:SS live countdown — always visible while the window is open; quiet
+          mono when calm, coral-framed once urgent (≤ 60s). Tabular-nums keeps
+          the width stable between "1:00" and "0:59". */}
+      {hasTimer && (
         <Box
-          data-testid="checkout-strip-countdown"
+          data-testid={isUrgent ? "checkout-strip-countdown" : "checkout-strip-timer"}
           sx={{
             position: "relative",
             zIndex: 1,
             flexShrink: 0,
-            minWidth: { xs: 58, md: 70 },
-            padding: { xs: "6px 10px", md: "8px 14px" },
+            minWidth: isUrgent ? { xs: 58, md: 70 } : undefined,
+            padding: isUrgent ? { xs: "6px 10px", md: "8px 14px" } : "0 2px",
             borderRadius: "10px",
-            border: `1px solid ${dark ? "rgba(255,91,73,0.42)" : "rgba(255,91,73,0.34)"}`,
-            backgroundColor: dark ? "rgba(255,91,73,0.10)" : "rgba(255,91,73,0.06)",
+            border: isUrgent ? `1px solid ${dark ? "rgba(255,91,73,0.42)" : "rgba(255,91,73,0.34)"}` : "none",
+            backgroundColor: isUrgent ? (dark ? "rgba(255,91,73,0.10)" : "rgba(255,91,73,0.06)") : "transparent",
             textAlign: "center",
             fontFamily: "var(--font-tech), ui-monospace, SFMono-Regular, Menlo, monospace",
             fontVariantNumeric: "tabular-nums",
-            fontWeight: 700,
-            fontSize: { xs: 16, md: 20 },
+            fontWeight: isUrgent ? 700 : 600,
+            fontSize: isUrgent ? { xs: 16, md: 20 } : { xs: 13, md: 14 },
             letterSpacing: "0.02em",
-            color: dark ? "#FF7A6B" : "#B91C1C",
+            color: isUrgent ? coral : theme.palette.text.secondary,
             lineHeight: 1,
             userSelect: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
           }}
           aria-live="polite"
           aria-label={`${formatCountdown(secondsRemaining)} remaining`}
         >
+          {!isUrgent && <Icon icon="mdi:timer-outline" width={14} />}
           {formatCountdown(secondsRemaining)}
+        </Box>
+      )}
+
+      {/* Countdown progress — thin bar hugging the strip's bottom edge. */}
+      {hasBar && (
+        <Box
+          aria-hidden
+          data-testid="checkout-strip-progress"
+          sx={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 3,
+            backgroundColor: dark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.06)",
+          }}
+        >
+          <Box
+            sx={{
+              height: "100%",
+              width: `${barPct}%`,
+              backgroundColor: isUrgent || barPct <= 20 ? coral : indigo,
+              transition: "width 1s linear, background-color 300ms ease",
+            }}
+          />
         </Box>
       )}
     </Box>

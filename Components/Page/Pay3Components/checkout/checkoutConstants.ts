@@ -4,8 +4,10 @@
  */
 import { BRAND_ACCENT } from '@/constants/theme'
 
-// ─── Design tokens (Stripe-adjacent monochrome + lime accent) ────────────
-export const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
+// ─── Design tokens (Stripe-adjacent monochrome + indigo accent) ──────────
+// IBM Plex Mono first (Blueprint §1.3: the single money/figure typeface) so the
+// checkout figures match the merchant dashboard; robust system fallbacks after.
+export const MONO = 'var(--font-tech), "IBM Plex Mono", ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
 // Constant name stays "LIME" for minimal-diff safety; only the value changed.
 export const LIME = BRAND_ACCENT

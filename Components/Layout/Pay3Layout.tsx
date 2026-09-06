@@ -2,7 +2,7 @@ import Header from '@/Components/Page/Pay3Components/header';
 import Footer from '@/Components/UI/Footer';
 import EmbedBridge from '@/Components/Common/EmbedBridge';
 import { useThemeMode } from '@/contexts/ThemeContext';
-import { Box, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 import React from 'react';
 
 export default function Pay3Layout({
@@ -18,7 +18,6 @@ export default function Pay3Layout({
     embed?: boolean;
 }) {
     const { mode, toggleTheme, isDark } = useThemeMode();
-    const theme = useTheme();
 
     return (
         <Box
@@ -26,47 +25,14 @@ export default function Pay3Layout({
                 minHeight: embed ? 'auto' : '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                background: theme.palette.background.default,
+                // Quiet Money: flat pale-grey canvas (no decorative orbs) so the
+                // single white checkout card is the only thing that reads.
+                background: isDark ? '#0B0B0E' : '#F4F5F9',
                 transition: 'background 0.3s ease',
                 position: 'relative',
                 overflow: 'hidden',
             }}
         >
-            {/* Aurora indigo/violet orb behind card — session 82 migration
-                (was: volt-lime radial glow #CCFF00). Matches Landing v3. */}
-            <Box
-                sx={{
-                    position: 'absolute',
-                    top: '18%',
-                    left: '14%',
-                    width: '540px',
-                    height: '540px',
-                    borderRadius: '50%',
-                    background: isDark
-                        ? 'radial-gradient(circle, rgba(129,140,248,0.10) 0%, transparent 65%)'
-                        : 'radial-gradient(circle, rgba(79,70,229,0.09) 0%, transparent 65%)',
-                    filter: 'blur(20px)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }}
-            />
-            <Box
-                sx={{
-                    position: 'absolute',
-                    bottom: '10%',
-                    right: '10%',
-                    width: '460px',
-                    height: '460px',
-                    borderRadius: '50%',
-                    background: isDark
-                        ? 'radial-gradient(circle, rgba(124,92,255,0.08) 0%, transparent 65%)'
-                        : 'radial-gradient(circle, rgba(124,92,255,0.07) 0%, transparent 65%)',
-                    filter: 'blur(20px)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }}
-            />
-
             {!embed && <Header darkMode={isDark} toggleDarkMode={toggleTheme} />}
             {embed && <EmbedBridge />}
             <Box

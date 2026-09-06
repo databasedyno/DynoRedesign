@@ -17,6 +17,7 @@ import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useApiSWR } from "@/hooks/useApiSWR";
+import { DASH_PANEL_SX, DASH_PANEL_HEADER_SX } from "./v2026/styled";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 // Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
@@ -192,6 +193,8 @@ const CreatorPageCard: React.FC = () => {
 
     return (
       <PanelCard
+        sx={DASH_PANEL_SX}
+        headerSx={DASH_PANEL_HEADER_SX}
         title={t("creatorCardLiveTitle", { defaultValue: "Your creator page" })}
         subTitle={t("creatorCardLiveSubtitle", { defaultValue: "Live and accepting support." })}
         showHeaderBorder={false}
@@ -472,6 +475,8 @@ const CreatorPageCard: React.FC = () => {
     };
     return (
       <PanelCard
+        sx={DASH_PANEL_SX}
+        headerSx={DASH_PANEL_HEADER_SX}
         title={t("creatorCardDraftTitle", { defaultValue: "Your handle is reserved" })}
         subTitle={t("creatorCardDraftSubtitle", { defaultValue: "It's locked to your account. Publish to start accepting support." })}
         showHeaderBorder={false}
@@ -541,6 +546,8 @@ const CreatorPageCard: React.FC = () => {
 
   return (
     <PanelCard
+      sx={DASH_PANEL_SX}
+      headerSx={DASH_PANEL_HEADER_SX}
       title={t("creatorCardClaimTitle", { defaultValue: "Claim your creator page" })}
       subTitle={t("creatorCardClaimSubtitle", { defaultValue: "One link for tips & payments." })}
       showHeaderBorder={false}

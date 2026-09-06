@@ -257,7 +257,7 @@ const AssetsCard: React.FC<AssetsCardProps> = ({
                       height: "100%",
                       width: `${pct}%`,
                       borderRadius: 999,
-                      background: `linear-gradient(90deg, ${color}, ${color}B3)`,
+                      backgroundColor: color,
                       transition: "width 500ms ease",
                     }}
                   />

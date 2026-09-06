@@ -101,12 +101,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   const isDark = theme.palette.mode === 'dark'
 
   // Design tokens resolved per-theme
-  const border   = isDark ? 'rgba(255,255,255,0.10)' : '#E4E4E7'
-  const surface  = isDark ? 'rgba(255,255,255,0.03)' : '#F6F6F7'
-  const muted    = isDark ? '#A1A1AA' : '#71717A'
-  const warnBg   = isDark ? 'rgba(245,158,11,0.10)' : '#FEF3C7'
+  const border   = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(10,10,15,0.08)'
+  const surface  = isDark ? 'rgba(255,255,255,0.03)' : '#FAFAFC'
+  const muted    = isDark ? '#A1A1AA' : '#6B6B76'
+  const warnBg   = isDark ? 'rgba(245,158,11,0.10)' : 'rgba(245,158,11,0.08)'
   const warnFg   = '#B45309'
   const errFg    = '#B91C1C'
+  // Quiet Money: one overline style for every field label in the card.
+  const labelSx  = { fontSize: 11, fontWeight: 700, color: muted, mb: 0.75, letterSpacing: '0.08em', textTransform: 'uppercase' as const }
 
   // ─── State ────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>('loading_meta')
@@ -897,7 +899,6 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               <PriceBreakdown
                 compact
                 framed
-                surface={surface}
                 title={t('checkout.breakdownTitle', { defaultValue: 'Payment breakdown' })}
                 rows={buildSuccessRows({
                   t,
@@ -1004,7 +1005,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             p: 2,
             borderRadius: '12px',
             border: `1px solid ${border}`,
-            backgroundColor: isDark ? 'rgba(79,70,229,0.06)' : 'rgba(10,10,10,0.03)',
+            backgroundColor: surface,
             display: 'flex',
             flexDirection: 'column',
             gap: 1.25,
@@ -1075,6 +1076,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         <CheckoutStatusStrip
           state={stripState}
           secondsRemaining={timeLeft}
+          totalSeconds={totalSeconds}
           data-testid="pay-status-strip"
         />
       )}
@@ -1112,34 +1114,57 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         <PublicVerifiedBadge linkRef={d} showLabel size={16} ml={0} />
       </Box>
 
-      {/* Amount subheadline — transparent breakdown (Amount [+ Tax] [+ fee] =
-          Total you pay · Merchant receives · Dynopay fee). */}
-      <Box data-testid="clean-checkout-fee-breakdown" sx={{ mt: 0.75, mb: 3.5 }}>
-        <PriceBreakdown
-          rows={fiatRows}
-          muted={muted}
-          border={border}
-          textColor={theme.palette.text.primary}
-          mono={MONO}
-          framed
-          surface={surface}
-          trustNote={
-            <>
-              <Icon icon="mdi:shield-check" width={13} />
-              {t('checkout.breakdownTrust', { defaultValue: 'These amounts tie out exactly — your payment is split transparently between the merchant and the Dynopay fee.' })}
-            </>
-          }
-        />
+      {/* Amount hero — the total the buyer pays is the mono headline; the
+          transparent breakdown (Amount [+ Tax] [+ fee] · Merchant receives ·
+          Dynopay fee) sits quietly beneath it. */}
+      <Box data-testid="clean-checkout-fee-breakdown" sx={{ mt: 2.25, mb: 3 }}>
+        <Typography sx={labelSx}>
+          {t('checkout.totalYouPay', { defaultValue: 'Total you pay' })}
+        </Typography>
+        <Typography
+          data-testid="clean-checkout-amount"
+          sx={{
+            fontFamily: MONO,
+            fontVariantNumeric: 'tabular-nums',
+            fontSize: { xs: 34, sm: 40 },
+            fontWeight: 600,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.05,
+            color: theme.palette.text.primary,
+            mb: 1.75,
+          }}
+        >
+          {fmtFiat(totalAmt)}
+          <Box component="span" sx={{ fontSize: '0.42em', fontWeight: 500, color: muted, ml: 1, verticalAlign: 'middle', letterSpacing: 0 }}>
+            {meta_?.base_currency || 'USD'}
+          </Box>
+        </Typography>
+        <Box sx={{ pt: 1.5, borderTop: `1px solid ${border}` }}>
+          <PriceBreakdown
+            rows={fiatRows.filter((r) => !r.emphasis).map((r) => ({ ...r, dividerBefore: false }))}
+            muted={muted}
+            border={border}
+            textColor={theme.palette.text.primary}
+            mono={MONO}
+            compact
+            trustNote={
+              <>
+                <Icon icon="mdi:shield-check" width={13} />
+                {t('checkout.breakdownTrust', { defaultValue: 'These amounts tie out exactly — your payment is split transparently between the merchant and the Dynopay fee.' })}
+              </>
+            }
+          />
+        </Box>
       </Box>
 
       {/* Reference row (invoice / campaign / description) */}
       {(meta_?.order_reference || meta_?.description) && (
         <Box
+          data-testid="clean-checkout-reference"
           sx={{
             display: 'flex', flexDirection: 'column', gap: 0.5,
-            p: 1.5, borderRadius: '10px',
-            border: `1px solid ${border}`,
-            backgroundColor: surface, mb: 2.5,
+            pb: 2, mb: 2.5,
+            borderBottom: `1px solid ${border}`,
           }}
         >
           {meta_.description && (
@@ -1148,7 +1173,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             </Typography>
           )}
           {meta_.order_reference && (
-            <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted }}>
+            <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted, letterSpacing: '0.04em' }}>
               {t('checkout.reference', { defaultValue: 'REFERENCE' })} · {meta_.order_reference}
             </Typography>
           )}
@@ -1158,7 +1183,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       {/* Network + Currency selects */}
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.25, mb: 2.5 }}>
         <Box>
-          <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
+          <Typography sx={labelSx}>
             {t('checkout.networkLabel', { defaultValue: 'NETWORK' })}
           </Typography>
           <Select
@@ -1176,11 +1201,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               setPhase('currency_select')
             }}
             sx={{
-              borderRadius: '8px',
+              borderRadius: '10px',
               minHeight: 46,
+              fontWeight: 600,
               '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: border, transition: 'border-color 150ms ease' },
               '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: muted },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: LIME, borderWidth: 1.5 },
             }}
           >
             {networks.map((n) => {
@@ -1199,7 +1226,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           </Select>
         </Box>
         <Box>
-          <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
+          <Typography sx={labelSx}>
             {t('checkout.currencyLabel', { defaultValue: 'CURRENCY' })}
           </Typography>
           <Select
@@ -1215,11 +1242,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               setPhase('currency_select')
             }}
             sx={{
-              borderRadius: '8px',
+              borderRadius: '10px',
               minHeight: 46,
+              fontWeight: 600,
               '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: border, transition: 'border-color 150ms ease' },
               '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: muted },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: LIME, borderWidth: 1.5 },
             }}
           >
             {currenciesInNetwork.map((code) => {
@@ -1318,12 +1347,31 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
 
       {/* Instruction sentence */}
       {cryptoInfo && (
-        <Typography
-          data-testid="clean-checkout-instruction"
-          sx={{ fontSize: 14, color: theme.palette.text.primary, textAlign: 'center', mb: 2 }}
-        >
-          {t('checkout.payPrefix', { defaultValue: 'Pay' })} <strong>{formatCryptoAmount(amountToSend, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}</strong> {t('checkout.payOn', { defaultValue: 'on' })} {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
-        </Typography>
+        <Box data-testid="clean-checkout-instruction" sx={{ textAlign: 'center', mb: 2.5, mt: 0.5 }}>
+          <Typography sx={{ ...labelSx, mb: 0.5 }}>
+            {t('checkout.sendExactly', { defaultValue: 'Send exactly' })}
+          </Typography>
+          <Typography
+            component="strong"
+            data-testid="clean-checkout-instruction-amount"
+            sx={{
+              display: 'block',
+              fontFamily: MONO,
+              fontVariantNumeric: 'tabular-nums',
+              fontSize: { xs: 24, sm: 28 },
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.15,
+              color: theme.palette.text.primary,
+              wordBreak: 'break-word',
+            }}
+          >
+            {formatCryptoAmount(amountToSend, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: muted, mt: 0.5 }}>
+            {t('checkout.payOn', { defaultValue: 'on' })} {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
+          </Typography>
+        </Box>
       )}
 
       {/* Opt-in browser alert while waiting on confirmations */}
@@ -1350,14 +1398,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             aria-label={t('checkout.tapToCopyAddress', { defaultValue: 'Tap to copy payment address' })}
             data-testid="clean-checkout-qr-panel"
             sx={{
-              p: 2, borderRadius: '16px',
-              border: `1px solid ${border}`, backgroundColor: '#FFFFFF',
-              boxShadow: '0 4px 22px rgba(0,0,0,0.08)',
+              p: 2, borderRadius: '14px',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.14)' : border}`, backgroundColor: '#FFFFFF',
               width: '100%', maxWidth: 264, mx: 'auto', cursor: 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center',
-              transition: 'transform .15s ease, box-shadow .15s ease',
-              '&:hover': { boxShadow: '0 6px 28px rgba(0,0,0,0.13)' },
+              transition: 'transform .15s ease, border-color .15s ease',
+              '&:hover': { borderColor: LIME },
               '&:active': { transform: 'scale(0.98)' },
+              '&:focus-visible': { outline: `2px solid ${LIME}`, outlineOffset: 3 },
             }}
           >
             {paymentUri ? (
@@ -1415,14 +1463,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       {/* Address row */}
       {cryptoInfo && (
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
+          <Typography sx={labelSx}>
             {t('checkout.addressLabel', { defaultValue: 'ADDRESS' })}
           </Typography>
           <Box
             sx={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              gap: 1, p: 1.25, borderRadius: '8px',
-              border: `1px solid ${border}`, backgroundColor: surface,
+              gap: 1, p: 1.25, borderRadius: '10px',
+              border: `1px solid ${border}`,
             }}
           >
             <Typography
@@ -1440,6 +1488,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                 px: 1.5, py: 0.9, minHeight: 44, minWidth: 86, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
+                transition: 'border-color 150ms ease, color 150ms ease',
+                '&:hover': { borderColor: LIME, color: LIME },
+                '&:focus-visible': { outline: `2px solid ${LIME}`, outlineOffset: 2 },
               }}
             >
               <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
@@ -1452,14 +1503,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       {/* Amount row */}
       {cryptoInfo && (
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
+          <Typography sx={labelSx}>
             {t('checkout.amountLabel', { defaultValue: 'AMOUNT' })}
           </Typography>
           <Box
             sx={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              gap: 1, p: 1.25, borderRadius: '8px',
-              border: `1px solid ${border}`, backgroundColor: surface,
+              gap: 1, p: 1.25, borderRadius: '10px',
+              border: `1px solid ${border}`,
             }}
           >
             <Typography sx={{ fontFamily: MONO, fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>
@@ -1474,6 +1525,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                 px: 1.5, py: 0.9, minHeight: 44, minWidth: 86, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
+                transition: 'border-color 150ms ease, color 150ms ease',
+                '&:hover': { borderColor: LIME, color: LIME },
+                '&:focus-visible': { outline: `2px solid ${LIME}`, outlineOffset: 2 },
               }}
             >
               <Icon icon={copiedFlag === 'amt' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
@@ -1612,6 +1666,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           secondsRemaining={timeLeft}
           totalSeconds={totalSeconds}
           isDark={isDark}
+          hideBar={!!stripState}
           t={t}
         />
       )}

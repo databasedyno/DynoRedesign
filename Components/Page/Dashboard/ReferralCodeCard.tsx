@@ -18,6 +18,8 @@ import copyToClipboard from "@/helpers/copyToClipboard";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { brandFg } from "@/constants/theme";
+import { CB_TOKENS } from "./coinbase/styled";
+import { DASH_PANEL_SX, DASH_PANEL_HEADER_SX } from "./v2026/styled";
 
 /**
  * ReferralCodeCard — a persistent dashboard card that ALWAYS surfaces the
@@ -38,11 +40,13 @@ type ReferralCode = {
   };
 };
 
-const ACCENT = "#EC4899"; // referral pink — matches GrowPanel's referral offer
-
 const ReferralCodeCard: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  // Quiet Money: brand indigo instead of the old referral pink so the rail
+  // carries ONE accent.
+  const ACCENT = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
+  const hairline = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
   const router = useRouter();
   const dispatch = useDispatch();
   const { t } = useTranslation(["referrals", "dashboardLayout"]);
@@ -104,6 +108,8 @@ const ReferralCodeCard: React.FC = () => {
   return (
     <Box sx={{ px: { xs: 2, md: 0 } }} data-testid="dashboard-referral-card">
       <PanelCard
+        sx={DASH_PANEL_SX}
+        headerSx={DASH_PANEL_HEADER_SX}
         showHeaderBorder={false}
         headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
         bodyPadding={theme.spacing(2, 2.5, 2.5, 2.5)}
@@ -118,7 +124,7 @@ const ReferralCodeCard: React.FC = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: `${ACCENT}1F`,
+              backgroundColor: isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow,
               color: ACCENT,
               flexShrink: 0,
             }}
@@ -165,8 +171,8 @@ const ReferralCodeCard: React.FC = () => {
             borderRadius: "12px",
             px: 1.75,
             py: 1.25,
-            border: `1px solid ${ACCENT}33`,
-            background: `linear-gradient(135deg, ${ACCENT}0d 0%, ${ACCENT}03 100%)`,
+            border: `1px solid ${hairline}`,
+            backgroundColor: isDark ? "rgba(255,255,255,0.025)" : "#FAFAFC",
           }}
         >
           {loading ? (
@@ -182,8 +188,9 @@ const ReferralCodeCard: React.FC = () => {
               sx={{
                 fontFamily: MONO,
                 fontWeight: 700,
-                fontSize: "18px",
-                letterSpacing: "1px",
+                fontSize: "17px",
+                letterSpacing: "0.04em",
+                fontVariantNumeric: "tabular-nums",
                 color: theme.palette.text.primary,
                 overflow: "hidden",
                 textOverflow: "ellipsis",

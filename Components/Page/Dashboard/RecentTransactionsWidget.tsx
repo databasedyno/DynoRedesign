@@ -27,6 +27,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import CustomButton from "@/Components/UI/Buttons";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
+import { StatusDot, type StatusTone } from "@/Components/UI/StatusDot";
+import { MONO } from "@/styles/uiKit";
+import { DASH_PANEL_SX, DASH_PANEL_HEADER_SX } from "./v2026/styled";
 import { TransactionSource, TransactionSourceType } from "@/utils/types/transaction";
 
 /**
@@ -115,42 +118,47 @@ const statusStyle = (status: string, theme: any, t: (k: string) => string) => {
   if (["confirmed", "completed", "settled", "success", "successful", "paid"].includes(s)) {
     return {
       color: theme.palette.success.dark || "#059669",
-      bg: theme.palette.mode === "dark" ? "rgba(16,185,129,0.18)" : "rgba(16,185,129,0.12)",
+      bg: theme.palette.mode === "dark" ? "rgba(16,185,129,0.16)" : "rgba(16,185,129,0.10)",
       icon: <CheckCircleRounded sx={{ fontSize: 14 }} />,
       label: t("statusPaid"),
+      tone: "settled" as StatusTone,
     };
   }
   if (["pending", "waiting", "unconfirmed", "processing"].includes(s)) {
     return {
       color: theme.palette.warning.dark || "#B45309",
-      bg: theme.palette.mode === "dark" ? "rgba(245,158,11,0.18)" : "rgba(245,158,11,0.12)",
+      bg: theme.palette.mode === "dark" ? "rgba(245,158,11,0.16)" : "rgba(245,158,11,0.10)",
       icon: <HourglassEmptyRounded sx={{ fontSize: 14 }} />,
       label: t("statusPending"),
+      tone: "pending" as StatusTone,
     };
   }
   // Stale pending attempts (payment window passed) — neutral grey, not an error.
   if (s === "unpaid") {
     return {
       color: theme.palette.text.secondary,
-      bg: theme.palette.mode === "dark" ? "rgba(156,163,175,0.16)" : "rgba(107,114,128,0.10)",
+      bg: theme.palette.mode === "dark" ? "rgba(156,163,175,0.14)" : "rgba(107,114,128,0.08)",
       icon: <HourglassEmptyRounded sx={{ fontSize: 14 }} />,
       label: t("statusUnpaid"),
+      tone: "unpaid" as StatusTone,
     };
   }
   // Fresh pending with no on-chain payment yet — calm grey, distinct label.
   if (s === "awaiting_payment" || s === "awaiting") {
     return {
       color: theme.palette.text.secondary,
-      bg: theme.palette.mode === "dark" ? "rgba(156,163,175,0.16)" : "rgba(107,114,128,0.10)",
+      bg: theme.palette.mode === "dark" ? "rgba(156,163,175,0.14)" : "rgba(107,114,128,0.08)",
       icon: <HourglassEmptyRounded sx={{ fontSize: 14 }} />,
       label: t("statusAwaiting"),
+      tone: "neutral" as StatusTone,
     };
   }
   return {
     color: theme.palette.error.main,
-    bg: theme.palette.mode === "dark" ? "rgba(239,68,68,0.18)" : "rgba(239,68,68,0.12)",
+    bg: theme.palette.mode === "dark" ? "rgba(239,68,68,0.16)" : "rgba(239,68,68,0.10)",
     icon: <ErrorOutlineRounded sx={{ fontSize: 14 }} />,
     label: t("statusFailed"),
+    tone: "failed" as StatusTone,
   };
 };
 
@@ -235,6 +243,8 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   return (
     <Box sx={{ px: { xs: 2, md: 0 }, mb: { xs: 2, md: 2.5 } }} data-testid="recent-transactions-widget">
       <PanelCard
+        sx={DASH_PANEL_SX}
+        headerSx={DASH_PANEL_HEADER_SX}
         showHeaderBorder={false}
         headerPadding={theme.spacing(2.5, 2.5, 1.5, 2.5)}
         bodyPadding={theme.spacing(0, 0, 1.5, 0)}
@@ -605,6 +615,8 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                   key={String(tx.id ?? i)}
                   data-testid="recent-txn-row"
                   data-density={isCompact ? "compact" : "spacious"}
+                  role="button"
+                  tabIndex={0}
                   sx={{
                     display: "flex",
                     alignItems: "center",
@@ -614,9 +626,20 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                     borderTop: i === 0 ? "none" : `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "#F0F2F7"}`,
                     transition: "background-color 120ms ease",
                     cursor: "pointer",
+                    outline: "none",
                     "&:hover": {
                       backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#FAFBFD",
                     },
+                    "&:focus-visible": {
+                      boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+                      borderRadius: "8px",
+                    },
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLElement).click();
+                    }
                   }}
                   onClick={() => {
                     // Deep-link id-space MUST match what /transactions
@@ -651,9 +674,11 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography
                       sx={{
-                        fontFamily: "var(--font-sans)",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
                         fontWeight: 600,
                         fontSize: primaryFontSize,
+                        letterSpacing: "-0.01em",
                         color: theme.palette.text.primary,
                         lineHeight: 1.2,
                         whiteSpace: "nowrap",
@@ -739,25 +764,14 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                       )}
                     </Box>
                   </Box>
-                  <Box sx={{ textAlign: "right", flexShrink: 0 }}>
-                    <Box
-                      sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                        px: 1,
-                        py: 0.25,
-                        borderRadius: "999px",
-                        backgroundColor: s.bg,
-                        color: s.color,
-                        fontSize: "11px",
-                        fontFamily: "var(--font-sans)",
-                        fontWeight: 600,
-                        lineHeight: 1,
-                      }}
+                  <Box sx={{ textAlign: "right", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <StatusDot
+                      tone={s.tone}
+                      data-testid="recent-txn-status"
+                      sx={{ fontSize: "12px", fontWeight: 600 }}
                     >
                       {s.label}
-                    </Box>
+                    </StatusDot>
                     {when && (
                       <Typography
                         sx={{

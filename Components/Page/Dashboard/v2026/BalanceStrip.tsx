@@ -9,17 +9,14 @@ import {
   TextField,
   useTheme,
 } from "@mui/material";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { rootReducer } from "@/utils/types";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { Icon, MONO } from "@/styles/uiKit";
-import { formatNumberWithComma } from "@/helpers";
+import { formatWithSeparators } from "@/utils/currencyFormat";
 import {
   SurfaceCard,
-  Eyebrow,
   DeltaChip,
   PillButton,
   CB_TOKENS,
@@ -65,10 +62,10 @@ const splitAmount = (raw: string) => {
 
 /**
  * BalanceStrip — P4 Row 1. The dashboard headline collapses into a single quiet
- * strip: an eyebrow greeting, the range segmented control + settings on the
- * right, then the big mono volume number + delta with a compact metric dropdown
- * (This period / Lifetime / Today), and the page's ONE primary action
- * ("+ Payment link"). Replaces the old CommandBar + VolumeHero header stack.
+ * strip: the metric dropdown (This period / Lifetime / Today) on the left with
+ * the range segmented control + settings on the right, then the big mono volume
+ * number + delta line. The greeting moved up into the page H1 (Jun 2026 polish)
+ * so this card carries numbers only.
  */
 const BalanceStrip: React.FC<Props> = ({
   stats,
@@ -134,16 +131,6 @@ const BalanceStrip: React.FC<Props> = ({
     }
   };
 
-  const name = useSelector(
-    (s: rootReducer) => (s as any).userReducer?.profile?.name,
-  ) as string | undefined;
-  const greeting = useMemo(() => {
-    const h = new Date().getHours();
-    if (h < 12) return t("greetMorning", { defaultValue: "Good morning" });
-    if (h < 18) return t("greetAfternoon", { defaultValue: "Good afternoon" });
-    return t("greetEvening", { defaultValue: "Good evening" });
-  }, [t]);
-
   // ── Headline value + delta (from VolumeHero) ──
   const currencySymbol = stats?.currencySymbol || "$";
   const lifetimeStr = stats?.totalVolumeFormatted || `${currencySymbol}0.00`;
@@ -164,7 +151,7 @@ const BalanceStrip: React.FC<Props> = ({
     chartSummary && typeof chartSummary.total_volume === "number"
       ? chartSummary.total_volume
       : periodVolumeFromChart;
-  const periodStr = `${currencySymbol}${formatNumberWithComma(periodVolume)}`;
+  const periodStr = `${currencySymbol}${formatWithSeparators(periodVolume, stats?.currency || "USD", 2)}`;
   const periodDelta = Number(chartSummary?.volume_change_percent ?? 0);
   const hasPeriodDelta = !!chartSummary;
 
@@ -230,7 +217,7 @@ const BalanceStrip: React.FC<Props> = ({
       data-testid="dash2026-balance-strip"
       sx={{ ...(isCompact && { p: { xs: 1.75, md: 2 } }) }}
     >
-      {/* Top row: greeting eyebrow + range control + settings */}
+      {/* Top row: metric dropdown + range control + settings */}
       <Box
         sx={{
           display: "flex",
@@ -238,13 +225,34 @@ const BalanceStrip: React.FC<Props> = ({
           justifyContent: "space-between",
           gap: 1.5,
           flexWrap: "wrap",
-          mb: { xs: 2, md: 2.5 },
+          mb: { xs: 1.5, md: 2 },
         }}
       >
-        <Eyebrow data-testid="dash2026-greeting">
-          {greeting}
-          {name ? `, ${String(name).trim().split(/\s+/)[0]}` : ""}
-        </Eyebrow>
+        <Button
+          data-testid="dash2026-metric"
+          onClick={(e) => setMetricAnchor(e.currentTarget)}
+          endIcon={<Icon name="chevron-down" size={14} />}
+          sx={{
+            p: 0,
+            minWidth: 0,
+            minHeight: 40,
+            textTransform: "none",
+            fontFamily: "var(--font-sans)",
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: 0.1,
+            color: isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight,
+            borderRadius: 8,
+            transition: "color 150ms ease",
+            "&:hover": { backgroundColor: "transparent", color: primaryInk },
+            "&:focus-visible": {
+              outline: `2px solid ${isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light}`,
+              outlineOffset: 4,
+            },
+          }}
+        >
+          {metricLabels[metric]}
+        </Button>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
           {/* Move 5: on phones the 5 range pills collapse into ONE dropdown. */}
@@ -358,25 +366,6 @@ const BalanceStrip: React.FC<Props> = ({
         }}
       >
         <Box sx={{ minWidth: 0 }}>
-          <Button
-            data-testid="dash2026-metric"
-            onClick={(e) => setMetricAnchor(e.currentTarget)}
-            endIcon={<Icon name="chevron-down" size={14} />}
-            sx={{
-              p: 0,
-              minWidth: 0,
-              textTransform: "none",
-              fontFamily: "var(--font-sans)",
-              fontSize: 12.5,
-              fontWeight: 600,
-              letterSpacing: 0.2,
-              color: muted,
-              "&:hover": { backgroundColor: "transparent", color: primaryInk },
-            }}
-          >
-            {metricLabels[metric]}
-          </Button>
-
           <Box
             data-testid="dash2026-hero-value"
             sx={{
@@ -389,7 +378,6 @@ const BalanceStrip: React.FC<Props> = ({
               fontSize: isCompact
                 ? { xs: 32, sm: 38, md: 44 }
                 : { xs: 34, sm: 42, md: 52, lg: 56 },
-              mt: 0.5,
             }}
           >
             {showSkeleton ? (
@@ -409,13 +397,13 @@ const BalanceStrip: React.FC<Props> = ({
             )}
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
             {showSkeleton ? (
               <Skeleton width={180} height={18} />
             ) : (
               <>
                 {(metric !== "period" || hasPeriodDelta) && (
-                  <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
+                  <DeltaChip positive={positive} data-testid="dash2026-hero-delta" sx={{ fontSize: 13.5 }}>
                     <Icon name={positive ? "arrow-up" : "arrow-down"} size={13} />
                     {toFixedStr(Math.abs(activeDelta), 2)}%
                   </DeltaChip>
