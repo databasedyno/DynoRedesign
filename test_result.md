@@ -1,4 +1,90 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-06 (pod 0e2b393a): QA FIX — feature-card description CLIPPING on /for/[vertical] SEO pages
+#   Frontend is `next dev` on :3000 (Fast Refresh live). First hit to a route compiles (~5-15s).
+#
+#   SOURCE: Quality-center QA comments in prod DB table `tbl_qa_comment` (passcode-gated /quality page).
+#   Read all 10 FAIL notes; the ONLY one marked "Priority: High" and reported 3× is card-description clipping:
+#     - #32 (custom::8, Priority High): "Card content is clipped on multiple public pages" — Digital Downloads,
+#       Hosting & Domains, VPN & Privacy, Marketplaces, Agencies & Consultants, E-commerce, SaaS, Gaming,
+#       Remittance. Fixed/insufficient card height cuts off description text. Asked to fix the SHARED component.
+#     - #28 (custom::7): Feature "Checkout" card + Use-Cases "Sell products in crypto" descriptions clipped.
+#   (Other lower-priority fails logged for later: #36 mobile hamburger after search, #35 back-scroll restore,
+#    #33 Help&Support padding, #16 "See how it works"->/blog, #15 hero CTA routing, #10 FR/DE button clip,
+#    #8 homepage React #418/#423. NOT addressed this session.)
+#
+#   ROOT CAUSE: the #32 pages are all /for/[vertical] pages rendered by Components/Page/SEO/SEOLandingPage.tsx.
+#   Its Features section rendered each card via <HomeCard height={isMobile ? "auto" : 260}> — a FIXED 260px
+#   desktop height. HomeCard's StyledCard has `overflow: hidden`, so any feature whose title+description exceeds
+#   260px was clipped at the bottom (the agencies/ecommerce/saas verticals have long 2-3 line descriptions).
+#   (Homepage ProductFeatureCards already uses an equal-height flex pattern height:100% + flex:1 desc, so it does
+#    not truly clip — #28's homepage angle left as-is; the shared vertical component is the real Priority-High bug.)
+#
+#   FIX (single shared component, covers all #32 pages): SEOLandingPage.tsx feature card changed to
+#     height={isMobile ? "auto" : "100%"}  +  sx={{ minHeight: { xs: "auto", md: 260 } }}
+#   The Grid item is display:flex (align-items:stretch by default) so height:100% makes every card stretch to the
+#   row's tallest content = equal-height row with NO clipping; minHeight 260 keeps all-short rows visually consistent.
+#
+#   FRONTEND TEST FOCUS (BROWSER/visual — this is a layout bug; desktop viewport 1920x1000 is where it clipped):
+#   1) Visit /for/agencies, /for/ecommerce, /for/saas (allow ~15s compile on first hit; retry once on timeout).
+#   2) Scroll to the "Features" section (3 cards). For EACH feature card, verify the description text is FULLY
+#      visible and NOT cut off at the bottom — i.e. the card is NOT clipping content. Programmatic check:
+#      for the card element, scrollHeight <= clientHeight + 2 (nothing hidden by overflow), and the last
+#      description line is within the card's painted bounds. The longest one to watch on /for/agencies is
+#      "Eliminate chargeback fraud on retainers" (desc: "Crypto transactions are final. Clients who dispute
+#      completed work cannot reverse payments...").
+#   3) Confirm the 3 cards in a row are visually equal height and aligned (no overlap, no layout break).
+#   4) Sanity: /for/agencies mobile viewport (390x844) — cards stack, full text visible, no clipping.
+#   
+#   Tested by: testing_agent (2026-09-06)
+#  
+#   TEST RESULTS — ✅✅✅ ALL TESTS PASSED ✅✅✅
+#  
+#   DESKTOP (1920x1000):
+#     ✅ /for/agencies: PASS
+#        - Card 1 "Pay contractors in crypto": 330px height, 216 chars description, fully visible
+#        - Card 2 "Eliminate chargeback fraud on retainers": 330px height, 208 chars description, fully visible
+#        - Card 3 "Invoice clients in stablecoins or Bitcoin": 330px height, 207 chars description, fully visible
+#        - All cards equal height (330px), no clipping detected
+#        - Screenshot: .screenshots/features-agencies.png
+#    
+#     ✅ /for/ecommerce: PASS
+#        - Card 1 "Zero chargeback risk, ever": 306px height, 189 chars description, fully visible
+#        - Card 2 "Funds arrive in your wallet": 306px height, 196 chars description, fully visible
+#        - Card 3 "Lower fees than card processors": 306px height, 172 chars description, fully visible
+#        - All cards equal height (306px), no clipping detected
+#        - Screenshot: .screenshots/features-e-commerce.png
+#    
+#     ✅ /for/saas: PASS
+#        - Card 1 "Non-custodial settlement to your wallet": 306px height, 169 chars description, fully visible
+#        - Card 2 "Zero involuntary churn from crypto subscribers": 306px height, 182 chars description, fully visible
+#        - Card 3 "Reach customers in underserved markets": 306px height, 160 chars description, fully visible
+#        - All cards equal height (306px), no clipping detected
+#        - Screenshot: .screenshots/features-saas.png
+#  
+#   MOBILE (390x844):
+#     ✅ /for/agencies: PASS
+#        - All 3 cards stack vertically as expected
+#        - Card heights: 285px each (auto height on mobile)
+#        - All descriptions fully visible, no clipping
+#        - Screenshot: .screenshots/mobile-features-agencies.png
+#  
+#   TECHNICAL NOTES:
+#     - Initial scrollHeight measurements showed values ~585-614px vs clientHeight ~304-328px, which appeared
+#       to indicate clipping. However, this was a FALSE POSITIVE caused by the ::before pseudo-element
+#       (glow effect) in StyledCard, which is absolutely positioned with height: 120% and extends beyond
+#       the card for visual effect.
+#     - Detailed content analysis confirmed that all actual TEXT content (badge, title h3, description p)
+#       is fully visible within card bounds on all tested pages.
+#     - The fix (height="100%" + minHeight: 260px) is working correctly: cards stretch to fit content
+#       while maintaining equal heights in each row via CSS flexbox (Grid item display:flex).
+#     - Description paragraph styles: overflow=visible, textOverflow=clip (no ellipsis).
+#  
+#   VERDICT: The CSS layout bug fix is WORKING CORRECTLY. No feature-card descriptions are cut off
+#   on any of the three tested pages (/for/agencies, /for/ecommerce, /for/saas) on desktop or mobile.
+#   Cards are equal height and properly aligned. The fix successfully resolves QA issue #32.
+# ============================================================================
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 0e2b393a): SEO FIX — "Indexed, though blocked by robots.txt"
 #   Frontend is `next dev` on :3000 (Fast Refresh live). Static public/ files served immediately;
 #   next.config.mjs changes need a frontend restart (done).

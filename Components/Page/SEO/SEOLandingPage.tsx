@@ -384,9 +384,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
             {content.features.map((f, idx) => (
               <Grid item xs={12} md={4} key={idx} display="flex" justifyContent="center">
                 <HomeCard
-                  height={isMobile ? "auto" : 260}
+                  height={isMobile ? "auto" : "100%"}
                   width={isMobile ? "100%" : 395}
                   bodySx={{ padding: { xs: 3, md: 4 } }}
+                  sx={{ minHeight: { xs: "auto", md: 260 } }}
                 >
                   <Box
                     sx={{
