@@ -25,27 +25,25 @@ import {
   TableFooter,
   TransactionsTableContainer,
   TransactionsTableScrollWrapper,
+  RowActionButton,
+  CARD_RADIUS,
+  EYEBROW_SX,
+  hairline,
+  rowDivider,
+  rowHover,
 } from "./styled";
 
 import KeyboardArrowLeftRoundedIcon from "@mui/icons-material/KeyboardArrowLeftRounded";
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
 
-import ActionIcon from "@/assets/Icons/Actions.svg";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
-import DescriptiontoIcon from "@/assets/Icons/crypto-icon.svg";
-import TimeUsedIcon from "@/assets/Icons/cryptocurrency_link.svg";
 import CoinChips from "@/Components/UI/CoinChips";
 import { StatusDot } from "@/Components/UI/StatusDot";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
-import CryptoIcon from "@/assets/Icons/CryptoIcon.svg";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
-import HexagonIcon from "@/assets/Icons/hexagon-icon.svg";
-import TimeIcon from "@/assets/Icons/time-icon.svg";
-import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
-import UsdIcon from "@/assets/Icons/USDIcon.svg";
 
 import Image from "next/image";
 
@@ -65,7 +63,6 @@ import {
 } from "@/utils/types/paymentLink";
 import { useRouter } from "next/router";
 import PaymentLinkSuccessModal from "../CreatePaymentLink/PaymentLinkSuccessModal";
-import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
 import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
 import { useRefundMap, RefundStatusChip } from "@/Components/Page/Refund/refundStatus";
@@ -75,17 +72,6 @@ const CRYPTO_REFUNDS_ENABLED =
 const isRefundableLinkStatus = (status?: string) =>
   status === "paid" || status === "completed";
 
-const headerIconMap: Record<string, any> = {
-  linkIdHeader: TransactionIcon,
-  descriptionHeader: DescriptiontoIcon,
-  usdValueHeader: UsdIcon,
-  cryptoValueHeader: CryptoIcon,
-  createdHeader: TimeIcon,
-  expiresHeader: TimeIcon,
-  statusHeader: HexagonIcon,
-  timesUsedHeader: TimeUsedIcon,
-  actionsHeader: ActionIcon,
-};
 
 const Header = React.memo(({ label, tooltip, align }: { label: string; tooltip?: string; align?: "left" | "right" }) => {
   const { t } = useTranslation("paymentLinks");
@@ -101,28 +87,13 @@ const Header = React.memo(({ label, tooltip, align }: { label: string; tooltip?:
         cursor: tooltip ? "help" : undefined,
       }}
     >
-      {headerIconMap[label] && (
-        <Image
-          src={headerIconMap[label]}
-          alt={label}
-          width={isMobile ? 15 : 18}
-          height={isMobile ? 15 : 18}
-          draggable={false}
-          style={{
-            marginTop: "-1px",
-          }}
-          className="themed-icon"
-        />
-      )}
-
+      {/* Dashboard parity: uppercase tech-font eyebrow, no header icons. */}
       <Typography
         sx={{
-          fontSize: isMobile ? "10px" : "15px",
-          fontWeight: 500,
-          fontFamily: "var(--font-sans)",
+          ...EYEBROW_SX,
+          fontSize: isMobile ? 10.5 : 11,
           lineHeight: 1.2,
-          letterSpacing: 0,
-          color: headerTheme.palette.text.primary,
+          color: headerTheme.palette.text.secondary,
           whiteSpace: "nowrap",
         }}
       >
@@ -169,7 +140,7 @@ const PaymentLinksTable = ({
       ? "8px 0 12px -8px rgba(0,0,0,0.6)"
       : "8px 0 12px -8px rgba(15,15,20,0.22)"
     : "none";
-  const headBg = theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light;
+  const headBg = theme.palette.background.paper;
   const stickyFirstHeadSx = {
     position: "sticky" as const,
     left: 0,
@@ -182,9 +153,9 @@ const PaymentLinksTable = ({
     position: "sticky" as const,
     left: 0,
     zIndex: 1,
-    backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#FFFFFF",
+    backgroundColor: theme.palette.background.paper,
     boxShadow: frozenEdgeShadow,
-    transition: "box-shadow 160ms ease",
+    transition: "box-shadow 160ms ease, background-color 120ms ease",
   };
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>("");
@@ -403,10 +374,12 @@ const PaymentLinksTable = ({
               paginatedData.map((row, index) => (
                 <Box
                   key={index}
+                  data-testid="paylink-card"
                   sx={{
-                    p: 2,
-                    borderRadius: "12px",
-                    border: `1px solid ${(theme.palette as any).border?.main ?? "#E9ECF2"}`,
+                    // Flat card (dashboard parity): 16px radius + hairline, no shadow.
+                    p: 1.75,
+                    borderRadius: `${CARD_RADIUS}px`,
+                    border: `1px solid ${hairline(theme)}`,
                     bgcolor: theme.palette.background.paper,
                   }}
                 >
@@ -453,13 +426,14 @@ const PaymentLinksTable = ({
                     <Box sx={{ display: "flex", gap: "6px" }}>
                       {row.status !== "expired" && (
                         <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
-                          <CopyButton
+                          <RowActionButton
+                            tone="primary"
                             aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })}
                             onClick={() => handleCopy(toShortPayLink(row.paymentUrl))}
-                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px" }}
+                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
                           >
                             <Image src={CopyIcon} alt="" width={14} height={14} draggable={false} className="themed-icon-primary" />
-                          </CopyButton>
+                          </RowActionButton>
                         </Tooltip>
                       )}
                       <Tooltip
@@ -472,7 +446,7 @@ const PaymentLinksTable = ({
                         }
                         arrow
                       >
-                        <CopyButton
+                        <RowActionButton
                           aria-label={
                             row.status === "expired"
                               ? (t("editLinkTooltip", { defaultValue: "Edit link" }))
@@ -487,34 +461,35 @@ const PaymentLinksTable = ({
                                 ? router.push(`/transactions`)
                                 : handleViewModelOpen(row);
                           }}
-                          sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.text.primary }}
+                          sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
                         >
                           <Image src={EyeIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
-                        </CopyButton>
+                        </RowActionButton>
                       </Tooltip>
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
                         <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
-                          <CopyButton
+                          <RowActionButton
                             aria-label={t("editLinkTooltip", { defaultValue: "Edit link" })}
                             onClick={() => router.push(`/pay-links/${row?.id}`)}
-                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.text.primary }}
+                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
                           >
                             <Image src={EditIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
-                          </CopyButton>
+                          </RowActionButton>
                         </Tooltip>
                       )}
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
                         <Tooltip title={t("deleteLinkTooltip", { defaultValue: "Delete link" })} arrow>
-                          <CopyButton
+                          <RowActionButton
+                            tone="danger"
                             aria-label={t("deleteLinkTooltip", { defaultValue: "Delete link" })}
                             onClick={() => {
                               setDeleteModel(true);
                               setDeletId(row.id);
                             }}
-                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.error.main }}
+                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
                           >
                             <Image src={TrashIcon} alt="" width={14} height={14} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)" }} />
-                          </CopyButton>
+                          </RowActionButton>
                         </Tooltip>
                       )}
                       {CRYPTO_REFUNDS_ENABLED && refundMap[String(row.id)] && (
@@ -525,14 +500,15 @@ const PaymentLinksTable = ({
                       )}
                       {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
                         <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
-                          <CopyButton
+                          <RowActionButton
+                            tone="primary"
                             aria-label={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })}
                             data-testid={`paylink-crypto-refund-mobile-${row.id}`}
                             onClick={() => setCryptoRefundLinkId(String(row.id))}
-                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.primary.main }}
+                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
                           >
-                            <CurrencyExchangeRounded sx={{ fontSize: 14, color: theme.palette.primary.main }} />
-                          </CopyButton>
+                            <CurrencyExchangeRounded sx={{ fontSize: 16 }} />
+                          </RowActionButton>
                         </Tooltip>
                       )}
                     </Box>
@@ -604,10 +580,12 @@ const PaymentLinksTable = ({
                   position: "sticky",
                   top: 0,
                   zIndex: 2,
-                  backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light,
+                  backgroundColor: headBg,
+                  // Flat header: paper surface + hairline rule instead of a filled band.
+                  "& .MuiTableCell-root": { borderBottom: `1px solid ${hairline(theme)}`, py: "10px" },
                 }}
               >
-                <TableRow sx={{ backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light }}>
+                <TableRow sx={{ backgroundColor: headBg }}>
                   <TableCell sx={stickyFirstHeadSx}>
                     <Header label="linkIdHeader" />
                   </TableCell>
@@ -640,7 +618,7 @@ const PaymentLinksTable = ({
                       position: "sticky",
                       right: 0,
                       zIndex: 3,
-                      backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light,
+                      backgroundColor: headBg,
                       // §4.2 — left-edge shadow doubles as the "more content
                       // to the right" scroll hint.
                       boxShadow: hasMoreRight
@@ -665,7 +643,7 @@ const PaymentLinksTable = ({
                         key={`skel-${i}`}
                         sx={{
                           height: "52px",
-                          borderTop: i === 0 ? "none" : "1px solid #E5E7EB",
+                          borderTop: i === 0 ? "none" : `1px solid ${rowDivider(theme)}`,
                         }}
                       >
                         {Array.from({ length: 9 }).map((__, colIdx) => (
@@ -687,10 +665,12 @@ const PaymentLinksTable = ({
                       // L1 — tighter row density: was 59/63px, now 48/52px so ~15% more rows
                       // fit above the fold on a 900px viewport without feeling cramped.
                       height: isMobile ? "48px" : "52px",
-                      borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
+                      borderTop: index === 0 ? "none" : `1px solid ${rowDivider(theme)}`,
+                      transition: "background-color 120ms ease",
+                      "&:hover, &:hover .sticky-cell": { backgroundColor: rowHover(theme) },
                     }}
                   >
-                    <TableBodyCell sx={{ pl: "15px", ...stickyFirstCellSx }}>{row.id}</TableBodyCell>
+                    <TableBodyCell className="sticky-cell" sx={{ pl: "15px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "13px", color: theme.palette.text.secondary, ...stickyFirstCellSx }}>{row.id}</TableBodyCell>
                     <TableBodyCell>
                       {row.linkType === "donation" ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 130 }}>
@@ -739,6 +719,7 @@ const PaymentLinksTable = ({
 
                     <TableBodyCell
                       align="center"
+                      className="sticky-cell"
                       sx={{
                         // H2 — was `width: fit-content; display: flex` on the <td> which
                         // pushed the whole cell past the container. Now the cell just holds
@@ -750,7 +731,7 @@ const PaymentLinksTable = ({
                         position: "sticky",
                         right: 0,
                         zIndex: 2,
-                        backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#FFFFFF",
+                        backgroundColor: theme.palette.background.paper,
                         boxShadow: hasMoreRight
                           ? theme.palette.mode === "dark"
                             ? "-8px 0 12px -8px rgba(0,0,0,0.6)"
@@ -769,16 +750,16 @@ const PaymentLinksTable = ({
                       >
                       {row.status !== "expired" && (
                         <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
-                          <CopyButton aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })} onClick={() => handleCopy(toShortPayLink(row.paymentUrl))}>
+                          <RowActionButton tone="primary" aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })} onClick={() => handleCopy(toShortPayLink(row.paymentUrl))}>
                             <Image
                               src={CopyIcon}
                               alt=""
-                              width={isMobile ? 12 : 14}
-                              height={isMobile ? 12 : 14}
+                              width={14}
+                              height={14}
                               draggable={false}
                               className="themed-icon-primary"
                             />
-                          </CopyButton>
+                          </RowActionButton>
                         </Tooltip>
                       )}
                       <Tooltip
@@ -791,7 +772,7 @@ const PaymentLinksTable = ({
                         }
                         arrow
                       >
-                        <CopyButton
+                        <RowActionButton
                           aria-label={
                             row.status === "expired"
                               ? (t("editLinkTooltip", { defaultValue: "Edit link" }))
@@ -806,75 +787,55 @@ const PaymentLinksTable = ({
                                 ? router.push(`/transactions`)
                                 : handleViewModelOpen(row);
                           }}
-                          sx={{
-                            borderColor: theme.palette.text.primary,
-                            "&:hover": {
-                              backgroundColor: "transparent",
-                              boxShadow: "none",
-                            },
-                          }}
                         >
                           <Image
                             src={EyeIcon}
                             alt=""
-                            width={isMobile ? 12 : 20}
-                            height={isMobile ? 12 : 14}
+                            width={18}
+                            height={14}
                             draggable={false}
                             className="themed-icon"
                           />
-                        </CopyButton>
+                        </RowActionButton>
                       </Tooltip>
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
                         <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
-                          <CopyButton
+                          <RowActionButton
                             aria-label={t("editLinkTooltip", { defaultValue: "Edit link" })}
                             onClick={() => router.push(`/pay-links/${row?.id}`)}
-                            sx={{
-                              borderColor: theme.palette.text.primary,
-                              "&:hover": {
-                                backgroundColor: "transparent",
-                                boxShadow: "none",
-                              },
-                            }}
                           >
                             <Image
                               src={EditIcon}
                               alt=""
-                              width={isMobile ? 12 : 20}
-                              height={isMobile ? 12 : 16}
+                              width={16}
+                              height={16}
                               draggable={false}
                               className="themed-icon"
                             />
-                          </CopyButton>
+                          </RowActionButton>
                         </Tooltip>
                       )}
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
                         <Tooltip title={t("deleteLinkTooltip", { defaultValue: "Delete link" })} arrow>
-                          <CopyButton
+                          <RowActionButton
+                            tone="danger"
                             aria-label={t("deleteLinkTooltip", { defaultValue: "Delete link" })}
                             onClick={() => {
                               setDeleteModel(true);
                               setDeletId(row.id);
                             }}
-                            sx={{
-                              borderColor: theme.palette.text.primary,
-                              "&:hover": {
-                                backgroundColor: "transparent",
-                                boxShadow: "none",
-                              },
-                            }}
                           >
                             <Image
                               src={TrashIcon}
                               alt=""
-                              width={isMobile ? 12 : 20}
-                              height={isMobile ? 12 : 16}
+                              width={16}
+                              height={16}
                               draggable={false}
                               style={{
                                 filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)",
                               }}
                             />
-                          </CopyButton>
+                          </RowActionButton>
                         </Tooltip>
                       )}
                       {CRYPTO_REFUNDS_ENABLED && refundMap[String(row.id)] && (
@@ -885,17 +846,14 @@ const PaymentLinksTable = ({
                       )}
                       {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
                         <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
-                          <CopyButton
+                          <RowActionButton
+                            tone="primary"
                             aria-label={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })}
                             data-testid={`paylink-crypto-refund-${row.id}`}
                             onClick={() => setCryptoRefundLinkId(String(row.id))}
-                            sx={{
-                              borderColor: theme.palette.primary.main,
-                              "&:hover": { backgroundColor: "transparent", boxShadow: "none" },
-                            }}
                           >
-                            <CurrencyExchangeRounded sx={{ fontSize: isMobile ? 14 : 18, color: theme.palette.primary.main }} />
-                          </CopyButton>
+                            <CurrencyExchangeRounded sx={{ fontSize: 18 }} />
+                          </RowActionButton>
                         </Tooltip>
                       )}
                       </Box>

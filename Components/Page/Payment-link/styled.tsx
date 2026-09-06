@@ -2,15 +2,77 @@ import { Box, TableCell } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 
+/* ── Dashboard-parity tokens (Payment Links polish, 2026-09) ─────────────────
+   Same quiet language as the Transactions list: flat 16px card + CB hairline,
+   uppercase tech-font column eyebrows, hairline row dividers, ghost action
+   buttons with the indigo accent reserved for the primary action. */
+export const CARD_RADIUS = 16;
+export const hairline = (theme: { palette: { mode: string } }) =>
+  theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
+export const rowDivider = (theme: { palette: { mode: string } }) =>
+  theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "#F0F2F7";
+export const rowHover = (theme: { palette: { mode: string } }) =>
+  theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#FAFBFD";
+export const EYEBROW_SX = {
+  fontFamily: "var(--font-tech), monospace",
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+} as const;
+
+/** Ghost row-action button — hairline border, quiet by default; `tone` adds
+ *  the indigo accent (primary action) or rose (destructive) on hover. */
+export const RowActionButton = styled("button", {
+  shouldForwardProp: (prop) => prop !== "tone",
+})<{ tone?: "primary" | "danger" | "neutral" }>(({ theme, tone = "neutral" }) => {
+  const isDark = theme.palette.mode === "dark";
+  const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
+  const rose = isDark ? "#FB7185" : "#E11D48";
+  const ink = isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight;
+  const accent = tone === "primary" ? indigo : tone === "danger" ? rose : ink;
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 36,
+    height: 36,
+    padding: 0,
+    borderRadius: 10,
+    border: `1px solid ${tone === "primary" ? (isDark ? "rgba(129,140,248,0.45)" : "rgba(67,56,202,0.35)") : hairline(theme)}`,
+    backgroundColor: tone === "primary" ? (isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow) : "transparent",
+    color: accent,
+    cursor: "pointer",
+    transition: "background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 100ms ease",
+    "& img, & svg": { color: "inherit" },
+    "&:hover": {
+      borderColor: accent,
+      backgroundColor:
+        tone === "primary"
+          ? isDark ? "rgba(129,140,248,0.22)" : "rgba(67,56,202,0.14)"
+          : tone === "danger"
+            ? isDark ? "rgba(251,113,133,0.14)" : "rgba(225,29,72,0.08)"
+            : isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.04)",
+    },
+    "&:active": { transform: "scale(0.96)" },
+    "&:focus-visible": { outline: `2px solid ${indigo}`, outlineOffset: 2 },
+    "&:disabled": { opacity: 0.5, cursor: "not-allowed" },
+    [theme.breakpoints.down("md")]: {
+      // WCAG 2.5.5 tap target on touch devices.
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+    },
+  };
+});
+
 /* ================= TABLE HEADER ================= */
 
 export const TableHeaderCell = styled(TableCell)(({ theme }) => ({
-  fontSize: "13px",
-  fontWeight: 500,
-  fontFamily: "var(--font-sans)",
-  color: "#111827",
-  borderBottom: "none",
-  padding: "14px 16px",
+  ...EYEBROW_SX,
+  color: theme.palette.mode === "dark" ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight,
+  borderBottom: `1px solid ${hairline(theme)}`,
+  padding: "12px 16px",
   whiteSpace: "nowrap",
 }));
 
@@ -19,7 +81,7 @@ export const TableHeaderCell = styled(TableCell)(({ theme }) => ({
 export const TableBodyCell = styled(TableCell)(({ theme }) => ({
   border: "none",
   padding: "0px 10px",
-  fontSize: "15px",
+  fontSize: "14px",
   fontWeight: 500,
   fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
@@ -103,10 +165,10 @@ export const TableFooter = styled(Box)(({ theme }) => ({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "22px 20px 24px 20px",
+  padding: "14px 20px 16px 20px",
   flexShrink: 0,
   minHeight: "max-content",
-  borderTop: "1px solid #E5E7EB",
+  borderTop: `1px solid ${hairline(theme)}`,
   [theme.breakpoints.down("md")]: {
     padding: "30px 12px 12px 12px",
     flexWrap: "wrap",
@@ -138,8 +200,8 @@ export const FooterText = styled(Box)(({ theme }) => ({
 
 /* ================= HEADER ROW BACKGROUND ================= */
 
-export const HeaderRow = styled("tr")(() => ({
-  backgroundColor: "#EEF4FF",
+export const HeaderRow = styled("tr")(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
   fontFamily: "var(--font-sans)",
 }));
 
@@ -186,7 +248,8 @@ export const TransactionsTableContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   backgroundColor: theme.palette.background.paper,
-  borderRadius: "14px",
+  borderRadius: `${CARD_RADIUS}px`,
+  border: `1px solid ${hairline(theme)}`,
   overflow: "hidden",
   minHeight: 0,
   ["@media (max-width:960px)"]: {

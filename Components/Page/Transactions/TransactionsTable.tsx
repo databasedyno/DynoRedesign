@@ -59,9 +59,10 @@ import {
   TransactionsTableHeader,
   TransactionsTableHeaderItem,
   TransactionsTableRow,
+  CARD_RADIUS,
 } from "./styled";
+import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import TransactionDetailsModal from "./TransactionDetailsModal";
-import { brandFg } from "@/constants/theme";
 import { toFixedStr } from "@/utils/money";
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
@@ -339,77 +340,121 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         </Box>
       ) : (
         <>
-          {currentTransactions.map((transaction) => (
-            <Box
-              key={transaction.id}
-              onClick={() => handleRowClick(transaction)}
-              sx={{
-                p: 2,
-                borderRadius: "12px",
-                border: `1px solid ${theme.palette.border.main}`,
-                borderLeft: `3px solid ${getAssetColor(transaction.crypto)}`,
-                bgcolor: theme.palette.background.paper,
-                cursor: "pointer",
-                transition: "background 0.15s",
-                "&:active": { bgcolor: theme.palette.secondary.main },
-              }}
-            >
-              {/* Source badge — session 48. Sits above the crypto row so the
-                  merchant sees the revenue origin first. */}
-              {transaction.source && (
-                <Box sx={{ mb: 1 }}>
-                  {renderSourceBadge(transaction.source, { withTitle: true, compact: true })}
+          {currentTransactions.map((transaction) => {
+            const isDark = theme.palette.mode === "dark";
+            const accent = getAssetColor(transaction.crypto);
+            return (
+              <Box
+                key={transaction.id}
+                onClick={() => handleRowClick(transaction)}
+                data-testid="tx-card"
+                sx={{
+                  // Flat card — dashboard parity: 16px radius, hairline border,
+                  // no accent stripe, no shadow. Coin colour lives only in the
+                  // soft icon tile, exactly like the dashboard's recent list.
+                  p: 1.75,
+                  borderRadius: `${CARD_RADIUS}px`,
+                  border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                  bgcolor: isDark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
+                  cursor: "pointer",
+                  transition: "border-color 150ms ease, background-color 150ms ease",
+                  "&:active": { bgcolor: isDark ? "rgba(255,255,255,0.04)" : "#FAFBFD" },
+                }}
+              >
+                {/* Row 1: coin tile · amount (mono) + ticker · status dot + time */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "12px",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: `${accent}${isDark ? "26" : "14"}`,
+                    }}
+                  >
+                    <Image
+                      src={getCryptoIcon(transaction.crypto)}
+                      alt={transaction.crypto}
+                      width={22}
+                      height={22}
+                      draggable={false}
+                    />
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "16px",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
+                        fontWeight: 700,
+                        letterSpacing: "-0.01em",
+                        color: theme.palette.text.primary,
+                        lineHeight: 1.2,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {formatAmount(transaction.amount)}
+                    </Typography>
+                    <Typography
+                      data-testid="tx-fiat-value"
+                      sx={{
+                        mt: 0.25,
+                        fontSize: "13px",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
+                        fontWeight: 500,
+                        color: theme.palette.text.secondary,
+                      }}
+                    >
+                      {displayValue(transaction)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0 }}>
+                    <TransactionStatusBadge
+                      status={transaction.status}
+                      autoConverted={transaction.autoConverted}
+                      data-testid="tx-card-status"
+                    />
+                    <Typography sx={{ mt: 0.5, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                      {transaction.dateTime}
+                    </Typography>
+                  </Box>
                 </Box>
-              )}
-              {/* Top row: Crypto + Status */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.25 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Image
-                    src={getCryptoIcon(transaction.crypto)}
-                    alt={transaction.crypto}
-                    width={24}
-                    height={24}
-                    draggable={false}
-                  />
-                  <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
-                    {transaction.crypto}
-                  </Typography>
+
+                {/* Row 2: source · id (mono) · tax note */}
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mt: 1.25, minWidth: 0 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                    {transaction.source && renderSourceBadge(transaction.source, { withTitle: true, compact: true })}
+                    <Typography
+                      sx={{
+                        fontSize: "11.5px",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
+                        color: theme.palette.text.secondary,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      #{transaction.id}
+                    </Typography>
+                  </Box>
+                  {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
+                    <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                      {transaction.reverseCharge
+                        ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
+                        : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
+                    </Typography>
+                  )}
                 </Box>
-                <TransactionStatusBadge
-                  status={transaction.status}
-                  autoConverted={transaction.autoConverted}
-                  data-testid="tx-card-status"
-                />
               </Box>
-              {/* Middle row: Amount + USD */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 0.75 }}>
-                <Typography sx={{ fontSize: "16px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
-                  {formatAmount(transaction.amount)}
-                </Typography>
-                <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 500, color: brandFg(theme.palette.mode === "dark") }} data-testid="tx-fiat-value">
-                  {displayValue(transaction)}
-                </Typography>
-              </Box>
-              {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
-                <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0.75 }}>
-                  <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                    {transaction.reverseCharge
-                      ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
-                      : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
-                  </Typography>
-                </Box>
-              )}
-              {/* Bottom row: ID + Date */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, maxWidth: "50%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {transaction.id}
-                </Typography>
-                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                  {transaction.dateTime}
-                </Typography>
-              </Box>
-            </Box>
-          ))}
+            );
+          })}
         </>
       )}
     </Box>
@@ -431,7 +476,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       left: 0,
       zIndex: 4,
       backgroundColor: theme.palette.background.paper,
-      backgroundImage: `linear-gradient(${theme.palette.primary.light}, ${theme.palette.primary.light})`,
       boxShadow: frozenEdgeShadow,
       transition: "box-shadow 160ms ease",
     };
@@ -478,10 +522,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               position: "sticky",
               top: 0,
               zIndex: 3,
-              // primary.light is a translucent tint — composite it over the
-              // paper colour so scrolled rows never bleed through the header.
+              // Flat header (dashboard parity): solid paper surface so scrolled
+              // rows never bleed through; the rule below it does the separating.
               backgroundColor: theme.palette.background.paper,
-              backgroundImage: `linear-gradient(${theme.palette.primary.light}, ${theme.palette.primary.light})`,
               ...(toolbar ? { borderRadius: 0 } : {}),
             }}
           >
@@ -541,12 +584,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       : {}),
                   }}
                 >
-                  <Image
-                    src={item.icon}
-                    alt={item.label}
-                    className="themed-icon"
-                    draggable={false}
-                  />
                   <span>{item.label}</span>
                   {SortIcon && <SortIcon className="sort-icon" aria-hidden />}
                 </TransactionsTableHeaderItem>
@@ -591,8 +628,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       <Typography
                         component="span"
                         sx={{
-                          fontFamily: "var(--font-sans)",
-                          fontSize: "13px",
+                          fontFamily: MONO,
+                          fontVariantNumeric: "tabular-nums",
+                          fontSize: "12.5px",
                           color: theme.palette.text.secondary,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -612,10 +650,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         alt={transaction.crypto}
                         draggable={false}
                       />
-                      <Typography
-                        component="span"
-                        sx={{ color: theme.palette.text.secondary }}
-                      >
+                      <Typography component="span">
                         {transaction.crypto}
                       </Typography>
                     </CryptoIconChip>
@@ -695,7 +730,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     )}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell>
+                  <TransactionsTableCell sx={{ fontSize: "13.5px", color: theme.palette.text.secondary }}>
                     {transaction.dateTime}
                   </TransactionsTableCell>
 
@@ -730,7 +765,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         flex: isMobile ? 1 : "0 1 auto",
         maxHeight: isMobile ? "fit-content" : undefined,
         backgroundColor: isMobile ? "transparent" : theme.palette.background.paper,
-        borderRadius: "14px",
+        // Flat card (dashboard parity): 16px radius + hairline, no shadow.
+        borderRadius: `${CARD_RADIUS}px`,
+        border: isMobile
+          ? "none"
+          : `1px solid ${theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+        overflow: isMobile ? "visible" : "hidden",
       }}
     >
       {toolbar}
@@ -740,8 +780,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       <Box
         sx={{
           backgroundColor: theme.palette.background.paper,
-          borderEndStartRadius: "14px",
-          borderEndEndRadius: "14px",
+          borderEndStartRadius: `${CARD_RADIUS}px`,
+          borderEndEndRadius: `${CARD_RADIUS}px`,
+          ...(isMobile
+            ? {
+                borderRadius: `${CARD_RADIUS}px`,
+                border: `1px solid ${theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                mx: 2,
+              }
+            : {}),
           // Small separation from the last card on mobile (the big FAB/nav
           // clearance now lives in the spacer AFTER this footer — see below).
           mt: { xs: 1, md: 0 },

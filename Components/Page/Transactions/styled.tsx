@@ -10,6 +10,28 @@ import { styled } from "@mui/material/styles";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { MONO } from "@/styles/uiKit";
 
+/* ── Dashboard-parity tokens (Transactions polish, 2026-09) ──────────────────
+   The list now shares the v2026 dashboard's flat language: 16px cards with a
+   hairline CB border (no shadows / no filled header bands), uppercase tech-font
+   column eyebrows, tabular-mono figures and calm dot+text statuses. */
+const hairline = (theme: { palette: { mode: string } }) =>
+  theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
+const rowDivider = (theme: { palette: { mode: string } }) =>
+  theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "#F0F2F7";
+const rowHover = (theme: { palette: { mode: string } }) =>
+  theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#FAFBFD";
+const inkSecondary = (theme: { palette: { mode: string } }) =>
+  theme.palette.mode === "dark" ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight;
+export const CARD_RADIUS = 16;
+/** Uppercase tech-font eyebrow — identical to the dashboard's card labels. */
+export const EYEBROW_SX = {
+  fontFamily: "var(--font-tech), monospace",
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+} as const;
+
 /** Semantic status → CB_TOKENS accent map (shared with the dashboard). */
 const STATUS_SEMANTIC: Record<string, { dark: string; light: string; glowDark: string; glowLight: string }> = {
   settled: CB_TOKENS.semantic.positive,
@@ -27,7 +49,7 @@ export const TransactionsTableContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   backgroundColor: theme.palette.background.paper,
-  borderRadius: "14px",
+  borderRadius: `${CARD_RADIUS}px`,
   overflow: "hidden",
   minHeight: 0,
   ["@media (max-width:960px)"]: {
@@ -43,9 +65,11 @@ export const TransactionsTableHeader = styled(Box)(({ theme }) => ({
   gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 1.3fr) minmax(0, 1.1fr)",
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
-  padding: "19px 20px",
-  backgroundColor: theme.palette.primary.light,
-  borderRadius: "14px 14px 0 0",
+  padding: "12px 20px",
+  // Flat (dashboard parity): no filled band — paper surface + hairline rule.
+  backgroundColor: theme.palette.background.paper,
+  borderBottom: `1px solid ${hairline(theme)}`,
+  borderRadius: 0,
   gap: "16px",
   minWidth: 0,
   flexShrink: 0,
@@ -53,7 +77,7 @@ export const TransactionsTableHeader = styled(Box)(({ theme }) => ({
     minWidth: "max-content",
     gridTemplateColumns:
       "minmax(120px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(150px, 1fr) minmax(100px, 1fr)",
-    padding: "15px 12px",
+    padding: "10px 12px",
     gap: "12px",
   },
   [theme.breakpoints.down("sm")]: {
@@ -75,17 +99,15 @@ export const TransactionsTableHeaderItem = styled(Box)(({ theme }) => ({
   flexDirection: "row",
   alignItems: "center",
   minWidth: 0,
-  gap: 10,
+  gap: 6,
   "& span": {
-    fontSize: "15px",
-    fontWeight: 500,
-    color: theme.palette.text.primary,
-    fontFamily: "var(--font-sans)",
+    ...EYEBROW_SX,
+    color: inkSecondary(theme),
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
     [theme.breakpoints.down("md")]: {
-      fontSize: "13px",
+      fontSize: "10.5px",
     },
   },
   "& img": {
@@ -151,9 +173,15 @@ export const TransactionsTableRow = styled(Box)(({ theme }) => ({
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "11px 0",
-  borderBottom: `1px solid ${theme.palette.divider}`,
+  borderBottom: `1px solid ${rowDivider(theme)}`,
   gap: "16px",
   minWidth: 0,
+  transition: "background-color 120ms ease",
+  "&:hover": { backgroundColor: rowHover(theme) },
+  // The frozen first cell paints its own opaque background (so scrolled columns
+  // never show through) — tint it together with the row on hover.
+  "&:hover > :first-of-type": { backgroundColor: rowHover(theme) },
+  "&:last-of-type": { borderBottom: "none" },
   [theme.breakpoints.down("md")]: {
     minWidth: "max-content",
     gridTemplateColumns:
@@ -180,7 +208,7 @@ export const TransactionsTableRow = styled(Box)(({ theme }) => ({
 // and a <div> inside a <p> is invalid DOM nesting (React validateDOMNesting
 // warnings). All text styling below is explicit, so visuals are unchanged.
 export const TransactionsTableCell = styled(Box)(({ theme }) => ({
-  fontSize: "15px",
+  fontSize: "14px",
   fontWeight: 500,
   maxWidth: "100%",
   minWidth: 0,
@@ -215,13 +243,15 @@ export const TransactionsTableFooter = styled(Box)(({ theme }) => ({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "16px 20px 20px 20px",
+  padding: "14px 20px 16px 20px",
   flexShrink: 0,
   minHeight: "max-content",
+  borderTop: `1px solid ${hairline(theme)}`,
   [theme.breakpoints.down("md")]: {
     padding: "12px 12px 16px 12px",
     flexWrap: "wrap",
     gap: "8px",
+    borderTop: "none",
   },
 }));
 
@@ -317,42 +347,31 @@ export const StatusText = styled(Typography)<{
 export const CryptoIconChip = styled(Box, {
   shouldForwardProp: (prop) => prop !== "accent",
 })<{ accent?: string }>(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  // Quiet Money (Blueprint §3): the coin ICON carries the only colour — the chip
-  // itself is a calm neutral hairline (8px), not a coin-tinted pill with a halo.
+  // Quiet Money (Blueprint §3) + dashboard parity: the coin ICON carries the
+  // only colour; the label is a plain icon + ticker (like the Assets card), not
+  // a bordered chip — flatter row, less visual noise.
   return {
     display: "flex",
     alignItems: "center",
-    gap: "6px",
-    padding: "5px 9px",
-    borderRadius: "8px",
+    gap: "8px",
+    padding: 0,
+    borderRadius: 0,
     background: "transparent",
     fontFamily: "var(--font-sans)",
-    fontSize: "13px",
-    fontWeight: 500,
+    fontSize: "13.5px",
+    fontWeight: 600,
     color: theme.palette.text.primary,
     flexShrink: 0,
-    border: `1px solid ${isDark ? "#27272A" : "#E2E8F0"}`,
+    border: "none",
     position: "relative",
-    transition: "border-color 160ms ease",
-
-    "&:hover": {
-      borderColor: isDark ? "#3F3F46" : "#CBD5E1",
-    },
-
-    [theme.breakpoints.down("md")]: {
-      padding: "5px 8px",
-    },
-    [theme.breakpoints.down("sm")]: {
-      padding: "4px 6px",
-    },
 
     "& span": {
-      fontSize: "13px",
-      fontWeight: 500,
+      fontSize: "13.5px",
+      fontWeight: 600,
       fontFamily: "var(--font-sans)",
       lineHeight: "18px",
       flexShrink: 0,
+      color: theme.palette.text.primary,
       [theme.breakpoints.down("md")]: {
         fontSize: "10px",
         lineHeight: "12px",
@@ -368,14 +387,14 @@ export const CryptoIconChip = styled(Box, {
     },
 
     "& img": {
-      width: "20px",
-      height: "20px",
+      width: "22px",
+      height: "22px",
       objectFit: "contain",
       objectPosition: "center",
       flexShrink: 0,
       borderRadius: "50%",
       // Quiet: the coin logo sits on a plain surface — no coin-coloured ring.
-      padding: "1.5px",
+      padding: 0,
       background: "transparent",
       [theme.breakpoints.down("md")]: {
         width: "14px",
@@ -713,21 +732,26 @@ export const DatePickerTriggerButton = styled(Button)(({ theme }) => ({
  * localized labels never wrap.
  * ────────────────────────────────────────────────────────────────────── */
 export const SourceChipsRow = styled(Box)(({ theme }) => ({
-  display: "flex",
+  // Segmented control — same shell as the dashboard range picker (7D/30D/…):
+  // one soft grey pill, indigo active segment, no shadows.
+  display: "inline-flex",
   alignItems: "center",
-  gap: "8px",
+  gap: "4px",
+  padding: "4px",
+  borderRadius: 999,
+  backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.05)",
+  maxWidth: "100%",
+  width: "fit-content",
   overflowX: "auto",
   overflowY: "hidden",
   scrollbarWidth: "none",
   msOverflowStyle: "none",
   "&::-webkit-scrollbar": { display: "none" },
-  paddingBottom: "4px",
   marginBottom: "12px",
   scrollBehavior: "smooth",
   [theme.breakpoints.down("md")]: {
     marginBottom: "8px",
-    paddingLeft: "0px",
-    paddingRight: "0px",
+    width: "100%",
     scrollSnapType: "x proximity",
   },
 }));
@@ -738,51 +762,55 @@ export const SourceChip = styled(Button, {
   display: "inline-flex",
   alignItems: "center",
   gap: "6px",
-  padding: "6px 12px",
-  minHeight: "32px",
-  height: "32px",
+  padding: "0 12px",
+  minHeight: "30px",
+  height: "30px",
+  minWidth: 0,
   flexShrink: 0,
-  borderRadius: "999px",
-  border: `1px solid ${
-    selected ? theme.palette.primary.main : theme.palette.border.main
-  }`,
+  borderRadius: 999,
+  border: "1px solid transparent",
   backgroundColor: selected
-    ? theme.palette.primary.main
-    : theme.palette.background.paper,
+    ? theme.palette.mode === "dark"
+      ? CB_TOKENS.indigo.dark
+      : CB_TOKENS.indigo.light
+    : "transparent",
   color: selected
-    ? theme.palette.primary.contrastText
-    : theme.palette.text.primary,
+    ? "#FFFFFF"
+    : theme.palette.mode === "dark"
+      ? CB_TOKENS.ink.secondaryDark
+      : CB_TOKENS.ink.secondaryLight,
   fontFamily: "var(--font-sans)",
-  fontWeight: selected ? 700 : 500,
+  fontWeight: 600,
   fontSize: "13px",
-  lineHeight: 1.2,
-  letterSpacing: "0.01em",
+  lineHeight: 1,
+  letterSpacing: 0.1,
   textTransform: "none",
   cursor: "pointer",
   WebkitTapHighlightColor: "transparent",
   whiteSpace: "nowrap",
-  transition:
-    "background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease",
-  boxShadow: selected
-    ? theme.palette.mode === "dark"
-      ? "0 2px 10px rgba(129,140,248,0.30)"
-      : "0 2px 10px rgba(10,10,10,0.18)"
-    : "none",
+  transition: "background-color 150ms ease, color 150ms ease",
+  boxShadow: "none",
   "& .chip-label": {
     display: "inline-block",
   },
+  "& svg, & img": { color: "inherit" },
   "&:hover": {
     backgroundColor: selected
-      ? theme.palette.primary.main
-      : theme.palette.secondary.main,
+      ? theme.palette.mode === "dark"
+        ? CB_TOKENS.indigo.dark
+        : CB_TOKENS.indigo.light
+      : theme.palette.mode === "dark"
+        ? "rgba(255,255,255,0.05)"
+        : "rgba(10,10,15,0.04)",
   },
-  "&:active": {
-    transform: "scale(0.97)",
+  "&:focus-visible": {
+    outline: `2px solid ${theme.palette.mode === "dark" ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light}`,
+    outlineOffset: 2,
   },
   [theme.breakpoints.down("md")]: {
-    padding: "0 16px",
-    minHeight: "44px",
-    height: "44px",
+    padding: "0 14px",
+    minHeight: "38px",
+    height: "38px",
     fontSize: "13px",
     scrollSnapAlign: "start",
   },
@@ -803,15 +831,15 @@ export const TableToolbar = styled(Box, {
   minWidth: 0,
   flexShrink: 0,
   backgroundColor: theme.palette.background.paper,
-  border: standalone ? `1px solid ${theme.palette.divider}` : "none",
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  borderRadius: standalone ? "14px" : "14px 14px 0 0",
+  border: standalone ? `1px solid ${hairline(theme)}` : "none",
+  borderBottom: `1px solid ${hairline(theme)}`,
+  borderRadius: standalone ? `${CARD_RADIUS}px` : `${CARD_RADIUS}px ${CARD_RADIUS}px 0 0`,
   [theme.breakpoints.down("md")]: {
     padding: "8px 10px",
     gap: "8px",
     margin: "0 16px 8px",
-    borderRadius: "12px",
-    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: `${CARD_RADIUS}px`,
+    border: `1px solid ${hairline(theme)}`,
   },
 }));
 

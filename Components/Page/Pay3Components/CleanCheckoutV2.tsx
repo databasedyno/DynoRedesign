@@ -761,6 +761,30 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     }
   }
 
+  // "Copied" feedback lives ON the row (not in a toast): a soft one-shot ring +
+  // tint that fades over 1.6s, and the row border turns brand-colour. Payers
+  // see the confirmation exactly where they clicked. Honors reduced-motion.
+  const copyRowSx = (flag: 'addr' | 'amt') => {
+    const active = copiedFlag === flag
+    return {
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      gap: 1, p: 1.25, borderRadius: '10px',
+      border: `1px solid ${active ? LIME : border}`,
+      transition: 'border-color 200ms ease',
+      ...(active
+        ? {
+            animation: 'checkoutCopyPulse 1.6s ease-out 1',
+            '@keyframes checkoutCopyPulse': {
+              '0%': { boxShadow: `0 0 0 0 ${isDark ? 'rgba(129,140,248,0.55)' : 'rgba(67,56,202,0.40)'}`, backgroundColor: isDark ? 'rgba(129,140,248,0.16)' : 'rgba(67,56,202,0.10)' },
+              '60%': { boxShadow: `0 0 0 8px ${isDark ? 'rgba(129,140,248,0)' : 'rgba(67,56,202,0)'}`, backgroundColor: isDark ? 'rgba(129,140,248,0.08)' : 'rgba(67,56,202,0.05)' },
+              '100%': { boxShadow: `0 0 0 0 ${isDark ? 'rgba(129,140,248,0)' : 'rgba(67,56,202,0)'}`, backgroundColor: 'transparent' },
+            },
+            '@media (prefers-reduced-motion: reduce)': { animation: 'none', backgroundColor: isDark ? 'rgba(129,140,248,0.10)' : 'rgba(67,56,202,0.06)' },
+          }
+        : {}),
+    }
+  }
+
   // ─── Merchant + campaign name resolution ──────────────────────────
   const rawMerchantName = meta_?.merchant?.name || ''
   const merchantName = rawMerchantName || 'Merchant'
@@ -952,16 +976,44 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     return (
       <PanelShell isDark={isDark} border={border} muted={muted}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 3 }}>
+          {/* One-time celebration: the disc pops in, then the check-mark draws
+              itself (stroke-dashoffset). CSS-only, runs once on mount, and is
+              disabled under prefers-reduced-motion. */}
           <Box
             sx={{
               width: 64, height: 64, borderRadius: '50%',
               backgroundColor: LIME,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               mb: 2,
+              animation: 'checkoutSuccessPop 520ms cubic-bezier(0.22, 1.2, 0.36, 1) 1 both',
+              '@keyframes checkoutSuccessPop': {
+                '0%': { transform: 'scale(0.55)', opacity: 0, boxShadow: `0 0 0 0 ${isDark ? 'rgba(129,140,248,0.45)' : 'rgba(67,56,202,0.35)'}` },
+                '60%': { transform: 'scale(1.06)', opacity: 1 },
+                '100%': { transform: 'scale(1)', opacity: 1, boxShadow: `0 0 0 12px ${isDark ? 'rgba(129,140,248,0)' : 'rgba(67,56,202,0)'}` },
+              },
+              '& .check-path': {
+                strokeDasharray: 40,
+                strokeDashoffset: 40,
+                animation: 'checkoutCheckDraw 560ms cubic-bezier(0.65, 0, 0.35, 1) 320ms 1 forwards',
+              },
+              '@keyframes checkoutCheckDraw': { to: { strokeDashoffset: 0 } },
+              '@media (prefers-reduced-motion: reduce)': {
+                animation: 'none',
+                '& .check-path': { animation: 'none', strokeDashoffset: 0 },
+              },
             }}
             data-testid="clean-checkout-success-icon"
           >
-            <Icon icon="mdi:check-bold" width={36} color={ON_BRAND} />
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden focusable="false">
+              <path
+                className="check-path"
+                d="M9 18.5 L15.5 25 L27 12"
+                stroke={ON_BRAND}
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </Box>
           <Typography fontWeight={700} fontSize={22} letterSpacing="-0.5px" color={theme.palette.text.primary}>
             {isContribution ? t('checkout.success.titleContribution', { defaultValue: 'Thank you for contributing!' }) : t('checkout.success.title', { defaultValue: 'Payment successful' })}
@@ -1548,13 +1600,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           <Typography sx={labelSx}>
             {t('checkout.addressLabel', { defaultValue: 'ADDRESS' })}
           </Typography>
-          <Box
-            sx={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              gap: 1, p: 1.25, borderRadius: '10px',
-              border: `1px solid ${border}`,
-            }}
-          >
+          <Box data-testid="clean-checkout-address-row" data-copied={copiedFlag === 'addr' ? 'true' : 'false'} sx={copyRowSx('addr')}>
             <Typography
               data-testid="clean-checkout-address"
               sx={{ fontFamily: MONO, fontSize: 12.5, flex: 1, minWidth: 0, wordBreak: 'break-all', color: theme.palette.text.primary }}
@@ -1570,13 +1616,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                 px: 1.5, py: 0.9, minHeight: 44, minWidth: 86, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
-                transition: 'border-color 150ms ease, color 150ms ease',
-                '&:hover': { borderColor: LIME, color: LIME },
+                transition: 'border-color 150ms ease, color 150ms ease, background-color 150ms ease',
+                ...(copiedFlag === 'addr' ? { borderColor: LIME, color: ON_BRAND, backgroundColor: LIME } : {}),
+                '&:hover': { borderColor: LIME, color: copiedFlag === 'addr' ? ON_BRAND : LIME },
                 '&:focus-visible': { outline: `2px solid ${LIME}`, outlineOffset: 2 },
               }}
             >
               <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
-              {copiedFlag === 'addr' ? t('checkout.copied', { defaultValue: 'Copied' }) : t('checkout.copy', { defaultValue: 'Copy' })}
+              <span aria-live="polite">{copiedFlag === 'addr' ? t('checkout.copied', { defaultValue: 'Copied' }) : t('checkout.copy', { defaultValue: 'Copy' })}</span>
             </Box>
           </Box>
         </Box>
@@ -1588,13 +1635,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           <Typography sx={labelSx}>
             {t('checkout.amountLabel', { defaultValue: 'AMOUNT' })}
           </Typography>
-          <Box
-            sx={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              gap: 1, p: 1.25, borderRadius: '10px',
-              border: `1px solid ${border}`,
-            }}
-          >
+          <Box data-testid="clean-checkout-amount-row" data-copied={copiedFlag === 'amt' ? 'true' : 'false'} sx={copyRowSx('amt')}>
             <Typography sx={{ fontFamily: MONO, fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>
               {formatCryptoAmount(amountToSend, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
             </Typography>
@@ -1607,13 +1648,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                 px: 1.5, py: 0.9, minHeight: 44, minWidth: 86, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
-                transition: 'border-color 150ms ease, color 150ms ease',
-                '&:hover': { borderColor: LIME, color: LIME },
+                transition: 'border-color 150ms ease, color 150ms ease, background-color 150ms ease',
+                ...(copiedFlag === 'amt' ? { borderColor: LIME, color: ON_BRAND, backgroundColor: LIME } : {}),
+                '&:hover': { borderColor: LIME, color: copiedFlag === 'amt' ? ON_BRAND : LIME },
                 '&:focus-visible': { outline: `2px solid ${LIME}`, outlineOffset: 2 },
               }}
             >
               <Icon icon={copiedFlag === 'amt' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
-              {copiedFlag === 'amt' ? t('checkout.copied', { defaultValue: 'Copied' }) : t('checkout.copy', { defaultValue: 'Copy' })}
+              <span aria-live="polite">{copiedFlag === 'amt' ? t('checkout.copied', { defaultValue: 'Copied' }) : t('checkout.copy', { defaultValue: 'Copy' })}</span>
             </Box>
           </Box>
           <RateFreshness updatedAt={rateFetchedAt} color={muted} />

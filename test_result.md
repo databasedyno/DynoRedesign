@@ -42,6 +42,36 @@
 #      FRONTEND: CleanCheckoutV2.tsx subscribes via EventSource (checkoutStreamUrl in checkoutApi.ts),
 #        re-verifies on every hint; polling fallback 4s (no SSE) / 10s (SSE connected); "Payment detected —
 #        confirming" step held >= 2.5s (MIN_DETECTED_DWELL_MS) before the confirmed card.
+#   5) TRANSACTIONS PAGE POLISH (dashboard parity — "Quiet Money"/v2026 language):
+#      styled.tsx: flat 16px card + CB hairline (no filled header band / shadows), uppercase tech-font
+#      column eyebrows (EYEBROW_SX), row hover + hairline dividers, borderless coin icon+ticker
+#      (CryptoIconChip), source filter = segmented pill control (SourceChipsRow/SourceChip, indigo active),
+#      toolbar radius 16. TransactionsTable.tsx: header image icons removed, sticky header solid paper,
+#      mono tabular IDs, secondary date, flat mobile cards (testid tx-card: coin tile + mono amount +
+#      StatusDot + date; row 2 source + #id). index.tsx: "Tax collected" pill flat w/ eyebrow label.
+#      Statuses were already StatusDot (dot+text) — unchanged; details drawer unchanged.
+#      FE TEST FOCUS: /transactions renders card + eyebrow headers; sorting still works (tx-sort-*);
+#      source chips (transactions-source-chip-*) + status chips filter; row click opens details drawer;
+#      mobile 390px cards render with tx-card-status + tx-fiat-value; dark mode legible.
+#   6) PAYMENT LINKS POLISH (/pay-links): Payment-link/styled.tsx — flat 16px card + CB hairline, eyebrow
+#      TableHeaderCell, paper HeaderRow (was #EEF4FF band), hairline footer, NEW RowActionButton (ghost,
+#      tone primary=indigo copy/refund, danger=delete, neutral view/edit; 36px desktop / 44px mobile).
+#      PaymentLinksTable.tsx — header image icons removed (eyebrow labels), hairline row dividers + hover,
+#      mono link IDs, all CopyButton usages -> RowActionButton (desktop + mobile), mobile card testid
+#      paylink-card 16px hairline. Create form PanelCard radius -> 16px (CreatePaymentLink/index.tsx).
+#   7) CHECKOUT COPY FEEDBACK: CleanCheckoutV2 — address/amount rows (testids clean-checkout-address-row /
+#      clean-checkout-amount-row, attr data-copied="true|false") get a 1.6s indigo ring+tint pulse
+#      (@keyframes checkoutCopyPulse, reduced-motion safe); copy button fills indigo with "✓ Copied";
+#      aria-live on the label. Existing copiedFlag timer (1600ms) unchanged.
+#   8) CONFIRMED CELEBRATION: success disc (testid clean-checkout-success-icon) pops in
+#      (@keyframes checkoutSuccessPop) and an inline SVG check-mark (.check-path) draws via
+#      stroke-dashoffset (@keyframes checkoutCheckDraw, 560ms, 320ms delay), once on mount; disabled
+#      under prefers-reduced-motion. Confetti unchanged.
+#      VERIFIED via Playwright with mocked /api/pay/addPayment + verifyCryptoPayment on link ref rNtQRX
+#      (QA link 281, $15) — HOW TO TEST WITHOUT PROD WRITES: route-mock addPayment -> {status:true,data:{address,
+#      amount,merchant_amount,fees,fee_payer,transaction_id,remaining_minutes}} and verifyCryptoPayment ->
+#      {status:true,data:{status:'waiting'|'pending'|'confirmed',...}}; abort /api/pay/stream. Select LTC in
+#      clean-checkout-currency-select. Do NOT let real addPayment through (creates prod rows).
 #   BACKEND TESTED (testing agent 2026-09-06): 11/11 PASS — /health, stream auth/validation matrix, SSE frames,
 #     destination_tag channels, verifyCryptoPayment regression, no log errors. Agent noted the preview's
 #     Python proxy (backend/server.py) buffered responses -> FIXED: server.py now streams text/event-stream

@@ -1381,7 +1381,8 @@ const CreatePaymentLinkPage = ({
           width: "100%",
           minWidth: 0,
           flex: 1,
-          borderRadius: { xs: "8px", md: "14px" },
+          // Quiet card (dashboard parity): 16px radius, hairline from PanelCard, no shadow.
+          borderRadius: { xs: "12px", md: "16px" },
         }}
       >
         {showActivationBanner && (

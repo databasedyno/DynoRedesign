@@ -540,12 +540,12 @@ const TransactionPage = () => {
             alignSelf: "flex-start",
             px: 1.75,
             py: 1,
-            borderRadius: "10px",
-            border: `1px solid ${theme.palette.border?.main || theme.palette.divider}`,
-            backgroundColor: theme.palette.primary.light,
+            borderRadius: "12px",
+            border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(10,10,15,0.08)"}`,
+            backgroundColor: theme.palette.background.paper,
           }}
         >
-          <Typography sx={{ fontSize: "12.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+          <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-tech), monospace", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
             {t("taxCollected", { defaultValue: "Tax collected" })}
           </Typography>
           <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
