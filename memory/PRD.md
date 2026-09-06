@@ -1,3 +1,11 @@
+# INVESTIGATION 2026-09-06 (pod 1a75b74d): onboarding + zero-transactions RCA -> memory/reports/onboarding_investigation_2026-09-06.md
+#   Tools: backend/scripts/ro_query.js (READ-ONLY SQL runner, prod), DO API token in backend/.env (DO_API_TOKEN, gitignored).
+#   Headline: 112 signups Aug-Sep (49% of attributed = ChatGPT -> /for/fundraisers; IR/SO/ET/PK/PS...), individuals' hardship
+#   fundraisers; funnel 112->92 company->61 wallet->39 link->15 checkout-opened->0 paid. Zero funds ever sent (0 inbound events /
+#   journal rows) -> not a bug; attempts are merchant self-tests; ~70% single-session users. DO logs only cover active deployment
+#   (~hourly redeploys). Concrete bug: company 139 "Donut Loot" webhook 308 redirect (donutloot.xyz -> www.), 158 failed deliveries,
+#   sender uses maxRedirects:0 (SSRF guard). Data bug: last_login_ip stores full X-Forwarded-For chain.
+
 # FIX 2026-09-06 (pod 1a75b74d): COMMIT BLOCKER — husky pre-commit R2 rule (new backend .ts > 500 lines blocks). pdfService.ts had grown
 #   491 -> 528; extracted services/pdf/invoiceChrome.ts (palette/logo/header+PAID/provider/footer) -> pdfService.ts 429 lines.
 #   `sh .husky/pre-commit` exit 0 verified by testing agent. RULE FOR FUTURE WORK: keep every NEW backend .ts file <= 500 lines
