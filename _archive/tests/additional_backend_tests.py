@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://great-moore-13.preview.emergentagent.com"
+BACKEND_URL = "https://setup-vault-6.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""

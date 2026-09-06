@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://great-moore-13.preview.emergentagent.com",
+        "origin": "https://setup-vault-6.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

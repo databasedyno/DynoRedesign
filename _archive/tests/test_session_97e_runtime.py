@@ -7,7 +7,7 @@ Tests the /api/notifications/payout-digest/preview endpoint
 import requests
 import json
 
-BASE_URL = "https://great-moore-13.preview.emergentagent.com"
+BASE_URL = "https://setup-vault-6.preview.emergentagent.com"
 
 def test_payout_digest_preview():
     print("=== Test 5: Runtime Endpoint Verification ===\n")

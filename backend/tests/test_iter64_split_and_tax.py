@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://great-moore-13.preview.emergentagent.com"
+BASE_URL = "https://setup-vault-6.preview.emergentagent.com"
 LOGIN = {"email": "hostbay@moxx.co", "password": "Katiekendra123@"}
 
 
