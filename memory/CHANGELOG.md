@@ -1,3 +1,11 @@
+# 2026-09-07 (fork): Cheapest-Chain Hint (fee calculator) — pages/fees.tsx computes the lowest-fee settlement
+#   option across SETTLE_CURRENCIES using live fees (fallback static). Shows a hint banner under the currency
+#   selector: not-selected -> "Cheapest payout route: <chain> — <fee> network fee [Use it]" (data-testid
+#   fee-use-cheapest switches to it); selected -> green "You're on the cheapest payout route". The dropdown also
+#   tags the cheapest option "Lowest fee". testid: fee-cheapest-hint. Verified: TRC-20 suggests USDC·Solana
+#   (< $0.01) -> Use it -> net $100.00. tsc clean. NOT deployed.
+#
+
 # 2026-09-07 (fork): QA-BOARD UX + LIVE FEES (3 features)
 #   1) /quality Board Filters — stat chips (Total/Pass/Fail/Blocked/Awaiting retest/Untested) are now one-tap
 #      filters (pages/quality.tsx: statusFilter state, matchesStatus, visibleCustomItems, active-ring + Clear

@@ -7,6 +7,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import BoltIcon from "@mui/icons-material/Bolt";
 import Head from "next/head";
 import { AURORA_GRADIENT, FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
 import { AuroraInk, Eyebrow, HeadlineL, HeadlineXL } from "@/Components/Page/Home/v3/styled.v3";
@@ -114,6 +115,14 @@ const FeesPage = () => {
   const liveFee = liveFees ? liveFees[currency] : undefined;
   const blockchainFee = liveFee != null ? liveFee : selCur.netFee;
   const netToMerchant = Math.max(0, payAmount - blockchainFee);
+  // Cheapest payout route across all settlement options (live fee when available).
+  const feeFor = (c: (typeof SETTLE_CURRENCIES)[number]) =>
+    liveFees && liveFees[c.code] != null ? (liveFees[c.code] as number) : c.netFee;
+  const cheapest = SETTLE_CURRENCIES.reduce(
+    (a, c) => (feeFor(c) < feeFor(a) ? c : a),
+    SETTLE_CURRENCIES[0]
+  );
+  const onCheapest = currency === cheapest.code;
 
   const scrollToCalc = useCallback(() => {
     const el = document.getElementById("fee-calculator");
@@ -474,7 +483,7 @@ const FeesPage = () => {
                       </Box>
                     )}
                   </Box>
-                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2, mb: 3 }}>
+                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2, mb: 2 }}>
                     <TextField
                       type="number"
                       size="small"
@@ -493,9 +502,52 @@ const FeesPage = () => {
                       SelectProps={{ SelectDisplayProps: { "data-testid": "fee-calc-currency-select" } as React.HTMLAttributes<HTMLDivElement> }}
                     >
                       {SETTLE_CURRENCIES.map((c) => (
-                        <MenuItem key={c.code} value={c.code}>{c.label}</MenuItem>
+                        <MenuItem key={c.code} value={c.code} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
+                          <span>{c.label}</span>
+                          {c.code === cheapest.code && (
+                            <Box component="span" sx={{ fontFamily: FONT_TECH, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: tier.accent, background: tier.accentSoft, px: 0.75, py: 0.25, borderRadius: 999 }}>
+                              {t("v3.lowestFee", { defaultValue: "Lowest fee" })}
+                            </Box>
+                          )}
+                        </MenuItem>
                       ))}
                     </TextField>
+                  </Box>
+                  {/* Cheapest-chain hint — best payout route (QA follow-up) */}
+                  <Box
+                    data-testid="fee-cheapest-hint"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 1.5,
+                      flexWrap: "wrap",
+                      mb: 3,
+                      px: 2,
+                      py: 1.25,
+                      borderRadius: "12px",
+                      border: `1px solid ${onCheapest ? "rgba(34,197,94,0.35)" : s.line}`,
+                      background: onCheapest ? "rgba(34,197,94,0.08)" : tier.accentSoft,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <BoltIcon sx={{ fontSize: 18, color: onCheapest ? "#16A34A" : tier.accent }} />
+                      <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, color: s.ink2 }}>
+                        {onCheapest
+                          ? t("v3.cheapestOn", { defaultValue: "You're on the cheapest payout route" })
+                          : `${t("v3.cheapestHint", { defaultValue: "Cheapest payout route" })}: ${cheapest.label} — ${fmtFee(feeFor(cheapest))} ${t("v3.networkFeeWord", { defaultValue: "network fee" })}`}
+                      </Typography>
+                    </Box>
+                    {!onCheapest && (
+                      <Button
+                        size="small"
+                        onClick={() => setCurrency(cheapest.code)}
+                        data-testid="fee-use-cheapest"
+                        sx={{ textTransform: "none", fontFamily: FONT_BODY, fontWeight: 700, color: tier.accent, borderRadius: 999, px: 1.5 }}
+                      >
+                        {t("v3.useCheapest", { defaultValue: "Use it" })}
+                      </Button>
+                    )}
                   </Box>
                   <Box sx={{ border: `1px solid ${s.line}`, borderRadius: "16px", overflow: "hidden" }}>
                     {[
