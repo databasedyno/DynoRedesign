@@ -30,6 +30,6 @@
   "should_call_test_agent_after_fix": false,
   "should_main_agent_self_test": true,
   "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step login verified, dashboard shell loaded cleanly)",
-  "context_for_next_testing_agent": "Base URL: https://setup-vault-6.preview.emergentagent.com. Nav language selector testid is header-language-globe (data-testid=language-trigger exists but is hidden -> do not wait on it). Routes respond in <1s once warm; wait on selectors, never networkidle. Article cards on /help-support expose a[href^='/help-support/'] only after hydration. localStorage 'lang' persists between runs — clear it before testing default-EN behaviour.",
+  "context_for_next_testing_agent": "Base URL: https://lucid-mahavira-16.preview.emergentagent.com. Nav language selector testid is header-language-globe (data-testid=language-trigger exists but is hidden -> do not wait on it). Routes respond in <1s once warm; wait on selectors, never networkidle. Article cards on /help-support expose a[href^='/help-support/'] only after hydration. localStorage 'lang' persists between runs — clear it before testing default-EN behaviour.",
   "rca_of_the_issue": "No regression from the _app/_document/i18n SSR changes: per-request cloned i18n instance + fs-loaded resources render correct translated HTML with correct <html lang>, and client hydration picks the same locale with no mismatch warnings. Remaining findings are SEO polish (untranslated article metadata, URL not updated on client switch) and help-article layout/contrast."
 }

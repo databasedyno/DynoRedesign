@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://setup-vault-6.preview.emergentagent.com"
+BASE_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
 
 def test_3a_csrf_token():
     """Test 3a: GET /api/csrf-token"""
