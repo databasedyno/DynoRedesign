@@ -1,402 +1,344 @@
 #!/usr/bin/env python3
 """
-Backend API Test for Dynopay Bug Fixes
-- Weekly Summary "lacking data" fix
-- Email greeting "Hey The," fix
+Backend test for Dynopay name capture feature.
+Tests email signup flow to verify first+last name is required at OTP verification.
 """
 
-import requests
-import json
+import os
 import sys
-from typing import Dict, Any, Optional
+import json
+import time
+import random
+import requests
+import redis
+import psycopg2
+from datetime import datetime
 
 # Configuration
-BASE_URL = "http://localhost:8001"
-API_BASE = f"{BASE_URL}/api"
+BACKEND_URL = "http://localhost:8001/api"
+REDIS_URL = os.getenv("REDIS_PUBLIC_URL", "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794/1")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:IHCzCDslIsUZlzCvvjxfSWcChEiBtiCU@roundhouse.proxy.rlwy.net:23599/railway")
 
-# Test credentials
-TEST_EMAIL = "onarrival21@gmail.com"
-TEST_PASSWORD = "Katiekendra123@"
+def log(msg):
+    """Print timestamped log message"""
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
-# ANSI color codes for output
-GREEN = '\033[92m'
-RED = '\033[91m'
-YELLOW = '\033[93m'
-BLUE = '\033[94m'
-RESET = '\033[0m'
+def connect_redis():
+    """Connect to Redis"""
+    log(f"Connecting to Redis...")
+    r = redis.from_url(REDIS_URL)
+    r.ping()
+    log("✓ Redis connected")
+    return r
 
-class TestResult:
-    def __init__(self):
-        self.passed = []
-        self.failed = []
-        self.warnings = []
-    
-    def add_pass(self, test_name: str, details: str = ""):
-        self.passed.append((test_name, details))
-        print(f"{GREEN}✓ PASS{RESET}: {test_name}")
-        if details:
-            print(f"  {details}")
-    
-    def add_fail(self, test_name: str, details: str):
-        self.failed.append((test_name, details))
-        print(f"{RED}✗ FAIL{RESET}: {test_name}")
-        print(f"  {details}")
-    
-    def add_warning(self, test_name: str, details: str):
-        self.warnings.append((test_name, details))
-        print(f"{YELLOW}⚠ WARNING{RESET}: {test_name}")
-        print(f"  {details}")
-    
-    def summary(self):
-        print("\n" + "="*80)
-        print(f"{BLUE}TEST SUMMARY{RESET}")
-        print("="*80)
-        print(f"Passed: {GREEN}{len(self.passed)}{RESET}")
-        print(f"Failed: {RED}{len(self.failed)}{RESET}")
-        print(f"Warnings: {YELLOW}{len(self.warnings)}{RESET}")
-        
-        if self.failed:
-            print(f"\n{RED}FAILED TESTS:{RESET}")
-            for name, details in self.failed:
-                print(f"  - {name}")
-                print(f"    {details}")
-        
-        return len(self.failed) == 0
+def connect_postgres():
+    """Connect to Postgres"""
+    log(f"Connecting to Postgres...")
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    log("✓ Postgres connected")
+    return conn
 
-
-def login(results: TestResult) -> Optional[str]:
-    """
-    Login and get access token.
-    Returns the JWT token or None if login fails.
-    """
-    print(f"\n{BLUE}=== TEST 1: LOGIN ==={RESET}")
-    
-    url = f"{API_BASE}/user/login"
-    payload = {
-        "email": TEST_EMAIL,
-        "password": TEST_PASSWORD
-    }
-    
-    try:
-        response = requests.post(url, json=payload, timeout=10)
-        
-        print(f"Request: POST {url}")
-        print(f"Status: {response.status_code}")
-        
-        if response.status_code != 200:
-            results.add_fail("Login", f"Expected HTTP 200, got {response.status_code}")
-            print(f"Response: {response.text}")
-            return None
-        
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
-        
-        # Check for 2FA requirement
-        if data.get('requires_2fa'):
-            results.add_fail("Login", "Account requires 2FA (not expected for this test account)")
-            return None
-        
-        # Check for success message
-        if data.get('message') != "Login Successful!":
-            results.add_warning("Login", f"Unexpected message: {data.get('message')}")
-        
-        # Extract token
-        token = data.get('data', {}).get('accessToken')
-        if not token:
-            results.add_fail("Login", "No accessToken in response")
-            return None
-        
-        results.add_pass("Login", f"Successfully logged in, token length: {len(token)}")
-        return token
-        
-    except Exception as e:
-        results.add_fail("Login", f"Exception: {str(e)}")
+def read_otp_from_redis(r, email):
+    """Read OTP from Redis for given email"""
+    key = f"otp:{email.lower()}:json"
+    log(f"Reading OTP from Redis key: {key}")
+    value = r.get(key)
+    if not value:
+        log(f"✗ No OTP found in Redis for key: {key}")
         return None
-
-
-def test_weekly_summary(token: str, results: TestResult):
-    """
-    Test the weekly summary endpoint with dry_run=true.
-    Verify that the summary data is NO LONGER all-zero.
-    """
-    print(f"\n{BLUE}=== TEST 2: WEEKLY SUMMARY (dry_run) ==={RESET}")
     
-    url = f"{API_BASE}/notifications/trigger-weekly-summary"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "user_id": 1,
-        "dry_run": True
-    }
+    data = json.loads(value)
+    otp = data.get("otp")
+    log(f"✓ OTP read from Redis: {otp}")
+    return otp
+
+def query_user_by_email(conn, email):
+    """Query tbl_user for given email"""
+    with conn.cursor() as cur:
+        cur.execute("SELECT user_id, name, email, login_type FROM tbl_user WHERE LOWER(email) = LOWER(%s)", (email,))
+        result = cur.fetchone()
+        return result
+
+def cleanup_user(conn, user_id):
+    """Clean up user and related records"""
+    log(f"Cleaning up user_id={user_id}...")
+    with conn.cursor() as cur:
+        try:
+            # Delete child rows first (ignore tables that don't exist or have no rows)
+            cur.execute("DELETE FROM tbl_user_wallet WHERE user_id=%s", (user_id,))
+            deleted_wallets = cur.rowcount
+            log(f"  Deleted {deleted_wallets} wallets")
+            
+            cur.execute("DELETE FROM tbl_referral WHERE referrer_user_id=%s OR referred_user_id=%s", (user_id, user_id))
+            deleted_referrals = cur.rowcount
+            log(f"  Deleted {deleted_referrals} referrals")
+            
+            # Delete the user
+            cur.execute("DELETE FROM tbl_user WHERE user_id=%s", (user_id,))
+            deleted_users = cur.rowcount
+            log(f"  Deleted {deleted_users} users")
+            
+            conn.commit()
+            log(f"✓ Cleanup complete for user_id={user_id}")
+            return True
+        except Exception as e:
+            conn.rollback()
+            log(f"✗ Cleanup failed: {e}")
+            log(f"  LEFTOVER user_id={user_id} - manual cleanup required")
+            return False
+
+def test_negative_no_name():
+    """TEST 1 - NEGATIVE: Verify OTP without name fields returns 400 and creates NO user"""
+    log("\n" + "="*80)
+    log("TEST 1 - NEGATIVE: OTP verification WITHOUT name fields")
+    log("="*80)
+    
+    # Generate unique email
+    timestamp = int(time.time() * 1000)
+    email = f"qa-nametest-{timestamp}@example.com"
+    log(f"Test email: {email}")
+    
+    # Connect to Redis and Postgres
+    r = connect_redis()
+    conn = connect_postgres()
     
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=15)
-        
-        print(f"Request: POST {url}")
-        print(f"Headers: Authorization: Bearer {token[:20]}...")
-        print(f"Payload: {json.dumps(payload, indent=2)}")
-        print(f"Status: {response.status_code}")
-        
-        if response.status_code != 200:
-            results.add_fail("Weekly Summary - HTTP Status", 
-                           f"Expected HTTP 200, got {response.status_code}\nResponse: {response.text}")
-            return
-        
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
-        
-        # Extract the summary from data.data.results[0]
-        response_data = data.get('data', {})
-        if not response_data.get('results') or len(response_data['results']) == 0:
-            results.add_fail("Weekly Summary - Response Structure", 
-                           "No results array in response")
-            return
-        
-        summary = response_data['results'][0].get('summary')
-        if not summary:
-            results.add_fail("Weekly Summary - Response Structure", 
-                           "No summary in results[0]")
-            return
-        
-        print(f"\n{BLUE}Summary Data:{RESET}")
-        print(f"  transaction_count: {summary.get('transaction_count')}")
-        print(f"  completed_count: {summary.get('completed_count')}")
-        print(f"  pending_count: {summary.get('pending_count')}")
-        print(f"  total_volume: {summary.get('total_volume')}")
-        print(f"  top_currency: {summary.get('top_currency')}")
-        
-        # PASS criteria: summary is NO LONGER all-zero
-        checks = []
-        
-        # Check completed_count > 0
-        completed_count = summary.get('completed_count', 0)
-        if completed_count > 0:
-            checks.append(f"completed_count={completed_count} > 0 ✓")
-        else:
-            checks.append(f"completed_count={completed_count} (EXPECTED > 0) ✗")
-        
-        # Check total_volume > 0
-        total_volume = summary.get('total_volume', 0)
-        if total_volume > 0:
-            checks.append(f"total_volume={total_volume} > 0 ✓")
-        else:
-            checks.append(f"total_volume={total_volume} (EXPECTED > 0) ✗")
-        
-        # Check top_currency is not "None" or empty
-        top_currency = summary.get('top_currency', '')
-        if top_currency and top_currency not in ['None', '', 'null']:
-            checks.append(f"top_currency='{top_currency}' (not None/empty) ✓")
-        else:
-            checks.append(f"top_currency='{top_currency}' (EXPECTED non-empty) ✗")
-        
-        # Check pending_count > 0
-        pending_count = summary.get('pending_count', 0)
-        if pending_count > 0:
-            checks.append(f"pending_count={pending_count} > 0 ✓")
-        else:
-            checks.append(f"pending_count={pending_count} (EXPECTED > 0) ✗")
-        
-        # Check transaction_count > 0
-        transaction_count = summary.get('transaction_count', 0)
-        if transaction_count > 0:
-            checks.append(f"transaction_count={transaction_count} > 0 ✓")
-        else:
-            checks.append(f"transaction_count={transaction_count} (EXPECTED > 0) ✗")
-        
-        print(f"\n{BLUE}Regression Checks:{RESET}")
-        for check in checks:
-            print(f"  {check}")
-        
-        # All checks must pass
-        all_pass = (
-            completed_count > 0 and
-            total_volume > 0 and
-            top_currency and top_currency not in ['None', '', 'null'] and
-            pending_count > 0 and
-            transaction_count > 0
+        # Step 1: POST /api/user/registerEmail
+        log("\nStep 1: POST /api/user/registerEmail")
+        response = requests.post(
+            f"{BACKEND_URL}/user/registerEmail",
+            json={"email": email},
+            timeout=10
         )
-        
-        if all_pass:
-            results.add_pass("Weekly Summary - Data Regression Check", 
-                           f"Summary is NO LONGER all-zero (completed={completed_count}, volume={total_volume}, currency={top_currency})")
-        else:
-            results.add_fail("Weekly Summary - Data Regression Check", 
-                           f"Summary still contains zero/empty values:\n" + "\n".join(checks))
-        
-        # Verify dry_run did NOT create a notification
-        notification = response_data['results'][0].get('notification')
-        if notification is None or notification == 'null':
-            results.add_pass("Weekly Summary - dry_run Behavior", 
-                           "dry_run=true did NOT create a notification (correct)")
-        else:
-            results.add_fail("Weekly Summary - dry_run Behavior", 
-                           f"dry_run=true created a notification: {notification}")
-        
-        # Reference values check (informational)
-        print(f"\n{BLUE}Reference Values (from fix time):{RESET}")
-        print(f"  Expected ~52 transactions, ~22 completed, ~30 pending, ~495.15 volume, BTC currency")
-        print(f"  Note: Exact numbers may drift if new live transactions arrive")
-        
-    except Exception as e:
-        results.add_fail("Weekly Summary - Exception", f"Exception: {str(e)}")
-
-
-def test_recipients_preview(token: str, results: TestResult):
-    """
-    Test the recipients-preview endpoint.
-    Verify that company_id=1 "The Dev Store" has greeting_first_name="John" (NOT "The").
-    """
-    print(f"\n{BLUE}=== TEST 3: RECIPIENTS PREVIEW (Greeting Fix) ==={RESET}")
-    
-    url = f"{API_BASE}/notifications/recipients-preview"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-    
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        
-        print(f"Request: GET {url}")
-        print(f"Headers: Authorization: Bearer {token[:20]}...")
-        print(f"Status: {response.status_code}")
+        log(f"Response status: {response.status_code}")
+        log(f"Response body: {response.text}")
         
         if response.status_code != 200:
-            results.add_fail("Recipients Preview - HTTP Status", 
-                           f"Expected HTTP 200, got {response.status_code}\nResponse: {response.text}")
-            return
+            log(f"✗ Expected 200, got {response.status_code}")
+            return False
         
-        data = response.json()
-        print(f"Response: {json.dumps(data, indent=2)}")
+        log("✓ registerEmail returned 200")
         
-        # Find company_id=1 "The Dev Store"
-        response_data = data.get('data', {})
-        companies = response_data.get('companies', [])
-        if not companies:
-            results.add_fail("Recipients Preview - Response Structure", 
-                           "No companies array in response")
-            return
+        # Step 2: Read OTP from Redis
+        log("\nStep 2: Read OTP from Redis")
+        time.sleep(1)  # Give Redis a moment
+        otp = read_otp_from_redis(r, email)
         
-        target_company = None
-        for company in companies:
-            if company.get('company_id') == 1:
-                target_company = company
-                break
+        if not otp:
+            log("✗ Failed to read OTP from Redis")
+            return False
         
-        if not target_company:
-            results.add_fail("Recipients Preview - Company Not Found", 
-                           "company_id=1 not found in response")
-            return
+        # Step 3: POST /api/user/registerEmail/verify-otp WITHOUT name fields
+        log("\nStep 3: POST /api/user/registerEmail/verify-otp (NO name fields)")
+        response = requests.post(
+            f"{BACKEND_URL}/user/registerEmail/verify-otp",
+            json={"email": email, "otp": otp},
+            timeout=10
+        )
+        log(f"Response status: {response.status_code}")
+        log(f"Response body: {response.text}")
         
-        company_name = target_company.get('company_name')
-        print(f"\n{BLUE}Found Company:{RESET}")
-        print(f"  company_id: 1")
-        print(f"  company_name: {company_name}")
+        if response.status_code != 400:
+            log(f"✗ Expected 400, got {response.status_code}")
+            return False
         
-        if company_name != "The Dev Store":
-            results.add_warning("Recipients Preview - Company Name", 
-                              f"Expected 'The Dev Store', got '{company_name}'")
+        # Check if response mentions first and last name
+        response_text = response.text.lower()
+        if "first" not in response_text or "last" not in response_text or "name" not in response_text:
+            log(f"✗ Expected error message to mention 'first and last name'")
+            return False
         
-        # Find the PRIMARY recipient (source == "company" or "owner")
-        recipients = target_company.get('recipients', [])
-        if not recipients:
-            results.add_fail("Recipients Preview - No Recipients", 
-                           "No recipients for company_id=1")
-            return
+        log("✓ verify-otp returned 400 with correct error message")
         
-        print(f"\n{BLUE}Recipients:{RESET}")
-        primary_recipient = None
-        for recipient in recipients:
-            source = recipient.get('source')
-            greeting_name = recipient.get('greeting_name')
-            greeting_first_name = recipient.get('greeting_first_name')
-            
-            print(f"  - source: {source}")
-            print(f"    greeting_name: {greeting_name}")
-            print(f"    greeting_first_name: {greeting_first_name}")
-            
-            if source in ['company', 'owner']:
-                primary_recipient = recipient
+        # Step 4: Verify NO user was created
+        log("\nStep 4: Query tbl_user to verify NO account created")
+        user = query_user_by_email(conn, email)
         
-        if not primary_recipient:
-            results.add_fail("Recipients Preview - No Primary Recipient", 
-                           "No recipient with source='company' or 'owner' found")
-            return
+        if user:
+            log(f"✗ FAIL: User was created when it shouldn't have been: {user}")
+            # Clean up the unexpected user
+            cleanup_user(conn, user[0])
+            return False
         
-        # Verify greeting_first_name == "John" (NOT "The")
-        greeting_first_name = primary_recipient.get('greeting_first_name')
-        greeting_name = primary_recipient.get('greeting_name')
+        log("✓ PASS: No user account was created (as expected)")
         
-        print(f"\n{BLUE}Primary Recipient Greeting Check:{RESET}")
-        print(f"  greeting_first_name: '{greeting_first_name}'")
-        print(f"  greeting_name: '{greeting_name}'")
-        
-        if greeting_first_name == "John":
-            results.add_pass("Recipients Preview - Greeting First Name", 
-                           f"greeting_first_name='John' (correct, NOT 'The')")
-        else:
-            results.add_fail("Recipients Preview - Greeting First Name", 
-                           f"Expected 'John', got '{greeting_first_name}' (BUG: still using company name?)")
-        
-        if greeting_name == "John Davis":
-            results.add_pass("Recipients Preview - Greeting Full Name", 
-                           f"greeting_name='John Davis' (correct)")
-        else:
-            results.add_warning("Recipients Preview - Greeting Full Name", 
-                              f"Expected 'John Davis', got '{greeting_name}'")
-        
-        # Check for any recipient with greeting_first_name == "The" (should NOT exist)
-        bad_recipients = [r for r in recipients if r.get('greeting_first_name') == 'The']
-        if bad_recipients:
-            results.add_fail("Recipients Preview - Bad Greeting Found", 
-                           f"Found {len(bad_recipients)} recipient(s) with greeting_first_name='The' (BUG NOT FIXED)")
-        else:
-            results.add_pass("Recipients Preview - No Bad Greetings", 
-                           "No recipients with greeting_first_name='The' found")
+        log("\n" + "="*80)
+        log("TEST 1 - NEGATIVE: ✓✓✓ PASSED ✓✓✓")
+        log("="*80)
+        return True
         
     except Exception as e:
-        results.add_fail("Recipients Preview - Exception", f"Exception: {str(e)}")
+        log(f"✗ Test failed with exception: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+    finally:
+        r.close()
+        conn.close()
 
+def test_positive_with_name():
+    """TEST 2 - POSITIVE: Verify OTP with name fields creates user, then clean up"""
+    log("\n" + "="*80)
+    log("TEST 2 - POSITIVE: OTP verification WITH name fields")
+    log("="*80)
+    
+    # Generate unique email
+    timestamp = int(time.time() * 1000)
+    email = f"qa-namepos-{timestamp}@example.com"
+    log(f"Test email: {email}")
+    
+    # Connect to Redis and Postgres
+    r = connect_redis()
+    conn = connect_postgres()
+    
+    user_id = None
+    
+    try:
+        # Step 1: POST /api/user/registerEmail
+        log("\nStep 1: POST /api/user/registerEmail")
+        response = requests.post(
+            f"{BACKEND_URL}/user/registerEmail",
+            json={"email": email},
+            timeout=10
+        )
+        log(f"Response status: {response.status_code}")
+        log(f"Response body: {response.text}")
+        
+        if response.status_code != 200:
+            log(f"✗ Expected 200, got {response.status_code}")
+            return False
+        
+        log("✓ registerEmail returned 200")
+        
+        # Step 2: Read OTP from Redis
+        log("\nStep 2: Read OTP from Redis")
+        time.sleep(1)  # Give Redis a moment
+        otp = read_otp_from_redis(r, email)
+        
+        if not otp:
+            log("✗ Failed to read OTP from Redis")
+            return False
+        
+        # Step 3: POST /api/user/registerEmail/verify-otp WITH name fields
+        log("\nStep 3: POST /api/user/registerEmail/verify-otp (WITH name fields)")
+        response = requests.post(
+            f"{BACKEND_URL}/user/registerEmail/verify-otp",
+            json={
+                "email": email,
+                "otp": otp,
+                "first_name": "Ada",
+                "last_name": "Lovelace"
+            },
+            timeout=10
+        )
+        log(f"Response status: {response.status_code}")
+        log(f"Response body: {response.text}")
+        
+        if response.status_code != 200:
+            log(f"✗ Expected 200, got {response.status_code}")
+            return False
+        
+        # Check for accessToken in response
+        try:
+            response_data = response.json()
+            if not response_data.get("data", {}).get("accessToken"):
+                log(f"✗ Expected accessToken in response data")
+                return False
+        except:
+            log(f"✗ Failed to parse JSON response")
+            return False
+        
+        log("✓ verify-otp returned 200 with accessToken")
+        
+        # Step 4: Query tbl_user to verify account was created correctly
+        log("\nStep 4: Query tbl_user to verify account created with correct name")
+        time.sleep(1)  # Give DB a moment
+        user = query_user_by_email(conn, email)
+        
+        if not user:
+            log(f"✗ FAIL: No user account was created")
+            return False
+        
+        user_id, name, user_email, login_type = user
+        log(f"User found: user_id={user_id}, name='{name}', email='{user_email}', login_type='{login_type}'")
+        
+        # Verify name
+        if name != "Ada Lovelace":
+            log(f"✗ FAIL: Expected name='Ada Lovelace', got name='{name}'")
+            return False
+        
+        log("✓ Name is correct: 'Ada Lovelace'")
+        
+        # Verify login_type
+        if login_type != "EMAIL":
+            log(f"✗ FAIL: Expected login_type='EMAIL', got login_type='{login_type}'")
+            return False
+        
+        log("✓ login_type is correct: 'EMAIL'")
+        
+        # Step 5: CLEAN UP
+        log("\nStep 5: CLEAN UP - Delete test user")
+        cleanup_success = cleanup_user(conn, user_id)
+        
+        if not cleanup_success:
+            log(f"✗ WARNING: Cleanup failed, leftover user_id={user_id}")
+            log(f"  Manual cleanup required for: {email}")
+        
+        log("\n" + "="*80)
+        log("TEST 2 - POSITIVE: ✓✓✓ PASSED ✓✓✓")
+        log("="*80)
+        return True
+        
+    except Exception as e:
+        log(f"✗ Test failed with exception: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Attempt cleanup if we have a user_id
+        if user_id:
+            log(f"\nAttempting cleanup of user_id={user_id} after test failure...")
+            cleanup_user(conn, user_id)
+        
+        return False
+    finally:
+        r.close()
+        conn.close()
 
 def main():
-    print(f"{BLUE}{'='*80}{RESET}")
-    print(f"{BLUE}Dynopay Backend Bug Fix Verification{RESET}")
-    print(f"{BLUE}Session: 2026-09-07 (pod a7d8a15f){RESET}")
-    print(f"{BLUE}{'='*80}{RESET}")
-    print(f"Base URL: {BASE_URL}")
-    print(f"Test Account: {TEST_EMAIL}")
-    print(f"SAFE MODE: Live production Postgres (READ-ONLY where possible)")
+    """Run all tests"""
+    log("="*80)
+    log("DYNOPAY NAME CAPTURE FEATURE - BACKEND TESTS")
+    log("="*80)
+    log(f"Backend URL: {BACKEND_URL}")
+    log(f"Redis URL: {REDIS_URL[:50]}...")
+    log(f"Database URL: {DATABASE_URL[:50]}...")
     
-    results = TestResult()
+    results = []
     
-    # Step 1: Login (ONCE, reuse token)
-    token = login(results)
-    if not token:
-        print(f"\n{RED}CRITICAL: Login failed, cannot proceed with other tests{RESET}")
-        results.summary()
-        sys.exit(1)
+    # Run TEST 1 - NEGATIVE (primary, no side effects)
+    test1_passed = test_negative_no_name()
+    results.append(("TEST 1 - NEGATIVE (no name fields)", test1_passed))
     
-    # Step 2: Test weekly summary
-    test_weekly_summary(token, results)
-    
-    # Step 3: Test recipients preview (greeting fix)
-    test_recipients_preview(token, results)
+    # Run TEST 2 - POSITIVE (creates and cleans up)
+    test2_passed = test_positive_with_name()
+    results.append(("TEST 2 - POSITIVE (with name fields)", test2_passed))
     
     # Summary
-    success = results.summary()
+    log("\n" + "="*80)
+    log("TEST SUMMARY")
+    log("="*80)
+    for test_name, passed in results:
+        status = "✓ PASS" if passed else "✗ FAIL"
+        log(f"{status}: {test_name}")
     
-    if success:
-        print(f"\n{GREEN}{'='*80}{RESET}")
-        print(f"{GREEN}ALL TESTS PASSED ✓✓✓{RESET}")
-        print(f"{GREEN}{'='*80}{RESET}")
-        sys.exit(0)
+    all_passed = all(passed for _, passed in results)
+    
+    if all_passed:
+        log("\n✓✓✓ ALL TESTS PASSED ✓✓✓")
+        return 0
     else:
-        print(f"\n{RED}{'='*80}{RESET}")
-        print(f"{RED}SOME TESTS FAILED{RESET}")
-        print(f"{RED}{'='*80}{RESET}")
-        sys.exit(1)
-
+        log("\n✗✗✗ SOME TESTS FAILED ✗✗✗")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

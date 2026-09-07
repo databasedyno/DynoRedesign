@@ -213,7 +213,16 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
 
     const emailLower = email.toLowerCase().trim();
 
-    // Verify OTP from Redis
+    // Capture the person's name up-front (now collected on the OTP screen, product
+    // decision 2026-09-07). Stored as a single "First Last" string. Accept either
+    // structured {first_name,last_name} or a combined {name}. This is REQUIRED for
+    // new-account creation below; passwordless LOGIN of an existing account returns
+    // before the requirement, so returning users are unaffected.
+    const rawFirst = typeof req.body?.first_name === "string" ? req.body.first_name.trim() : "";
+    const rawLast = typeof req.body?.last_name === "string" ? req.body.last_name.trim() : "";
+    const fullName = (rawFirst || rawLast)
+      ? `${rawFirst} ${rawLast}`.replace(/\s+/g, " ").trim()
+      : (typeof req.body?.name === "string" ? req.body.name.replace(/\s+/g, " ").trim() : "");
     const otpKey = `otp:${emailLower}`;
     const item = await getRedisItem(otpKey);
 
@@ -277,13 +286,21 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
         ? rawVertical
         : null;
 
-    // Create user — no name, no password
+    // Guarantee a name is recorded for EVERY new account (product decision
+    // 2026-09-07). The email onboarding collects First + Last on the OTP screen,
+    // so a missing/blank name here means a malformed client request — reject it
+    // rather than silently create a nameless merchant.
+    if (!fullName || fullName.length < 2) {
+      return errorResponseHelper(res, 400, "Please enter your first and last name.");
+    }
+
+    // Create user — name captured on the OTP screen; no password (OTP-based)
     const photoLocation = await downloadUserImage();
     const photo = envRaw("SERVER_URL") + photoLocation;
     const userReferralCode = generateReferralCode();
 
     const createdUser = await userModel.create({
-      name: null,
+      name: fullName,
       email: emailLower,
       photo,
       password: null,
@@ -319,12 +336,12 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
 
     // Admin notification
     emailService.sendNewUserAdminNotification({
-      name: emailLower, email: emailLower, login_type: "Email",
+      name: fullName, email: emailLower, login_type: "Email",
       user_id: createdUser.dataValues.user_id,
     }).catch(err => userLogger.error("Admin notification error:", err));
 
     // Welcome email
-    emailService.sendWelcomeEmail(emailLower, "there").catch(err => {
+    emailService.sendWelcomeEmail(emailLower, rawFirst || fullName || "there").catch(err => {
       userLogger.error("Failed to send welcome email:", err);
     });
 

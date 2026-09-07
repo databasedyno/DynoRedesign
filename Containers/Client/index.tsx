@@ -6,6 +6,7 @@ import withAuth from "@/Components/Page/Common/HOC/withAuth";
 import { CompanySettingsDialogProvider } from "@/Components/UI/CompanySettingsDialog/context";
 import EmailVerificationBanner from "@/Components/UI/EmailVerificationBanner";
 import FeeFreeWelcomeModal from "@/Components/Modals/FeeFreeWelcomeModal";
+import NameGate from "@/Components/UI/NameGate";
 import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -307,6 +308,9 @@ const ClientLayout = ({
     />
     {/* Fee-free welcome (celebratory modal — shown once per user) */}
     <FeeFreeWelcomeModal />
+    {/* Name gate — forces name-less accounts (social logins / legacy) to add
+        their first + last name before using the app. No-ops when a name exists. */}
+    <NameGate />
     </>
   );
 };

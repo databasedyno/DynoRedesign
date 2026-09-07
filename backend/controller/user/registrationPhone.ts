@@ -249,13 +249,24 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
         ? rawVerticalPhone
         : null;
     
+    // Capture the person's name (now collected on the OTP screen). Stored as a
+    // single "First Last" string; REQUIRED so no account is created name-less.
+    const rawFirstPhone = typeof req.body?.first_name === "string" ? req.body.first_name.trim() : "";
+    const rawLastPhone = typeof req.body?.last_name === "string" ? req.body.last_name.trim() : "";
+    const fullNamePhone = (rawFirstPhone || rawLastPhone)
+      ? `${rawFirstPhone} ${rawLastPhone}`.replace(/\s+/g, " ").trim()
+      : (typeof req.body?.name === "string" ? req.body.name.replace(/\s+/g, " ").trim() : "");
+    if (!fullNamePhone || fullNamePhone.length < 2) {
+      return errorResponseHelper(res, 400, "Please enter your first and last name.");
+    }
+
     const photoLocation = await downloadUserImage();
     const photo = envRaw("SERVER_URL") + photoLocation;
     const userReferralCode = generateReferralCode();
     
-    // Create user with mobile only — no name, no password
+    // Create user with mobile + name; no password
     const createdUser = await userModel.create({
-      name: null,
+      name: fullNamePhone,
       mobile,
       email: null,
       photo,
@@ -293,7 +304,7 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     userLogger.info(`[RegisterPhone] User registered via simplified phone flow: ${mobile}${attrLogSuffixPhone}`);
 
     emailService.sendNewUserAdminNotification({
-      name: mobile, mobile, login_type: "SMS",
+      name: fullNamePhone || mobile, mobile, login_type: "SMS",
       user_id: createdUser.dataValues.user_id,
     }).catch(err => userLogger.error("Admin notification error:", err));
     

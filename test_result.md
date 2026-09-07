@@ -1,4 +1,49 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-07 (pod a7d8a15f): FEATURE — capture first+last name for ALL onboarding
+#   Problem: admin "New Merchant Registration" email showed the EMAIL as the Name.
+#   Root cause (confirmed via DO logs + DB): email signup created the account with
+#   name=NULL at OTP-verify and fired the admin email THERE (before a separate,
+#   skippable name screen). ~18/134 users ended up name-less (12 EMAIL, 5 GOOGLE, 1 SMS).
+#   No user actually had email-as-name stored (name==email count = 0) — it was a
+#   placeholder/timing artifact. User approved: 1a collect name on OTP screen + store
+#   at creation, 2a single "name"="First Last" (no schema change), 3a gate dashboard for
+#   name-less users, 4a backfill the 18 via that same gate on next login.
+#
+#   CHANGES:
+#   Backend (name now REQUIRED + stored at account creation; admin email uses real name):
+#     - controller/user/registrationEmail.ts (registerEmailVerifyOtp): parse first_name/
+#       last_name (or name), reject if blank (400 "Please enter your first and last
+#       name."), store name; admin+welcome use it. Passwordless LOGIN of existing account
+#       returns earlier → unaffected.
+#     - controller/user/registrationPhone.ts: same treatment.
+#     - controller/user/socialAuth.ts (Google new user): store null when Google returns no
+#       name (so the gate catches them); admin email falls back to the email for a usable id.
+#   Frontend:
+#     - pages/auth/register.tsx: First+Last inputs moved ONTO the OTP step (shown when
+#       !accountExists); handleVerifyOtp validates + sends name to verify-otp; new signups
+#       go straight to success (old separate "name" step + handleSubmitName removed).
+#     - Components/UI/NameGate/index.tsx (NEW) + mounted in Containers/Client/index.tsx:
+#       blocking dialog for authenticated users whose token name is blank → PUT
+#       user/updateUser {name} → reload. Covers name-less social logins AND the 18 legacy.
+#
+#   TEST CREDS: onarrival21@gmail.com / Katiekendra123@ (user_id=1). Backend base :8001,
+#   routes under /api. Redis: backend/.env REDIS_PUBLIC_URL. DB: backend/.env DATABASE_URL.
+#   NOTE: pod is on the LIVE prod DB — test with throwaway emails and CLEAN UP any created
+#   test users; the negative test creates NO user (preferred).
+#
+#   BACKEND TEST FOCUS:
+#   1) NEGATIVE (side-effect-free, primary): POST /api/user/registerEmail {email: throwaway
+#      @example.com} -> 200 (no user yet). Read OTP from Redis key otp:<emailLower>
+#      (REDIS_PUBLIC_URL). POST /api/user/registerEmail/verify-otp {email, otp} WITHOUT
+#      name -> expect HTTP 400 "first and last name". Confirm NO tbl_user row for that email.
+#   2) POSITIVE (clean up after): fresh OTP for another throwaway email -> verify-otp
+#      {email, otp, first_name:"Ada", last_name:"Lovelace"} -> 200; assert tbl_user.name ==
+#      "Ada Lovelace"; then DELETE that test user (+ child rows) to keep prod clean; report
+#      the user_id. (This path sends one admin+welcome email — acceptable, labeled test.)
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-07 (pod a7d8a15f): SEO — favicon <head> consolidation + cache-bust
 #   Context: Google search result still shows the OLD Dynopay logo. Verified the SITE
 #   already serves the NEW mark everywhere (favicon.ico/svg/48/192/512 + apple-touch +

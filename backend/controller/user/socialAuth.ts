@@ -142,7 +142,7 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
     const photoUrl = picture || envRaw("SERVER_URL") + (await downloadUserImage());
     
     const createdUser = await userModel.create({
-      name: name || email.split("@")[0],
+      name: name || null,
       email: email.toLowerCase(),
       photo: photoUrl,
       login_type: "GOOGLE",
@@ -171,7 +171,7 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
 
     // Send welcome email
     try {
-      await emailService.sendWelcomeEmail(email.toLowerCase(), name || email.split("@")[0]);
+      await emailService.sendWelcomeEmail(email.toLowerCase(), name || "there");
     } catch (emailError) {
       // Log error but don't fail registration
       userLogger.error("Error sending welcome email:", emailError);
@@ -179,9 +179,12 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
 
     userLogger.info(`New user registered via Google: ${email}`);
 
-    // Notify admin of new user registration (non-blocking)
+    // Notify admin of new user registration (non-blocking). If Google returned no
+    // name, the account is created name-less and the merchant is forced to complete
+    // it via the dashboard name-gate; show the email here so the admin still has a
+    // usable identifier (never a broken "first word of a company" style value).
     emailService.sendNewUserAdminNotification({
-      name: name || email.split("@")[0], email: email.toLowerCase(),
+      name: name || email.toLowerCase(), email: email.toLowerCase(),
       login_type: "Google", user_id: createdUser.dataValues.user_id,
     }).catch(err => userLogger.error("Admin notification error:", err));
 

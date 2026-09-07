@@ -414,6 +414,18 @@ const Register = () => {
       return;
     }
 
+    // NEW signups must provide their name (collected on this screen) so the account
+    // is created WITH a name — never nameless. Existing-account OTP logins skip this.
+    const isNewSignup = !accountExists;
+    const first = firstName.trim();
+    const last = lastName.trim();
+    if (isNewSignup) {
+      if (!first) { setNameError(t("nameFirstRequired", { defaultValue: "First name is required" })); return; }
+      if (!last) { setNameError(t("nameLastRequired", { defaultValue: "Last name is required" })); return; }
+      setNameError("");
+    }
+    const fullName = `${first} ${last}`.replace(/\s+/g, " ").trim();
+
     setOtpError("");
     setLoading(true);
 
@@ -424,6 +436,9 @@ const Register = () => {
         response = await axiosBaseApi.post(API_ENDPOINTS.user.registerEmailVerifyOtp, {
           email: email.toLowerCase().trim(),
           otp: otpCode,
+          first_name: isNewSignup ? first : undefined,
+          last_name: isNewSignup ? last : undefined,
+          name: isNewSignup ? fullName : undefined,
           language: i18n.language,
           attribution: attribution || undefined,
         });
@@ -432,6 +447,9 @@ const Register = () => {
         response = await axiosBaseApi.post(API_ENDPOINTS.user.registerPhoneVerify, {
           mobile: digits,
           otp: otpCode,
+          first_name: isNewSignup ? first : undefined,
+          last_name: isNewSignup ? last : undefined,
+          name: isNewSignup ? fullName : undefined,
           language: i18n.language,
           attribution: attribution || undefined,
         });
@@ -452,26 +470,18 @@ const Register = () => {
             severity: "success",
           },
         });
-        // NEW email/phone accounts: collect the person's name before entering
-        // the app so brand forms + receipts are personalized. Existing-account
-        // logins skip straight to the dashboard (unchanged behaviour).
-        if (!isLogin) {
-          setFirstName("");
-          setLastName("");
-          setNameError("");
-          setStep("name");
-          return;
-        }
+        // NEW signups now provide their name on the OTP screen, so the account is
+        // already created WITH a name — go straight to success. Existing-account
+        // logins are unchanged.
         setStep("success");
         // Auto redirect after brief success display.
-        //
-        // Vertical-specific onboarding routing (design audit 2026-08-05):
         //   • Existing (logged-in) users → /dashboard (unchanged behaviour)
         //   • New signups with a purpose_vertical → the matching first-run
         //     setup surface (creator handle / product / donation link / API keys)
         //   • New signups without a vertical (skipped the picker) → /dashboard
         setTimeout(() => {
-          router.push("/dashboard");
+          const dest = isLogin ? undefined : verticalToOnboarding(vertical);
+          router.push(dest?.path ?? "/dashboard");
         }, 1500);
       } else {
         setOtpError("Account creation failed. Please try again.");
@@ -482,50 +492,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  }, [method, email, phone, accountExists, dispatch, router, i18n.language, getSeoAttribution, vertical]);
-
-  // ─── Step 2b: Save the person's name (new email/phone accounts only) ───
-  const handleSubmitName = useCallback(async () => {
-    const first = firstName.trim();
-    const last = lastName.trim();
-    if (!first) {
-      setNameError(t("nameFirstRequired", { defaultValue: "First name is required" }));
-      return;
-    }
-    if (!last) {
-      setNameError(t("nameLastRequired", { defaultValue: "Last name is required" }));
-      return;
-    }
-    setNameError("");
-    setLoading(true);
-    try {
-      const fullName = `${first} ${last}`.trim();
-      const fd = new FormData();
-      fd.append("data", JSON.stringify({ name: fullName }));
-      const res = await axiosBaseApi.put("user/updateUser", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const d = res?.data?.data;
-      // Refresh auth state with the new name (token + redux top-level name) so
-      // every downstream brand form prefills it.
-      if (d?.accessToken) {
-        dispatch({
-          type: USER_LOGIN,
-          payload: { ...(d.userData || {}), accessToken: d.accessToken },
-        });
-      }
-      setStep("success");
-      setTimeout(() => {
-        const dest = verticalToOnboarding(vertical);
-        router.push(dest?.path ?? "/dashboard");
-      }, 1500);
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || t("nameSaveFailed", { defaultValue: "Couldn't save your name. Please try again." });
-      setNameError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [firstName, lastName, dispatch, router, vertical, t]);
+  }, [method, email, phone, accountExists, firstName, lastName, dispatch, router, i18n.language, getSeoAttribution, vertical, t]);
 
   // ─── Resend OTP ───
   const handleResendOtp = useCallback(async () => {
@@ -982,6 +949,43 @@ const Register = () => {
                     )}
                   </Box>
 
+                  {/* NEW signups enter their name here so the account is created
+                      WITH a first + last name. Hidden for existing-account OTP logins. */}
+                  {!accountExists && (
+                    <Box sx={{ mb: 2.5, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                      <Box sx={{ display: "flex", gap: 1.5, flexDirection: isMobile ? "column" : "row" }}>
+                        <Box sx={{ flex: 1 }}>
+                          <InputField
+                            data-testid="register-first-name-input"
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => { setFirstName(e.target.value); if (nameError) setNameError(""); }}
+                            label={t("nameFirstLabel", { defaultValue: "First name" })}
+                            placeholder={t("nameFirstLabel", { defaultValue: "First name" })}
+                          />
+                        </Box>
+                        <Box sx={{ flex: 1 }}>
+                          <InputField
+                            data-testid="register-last-name-input"
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => { setLastName(e.target.value); if (nameError) setNameError(""); }}
+                            label={t("nameLastLabel", { defaultValue: "Last name" })}
+                            placeholder={t("nameLastLabel", { defaultValue: "Last name" })}
+                          />
+                        </Box>
+                      </Box>
+                      {nameError && (
+                        <Typography
+                          data-testid="register-name-error"
+                          sx={{ fontSize: "13px", color: "error.main", fontFamily: "var(--font-sans)" }}
+                        >
+                          {nameError}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+
                   {/* Shared OTP block — auto-submits the moment 6 digits are entered */}
                   <OtpInputPanel
                     contactType={method === "email" ? "email" : "phone"}
@@ -1016,67 +1020,6 @@ const Register = () => {
                     </Link>
                   </Box>
                 </>
-              )}
-
-              {/* ─── STEP 2b: Name ─── */}
-              {step === "name" && (
-                <Box data-testid="register-name-step">
-                  <TitleDescription
-                    title={t("namePromptTitle", { defaultValue: "What's your name?" })}
-                    description={t("namePromptDescription", {
-                      defaultValue:
-                        "Tell us who you are so we can personalize your account and receipts.",
-                    })}
-                    descriptionFontSize="14px"
-                    descriptionColor={theme.palette.text.secondary}
-                  />
-                  <Box sx={{ mt: 2.5, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                    <Box sx={{ display: "flex", gap: 1.5, flexDirection: isMobile ? "column" : "row" }}>
-                      <Box sx={{ flex: 1 }}>
-                        <InputField
-                          data-testid="register-first-name-input"
-                          type="text"
-                          value={firstName}
-                          onChange={(e) => { setFirstName(e.target.value); if (nameError) setNameError(""); }}
-                          onKeyDown={(e) => { if (e.key === "Enter") handleSubmitName(); }}
-                          label={t("nameFirstLabel", { defaultValue: "First name" })}
-                          placeholder={t("nameFirstLabel", { defaultValue: "First name" })}
-                        />
-                      </Box>
-                      <Box sx={{ flex: 1 }}>
-                        <InputField
-                          data-testid="register-last-name-input"
-                          type="text"
-                          value={lastName}
-                          onChange={(e) => { setLastName(e.target.value); if (nameError) setNameError(""); }}
-                          onKeyDown={(e) => { if (e.key === "Enter") handleSubmitName(); }}
-                          label={t("nameLastLabel", { defaultValue: "Last name" })}
-                          placeholder={t("nameLastLabel", { defaultValue: "Last name" })}
-                        />
-                      </Box>
-                    </Box>
-                    {nameError && (
-                      <Typography
-                        data-testid="register-name-error"
-                        sx={{ fontSize: "13px", color: "error.main", fontFamily: "var(--font-sans)" }}
-                      >
-                        {nameError}
-                      </Typography>
-                    )}
-                    <CustomButton
-                      data-testid="register-name-submit"
-                      variant="primary"
-                      size="medium"
-                      label={t("nameSaveContinue", { defaultValue: "Save & continue" })}
-                      onClick={handleSubmitName}
-                      disabled={loading}
-                      fullWidth
-                      sx={{ fontWeight: 700, padding: "13px 24px", borderRadius: "12px", fontSize: "15px", mt: 0.5 }}
-                      endIcon={loading ? <LoadingSpinner size={18} /> : undefined}
-                      hideLabelWhenLoading={true}
-                    />
-                  </Box>
-                </Box>
               )}
 
               {/* ─── STEP 3: Success ─── */}
