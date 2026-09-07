@@ -86,10 +86,10 @@ const FeesPage = () => {
   const [payAmount, setPayAmount] = useState(100);
   const [currency, setCurrency] = useState("USDT-TRC20");
   const selCur = SETTLE_CURRENCIES.find((c) => c.code === currency) || SETTLE_CURRENCIES[0];
-  const platformFee = (payAmount * tier.pct) / 100 + 1; // tier % + $1 fixed per payment
+  // Public calculator only surfaces the on-chain network fee; the platform fee
+  // (tier % + fixed) is intentionally omitted here and shown on the invoice instead.
   const blockchainFee = selCur.netFee;
-  const totalFee = platformFee + blockchainFee;
-  const netToMerchant = Math.max(0, payAmount - totalFee);
+  const netToMerchant = Math.max(0, payAmount - blockchainFee);
 
   const scrollToCalc = useCallback(() => {
     const el = document.getElementById("fee-calculator");
@@ -466,9 +466,7 @@ const FeesPage = () => {
                   <Box sx={{ border: `1px solid ${s.line}`, borderRadius: "16px", overflow: "hidden" }}>
                     {[
                       { label: t("v3.bdPaymentAmount", { defaultValue: "Payment amount" }), value: fmtMoney(payAmount), sub: null as string | null },
-                      { label: t("v3.bdPlatformFee", { defaultValue: "Platform fee" }), value: fmtMoney(platformFee), sub: `${tier.pct}% + $1` },
                       { label: t("v3.bdBlockchainFee", { defaultValue: "Blockchain / network fee" }), value: fmtMoney(blockchainFee), sub: selCur.label },
-                      { label: t("v3.bdTotalFee", { defaultValue: "Total fee" }), value: fmtMoney(totalFee), sub: null as string | null },
                     ].map((row, i) => (
                       <Box key={i} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, py: 1.75, borderBottom: `1px solid ${s.line}` }}>
                         <Box>

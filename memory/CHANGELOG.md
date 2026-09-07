@@ -14,8 +14,10 @@
 #       pages/help-support/index.tsx and pages/help-support/[slug].tsx so content aligns with header/footer.
 #   #35 Back-button scroll restore — experimental.scrollRestoration:true (next.config.mjs).
 #   #36 Mobile hamburger blank after search — NOT reproducible on current build (MobilePanel rewrite already fixed it).
-#   #47 Fee calculator — added per-payment breakdown (Payment/Platform/Blockchain/Total/Net) + settlement-currency
-#       selector (pages/fees.tsx).
+#   #47 Fee calculator — added per-payment breakdown + settlement-currency selector (pages/fees.tsx).
+#       2026-09-07 refinement (user request): the public calculator now HIDES the platform fee (tier % + $1)
+#       and shows only Payment amount → Blockchain/network fee → Net to merchant (net = amount − network fee),
+#       so the receiving amount reads higher; full fee detail stays on the invoice.
 #   #52 Docs response example — replaced bare … with valid quoted chain "USDT-BEP20" (pages/documentation.tsx L396).
 #   Verified: testing agent 8/8 PASS (test_reports/iteration_131.json). Board stamped (comment ids 58-65),
 #   /quality now shows "Awaiting retest: 8", Fail: 0. QA passcode Dynopay123@. NOT yet deployed to production.
