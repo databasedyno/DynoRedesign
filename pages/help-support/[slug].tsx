@@ -83,16 +83,43 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
   const LOCALES = ["en", "pt", "fr", "es", "de", "nl"];
 
   const handleFeedback = async (isHelpful: boolean) => {
-    if (!article?.article_id || feedbackSubmitted) return;
+    if (feedbackSubmitted) return;
     try {
-      await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedback(article.article_id), {
-        is_helpful: isHelpful,
-      });
+      if (article?.article_id) {
+        await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedback(article.article_id), {
+          is_helpful: isHelpful,
+        });
+      } else if (slug) {
+        // Static / hand-authored article — record feedback by slug (QA PUB-007 #5).
+        await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedbackBySlug(slug), {
+          is_helpful: isHelpful,
+        });
+      } else {
+        return;
+      }
       setFeedbackSubmitted(true);
     } catch {
       // Silently fail
     }
   };
+
+  // Shared "Was this article helpful?" widget — used by both DB-backed and
+  // static articles so every help article can collect feedback (QA PUB-007 #5).
+  const feedbackBox = (
+    <Box sx={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.border.main}`, borderRadius: "14px", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+      {feedbackSubmitted ? (
+        <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("feedbackThanks")}</Typography>
+      ) : (
+        <>
+          <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("wasArticleHelpful")}</Typography>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button data-testid="help-feedback-yes" onClick={() => handleFeedback(true)} startIcon={<ThumbUpIcon />} sx={{ border: `1px solid ${theme.palette.border.main}`, borderRadius: "8px", color: theme.palette.text.primary, textTransform: "none", fontFamily: "var(--font-sans)", px: 3, "&:hover": { backgroundColor: "rgba(0, 200, 83, 0.08)", borderColor: "#00C853" } }}>Yes</Button>
+            <Button data-testid="help-feedback-no" onClick={() => handleFeedback(false)} startIcon={<ThumbDownIcon />} sx={{ border: `1px solid ${theme.palette.border.main}`, borderRadius: "8px", color: theme.palette.text.primary, textTransform: "none", fontFamily: "var(--font-sans)", px: 3, "&:hover": { backgroundColor: "rgba(255, 0, 0, 0.08)", borderColor: "#FF0000" } }}>No</Button>
+          </Box>
+        </>
+      )}
+    </Box>
+  );
 
   const head = (
     <Head>
@@ -118,8 +145,13 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     return (
       <>
         {head}
-        <Box sx={{ flex: 1, display: "flex", minHeight: 0, pt: { xs: 2, md: 3.5 }, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" }, ...(Bespoke ? {} : { pb: { xs: "12px", md: "20px" }, overflowY: "auto" }) }}>
-          {Bespoke ? <Bespoke data={stub} /> : <HelpArticleBody slug={slug} title={title} />}
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, width: "100%", overflowY: "auto" }}>
+          <Box sx={{ display: "flex", pt: { xs: 2, md: 3.5 }, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
+            {Bespoke ? <Bespoke data={stub} /> : <HelpArticleBody slug={slug} title={title} />}
+          </Box>
+          <Box sx={{ width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" }, pb: { xs: "16px", md: "24px" }, mt: 3 }}>
+            <Box sx={{ maxWidth: 728 }}>{feedbackBox}</Box>
+          </Box>
         </Box>
       </>
     );
@@ -177,19 +209,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
                 }}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
               />
-              <Box sx={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.border.main}`, borderRadius: "14px", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                {feedbackSubmitted ? (
-                  <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("feedbackThanks")}</Typography>
-                ) : (
-                  <>
-                    <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("wasArticleHelpful")}</Typography>
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                      <Button onClick={() => handleFeedback(true)} startIcon={<ThumbUpIcon />} sx={{ border: `1px solid ${theme.palette.border.main}`, borderRadius: "8px", color: theme.palette.text.primary, textTransform: "none", fontFamily: "var(--font-sans)", px: 3, "&:hover": { backgroundColor: "rgba(0, 200, 83, 0.08)", borderColor: "#00C853" } }}>Yes</Button>
-                      <Button onClick={() => handleFeedback(false)} startIcon={<ThumbDownIcon />} sx={{ border: `1px solid ${theme.palette.border.main}`, borderRadius: "8px", color: theme.palette.text.primary, textTransform: "none", fontFamily: "var(--font-sans)", px: 3, "&:hover": { backgroundColor: "rgba(255, 0, 0, 0.08)", borderColor: "#FF0000" } }}>No</Button>
-                    </Box>
-                  </>
-                )}
-              </Box>
+              {feedbackBox}
             </Box>
           </Box>
         </Box>
@@ -215,6 +235,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
               {t("articleStubMore", { defaultValue: "Need a hand with this topic? Our support team is available in the dashboard and at support@dynopay.com." })}
             </Typography>
           </Box>
+          {feedbackBox}
         </Box>
       </Box>
     </>

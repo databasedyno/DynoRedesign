@@ -144,6 +144,7 @@ export const API_ENDPOINTS = {
     articles: "/kb/articles?limit=20",
     article: (slug: PathId) => `/kb/articles/${slug}`,
     articleFeedback: (articleId: PathId) => `/kb/articles/${articleId}/feedback`,
+    articleFeedbackBySlug: (slug: PathId) => `/kb/articles/by-slug/${slug}/feedback`,
     search: (q: string) => `/kb/search?q=${q}&limit=20`,
   },
 

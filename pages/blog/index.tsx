@@ -29,6 +29,21 @@ const BlogPage = () => {
   const isMobile = useIsMobile("md");
   const isDark = theme.palette.mode === "dark";
 
+  // ── Category filter (QA PUB-007 #2: category label was not clickable) ──
+  // Users can now filter the blog by category. Default = "All".
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
+  const categories = React.useMemo(
+    () => Array.from(new Set(blogPosts.map((p) => p.category))),
+    []
+  );
+  const visiblePosts = React.useMemo(
+    () =>
+      selectedCategory
+        ? blogPosts.filter((p) => p.category === selectedCategory)
+        : blogPosts,
+    [selectedCategory]
+  );
+
   return (
     <>
       <Head>
@@ -62,9 +77,55 @@ const BlogPage = () => {
           </Body>
         </Box>
 
+        {/* Category filter — clickable chips (QA PUB-007 #2) */}
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 1.25,
+            mb: isMobile ? 4 : 6,
+          }}
+        >
+          {[null, ...categories].map((cat) => {
+            const label = cat === null ? t("blogIndex.allCategories", { defaultValue: "All" }) : cat;
+            const isActive = selectedCategory === cat;
+            const chipColor = cat ? categoryColors[cat] || brandFg(isDark) : brandFg(isDark);
+            return (
+              <Box
+                key={label}
+                component="button"
+                type="button"
+                data-testid={`blog-category-filter-${cat === null ? "all" : cat.replace(/\s+/g, "-").toLowerCase()}`}
+                onClick={() => setSelectedCategory(cat)}
+                sx={{
+                  cursor: "pointer",
+                  px: 2,
+                  py: 0.75,
+                  borderRadius: "999px",
+                  fontFamily: "var(--font-tech), monospace",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  color: isActive ? "#fff" : chipColor,
+                  bgcolor: isActive ? chipColor : `${chipColor}15`,
+                  border: `1px solid ${isActive ? chipColor : `${chipColor}30`}`,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: isActive ? chipColor : `${chipColor}25`,
+                  },
+                }}
+              >
+                {label}
+              </Box>
+            );
+          })}
+        </Box>
+
         {/* Blog grid */}
         <Grid container spacing={isMobile ? 2 : 3}>
-          {blogPosts.map((post) => {
+          {visiblePosts.map((post) => {
             const catColor = categoryColors[post.category] || brandFg(isDark);
             return (
               <Grid item xs={12} md={6} key={post.slug}>
@@ -124,12 +185,23 @@ const BlogPage = () => {
                   {/* Category + Read time */}
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
                     <Box
+                      component="span"
+                      role="button"
+                      tabIndex={0}
+                      data-testid={`blog-card-category-${post.slug}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCategory(post.category);
+                      }}
                       sx={{
                         px: 1.5,
                         py: 0.4,
                         borderRadius: "8px",
                         bgcolor: `${catColor}15`,
                         border: `1px solid ${catColor}30`,
+                        cursor: "pointer",
+                        transition: "background-color 0.2s ease",
+                        "&:hover": { bgcolor: `${catColor}25` },
                       }}
                     >
                       <Typography

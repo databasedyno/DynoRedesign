@@ -41,6 +41,12 @@ const EXEMPT_PATHS = [
   "/api/veriff",
   "/api/kyc/webhook",
   "/api/kb/webhook",
+  // Public "Was this article helpful?" feedback — anonymous & fire-and-forget:
+  // only inserts a vote row / increments a counter (no auth, no funds, no PII).
+  // Same rationale as /api/track/visitor. Covers both the id- and slug-based
+  // feedback routes; the only write under /api/kb/articles/ is feedback (admin
+  // article writes live under /api/kb/admin/).
+  "/api/kb/articles/",
   "/api/support/chat",
   "/api/admin/login",
   "/api/user/login",

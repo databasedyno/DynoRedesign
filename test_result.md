@@ -1,4 +1,40 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-07 (pod 16b3e2ca): QA BOARD FIXES round 2
+#   Ignoring Facebook (AUTH-006) per user. Verified prior fixes still in place
+#   (custom::13 email subject, custom::14 Google redirect). Two NEW code fixes:
+#
+#   FIX A (QA PUB-007 #2) — Blog category was a plain label, not clickable / no
+#     filtering. pages/blog/index.tsx now has: (1) a clickable category filter bar
+#     ("All" + each category) and (2) clickable per-card category chips
+#     (stopPropagation so they filter instead of opening the post). Frontend-only,
+#     verified via screenshots (desktop + mobile), no horizontal overflow.
+#
+#   FIX B (QA PUB-007 #5) — "Was this helpful?" feedback existed ONLY on DB-backed
+#     help articles (help-support/[slug].tsx case 2). Static hand-authored + stub
+#     articles had no widget. Added:
+#       - Backend: POST /api/kb/articles/by-slug/:slug/feedback
+#         (controller submitStaticArticleFeedback). If a published DB article owns
+#         the slug -> records against it (tbl_kb_article_feedback + counters).
+#         Else -> writes to NEW additive table tbl_kb_static_feedback (idempotent
+#         .sync via ensureKbStaticFeedbackTable). No existing schema touched.
+#       - Frontend: shared feedbackBox rendered in all 3 render branches; static
+#         articles submit by slug (API_ENDPOINTS.kb.articleFeedbackBySlug).
+#
+#   BACKEND TEST FOCUS (CSRF: GET /api/csrf-token first -> capture dynopay_csrf
+#   cookie + csrf_token, then send header x-csrf-token on POSTs):
+#   1) POST /api/kb/articles/by-slug/qa-test-<ts>/feedback {is_helpful:true}
+#      -> 200 {message:"Thank you for your feedback!"}. (Creates tbl_kb_static_feedback
+#      on first call — brand-new table, safe.)
+#   2) Same endpoint {is_helpful:false} -> 200. Missing/invalid is_helpful -> 400.
+#   3) Regression: existing POST /api/kb/articles/:id/feedback with a bogus id
+#      (e.g. 99999999) + valid CSRF -> 404 "Article not found" (route still works).
+#   4) GET /health -> healthy. NOTE: preview shares the LIVE prod DB; only writes are
+#      to the new tbl_kb_static_feedback (test rows) — acceptable per user.
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-07 (pod abb64ed6): QA BOARD FIXES (custom::14, custom::13 + social redirect)
 #
 #   Pulled live QA board (tbl_qa_comment, latest-comment-per-item). Fixed the 2 FAILs:
