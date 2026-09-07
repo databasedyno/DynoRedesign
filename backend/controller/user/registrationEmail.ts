@@ -196,8 +196,12 @@ export const registerEmailStep1 = async (req: express.Request, res: express.Resp
       await setRedisItemWithTTL(`reg-vertical:${emailLower}`, { purpose_vertical: purposeVertical }, 900);
     }
 
-    // Send OTP via email
-    const sent = await sendEmailOTP(emailLower, "there");
+    // Send OTP via email — signup-specific subject/body so the verification
+    // code clearly reads as a sign-up code, not a "login" code (QA custom::13).
+    const sent = await sendEmailOTP(emailLower, "there", {
+      subject: "Verify your email to finish signing up · Dynopay",
+      intro: "Welcome to Dynopay! Here is your sign-up verification code: ",
+    });
     if (!sent) {
       return errorResponseHelper(res, 503, "Unable to send verification code. Please try again.");
     }

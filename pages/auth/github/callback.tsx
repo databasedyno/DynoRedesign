@@ -95,9 +95,12 @@ const GithubCallback = () => {
     exchange();
   }, [router.isReady]); // eslint-disable-line
 
-  // Once the session lands in the store, go to the dashboard
+  // Once the session lands in the store, go to the dashboard. Gate on the
+  // session (email) not the name — a GitHub account with only a username is
+  // stored name-less on purpose, and must still reach the dashboard where the
+  // NameGate collects a real first + last name.
   useEffect(() => {
-    if (userState.name) {
+    if (userState.email || userState.name) {
       router.replace("/dashboard");
     }
   }, [userState]); // eslint-disable-line

@@ -195,9 +195,12 @@ export default function Login() {
     password: yup.string().required("passwordRequired"),
   });
 
-  // Navigate to home if user is logged in (but not in password recovery mode)
+  // Navigate to home if user is logged in (but not in password recovery mode).
+  // Gate on the session (email OR name) so name-less social logins (e.g. a
+  // GitHub username-only account) still reach the dashboard + NameGate; phone
+  // users have no email but always have a name, so both paths stay covered.
   useEffect(() => {
-    if (userState.name && !isPasswordRecoveryMode) {
+    if ((userState.email || userState.name) && !isPasswordRecoveryMode) {
       setShowSuccessAnimation(true);
       setEmailOtpDialogOpen(false);
       // Reset login OTP state on successful login

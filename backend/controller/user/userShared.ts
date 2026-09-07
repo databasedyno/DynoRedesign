@@ -323,15 +323,23 @@ export const getAccessToken = async (id: number) => {
 /**
  * Helper: Send OTP via email and store in Redis.
  * Returns true on success, false on failure.
+ *
+ * `opts.subject` / `opts.intro` let callers tailor the wording per purpose so a
+ * SIGN-UP verification code doesn't read like a "login" code (QA custom::13).
+ * Defaults keep the original login copy for the existing passwordless-login path.
  */
-export const sendEmailOTP = async (email: string, name: string): Promise<boolean> => {
+export const sendEmailOTP = async (
+  email: string,
+  name: string,
+  opts?: { subject?: string; intro?: string }
+): Promise<boolean> => {
   try {
     const randomNumberOTP = generateOtpCode();
     await sendEmail(
       email,
       name,
-      "OTP for login",
-      "Here is your login code: " + randomNumberOTP
+      opts?.subject || "OTP for login",
+      (opts?.intro ?? "Here is your login code: ") + randomNumberOTP
     );
     // Store OTP in Redis with 10-minute TTL
     const otpKey = `otp:${email}`;

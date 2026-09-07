@@ -1,4 +1,55 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-07 (pod abb64ed6): QA BOARD FIXES (custom::14, custom::13 + social redirect)
+#
+#   Pulled live QA board (tbl_qa_comment, latest-comment-per-item). Fixed the 2 FAILs:
+#
+#   FIX #1 (QA custom::14) — Google signup for an already-registered account showed
+#     "Login successful" but stayed on the signup page. Root cause: pages/auth/register.tsx
+#     Google callback dispatched USER_LOGIN but never navigated (the login page + email-OTP
+#     path do). Fix: after USER_LOGIN, setStep("success") + router.push("/dashboard"); added
+#     router to the useCallback deps. NOTE: cannot be OAuth-automated in preview (no Google
+#     creds) — verified by lint + tsc + code review.
+#
+#   FIX #1b (regression guard from the earlier GitHub-name change) — post-login redirects
+#     gated on userState.name, but a GitHub username-only / Google no-name account is now
+#     stored name-less on purpose, so it would get stuck. Changed gates to (email || name):
+#       - pages/auth/github/callback.tsx  (userState.email || userState.name)
+#       - pages/auth/login.tsx            ((userState.email || userState.name) && !recovery)
+#     Phone users have a name but no email; social users always have an email → both covered.
+#
+#   FIX #2 (QA custom::13) — registration email OTP subject read "OTP for login". Root cause:
+#     registerEmailStep1 sent via sendEmailOTP() whose subject is hardcoded "OTP for login".
+#     Fix: sendEmailOTP(email, name, opts?{subject,intro}) — registration now passes
+#     subject "Verify your email to finish signing up · Dynopay" + a sign-up body; the
+#     existing passwordless-LOGIN branch keeps the "OTP for login" copy. (userShared.ts,
+#     registrationEmail.ts)
+#
+#   OTHER QA ITEMS (investigated — NOT code bugs / need input, see chat):
+#     - AUTH-003 set-password: FULLY built (Components/Page/Profile/UpdatePassword.tsx mounted
+#       on ProfilePage; backend /user/profile/set-password + request-password-otp exist;
+#       profile returns has_password). Blocked in QA only because outbound EMAIL is OFF here.
+#     - AUTH-002 phone dup-check: blocked by SMS OFF in preview (env), not code.
+#     - AUTH-006 Facebook: backend /facebook-signin exists but NO Facebook env keys + no UI
+#       button — needs FB App credentials to implement (awaiting user).
+#     - PUB-007 KB feedback: "Was this helpful?" widget exists for DB-backed articles only
+#       (help-support/[slug].tsx case 2); static stub articles have no article_id/widget —
+#       needs a slug-based feedback endpoint + table (prod migration) — awaiting user.
+#
+#   BACKEND TEST FOCUS (no prod DB writes; email suppressed but subject is logged):
+#   1) POST http://localhost:8001/api/user/registerEmail {email:"otpsubj_<ts>@example.com"} -> 200.
+#      Then grep backend logs (/var/log/supervisor/backend.*.log) for the most recent
+#      "[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=otpsubj_<ts>@example.com | subject=..."
+#      ASSERT subject == "Verify your email to finish signing up · Dynopay" (NOT "OTP for login").
+#      registerEmail step1 does NOT create a tbl_user row (only writes Redis otp:<email>) — confirm.
+#   2) Regression: POST /api/user/registerEmail {email:"onarrival21@gmail.com"} (EXISTING account)
+#      -> triggers the passwordless-LOGIN branch. Grep logs: subject == "OTP for login". Confirms
+#      the login OTP copy is unchanged. (Do NOT complete any OTP; no login performed.)
+#   3) GET /health -> healthy.
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-07 (pod abb64ed6): WARMER EMAIL GREETINGS (first_name)
 #   Follow-up to Split Name Fields. Merchant-facing emails must greet by FIRST name
 #   ("Hey John,") not the full name ("Hey John Davis,").
@@ -2826,5 +2877,72 @@
 #   - All data-testids present for future testing
 #   - No critical issues found
 #   - Safe to deploy to production
+# ============================================================================
+
+
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-07: QA custom::13 EMAIL SUBJECT FIX — ALL TESTS PASSED ✓✓✓
+# ============================================================================
+#   Tested by: testing_agent
+#   Test date: 2026-09-07T20:09:14Z
+#   Pod: abb64ed6
+#   Backend base: http://localhost:8001
+#
+#   CONTEXT: Verified the registration email OTP subject line fix (QA custom::13).
+#   The fix ensures NEW registrations receive "Verify your email to finish signing up · Dynopay"
+#   instead of the generic "OTP for login" subject, while existing account passwordless login
+#   continues to use "OTP for login" (regression protection).
+#
+#   TEST RESULTS SUMMARY: 3/3 VERIFICATION ITEMS PASSED
+#
+#   ✓ 1) NEW-REGISTRATION SUBJECT (PRIMARY TEST) — PASS
+#        Test email: otpsubj_1788811751@example.com
+#        - POST http://localhost:8001/api/user/registerEmail → HTTP 200
+#        - Response: {"message":"Verification code sent to your email","data":{"account_exists":false}}
+#        - Backend log line: "[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=otpsubj_1788811751@example.com | subject=Verify your email to finish signing up · Dynopay"
+#        - ✓ Subject is EXACTLY: "Verify your email to finish signing up · Dynopay"
+#        - ✓ Does NOT say "OTP for login"
+#        - ✓ NO tbl_user row created (confirmed via DB query - step 1 only writes Redis otp:<email> key)
+#
+#   ✓ 2) REGRESSION — EXISTING-ACCOUNT PASSWORDLESS LOGIN SUBJECT UNCHANGED — PASS
+#        Test email: onarrival21@gmail.com (existing account, user_id=1)
+#        - POST http://localhost:8001/api/user/registerEmail → HTTP 200
+#        - Response: {"message":"You already have an account — we've sent a code to log you in.","data":{"account_exists":true}}
+#        - Backend log line: "[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=onarrival21@gmail.com | subject=OTP for login"
+#        - ✓ Subject is EXACTLY: "OTP for login"
+#        - ✓ Existing account login flow uses correct subject (regression check passed)
+#        - ✓ Did NOT submit/verify any OTP (no login performed)
+#
+#   ✓ 3) HEALTH ENDPOINT — PASS
+#        - GET http://localhost:8001/health → HTTP 200
+#        - ✓ status: "healthy"
+#        - ✓ database: "connected"
+#        - ✓ redis: "connected"
+#        - background_jobs.eligible: false (SAFE MODE)
+#        - tatum_api.operational: true
+#
+#   OVERALL RESULT: ✓✓✓ ALL 3 VERIFICATION ITEMS PASSED ✓✓✓
+#
+#   DETAILED FINDINGS:
+#   - The email subject fix (QA custom::13) is working correctly as specified
+#   - NEW user registrations now receive the proper sign-up subject line
+#   - EXISTING account passwordless login continues to use the login subject (no regression)
+#   - Email suppression is working (DISABLE_OUTBOUND_EMAIL=true) but subjects are logged
+#   - registerEmail step 1 correctly writes ONLY to Redis (no DB user row created)
+#   - No critical issues found
+#   - All backend services healthy (database, redis, tatum)
+#
+#   EXACT SUBJECT LINES OBSERVED:
+#   - New registration: "Verify your email to finish signing up · Dynopay"
+#   - Existing account login: "OTP for login"
+#
+#   NOTES:
+#   - Pod is on LIVE prod DB in SAFE MODE (no DB writes from this test)
+#   - Outbound email is OFF (DISABLE_OUTBOUND_EMAIL=true)
+#   - Email transporter logs recipient + subject for verification
+#   - Test performed with throwaway email (otpsubj_1788811751@example.com)
+#   - No user account was created during testing
+#   - All tests performed via READ-ONLY operations except Redis OTP key write
 # ============================================================================
 

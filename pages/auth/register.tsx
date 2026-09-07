@@ -275,6 +275,12 @@ const Register = () => {
                 type: USER_LOGIN,
                 payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
               });
+              // Redirect to the dashboard after a successful Google sign-in. This
+              // was previously missing: an already-registered Google account saw
+              // "Login successful" but stayed on the signup page (QA custom::14).
+              // Mirrors the login page + the email-OTP path.
+              setStep("success");
+              setTimeout(() => router.push("/dashboard"), 1200);
             } else {
               throw new Error("Invalid response");
             }
@@ -307,7 +313,7 @@ const Register = () => {
         dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is still loading — please try again in a moment.", severity: "error" } });
       }
     }, 250);
-  }, [dispatch]);
+  }, [dispatch, router]);
 
   // ─── GitHub Sign Up — OAuth authorization-code redirect flow ───
   const handleGithubLogin = useCallback(() => {
