@@ -1,3 +1,19 @@
+# 2026-09-07 (fork): QA-BOARD UX + LIVE FEES (3 features)
+#   1) /quality Board Filters — stat chips (Total/Pass/Fail/Blocked/Awaiting retest/Untested) are now one-tap
+#      filters (pages/quality.tsx: statusFilter state, matchesStatus, visibleCustomItems, active-ring + Clear
+#      filter button, auto-expands sections). testids: qa-filter-all|pass|fail|blocked|awaiting_retest|not_tested,
+#      qa-filter-clear.
+#   2) One-Tap Reopen — awaiting_retest items show inline "Reopen" (→fail) and "Pass" (→pass) buttons on the
+#      status chip row (quickAction() posts a status comment). testids: qa-quick-reopen-<key>, qa-quick-pass-<key>.
+#      Verified E2E on a throwaway custom item (created+reopened+deleted; deleteCustom also purges its comments).
+#   3) Live Network Fees — fee calculator (pages/fees.tsx) fetches the public /api/pay/network-fees endpoint
+#      (blockchainFeeService, same data the checkout uses) and uses the live per-chain USD fee for the selected
+#      settlement currency (falls back to static netFee if the fetch fails). Shows a "Live network fees" badge +
+#      "· live rate" label. Verified: TRC-20 live $2.19 → net $97.81; small chains show "< $0.01".
+#      testids: fee-live-badge (+ existing fee-breakdown, fee-calc-currency-select, fee-breakdown-net).
+#   Verified via Playwright; tsc --noEmit clean. NOT yet deployed to production.
+#
+
 # 2026-09-07 (fork): QA BOARD FIX BATCH — resolved ALL open findings from tbl_qa_comment and, per user
 # instruction, stamped each item "awaiting_retest" (NEW QA status) so QA physically re-verifies.
 #   #4  Added "awaiting_retest" status: backend QA_STATUSES (backend/models/qaModels.ts, validated in

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Box, Typography, Button, Slider, TextField, MenuItem } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -59,14 +59,17 @@ const fmtMoney = (n: number) =>
 // in USD terms. Used by the per-payment breakdown so merchants see the real
 // net after the platform fee AND the blockchain fee for the chain they settle on.
 const SETTLE_CURRENCIES = [
-  { code: "USDT-TRC20", label: "USDT · Tron (TRC-20)", netFee: 1.0 },
-  { code: "USDC-SOL", label: "USDC · Solana", netFee: 0.01 },
-  { code: "USDC-POLYGON", label: "USDC · Polygon", netFee: 0.03 },
-  { code: "USDC-ERC20", label: "USDC · Ethereum (ERC-20)", netFee: 3.5 },
-  { code: "USDT-ERC20", label: "USDT · Ethereum (ERC-20)", netFee: 3.5 },
-  { code: "ETH", label: "ETH · Ethereum", netFee: 3.5 },
-  { code: "BTC", label: "BTC · Bitcoin", netFee: 2.5 },
+  { code: "USDT-TRC20", label: "USDT · Tron (TRC-20)", netFee: 1.0, apiKey: "USDT_TRC20" },
+  { code: "USDC-SOL", label: "USDC · Solana", netFee: 0.01, apiKey: "SOL" },
+  { code: "USDC-POLYGON", label: "USDC · Polygon", netFee: 0.03, apiKey: "POLYGON" },
+  { code: "USDC-ERC20", label: "USDC · Ethereum (ERC-20)", netFee: 3.5, apiKey: "USDC_ERC20" },
+  { code: "USDT-ERC20", label: "USDT · Ethereum (ERC-20)", netFee: 3.5, apiKey: "USDT_ERC20" },
+  { code: "ETH", label: "ETH · Ethereum", netFee: 3.5, apiKey: "ETH" },
+  { code: "BTC", label: "BTC · Bitcoin", netFee: 2.5, apiKey: "BTC" },
 ];
+
+// Small network fees (e.g. Solana/Polygon) round to $0.00 at 2dp — show a friendlier hint.
+const fmtFee = (n: number) => (n > 0 && n < 0.01 ? "< $0.01" : fmtMoney(n));
 
 const FeesPage = () => {
   const { t } = useTranslation("fees");
@@ -85,10 +88,31 @@ const FeesPage = () => {
   // clear Platform fee / Blockchain fee / Total fee / Net-to-merchant summary.
   const [payAmount, setPayAmount] = useState(100);
   const [currency, setCurrency] = useState("USDT-TRC20");
+  // Live per-chain network fees (USD) from the same public endpoint the checkout uses.
+  const [liveFees, setLiveFees] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    let active = true;
+    fetch("/api/pay/network-fees")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!active || !j?.data) return;
+        const map: Record<string, number> = {};
+        for (const c of SETTLE_CURRENCIES) {
+          const f = j.data[c.apiKey];
+          if (f && typeof f.feeInUSD === "number") map[c.code] = f.feeInUSD;
+        }
+        setLiveFees(map);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
   const selCur = SETTLE_CURRENCIES.find((c) => c.code === currency) || SETTLE_CURRENCIES[0];
   // Public calculator only surfaces the on-chain network fee; the platform fee
   // (tier % + fixed) is intentionally omitted here and shown on the invoice instead.
-  const blockchainFee = selCur.netFee;
+  const liveFee = liveFees ? liveFees[currency] : undefined;
+  const blockchainFee = liveFee != null ? liveFee : selCur.netFee;
   const netToMerchant = Math.max(0, payAmount - blockchainFee);
 
   const scrollToCalc = useCallback(() => {
@@ -437,9 +461,19 @@ const FeesPage = () => {
 
                 {/* Per-payment breakdown + settlement currency (QA #47) */}
                 <Box sx={{ mt: 4 }} data-testid="fee-breakdown">
-                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: s.ink3, mb: 1.5 }}>
-                    {t("v3.breakdownTitle", { defaultValue: "Per-payment breakdown" })}
-                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: s.ink3 }}>
+                      {t("v3.breakdownTitle", { defaultValue: "Per-payment breakdown" })}
+                    </Typography>
+                    {liveFees && (
+                      <Box data-testid="fee-live-badge" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.25, borderRadius: 999, background: tier.accentSoft }}>
+                        <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
+                        <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: tier.accent }}>
+                          {t("v3.liveFees", { defaultValue: "Live network fees" })}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                   <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2, mb: 3 }}>
                     <TextField
                       type="number"
@@ -466,7 +500,7 @@ const FeesPage = () => {
                   <Box sx={{ border: `1px solid ${s.line}`, borderRadius: "16px", overflow: "hidden" }}>
                     {[
                       { label: t("v3.bdPaymentAmount", { defaultValue: "Payment amount" }), value: fmtMoney(payAmount), sub: null as string | null },
-                      { label: t("v3.bdBlockchainFee", { defaultValue: "Blockchain / network fee" }), value: fmtMoney(blockchainFee), sub: selCur.label },
+                      { label: t("v3.bdBlockchainFee", { defaultValue: "Blockchain / network fee" }), value: fmtFee(blockchainFee), sub: liveFee != null ? `${selCur.label} · live rate` : selCur.label },
                     ].map((row, i) => (
                       <Box key={i} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, py: 1.75, borderBottom: `1px solid ${s.line}` }}>
                         <Box>

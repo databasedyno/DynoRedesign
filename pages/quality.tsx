@@ -111,6 +111,7 @@ const QualityPage = () => {
   const [tester, setTester] = useState("");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<QaStatus | "all">("all");
 
   const [commentsByItem, setCommentsByItem] = useState<Record<string, QaComment[]>>({});
   const [customItems, setCustomItems] = useState<CustomItem[]>([]);
@@ -233,6 +234,33 @@ const QualityPage = () => {
     }
   };
 
+  const quickAction = async (
+    meta: { item_key: string; section_id?: string; section_title?: string; case_title?: string },
+    status: QaStatus
+  ) => {
+    setSavingKey(meta.item_key);
+    try {
+      const res = await apiCall("/comment", passcode, {
+        method: "POST",
+        body: JSON.stringify({
+          ...meta,
+          tester: tester || "QA",
+          status,
+          note: `Status → ${STATUS_META[status].label} (quick action)`,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setCommentsByItem((prev) => ({
+          ...prev,
+          [meta.item_key]: [...(prev[meta.item_key] || []), json.comment],
+        }));
+      }
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
   const deleteComment = async (itemKey: string, id: number) => {
     const res = await apiCall(`/comment/${id}`, passcode, { method: "DELETE" });
     if (res.ok) {
@@ -307,22 +335,33 @@ const QualityPage = () => {
     return counts;
   }, [commentsByItem, customItems]);
 
-  /* ---------- search filter ---------- */
+  /* ---------- search + status filter ---------- */
   const q = search.trim().toLowerCase();
-  const filteredSections = q
-    ? TEST_SECTIONS.map((section) => ({
-        ...section,
-        cases: section.cases.filter(
-          (c) =>
-            c.title.toLowerCase().includes(q) ||
-            section.title.toLowerCase().includes(q) ||
-            c.steps.some(
-              (st) =>
-                st.action.toLowerCase().includes(q) || st.expected.toLowerCase().includes(q)
-            )
-        ),
-      })).filter((s) => s.cases.length > 0)
-    : TEST_SECTIONS;
+  const matchesStatus = (key: string) => statusFilter === "all" || latestStatus(key) === statusFilter;
+  const filteredSections = TEST_SECTIONS.map((section) => ({
+    ...section,
+    cases: section.cases.filter((c) => {
+      const key = `${section.id}::${c.id}`;
+      if (!matchesStatus(key)) return false;
+      if (!q) return true;
+      return (
+        c.title.toLowerCase().includes(q) ||
+        section.title.toLowerCase().includes(q) ||
+        c.steps.some(
+          (st) => st.action.toLowerCase().includes(q) || st.expected.toLowerCase().includes(q)
+        )
+      );
+    }),
+  })).filter((s) => s.cases.length > 0);
+  const visibleCustomItems = customItems.filter((item) => {
+    if (!matchesStatus(item.item_key)) return false;
+    if (!q) return true;
+    return (
+      (item.title || "").toLowerCase().includes(q) ||
+      (item.area || "").toLowerCase().includes(q) ||
+      (item.description || "").toLowerCase().includes(q)
+    );
+  });
 
   /* ==================== RENDER: STATUS CHIP ==================== */
 
@@ -343,8 +382,34 @@ const QualityPage = () => {
       >
         <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
           <Box sx={{ flex: 1 }}>{header}</Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", justifyContent: "flex-end" }}>
             <StatusChip status={latestStatus(itemKey)} />
+            {latestStatus(itemKey) === "awaiting_retest" && (
+              <>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  disabled={savingKey === itemKey}
+                  onClick={() => quickAction({ item_key: itemKey, ...meta }, "fail")}
+                  sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: 11, textTransform: "none", lineHeight: 1.4 }}
+                  data-testid={`qa-quick-reopen-${itemKey}`}
+                >
+                  Reopen
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="success"
+                  disabled={savingKey === itemKey}
+                  onClick={() => quickAction({ item_key: itemKey, ...meta }, "pass")}
+                  sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: 11, textTransform: "none", lineHeight: 1.4 }}
+                  data-testid={`qa-quick-pass-${itemKey}`}
+                >
+                  Pass
+                </Button>
+              </>
+            )}
             {onDeleteItem && (
               <Tooltip title="Delete this custom test">
                 <IconButton size="small" onClick={onDeleteItem}>
@@ -540,13 +605,37 @@ const QualityPage = () => {
 
           {/* Stats + toolbar */}
           <Box sx={{ p: 2, mb: 3, borderRadius: 3, bgcolor: cardBg, border }}>
-            <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: 2 }}>
-              <Chip label={`Total: ${stats.total}`} sx={{ fontWeight: 600 }} />
-              <Chip label={`Pass: ${stats.pass}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.pass.color }} />
-              <Chip label={`Fail: ${stats.fail}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.fail.color }} />
-              <Chip label={`Blocked: ${stats.blocked}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.blocked.color }} />
-              <Chip label={`Awaiting retest: ${stats.awaiting_retest}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.awaiting_retest.color }} />
-              <Chip label={`Untested: ${stats.not_tested}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.not_tested.color }} />
+            <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: 2, alignItems: "center" }}>
+              <Chip
+                label={`Total: ${stats.total}`}
+                onClick={() => setStatusFilter("all")}
+                data-testid="qa-filter-all"
+                sx={{ fontWeight: 600, cursor: "pointer", boxShadow: statusFilter === "all" ? "0 0 0 3px rgba(99,102,241,0.55)" : "none" }}
+              />
+              {(["pass", "fail", "blocked", "awaiting_retest", "not_tested"] as QaStatus[]).map((st) => {
+                const labels: Record<QaStatus, string> = {
+                  pass: "Pass",
+                  fail: "Fail",
+                  blocked: "Blocked",
+                  awaiting_retest: "Awaiting retest",
+                  not_tested: "Untested",
+                };
+                const active = statusFilter === st;
+                return (
+                  <Chip
+                    key={st}
+                    label={`${labels[st]}: ${stats[st]}`}
+                    onClick={() => setStatusFilter((prev) => (prev === st ? "all" : st))}
+                    data-testid={`qa-filter-${st}`}
+                    sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META[st].color, cursor: "pointer", boxShadow: active ? "0 0 0 3px rgba(17,17,17,0.55)" : "none" }}
+                  />
+                );
+              })}
+              {statusFilter !== "all" && (
+                <Button size="small" onClick={() => setStatusFilter("all")} sx={{ textTransform: "none" }} data-testid="qa-filter-clear">
+                  Clear filter
+                </Button>
+              )}
               {dataLoading && <CircularProgress size={20} sx={{ ml: 1 }} />}
             </Box>
             <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
@@ -588,7 +677,7 @@ const QualityPage = () => {
 
           {/* Catalog sections */}
           {filteredSections.map((section) => {
-            const isOpen = expanded.includes(section.id) || !!q;
+            const isOpen = expanded.includes(section.id) || !!q || statusFilter !== "all";
             return (
               <Accordion
                 key={section.id}
@@ -667,7 +756,7 @@ const QualityPage = () => {
 
           {/* Custom tests */}
           <Accordion
-            expanded={expanded.includes("__custom") || !!q}
+            expanded={expanded.includes("__custom") || !!q || statusFilter !== "all"}
             onChange={() =>
               setExpanded((prev) =>
                 prev.includes("__custom") ? prev.filter((x) => x !== "__custom") : [...prev, "__custom"]
@@ -722,12 +811,14 @@ const QualityPage = () => {
                 </Box>
               </Box>
 
-              {customItems.length === 0 ? (
+              {visibleCustomItems.length === 0 ? (
                 <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                  No custom tests yet. Add one above to track anything not covered by the catalog.
+                  {statusFilter !== "all" || q
+                    ? "No custom tests match the current filter."
+                    : "No custom tests yet. Add one above to track anything not covered by the catalog."}
                 </Typography>
               ) : (
-                customItems.map((item) =>
+                visibleCustomItems.map((item) =>
                   renderItemCard(
                     item.item_key,
                     { section_id: "custom", section_title: item.area || "Custom Tests", case_title: item.title },
