@@ -4,6 +4,9 @@ import { authMiddleware } from "../middleware";
 import { triggerWeeklySummary, triggerWalletReminder } from "../utils/cronJobs";
 import { successResponseHelper, errorResponseHelper, getErrorMessage } from "../helper";
 import { saveSubscription, removeSubscription, getVapidPublicKey } from "../services/webPushService";
+import { resolveCompanyRecipients } from "../utils/notificationRecipients";
+import { firstNameOnly } from "../utils/emailI18n";
+import { companyModel } from "../models";
 import jwt from "jsonwebtoken";
 
 const notificationRouter = express.Router();
@@ -127,6 +130,38 @@ notificationRouter.post("/payout-digest/preview", async (_req, res) => {
       sent: true,
       digest: result.digest,
     });
+  } catch (e) {
+    return errorResponseHelper(res, 500, getErrorMessage(e));
+  }
+});
+
+// GET /api/notifications/recipients-preview - READ-ONLY QA aid: show the
+// greeting NAME the merchant-facing emails (payments/payouts/orders/digests)
+// will use for the caller's companies. Verifies the greeting is a PERSON's
+// first name (e.g. "John") and NOT a truncated company name (e.g. "The" from
+// "The Dev Store"). Returns names only — never the raw recipient emails.
+notificationRouter.get("/recipients-preview", async (_req, res) => {
+  try {
+    const userData = jwt.decode(res.locals.token) as any;
+    if (!userData?.user_id) {
+      return errorResponseHelper(res, 401, "Invalid session");
+    }
+    const companies = await companyModel.findAll({ where: { user_id: userData.user_id } });
+    const out: Array<Record<string, unknown>> = [];
+    for (const c of companies) {
+      const cd = c.get({ plain: true }) as { company_id: number; company_name?: string };
+      const recipients = await resolveCompanyRecipients(cd.company_id, "payments");
+      out.push({
+        company_id: cd.company_id,
+        company_name: cd.company_name,
+        recipients: recipients.map((r) => ({
+          source: r.source,
+          greeting_name: r.name,
+          greeting_first_name: firstNameOnly(r.name),
+        })),
+      });
+    }
+    return successResponseHelper(res, 200, "Recipients preview", { companies: out });
   } catch (e) {
     return errorResponseHelper(res, 500, getErrorMessage(e));
   }

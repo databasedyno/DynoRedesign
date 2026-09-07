@@ -120,7 +120,13 @@ export async function resolveCompanyRecipients(
 
   const owner = cd.user_id ? await userModel.findOne({ where: { user_id: cd.user_id } }) : null;
   const ownerData = owner ? (owner.get({ plain: true }) as { user_id: number; email?: string; name?: string }) : null;
-  const companyName = cd.company_name || ownerData?.name || "there";
+
+  // Greeting name for the PRIMARY company recipient. Emails greet by FIRST name
+  // (see emailI18n.firstNameOnly), so this MUST be a PERSON's name, never the
+  // company name — otherwise "The Dev Store" is reduced to a broken "Hey The,".
+  // The primary address represents the account owner, so prefer the owner's
+  // personal name and fall back to a neutral greeting (never the company name).
+  const primaryName = ownerData?.name || "there";
 
   const recipients: Recipient[] = [];
 
@@ -129,7 +135,7 @@ export async function resolveCompanyRecipients(
   if (primaryEmail) {
     recipients.push({
       email: primaryEmail,
-      name: companyName,
+      name: primaryName,
       userId: ownerData?.user_id ?? null,
       source: isEmail(cd.notification_email) || isEmail(cd.email) ? "company" : "owner",
     });

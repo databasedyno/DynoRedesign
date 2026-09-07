@@ -1,4 +1,59 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-07 (pod a7d8a15f): BUG FIX — merchant email data + greeting
+#   User report (screenshots): (1) Weekly Summary email for onarrival21@gmail.com is
+#   "lacking data" — 52 total txns but Completed=0, Total Volume=$0.00, Top Currency
+#   "No completed transactions". (2) Payment Received email greets "Hey The," instead of
+#   "Hey John," — it truncated the COMPANY name "The Dev Store" -> "The".
+#
+#   ARCHITECTURE: backend = Node/TS Express behind a Python (uvicorn) proxy on :8001;
+#   all routes are under /api. Live production Postgres (Railway) in SAFE MODE.
+#   Backend is ts-node (transpile-only) launched by server.py — a .ts change needs a
+#   `sudo supervisorctl restart backend` (done).
+#
+#   ROOT CAUSE #1 (weekly summary): utils/cronJobs.ts weekly-summary aggregation counted
+#   completed/volume/top-currency with `status = 'done'`, but tbl_user_transaction.status
+#   NEVER uses 'done'. Real values (verified read-only vs live DB): 'successful', 'pending',
+#   'completed'. So completed_count/volume/top_currency were always 0/None.
+#   FIX: use the canonical utils/processedVolume.processedStatusSql("") =>
+#   status IN ('successful','done','completed') for completed_count, total_volume, and the
+#   top_currency subquery (matches dashboard "Overall volume"). pending stays 'pending';
+#   failed now IN ('failed','expired'). Applied to BOTH setupWeeklySummaryCron AND
+#   triggerWeeklySummary (the /api/notifications/trigger-weekly-summary handler).
+#
+#   ROOT CAUSE #2 (greeting): utils/notificationRecipients.ts resolveCompanyRecipients set
+#   the PRIMARY company recipient's `name` to the COMPANY name. Emails greet by FIRST name
+#   (emailI18n.firstNameOnly), so "The Dev Store" -> "The". The email fns already take
+#   companyName as a SEPARATE arg, so `name` must be a PERSON. FIX: primary recipient name
+#   = owner's personal name (ownerData.name) with a neutral "there" fallback (never the
+#   company name). This fixes greetings across ALL company-scoped emails (payments/payouts/
+#   orders/config/digests) — the "similar issues elsewhere" the user mentioned.
+#
+#   NEW READ-ONLY QA ENDPOINT (added for verification, no email sent):
+#     GET /api/notifications/recipients-preview  (auth required)
+#     -> { companies: [{ company_id, company_name, recipients:[{ source, greeting_name,
+#          greeting_first_name }] }] }  (names only, emails NOT exposed)
+#
+#   TEST CREDENTIALS: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1
+#   "The Dev Store"). Login: POST /api/user/login {email,password} -> 200, token at
+#   data.accessToken. Use header  Authorization: Bearer <accessToken>.
+#
+#   BACKEND TEST FOCUS:
+#   1) Weekly summary data — POST /api/notifications/trigger-weekly-summary
+#      body {"user_id":1,"dry_run":true} + Bearer token. In results[0].summary assert the
+#      OUTPUT IS NO LONGER ALL-ZERO: completed_count > 0, total_volume > 0,
+#      top_currency != 'None'/'' , pending_count > 0. (Live-DB snapshot at fix time:
+#      transaction_count=52, completed_count=22, pending_count=30, total_volume≈495.15,
+#      top_currency='BTC' — exact counts may drift slightly if new live txns arrive; the
+#      key regression check is "not zero".)  dry_run=true writes NO notification row.
+#   2) Greeting — GET /api/notifications/recipients-preview + Bearer token. For
+#      company_id=1 "The Dev Store", the primary recipient (source 'company' or 'owner')
+#      must have greeting_first_name == "John" (and greeting_name "John Davis") — NOT "The".
+#   NOTE: login uses a rate limiter — log in ONCE and reuse the token. If login returns
+#   requires_2fa, report it (not expected for this account).
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 0e2b393a): QA FIX — feature-card description CLIPPING on /for/[vertical] SEO pages
 #   Frontend is `next dev` on :3000 (Fast Refresh live). First hit to a route compiles (~5-15s).
 #
@@ -2223,5 +2278,111 @@
 #
 # TEST CREDENTIALS: QA board passcode = Dynopay123@ ; merchant onarrival21@gmail.com / Katiekendra123@
 # LIVE PROD DB — all QA-board writes are additive to tbl_qa_comment.
+# ============================================================================
+
+
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-07 (pod a7d8a15f): MERCHANT EMAIL BUG FIXES — ALL TESTS PASSED ✓✓✓
+# ============================================================================
+#   Tested by: testing_agent
+#   Test date: 2026-09-07
+#   Backend URL: http://localhost:8001
+#
+#   CONTEXT: Verified two backend bug fixes for DynoPay merchant email notifications:
+#   (1) PRIMARY BUG: Weekly Summary email "lacking data" - showed all zeros despite 52 transactions
+#   (2) Email greeting "Hey The," - truncated company name instead of using owner's personal name
+#
+#   TEST RESULTS SUMMARY: 6/6 TESTS PASSED
+#
+#   ✓ TEST 1: LOGIN — PASS
+#        - POST /api/user/login with onarrival21@gmail.com / Katiekendra123@
+#        - HTTP Status: 200
+#        - Message: "Login Successful!"
+#        - Access token received (length: 2864 chars)
+#        - No 2FA required (as expected for this test account)
+#        - User data: user_id=1, name="John Davis", company_id=1
+#        - ✓ Login successful, token reused for subsequent tests
+#
+#   ✓ TEST 2: WEEKLY SUMMARY DATA FIX — PASS (3/3 checks)
+#
+#     ✓ 2.1: Weekly Summary HTTP Response — PASS
+#          - POST /api/notifications/trigger-weekly-summary
+#          - Headers: Authorization: Bearer <token>
+#          - Body: {"user_id": 1, "dry_run": true}
+#          - HTTP Status: 200
+#          - Response structure: message + data.results[0].summary
+#          - ✓ Endpoint accessible and returns valid response
+#
+#     ✓ 2.2: Summary Data Regression Check — PASS (ALL 5 CRITERIA MET)
+#          - Period: 2026-08-31 to 2026-09-07
+#          - transaction_count: 56 (> 0) ✓
+#          - completed_count: 24 (> 0) ✓ [was 0 before fix]
+#          - pending_count: 32 (> 0) ✓
+#          - total_volume: 497.23 (> 0) ✓ [was 0.00 before fix]
+#          - top_currency: "BTC" (not None/empty) ✓ [was "None" before fix]
+#          - failed_count: 0
+#          - ✓ PROVES: Summary is NO LONGER all-zero (regression check PASSED)
+#          - Reference values from fix time: ~52 txns, ~22 completed, ~30 pending, ~495.15 volume
+#          - Current values are within expected drift (new live transactions may have arrived)
+#
+#     ✓ 2.3: dry_run Behavior — PASS
+#          - notification field: null (correct)
+#          - ✓ PROVES: dry_run=true did NOT create a notification row (correct behavior)
+#
+#   ✓ TEST 3: EMAIL GREETING FIX — PASS (3/3 checks)
+#
+#     ✓ 3.1: Recipients Preview HTTP Response — PASS
+#          - GET /api/notifications/recipients-preview
+#          - Headers: Authorization: Bearer <token>
+#          - HTTP Status: 200
+#          - Response structure: message + data.companies[]
+#          - ✓ Endpoint accessible and returns valid response
+#
+#     ✓ 3.2: Company "The Dev Store" Greeting — PASS
+#          - Found company_id: 1
+#          - company_name: "The Dev Store"
+#          - Primary recipient (source: "owner"):
+#            - greeting_first_name: "John" ✓ [was "The" before fix]
+#            - greeting_name: "John Davis" ✓
+#          - ✓ PROVES: Greeting now uses owner's personal name "John", NOT company name "The"
+#
+#     ✓ 3.3: No Bad Greetings — PASS
+#          - Checked all recipients for company_id=1
+#          - No recipients found with greeting_first_name="The"
+#          - ✓ PROVES: Bug is fully fixed, no residual "The" greetings
+#
+#   OVERALL RESULT: ✓✓✓ ALL 6 TESTS PASSED ✓✓✓
+#
+#   DETAILED FINDINGS:
+#   - BUG FIX #1 (Weekly Summary): WORKING CORRECTLY
+#     * Root cause was status='done' check, but DB uses 'successful'/'completed'/'pending'
+#     * Fix applied processedStatusSql() to check correct statuses
+#     * Summary now shows real data: 24 completed, 32 pending, 497.23 volume, BTC currency
+#     * This resolves the user-reported "lacking data" issue in weekly summary emails
+#
+#   - BUG FIX #2 (Email Greeting): WORKING CORRECTLY
+#     * Root cause was using company name for primary recipient instead of owner's name
+#     * Fix changed to use ownerData.name with "there" fallback
+#     * Greeting now correctly shows "John" (owner's first name), NOT "The" (company name)
+#     * This fixes greetings across ALL company-scoped emails (payments/payouts/orders/digests)
+#
+#   - NEW QA ENDPOINT: /api/notifications/recipients-preview working correctly
+#     * Returns company recipients with greeting_name and greeting_first_name
+#     * Useful for verification without sending actual emails
+#
+#   - Backend health: Healthy, no errors in logs
+#   - All tests performed on LIVE production database in SAFE MODE
+#   - No data writes (dry_run=true for weekly summary trigger)
+#   - Both fixes are production-ready and safe to deploy
+#
+#   NOTES:
+#   - Login rate limiter respected (logged in ONCE, reused token for all tests)
+#   - Test account onarrival21@gmail.com did not require 2FA (as expected)
+#   - Weekly summary values may drift slightly as new live transactions arrive
+#   - The key regression check is "not zero" rather than exact match to reference values
+#   - Both bugs were user-reported with screenshots, now verified fixed
+#
+#   DEPLOYMENT READINESS: ✅ READY FOR PRODUCTION DEPLOYMENT
 # ============================================================================
 

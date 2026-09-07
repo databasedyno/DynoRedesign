@@ -5,6 +5,7 @@ import { createNotification, NOTIFICATION_TYPES } from "../controller";
 import { notificationPreferencesModel, userTransactionModel } from "../models";
 import { cronLogger, log } from "./loggers";
 import { captureError } from "../services/errorMonitoringService";
+import { processedStatusSql } from "./processedVolume";
 // Unused imports removed from top level - dynamically imported where needed
 
 /**
@@ -46,12 +47,12 @@ export const setupWeeklySummaryCron = () => {
           const summary = await sequelize.query(
             `SELECT 
               COUNT(*) as transaction_count,
-              COALESCE(SUM(CASE WHEN status = 'done' THEN base_amount ELSE 0 END), 0) as total_volume,
-              COALESCE(SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END), 0) as completed_count,
+              COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN base_amount ELSE 0 END), 0) as total_volume,
+              COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN 1 ELSE 0 END), 0) as completed_count,
               COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_count,
-              COALESCE(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END), 0) as failed_count,
+              COALESCE(SUM(CASE WHEN status IN ('failed', 'expired') THEN 1 ELSE 0 END), 0) as failed_count,
               (SELECT crypto_currency FROM tbl_user_transaction 
-               WHERE company_id = :companyId AND status = 'done'
+               WHERE company_id = :companyId AND ${processedStatusSql("")}
                AND crypto_currency IS NOT NULL AND crypto_currency <> ''
                AND "createdAt" >= :startDate AND "createdAt" <= :endDate
                GROUP BY crypto_currency ORDER BY COUNT(*) DESC LIMIT 1) as top_currency
@@ -195,12 +196,12 @@ export const triggerWeeklySummary = async (userId?: number, options?: { dryRun?:
       const summary = await sequelize.query(
         `SELECT 
           COUNT(*) as transaction_count,
-          COALESCE(SUM(CASE WHEN status = 'done' THEN base_amount ELSE 0 END), 0) as total_volume,
-          COALESCE(SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END), 0) as completed_count,
+          COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN base_amount ELSE 0 END), 0) as total_volume,
+          COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN 1 ELSE 0 END), 0) as completed_count,
           COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_count,
-          COALESCE(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END), 0) as failed_count,
+          COALESCE(SUM(CASE WHEN status IN ('failed', 'expired') THEN 1 ELSE 0 END), 0) as failed_count,
           (SELECT crypto_currency FROM tbl_user_transaction 
-           WHERE user_id = :userId AND status = 'done'
+           WHERE user_id = :userId AND ${processedStatusSql("")}
            AND crypto_currency IS NOT NULL AND crypto_currency <> ''
            AND "createdAt" >= :startDate AND "createdAt" <= :endDate
            GROUP BY crypto_currency ORDER BY COUNT(*) DESC LIMIT 1) as top_currency
