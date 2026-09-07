@@ -17,8 +17,8 @@ OWNER_PASSWORD = "Katiekendra123@"
 TEST_EMAIL = "onarrival21+ptest@gmail.com"
 
 # Read SERVER_URL and CHECKOUT_URL from backend/.env
-SERVER_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
-CHECKOUT_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
+SERVER_URL = "https://user-profile-split.preview.emergentagent.com"
+CHECKOUT_URL = "https://user-profile-split.preview.emergentagent.com"
 
 class Colors:
     GREEN = '\033[92m'

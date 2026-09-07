@@ -2,7 +2,7 @@
 import requests
 import json
 
-BASE_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
+BASE_URL = "https://user-profile-split.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Login first

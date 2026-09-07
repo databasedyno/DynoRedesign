@@ -111,6 +111,6 @@ Per-product OG images, structured data. (Sitemap entries for live `{handle}` cre
 ## 7 · Reference
 
 - Test login: `hostbay@moxx.co` / `Katiekendra123@` (2-step; testids in `memory/test_credentials.md`).
-- Current preview: `https://lucid-mahavira-16.preview.emergentagent.com` (pod-specific — re-verify after any rebuild).
+- Current preview: `https://user-profile-split.preview.emergentagent.com` (pod-specific — re-verify after any rebuild).
 - $10 BTC test link (Invoice INV-2026-172): `/pay?d=dd7cf1523088ee313c0e57118e11661ebf3436469930dbab` (also on `https://checkout.dynopay.com`).
 - Key docs: `docs/IA_TAB_ARCHITECTURE_AUDIT.md` (IA plan + laws) · `memory/CHANGELOG.md` (shipped) · `memory/test_credentials.md` (env recipe, testids, receipt-test recipe) · `/app/test_result.md` (testing protocol + history).

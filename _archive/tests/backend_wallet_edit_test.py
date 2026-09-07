@@ -13,7 +13,7 @@ import json
 import sys
 
 # Configuration - use the external URL from backend/.env
-BASE_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
+BASE_URL = "https://user-profile-split.preview.emergentagent.com"
 
 # Test credentials (returns JWT directly, NO OTP for this account)
 LOGIN_EMAIL = "moxxcompany@gmail.com"

@@ -15,7 +15,7 @@ from typing import Dict, Any, Optional
 from urllib.parse import quote
 
 # Configuration
-BASE_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
+BASE_URL = "https://user-profile-split.preview.emergentagent.com"
 OWNER_EMAIL = "onarrival21@gmail.com"
 OWNER_PASSWORD = "Katiekendra123@"
 

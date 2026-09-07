@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
+BACKEND_URL = "https://user-profile-split.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
+BASE_URL = "https://user-profile-split.preview.emergentagent.com"
 LOGIN = {"email": "hostbay@moxx.co", "password": "Katiekendra123@"}
 
 

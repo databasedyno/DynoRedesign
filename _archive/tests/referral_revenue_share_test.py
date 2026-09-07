@@ -5,7 +5,7 @@ STRICTLY READ-ONLY testing on LIVE prod Railway Postgres in SAFE MODE.
 NO mutations, NO creating/redeeming referral codes, NO payments/emails.
 
 Merchant login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1)
-Backend base URL: https://lucid-mahavira-16.preview.emergentagent.com
+Backend base URL: https://user-profile-split.preview.emergentagent.com
 Health endpoint: localhost:8001 (NOT exposed via external ingress)
 """
 
@@ -15,7 +15,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Configuration
-BACKEND_BASE_URL = "https://lucid-mahavira-16.preview.emergentagent.com"
+BACKEND_BASE_URL = "https://user-profile-split.preview.emergentagent.com"
 HEALTH_URL = "http://localhost:8001/health"
 LOGIN_EMAIL = "onarrival21@gmail.com"
 LOGIN_PASSWORD = "Katiekendra123@"
