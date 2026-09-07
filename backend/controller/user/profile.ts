@@ -32,6 +32,7 @@ import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { resolveFeeFreeRemaining } from "../../services/feeFreeService";
 import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
+import { deriveNameParts } from "../../utils/nameUtils";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 
 // Legal name is locked once the account is identity-verified (KYC approved).
@@ -107,6 +108,19 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
           return errorResponseHelper(res, 403, NAME_LOCKED_MESSAGE);
         }
       }
+    }
+
+    // Keep the split columns (first_name / last_name) in sync with `name`.
+    // Covers the dashboard NameGate save and any profile edit. Structured
+    // first/last inputs win; otherwise the combined name is split.
+    if (data && (typeof data.name === "string" || data.first_name != null || data.last_name != null)) {
+      const parts = deriveNameParts({
+        first: data.first_name,
+        last: data.last_name,
+        full: data.name,
+      });
+      data.first_name = parts.first_name;
+      data.last_name = parts.last_name;
     }
 
     await userModel.update(
@@ -239,6 +253,14 @@ export const updateProfile = async (req: express.Request, res: express.Response)
         return errorResponseHelper(res, 403, NAME_LOCKED_MESSAGE);
       }
       updateData.name = name;
+      // Keep first_name / last_name in sync with the edited name.
+      const nameParts = deriveNameParts({
+        first: req.body?.first_name,
+        last: req.body?.last_name,
+        full: name,
+      });
+      updateData.first_name = nameParts.first_name;
+      updateData.last_name = nameParts.last_name;
       updatedFields.push(`Name: ${currentName} → ${name}`);
     }
     if (mobile !== undefined && mobile !== currentMobile) {

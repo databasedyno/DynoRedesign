@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -56,7 +56,7 @@ export const sendWalletSudoOTPEmail = async (
 ) => {
   try {
     const subject = "Your wallet management code";
-    const content = `${p(name ? `Hey ${escapeHtml(name)},` : "Hey there,")}
+    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
     ${p("Use this one-time code to unlock wallet management for 10 minutes. During that window you can add, edit and remove payout wallets without requesting a new code for each network.")}
     ${otpBlock(otpCode)}
     ${warnText("This code expires in 5 minutes. If you didn't request it, you can ignore this email — your wallets stay unchanged.")}`;
@@ -84,7 +84,7 @@ export const sendWalletBatchSummaryEmail = async (
     if (changes.updated?.length) rows.push(dataRow("Updated", list(changes.updated)));
     if (changes.removed?.length) rows.push(dataRow("Removed", list(changes.removed), true));
     const subject = "Your payout wallets were updated";
-    const content = `${p(name ? `Hey ${escapeHtml(name)},` : "Hey there,")}
+    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
     ${p(`Your payout wallets for ${escapeHtml(changes.companyName || "your brand")} were just updated.`)}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`)}
     ${warnText("If you didn't make these changes, contact support immediately.")}`;

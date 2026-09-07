@@ -45,6 +45,9 @@ export default function Home({
   // A team member never sees merchant onboarding — the business is already set up.
   const setupComplete = isMember || (hasCompany && hasWallet);
 
+  const firstName = useSelector(
+    (s: rootReducer) => (s as any).userReducer?.profile?.first_name,
+  ) as string | undefined;
   const name = useSelector(
     (s: rootReducer) => (s as any).userReducer?.profile?.name,
   ) as string | undefined;
@@ -57,9 +60,12 @@ export default function Home({
         : h < 18
           ? t("greetAfternoon", { ns: "dashboardLayout", defaultValue: "Good afternoon" })
           : t("greetEvening", { ns: "dashboardLayout", defaultValue: "Good evening" });
-    const first = name ? String(name).trim().split(/\s+/)[0] : "";
+    // Prefer the dedicated first_name column; fall back to splitting `name`.
+    const first = firstName && firstName.trim()
+      ? firstName.trim()
+      : name ? String(name).trim().split(/\s+/)[0] : "";
     return first ? `${base}, ${first}` : base;
-  }, [t, name]);
+  }, [t, firstName, name]);
 
   const dateLine = useMemo(() => {
     try {

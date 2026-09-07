@@ -1,6 +1,8 @@
 export interface IUserType {
   user_id: number;
   name: string;
+  first_name?: string | null;
+  last_name?: string | null;
   password: string;
   email: string;
   username: string;

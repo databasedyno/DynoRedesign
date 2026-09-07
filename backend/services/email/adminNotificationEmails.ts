@@ -8,6 +8,7 @@ import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
+import { lookupCountry } from "../../utils/clientContext";
 
 /**
  * Send notification to admin when a new user registers.
@@ -20,6 +21,8 @@ export const sendNewUserAdminNotification = async (userData: {
   login_type: string;
   user_id?: number;
   company_name?: string | null;
+  signup_ip?: string | null;
+  country?: string | null;
 }) => {
   try {
     const adminEmail = config.raw("ADMIN_EMAIL");
@@ -33,20 +36,35 @@ export const sendNewUserAdminNotification = async (userData: {
     const registrationMethod = userData.login_type || "Unknown";
     const userId = userData.user_id || "N/A";
     const companyName = userData.company_name || "Not yet provided";
+    // Resolve the signup country so the admin can see name · country · method at
+    // a glance. Prefer an explicit country; otherwise geo-locate the signup IP
+    // (best-effort — this whole notification is already fire-and-forget, so the
+    // ~1s lookup never slows down signup).
+    let country = userData.country || null;
+    if (!country && userData.signup_ip) {
+      try {
+        country = await lookupCountry(userData.signup_ip);
+      } catch {
+        country = null;
+      }
+    }
+    const countryLabel = country || "Unknown";
     const registrationTime = new Date().toLocaleString("en-US", {
       dateStyle: "medium",
       timeStyle: "short",
       timeZone: "UTC",
     }) + " UTC";
 
-    const subject = `New Merchant Registration — ${displayName} (${registrationMethod})`;
+    const subject = `New Merchant Registration — ${displayName} · ${countryLabel} · ${registrationMethod}`;
 
     const content = `${p(`A new merchant has registered on Dynopay.`)}
+    ${p(`<strong>${escapeHtml(displayName)}</strong> &nbsp;·&nbsp; ${escapeHtml(countryLabel)} &nbsp;·&nbsp; ${escapeHtml(registrationMethod)}`, `font-size: 16px; color: #111827; margin: 4px 0 16px;`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow('Name', displayName)}
         ${dataRow('Contact', contactInfo)}
-        ${dataRow('Registration Method', registrationMethod)}
+        ${dataRow('Country', countryLabel)}
+        ${dataRow('Signup Method', registrationMethod)}
         ${dataRow('User ID', String(userId))}
         ${dataRow('Company', companyName)}
         ${dataRow('Registered At', registrationTime)}
@@ -58,7 +76,7 @@ export const sendNewUserAdminNotification = async (userData: {
 
     const html = baseEmailTemplate("New Merchant Registration", content);
     await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
-    apiLogger.info(`[Email] New user admin notification sent for ${contactInfo} (${registrationMethod})`);
+    apiLogger.info(`[Email] New user admin notification sent for ${contactInfo} (${registrationMethod}, ${countryLabel})`);
   } catch (e) {
     // Non-blocking — don't fail registration if email fails
     apiLogger.error("[Email] Admin new user notification error:", e);

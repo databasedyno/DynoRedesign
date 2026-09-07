@@ -47,7 +47,9 @@ const NameGate: React.FC = () => {
     try {
       const fullName = `${first} ${last}`.replace(/\s+/g, " ").trim();
       const fd = new FormData();
-      fd.append("data", JSON.stringify({ name: fullName }));
+      // Send the split fields too so the backend stores first_name / last_name
+      // (kept in sync with `name`) — powers "Hi {first}" and last-name sorting.
+      fd.append("data", JSON.stringify({ name: fullName, first_name: first, last_name: last }));
       const res = await axiosBaseApi.put("user/updateUser", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });

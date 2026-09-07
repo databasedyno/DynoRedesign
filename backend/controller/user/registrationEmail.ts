@@ -22,7 +22,8 @@ import sequelize from "../../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
-import { captureSignupContext } from "../../utils/clientContext";
+import { captureSignupContext, getClientIp } from "../../utils/clientContext";
+import { deriveNameParts } from "../../utils/nameUtils";
 import axios from "axios";
 import { userLogger } from "../../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
@@ -45,6 +46,13 @@ export const registerUser = async (req: express.Request, res: express.Response) 
     if (passwordError) {
       return errorResponseHelper(res, 400, passwordError);
     }
+
+    // Keep the split columns in sync with `name` on this (password) path too.
+    const { first_name: regFirst, last_name: regLast } = deriveNameParts({
+      first: req.body?.first_name,
+      last: req.body?.last_name,
+      full: name,
+    });
     
     const newPassword = hashPassword(password);
     const isExists = await userModel
@@ -68,6 +76,8 @@ export const registerUser = async (req: express.Request, res: express.Response) 
 
       const createdUser = await userModel.create({
         name,
+        first_name: regFirst,
+        last_name: regLast,
         email: email.toLowerCase(),
         photo,
         password: newPassword,
@@ -101,6 +111,7 @@ export const registerUser = async (req: express.Request, res: express.Response) 
       emailService.sendNewUserAdminNotification({
         name, email: email.toLowerCase(), login_type: "Email",
         user_id: createdUser.dataValues.user_id,
+        signup_ip: getClientIp(req),
       }).catch(err => userLogger.error("Admin notification error:", err));
 
       const verifyOtp = generateOtpCode().toString();
@@ -223,6 +234,14 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
     const fullName = (rawFirst || rawLast)
       ? `${rawFirst} ${rawLast}`.replace(/\s+/g, " ").trim()
       : (typeof req.body?.name === "string" ? req.body.name.replace(/\s+/g, " ").trim() : "");
+    // Split into discrete first/last for the dedicated columns (kept in sync
+    // with `name`). Structured first/last inputs win; else the combined name
+    // is split on the first space.
+    const { first_name: firstNameStored, last_name: lastNameStored } = deriveNameParts({
+      first: rawFirst,
+      last: rawLast,
+      full: fullName,
+    });
     const otpKey = `otp:${emailLower}`;
     const item = await getRedisItem(otpKey);
 
@@ -301,6 +320,8 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
 
     const createdUser = await userModel.create({
       name: fullName,
+      first_name: firstNameStored,
+      last_name: lastNameStored,
       email: emailLower,
       photo,
       password: null,
@@ -338,6 +359,7 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
     emailService.sendNewUserAdminNotification({
       name: fullName, email: emailLower, login_type: "Email",
       user_id: createdUser.dataValues.user_id,
+      signup_ip: getClientIp(req),
     }).catch(err => userLogger.error("Admin notification error:", err));
 
     // Welcome email

@@ -24,6 +24,8 @@ import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
 import axios from "axios";
 import { userLogger } from "../../utils/loggers";
+import { getClientIp } from "../../utils/clientContext";
+import { deriveNameParts } from "../../utils/nameUtils";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../../services/accountLockoutService";
 import { createSession } from "../../services/sessionService";
@@ -114,9 +116,14 @@ export const facebookSignIn = async (req: express.Request, res: express.Response
     // Create new user
     const defaultPhoto = envRaw("SERVER_URL") + (await downloadUserImage());
     const finalPhoto = photoUrl || defaultPhoto;
-    
+
+    const fbStoredName = name || (email ? email.split("@")[0] : "Facebook User");
+    const { first_name: fbFirst, last_name: fbLast } = deriveNameParts({ full: fbStoredName });
+
     const createdUser = await userModel.create({
-      name: name || (email ? email.split("@")[0] : "Facebook User"),
+      name: fbStoredName,
+      first_name: fbFirst,
+      last_name: fbLast,
       email: email ? email.toLowerCase() : null,
       photo: finalPhoto,
       login_type: "FACEBOOK",
@@ -147,6 +154,7 @@ export const facebookSignIn = async (req: express.Request, res: express.Response
     emailService.sendNewUserAdminNotification({
       name: name || "Facebook User", email: email ? email.toLowerCase() : null,
       login_type: "Facebook", user_id: createdUser.dataValues.user_id,
+      signup_ip: getClientIp(req),
     }).catch(err => userLogger.error("Admin notification error:", err));
 
     return successResponseHelper(res, 200, "Registration Successful!", resData);

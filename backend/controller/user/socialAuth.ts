@@ -32,6 +32,7 @@ import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 import { getClientIp, captureSignupContext } from "../../utils/clientContext";
+import { deriveNameParts } from "../../utils/nameUtils";
 
 export const googleSignIn = async (req: express.Request, res: express.Response) => {
   try {
@@ -140,9 +141,15 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
 
     // Create new user
     const photoUrl = picture || envRaw("SERVER_URL") + (await downloadUserImage());
-    
+
+    // Google may return no name → store null (first/last too) so the dashboard
+    // NameGate prompts them for a real first + last name on next visit.
+    const { first_name: gFirst, last_name: gLast } = deriveNameParts({ full: name });
+
     const createdUser = await userModel.create({
       name: name || null,
+      first_name: gFirst,
+      last_name: gLast,
       email: email.toLowerCase(),
       photo: photoUrl,
       login_type: "GOOGLE",
@@ -186,6 +193,7 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
     emailService.sendNewUserAdminNotification({
       name: name || email.toLowerCase(), email: email.toLowerCase(),
       login_type: "Google", user_id: createdUser.dataValues.user_id,
+      signup_ip: getClientIp(req),
     }).catch(err => userLogger.error("Admin notification error:", err));
 
     return successResponseHelper(res, 200, "Registration Successful!", resData);
@@ -276,7 +284,13 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
 
     // Prefixed to avoid clashing with raw Facebook ids that share the external_id column
     const githubId = `github:${ghUser.id}`;
-    const name = ghUser.name || ghUser.login || email.split("@")[0];
+    // Feature "GitHub Handle Name": only a REAL GitHub profile name counts as a
+    // display name. When GitHub returns just a username (no name set), we store
+    // name=null so the dashboard NameGate prompts for a real first + last name
+    // — instead of silently treating the handle as their name. The username is
+    // preserved in the `username` column so the handle is never lost.
+    const githubUsername = ghUser.login || null;
+    const realName = ghUser.name && ghUser.name.trim() ? ghUser.name.trim() : null;
     const picture = ghUser.avatar_url;
 
     // 4. Existing user → login
@@ -320,8 +334,13 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
     // 5. New user → register (mirrors googleSignIn)
     const photoUrl = picture || envRaw("SERVER_URL") + (await downloadUserImage());
 
+    const { first_name: ghFirst, last_name: ghLast } = deriveNameParts({ full: realName });
+
     const createdUser = await userModel.create({
-      name,
+      name: realName,
+      first_name: ghFirst,
+      last_name: ghLast,
+      username: githubUsername,
       email: email.toLowerCase(),
       photo: photoUrl,
       login_type: "GITHUB",
@@ -350,16 +369,20 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
 
     // Send welcome email (non-fatal)
     try {
-      await emailService.sendWelcomeEmail(email.toLowerCase(), name);
+      await emailService.sendWelcomeEmail(email.toLowerCase(), realName || "there");
     } catch (emailError) {
       userLogger.error("Error sending welcome email:", emailError);
     }
 
     userLogger.info(`New user registered via GitHub: ${email}`);
 
+    // If GitHub gave no real name the account is created name-less (username kept
+    // separately) and the merchant completes it via the dashboard NameGate; show
+    // the email here so the admin still has a usable identifier.
     emailService.sendNewUserAdminNotification({
-      name, email: email.toLowerCase(),
+      name: realName || email.toLowerCase(), email: email.toLowerCase(),
       login_type: "GitHub", user_id: createdUser.dataValues.user_id,
+      signup_ip: getClientIp(req),
     }).catch(err => userLogger.error("Admin notification error:", err));
 
     return successResponseHelper(res, 200, "Registration Successful!", resData);

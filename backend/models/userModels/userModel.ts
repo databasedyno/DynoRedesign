@@ -12,6 +12,20 @@ const userModel = sequelize.define(
     name: {
       type: DataTypes.STRING,
     },
+    // Split name fields (product decision 2026-09-07). Stored alongside the
+    // combined `name` so we can greet "Hi {first_name}" and sort merchants by
+    // last name. Nullable + backfilled from `name` for legacy accounts; a
+    // missing value here never blocks anything that reads `name`.
+    first_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: "Merchant's first / given name. Kept in sync with `name`.",
+    },
+    last_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: "Merchant's last / family name. Kept in sync with `name`.",
+    },
     email: {
       type: DataTypes.STRING,
       validate: {

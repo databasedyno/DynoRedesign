@@ -9,6 +9,7 @@ import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
 import { p, infoBox, dataRow, warnText, alertBox, mono } from "../../utils/emailTemplate";
 import { dynoPayEmailTemplate, escapeHtml, FRONTEND_BASE_URL } from "./emailShared";
+import { firstNameOnly } from "../../utils/emailI18n";
 
 export interface WalletChangeRow {
   network: string;
@@ -45,7 +46,7 @@ export const sendWalletChangeAlertEmail = async (
       ? "Your payout wallets were changed"
       : `Your ${escapeHtml(rows[0]?.network || "payout")} wallet was changed`;
 
-    const content = `${p(name ? `Hey ${escapeHtml(name)},` : "Hey there,")}
+    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
     ${p(`The payout ${multiple ? "wallets" : "wallet"} for <strong>${brand}</strong> ${multiple ? "were" : "was"} just updated. Here ${multiple ? "are" : "is"} the ${multiple ? "details" : "detail"}:`)}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tableRows}</table>`, "#f59e0b")}
     ${p("If you made this change, you're all set — no action is needed.")}
@@ -80,7 +81,7 @@ export const sendWalletSecuredEmail = async (
     const brand = escapeHtml(data.companyName || "your brand");
     const nets = (data.networks || []).map(escapeHtml).join(", ");
     const subject = "We've secured your account";
-    const content = `${p(name ? `Hey ${escapeHtml(name)},` : "Hey there,")}
+    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
     ${p(`As requested, we've undone the recent payout wallet change${data.networks.length > 1 ? "s" : ""} for <strong>${brand}</strong> and <strong>locked further wallet changes</strong> on your account.`)}
     ${nets ? infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow("Networks restored", nets, true)}</table>`, "#12B76A") : ""}
     ${warnText("For your safety, new payout wallets can't be added or edited until you contact support and confirm it's really you.")}

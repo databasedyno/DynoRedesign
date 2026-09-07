@@ -22,7 +22,8 @@ import sequelize from "../../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
-import { captureSignupContext } from "../../utils/clientContext";
+import { captureSignupContext, getClientIp } from "../../utils/clientContext";
+import { deriveNameParts } from "../../utils/nameUtils";
 import axios from "axios";
 import { userLogger } from "../../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
@@ -259,6 +260,11 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     if (!fullNamePhone || fullNamePhone.length < 2) {
       return errorResponseHelper(res, 400, "Please enter your first and last name.");
     }
+    const { first_name: firstNamePhone, last_name: lastNamePhone } = deriveNameParts({
+      first: rawFirstPhone,
+      last: rawLastPhone,
+      full: fullNamePhone,
+    });
 
     const photoLocation = await downloadUserImage();
     const photo = envRaw("SERVER_URL") + photoLocation;
@@ -267,6 +273,8 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     // Create user with mobile + name; no password
     const createdUser = await userModel.create({
       name: fullNamePhone,
+      first_name: firstNamePhone,
+      last_name: lastNamePhone,
       mobile,
       email: null,
       photo,
@@ -306,6 +314,7 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     emailService.sendNewUserAdminNotification({
       name: fullNamePhone || mobile, mobile, login_type: "SMS",
       user_id: createdUser.dataValues.user_id,
+      signup_ip: getClientIp(req),
     }).catch(err => userLogger.error("Admin notification error:", err));
     
     successResponseHelper(res, 200, "Account created successfully!", {
