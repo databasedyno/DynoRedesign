@@ -1,4 +1,31 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-07 (pod a7d8a15f): SEO FIX — canonical-host 301 redirect
+#   Report: dynopay.me and the DO default ingress (dynopay-bcibf.ondigitalocean.app)
+#   both served the full site with HTTP 200 (duplicate content / wasted crawl budget);
+#   www.dynopay.com didn't resolve. (Confirmed via DigitalOcean RUN logs: Googlebot
+#   crawling healthy, all 200s, IndexNow 91 URLs OK, robots/sitemap 200 — the ONLY gap
+#   was the duplicate hosts.)
+#
+#   FIX (nginx.conf — COPY'd to /etc/nginx/nginx.conf.template by the Dockerfile, so it
+#   takes effect on the NEXT DEPLOY, not the running pod): added a `map $host
+#   $is_canonical_host` (allow-list: dynopay.com, checkout.dynopay.com) and, in the
+#   catch-all `location /`, `if ($is_canonical_host = 0) { return 301
+#   https://dynopay.com$request_uri; }`. Keyed on $host ONLY (never $scheme) to avoid an
+#   http<->https loop behind the TLS-terminating edge. /health and /api/* stay in their
+#   own location blocks => DO health probe + inbound webhooks are NEVER redirected.
+#   checkout.dynopay.com is intentionally preserved.
+#
+#   VERIFIED locally with a throwaway nginx running the real config (nginx -t OK + host
+#   matrix): dynopay.me/DO-ingress/www.* -> 301 to apex (query preserved); dynopay.com &
+#   checkout.dynopay.com pass through; /health and /api/* return 200/404 (not 301).
+#
+#   STILL NEEDS (platform, not code): (1) redeploy for the redirect to go live;
+#   (2) www.dynopay.com returns HTTP 000 — add www as a domain in DO App Platform + a DNS
+#   CNAME/cert so www actually routes here (then this redirect will 301 it to the apex).
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-07 (pod a7d8a15f): BUG FIX — merchant email data + greeting
 #   User report (screenshots): (1) Weekly Summary email for onarrival21@gmail.com is
 #   "lacking data" — 52 total txns but Completed=0, Total Volume=$0.00, Top Currency
