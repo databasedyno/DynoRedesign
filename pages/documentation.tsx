@@ -393,7 +393,7 @@ const SANDBOX_RESPONSE = `{
   "currency": "USD",
   "checkout_url": "https://dynopay.com/pay/…",
   "expires_at": "2026-07-05T16:14:12.536Z",
-  "supported_chains": ["USDT-TRC20", "USDT-ERC20", …]
+  "supported_chains": ["USDT-TRC20", "USDT-ERC20", "USDT-BEP20"]
 }`;
 
 const ENDPOINTS: Endpoint[] = [

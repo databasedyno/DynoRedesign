@@ -22,7 +22,7 @@ const HelpAndSupportPage = ({ setPageName, setPageDescription, setPageAction, }:
   }, [setPageName, setPageDescription, t]);
 
   return (
-    <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+    <Box sx={{ flex: 1, display: "flex", minHeight: 0, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
       <HelpAndSupport />
     </Box>
   );

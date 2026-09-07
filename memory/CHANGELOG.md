@@ -1,3 +1,26 @@
+# 2026-09-07 (fork): QA BOARD FIX BATCH — resolved ALL open findings from tbl_qa_comment and, per user
+# instruction, stamped each item "awaiting_retest" (NEW QA status) so QA physically re-verifies.
+#   #4  Added "awaiting_retest" status: backend QA_STATUSES (backend/models/qaModels.ts, validated in
+#       backend/routes/qualityRouter.ts) + board (pages/quality.tsx STATUS_META/OPTIONS/stats chip, purple #8B5CF6).
+#   #8  Homepage React #418/#423 hydration errors — root cause: Cloudflare Email Obfuscation rewriting the 3
+#       BrandSpotlightV3 demo emails in SSR HTML. Fix: wrapped emails in <!--email_off-->…<!--email_on--> via
+#       dangerouslySetInnerHTML (Components/Page/Home/v3/BrandSpotlightV3.tsx). PROD/Cloudflare-only — verify on dynopay.com.
+#   #10 FR/DE header CTA clip — flexShrink:0 on the pill (Components/Layout/HomeHeader/styled.tsx) + shortened
+#       header label FR "Commencer" / DE "Loslegen" (langs/locales/{fr,de}/landing.json top-level getStarted).
+#   #15 Hero "Start accepting payments" — HeroPlayground.tsx: logged-out → /auth/login, logged-in → /dashboard.
+#   #16 Hero "See how it works" → /blog (HeroPlayground.tsx).
+#   #28 Homepage cards — no real clip (grid auto-sizes); added Reveal height:100% for consistency (AudienceDoorsV3.tsx).
+#   #33/#56 Help & Support left padding — shared responsive container (maxWidth 1280 + px) in
+#       pages/help-support/index.tsx and pages/help-support/[slug].tsx so content aligns with header/footer.
+#   #35 Back-button scroll restore — experimental.scrollRestoration:true (next.config.mjs).
+#   #36 Mobile hamburger blank after search — NOT reproducible on current build (MobilePanel rewrite already fixed it).
+#   #47 Fee calculator — added per-payment breakdown (Payment/Platform/Blockchain/Total/Net) + settlement-currency
+#       selector (pages/fees.tsx).
+#   #52 Docs response example — replaced bare … with valid quoted chain "USDT-BEP20" (pages/documentation.tsx L396).
+#   Verified: testing agent 8/8 PASS (test_reports/iteration_131.json). Board stamped (comment ids 58-65),
+#   /quality now shows "Awaiting retest: 8", Fail: 0. QA passcode Dynopay123@. NOT yet deployed to production.
+#
+
 # 2026-06 (pod dbd52123): DESIGN POLISH — dashboard + checkout, light touch, light+dark. See PRD.md top block for the
 # full file list. Key testids added: clean-checkout-instruction-amount, clean-checkout-reference, checkout-strip-progress,
 # checkout-strip-timer, recent-txn-status. Removed testids: create-payment-link-btn, dash2026-greeting, referral-reward-banner

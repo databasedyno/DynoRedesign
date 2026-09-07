@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Box, Typography, Button, Slider } from "@mui/material";
+import { Box, Typography, Button, Slider, TextField, MenuItem } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import CheckIcon from "@mui/icons-material/Check";
@@ -51,6 +51,23 @@ const formatUSD = (n: number) =>
     ? `$${(n / 1000).toLocaleString("en-US", { maximumFractionDigits: 1 })}k`
     : `$${n.toLocaleString("en-US")}`;
 
+// Exact 2dp currency for the per-payment breakdown (QA #47).
+const fmtMoney = (n: number) =>
+  `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// Representative settlement assets + their typical flat on-chain (network) fee
+// in USD terms. Used by the per-payment breakdown so merchants see the real
+// net after the platform fee AND the blockchain fee for the chain they settle on.
+const SETTLE_CURRENCIES = [
+  { code: "USDT-TRC20", label: "USDT · Tron (TRC-20)", netFee: 1.0 },
+  { code: "USDC-SOL", label: "USDC · Solana", netFee: 0.01 },
+  { code: "USDC-POLYGON", label: "USDC · Polygon", netFee: 0.03 },
+  { code: "USDC-ERC20", label: "USDC · Ethereum (ERC-20)", netFee: 3.5 },
+  { code: "USDT-ERC20", label: "USDT · Ethereum (ERC-20)", netFee: 3.5 },
+  { code: "ETH", label: "ETH · Ethereum", netFee: 3.5 },
+  { code: "BTC", label: "BTC · Bitcoin", netFee: 2.5 },
+];
+
 const FeesPage = () => {
   const { t } = useTranslation("fees");
   const { t: tTitle } = useTranslation("pageTitles");
@@ -63,6 +80,16 @@ const FeesPage = () => {
   const fixedTotal = payments * 1;               // $1 fixed per payment
   const allIn = pctFee + fixedTotal;             // true all-in cost
   const effectiveRate = volume > 0 ? (allIn / volume) * 100 : 0;
+
+  // Per-payment breakdown state (QA #47): amount + settlement currency drive a
+  // clear Platform fee / Blockchain fee / Total fee / Net-to-merchant summary.
+  const [payAmount, setPayAmount] = useState(100);
+  const [currency, setCurrency] = useState("USDT-TRC20");
+  const selCur = SETTLE_CURRENCIES.find((c) => c.code === currency) || SETTLE_CURRENCIES[0];
+  const platformFee = (payAmount * tier.pct) / 100 + 1; // tier % + $1 fixed per payment
+  const blockchainFee = selCur.netFee;
+  const totalFee = platformFee + blockchainFee;
+  const netToMerchant = Math.max(0, payAmount - totalFee);
 
   const scrollToCalc = useCallback(() => {
     const el = document.getElementById("fee-calculator");
@@ -405,6 +432,58 @@ const FeesPage = () => {
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: tier.accent, mt: 0.25 }}>
                       ≈ {toFixedStr(effectiveRate, 2)}% {t("v3.effectiveRate")}
                     </Typography>
+                  </Box>
+                </Box>
+
+                {/* Per-payment breakdown + settlement currency (QA #47) */}
+                <Box sx={{ mt: 4 }} data-testid="fee-breakdown">
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: s.ink3, mb: 1.5 }}>
+                    {t("v3.breakdownTitle", { defaultValue: "Per-payment breakdown" })}
+                  </Typography>
+                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2, mb: 3 }}>
+                    <TextField
+                      type="number"
+                      size="small"
+                      label={t("v3.paymentAmount", { defaultValue: "Payment amount (USD)" })}
+                      value={payAmount}
+                      onChange={(e) => setPayAmount(Math.max(0, Number(e.target.value) || 0))}
+                      inputProps={{ min: 0, "data-testid": "fee-calc-amount-input" }}
+                      InputProps={{ startAdornment: <Typography sx={{ color: s.ink3, mr: 0.5 }}>$</Typography> }}
+                    />
+                    <TextField
+                      select
+                      size="small"
+                      label={t("v3.settleCurrency", { defaultValue: "Settlement currency" })}
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      SelectProps={{ SelectDisplayProps: { "data-testid": "fee-calc-currency-select" } as React.HTMLAttributes<HTMLDivElement> }}
+                    >
+                      {SETTLE_CURRENCIES.map((c) => (
+                        <MenuItem key={c.code} value={c.code}>{c.label}</MenuItem>
+                      ))}
+                    </TextField>
+                  </Box>
+                  <Box sx={{ border: `1px solid ${s.line}`, borderRadius: "16px", overflow: "hidden" }}>
+                    {[
+                      { label: t("v3.bdPaymentAmount", { defaultValue: "Payment amount" }), value: fmtMoney(payAmount), sub: null as string | null },
+                      { label: t("v3.bdPlatformFee", { defaultValue: "Platform fee" }), value: fmtMoney(platformFee), sub: `${tier.pct}% + $1` },
+                      { label: t("v3.bdBlockchainFee", { defaultValue: "Blockchain / network fee" }), value: fmtMoney(blockchainFee), sub: selCur.label },
+                      { label: t("v3.bdTotalFee", { defaultValue: "Total fee" }), value: fmtMoney(totalFee), sub: null as string | null },
+                    ].map((row, i) => (
+                      <Box key={i} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, py: 1.75, borderBottom: `1px solid ${s.line}` }}>
+                        <Box>
+                          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2 }}>{row.label}</Typography>
+                          {row.sub && <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.ink3, mt: 0.25 }}>{row.sub}</Typography>}
+                        </Box>
+                        <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 16, color: s.ink }} data-testid={`fee-row-value-${i}`}>{row.value}</Typography>
+                      </Box>
+                    ))}
+                    <Box data-testid="fee-breakdown-net" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, py: 2, background: tier.accentSoft }}>
+                      <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, color: s.ink }}>
+                        {t("v3.bdNetToMerchant", { defaultValue: "Net to merchant" })}
+                      </Typography>
+                      <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 20, color: tier.accent }}>{fmtMoney(netToMerchant)}</Typography>
+                    </Box>
                   </Box>
                 </Box>
 

@@ -55,6 +55,7 @@ const AudienceDoorsV3: React.FC = () => {
               <Reveal
                 key={d.key}
                 delay={idx * 0.06}
+                style={{ height: "100%" }}
               >
                 <Box
                   onClick={() => router.push(d.href)}

@@ -2173,3 +2173,55 @@
 #
 #   DEPLOYMENT READINESS: ✅ READY FOR PRODUCTION DEPLOYMENT
 # ============================================================================
+
+# ============================================================================
+# QA BOARD FIXES BATCH — 2026-09-07 (Session: fork continuation)
+# ============================================================================
+# Source of truth: tbl_qa_comment (tester "Tuhin Hossain"). Fixed ALL open findings.
+# Per user instruction: after each fix, board status is stamped "awaiting_retest"
+# (new QA status) so QA physically re-verifies. New status added to backend + board.
+#
+# FIXES IMPLEMENTED (verified on preview via Playwright unless noted):
+#   #8  (PUB-001) Homepage React #418/#423 hydration errors — ROOT CAUSE: Cloudflare
+#        Email Obfuscation rewrote the 3 BrandSpotlightV3 demo emails
+#        (hello@auroracoffee.com, pay@nomadstudio.io, me@side.dev) into
+#        <a class="__cf_email__">[email protected]</a> in the SSR HTML → structural+text
+#        mismatch vs client render. FIX: wrap those emails in <!--email_off-->…<!--email_on-->
+#        via dangerouslySetInnerHTML so Cloudflare skips them → SSR===client.
+#        NOTE: reproducible ONLY on production (Cloudflare); preview cannot reproduce.
+#        Verified on preview: emails render, 0 console errors, comments present in DOM.
+#   #10 (PUB-001) FR/DE header "Get started" CTA clipped. FIX: flexShrink:0 on the pill
+#        (Components/Layout/HomeHeader/styled.tsx) + shortened header CTA labels
+#        FR "Commencer gratuitement"→"Commencer", DE "Kostenlos starten"→"Loslegen"
+#        (top-level landing.json key only; hero reward badge still carries the "free" hook).
+#        Verified: fr/de/es CTA right-edge ≤ viewport at 1280, no clip.
+#   #15 (PUB-001) Hero "Start accepting payments" routing. FIX: logged-out → /auth/login,
+#        logged-in → /dashboard (HeroPlayground.tsx, reads localStorage token on click).
+#        Verified logged-out→/auth/login. Logged-in→/dashboard uses same pattern as HomeButton.
+#   #16 (PUB-001) Hero "See how it works" now → /blog (was in-page scroll). Verified.
+#   #28 (custom::7) Homepage "Checkout"/"Sell products in crypto" card clip — NOT reproduced:
+#        AudienceDoorsV3 cards auto-size (grid stretch + content-driven height); text sits
+#        29px above card bottom (the earlier scrollHeight>clientHeight was the decorative orb,
+#        a false positive). Added Reveal style height:100% for consistency w/ sibling grids.
+#   #33/#56 (custom::8 / PUB-007) Help & Support inconsistent left padding — FIX: wrapped
+#        help-support content (index.tsx + [slug].tsx) in a shared responsive container
+#        (maxWidth 1280, mx auto, px 16/20) so content aligns with header/footer (was left=0).
+#        Verified: logo/search/grid all left=20 now.
+#   #35 (custom::9) Back-button scroll restore — FIX: experimental.scrollRestoration:true (next.config.mjs).
+#   #36 (PUB-002) Mobile hamburger blank after search — NOT reproducible on current build
+#        across all 11 search destinations (always-mounted MobilePanel rewrite already fixed
+#        the old MUI-Drawer failure mode). No code change; awaiting-retest.
+#   #47 (PUB-004) Fee calculator missing breakdown + currency — FIX: added per-payment
+#        breakdown (Payment amount, Platform fee = tier% + $1, Blockchain/network fee,
+#        Total fee, Net to merchant) + settlement-currency selector (fees.tsx).
+#        Verified: $100 USDT-TRC20 → net $96.50; switch to ERC-20 → net $94.00 (dynamic).
+#   #52 (PUB-005) Docs response example invalid JSON — FIX: bare … replaced with a valid
+#        quoted chain "USDT-BEP20" (documentation.tsx L396). JSON now parses.
+#   #4  QA Status Sync — added "awaiting_retest" status: backend QA_STATUSES (qaModels.ts,
+#        validated in /api/quality/comment) + board (quality.tsx STATUS_META/OPTIONS/stats chip).
+#        Verified end-to-end: POST awaiting_retest comment accepted (id 57) and deleted.
+#
+# TEST CREDENTIALS: QA board passcode = Dynopay123@ ; merchant onarrival21@gmail.com / Katiekendra123@
+# LIVE PROD DB — all QA-board writes are additive to tbl_qa_comment.
+# ============================================================================
+

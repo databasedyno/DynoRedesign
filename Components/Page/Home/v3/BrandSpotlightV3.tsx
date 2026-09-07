@@ -265,9 +265,8 @@ const BrandSpotlightV3: React.FC = () => {
                         </Box>
                         <Typography
                           sx={{ mt: 0.25, fontFamily: FONT_BODY, fontSize: 11.5, color: s.ink3 }}
-                        >
-                          {b.email}
-                        </Typography>
+                          dangerouslySetInnerHTML={{ __html: `<!--email_off-->${b.email}<!--email_on-->` }}
+                        />
                       </Box>
                       <CheckRoundedIcon
                         aria-hidden

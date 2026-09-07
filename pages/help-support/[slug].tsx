@@ -118,7 +118,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     return (
       <>
         {head}
-        <Box sx={{ flex: 1, display: "flex", minHeight: 0, pt: { xs: 2, md: 3.5 }, ...(Bespoke ? {} : { px: { xs: "12px", md: "20px" }, pb: { xs: "12px", md: "20px" }, overflowY: "auto" }) }}>
+        <Box sx={{ flex: 1, display: "flex", minHeight: 0, pt: { xs: 2, md: 3.5 }, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" }, ...(Bespoke ? {} : { pb: { xs: "12px", md: "20px" }, overflowY: "auto" }) }}>
           {Bespoke ? <Bespoke data={stub} /> : <HelpArticleBody slug={slug} title={title} />}
         </Box>
       </>
@@ -142,7 +142,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     return (
       <>
         {head}
-        <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+        <Box sx={{ flex: 1, display: "flex", minHeight: 0, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               {backButton}
@@ -201,7 +201,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
   return (
     <>
       {head}
-      <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+      <Box sx={{ flex: 1, display: "flex", minHeight: 0, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px", maxWidth: "728px" }}>
           {backButton}
           <TextDecoration {...({ component: "h1" } as { component: string })} style={{ fontSize: isMobile ? "20px" : "28px", color: theme.palette.text.primary, lineHeight: 1.3, margin: 0 }}>

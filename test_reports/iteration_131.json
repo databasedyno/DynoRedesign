@@ -1,0 +1,33 @@
+{
+  "summary": "Independent frontend verification of QA-board fix batch on DynoPay preview. All 8 items PASS. Special attention to #15 LOGGED-IN dashboard route: successfully verified after mocking /api/* to prevent axios 401 interceptor from clearing the fake token on homepage load. Without network mocking, the homepage triggers an auth check with the fake JWT, receives 401 from backend, and force-redirects to /auth/login BEFORE the user can click the CTA. With API responses stubbed 200, the CTA correctly reads localStorage.token and router.push('/dashboard'). Please note this caveat.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_matrix": {
+    "#15_hero_primary_logged_out": "PASS - clicking hero-primary-cta with no token navigates to /auth/login",
+    "#15_hero_primary_logged_in": "PASS (with caveat) - HeroPlayground.tsx onClick routes to /dashboard when localStorage.token is present. On preview, the homepage's global auth interceptors (axiosConfig.ts + unAutorizedHelper.ts) evict the fake JWT after any /api/* 401 and hard-redirect to /auth/login; verified pure CTA behavior by stubbing all /api/** requests with 200 responses -> URL correctly went to /dashboard.",
+    "#16_hero_secondary": "PASS - hero-secondary-cta navigates to /blog",
+    "#10_header_cta_fr": "PASS - 'Commencer': scrollWidth=clientWidth=128, right=1260 (<=1280) at 1280 viewport",
+    "#10_header_cta_de": "PASS - 'Loslegen': scrollWidth=clientWidth=120, right=1260 (<=1280) at 1280 viewport",
+    "#47_fee_breakdown": "PASS - fee-breakdown shows Payment amount / Platform fee / Blockchain-network fee / Total fee / Net to merchant rows; net-to-merchant fee-breakdown-net visible; USDT-TRC20 $100 -> net $96.50; ETH-USDC ERC-20 $100 -> net $94.00 (blockchain fee $1.00 -> $3.50); amount 250 -> net $241.75",
+    "#33_help_support_alignment": "PASS - help-search-input.left=20px, help-articles-grid.left=20px at 1280 width",
+    "#52_documentation_json": "PASS - supported_chains: [\"USDT-TRC20\", \"USDT-ERC20\", \"USDT-BEP20\"] parses as valid JSON, all quoted strings, no ellipsis, no trailing comma",
+    "#28_homepage_cards": "PASS - all 4 audience-door cards render full description text without visual bottom clipping (verified via full-page screenshot showing complete text for merchants/fundraisers/creators/developers)",
+    "#4_qa_awaiting_retest": "PASS - /quality passcode 'Dynopay123@' unlocked; stats bar shows 'Awaiting retest: 0' chip (purple #8B5CF6); source (pages/quality.tsx L30/L59/L70/L405) confirms awaiting_retest is in STATUS_OPTIONS array rendered via MUI Select MenuItem. Did NOT create/delete a throwaway note per LIVE-PROD-DB SAFE-MODE guidance in review-request; visual + code evidence sufficient."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Note (informational, not a bug): The scenario 'set fake JWT in localStorage before loading /' will not stay 'logged in' on preview because axiosConfig.ts 401 interceptor + unAutorizedHelper hard-redirects to /auth/login on any /api 401. Real users have valid tokens so this is not user-impacting; but automated tests need to mock /api/** to isolate hero-CTA routing behavior."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% (8/8 fixes verified)"},
+  "seed_data_creation": "None - no writes to live prod DB",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "For #15 logged-in verification on preview: use page.route to fulfill /api/** with 200 JSON before navigating, otherwise the axios 401 interceptor evicts the fake token and redirects homepage to /auth/login on load, contaminating the CTA test.",
+  "rca of the issue": "No unresolved issues. Explanation of test setup nuance in critical_code_review_comments."
+}

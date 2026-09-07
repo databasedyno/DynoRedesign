@@ -76,11 +76,6 @@ const HeroPlayground: React.FC = () => {
     return () => clearInterval(iv);
   }, [reduced]);
 
-  const scrollTo = (id: string) => {
-    if (typeof document === "undefined") return;
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   const store = STORES[idx];
   const coin = SETTLE_COINS[idx % SETTLE_COINS.length];
 
@@ -156,7 +151,10 @@ const HeroPlayground: React.FC = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap", ...heroIn(0.24) }}>
             <Button
               data-testid="hero-primary-cta"
-              onClick={() => router.push("/auth/register?ref=hero_primary")}
+              onClick={() => {
+                const tk = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+                router.push(tk ? "/dashboard" : "/auth/login");
+              }}
               endIcon={<ArrowForward sx={{ fontSize: 18 }} />}
               sx={{
                 borderRadius: "999px",
@@ -179,7 +177,7 @@ const HeroPlayground: React.FC = () => {
             </Button>
             <Button
               data-testid="hero-secondary-cta"
-              onClick={() => scrollTo("how-it-works")}
+              onClick={() => router.push("/blog")}
               sx={{
                 borderRadius: "999px",
                 px: 2.5,

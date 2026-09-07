@@ -30,6 +30,8 @@ const nextConfig = {
 
   // ─── Performance: tree-shake heavy barrel-file libraries ───
   experimental: {
+    // Restore scroll position on browser back/forward navigation (QA #35).
+    scrollRestoration: true,
     optimizePackageImports: [
       "@mui/material",
       "@mui/icons-material",

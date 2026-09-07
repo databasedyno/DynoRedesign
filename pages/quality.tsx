@@ -27,7 +27,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { TEST_SECTIONS } from "@/data/qaCatalog";
 
 /* ==================== TYPES ==================== */
-type QaStatus = "pass" | "fail" | "blocked" | "not_tested";
+type QaStatus = "pass" | "fail" | "blocked" | "awaiting_retest" | "not_tested";
 
 interface QaComment {
   id: number;
@@ -56,6 +56,7 @@ const STATUS_META: Record<QaStatus, { label: string; color: string }> = {
   pass: { label: "Pass", color: "#22C55E" },
   fail: { label: "Fail", color: "#EF4444" },
   blocked: { label: "Blocked", color: "#F59E0B" },
+  awaiting_retest: { label: "Awaiting retest", color: "#8B5CF6" },
   not_tested: { label: "Not tested", color: "#9CA3AF" },
 };
 
@@ -66,7 +67,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   Low: "#6B7280",
 };
 
-const STATUS_OPTIONS: QaStatus[] = ["pass", "fail", "blocked", "not_tested"];
+const STATUS_OPTIONS: QaStatus[] = ["pass", "fail", "blocked", "awaiting_retest", "not_tested"];
 
 const StatusChip = ({ status, small }: { status: QaStatus; small?: boolean }) => (
   <Chip
@@ -299,7 +300,7 @@ const QualityPage = () => {
     const allKeys: string[] = [];
     TEST_SECTIONS.forEach((s) => s.cases.forEach((c) => allKeys.push(`${s.id}::${c.id}`)));
     customItems.forEach((c) => allKeys.push(c.item_key));
-    const counts = { total: allKeys.length, pass: 0, fail: 0, blocked: 0, not_tested: 0 };
+    const counts = { total: allKeys.length, pass: 0, fail: 0, blocked: 0, awaiting_retest: 0, not_tested: 0 };
     allKeys.forEach((k) => {
       counts[latestStatus(k)] += 1;
     });
@@ -544,6 +545,7 @@ const QualityPage = () => {
               <Chip label={`Pass: ${stats.pass}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.pass.color }} />
               <Chip label={`Fail: ${stats.fail}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.fail.color }} />
               <Chip label={`Blocked: ${stats.blocked}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.blocked.color }} />
+              <Chip label={`Awaiting retest: ${stats.awaiting_retest}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.awaiting_retest.color }} />
               <Chip label={`Untested: ${stats.not_tested}`} sx={{ fontWeight: 600, color: "#fff", bgcolor: STATUS_META.not_tested.color }} />
               {dataLoading && <CircularProgress size={20} sx={{ ml: 1 }} />}
             </Box>

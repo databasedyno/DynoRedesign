@@ -474,6 +474,7 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
   fontFamily: "var(--font-body)",
   color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
   whiteSpace: "nowrap",
+  flexShrink: 0,
   padding: "8px 12px",
   borderRadius: 999,
   minWidth: 0,
@@ -496,6 +497,9 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
 // on hover and nudges down on press.
 export const StyledGetStartedButton = styled(Box)({
   borderRadius: 999,
+  // Never let the flex row compress this pill — long translated CTAs
+  // (FR "Commencer gratuitement", DE "Kostenlos starten") must not clip (QA #10).
+  flexShrink: 0,
   // Hidden on mobile alongside the sign-in link (<1025px) — the primary CTA is
   // surfaced inside the drawer, keeping room for the hamburger on phones.
   "@media (max-width: 1025px)": {
@@ -511,6 +515,8 @@ export const StyledGetStartedButton = styled(Box)({
     fontWeight: 600,
     borderRadius: "999px",
     boxShadow: "none",
+    whiteSpace: "nowrap",
+    overflow: "visible",
     transition:
       "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
   },

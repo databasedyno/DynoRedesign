@@ -12,7 +12,7 @@ import { apiLogger } from "../utils/loggers";
  * These are brand-new tables; creating them does not touch any existing data.
  */
 
-export const QA_STATUSES = ["pass", "fail", "blocked", "not_tested"] as const;
+export const QA_STATUSES = ["pass", "fail", "blocked", "awaiting_retest", "not_tested"] as const;
 export type QaStatus = (typeof QA_STATUSES)[number];
 
 const qaCommentModel = sequelize.define(

@@ -1,3 +1,10 @@
+# 2026-09-07 (fork): QA-board fix batch complete — resolved all open tbl_qa_comment findings
+# (#8 hydration/Cloudflare emails, #10 FR/DE CTA, #15/#16 hero routing, #28 cards, #33/#56 help padding,
+# #35 back-scroll, #36 mobile menu [not reproducible], #47 fee breakdown+currency, #52 docs JSON) and added
+# a new "awaiting_retest" QA status (#4). All 8 findings stamped "Awaiting retest" on /quality for physical
+# re-verification. Testing agent 8/8 PASS. Details: memory/CHANGELOG.md top entry. NOT yet deployed to prod.
+#
+
 # INVESTIGATION 2026-09-06 (pod 1a75b74d): onboarding + zero-transactions RCA -> memory/reports/onboarding_investigation_2026-09-06.md
 #   Tools: backend/scripts/ro_query.js (READ-ONLY SQL runner, prod), DO API token in backend/.env (DO_API_TOKEN, gitignored).
 #   Headline: 112 signups Aug-Sep (49% of attributed = ChatGPT -> /for/fundraisers; IR/SO/ET/PK/PS...), individuals' hardship
