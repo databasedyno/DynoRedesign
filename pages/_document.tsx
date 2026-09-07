@@ -18,26 +18,21 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
   return (
     <Html lang={lang}>
       <Head>
-        {/* Favicon — adaptive dark/light so the mark never disappears on dark browser
-            themes. SVG self-switches via prefers-color-scheme; PNG media links cover
-            browsers without SVG-favicon support; .ico is the final fallback.
-            v4 bump forces browsers/mobiles/search crawlers to drop any cached icon.
-
-            IMPORTANT (Google Search favicon): Googlebot does NOT evaluate the
-            `prefers-color-scheme` media attribute, so the media-gated PNGs below are
-            invisible to it. We therefore ALSO declare unconditional, high-res PNG
-            icons (48/192) + a web manifest with icons — the clean, color-scheme-
-            independent signals Google uses to render the search-result favicon. */}
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=4" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=4" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=4" media="(prefers-color-scheme: light)" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=4" media="(prefers-color-scheme: light)" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32-light.png?v=4" media="(prefers-color-scheme: dark)" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16-light.png?v=4" media="(prefers-color-scheme: dark)" />
-        <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
-        <link rel="manifest" href="/site.webmanifest?v=4" />
+        {/* Favicon — deliberately minimal & unambiguous (consolidated 2026-09-07).
+            Modern browsers use the SVG, which self-switches dark/light via an embedded
+            @media(prefers-color-scheme), so the mark never disappears on dark chrome.
+            Every other entry is color-scheme-independent, giving Google's favicon
+            crawler (which ignores prefers-color-scheme) ONE clear signal set:
+            /favicon.ico + unconditional 48/192 PNGs + the web manifest. The indigo
+            coin reads fine on both light and dark backgrounds, so no separate dark-mode
+            PNG variants are needed. v5 bump forces browsers/crawlers to drop the cached
+            v4 icon. */}
+        <link rel="icon" href="/favicon.ico?v=5" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=5" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=5" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=5" />
+        <link rel="manifest" href="/site.webmanifest?v=5" />
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

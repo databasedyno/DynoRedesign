@@ -1,4 +1,30 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-07 (pod a7d8a15f): SEO — favicon <head> consolidation + cache-bust
+#   Context: Google search result still shows the OLD Dynopay logo. Verified the SITE
+#   already serves the NEW mark everywhere (favicon.ico/svg/48/192/512 + apple-touch +
+#   manifest + Organization.logo all = indigo coin/double-arrow; prod md5 == repo; CF
+#   cf-cache-status BYPASS). Root cause is Google's own stale favicon cache (google s2
+#   still returns the old black mark) — an EXTERNAL re-crawl lag, not a site bug.
+#
+#   CHANGE (pages/_document.tsx, cosmetic/best-practice): consolidated 10 favicon <link>
+#   tags down to 6 unambiguous ones and bumped ?v=4 -> ?v=5. Removed the 4 media-scoped
+#   (prefers-color-scheme) 16/32 dark/light PNG entries — the SVG favicon self-switches
+#   dark/light via embedded @media, and the indigo coin reads on both, so no PNG dark
+#   variants needed. Final set: favicon.ico(any) + favicon.svg + favicon-48 + favicon-192
+#   + apple-touch-icon(180) + site.webmanifest, all ?v=5. (Old PNG files remain in
+#   /public, just no longer referenced — harmless.)
+#
+#   VERIFIED (auto_frontend_testing_agent, preview): exactly 6 links, all ?v=5, ZERO ?v=4,
+#   ZERO prefers-color-scheme entries, all 6 icon URLs -> HTTP 200, homepage 200 + no new
+#   console errors.
+#
+#   STILL REQUIRED (external, user action): this does NOT force Google to refresh. After
+#   DEPLOY, do Google Search Console -> URL Inspection on https://dynopay.com/ ->
+#   Request Indexing; Google's favicon refresh then follows on its own schedule (days-weeks).
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-07 (pod a7d8a15f): SEO FIX — canonical-host 301 redirect
 #   Report: dynopay.me and the DO default ingress (dynopay-bcibf.ondigitalocean.app)
 #   both served the full site with HTTP 200 (duplicate content / wasted crawl budget);
