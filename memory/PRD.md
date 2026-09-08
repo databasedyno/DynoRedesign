@@ -1,3 +1,28 @@
+# 2026-06 (fork, pod a99b939f) FOLLOW-UP 5: ADMIN DASHBOARD DATA-CORRECTNESS (fees $0 / payouts / wallet count) — DONE + VERIFIED.
+#   User (viewing onarrival21@gmail.com / John Davis) flagged: dashboard "payout $0, fee $0"; merchant drawer
+#   "Payout wallets (65)" (expected 13) with wrong-looking amounts. RCA via backend/scripts/ro_query.js (READ-ONLY):
+#   • PLATFORM FEES $0 = BUG: getAdminAnalytics summed blockchain_fee from tbl_user_temp_address which has 0 ROWS.
+#     Real fee lives in tbl_user_transaction.transaction_fee (base_currency units). FIX (adminController.getAdminAnalytics):
+#     totalFee now = sum(transaction_fee) from settled tbl_user_transaction grouped by base_currency; fee→USD uses the
+#     EFFECTIVE SETTLEMENT RATE feeInUsd = feeAmount * (usd_value_sum / base_amount_sum) (not convertToFiat at today's
+#     rate — removed that import usage). Verified: platform fees now $870.16 (BTC $422.89, USDT-TRC20 $257.88, ETH $96.12,
+#     LTC $59.88, USDT-ERC20 $30.72, TRX $1.37, DOGE $1.30) on $29,787.27 volume.
+#   • PAYOUTS $0: KPI counted tbl_user_self_transaction which is EMPTY (non-custodial → no internal withdrawals). Per user
+#     choice 2a, relabelled the card to "Paid to merchants" = USD forwarded net of fees = totalRevenueUsd − totalFeesUsd
+#     (computed in Overview/index.tsx derived.paidToMerchants). Now shows $28,917.11 · "Forwarded (net of fees)". testid
+#     kept kpi-payouts. (totalTransactionOutgoing still returned by API, just no longer drives the card.)
+#   • PAYOUT WALLETS (65): tbl_user_wallet user_id=1 = 39 legacy account-level rows (company_id NULL: 13 coins × 3 empty
+#     dupes) + 13 (company 1 The Dev Store) + 13 (company 71 SMADAV). Also `amount` is NOT an on-chain balance — it's
+#     incremented by helper/walletHelpers.incrementUserWallet at each settlement = LIFETIME crypto forwarded (USDT-TRC20
+#     amount 9380.85 == lifetime settled USD). Per user choice 3a, MerchantDrawer payout section now GROUPS BY BRAND
+#     (hides company_id NULL rows unless a merchant has none), header "<Brand> — N wallets · M funded" (testid
+#     merchant-wallet-group-<cid>), rows show "<amount> <COIN>" + a caption "Amounts are the lifetime crypto received
+#     (forwarded) per address — not a spendable balance." Verified: groups The Dev Store(13·7) + SMADAV(13·2), 39 legacy hidden.
+#   FILES: backend/controller/adminController.ts (getAdminAnalytics), Components/Page/Admin/Overview/index.tsx,
+#     Components/Page/Admin/Merchants/MerchantDrawer.tsx. tsc BE+FE = 0. Verified: curl (analytics+user/1) + screenshots.
+#     No DB writes (all read-only analytics/display). No testing_agent (avoids UI ban/suspend on LIVE prod DB).
+#
+
 # 2026-06 (fork, pod a99b939f) FOLLOW-UP 4: SUPPORT INBOX UX BATCH (4 items) — DONE + VERIFIED (screenshots; tsc 0).
 #   All FRONTEND-only, no backend/DB writes (LIVE prod DB untouched). User asks addressed:
 #   1) "To" FIELD VISIBLE: email dialog DialogContent pt:1 (8px) clipped the first outlined field's floating "To"

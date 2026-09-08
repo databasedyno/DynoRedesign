@@ -311,46 +311,80 @@ const MerchantDrawer: React.FC<{
                 ))
               )}
 
-              <SectionLabel>Payout wallets ({(m.wallets || []).length})</SectionLabel>
+              <SectionLabel>Payout wallets</SectionLabel>
+              <Typography sx={{ fontSize: 11, color: "text.secondary", mb: 0.5 }}>
+                Amounts are the lifetime crypto received (forwarded) per address — not a spendable balance.
+              </Typography>
               {(() => {
                 const all = m.wallets || [];
-                if (all.length === 0) {
+                // Hide legacy account-level (company_id NULL) rows unless the
+                // merchant has no company-scoped wallets at all.
+                const scoped = all.filter((w) => w.company_id != null);
+                const source = scoped.length > 0 ? scoped : all;
+                if (source.length === 0) {
                   return (
                     <Typography sx={{ fontSize: 12.5, color: "text.secondary", py: 0.5 }}>
                       No payout wallets configured.
                     </Typography>
                   );
                 }
-                const funded = all.filter((w) => Number(w.amount) > 0);
-                if (funded.length === 0) {
-                  return (
-                    <Typography sx={{ fontSize: 12.5, color: "text.secondary", py: 0.5 }}>
-                      {all.length} wallet{all.length === 1 ? "" : "s"} configured · no balances yet.
-                    </Typography>
-                  );
+                const groups: Record<string, typeof source> = {};
+                for (const w of source) {
+                  const key = w.company_id != null ? String(w.company_id) : "account";
+                  (groups[key] = groups[key] || []).push(w);
                 }
+                const brandName = (key: string) => {
+                  if (key === "account") return "Account-level";
+                  const co = (m.companies || []).find((c) => String(c.company_id) === key);
+                  return co?.company_name || `Brand #${key}`;
+                };
+                const companyOrder = (m.companies || [])
+                  .map((c) => String(c.company_id))
+                  .filter((k) => groups[k]);
+                const rest = Object.keys(groups).filter((k) => !companyOrder.includes(k));
+                const orderedKeys = [...companyOrder, ...rest];
                 return (
                   <>
-                    <Typography sx={{ fontSize: 11.5, color: "text.secondary", mb: 0.5 }}>
-                      {funded.length} of {all.length} holding a balance
-                    </Typography>
-                    {funded.slice(0, 12).map((w, i) => (
-                      <Box
-                        key={`${w.wallet_type}-${i}`}
-                        data-testid={`merchant-wallet-${w.wallet_type}-${i}`}
-                        sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, py: 0.6 }}
-                      >
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography sx={{ fontSize: 12.5, fontWeight: 600 }}>{w.wallet_type}</Typography>
-                          <Typography sx={{ fontSize: 11, color: "text.secondary", fontFamily: "var(--font-mono)" }}>
-                            {shortAddr(w.wallet_address)}
-                          </Typography>
+                    {orderedKeys.map((key) => {
+                      const list = groups[key] || [];
+                      const funded = list.filter((w) => Number(w.amount) > 0);
+                      return (
+                        <Box key={key} sx={{ mb: 1 }} data-testid={`merchant-wallet-group-${key}`}>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 1, mt: 1 }}>
+                            <Typography sx={{ fontSize: 12.5, fontWeight: 700 }} noWrap>
+                              {brandName(key)}
+                            </Typography>
+                            <Typography sx={{ fontSize: 11, color: "text.secondary", flexShrink: 0 }}>
+                              {list.length} wallet{list.length === 1 ? "" : "s"}
+                              {funded.length ? ` · ${funded.length} funded` : ""}
+                            </Typography>
+                          </Box>
+                          {funded.length === 0 ? (
+                            <Typography sx={{ fontSize: 11.5, color: "text.secondary", py: 0.5 }}>
+                              No settlements received yet.
+                            </Typography>
+                          ) : (
+                            funded.slice(0, 12).map((w, i) => (
+                              <Box
+                                key={`${key}-${w.wallet_type}-${i}`}
+                                data-testid={`merchant-wallet-${key}-${w.wallet_type}`}
+                                sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, py: 0.5 }}
+                              >
+                                <Box sx={{ minWidth: 0 }}>
+                                  <Typography sx={{ fontSize: 12.5, fontWeight: 600 }}>{w.wallet_type}</Typography>
+                                  <Typography sx={{ fontSize: 11, color: "text.secondary", fontFamily: "var(--font-mono)" }}>
+                                    {shortAddr(w.wallet_address)}
+                                  </Typography>
+                                </Box>
+                                <Typography sx={{ fontSize: 12.5, fontFamily: "var(--font-mono)", fontWeight: 600, textAlign: "right" }}>
+                                  {Number(w.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })} {w.wallet_type}
+                                </Typography>
+                              </Box>
+                            ))
+                          )}
                         </Box>
-                        <Typography sx={{ fontSize: 12.5, fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                          {Number(w.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}
-                        </Typography>
-                      </Box>
-                    ))}
+                      );
+                    })}
                   </>
                 );
               })()}

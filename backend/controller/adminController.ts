@@ -7,7 +7,7 @@ import {
   successResponseHelper,
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
-import { convertToMultiple, convertToUSD, convertToFiat } from "../utils/currencyUtils";
+import { convertToMultiple, convertToUSD } from "../utils/currencyUtils";
 import { adminLogger } from "../utils/loggers";
 import {
   deleteRedisItem,
@@ -868,13 +868,14 @@ const getAdminAnalytics = async (
        from tbl_user_transaction ut ${settledWhere} group by base_currency`,
       { type: QueryTypes.SELECT, replacements: { settledStatuses: SETTLED_STATUSES } }
     );
+    // Platform fee (Dynopay revenue) is stored per settled transaction in
+    // tbl_user_transaction.transaction_fee (in base_currency units). The old
+    // source (tbl_user_temp_address.blockchain_fee) is empty, which is why
+    // fees showed $0.
     const totalFee = await sequelize.query<{ wallet_type: string; fee_amount: number }>(
-      `
-      select wallet_type,sum(blockchain_fee) as fee_amount from tbl_user_temp_address ut ${where} group by wallet_type
-      `,
-      {
-        type: QueryTypes.SELECT,
-      }
+      `select base_currency as wallet_type, sum(transaction_fee) as fee_amount
+       from tbl_user_transaction ut ${settledWhere} group by base_currency`,
+      { type: QueryTypes.SELECT, replacements: { settledStatuses: SETTLED_STATUSES } }
     );
 
     for (let i = 0; i < totalIncome.length; i++) {
@@ -882,11 +883,13 @@ const getAdminAnalytics = async (
         (x) => x.wallet_type === totalIncome[i]?.base_currency
       );
       const feeAmount = Number(totalFee[feeIndex]?.fee_amount) || 0;
-      let feeInUsd = 0;
-      if (feeAmount > 0) {
-        const feeFiat = await convertToFiat(totalIncome[i]?.base_currency, "USD", feeAmount);
-        feeInUsd = feeFiat.amount;
-      }
+      // transaction_fee is denominated in the crypto base_currency. Convert to
+      // USD using the effective settlement rate (usd_value / base_amount) so
+      // the figure matches what was actually charged at settlement time
+      // (rather than re-converting at today's rate).
+      const baseAmt = Number(totalIncome[i]?.amount) || 0;
+      const usdAmt = Number(totalIncome[i]?.amount_in_usd) || 0;
+      const feeInUsd = feeAmount > 0 && baseAmt > 0 ? feeAmount * (usdAmt / baseAmt) : 0;
       revenue_performance.push({
         base_currency: totalIncome[i].base_currency,
         amount: totalIncome[i].amount,

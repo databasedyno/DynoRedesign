@@ -94,6 +94,7 @@ const AdminOverview: React.FC = () => {
       (s, r) => s + (Number(r.fee_in_usd) || 0),
       0
     );
+    const paidToMerchants = Math.max(0, totalRevenueUsd - totalFeesUsd);
 
     const outcomes = [
       { name: "Successful", value: successful, color: theme.palette.success.main },
@@ -131,6 +132,7 @@ const AdminOverview: React.FC = () => {
       successRate,
       totalRevenueUsd,
       totalFeesUsd,
+      paidToMerchants,
       outcomes,
       trend,
       topCurrencies,
@@ -172,9 +174,9 @@ const AdminOverview: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={4} lg>
           <StatCard
-            label="Payouts"
-            value={formatNumber(data?.totalTransactionOutgoing)}
-            sub="Merchant withdrawals"
+            label="Paid to merchants"
+            value={formatUSD(derived.paidToMerchants)}
+            sub="Forwarded (net of fees)"
             icon={<NorthEastRounded />}
             accent={theme.palette.info?.main || theme.palette.primary.main}
             testid="kpi-payouts"
