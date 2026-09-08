@@ -1,3 +1,22 @@
+# 2026-06 (fork, pod a99b939f) FOLLOW-UP 7: OVERVIEW PERIOD FILTER + FEE-REVENUE CHART — DONE + VERIFIED (curl 3 periods + screenshots; BE+FE tsc 0).
+#   User asked for a date filter + a platform-fee-revenue-over-time chart on the admin Overview.
+#   BACKEND (adminController.getAdminAnalytics): now returns feeRevenueSeries [{bucket, fee_usd, volume_usd}] +
+#     bucketUnit. bucketUnit = 'day' when periodType='MONTH' else 'month'. fee_usd per bucket = SUM(transaction_fee *
+#     usd_value / NULLIF(base_amount,0)) over settled txns (per-row settlement rate, currency-agnostic). Also made
+#     totalTransactionsIncoming PERIOD-AWARE (raw count over settledWhere) so the Incoming KPI moves with the filter
+#     (was a global model count). Removed now-unused userTransactionModel import. paymentSuccessRates already used `where`.
+#   FRONTEND (Overview/index.tsx): period state all|year|month → POST body {} | {periodType:'YEAR'} | {periodType:'MONTH'}
+#     (backend defaults year/month to current). Filter chips top-right (testid overview-period-all/-year/-month). New full-
+#     width "Platform fee revenue" SectionCard (testid section-fee-revenue) = recharts BarChart of feeSeries (warning-color
+#     bars, USD YAxis, USD tooltip), header shows self-consistent series total (derived.feeTotal, testid fee-revenue-total).
+#     Labels: 'MMM YY' monthly / 'MMM D' daily. NOTE chart total (per-row) can differ from the KPI "$X in platform fees"
+#     (per-currency blended rate) by a few cents — both legitimate; chart total matches its own bars on purpose.
+#   VERIFIED: curl — All time/This year = 6 monthly pts, fee $870.58, incoming 454; This month = 7 daily pts (Sep),
+#     fee $41.50, incoming 20. Screenshots — filter recomputes Volume $29,787→$1,389.61, Paid-to-merchants
+#     $28,917→$1,348.17, Success 50.7%→18.5%, chart monthly↔daily. "Payments created · last 30 days" intentionally stays 30d.
+#   FILES: backend/controller/adminController.ts, Components/Page/Admin/Overview/index.tsx.
+#
+
 # 2026-06 (fork, pod a99b939f) FOLLOW-UP 6: ADMIN NUMBER ROUNDING (end-to-end) — DONE + VERIFIED (screenshots; FE tsc 0).
 #   User: crypto amounts across the admin dashboard had inconsistent/long decimals ("several 0000"), wanted uniform
 #   rounding. Added formatCrypto() in Components/Page/Admin/adminUi.tsx — magnitude-aware: abs>=1000 → 2dp,

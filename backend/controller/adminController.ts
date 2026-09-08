@@ -32,7 +32,6 @@ import bcrypt from "bcryptjs";
 import {
   selfTransactionModel,
   userModel,
-  userTransactionModel,
 } from "../models/userModels";
 import { adminUnlockAccount } from "../services/accountLockoutService";
 
@@ -780,12 +779,6 @@ const getAdminAnalytics = async (
       })
     ).count;
 
-    const totalTransactionsIncoming = (
-      await userTransactionModel.findAndCountAll({
-        where: { status: SETTLED_STATUSES },
-      })
-    ).count;
-
     const totalTransactionOutgoing = (
       await selfTransactionModel.findAndCountAll({
         where: {
@@ -878,6 +871,27 @@ const getAdminAnalytics = async (
       { type: QueryTypes.SELECT, replacements: { settledStatuses: SETTLED_STATUSES } }
     );
 
+    // Settled incoming count scoped to the selected period (so the KPI moves
+    // with the This month / This year filter).
+    const [incomingRow] = await sequelize.query<{ n: string }>(
+      `select count(*) as n from tbl_user_transaction ut ${settledWhere}`,
+      { type: QueryTypes.SELECT, replacements: { settledStatuses: SETTLED_STATUSES } }
+    );
+    const totalTransactionsIncoming = parseInt(incomingRow?.n || "0", 10);
+
+    // Platform-fee revenue over time (USD). Each row's fee is converted with its
+    // own settlement rate (usd_value / base_amount). Daily buckets for a single
+    // month, monthly buckets otherwise.
+    const bucketUnit = periodType === "MONTH" ? "day" : "month";
+    const feeRevenueSeries = await sequelize.query<{ bucket: string; fee_usd: number; volume_usd: number }>(
+      `select date_trunc('${bucketUnit}', ut."createdAt") as bucket,
+              sum(ut.transaction_fee * ut.usd_value / nullif(ut.base_amount, 0)) as fee_usd,
+              sum(ut.usd_value) as volume_usd
+       from tbl_user_transaction ut ${settledWhere}
+       group by bucket order by bucket`,
+      { type: QueryTypes.SELECT, replacements: { settledStatuses: SETTLED_STATUSES } }
+    );
+
     for (let i = 0; i < totalIncome.length; i++) {
       const feeIndex = totalFee.findIndex(
         (x) => x.wallet_type === totalIncome[i]?.base_currency
@@ -908,6 +922,8 @@ const getAdminAnalytics = async (
       paymentSuccessRates,
       growthTrends,
       revenue_performance,
+      feeRevenueSeries,
+      bucketUnit,
     };
 
     successResponseHelper(res, 200, "Dashboard statistics retrieved successfully", returnData);

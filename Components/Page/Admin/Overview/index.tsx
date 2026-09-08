@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
+  Chip,
   CircularProgress,
   Grid,
   LinearProgress,
@@ -27,6 +28,8 @@ import {
   Tooltip as RTooltip,
   AreaChart,
   Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -51,7 +54,16 @@ interface Analytics {
   invoicesCreatedIn30Days: { date_temp: string; invoices_created: string | number }[];
   paymentSuccessRates: { successful_payments: string; failed_payments: string; pending_payments: string }[];
   revenue_performance: RevenueRow[];
+  feeRevenueSeries?: { bucket: string; fee_usd: number | string; volume_usd: number | string }[];
+  bucketUnit?: string;
 }
+
+type Period = "all" | "year" | "month";
+const PERIODS: { key: Period; label: string }[] = [
+  { key: "all", label: "All time" },
+  { key: "year", label: "This year" },
+  { key: "month", label: "This month" },
+];
 
 const AdminOverview: React.FC = () => {
   const theme = useTheme();
@@ -59,12 +71,15 @@ const AdminOverview: React.FC = () => {
   const [data, setData] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [period, setPeriod] = useState<Period>("all");
 
   useEffect(() => setMounted(true), []);
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await adminBaseApi.post("/admin/getAdminAnalytics", {});
+      const body =
+        period === "year" ? { periodType: "YEAR" } : period === "month" ? { periodType: "MONTH" } : {};
+      const res = await adminBaseApi.post("/admin/getAdminAnalytics", body);
       setData(res.data?.data || null);
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
@@ -72,7 +87,7 @@ const AdminOverview: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch, period]);
 
   useEffect(() => {
     fetchData();
@@ -124,6 +139,16 @@ const AdminOverview: React.FC = () => {
       (a, b) => (Number(b.amount_in_usd) || 0) - (Number(a.amount_in_usd) || 0)
     );
 
+    const bucketUnit = data?.bucketUnit || "month";
+    const feeSeries = (data?.feeRevenueSeries || []).map((r) => ({
+      label: new Date(r.bucket).toLocaleDateString(
+        undefined,
+        bucketUnit === "day" ? { month: "short", day: "numeric" } : { month: "short", year: "2-digit" }
+      ),
+      fee: Number(r.fee_usd) || 0,
+    }));
+    const feeTotal = feeSeries.reduce((s, r) => s + r.fee, 0);
+
     return {
       successful,
       failed,
@@ -138,6 +163,8 @@ const AdminOverview: React.FC = () => {
       topCurrencies,
       maxCurrency,
       revenueRows,
+      feeSeries,
+      feeTotal,
     };
   }, [data, theme]);
 
@@ -151,6 +178,25 @@ const AdminOverview: React.FC = () => {
 
   return (
     <Box data-testid="admin-overview">
+      {/* Period filter */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 0.75, mb: 2, flexWrap: "wrap" }}>
+        {PERIODS.map((p) => {
+          const active = period === p.key;
+          return (
+            <Chip
+              key={p.key}
+              size="small"
+              label={p.label}
+              color={active ? "primary" : "default"}
+              variant={active ? "filled" : "outlined"}
+              onClick={() => setPeriod(p.key)}
+              data-testid={`overview-period-${p.key}`}
+              sx={{ fontWeight: active ? 700 : 500 }}
+            />
+          );
+        })}
+      </Box>
+
       {/* KPI cards */}
       <Grid container spacing={2.5}>
         <Grid item xs={12} sm={6} md={4} lg>
@@ -283,6 +329,45 @@ const AdminOverview: React.FC = () => {
                 </Typography>
               )}
             </Box>
+          </SectionCard>
+        </Grid>
+      </Grid>
+
+      {/* Platform fee revenue over time */}
+      <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
+        <Grid item xs={12}>
+          <SectionCard
+            title="Platform fee revenue"
+            testid="section-fee-revenue"
+            action={
+              <Typography sx={{ fontSize: 13, fontWeight: 700, color: "text.secondary" }} data-testid="fee-revenue-total">
+                {formatUSD(derived.feeTotal)} total
+              </Typography>
+            }
+          >
+            {derived.feeSeries.length === 0 ? (
+              <Typography sx={{ color: "text.secondary", fontSize: 13, py: 4, textAlign: "center" }}>
+                No fee revenue in this period.
+              </Typography>
+            ) : (
+              <Box sx={{ height: 240 }}>
+                {mounted && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={derived.feeSeries} margin={{ top: 8, right: 8, left: -4, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} vertical={false} />
+                      <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" minTickGap={16} />
+                      <YAxis
+                        tick={{ fontSize: 11 }}
+                        width={58}
+                        tickFormatter={(v) => `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+                      />
+                      <RTooltip formatter={(v) => [formatUSD(v as number), "Fee revenue"]} />
+                      <Bar dataKey="fee" fill={theme.palette.warning.main} radius={[4, 4, 0, 0]} maxBarSize={48} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </Box>
+            )}
           </SectionCard>
         </Grid>
       </Grid>
