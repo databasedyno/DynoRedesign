@@ -769,6 +769,9 @@ const getAdminAnalytics = async (
       year = new Date().getFullYear(),
       month = new Date().getMonth() + 1,
     } = req.body;
+    // Statuses that represent money actually received/settled — NOT pending or
+    // unpaid payment intents (which inflate volume with amounts never paid).
+    const SETTLED_STATUSES = ["successful", "completed", "settled"];
     const activeUsers = (
       await userModel.findAndCountAll({
         where: {
@@ -778,7 +781,9 @@ const getAdminAnalytics = async (
     ).count;
 
     const totalTransactionsIncoming = (
-      await userTransactionModel.findAndCountAll()
+      await userTransactionModel.findAndCountAll({
+        where: { status: SETTLED_STATUSES },
+      })
     ).count;
 
     const totalTransactionOutgoing = (
@@ -852,9 +857,16 @@ const getAdminAnalytics = async (
     );
 
     const revenue_performance: Array<Record<string, unknown>> = [];
-    const totalIncome = await sequelize.query<{ base_currency: string; amount: number }>(
-      `select base_currency,sum(base_amount) as amount from tbl_user_transaction ut ${where} group by base_currency`,
-      { type: QueryTypes.SELECT }
+    // Volume must reflect money actually settled — exclude pending/unpaid
+    // intents. Use the usd_value captured at settlement time (accurate to the
+    // tx date) rather than re-converting base_amount at today's rate.
+    const settledWhere = where
+      ? `${where} and ut.status in (:settledStatuses)`
+      : `where ut.status in (:settledStatuses)`;
+    const totalIncome = await sequelize.query<{ base_currency: string; amount: number; amount_in_usd: number }>(
+      `select base_currency, sum(base_amount) as amount, sum(usd_value) as amount_in_usd
+       from tbl_user_transaction ut ${settledWhere} group by base_currency`,
+      { type: QueryTypes.SELECT, replacements: { settledStatuses: SETTLED_STATUSES } }
     );
     const totalFee = await sequelize.query<{ wallet_type: string; fee_amount: number }>(
       `
@@ -869,14 +881,18 @@ const getAdminAnalytics = async (
       const feeIndex = totalFee.findIndex(
         (x) => x.wallet_type === totalIncome[i]?.base_currency
       );
-      const fiatResult = await convertToFiat(totalIncome[i]?.base_currency, 'USD', totalIncome[i].amount);
-      const currencyData = [{ amount: fiatResult.amount, transferRate: fiatResult.rate }];
-      const feeAmount = totalFee[feeIndex]?.fee_amount || 0;
+      const feeAmount = Number(totalFee[feeIndex]?.fee_amount) || 0;
+      let feeInUsd = 0;
+      if (feeAmount > 0) {
+        const feeFiat = await convertToFiat(totalIncome[i]?.base_currency, "USD", feeAmount);
+        feeInUsd = feeFiat.amount;
+      }
       revenue_performance.push({
-        ...totalIncome[i],
-        amount_in_usd: currencyData[0].amount,
+        base_currency: totalIncome[i].base_currency,
+        amount: totalIncome[i].amount,
+        amount_in_usd: toFixedStr(Number(totalIncome[i].amount_in_usd) || 0, 2),
         fee_amount: toFixedStr(feeAmount, 8),
-        fee_in_usd: toFixedStr(feeAmount * currencyData[0].transferRate, 2),
+        fee_in_usd: toFixedStr(feeInUsd, 2),
       });
     }
 

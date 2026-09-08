@@ -164,7 +164,7 @@ const AdminOverview: React.FC = () => {
           <StatCard
             label="Incoming payments"
             value={formatNumber(data?.totalTransactionsIncoming)}
-            sub="Customer transactions"
+            sub="Settled payments"
             icon={<SouthWestRounded />}
             accent={theme.palette.success.main}
             testid="kpi-incoming"

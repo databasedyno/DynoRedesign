@@ -1,3 +1,14 @@
+# 2026-06 (fork, pod a99b939f) FOLLOW-UP: ADMIN "TOTAL VOLUME" CORRECTNESS FIX — DONE + VERIFIED.
+#   User flagged Overview volume $185,979 was wrong (DB only has SUCCESSFUL txns for onarrival21 brands).
+#   ROOT CAUSE: getAdminAnalytics summed base_amount across ALL statuses (incl. 438 PENDING/unpaid intents,
+#   ~140k raw USDT-TRC20 from other merchants e.g. Donut Loot) and re-converted at TODAY'S rate.
+#   FIX (adminController.getAdminAnalytics): revenue_performance + totalTransactionsIncoming now filter to
+#   SETTLED_STATUSES = ('successful','completed','settled'); volume uses the stored usd_value (captured at
+#   settlement) instead of re-converting base_amount. Result: Total volume = $29,787.27 (The Dev Store $29,493
+#   + SMADAV $112 + $182 completed), Incoming = 454 settled. Frontend KPI sub relabelled "Settled payments".
+#   Verified via curl + screenshot. (Payment-outcomes donut/success-rate still show all attempts — intentional.)
+#
+
 # 2026-06 (fork, pod a99b939f): ADMIN READ-ONLY MONITORING SCREENS — DONE + VERIFIED (self-test; LIVE prod DB, SAFE MODE).
 #   Built 3 admin dashboards replacing the obsolete fee/wallet/withdraw/transferSpeed pages (DELETED those 4 page files):
 #     • /admin (Overview) — pages/admin/index.tsx -> Components/Page/Admin/Overview/index.tsx. POST /api/admin/getAdminAnalytics.
