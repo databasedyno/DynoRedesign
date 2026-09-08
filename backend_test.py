@@ -1,590 +1,750 @@
 #!/usr/bin/env python3
 """
-Backend Test Script for DynoPay Split Name Fields Feature
-Tests the "Split Name Fields" changes to ensure first_name and last_name columns
-are properly captured and synchronized with the name field.
+Admin Support Inbox Backend Testing
+====================================
+Tests the NEW Admin Support Inbox backend for Dynopay app.
+This is a prod-connected preview in SAFE MODE with DISABLE_OUTBOUND_EMAIL=true.
+
+Admin Credentials: moxxcompany@gmail.com / Katiekendra123@
+Backend URL: https://a99b939f-45b1-4e47-80f9-5665102e9204.preview.emergentagent.com/api
 """
 
 import requests
 import json
 import time
-import sys
-import redis
-import psycopg2
-from urllib.parse import urlparse
+from datetime import datetime
 
 # Configuration
-BACKEND_URL = "http://localhost:8001"
-REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794/1"
-DATABASE_URL = "postgresql://postgres:IHCzCDslIsUZlzCvvjxfSWcChEiBtiCU@roundhouse.proxy.rlwy.net:23599/railway"
+BASE_URL = "https://a99b939f-45b1-4e47-80f9-5665102e9204.preview.emergentagent.com/api"
+ADMIN_EMAIL = "moxxcompany@gmail.com"
+ADMIN_PASSWORD = "Katiekendra123@"
 
-# Test data
+# Test session ID (throwaway for QA)
 TIMESTAMP = int(time.time())
-NEGATIVE_TEST_EMAIL = f"namesplit_neg_{TIMESTAMP}@example.com"
-POSITIVE_TEST_EMAIL = f"namesplit_pos_{TIMESTAMP}@example.com"
+SESSION_ID = f"qa-inbox-{TIMESTAMP}"
 
-# Track created user IDs for cleanup
-created_user_ids = []
+# Colors for output
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
+BLUE = "\033[94m"
+RESET = "\033[0m"
 
-def print_section(title):
-    """Print a formatted section header"""
-    print(f"\n{'='*80}")
-    print(f"  {title}")
-    print(f"{'='*80}\n")
+def print_test(test_num, description):
+    """Print test header"""
+    print(f"\n{BLUE}{'='*80}{RESET}")
+    print(f"{BLUE}TEST {test_num}: {description}{RESET}")
+    print(f"{BLUE}{'='*80}{RESET}")
 
-def print_result(test_name, passed, details=""):
-    """Print test result"""
-    status = "✅ PASS" if passed else "❌ FAIL"
-    print(f"{status}: {test_name}")
-    if details:
-        print(f"    {details}")
+def print_pass(message):
+    """Print pass message"""
+    print(f"{GREEN}✓ PASS: {message}{RESET}")
 
-def get_redis_connection():
-    """Get Redis connection"""
+def print_fail(message):
+    """Print fail message"""
+    print(f"{RED}✗ FAIL: {message}{RESET}")
+
+def print_info(message):
+    """Print info message"""
+    print(f"{YELLOW}ℹ INFO: {message}{RESET}")
+
+def print_response(response):
+    """Print response details"""
+    print(f"  Status: {response.status_code}")
     try:
-        parsed = urlparse(REDIS_URL)
-        r = redis.Redis(
-            host=parsed.hostname,
-            port=parsed.port,
-            password=parsed.password,
-            db=int(parsed.path.lstrip('/')) if parsed.path else 0,
-            decode_responses=True
-        )
-        r.ping()
-        return r
-    except Exception as e:
-        print(f"❌ Failed to connect to Redis: {e}")
-        return None
+        data = response.json()
+        print(f"  Response: {json.dumps(data, indent=2)}")
+    except:
+        print(f"  Response: {response.text[:500]}")
 
-def get_db_connection():
-    """Get PostgreSQL connection"""
-    try:
-        conn = psycopg2.connect(DATABASE_URL)
-        return conn
-    except Exception as e:
-        print(f"❌ Failed to connect to database: {e}")
-        return None
+# Test Results Tracker
+test_results = []
 
-def test_health_check():
-    """Test 0: Health check and schema verification"""
-    print_section("TEST 0: HEALTH CHECK + SCHEMA VERIFICATION")
-    
-    # Health check
-    try:
-        response = requests.get(f"{BACKEND_URL}/health", timeout=10)
-        health_data = response.json()
-        
-        health_passed = (
-            response.status_code == 200 and
-            health_data.get("status") == "healthy" and
-            health_data.get("database") == "connected" and
-            health_data.get("redis") == "connected"
-        )
-        
-        print_result(
-            "Health endpoint",
-            health_passed,
-            f"Status: {health_data.get('status')}, DB: {health_data.get('database')}, Redis: {health_data.get('redis')}"
-        )
-        
-        if not health_passed:
-            return False
-            
-    except Exception as e:
-        print_result("Health endpoint", False, f"Error: {e}")
-        return False
-    
-    # Schema verification
-    try:
-        conn = get_db_connection()
-        if not conn:
-            return False
-            
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT column_name, data_type, is_nullable
-            FROM information_schema.columns
-            WHERE table_name = 'tbl_user'
-            AND column_name IN ('first_name', 'last_name')
-            ORDER BY column_name;
-        """)
-        
-        columns = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        
-        has_first_name = any(col[0] == 'first_name' for col in columns)
-        has_last_name = any(col[0] == 'last_name' for col in columns)
-        
-        schema_passed = has_first_name and has_last_name
-        
-        print_result(
-            "Schema verification (first_name, last_name columns exist)",
-            schema_passed,
-            f"Columns found: {[col[0] for col in columns]}"
-        )
-        
-        if columns:
-            for col in columns:
-                print(f"    - {col[0]}: {col[1]}, nullable: {col[2]}")
-        
-        return health_passed and schema_passed
-        
-    except Exception as e:
-        print_result("Schema verification", False, f"Error: {e}")
-        return False
+def record_result(test_num, description, passed, details=""):
+    """Record test result"""
+    test_results.append({
+        "test": test_num,
+        "description": description,
+        "passed": passed,
+        "details": details
+    })
 
-def test_negative_case():
-    """Test 1: NEGATIVE test - registration without name should fail"""
-    print_section("TEST 1: NEGATIVE TEST (Side-effect-free, PRIMARY)")
+# ============================================================================
+# TEST 1: AUTH ENFORCED - Endpoints should return 401/403 without token
+# ============================================================================
+def test_1_auth_enforced():
+    print_test(1, "AUTH ENFORCED - No token should return 401/403")
     
-    redis_conn = get_redis_connection()
-    db_conn = get_db_connection()
+    passed = True
+    details = []
     
-    if not redis_conn or not db_conn:
-        print("❌ Cannot proceed without Redis/DB connections")
-        return False
+    # Test GET /api/admin/support/summary without token
+    print_info("Testing GET /api/admin/support/summary without token...")
+    response = requests.get(f"{BASE_URL}/admin/support/summary")
+    print_response(response)
     
-    try:
-        # Step 1: POST /api/user/registerEmail
-        print(f"Step 1: Sending OTP to {NEGATIVE_TEST_EMAIL}...")
-        response = requests.post(
-            f"{BACKEND_URL}/api/user/registerEmail",
-            json={"email": NEGATIVE_TEST_EMAIL},
-            timeout=10
-        )
-        
-        step1_passed = response.status_code == 200
-        print_result(
-            "POST /api/user/registerEmail",
-            step1_passed,
-            f"Status: {response.status_code}, Response: {response.json()}"
-        )
-        
-        if not step1_passed:
-            return False
-        
-        # Step 2: Read OTP from Redis
-        print(f"\nStep 2: Reading OTP from Redis key 'otp:{NEGATIVE_TEST_EMAIL.lower()}:json'...")
-        otp_key = f"otp:{NEGATIVE_TEST_EMAIL.lower()}:json"
-        otp_data = redis_conn.get(otp_key)
-        
-        if not otp_data:
-            print_result("Read OTP from Redis", False, "OTP not found in Redis")
-            return False
-        
-        otp_json = json.loads(otp_data)
-        otp = otp_json.get("otp")
-        
-        print_result(
-            "Read OTP from Redis",
-            bool(otp),
-            f"OTP: {otp}"
-        )
-        
-        if not otp:
-            return False
-        
-        # Step 3: POST /api/user/registerEmail/verify-otp WITHOUT name
-        print(f"\nStep 3: Verifying OTP WITHOUT name fields (should fail with 400)...")
-        response = requests.post(
-            f"{BACKEND_URL}/api/user/registerEmail/verify-otp",
-            json={
-                "email": NEGATIVE_TEST_EMAIL,
-                "otp": otp
-                # Intentionally NOT sending name, first_name, or last_name
-            },
-            timeout=10
-        )
-        
-        # Should get 400 error
-        verify_failed_correctly = response.status_code == 400
-        response_data = response.json()
-        error_message = response_data.get("message", "")
-        
-        has_name_error = "first" in error_message.lower() and "last" in error_message.lower() and "name" in error_message.lower()
-        
-        print_result(
-            "POST /api/user/registerEmail/verify-otp (without name)",
-            verify_failed_correctly and has_name_error,
-            f"Status: {response.status_code}, Message: '{error_message}'"
-        )
-        
-        if not (verify_failed_correctly and has_name_error):
-            print(f"    ⚠️  Expected 400 with message about first and last name")
-            return False
-        
-        # Step 4: Confirm NO tbl_user row exists
-        print(f"\nStep 4: Confirming NO user was created in database...")
-        cursor = db_conn.cursor()
-        cursor.execute(
-            "SELECT user_id FROM tbl_user WHERE email = %s",
-            (NEGATIVE_TEST_EMAIL.lower(),)
-        )
-        user_row = cursor.fetchone()
-        cursor.close()
-        
-        no_user_created = user_row is None
-        
-        print_result(
-            "Confirm NO user created in database",
-            no_user_created,
-            f"User row: {user_row}"
-        )
-        
-        return verify_failed_correctly and has_name_error and no_user_created
-        
-    except Exception as e:
-        print_result("Negative test", False, f"Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-    finally:
-        if db_conn:
-            db_conn.close()
+    if response.status_code in [401, 403]:
+        print_pass(f"GET /api/admin/support/summary returned {response.status_code} (auth enforced)")
+        details.append(f"GET summary: {response.status_code}")
+    else:
+        print_fail(f"GET /api/admin/support/summary returned {response.status_code}, expected 401/403")
+        passed = False
+        details.append(f"GET summary: {response.status_code} (FAIL)")
+    
+    # Test POST /api/admin/support/sessions/qa-x/takeover without token
+    print_info("Testing POST /api/admin/support/sessions/qa-x/takeover without token...")
+    response = requests.post(f"{BASE_URL}/admin/support/sessions/qa-x/takeover")
+    print_response(response)
+    
+    if response.status_code in [401, 403]:
+        print_pass(f"POST takeover returned {response.status_code} (auth enforced)")
+        details.append(f"POST takeover: {response.status_code}")
+    else:
+        print_fail(f"POST takeover returned {response.status_code}, expected 401/403")
+        passed = False
+        details.append(f"POST takeover: {response.status_code} (FAIL)")
+    
+    record_result(1, "AUTH ENFORCED", passed, "; ".join(details))
+    return passed
 
-def test_positive_case():
-    """Test 2: POSITIVE test - registration with name, update, verify sync, cleanup"""
-    print_section("TEST 2: POSITIVE TEST (CLEAN UP AFTER)")
+# ============================================================================
+# TEST 2: ADMIN LOGIN - Get access token
+# ============================================================================
+def test_2_admin_login():
+    print_test(2, "ADMIN LOGIN - Get access token")
     
-    redis_conn = get_redis_connection()
-    db_conn = get_db_connection()
-    
-    if not redis_conn or not db_conn:
-        print("❌ Cannot proceed without Redis/DB connections")
-        return False
-    
+    passed = True
+    details = []
     access_token = None
-    user_id = None
     
-    try:
-        # Step 1: POST /api/user/registerEmail
-        print(f"Step 1: Sending OTP to {POSITIVE_TEST_EMAIL}...")
-        response = requests.post(
-            f"{BACKEND_URL}/api/user/registerEmail",
-            json={"email": POSITIVE_TEST_EMAIL},
-            timeout=10
-        )
-        
-        step1_passed = response.status_code == 200
-        print_result(
-            "POST /api/user/registerEmail",
-            step1_passed,
-            f"Status: {response.status_code}"
-        )
-        
-        if not step1_passed:
-            return False
-        
-        # Step 2: Read OTP from Redis
-        print(f"\nStep 2: Reading OTP from Redis...")
-        otp_key = f"otp:{POSITIVE_TEST_EMAIL.lower()}:json"
-        otp_data = redis_conn.get(otp_key)
-        
-        if not otp_data:
-            print_result("Read OTP from Redis", False, "OTP not found")
-            return False
-        
-        otp_json = json.loads(otp_data)
-        otp = otp_json.get("otp")
-        
-        print_result("Read OTP from Redis", bool(otp), f"OTP: {otp}")
-        
-        if not otp:
-            return False
-        
-        # Step 3: POST /api/user/registerEmail/verify-otp WITH first_name and last_name
-        print(f"\nStep 3: Verifying OTP WITH first_name='Ada', last_name='Lovelace'...")
-        response = requests.post(
-            f"{BACKEND_URL}/api/user/registerEmail/verify-otp",
-            json={
-                "email": POSITIVE_TEST_EMAIL,
-                "otp": otp,
-                "first_name": "Ada",
-                "last_name": "Lovelace"
-            },
-            timeout=10
-        )
-        
-        verify_passed = response.status_code == 200
-        response_data = response.json()
-        
-        if verify_passed:
-            access_token = response_data.get("data", {}).get("accessToken")
-        
-        print_result(
-            "POST /api/user/registerEmail/verify-otp (with name)",
-            verify_passed,
-            f"Status: {response.status_code}, Has token: {bool(access_token)}"
-        )
-        
-        if not verify_passed or not access_token:
-            print(f"    Response: {response.text}")
-            return False
-        
-        # Step 4: Query database to verify name fields
-        print(f"\nStep 4: Querying database to verify name fields...")
-        cursor = db_conn.cursor()
-        cursor.execute(
-            """
-            SELECT user_id, name, first_name, last_name
-            FROM tbl_user
-            WHERE email = %s
-            """,
-            (POSITIVE_TEST_EMAIL.lower(),)
-        )
-        user_row = cursor.fetchone()
-        cursor.close()
-        
-        if not user_row:
-            print_result("Query user from database", False, "User not found")
-            return False
-        
-        user_id, name, first_name, last_name = user_row
-        created_user_ids.append(user_id)
-        
-        name_correct = name == "Ada Lovelace"
-        first_name_correct = first_name == "Ada"
-        last_name_correct = last_name == "Lovelace"
-        
-        all_correct = name_correct and first_name_correct and last_name_correct
-        
-        print_result(
-            "Verify initial name fields in database",
-            all_correct,
-            f"user_id={user_id}, name='{name}', first_name='{first_name}', last_name='{last_name}'"
-        )
-        
-        if not all_correct:
-            print(f"    ⚠️  Expected: name='Ada Lovelace', first_name='Ada', last_name='Lovelace'")
-            return False
-        
-        # Step 5: Update user with new name via PUT /api/user/updateUser
-        print(f"\nStep 5: Updating user name to 'Grace Hopper' via PUT /api/user/updateUser...")
-        
-        # Create multipart/form-data with a single field "data" containing JSON
-        files = {
-            'data': (None, json.dumps({"name": "Grace Hopper"}), 'application/json')
-        }
-        
-        response = requests.put(
-            f"{BACKEND_URL}/api/user/updateUser",
-            files=files,
-            headers={"Authorization": f"Bearer {access_token}"},
-            timeout=10
-        )
-        
-        update_passed = response.status_code == 200
-        
-        print_result(
-            "PUT /api/user/updateUser",
-            update_passed,
-            f"Status: {response.status_code}"
-        )
-        
-        if not update_passed:
-            print(f"    Response: {response.text}")
-            return False
-        
-        # Step 6: Re-query database to verify name sync
-        print(f"\nStep 6: Re-querying database to verify name fields are synced...")
-        cursor = db_conn.cursor()
-        cursor.execute(
-            """
-            SELECT name, first_name, last_name
-            FROM tbl_user
-            WHERE user_id = %s
-            """,
-            (user_id,)
-        )
-        user_row = cursor.fetchone()
-        cursor.close()
-        
-        if not user_row:
-            print_result("Re-query user from database", False, "User not found")
-            return False
-        
-        name, first_name, last_name = user_row
-        
-        name_correct = name == "Grace Hopper"
-        first_name_correct = first_name == "Grace"
-        last_name_correct = last_name == "Hopper"
-        
-        all_synced = name_correct and first_name_correct and last_name_correct
-        
-        print_result(
-            "Verify updated name fields are synced",
-            all_synced,
-            f"name='{name}', first_name='{first_name}', last_name='{last_name}'"
-        )
-        
-        if not all_synced:
-            print(f"    ⚠️  Expected: name='Grace Hopper', first_name='Grace', last_name='Hopper'")
-            return False
-        
-        # Step 7: Cleanup - DELETE the test user
-        print(f"\nStep 7: Cleaning up - deleting test user (user_id={user_id})...")
-        
-        cursor = db_conn.cursor()
-        
-        # Delete child rows first (wallets, etc.)
-        cursor.execute("DELETE FROM tbl_user_wallet WHERE user_id = %s", (user_id,))
-        deleted_wallets = cursor.rowcount
-        
-        cursor.execute("DELETE FROM tbl_user_addresses WHERE user_id = %s", (user_id,))
-        deleted_addresses = cursor.rowcount
-        
-        cursor.execute("DELETE FROM tbl_notification_preferences WHERE user_id = %s", (user_id,))
-        deleted_prefs = cursor.rowcount
-        
-        cursor.execute("DELETE FROM tbl_user_session WHERE user_id = %s", (user_id,))
-        deleted_sessions = cursor.rowcount
-        
-        # Delete the user
-        cursor.execute("DELETE FROM tbl_user WHERE user_id = %s", (user_id,))
-        deleted_user = cursor.rowcount
-        
-        db_conn.commit()
-        cursor.close()
-        
-        cleanup_passed = deleted_user == 1
-        
-        print_result(
-            "Delete test user and child rows",
-            cleanup_passed,
-            f"Deleted: user={deleted_user}, wallets={deleted_wallets}, addresses={deleted_addresses}, prefs={deleted_prefs}, sessions={deleted_sessions}"
-        )
-        
-        if cleanup_passed:
-            print(f"    ✅ Test user {user_id} successfully deleted from production database")
-            created_user_ids.remove(user_id)
-        
-        return all_correct and all_synced and cleanup_passed
-        
-    except Exception as e:
-        print_result("Positive test", False, f"Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-    finally:
-        if db_conn:
-            db_conn.close()
-
-def test_backend_logs():
-    """Test 3: Check backend logs for errors"""
-    print_section("TEST 3: BACKEND LOGS CHECK")
+    # Test with correct credentials
+    print_info("Testing POST /api/admin/login with correct credentials...")
+    response = requests.post(
+        f"{BASE_URL}/admin/login",
+        json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
+    )
+    print_response(response)
     
-    try:
-        import subprocess
-        
-        # Check error log
-        print("Checking backend error log for registration-related errors...")
-        result = subprocess.run(
-            ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        
-        err_log = result.stdout
-        
-        # Filter for registration-related errors (exclude expected email errors)
-        lines = err_log.split('\n')
-        registration_errors = []
-        
-        for line in lines:
-            if any(keyword in line.lower() for keyword in ['registeremail', 'verify-otp', 'nameutils', 'first_name', 'last_name']):
-                if 'email' not in line.lower() or 'disable_outbound_email' not in line.lower():
-                    if any(err in line.lower() for err in ['error', 'exception', 'crash', 'failed']):
-                        registration_errors.append(line)
-        
-        no_errors = len(registration_errors) == 0
-        
-        print_result(
-            "Backend error log check",
-            no_errors,
-            f"Registration-related errors found: {len(registration_errors)}"
-        )
-        
-        if registration_errors:
-            print("\n    Recent registration-related errors:")
-            for err in registration_errors[-5:]:  # Show last 5
-                print(f"    {err}")
+    if response.status_code == 200:
+        data = response.json()
+        if data.get("data", {}).get("accessToken"):
+            access_token = data["data"]["accessToken"]
+            print_pass(f"Admin login successful, got accessToken")
+            details.append("Login: 200 with accessToken")
         else:
-            print("    ✅ No registration-related errors found (email send errors are expected and OK)")
-        
-        return no_errors
-        
-    except Exception as e:
-        print_result("Backend logs check", False, f"Error: {e}")
-        return False
+            print_fail("Admin login returned 200 but no accessToken in response")
+            passed = False
+            details.append("Login: 200 but no accessToken (FAIL)")
+    else:
+        print_fail(f"Admin login failed with status {response.status_code}")
+        passed = False
+        details.append(f"Login: {response.status_code} (FAIL)")
+    
+    # Test with wrong password
+    print_info("Testing POST /api/admin/login with WRONG password...")
+    response = requests.post(
+        f"{BASE_URL}/admin/login",
+        json={"email": ADMIN_EMAIL, "password": "WrongPassword123!"}
+    )
+    print_response(response)
+    
+    if response.status_code != 200:
+        print_pass(f"Wrong password correctly rejected with status {response.status_code}")
+        details.append(f"Wrong password: {response.status_code}")
+    else:
+        print_fail("Wrong password returned 200 (should fail)")
+        passed = False
+        details.append("Wrong password: 200 (FAIL)")
+    
+    record_result(2, "ADMIN LOGIN", passed, "; ".join(details))
+    return passed, access_token
 
+# ============================================================================
+# TEST 3: CREATE AI SESSION - Public endpoint
+# ============================================================================
+def test_3_create_ai_session():
+    print_test(3, "CREATE AI SESSION - Public chat endpoint")
+    
+    passed = True
+    details = []
+    
+    # Create AI session
+    print_info(f"Testing POST /api/support/chat with session_id={SESSION_ID}...")
+    response = requests.post(
+        f"{BASE_URL}/support/chat",
+        json={"session_id": SESSION_ID, "message": "Hi, testing"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        mode = data.get("data", {}).get("mode")
+        reply = data.get("data", {}).get("reply")
+        
+        if mode == "ai":
+            print_pass(f"Session created with mode='ai'")
+            details.append("mode=ai")
+        else:
+            print_fail(f"Expected mode='ai', got mode='{mode}'")
+            passed = False
+            details.append(f"mode={mode} (FAIL)")
+        
+        if reply and len(reply) > 0:
+            print_pass(f"Got non-empty AI reply: {reply[:100]}...")
+            details.append("reply non-empty")
+        else:
+            print_fail("AI reply is empty or missing")
+            passed = False
+            details.append("reply empty (FAIL)")
+    else:
+        print_fail(f"Chat creation failed with status {response.status_code}")
+        passed = False
+        details.append(f"Status: {response.status_code} (FAIL)")
+    
+    # Get history
+    print_info(f"Testing GET /api/support/chat/history/{SESSION_ID}...")
+    response = requests.get(f"{BASE_URL}/support/chat/history/{SESSION_ID}")
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        mode = data.get("data", {}).get("mode")
+        messages = data.get("data", {}).get("messages", [])
+        
+        if mode == "ai":
+            print_pass("History shows mode='ai'")
+            details.append("history mode=ai")
+        else:
+            print_fail(f"History mode='{mode}', expected 'ai'")
+            passed = False
+            details.append(f"history mode={mode} (FAIL)")
+        
+        if len(messages) >= 2:
+            print_pass(f"History has {len(messages)} messages (user + assistant)")
+            details.append(f"{len(messages)} messages")
+        else:
+            print_fail(f"History has only {len(messages)} messages, expected at least 2")
+            passed = False
+            details.append(f"{len(messages)} messages (FAIL)")
+    else:
+        print_fail(f"Get history failed with status {response.status_code}")
+        passed = False
+        details.append(f"History: {response.status_code} (FAIL)")
+    
+    record_result(3, "CREATE AI SESSION", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# TEST 4: TAKEOVER - Admin takes over from AI
+# ============================================================================
+def test_4_takeover(admin_token):
+    print_test(4, "TAKEOVER - Admin takes over, AI pauses")
+    
+    passed = True
+    details = []
+    
+    # Admin takeover
+    print_info(f"Testing POST /api/admin/support/sessions/{SESSION_ID}/takeover...")
+    response = requests.post(
+        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/takeover",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        mode = data.get("data", {}).get("mode")
+        
+        if mode == "human":
+            print_pass("Takeover successful, mode='human'")
+            details.append("takeover mode=human")
+        else:
+            print_fail(f"Takeover returned mode='{mode}', expected 'human'")
+            passed = False
+            details.append(f"takeover mode={mode} (FAIL)")
+    else:
+        print_fail(f"Takeover failed with status {response.status_code}")
+        passed = False
+        details.append(f"Takeover: {response.status_code} (FAIL)")
+    
+    # Visitor sends message while in human mode
+    print_info("Testing visitor message while in human mode (AI should NOT answer)...")
+    response = requests.post(
+        f"{BASE_URL}/support/chat",
+        json={"session_id": SESSION_ID, "message": "still there?"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        mode = data.get("data", {}).get("mode")
+        reply = data.get("data", {}).get("reply")
+        
+        if mode == "human":
+            print_pass("Visitor message stored with mode='human'")
+            details.append("visitor mode=human")
+        else:
+            print_fail(f"Expected mode='human', got mode='{mode}'")
+            passed = False
+            details.append(f"visitor mode={mode} (FAIL)")
+        
+        if reply is None:
+            print_pass("AI correctly did NOT reply (reply=null)")
+            details.append("reply=null")
+        else:
+            print_fail(f"AI replied when it shouldn't: {reply}")
+            passed = False
+            details.append("reply not null (FAIL)")
+    else:
+        print_fail(f"Visitor message failed with status {response.status_code}")
+        passed = False
+        details.append(f"Visitor msg: {response.status_code} (FAIL)")
+    
+    # Check history for agent join note
+    print_info("Checking history for agent join note...")
+    response = requests.get(f"{BASE_URL}/support/chat/history/{SESSION_ID}")
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        messages = data.get("data", {}).get("messages", [])
+        
+        # Look for agent join message
+        agent_messages = [m for m in messages if m.get("role") == "agent"]
+        if agent_messages:
+            print_pass(f"Found {len(agent_messages)} agent message(s) in history")
+            details.append(f"{len(agent_messages)} agent msgs")
+        else:
+            print_fail("No agent messages found in history")
+            passed = False
+            details.append("no agent msgs (FAIL)")
+    
+    record_result(4, "TAKEOVER", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# TEST 5: AGENT REPLY - Admin sends reply
+# ============================================================================
+def test_5_agent_reply(admin_token):
+    print_test(5, "AGENT REPLY - Admin sends reply")
+    
+    passed = True
+    details = []
+    
+    # Admin reply
+    print_info(f"Testing POST /api/admin/support/sessions/{SESSION_ID}/reply...")
+    response = requests.post(
+        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/reply",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"message": "Agent here, how can I help?"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        print_pass("Agent reply sent successfully")
+        details.append("reply: 200")
+    else:
+        print_fail(f"Agent reply failed with status {response.status_code}")
+        passed = False
+        details.append(f"reply: {response.status_code} (FAIL)")
+    
+    # Get session detail
+    print_info(f"Testing GET /api/admin/support/sessions/{SESSION_ID}...")
+    response = requests.get(
+        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        session = data.get("data", {}).get("session", {})
+        messages = data.get("data", {}).get("messages", [])
+        
+        if session.get("mode") == "human":
+            print_pass("Session mode is 'human'")
+            details.append("session mode=human")
+        else:
+            print_fail(f"Session mode is '{session.get('mode')}', expected 'human'")
+            passed = False
+            details.append(f"session mode={session.get('mode')} (FAIL)")
+        
+        # Check for agent reply in messages
+        agent_replies = [m for m in messages if m.get("role") == "agent" and "Agent here" in m.get("content", "")]
+        if agent_replies:
+            print_pass("Found agent reply in messages")
+            details.append("agent reply found")
+        else:
+            print_fail("Agent reply not found in messages")
+            passed = False
+            details.append("agent reply not found (FAIL)")
+    else:
+        print_fail(f"Get session failed with status {response.status_code}")
+        passed = False
+        details.append(f"get session: {response.status_code} (FAIL)")
+    
+    record_result(5, "AGENT REPLY", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# TEST 6: HANDBACK - Return to AI
+# ============================================================================
+def test_6_handback(admin_token):
+    print_test(6, "HANDBACK - Return to AI")
+    
+    passed = True
+    details = []
+    
+    # Handback to AI
+    print_info(f"Testing POST /api/admin/support/sessions/{SESSION_ID}/handback...")
+    response = requests.post(
+        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/handback",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        mode = data.get("data", {}).get("mode")
+        
+        if mode == "ai":
+            print_pass("Handback successful, mode='ai'")
+            details.append("handback mode=ai")
+        else:
+            print_fail(f"Handback returned mode='{mode}', expected 'ai'")
+            passed = False
+            details.append(f"handback mode={mode} (FAIL)")
+    else:
+        print_fail(f"Handback failed with status {response.status_code}")
+        passed = False
+        details.append(f"Handback: {response.status_code} (FAIL)")
+    
+    # Visitor sends message, AI should answer
+    print_info("Testing visitor message after handback (AI should answer)...")
+    response = requests.post(
+        f"{BASE_URL}/support/chat",
+        json={"session_id": SESSION_ID, "message": "are you a bot now?"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        mode = data.get("data", {}).get("mode")
+        reply = data.get("data", {}).get("reply")
+        
+        if mode == "ai":
+            print_pass("Message processed with mode='ai'")
+            details.append("visitor mode=ai")
+        else:
+            print_fail(f"Expected mode='ai', got mode='{mode}'")
+            passed = False
+            details.append(f"visitor mode={mode} (FAIL)")
+        
+        if reply and len(reply) > 0:
+            print_pass(f"AI answered again: {reply[:100]}...")
+            details.append("AI replied")
+        else:
+            print_fail("AI did not reply")
+            passed = False
+            details.append("AI no reply (FAIL)")
+    else:
+        print_fail(f"Visitor message failed with status {response.status_code}")
+        passed = False
+        details.append(f"Visitor msg: {response.status_code} (FAIL)")
+    
+    record_result(6, "HANDBACK", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# TEST 7: EMAIL REPLY - Send email to visitor
+# ============================================================================
+def test_7_email_reply(admin_token):
+    print_test(7, "EMAIL REPLY - Send email to visitor")
+    
+    passed = True
+    details = []
+    
+    # Try email without contact email
+    print_info("Testing email reply WITHOUT contact email (should fail)...")
+    response = requests.post(
+        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/email",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"message": "Thanks for reaching out"}
+    )
+    print_response(response)
+    
+    if response.status_code == 400:
+        print_pass("Email without contact correctly rejected with 400")
+        details.append("no contact: 400")
+    else:
+        print_fail(f"Expected 400, got {response.status_code}")
+        passed = False
+        details.append(f"no contact: {response.status_code} (FAIL)")
+    
+    # Try email with explicit recipient
+    print_info("Testing email reply WITH explicit recipient...")
+    response = requests.post(
+        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/email",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={
+            "to": "qa@example.com",
+            "subject": "Re: test",
+            "message": "Thanks!"
+        }
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        disabled = data.get("data", {}).get("disabled_in_preview")
+        to = data.get("data", {}).get("to")
+        
+        if disabled is True:
+            print_pass("Email suppressed in preview (disabled_in_preview=true)")
+            details.append("disabled_in_preview=true")
+        else:
+            print_fail(f"Expected disabled_in_preview=true, got {disabled}")
+            passed = False
+            details.append(f"disabled_in_preview={disabled} (FAIL)")
+        
+        if to == "qa@example.com":
+            print_pass("Email recipient correct (to=qa@example.com)")
+            details.append("to=qa@example.com")
+        else:
+            print_fail(f"Expected to=qa@example.com, got to={to}")
+            passed = False
+            details.append(f"to={to} (FAIL)")
+    else:
+        print_fail(f"Email reply failed with status {response.status_code}")
+        passed = False
+        details.append(f"Email: {response.status_code} (FAIL)")
+    
+    record_result(7, "EMAIL REPLY", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# TEST 8: LIST + SUMMARY - Admin inbox endpoints
+# ============================================================================
+def test_8_list_summary(admin_token):
+    print_test(8, "LIST + SUMMARY - Admin inbox endpoints")
+    
+    passed = True
+    details = []
+    
+    # Get sessions list
+    print_info("Testing GET /api/admin/support/sessions?status=all...")
+    response = requests.get(
+        f"{BASE_URL}/admin/support/sessions?status=all",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        sessions = data.get("data", {}).get("sessions", [])
+        
+        # Check if our test session is in the list
+        our_session = [s for s in sessions if s.get("session_id") == SESSION_ID]
+        if our_session:
+            print_pass(f"Found test session {SESSION_ID} in sessions list")
+            session = our_session[0]
+            print_info(f"  Session details: mode={session.get('mode')}, status={session.get('status')}, message_count={session.get('message_count')}")
+            details.append(f"session found: mode={session.get('mode')}")
+        else:
+            print_fail(f"Test session {SESSION_ID} not found in sessions list")
+            passed = False
+            details.append("session not found (FAIL)")
+        
+        # Check session structure
+        if sessions and len(sessions) > 0:
+            sample = sessions[0]
+            required_fields = ["session_id", "message_count", "last_message_at", "preview"]
+            missing = [f for f in required_fields if f not in sample]
+            if not missing:
+                print_pass("Session objects have required fields")
+                details.append("fields OK")
+            else:
+                print_fail(f"Session objects missing fields: {missing}")
+                passed = False
+                details.append(f"missing fields: {missing} (FAIL)")
+    else:
+        print_fail(f"Get sessions failed with status {response.status_code}")
+        passed = False
+        details.append(f"sessions: {response.status_code} (FAIL)")
+    
+    # Get summary
+    print_info("Testing GET /api/admin/support/summary...")
+    response = requests.get(
+        f"{BASE_URL}/admin/support/summary",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        summary = data.get("data", {})
+        
+        required_fields = ["open", "human", "escalated", "unread", "total"]
+        missing = [f for f in required_fields if f not in summary]
+        
+        if not missing:
+            print_pass("Summary has all required fields")
+            print_info(f"  Summary: open={summary.get('open')}, human={summary.get('human')}, escalated={summary.get('escalated')}, unread={summary.get('unread')}, total={summary.get('total')}")
+            details.append("summary fields OK")
+            
+            # Check that all are integers
+            all_ints = all(isinstance(summary.get(f), int) for f in required_fields)
+            if all_ints:
+                print_pass("All summary fields are integers")
+                details.append("all integers")
+            else:
+                print_fail("Some summary fields are not integers")
+                passed = False
+                details.append("not all integers (FAIL)")
+        else:
+            print_fail(f"Summary missing fields: {missing}")
+            passed = False
+            details.append(f"missing: {missing} (FAIL)")
+    else:
+        print_fail(f"Get summary failed with status {response.status_code}")
+        passed = False
+        details.append(f"summary: {response.status_code} (FAIL)")
+    
+    record_result(8, "LIST + SUMMARY", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# TEST 9: VALIDATION - Error handling
+# ============================================================================
+def test_9_validation(admin_token):
+    print_test(9, "VALIDATION - Error handling")
+    
+    passed = True
+    details = []
+    
+    # Reply with missing message
+    print_info("Testing reply with missing message (should return 400)...")
+    response = requests.post(
+        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/reply",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={}
+    )
+    print_response(response)
+    
+    if response.status_code == 400:
+        print_pass("Missing message correctly rejected with 400")
+        details.append("missing msg: 400")
+    else:
+        print_fail(f"Expected 400, got {response.status_code}")
+        passed = False
+        details.append(f"missing msg: {response.status_code} (FAIL)")
+    
+    # Get non-existent session
+    print_info("Testing get non-existent session (should return 404)...")
+    response = requests.get(
+        f"{BASE_URL}/admin/support/sessions/does-not-exist-xyz",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    print_response(response)
+    
+    if response.status_code == 404:
+        print_pass("Non-existent session correctly returned 404")
+        details.append("not found: 404")
+    else:
+        print_fail(f"Expected 404, got {response.status_code}")
+        passed = False
+        details.append(f"not found: {response.status_code} (FAIL)")
+    
+    record_result(9, "VALIDATION", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# HEALTH CHECK
+# ============================================================================
+def test_health():
+    print_test("HEALTH", "Health endpoint check")
+    
+    passed = True
+    details = []
+    
+    print_info("Testing GET /health...")
+    response = requests.get(f"{BASE_URL.replace('/api', '')}/health")
+    print_response(response)
+    
+    if response.status_code == 200:
+        data = response.json()
+        status = data.get("status")
+        
+        if status == "healthy":
+            print_pass("Health check passed (status=healthy)")
+            details.append("status=healthy")
+        else:
+            print_fail(f"Health status is '{status}', expected 'healthy'")
+            passed = False
+            details.append(f"status={status} (FAIL)")
+    else:
+        print_fail(f"Health check failed with status {response.status_code}")
+        passed = False
+        details.append(f"Status: {response.status_code} (FAIL)")
+    
+    record_result("HEALTH", "Health Check", passed, "; ".join(details))
+    return passed
+
+# ============================================================================
+# MAIN TEST RUNNER
+# ============================================================================
 def main():
-    """Main test runner"""
-    print("\n" + "="*80)
-    print("  DynoPay Backend Test: Split Name Fields Feature")
-    print("  Testing first_name and last_name column synchronization")
-    print("="*80)
+    print(f"\n{BLUE}{'='*80}{RESET}")
+    print(f"{BLUE}ADMIN SUPPORT INBOX BACKEND TESTING{RESET}")
+    print(f"{BLUE}{'='*80}{RESET}")
+    print(f"Backend URL: {BASE_URL}")
+    print(f"Test Session ID: {SESSION_ID}")
+    print(f"Timestamp: {datetime.now().isoformat()}")
+    print(f"{BLUE}{'='*80}{RESET}\n")
     
-    print(f"\nTest Configuration:")
-    print(f"  Backend URL: {BACKEND_URL}")
-    print(f"  Negative test email: {NEGATIVE_TEST_EMAIL}")
-    print(f"  Positive test email: {POSITIVE_TEST_EMAIL}")
-    print(f"  Database: LIVE PRODUCTION (Railway)")
-    print(f"  Redis: LIVE PRODUCTION (Railway)")
-    print(f"  Safe Mode: ON (email disabled)")
+    # Run tests in order
+    test_1_auth_enforced()
     
-    results = {}
+    passed, admin_token = test_2_admin_login()
+    if not passed or not admin_token:
+        print_fail("Cannot continue without admin token")
+        print_summary()
+        return
     
-    # Run tests
-    results["health"] = test_health_check()
+    test_3_create_ai_session()
+    test_4_takeover(admin_token)
+    test_5_agent_reply(admin_token)
+    test_6_handback(admin_token)
+    test_7_email_reply(admin_token)
+    test_8_list_summary(admin_token)
+    test_9_validation(admin_token)
+    test_health()
     
-    if results["health"]:
-        results["negative"] = test_negative_case()
-        results["positive"] = test_positive_case()
-        results["logs"] = test_backend_logs()
+    # Print summary
+    print_summary()
+
+def print_summary():
+    """Print test summary"""
+    print(f"\n{BLUE}{'='*80}{RESET}")
+    print(f"{BLUE}TEST SUMMARY{RESET}")
+    print(f"{BLUE}{'='*80}{RESET}\n")
+    
+    total = len(test_results)
+    passed = sum(1 for r in test_results if r["passed"])
+    failed = total - passed
+    
+    for result in test_results:
+        status = f"{GREEN}✓ PASS{RESET}" if result["passed"] else f"{RED}✗ FAIL{RESET}"
+        print(f"{status} - Test {result['test']}: {result['description']}")
+        if result["details"]:
+            print(f"       Details: {result['details']}")
+    
+    print(f"\n{BLUE}{'='*80}{RESET}")
+    if failed == 0:
+        print(f"{GREEN}ALL TESTS PASSED: {passed}/{total}{RESET}")
     else:
-        print("\n❌ Health check failed, skipping remaining tests")
-        results["negative"] = False
-        results["positive"] = False
-        results["logs"] = False
-    
-    # Summary
-    print_section("TEST SUMMARY")
-    
-    total_tests = len(results)
-    passed_tests = sum(1 for v in results.values() if v)
-    
-    print(f"Total Tests: {total_tests}")
-    print(f"Passed: {passed_tests}")
-    print(f"Failed: {total_tests - passed_tests}")
-    print()
-    
-    for test_name, passed in results.items():
-        status = "✅ PASS" if passed else "❌ FAIL"
-        print(f"  {status}: {test_name.upper()}")
-    
-    # Cleanup check
-    if created_user_ids:
-        print(f"\n⚠️  WARNING: {len(created_user_ids)} test user(s) were NOT cleaned up:")
-        for uid in created_user_ids:
-            print(f"    - user_id: {uid}")
-        print("    Please manually delete these users from the production database!")
-    else:
-        print("\n✅ All test users successfully cleaned up from production database")
-    
-    all_passed = all(results.values())
-    
-    if all_passed:
-        print("\n" + "="*80)
-        print("  ✅✅✅ ALL TESTS PASSED ✅✅✅")
-        print("="*80)
-        return 0
-    else:
-        print("\n" + "="*80)
-        print("  ❌ SOME TESTS FAILED")
-        print("="*80)
-        return 1
+        print(f"{RED}SOME TESTS FAILED: {passed}/{total} passed, {failed}/{total} failed{RESET}")
+    print(f"{BLUE}{'='*80}{RESET}\n")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

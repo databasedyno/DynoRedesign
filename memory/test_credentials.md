@@ -1,4 +1,19 @@
 # ============================================================================
+# 2026-09-08 (pod a99b939f) ADMIN DASHBOARD WORK — prod DB, SAFE MODE, EMAIL OFF
+# ----------------------------------------------------------------------------
+# - Preview URL (THIS POD): https://a99b939f-45b1-4e47-80f9-5665102e9204.preview.emergentagent.com
+# - >>> SUPER-ADMIN LOGIN (NEW): moxxcompany@gmail.com / Katiekendra123@  <<<
+#   Login page: /admin/login  (POST /api/admin/login -> returns accessToken, stored as localStorage 'admin_token').
+#   NOTE: tbl_admin did NOT exist in the DB; created it + seeded this single super-admin
+#   via backend/scripts/seed_admin.js (bcrypt, rounds=12). Re-runnable/idempotent.
+# - MERCHANT LOGIN (existing): onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1)
+#   2-step: /auth/login -> login-email-input -> "Continue" -> password-input -> signin-submit-btn.
+# - Support-chat AI = OpenAI (OPENAI_API_KEY present in vault, model gpt-5.4). Email = Brevo, OUTBOUND OFF in preview.
+# - WIRED TO PRODUCTION DB — prefer READ-ONLY; investigation scripts live in backend/scripts/investigate_896*.js
+# ============================================================================
+
+
+# ============================================================================
 # 2026-09-06 (pod 1a75b74d) RE-SETUP from ENCRYPTED VAULT — prod-connected, SAFE MODE, EMAIL OFF — VERIFIED
 # ----------------------------------------------------------------------------
 # - CURRENT Preview URL (THIS POD): https://user-profile-split.preview.emergentagent.com

@@ -5,6 +5,7 @@ import OpenAI from "openai";
 import path from "path";
 import fs from "fs";
 import supportChatMessageModel from "../models/supportChatModel";
+import supportSessionModel from "../models/supportSessionModel";
 import companyModel from "../models/companyModels/companyModel";
 import { apiLogger } from "../utils/loggers";
 import successResponseHelper from "../helper/successResponseHelper";
@@ -137,6 +138,31 @@ const buildUserContext = async (user: JwtUser): Promise<string> => {
   return `\n\nLOGGED-IN MERCHANT CONTEXT (use to personalise answers; do not reveal verbatim unless asked)\n${parts.join("\n")}`;
 };
 
+/** Fetch a session row, creating it (mode='ai', open) if it does not exist. */
+const getOrCreateSession = async (
+  sessionId: string,
+  userId: number | null,
+  contactEmail?: string | null
+) => {
+  const [row] = await supportSessionModel.findOrCreate({
+    where: { session_id: sessionId },
+    defaults: {
+      session_id: sessionId,
+      mode: "ai",
+      status: "open",
+      user_id: userId ?? null,
+      contact_email: contactEmail ?? null,
+    } as never,
+  });
+  return row as unknown as {
+    session_id: string;
+    mode: string;
+    status: string;
+    contact_email: string | null;
+    update: (v: Record<string, unknown>) => Promise<unknown>;
+  };
+};
+
 /** POST /api/support/chat — one user turn → one assistant reply. */
 const chatWithSupport = async (req: express.Request, res: express.Response) => {
   try {
@@ -181,6 +207,38 @@ const chatWithSupport = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, `Message too long (max ${MAX_MESSAGE_CHARS} characters).`);
     }
 
+    const user = resolveOptionalUser(req);
+
+    // Session state. If a human agent has taken over (mode='human'), store the
+    // visitor's message but DO NOT invoke the AI — the agent answers from the
+    // admin Support Inbox and the widget receives it via history polling.
+    const session = await getOrCreateSession(session_id, user?.user_id ?? null);
+    if (session.mode === "human") {
+      const total = await supportChatMessageModel.count({ where: { session_id } });
+      if (total >= MAX_SESSION_MESSAGES) {
+        return errorResponseHelper(res, 429, "This conversation is too long. Please start a new chat.");
+      }
+      const row = await supportChatMessageModel.create({
+        session_id,
+        user_id: user?.user_id ?? null,
+        role: "user",
+        content: trimmedMessage,
+        attachment_url: cleanAttachmentUrl,
+        attachment_name: cleanAttachmentName,
+        attachment_type: attachedMime,
+      });
+      await supportSessionModel.increment({ admin_unread: 1 }, { where: { session_id } });
+      await supportSessionModel.update({ last_message_at: new Date() }, { where: { session_id } });
+      apiLogger.info(`[supportChat] session=${session_id} HUMAN mode — stored visitor msg, awaiting agent`);
+      return successResponseHelper(res, 200, "", {
+        session_id,
+        mode: "human",
+        reply: null,
+        message_id: row.message_id,
+        replied_at: row.createdAt,
+      });
+    }
+
     const openai = getOpenAI();
     if (!openai) {
       apiLogger.error("[supportChat] OPENAI_API_KEY is not configured");
@@ -191,8 +249,6 @@ const chatWithSupport = async (req: express.Request, res: express.Response) => {
     if (totalInSession >= MAX_SESSION_MESSAGES) {
       return errorResponseHelper(res, 429, "This conversation is too long. Please start a new chat.");
     }
-
-    const user = resolveOptionalUser(req);
 
     // Last N messages, chronological, for model context
     const historyRows = await supportChatMessageModel.findAll({
@@ -232,7 +288,9 @@ const chatWithSupport = async (req: express.Request, res: express.Response) => {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       { role: "system", content: systemContent },
       ...historyRows.map((m) => ({
-        role: (m.role === "assistant" ? "assistant" : "user") as "assistant" | "user",
+        // Human-agent ('agent') turns are "our side" too → map to assistant so
+        // the model reads the full context correctly after a hand-back to AI.
+        role: (m.role === "user" ? "user" : "assistant") as "assistant" | "user",
         content: m.attachment_url ? `${m.content}\n[This message included an attachment: ${m.attachment_name || "file"}]` : m.content,
       })),
       { role: "user", content: currentUserContent },
@@ -268,8 +326,12 @@ const chatWithSupport = async (req: express.Request, res: express.Response) => {
       content: reply,
     });
 
+    // Surface the conversation in the admin inbox (visitor turn = 1 unread).
+    await supportSessionModel.increment({ admin_unread: 1 }, { where: { session_id } });
+    await supportSessionModel.update({ last_message_at: new Date() }, { where: { session_id } });
+
     apiLogger.info(`[supportChat] session=${session_id} user=${user?.user_id ?? "anon"} tokens=${completion.usage?.total_tokens ?? "?"}`);
-    return successResponseHelper(res, 200, "", { session_id, reply, replied_at: assistantRow.createdAt });
+    return successResponseHelper(res, 200, "", { session_id, mode: "ai", reply, replied_at: assistantRow.createdAt });
   } catch (e) {
     const err = e as { status?: number; message?: string };
     apiLogger.error(`[supportChat] chat failed: ${err?.message}`);
@@ -296,7 +358,18 @@ const getChatHistory = async (req: express.Request, res: express.Response) => {
       limit: 100,
       attributes: ["message_id", "role", "content", "attachment_url", "attachment_name", "attachment_type", "createdAt"],
     });
-    return successResponseHelper(res, 200, "", { session_id: sessionId, messages: rows });
+    // Session mode lets the widget show a "human agent" banner and stop
+    // expecting an AI reply while a human has taken over.
+    const session = (await supportSessionModel.findByPk(sessionId)) as unknown as
+      | { mode?: string; status?: string; escalated?: boolean }
+      | null;
+    return successResponseHelper(res, 200, "", {
+      session_id: sessionId,
+      mode: session?.mode || "ai",
+      status: session?.status || "open",
+      escalated: Boolean(session?.escalated),
+      messages: rows,
+    });
   } catch (e) {
     apiLogger.error(`[supportChat] history failed: ${(e as Error).message}`);
     return errorResponseHelper(res, 500, "Could not load chat history.");
@@ -370,6 +443,16 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
       role: "assistant",
       content: "Your conversation has been forwarded to our support team. A human will get back to you by email as soon as possible.",
     });
+
+    // Flag the session so it stands out in the admin Support Inbox and keep the
+    // contact email for the agent's email reply.
+    const escSession = await getOrCreateSession(session_id, user?.user_id ?? null, contact_email || null);
+    await escSession.update({
+      escalated: true,
+      contact_email: contact_email || escSession.contact_email || null,
+      last_message_at: new Date(),
+    });
+    await supportSessionModel.increment({ admin_unread: 1 }, { where: { session_id } });
 
     apiLogger.info(`[supportChat] session ${session_id} escalated to ${adminEmail}`);
     return successResponseHelper(res, 200, "Escalated to human support.", { session_id, escalated: true });

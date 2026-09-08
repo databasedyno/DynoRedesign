@@ -1,5 +1,6 @@
 import express from "express";
 import adminController from "../controller/adminController";
+import supportInboxController from "../controller/supportInboxController";
 import { adminAuthMiddleware } from "../middleware";
 import adminOrApiKeyMiddleware from "../middleware/adminOrApiKeyMiddleware";
 import { loginRateLimiter } from "../middleware/rateLimitMiddleware";
@@ -225,5 +226,16 @@ adminRouter.post("/referral/share-nudge", adminAuthMiddleware, async (req, res) 
     res.status(500).json({ success: false, message: (err as Error).message });
   }
 });
+
+// ── Admin Support Inbox (live chat + AI takeover + email reply) ──────────────
+adminRouter.get("/support/summary", adminAuthMiddleware, supportInboxController.summary);
+adminRouter.get("/support/sessions", adminAuthMiddleware, supportInboxController.listSessions);
+adminRouter.get("/support/sessions/:session_id", adminAuthMiddleware, supportInboxController.getSession);
+adminRouter.post("/support/sessions/:session_id/reply", adminAuthMiddleware, supportInboxController.reply);
+adminRouter.post("/support/sessions/:session_id/takeover", adminAuthMiddleware, supportInboxController.takeover);
+adminRouter.post("/support/sessions/:session_id/handback", adminAuthMiddleware, supportInboxController.handback);
+adminRouter.post("/support/sessions/:session_id/close", adminAuthMiddleware, supportInboxController.close);
+adminRouter.post("/support/sessions/:session_id/reopen", adminAuthMiddleware, supportInboxController.reopen);
+adminRouter.post("/support/sessions/:session_id/email", adminAuthMiddleware, supportInboxController.emailReply);
 
 export default adminRouter;

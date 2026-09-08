@@ -29,6 +29,13 @@ export interface ActionButtonsProps {
   extraDisabled?: boolean;
   /** Selected link kind — switches the create button label (donation vs standard). */
   linkKind?: string;
+  /**
+   * Human-readable list of what is preventing submission. When non-empty the
+   * primary button is disabled AND the reasons are shown inline so the merchant
+   * is never left staring at a greyed-out button with no explanation
+   * (support session df0936d9 — crowdfunding "Create" stayed disabled silently).
+   */
+  blockers?: string[];
 }
 
 export interface ICryptoItem {

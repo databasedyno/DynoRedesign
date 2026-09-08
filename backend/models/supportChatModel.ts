@@ -13,7 +13,8 @@ interface SupportChatMessageAttributes {
   message_id: string;
   session_id: string;
   user_id?: number | null;
-  role: "user" | "assistant";
+  // 'agent' = a human support admin who has taken over from the AI ('assistant').
+  role: "user" | "assistant" | "agent";
   content: string;
   escalated: boolean;
   attachment_url?: string | null;
@@ -36,7 +37,7 @@ class SupportChatMessage
   public message_id!: string;
   public session_id!: string;
   public user_id?: number | null;
-  public role!: "user" | "assistant";
+  public role!: "user" | "assistant" | "agent";
   public content!: string;
   public escalated!: boolean;
   public attachment_url?: string | null;

@@ -177,6 +177,21 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     }
   };
 
+  // ── Settlement / receipt state (support session df0936d9) ────────────────
+  // A "pending" payment with NO on-chain incoming hash means nothing has been
+  // received yet, so we must never imply funds were "Settled To" the merchant's
+  // wallet. Only treat it as settled when there is real on-chain movement.
+  const _status = String(transaction.status || "").toLowerCase();
+  const isSettledState = [
+    "settled", "confirmed", "completed", "success", "successful",
+    "paid", "converted", "recovered", "payout_complete", "done",
+  ].includes(_status);
+  const hasIncoming = Boolean(transaction.incomingTransactionId);
+  const hasOutgoing = Boolean(transaction.outgoingTransactionId);
+  const isSettled = isSettledState || hasOutgoing;
+  const awaitingPayment = !hasIncoming && !hasOutgoing && !isSettledState;
+
+
   return (
     <>
       {/* Side drawer (design audit 2026-08-05, Phase 3 transactions polish).
@@ -281,6 +296,55 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
             </HeaderTitleRow>
           </Box>
           <SectionDivider />
+
+          {/* Awaiting-payment notice: pending intent with no on-chain receipt.
+              Prevents merchants reading "Settled To …" as "funds arrived"
+              (support session df0936d9). */}
+          {awaitingPayment && (
+            <Box
+              data-testid="tx-awaiting-banner"
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 1.25,
+                p: 1.5,
+                mb: isMobile ? 1.5 : 2.5,
+                borderRadius: "12px",
+                border: `1px solid ${theme.palette.warning.main}40`,
+                backgroundColor: `${theme.palette.warning.main}14`,
+              }}
+            >
+              <Icon name="clock" size={18} />
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: 13.5,
+                    fontWeight: 700,
+                    color: theme.palette.text.primary,
+                    lineHeight: "18px",
+                    mb: 0.25,
+                  }}
+                >
+                  {tTransactions("awaitingPaymentTitle", {
+                    defaultValue: "Awaiting payment — no funds received yet",
+                  })}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 12.5,
+                    color: theme.palette.text.secondary,
+                    lineHeight: "17px",
+                  }}
+                >
+                  {tTransactions("awaitingPaymentBody", {
+                    defaultValue:
+                      "We haven't detected an on-chain deposit for this payment, so nothing has been sent to your wallet yet. This entry will update automatically once the customer's funds arrive and are confirmed.",
+                  })}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
 
           <Box
             sx={{
@@ -403,7 +467,13 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               )}
               {transaction.settlementAddress && (
                 <DetailRow>
-                  <TitleLabel>{tTransactions("settledTo")}</TitleLabel>
+                  <TitleLabel>
+                    {isSettled
+                      ? tTransactions("settledTo")
+                      : tTransactions("settlementWallet", {
+                          defaultValue: "Settlement wallet",
+                        })}
+                  </TitleLabel>
                   <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <TitleValue sx={{ fontSize: isMobile ? "13px" : "15px" }}>
                       {`${transaction.settlementAddress.slice(0, 6)}...${transaction.settlementAddress.slice(-4)}`}
@@ -422,6 +492,21 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     </CopyButton>
                   </Box>
                 </DetailRow>
+              )}
+              {transaction.settlementAddress && !isSettled && (
+                <Typography
+                  sx={{
+                    fontSize: 11.5,
+                    color: theme.palette.text.secondary,
+                    lineHeight: "16px",
+                    mt: "-4px",
+                  }}
+                >
+                  {tTransactions("settlementWalletHint", {
+                    defaultValue:
+                      "Funds are sent here only after the payment is received and confirmed on-chain.",
+                  })}
+                </Typography>
               )}
             </Box>
           </Box>

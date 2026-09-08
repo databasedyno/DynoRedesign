@@ -1333,6 +1333,46 @@ const CreatePaymentLinkPage = ({
     setCount(BASE_COUNT + extra);
   }, [windowWidth]);
 
+  // Human-readable reasons the "Create" button is disabled. Drives both the
+  // button's disabled state and an inline hint (fixes support session
+  // df0936d9: crowdfunding "Create" stayed disabled with no explanation).
+  const createBlockers = useMemo(() => {
+    const reasons: string[] = [];
+    const isDonation = linkKind === "donation";
+    if (isDonation && !donationSettings.title.trim()) {
+      reasons.push(tPaymentLink("blockerTitle", { defaultValue: "add a campaign title" }));
+    }
+    if (!isDonation && (!paymentSettings.value || paymentSettings.value.trim() === "")) {
+      reasons.push(tPaymentLink("blockerAmount", { defaultValue: "enter an amount" }));
+    }
+    if (paymentSettingsErrors.value) reasons.push(String(paymentSettingsErrors.value));
+    if (!paymentSettings.currency) {
+      reasons.push(tPaymentLink("blockerCurrency", { defaultValue: "choose a base currency" }));
+    }
+    if (paymentSettingsErrors.currency) reasons.push(String(paymentSettingsErrors.currency));
+    if (
+      !paymentSettings.acceptedCryptoCurrency ||
+      paymentSettings.acceptedCryptoCurrency.length === 0
+    ) {
+      reasons.push(
+        tPaymentLink("blockerCrypto", { defaultValue: "select at least one cryptocurrency" })
+      );
+    }
+    if (paymentSettingsErrors.description) reasons.push(String(paymentSettingsErrors.description));
+    return reasons;
+  }, [
+    linkKind,
+    donationSettings.title,
+    paymentSettings.value,
+    paymentSettings.currency,
+    paymentSettings.acceptedCryptoCurrency,
+    paymentSettingsErrors.value,
+    paymentSettingsErrors.currency,
+    paymentSettingsErrors.description,
+    tPaymentLink,
+  ]);
+
+
   return (
     <div>
       {/* Donation-aware browser tab title (only override in create mode; the
@@ -1947,6 +1987,7 @@ const CreatePaymentLinkPage = ({
                 requireAmount={linkKind !== "donation"}
                 extraDisabled={linkKind === "donation" && !donationSettings.title.trim()}
                 linkKind={linkKind}
+                blockers={createBlockers}
               />
             </Box>
           </TabContentContainer>
