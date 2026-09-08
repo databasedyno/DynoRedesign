@@ -21,8 +21,10 @@ import {
   PauseCircleRounded,
   CheckCircleRounded,
   LockOpenRounded,
+  ChevronRightRounded,
 } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { AdminStatusChip, formatDate, formatUSD } from "../adminUi";
@@ -132,6 +134,7 @@ const MerchantDrawer: React.FC<{
 }> = ({ merchant, onClose, onChanged }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
   const [detail, setDetail] = useState<Merchant | null>(null);
   const [loading, setLoading] = useState(false);
   const [pending, setPending] = useState<ActionKind | null>(null);
@@ -188,6 +191,12 @@ const MerchantDrawer: React.FC<{
   const statusLower = (m?.status || "active").toLowerCase();
   const isActive = statusLower === "active";
   const meta = pending ? ACTION_META[pending] : null;
+
+  const viewBrandTransactions = (companyName?: string) => {
+    if (!companyName) return;
+    onClose();
+    router.push(`/admin/transactions?brand=${encodeURIComponent(companyName)}`);
+  };
 
   return (
     <>
@@ -267,17 +276,25 @@ const MerchantDrawer: React.FC<{
                   <Box
                     key={co.company_id}
                     data-testid={`merchant-brand-${co.company_id}`}
+                    onClick={() => viewBrandTransactions(co.company_name)}
+                    role="button"
+                    title={`View ${co.company_name} transactions`}
                     sx={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
                       gap: 1,
                       py: 0.85,
+                      px: 0.5,
+                      mx: -0.5,
+                      borderRadius: "8px",
+                      cursor: "pointer",
                       borderBottom: `1px dashed ${theme.palette.divider}`,
+                      "&:hover": { backgroundColor: theme.palette.action.hover },
                     }}
                   >
                     <Box sx={{ minWidth: 0 }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 600 }} noWrap>
+                      <Typography sx={{ fontSize: 13, fontWeight: 600, color: "primary.main" }} noWrap>
                         {co.company_name}
                       </Typography>
                       <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
@@ -286,7 +303,10 @@ const MerchantDrawer: React.FC<{
                         {co.creator_page_enabled && co.handle ? ` · @${co.handle}` : ""}
                       </Typography>
                     </Box>
-                    <Chip size="small" variant="outlined" label={`#${co.company_id}`} sx={{ height: 20, fontSize: 10.5 }} />
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+                      <Chip size="small" variant="outlined" label={`#${co.company_id}`} sx={{ height: 20, fontSize: 10.5 }} />
+                      <ChevronRightRounded sx={{ fontSize: 18, color: "text.secondary" }} />
+                    </Box>
                   </Box>
                 ))
               )}

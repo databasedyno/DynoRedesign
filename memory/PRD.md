@@ -1,3 +1,28 @@
+# 2026-06 (fork, pod a99b939f) FOLLOW-UP 4: SUPPORT INBOX UX BATCH (4 items) — DONE + VERIFIED (screenshots; tsc 0).
+#   All FRONTEND-only, no backend/DB writes (LIVE prod DB untouched). User asks addressed:
+#   1) "To" FIELD VISIBLE: email dialog DialogContent pt:1 (8px) clipped the first outlined field's floating "To"
+#      label at the scroll-container top edge. Fix = pt:2.5 + fullWidth on To/Subject/Message (ConversationPanel.tsx).
+#   2) ONE-CLICK COPY: copy IconButton next to the resolved visitor email in the conversation header
+#      (testid support-copy-email); navigator.clipboard w/ execCommand fallback; icon flips to check + "Copied!"
+#      tooltip for 1.6s. Header email now sourced from derived `contactEmail` (resolved_email||contact_email).
+#   3) EMAIL REPLY TEMPLATES: NEW Components/Page/Admin/SupportInbox/emailTemplates.ts — 3 built-ins
+#      (Follow-up / No deposit detected / KYC in review, each with subject+body) + agent-saved templates persisted
+#      PER-BROWSER in localStorage key `dynopay_admin_email_templates` (id prefixed user-*). In the Email dialog:
+#      TEMPLATES chip row (click = fill subject+body), "Save current" -> inline name field -> saveEmailTemplate;
+#      user chips get a ✕ (deleteEmailTemplate); built-ins are not deletable. testids support-email-template-<id>,
+#      -save-open, -name, -save. NOTE chose localStorage over a DB table to avoid a prod migration (user said
+#      "continue" w/o picking a/b) — can move to a shared DB table later if cross-device/agent sync is wanted.
+#   4) BRAND DRILL-IN: brand rows in MerchantDrawer are now clickable (primary-color name + chevron, hover) ->
+#      router.push(/admin/transactions?brand=<company_name>) + closes drawer. Transactions/index.tsx reads
+#      router.query.brand (on router.isReady) -> sets search q + tab 0 + shows a removable "Brand: <name>" chip
+#      (testid transactions-brand-filter; onDelete = clearBrand -> shallow replace to /admin/transactions).
+#   VERIFIED via Playwright screenshots (admin moxxcompany@gmail.com): To label fully visible; copy btn present;
+#      template apply filled 461-char body + subject; "My QA Template" saved+listed w/ delete ✕; brand drill-in on
+#      John Davis/The Dev Store -> transactions filtered to that brand (Brand chip + prefilled search). tsc --noEmit 0.
+#      (Self-tested only — no testing_agent, to avoid a UI ban/suspend on the LIVE prod DB.)
+#      Files: ConversationPanel.tsx, emailTemplates.ts (NEW), Merchants/MerchantDrawer.tsx, Transactions/index.tsx.
+#
+
 # 2026-06 (fork, pod a99b939f) FOLLOW-UP 3: SUPPORT INBOX — SHOW VISITOR EMAIL — DONE + VERIFIED (curl + screenshot).
 #   User: admin couldn't see the visitor's email (esp. logged-in in-app chats) to email them.
 #   FIX (supportInboxController): new resolveContact() picks the best email — provided contact_email >

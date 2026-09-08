@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { SearchRounded } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { AdminStatusChip, formatDateTime, formatNumber, formatUSD } from "../adminUi";
@@ -54,14 +55,35 @@ const STATUS_FILTERS = ["all", "successful", "pending", "failed"];
 const AdminTransactions: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
   const [customerTx, setCustomerTx] = useState<CustomerTx[]>([]);
   const [selfTx, setSelfTx] = useState<SelfTx[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(0);
   const [q, setQ] = useState("");
+  const [brand, setBrand] = useState<string | null>(null);
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
+
+  // Deep-link from the Merchants drawer: /admin/transactions?brand=<name>
+  // pre-fills the search to that brand's customer payments.
+  useEffect(() => {
+    if (!router.isReady) return;
+    const b = router.query.brand;
+    const name = Array.isArray(b) ? b[0] : b;
+    if (name) {
+      setBrand(name);
+      setQ(name);
+      setTab(0);
+    }
+  }, [router.isReady, router.query.brand]);
+
+  const clearBrand = () => {
+    setBrand(null);
+    setQ("");
+    router.replace("/admin/transactions", undefined, { shallow: true });
+  };
 
   const fetchTx = useCallback(async () => {
     try {
@@ -152,6 +174,16 @@ const AdminTransactions: React.FC = () => {
             }}
             data-testid="transactions-search"
           />
+          {brand && (
+            <Chip
+              size="small"
+              color="primary"
+              label={`Brand: ${brand}`}
+              onDelete={clearBrand}
+              data-testid="transactions-brand-filter"
+              sx={{ fontWeight: 700 }}
+            />
+          )}
           <Box sx={{ display: "flex", gap: 0.75, flexWrap: "wrap" }}>
             {STATUS_FILTERS.map((s) => {
               const active = status === s;

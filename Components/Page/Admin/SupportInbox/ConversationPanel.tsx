@@ -22,8 +22,18 @@ import {
   CheckCircleRounded,
   ReplayRounded,
   LockOpenRounded,
+  ContentCopyRounded,
+  CheckRounded,
+  CloseRounded,
+  BookmarkAddRounded,
 } from "@mui/icons-material";
 import { CANNED_REPLIES } from "./cannedReplies";
+import {
+  EmailTemplate,
+  loadEmailTemplates,
+  saveEmailTemplate,
+  deleteEmailTemplate,
+} from "./emailTemplates";
 import { relTime } from "./SessionList";
 
 export interface SessionMeta {
@@ -76,10 +86,32 @@ const ConversationPanel: React.FC<Props> = ({
   const [emailBody, setEmailBody] = useState("");
   const [emailTo, setEmailTo] = useState("");
   const [emailSending, setEmailSending] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const session = detail?.session;
   const messages = detail?.messages || [];
+  const contactEmail = session?.resolved_email || session?.contact_email || "";
+
+  const copyEmail = async () => {
+    if (!contactEmail) return;
+    try {
+      await navigator.clipboard.writeText(contactEmail);
+    } catch {
+      // Fallback for older / non-secure contexts.
+      const ta = document.createElement("textarea");
+      ta.value = contactEmail;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1600);
+  };
 
   useEffect(() => {
     // Auto-scroll to newest message.
@@ -90,6 +122,10 @@ const ConversationPanel: React.FC<Props> = ({
   useEffect(() => {
     setDraft("");
   }, [detail?.session?.session_id]);
+
+  useEffect(() => {
+    if (emailOpen) setTemplates(loadEmailTemplates());
+  }, [emailOpen]);
 
   if (!session) {
     return (
@@ -131,6 +167,30 @@ const ConversationPanel: React.FC<Props> = ({
     }
   };
 
+  const openEmailDialog = () => {
+    setEmailTo(contactEmail);
+    setSavingTemplate(false);
+    setTemplateName("");
+    setEmailOpen(true);
+  };
+
+  const applyTemplate = (t: EmailTemplate) => {
+    if (t.subject) setEmailSubject(t.subject);
+    setEmailBody(t.body);
+  };
+
+  const handleSaveTemplate = () => {
+    const name = templateName.trim();
+    if (!name || !emailBody.trim()) return;
+    setTemplates(saveEmailTemplate({ label: name, subject: emailSubject.trim(), body: emailBody }));
+    setSavingTemplate(false);
+    setTemplateName("");
+  };
+
+  const handleDeleteTemplate = (id: string) => {
+    setTemplates(deleteEmailTemplate(id));
+  };
+
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, height: "100%" }}>
       {/* Header */}
@@ -146,9 +206,23 @@ const ConversationPanel: React.FC<Props> = ({
         }}
       >
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: 14, fontWeight: 700, color: "text.primary" }} noWrap data-testid="support-contact">
-            {session.resolved_email || session.contact_email || `Visitor · ${session.session_id.slice(0, 12)}`}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: "text.primary" }} noWrap data-testid="support-contact">
+              {contactEmail || `Visitor · ${session.session_id.slice(0, 12)}`}
+            </Typography>
+            {contactEmail && (
+              <Tooltip title={copied ? "Copied!" : "Copy email"}>
+                <IconButton
+                  size="small"
+                  onClick={copyEmail}
+                  data-testid="support-copy-email"
+                  sx={{ p: 0.25, color: copied ? "success.main" : "text.secondary" }}
+                >
+                  {copied ? <CheckRounded sx={{ fontSize: 16 }} /> : <ContentCopyRounded sx={{ fontSize: 15 }} />}
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 0.25, flexWrap: "wrap" }}>
             <Chip
               size="small"
@@ -203,7 +277,7 @@ const ConversationPanel: React.FC<Props> = ({
             </span>
           </Tooltip>
         )}
-        <Button size="small" variant="outlined" startIcon={<EmailRounded />} onClick={() => { setEmailTo(session.resolved_email || session.contact_email || ""); setEmailOpen(true); }} data-testid="support-email-open">
+        <Button size="small" variant="outlined" startIcon={<EmailRounded />} onClick={openEmailDialog} data-testid="support-email-open">
           Email
         </Button>
         {isClosed ? (
@@ -313,25 +387,95 @@ const ConversationPanel: React.FC<Props> = ({
       {/* Email dialog */}
       <Dialog open={emailOpen} onClose={() => setEmailOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle sx={{ fontSize: 16, fontWeight: 700 }}>Email the visitor</DialogTitle>
-        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1.5, pt: 1 }}>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1.5, pt: 2.5 }}>
           <TextField
             label="To"
             size="small"
+            fullWidth
             value={emailTo}
             onChange={(e) => setEmailTo(e.target.value)}
             placeholder="customer@email.com"
-            helperText={(session.resolved_email || session.contact_email) ? "" : "No contact email on file — enter one to send."}
+            helperText={contactEmail ? "" : "No contact email on file — enter one to send."}
             data-testid="support-email-to"
           />
           <TextField
             label="Subject"
             size="small"
+            fullWidth
             value={emailSubject}
             onChange={(e) => setEmailSubject(e.target.value)}
           />
+
+          {/* Reply templates */}
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.5 }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "text.secondary" }}>
+                Templates
+              </Typography>
+              {!savingTemplate && (
+                <Button
+                  size="small"
+                  startIcon={<BookmarkAddRounded sx={{ fontSize: 16 }} />}
+                  onClick={() => setSavingTemplate(true)}
+                  disabled={!emailBody.trim()}
+                  data-testid="support-email-template-save-open"
+                  sx={{ fontSize: 11 }}
+                >
+                  Save current
+                </Button>
+              )}
+            </Box>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
+              {templates.map((t) => (
+                <Chip
+                  key={t.id}
+                  size="small"
+                  label={t.label}
+                  variant="outlined"
+                  onClick={() => applyTemplate(t)}
+                  onDelete={t.builtin ? undefined : () => handleDeleteTemplate(t.id)}
+                  deleteIcon={<CloseRounded sx={{ fontSize: 14 }} />}
+                  data-testid={`support-email-template-${t.id}`}
+                />
+              ))}
+            </Box>
+            {savingTemplate && (
+              <Box sx={{ display: "flex", gap: 1, mt: 1, alignItems: "center" }}>
+                <TextField
+                  size="small"
+                  placeholder="Template name"
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSaveTemplate();
+                    }
+                  }}
+                  autoFocus
+                  sx={{ flex: 1 }}
+                  data-testid="support-email-template-name"
+                />
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={handleSaveTemplate}
+                  disabled={!templateName.trim() || !emailBody.trim()}
+                  data-testid="support-email-template-save"
+                >
+                  Save
+                </Button>
+                <Button size="small" onClick={() => { setSavingTemplate(false); setTemplateName(""); }}>
+                  Cancel
+                </Button>
+              </Box>
+            )}
+          </Box>
+
           <TextField
             label="Message"
             multiline
+            fullWidth
             minRows={5}
             value={emailBody}
             onChange={(e) => setEmailBody(e.target.value)}
