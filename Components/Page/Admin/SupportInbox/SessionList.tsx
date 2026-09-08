@@ -24,6 +24,9 @@ export interface SupportSession {
   status: string;
   admin_unread: number;
   contact_email: string | null;
+  resolved_email?: string | null;
+  user_name?: string | null;
+  email_source?: string;
   user_id: number | null;
   preview: string | null;
   last_role?: string | null;
@@ -178,7 +181,7 @@ const SessionList: React.FC<Props> = ({
                     color: "text.primary",
                   }}
                 >
-                  {s.contact_email || `Visitor · ${s.session_id.slice(0, 8)}`}
+                  {s.resolved_email || s.contact_email || `Visitor · ${s.session_id.slice(0, 8)}`}
                 </Typography>
                 {s.escalated && (
                   <PriorityHighRounded sx={{ fontSize: 15, color: theme.palette.warning.main }} />

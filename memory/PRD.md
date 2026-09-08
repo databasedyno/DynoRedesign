@@ -1,3 +1,16 @@
+# 2026-06 (fork, pod a99b939f) FOLLOW-UP 3: SUPPORT INBOX — SHOW VISITOR EMAIL — DONE + VERIFIED (curl + screenshot).
+#   User: admin couldn't see the visitor's email (esp. logged-in in-app chats) to email them.
+#   FIX (supportInboxController): new resolveContact() picks the best email — provided contact_email >
+#   logged-in ACCOUNT email (via MAX(message.user_id) -> tbl_user.email/name) > email TYPED IN CHAT
+#   (POSIX substring extraction). listSessions now returns resolved_email/user_name/email_source (bulk user
+#   lookup + chat_email subquery); getSession returns the same on the session object; emailReply falls back to
+#   the resolved email as the 'to'; session search also matches account email. Frontend: SessionList + Conversation
+#   header show resolved_email (was contact_email only); header shows a "Signed in · <name>" / "Email from chat"
+#   source chip (testids support-contact/support-email-source-account/-chat); Email dialog prefills resolved email.
+#   Verified: session 828fa8b3 (uid 17, no contact_email) -> tajikzadeh@gmail.com "mohammad mahdi Tajikzadeh"
+#   source=account; list shows account emails for logged-in sessions. tsc 0.
+#
+
 # 2026-06 (fork, pod a99b939f) FOLLOW-UP 2: MERCHANT DRAWER REVAMP — DONE + VERIFIED (curl + screenshot).
 #   User feedback on the Merchants detail drawer: fee-free is deprecated; account "Creator handle" (@hostbay) was
 #   wrong/misleading; brands + payout were missing; several fields blank.

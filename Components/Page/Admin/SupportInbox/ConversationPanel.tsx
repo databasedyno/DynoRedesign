@@ -31,6 +31,10 @@ export interface SessionMeta {
   mode: string;
   status: string;
   contact_email: string | null;
+  resolved_email?: string | null;
+  user_name?: string | null;
+  user_id?: number | null;
+  email_source?: string;
   escalated?: boolean;
 }
 export interface SupportMessage {
@@ -142,10 +146,10 @@ const ConversationPanel: React.FC<Props> = ({
         }}
       >
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: 14, fontWeight: 700, color: "text.primary" }} noWrap>
-            {session.contact_email || `Visitor · ${session.session_id.slice(0, 12)}`}
+          <Typography sx={{ fontSize: 14, fontWeight: 700, color: "text.primary" }} noWrap data-testid="support-contact">
+            {session.resolved_email || session.contact_email || `Visitor · ${session.session_id.slice(0, 12)}`}
           </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 0.25 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 0.25, flexWrap: "wrap" }}>
             <Chip
               size="small"
               icon={isHuman ? <SupportAgentRounded /> : <SmartToyRounded />}
@@ -154,6 +158,25 @@ const ConversationPanel: React.FC<Props> = ({
               variant="outlined"
               sx={{ height: 22, fontSize: 11 }}
             />
+            {session.email_source === "account" && (
+              <Chip
+                size="small"
+                label={session.user_name ? `Signed in · ${session.user_name}` : "Signed-in account"}
+                color="info"
+                variant="outlined"
+                sx={{ height: 22, fontSize: 11 }}
+                data-testid="support-email-source-account"
+              />
+            )}
+            {session.email_source === "chat" && (
+              <Chip
+                size="small"
+                label="Email from chat"
+                variant="outlined"
+                sx={{ height: 22, fontSize: 11 }}
+                data-testid="support-email-source-chat"
+              />
+            )}
             {session.escalated && (
               <Chip size="small" label="Escalated" color="warning" variant="outlined" sx={{ height: 22, fontSize: 11 }} />
             )}
@@ -180,7 +203,7 @@ const ConversationPanel: React.FC<Props> = ({
             </span>
           </Tooltip>
         )}
-        <Button size="small" variant="outlined" startIcon={<EmailRounded />} onClick={() => { setEmailTo(session.contact_email || ""); setEmailOpen(true); }} data-testid="support-email-open">
+        <Button size="small" variant="outlined" startIcon={<EmailRounded />} onClick={() => { setEmailTo(session.resolved_email || session.contact_email || ""); setEmailOpen(true); }} data-testid="support-email-open">
           Email
         </Button>
         {isClosed ? (
@@ -297,7 +320,7 @@ const ConversationPanel: React.FC<Props> = ({
             value={emailTo}
             onChange={(e) => setEmailTo(e.target.value)}
             placeholder="customer@email.com"
-            helperText={session.contact_email ? "" : "No contact email on file — enter one to send."}
+            helperText={(session.resolved_email || session.contact_email) ? "" : "No contact email on file — enter one to send."}
             data-testid="support-email-to"
           />
           <TextField

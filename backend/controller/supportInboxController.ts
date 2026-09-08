@@ -43,6 +43,55 @@ const ensureSession = async (sessionId: string): Promise<SessionRow> => {
 const esc = (s: string) =>
   String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// Pull an email address out of free-text a visitor typed into the chat.
+const EMAIL_EXTRACT_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+
+/** Email of the logged-in merchant behind a session (from message user_id), if any. */
+const accountEmailForSession = async (
+  sessionId: string
+): Promise<{ email: string; name: string | null; user_id: number } | null> => {
+  const [uidRow] = await sequelize.query<{ user_id: number | null }>(
+    `SELECT MAX(user_id) AS user_id FROM tbl_support_chat_message WHERE session_id = :sid AND user_id IS NOT NULL`,
+    { replacements: { sid: sessionId }, type: QueryTypes.SELECT }
+  );
+  const userId = uidRow?.user_id ?? null;
+  if (!userId) return null;
+  const [u] = await sequelize.query<{ email: string; name: string | null }>(
+    `SELECT email, name FROM tbl_user WHERE user_id = :uid`,
+    { replacements: { uid: userId }, type: QueryTypes.SELECT }
+  );
+  return u?.email ? { email: u.email, name: u.name || null, user_id: userId } : null;
+};
+
+/** First email address the visitor typed into the transcript, if any. */
+const chatEmailForSession = async (sessionId: string): Promise<string | null> => {
+  const rows = await sequelize.query<{ content: string }>(
+    `SELECT content FROM tbl_support_chat_message WHERE session_id = :sid AND role = 'user' AND content ~ '@' ORDER BY "createdAt" ASC LIMIT 20`,
+    { replacements: { sid: sessionId }, type: QueryTypes.SELECT }
+  );
+  for (const r of rows) {
+    const m = (r.content || "").match(EMAIL_EXTRACT_RE);
+    if (m) return m[0];
+  }
+  return null;
+};
+
+/**
+ * Best contact email for a session so the admin can reply/email:
+ * explicitly-provided > logged-in account > typed-in-chat.
+ */
+const resolveContact = async (
+  sessionId: string,
+  contactEmail: string | null
+): Promise<{ email: string | null; name: string | null; user_id: number | null; source: string }> => {
+  if (contactEmail) return { email: contactEmail, name: null, user_id: null, source: "provided" };
+  const acct = await accountEmailForSession(sessionId);
+  if (acct) return { email: acct.email, name: acct.name, user_id: acct.user_id, source: "account" };
+  const chat = await chatEmailForSession(sessionId);
+  if (chat) return { email: chat, name: null, user_id: null, source: "chat" };
+  return { email: null, name: null, user_id: null, source: "none" };
+};
+
 /** GET /api/admin/support/sessions?status=&q=&limit=&offset= */
 const listSessions = async (req: express.Request, res: express.Response) => {
   try {
@@ -56,7 +105,9 @@ const listSessions = async (req: express.Request, res: express.Response) => {
     if (qTerm) {
       repl.q = `%${qTerm}%`;
       whereSql = `WHERE (m.session_id ILIKE :q OR s.contact_email ILIKE :q
-        OR EXISTS (SELECT 1 FROM tbl_support_chat_message y WHERE y.session_id = m.session_id AND y.content ILIKE :q))`;
+        OR EXISTS (SELECT 1 FROM tbl_support_chat_message y WHERE y.session_id = m.session_id AND y.content ILIKE :q)
+        OR EXISTS (SELECT 1 FROM tbl_support_chat_message z JOIN tbl_user u2 ON u2.user_id = z.user_id
+                   WHERE z.session_id = m.session_id AND u2.email ILIKE :q))`;
     }
 
     const havingMap: Record<string, string> = {
@@ -79,6 +130,10 @@ const listSessions = async (req: express.Request, res: express.Response) => {
               s.contact_email,
               MAX(m.user_id) AS user_id,
               s.last_email_at,
+              (SELECT substring(x.content from '[[:alnum:]._%+-]+@[[:alnum:].-]+[.][[:alpha:]]{2,}')
+                 FROM tbl_support_chat_message x
+                WHERE x.session_id = m.session_id AND x.role = 'user' AND x.content ~ '@'
+                ORDER BY x."createdAt" ASC LIMIT 1) AS chat_email,
               (SELECT content FROM tbl_support_chat_message x WHERE x.session_id = m.session_id ORDER BY x."createdAt" DESC LIMIT 1) AS preview,
               (SELECT role FROM tbl_support_chat_message x WHERE x.session_id = m.session_id ORDER BY x."createdAt" DESC LIMIT 1) AS last_role
          FROM tbl_support_chat_message m
@@ -91,9 +146,42 @@ const listSessions = async (req: express.Request, res: express.Response) => {
       { replacements: repl, type: QueryTypes.SELECT }
     );
 
+    // Resolve the best contact email for each row (account email for logged-in
+    // merchants, or an email the visitor typed into chat) so the admin can reply.
+    const rowsArr = rows as Array<Record<string, unknown>>;
+    const uids = [
+      ...new Set(
+        rowsArr
+          .filter((r) => !r.contact_email && r.user_id)
+          .map((r) => Number(r.user_id))
+      ),
+    ];
+    const userMap: Record<number, { email: string; name: string | null }> = {};
+    if (uids.length) {
+      const users = await sequelize.query<{ user_id: number; email: string; name: string | null }>(
+        `SELECT user_id, email, name FROM tbl_user WHERE user_id IN (:uids)`,
+        { replacements: { uids }, type: QueryTypes.SELECT }
+      );
+      users.forEach((u) => {
+        userMap[u.user_id] = { email: u.email, name: u.name };
+      });
+    }
+    rowsArr.forEach((r) => {
+      const acct = r.user_id ? userMap[Number(r.user_id)] : null;
+      r.resolved_email = r.contact_email || acct?.email || r.chat_email || null;
+      r.user_name = acct?.name || null;
+      r.email_source = r.contact_email
+        ? "provided"
+        : acct?.email
+          ? "account"
+          : r.chat_email
+            ? "chat"
+            : "none";
+    });
+
     return successResponseHelper(res, 200, "", {
-      sessions: rows,
-      has_more: (rows as unknown[]).length === limit,
+      sessions: rowsArr,
+      has_more: rowsArr.length === limit,
     });
   } catch (e) {
     apiLogger.error(`[supportInbox] listSessions failed: ${(e as Error).message}`);
@@ -142,12 +230,18 @@ const getSession = async (req: express.Request, res: express.Response) => {
     // Opening the conversation clears the unread badge.
     await session.update({ admin_unread: 0 });
 
+    const contact = await resolveContact(sessionId, session.contact_email);
+
     return successResponseHelper(res, 200, "", {
       session: {
         session_id: sessionId,
         mode: session.mode,
         status: session.status,
         contact_email: session.contact_email,
+        resolved_email: contact.email,
+        user_id: contact.user_id,
+        user_name: contact.name,
+        email_source: contact.source,
         escalated: session.escalated,
       },
       messages,
@@ -270,7 +364,8 @@ const emailReply = async (req: express.Request, res: express.Response) => {
     if (message.length > MAX_AGENT_MSG) return errorResponseHelper(res, 400, `Message too long (max ${MAX_AGENT_MSG}).`);
 
     const session = await ensureSession(sessionId);
-    const to = (typeof req.body?.to === "string" && req.body.to.trim()) || session.contact_email || "";
+    const contact = await resolveContact(sessionId, session.contact_email);
+    const to = (typeof req.body?.to === "string" && req.body.to.trim()) || contact.email || "";
     if (!to || !EMAIL_RE.test(to)) {
       return errorResponseHelper(res, 400, "No valid contact email on file for this visitor. Ask them for one in chat, or pass 'to'.");
     }
