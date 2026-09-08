@@ -1,3 +1,12 @@
+# 2026-06 (fork, pod a99b939f) HEALTH CHECK: SUPPORT CHAT + EMAIL — VERIFIED WORKING (no code change).
+#   Ran real E2E via curl on the preview. (1) Visitor AI chat POST /api/support/chat (session qa-health-*, model
+#   gpt-5.4 via OPENAI_API_KEY) → mode:ai, 773-char accurate reply (15 assets + fee tiers); GET /chat/history returns
+#   both turns. (2) Admin inbox: adminAuth login → GET /admin/support/sessions/:id shows the session; POST .../reply →
+#   "Reply sent."; POST .../email {to,subject,message} → "Email queued (suppressed in this environment)" disabled_in_preview:true
+#   (Brevo path wired; suppressed only because .env DISABLE_OUTBOUND_EMAIL=true — sends for real in prod). Cleaned up:
+#   hard-deleted the qa-health test session + its 4 tbl_support_chat_message rows from the LIVE DB (session-id scoped).
+#
+
 # 2026-06 (fork, pod a99b939f) FOLLOW-UP 7: OVERVIEW PERIOD FILTER + FEE-REVENUE CHART — DONE + VERIFIED (curl 3 periods + screenshots; BE+FE tsc 0).
 #   User asked for a date filter + a platform-fee-revenue-over-time chart on the admin Overview.
 #   BACKEND (adminController.getAdminAnalytics): now returns feeRevenueSeries [{bucket, fee_usd, volume_usd}] +
