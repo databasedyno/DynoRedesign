@@ -22,7 +22,7 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { AdminStatusChip, formatDateTime, formatNumber, formatUSD } from "../adminUi";
+import { AdminStatusChip, formatDateTime, formatCrypto, formatUSD } from "../adminUi";
 
 interface CustomerTx {
   id?: string;
@@ -239,10 +239,10 @@ const AdminTransactions: React.FC = () => {
                         <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>{t.company_name || "—"}</TableCell>
                         <TableCell sx={{ fontSize: 12.5 }}>{t.email || t.customer_name || "—"}</TableCell>
                         <TableCell align="right" sx={{ fontFamily: "var(--font-mono)", fontSize: 12.5 }}>
-                          {formatNumber(t.base_amount)} {t.base_currency}
+                          {formatCrypto(t.base_amount)} {t.base_currency}
                         </TableCell>
                         <TableCell align="right" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.secondary" }}>
-                          {t.crypto_amount ? `${t.crypto_amount} ${t.crypto_currency || ""}` : "—"}
+                          {t.crypto_amount ? `${formatCrypto(t.crypto_amount)} ${t.crypto_currency || ""}` : "—"}
                         </TableCell>
                         <TableCell align="right" sx={{ fontFamily: "var(--font-mono)", fontSize: 12.5 }}>
                           {formatUSD(t.usd_value)}
@@ -280,7 +280,7 @@ const AdminTransactions: React.FC = () => {
                         </TableCell>
                         <TableCell sx={{ fontSize: 12.5 }}>{t.transaction_details || "—"}</TableCell>
                         <TableCell align="right" sx={{ fontFamily: "var(--font-mono)", fontSize: 12.5 }}>
-                          {formatNumber(t.base_amount)} {t.base_currency}
+                          {formatCrypto(t.base_amount)} {t.base_currency}
                         </TableCell>
                         <TableCell>
                           <Chip

@@ -1,3 +1,15 @@
+# 2026-06 (fork, pod a99b939f) FOLLOW-UP 6: ADMIN NUMBER ROUNDING (end-to-end) — DONE + VERIFIED (screenshots; FE tsc 0).
+#   User: crypto amounts across the admin dashboard had inconsistent/long decimals ("several 0000"), wanted uniform
+#   rounding. Added formatCrypto() in Components/Page/Admin/adminUi.tsx — magnitude-aware: abs>=1000 → 2dp,
+#   >=1 → 4dp, <1 → up to 8dp (trailing zeros trimmed via toLocaleString, drops JS float artifacts). Applied it to:
+#   • MerchantDrawer payout-wallet amounts (was flat maximumFractionDigits:6).
+#   • Transactions/index.tsx Amount (base_amount, customer+platform tabs) AND Crypto (crypto_amount) columns — the
+#     Amount col previously used formatNumber (3dp default) so tiny crypto rendered as "0 BTC"/"0.001 BTC"; Crypto col
+#     rendered the RAW float. Now both use formatCrypto (e.g. 0.00059946 BTC, 156 USDT-TRC20). Removed unused formatNumber import there.
+#   • Overview "Volume by currency" Amount column. USD everywhere already 2dp via formatUSD (unchanged). Counts keep formatNumber.
+#   Verified via screenshots: drawer (9,380.85 / 191.1956 / 0.20518809), transactions table (no more "0 BTC", no float tails).
+#
+
 # 2026-06 (fork, pod a99b939f) FOLLOW-UP 5: ADMIN DASHBOARD DATA-CORRECTNESS (fees $0 / payouts / wallet count) — DONE + VERIFIED.
 #   User (viewing onarrival21@gmail.com / John Davis) flagged: dashboard "payout $0, fee $0"; merchant drawer
 #   "Payout wallets (65)" (expected 13) with wrong-looking amounts. RCA via backend/scripts/ro_query.js (READ-ONLY):

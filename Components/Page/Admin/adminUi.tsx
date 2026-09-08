@@ -14,6 +14,16 @@ export const formatUSD = (n: unknown): string => {
 export const formatNumber = (n: unknown): string =>
   (Number(n) || 0).toLocaleString();
 
+// Crypto amounts: magnitude-aware rounding so large balances stay tidy while
+// tiny amounts keep enough precision (and JS float artifacts are dropped).
+// >= 1000 → 2dp · >= 1 → 4dp · < 1 → up to 8dp (trailing zeros trimmed).
+export const formatCrypto = (n: unknown): string => {
+  const num = Number(n) || 0;
+  const abs = Math.abs(num);
+  const maxDecimals = abs >= 1000 ? 2 : abs >= 1 ? 4 : 8;
+  return num.toLocaleString(undefined, { maximumFractionDigits: maxDecimals });
+};
+
 export const formatDate = (iso?: string | null): string =>
   iso
     ? new Date(iso).toLocaleDateString(undefined, {

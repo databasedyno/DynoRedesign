@@ -34,7 +34,7 @@ import {
 import { useDispatch } from "react-redux";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { StatCard, SectionCard, formatUSD, formatNumber } from "../adminUi";
+import { StatCard, SectionCard, formatUSD, formatNumber, formatCrypto } from "../adminUi";
 
 interface RevenueRow {
   base_currency: string;
@@ -310,7 +310,7 @@ const AdminOverview: React.FC = () => {
                     <TableRow key={r.base_currency} hover>
                       <TableCell sx={{ fontWeight: 600 }}>{r.base_currency}</TableCell>
                       <TableCell align="right" sx={{ fontFamily: "var(--font-mono)" }}>
-                        {formatNumber(r.amount)}
+                        {formatCrypto(r.amount)}
                       </TableCell>
                       <TableCell align="right" sx={{ fontFamily: "var(--font-mono)" }}>
                         {formatUSD(r.amount_in_usd)}

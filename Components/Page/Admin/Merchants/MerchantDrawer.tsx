@@ -27,7 +27,7 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { AdminStatusChip, formatDate, formatUSD } from "../adminUi";
+import { AdminStatusChip, formatDate, formatUSD, formatCrypto } from "../adminUi";
 
 export interface Merchant {
   user_id: number;
@@ -377,7 +377,7 @@ const MerchantDrawer: React.FC<{
                                   </Typography>
                                 </Box>
                                 <Typography sx={{ fontSize: 12.5, fontFamily: "var(--font-mono)", fontWeight: 600, textAlign: "right" }}>
-                                  {Number(w.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })} {w.wallet_type}
+                                  {formatCrypto(w.amount)} {w.wallet_type}
                                 </Typography>
                               </Box>
                             ))
