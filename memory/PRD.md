@@ -1,3 +1,17 @@
+# 2026-06 (fork, pod a99b939f) FOLLOW-UP 2: MERCHANT DRAWER REVAMP — DONE + VERIFIED (curl + screenshot).
+#   User feedback on the Merchants detail drawer: fee-free is deprecated; account "Creator handle" (@hostbay) was
+#   wrong/misleading; brands + payout were missing; several fields blank.
+#   FIX: backend getUserDetail (adminController) now also returns `companies` (tbl_company brands), `wallets`
+#   (tbl_user_wallet payout destinations + on-chain balances), `settled_usd` + `settled_count` (usd_value of
+#   successful/completed/settled txns). Frontend MerchantDrawer redesigned into FINANCIALS (Lifetime volume,
+#   Settled received $+count, Transactions, Fee tier), IDENTITY (login/mobile/country/language/last-login-IP/
+#   referral code/joined), BRANDS (name · type · country · @handle per brand — brand handle, NOT the account
+#   handle), PAYOUT WALLETS (N configured, funded list with balances). Removed Fee-free remaining + account-level
+#   Creator handle rows. Merchant iface: dropped fee_free_remaining_usd, added companies/wallets/settled_*/
+#   merchant_country_code. Verified on user 1 (onarrival21/John Davis): brands The Dev Store(@devhub)+SMADAV(EE),
+#   9/65 wallets funded, settled $29,787.27·454. Mobile/Country "—" = genuinely null in DB (not a bug). tsc 0.
+#
+
 # 2026-06 (fork, pod a99b939f) FOLLOW-UP: ADMIN "TOTAL VOLUME" CORRECTNESS FIX — DONE + VERIFIED.
 #   User flagged Overview volume $185,979 was wrong (DB only has SUCCESSFUL txns for onarrival21 brands).
 #   ROOT CAUSE: getAdminAnalytics summed base_amount across ALL statuses (incl. 438 PENDING/unpaid intents,

@@ -1028,9 +1028,34 @@ const getUserDetail = async (req: express.Request, res: express.Response) => {
       { replacements: { userId }, type: QueryTypes.SELECT }
     );
 
+    // Brands (companies) owned by this merchant
+    const companies = await sequelize.query(
+      `SELECT company_id, company_name, account_type, country, handle, creator_page_enabled, "createdAt"
+       FROM tbl_company WHERE user_id = :userId ORDER BY company_id`,
+      { replacements: { userId }, type: QueryTypes.SELECT }
+    );
+
+    // Payout wallets (settlement destinations) + current on-chain balances
+    const wallets = await sequelize.query(
+      `SELECT wallet_type, wallet_address, wallet_name, destination_tag, company_id, amount
+       FROM tbl_user_wallet WHERE user_id = :userId ORDER BY company_id NULLS FIRST, wallet_type`,
+      { replacements: { userId }, type: QueryTypes.SELECT }
+    );
+
+    // Settled (money actually received/forwarded) figures — excludes pending intents
+    const [settled] = await sequelize.query<{ paid_n: string; settled_usd: string }>(
+      `SELECT COUNT(*) AS paid_n, COALESCE(SUM(usd_value),0) AS settled_usd
+       FROM tbl_user_transaction WHERE user_id = :userId AND status IN ('successful','completed','settled')`,
+      { replacements: { userId }, type: QueryTypes.SELECT }
+    );
+
     successResponseHelper(res, 200, "User details retrieved", {
       ...user.dataValues,
       transaction_count: parseInt(txCount?.count || "0"),
+      settled_count: parseInt(settled?.paid_n || "0"),
+      settled_usd: toFixedStr(Number(settled?.settled_usd) || 0, 2),
+      companies,
+      wallets,
     });
   } catch (e) {
     handleControllerError(res, e, adminLogger);

@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Divider,
   Drawer,
   IconButton,
   TextField,
@@ -37,10 +36,12 @@ export interface Merchant {
   status?: string;
   fee_tier?: string;
   cumulative_volume_usd?: string | number;
-  fee_free_remaining_usd?: string | number;
+  settled_usd?: string | number;
+  settled_count?: number;
   login_type?: string;
   createdAt?: string;
   signup_country?: string;
+  merchant_country_code?: string | null;
   referral_count?: number;
   referral_code?: string;
   email_verified?: boolean;
@@ -49,6 +50,23 @@ export interface Merchant {
   language?: string;
   last_login_ip?: string;
   transaction_count?: number;
+  companies?: {
+    company_id: number;
+    company_name: string;
+    account_type?: string;
+    country?: string | null;
+    handle?: string | null;
+    creator_page_enabled?: boolean;
+    createdAt?: string;
+  }[];
+  wallets?: {
+    wallet_type: string;
+    wallet_address: string;
+    wallet_name?: string | null;
+    destination_tag?: string | null;
+    company_id?: number | null;
+    amount?: string | number;
+  }[];
 }
 
 type ActionKind = "ban" | "suspend" | "activate" | "unlock";
@@ -88,6 +106,24 @@ const InfoRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, v
     </Typography>
   </Box>
 );
+
+const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Typography
+    sx={{
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: 0.5,
+      textTransform: "uppercase",
+      color: "text.secondary",
+      mt: 2,
+      mb: 0.5,
+    }}
+  >
+    {children}
+  </Typography>
+);
+
+const shortAddr = (a?: string) => (a ? `${a.slice(0, 10)}…${a.slice(-6)}` : "—");
 
 const MerchantDrawer: React.FC<{
   merchant: Merchant | null;
@@ -202,23 +238,102 @@ const MerchantDrawer: React.FC<{
                   <CircularProgress size={20} />
                 </Box>
               )}
+
+              <SectionLabel>Financials</SectionLabel>
               <InfoRow label="Lifetime volume" value={formatUSD(m.cumulative_volume_usd)} />
+              <InfoRow
+                label="Settled received"
+                value={`${formatUSD(m.settled_usd)}${m.settled_count != null ? ` · ${m.settled_count} paid` : ""}`}
+              />
+              <InfoRow label="Transactions" value={(m.transaction_count ?? 0).toLocaleString()} />
               <InfoRow label="Fee tier" value={<span style={{ textTransform: "capitalize" }}>{m.fee_tier || "—"}</span>} />
-              <InfoRow label="Fee-free remaining" value={formatUSD(m.fee_free_remaining_usd)} />
-              {m.transaction_count != null && (
-                <InfoRow label="Transactions" value={m.transaction_count.toLocaleString()} />
-              )}
-              <Divider sx={{ my: 1 }} />
+
+              <SectionLabel>Identity</SectionLabel>
               <InfoRow label="Login method" value={m.login_type || "EMAIL"} />
               <InfoRow label="Mobile" value={m.mobile || "—"} />
-              <InfoRow label="Country" value={m.signup_country || "—"} />
+              <InfoRow label="Country" value={m.signup_country || m.merchant_country_code || "—"} />
               <InfoRow label="Language" value={(m.language || "en").toUpperCase()} />
               <InfoRow label="Last login IP" value={m.last_login_ip || "—"} />
-              <Divider sx={{ my: 1 }} />
-              <InfoRow label="Creator handle" value={m.handle ? `@${m.handle}` : "—"} />
-              <InfoRow label="Referrals" value={String(m.referral_count ?? 0)} />
               <InfoRow label="Referral code" value={m.referral_code || "—"} />
               <InfoRow label="Joined" value={formatDate(m.createdAt)} />
+
+              <SectionLabel>Brands ({(m.companies || []).length})</SectionLabel>
+              {(m.companies || []).length === 0 ? (
+                <Typography sx={{ fontSize: 12.5, color: "text.secondary", py: 0.5 }}>
+                  No brands yet.
+                </Typography>
+              ) : (
+                (m.companies || []).map((co) => (
+                  <Box
+                    key={co.company_id}
+                    data-testid={`merchant-brand-${co.company_id}`}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 1,
+                      py: 0.85,
+                      borderBottom: `1px dashed ${theme.palette.divider}`,
+                    }}
+                  >
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 600 }} noWrap>
+                        {co.company_name}
+                      </Typography>
+                      <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+                        <span style={{ textTransform: "capitalize" }}>{co.account_type || "business"}</span>
+                        {co.country ? ` · ${co.country}` : ""}
+                        {co.creator_page_enabled && co.handle ? ` · @${co.handle}` : ""}
+                      </Typography>
+                    </Box>
+                    <Chip size="small" variant="outlined" label={`#${co.company_id}`} sx={{ height: 20, fontSize: 10.5 }} />
+                  </Box>
+                ))
+              )}
+
+              <SectionLabel>Payout wallets ({(m.wallets || []).length})</SectionLabel>
+              {(() => {
+                const all = m.wallets || [];
+                if (all.length === 0) {
+                  return (
+                    <Typography sx={{ fontSize: 12.5, color: "text.secondary", py: 0.5 }}>
+                      No payout wallets configured.
+                    </Typography>
+                  );
+                }
+                const funded = all.filter((w) => Number(w.amount) > 0);
+                if (funded.length === 0) {
+                  return (
+                    <Typography sx={{ fontSize: 12.5, color: "text.secondary", py: 0.5 }}>
+                      {all.length} wallet{all.length === 1 ? "" : "s"} configured · no balances yet.
+                    </Typography>
+                  );
+                }
+                return (
+                  <>
+                    <Typography sx={{ fontSize: 11.5, color: "text.secondary", mb: 0.5 }}>
+                      {funded.length} of {all.length} holding a balance
+                    </Typography>
+                    {funded.slice(0, 12).map((w, i) => (
+                      <Box
+                        key={`${w.wallet_type}-${i}`}
+                        data-testid={`merchant-wallet-${w.wallet_type}-${i}`}
+                        sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, py: 0.6 }}
+                      >
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography sx={{ fontSize: 12.5, fontWeight: 600 }}>{w.wallet_type}</Typography>
+                          <Typography sx={{ fontSize: 11, color: "text.secondary", fontFamily: "var(--font-mono)" }}>
+                            {shortAddr(w.wallet_address)}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{ fontSize: 12.5, fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                          {Number(w.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </>
+                );
+              })()}
             </Box>
 
             {/* Actions */}
