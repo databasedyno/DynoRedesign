@@ -47,7 +47,7 @@ const API_ORIGIN = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
 const absoluteAttachmentUrl = (url?: string | null): string =>
   url ? (url.startsWith("http") ? url : `${API_ORIGIN}${url}`) : "";
 
-type ChatRole = "user" | "assistant";
+type ChatRole = "user" | "assistant" | "agent";
 interface ChatAttachment {
   url: string;
   name: string;
@@ -141,6 +141,9 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const [pendingAttachment, setPendingAttachment] = useState<ChatAttachment | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  // Session mode: 'human' means a support agent has taken over — the AI is
+  // paused and the agent's replies arrive via history polling.
+  const [mode, setMode] = useState<"ai" | "human">("ai");
 
   const listRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -182,43 +185,64 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, sending, open, escalateOpen, pendingAttachment]);
 
-  // Load history once, on first open
+  // Load full transcript + session mode. Reused for the first open AND for the
+  // near-real-time poll so a human agent's replies (and takeover/hand-back)
+  // appear in the visitor's widget within a few seconds.
+  const loadHistory = useCallback(async () => {
+    if (!sessionId) return;
+    try {
+      const res = await axiosBaseApi.get(`support/chat/history/${sessionId}`);
+      const data = res?.data?.data;
+      const rows = data?.messages;
+      if (data?.mode === "human" || data?.mode === "ai") setMode(data.mode);
+      if (Array.isArray(rows) && rows.length > 0) {
+        setMessages(
+          rows.map(
+            (r: {
+              role: string;
+              content: string;
+              createdAt?: string;
+              attachment_url?: string | null;
+              attachment_name?: string | null;
+              attachment_type?: string | null;
+            }) => ({
+              role: r.role === "assistant" ? "assistant" : r.role === "agent" ? "agent" : "user",
+              content: r.content,
+              at: r.createdAt,
+              attachment: r.attachment_url
+                ? { url: r.attachment_url, name: r.attachment_name || "file", type: r.attachment_type || "" }
+                : null,
+            })
+          )
+        );
+      }
+    } catch (_e) {
+      // Best-effort — chat still works without history.
+    }
+  }, [sessionId]);
+
+  // Load history once, on first open.
   useEffect(() => {
     if (!open || historyLoaded || !sessionId) return;
     let cancelled = false;
     (async () => {
-      try {
-        const res = await axiosBaseApi.get(`support/chat/history/${sessionId}`);
-        const rows = res?.data?.data?.messages;
-        if (!cancelled && Array.isArray(rows) && rows.length > 0) {
-          setMessages(
-            rows.map(
-              (r: {
-                role: string;
-                content: string;
-                createdAt?: string;
-                attachment_url?: string | null;
-                attachment_name?: string | null;
-                attachment_type?: string | null;
-              }) => ({
-                role: r.role === "assistant" ? "assistant" : "user",
-                content: r.content,
-                at: r.createdAt,
-                attachment: r.attachment_url
-                  ? { url: r.attachment_url, name: r.attachment_name || "file", type: r.attachment_type || "" }
-                  : null,
-              })
-            )
-          );
-        }
-      } catch (_e) {
-        // History is best-effort — chat still works without it
-      } finally {
-        if (!cancelled) setHistoryLoaded(true);
-      }
+      await loadHistory();
+      if (!cancelled) setHistoryLoaded(true);
     })();
     return () => { cancelled = true; };
-  }, [open, historyLoaded, sessionId]);
+  }, [open, historyLoaded, sessionId, loadHistory]);
+
+  // Near-real-time polling while the panel is open so agent replies / takeover
+  // show up. Paused while the visitor is mid-send/upload/escalate to avoid a
+  // full-list replace clobbering the optimistic message.
+  useEffect(() => {
+    if (!open || !historyLoaded || !sessionId) return;
+    const t = setInterval(() => {
+      if (sending || uploading || escalating) return;
+      loadHistory();
+    }, 3000);
+    return () => clearInterval(t);
+  }, [open, historyLoaded, sessionId, sending, uploading, escalating, loadHistory]);
 
   const send = useCallback(async (overrideText?: string) => {
     const text = (typeof overrideText === "string" ? overrideText : input).trim();
@@ -243,17 +267,26 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         attachment_name: attachment?.name || undefined,
         attachment_type: attachment?.type || undefined,
       });
+      const respMode = res?.data?.data?.mode;
       const reply = res?.data?.data?.reply;
       const repliedAt = res?.data?.data?.replied_at || new Date().toISOString();
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: reply || t("supportChat.replyError", { defaultValue: "Sorry — I could not generate a reply. Please try again." }),
-          at: repliedAt,
-          error: !reply,
-        },
-      ]);
+      if (respMode === "human" || respMode === "ai") setMode(respMode);
+      // When a human agent has taken over, the API stores the visitor's message
+      // but returns no AI reply — the agent's response arrives via polling, so
+      // don't render an "error" bubble here.
+      if (respMode === "human" || reply === null) {
+        // no-op; agent reply will stream in through loadHistory()
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: reply || t("supportChat.replyError", { defaultValue: "Sorry — I could not generate a reply. Please try again." }),
+            at: repliedAt,
+            error: !reply,
+          },
+        ]);
+      }
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       const friendly =
@@ -369,6 +402,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     try { localStorage.setItem(SESSION_KEY, fresh); } catch (_e) { /* noop */ }
     setSessionId(fresh);
     setMessages([]);
+    setMode("ai");
     setHistoryLoaded(true); // fresh session — nothing to load
     setEscalateOpen(false);
     setEmojiOpen(false);
@@ -737,6 +771,29 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             </IconButton>
           </Box>
 
+          {/* Human-agent banner — a support agent has taken over from the AI. */}
+          {mode === "human" && (
+            <Box
+              data-testid="support-chat-human-banner"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                px: 1.75,
+                py: 1,
+                background: isDark ? "rgba(46,160,67,0.14)" : "rgba(46,160,67,0.10)",
+                borderBottom: `1px solid ${theme.palette.success.main}40`,
+              }}
+            >
+              <SupportAgentRoundedIcon sx={{ fontSize: 18, color: theme.palette.success.main }} />
+              <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.text.primary }}>
+                {t("supportChat.humanBanner", {
+                  defaultValue: "You're now chatting with a human support agent.",
+                })}
+              </Typography>
+            </Box>
+          )}
+
           {/* Messages */}
           <Box
             ref={listRef}
@@ -744,17 +801,40 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
           >
             {visibleMessages.map((m, i) => {
               const isUser = m.role === "user";
+              const isAgent = m.role === "agent";
               const time = formatTime(m.at);
               const isImageAttachment = !!m.attachment && m.attachment.type.startsWith("image/");
               return (
                 <Box key={i} sx={{ alignSelf: isUser ? "flex-end" : "flex-start", maxWidth: "84%", display: "flex", flexDirection: "column", alignItems: isUser ? "flex-end" : "flex-start" }}>
+                  {isAgent && (
+                    <Typography
+                      sx={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: 10.5,
+                        fontWeight: 700,
+                        color: theme.palette.success.main,
+                        mb: 0.3,
+                        px: 0.5,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.4,
+                      }}
+                    >
+                      <SupportAgentRoundedIcon sx={{ fontSize: 13 }} />
+                      {t("supportChat.agentLabel", { defaultValue: "Support agent" })}
+                    </Typography>
+                  )}
                   <Box
                     sx={{
                       px: 1.5,
                       py: 1,
                       borderRadius: isUser ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
                       background: isUser ? userBubbleBg : assistantBubbleBg,
-                      border: m.error ? `1px solid ${isDark ? "rgba(255,120,120,0.5)" : "rgba(200,40,40,0.35)"}` : "none",
+                      border: m.error
+                        ? `1px solid ${isDark ? "rgba(255,120,120,0.5)" : "rgba(200,40,40,0.35)"}`
+                        : isAgent
+                          ? `1px solid ${theme.palette.success.main}66`
+                          : "none",
                     }}
                   >
                     {m.attachment && (

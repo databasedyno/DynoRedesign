@@ -1,3 +1,27 @@
+# 2026-06 (fork, pod a99b939f): ADMIN READ-ONLY MONITORING SCREENS — DONE + VERIFIED (self-test; LIVE prod DB, SAFE MODE).
+#   Built 3 admin dashboards replacing the obsolete fee/wallet/withdraw/transferSpeed pages (DELETED those 4 page files):
+#     • /admin (Overview) — pages/admin/index.tsx -> Components/Page/Admin/Overview/index.tsx. POST /api/admin/getAdminAnalytics.
+#       KPI cards (active merchants, incoming payments, payouts, total volume USD + platform fees, success rate),
+#       recharts donut (payment outcomes) + 30-day area (payments created), Volume-by-currency table, Popular currencies bars.
+#     • /admin/merchants — Components/Page/Admin/Merchants/{index,MerchantDrawer}.tsx. GET /api/admin/getAllUsers (137 rows).
+#       Search + status chips (All/Active/Suspended/Banned) + client pagination + right Drawer detail (GET /admin/users/:id).
+#       WRITE actions wired (user asked to include now): Suspend/Ban -> PUT /admin/users/:id/ban {action,reason};
+#       Re-activate -> PUT .../ban {action:'activate'}; Unlock login -> POST /admin/users/unlock {email}. Confirm dialog + reason.
+#     • /admin/transactions — Components/Page/Admin/Transactions/index.tsx. GET /api/admin/getAllTransactions.
+#       Tabs Customer payments(584)/Platform(0), search, status chips, client pagination. READ-ONLY.
+#     • Shared UI: Components/Page/Admin/adminUi.tsx (StatCard, SectionCard, AdminStatusChip, formatUSD/Number/Date).
+#   ROOT-CAUSE BUG FIXED (axiosAdmin.ts): baseURL was RELATIVE "api/" (NEXT_PUBLIC_BASE_URL empty) -> on depth-2 admin routes
+#     (/admin/merchants, /admin/support) it resolved to /admin/api/... = 404 (why merchants showed 0 rows). Now mirrors
+#     axiosConfig.ts: baseURL = ("").replace(/\/+$/,'') + "/api/" = ABSOLUTE "/api/". Also fixes the Support Inbox routing.
+#   Also fixed 4 pre-existing tsc errors in SupportInbox/index.tsx (action() Promise<boolean> vs Promise<void> props).
+#   _app.tsx routeKeyMap: removed adminFee/adminWallet/adminWithdraw/adminTransferSpeed keys; added support/merchants/transactions.
+#   VERIFIED: tsc --noEmit 0; all 3 screens screenshot-verified with REAL data (desktop 1920 + mobile 390); write endpoints
+#     E2E via curl on a REVERSIBLE scratch merchant (backend/scripts/scratch_merchant.js create|delete): suspend->activate->ban,
+#     invalid action 400, 404 unknown user, 403 no-auth, unlock ok — scratch row hard-deleted after. NO real merchant mutated.
+#   Testing agent NOT used on purpose: LIVE prod DB — a UI ban/suspend test would mutate a real merchant. Admin login:
+#     moxxcompany@gmail.com / Katiekendra123@ (POST /api/admin/login -> localStorage 'admin_token').
+#
+
 # 2026-09-07 (fork): QA-board fix batch complete — resolved all open tbl_qa_comment findings
 # (#8 hydration/Cloudflare emails, #10 FR/DE CTA, #15/#16 hero routing, #28 cards, #33/#56 help padding,
 # #35 back-scroll, #36 mobile menu [not reproducible], #47 fee breakdown+currency, #52 docs JSON) and added

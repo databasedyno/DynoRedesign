@@ -446,11 +446,10 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       // ─── Admin ───
       "/admin":                    "admin",
       "/admin/login":              "adminLogin",
-      "/admin/fee":                "adminFee",
-      "/admin/wallet":             "adminWallet",
-      "/admin/withdraw":           "adminWithdraw",
-      "/admin/transferSpeed":      "adminTransferSpeed",
       "/admin/profile":            "adminProfile",
+      "/admin/support":            "admin",
+      "/admin/merchants":          "admin",
+      "/admin/transactions":       "admin",
     };
 
     const key = routeKeyMap[pathname];

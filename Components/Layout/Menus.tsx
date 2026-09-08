@@ -77,28 +77,23 @@ const navItems = [
 const adminMenus = [
   {
     icon: <HomeRounded color="inherit" />,
-    name: "Home",
+    name: "Overview",
     link: "/admin",
   },
   {
-    icon: <WalletRounded color="inherit" />,
-    name: "Wallet",
-    link: "/admin/wallet",
+    icon: <SmsRounded color="inherit" />,
+    name: "Support Inbox",
+    link: "/admin/support",
   },
   {
-    icon: <MonetizationOnRounded color="inherit" />,
-    name: "Fee",
-    link: "/admin/fee",
+    icon: <GroupsRounded color="inherit" />,
+    name: "Merchants",
+    link: "/admin/merchants",
   },
   {
-    icon: <RocketLaunchRounded color="inherit" />,
-    name: "Transfer Speed",
-    link: "/admin/transferSpeed",
-  },
-  {
-    icon: <AccountBalanceWallet color="inherit" />,
-    name: "Wallet Address",
-    link: "/admin/walletAddress",
+    icon: <ReceiptLongRounded color="inherit" />,
+    name: "Transactions",
+    link: "/admin/transactions",
   },
 ];
 
