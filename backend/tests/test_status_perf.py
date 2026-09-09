@@ -4,7 +4,7 @@ import time
 import requests
 import pytest
 
-BASE_URL = "https://user-profile-split.preview.emergentagent.com"
+BASE_URL = "https://dynopay-settlement.preview.emergentagent.com"
 
 
 def _csrf_session():

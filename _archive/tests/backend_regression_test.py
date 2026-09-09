@@ -20,7 +20,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Environment configuration
-BASE_URL = "https://user-profile-split.preview.emergentagent.com"
+BASE_URL = "https://dynopay-settlement.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials (hostbay merchant account)

@@ -25,7 +25,7 @@
     {
       "url": "/",
       "lang": "fr",
-      "error": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://user-profile-split.preview.emergentagent.com/\", waiting until \"networkidle\"\n",
+      "error": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://dynopay-settlement.preview.emergentagent.com/\", waiting until \"networkidle\"\n",
       "pass": false
     },
     {

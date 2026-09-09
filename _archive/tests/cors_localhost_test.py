@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://user-profile-split.preview.emergentagent.com",
+        "origin": "https://dynopay-settlement.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

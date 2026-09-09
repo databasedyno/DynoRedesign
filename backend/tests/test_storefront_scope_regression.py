@@ -7,7 +7,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = "https://user-profile-split.preview.emergentagent.com"
+BASE_URL = "https://dynopay-settlement.preview.emergentagent.com"
 LOCAL_HEALTH = "http://localhost:8001/health"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

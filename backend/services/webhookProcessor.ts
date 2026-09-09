@@ -338,8 +338,10 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
   // Skip dedup for reconciliation source — these are explicitly re-queued failed
   // payments that NEED re-processing. The dedup key may have been set during a
   // previous attempt that "completed" without actually settling.
+  // NOTE: `source` lives on the job wrapper (data.source), NOT on the Tatum payload —
+  // checking payload.source was always undefined and blocked every reconciliation retry.
   const processedTxKey = `processed-tx-${payload.txId}`;
-  if (payload.source !== 'reconciliation') {
+  if (data.source !== 'reconciliation') {
     const alreadyProcessed = await getRedisItem(processedTxKey);
     if (alreadyProcessed && Object.keys(alreadyProcessed).length > 0) {
       webhookLogs.info("[WebhookProcessor] Transaction already processed, skipping:", payload.txId);
@@ -1367,6 +1369,8 @@ async function handleNewTransaction(
     await setRedisItem(`failed-payment-${payload.txId}`, {
       address, payment_id: items.payment_id || items.ref,
       amount: incomingAmount, txId: payload.txId,
+      currency: items?.currency || payload.asset,
+      company_id: items?.company_id || undefined,
       error: err.message, failed_at: new Date().toISOString(),
     });
 

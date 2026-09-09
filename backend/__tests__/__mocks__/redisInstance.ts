@@ -29,6 +29,11 @@ export const setRedisItemWithTTL = jest.fn((key: string, value: unknown, _ttl: n
   return Promise.resolve();
 });
 
+export const deleteRedisItem = jest.fn((key: string) => {
+  delete mockRedisStore[key];
+  return Promise.resolve();
+});
+
 export const setRedisTTL = jest.fn(() => Promise.resolve());
 
 export const acquireLock = jest.fn(() => Promise.resolve(true));

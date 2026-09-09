@@ -6,7 +6,7 @@ Tests the NEW Admin Support Inbox backend for Dynopay app.
 This is a prod-connected preview in SAFE MODE with DISABLE_OUTBOUND_EMAIL=true.
 
 Admin Credentials: moxxcompany@gmail.com / Katiekendra123@
-Backend URL: https://a99b939f-45b1-4e47-80f9-5665102e9204.preview.emergentagent.com/api
+Backend URL: https://dynopay-settlement.preview.emergentagent.com/api
 """
 
 import requests
@@ -15,7 +15,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://a99b939f-45b1-4e47-80f9-5665102e9204.preview.emergentagent.com/api"
+BASE_URL = "https://dynopay-settlement.preview.emergentagent.com/api"
 ADMIN_EMAIL = "moxxcompany@gmail.com"
 ADMIN_PASSWORD = "Katiekendra123@"
 

@@ -19,7 +19,7 @@ import time
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://user-profile-split.preview.emergentagent.com"
+EXTERNAL_BASE = "https://dynopay-settlement.preview.emergentagent.com"
 API_BASE = f"{EXTERNAL_BASE}/api"
 
 # Performance threshold

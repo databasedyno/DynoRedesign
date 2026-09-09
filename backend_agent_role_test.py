@@ -18,7 +18,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://a99b939f-45b1-4e47-80f9-5665102e9204.preview.emergentagent.com/api"
+BASE_URL = "https://dynopay-settlement.preview.emergentagent.com/api"
 ADMIN_EMAIL = "moxxcompany@gmail.com"
 ADMIN_PASSWORD = "Katiekendra123@"
 

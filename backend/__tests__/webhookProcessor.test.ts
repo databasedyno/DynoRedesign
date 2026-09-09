@@ -69,6 +69,7 @@ import {
   setRedisTTL,
   acquireLock,
   releaseLock,
+  deleteRedisItem,
 } from '../utils/redisInstance';
 import { paymentController } from '../controller';
 import tatumApi from '../apis/tatumApi';
@@ -148,6 +149,10 @@ describe('Webhook Processor — processWebhookJob', () => {
     (acquireLock as jest.Mock).mockResolvedValue(true);
     (releaseLock as jest.Mock).mockResolvedValue(undefined);
     (setRedisTTL as jest.Mock).mockResolvedValue(undefined);
+    (deleteRedisItem as jest.Mock).mockImplementation((key: string) => {
+      delete mockStore[key];
+      return Promise.resolve();
+    });
     (paymentController.cryptoVerification as jest.Mock).mockResolvedValue({});
     (callMerchantWebhook as jest.Mock).mockResolvedValue({ success: true });
     (sendPendingPaymentNotification as jest.Mock).mockResolvedValue(undefined);
@@ -184,6 +189,45 @@ describe('Webhook Processor — processWebhookJob', () => {
       await processWebhookJob(createJobData());
 
       expect(acquireLock).toHaveBeenCalled();
+    });
+
+    // Regression: source lives on the job wrapper (data.source), not on payload.
+    // The old check read payload.source (always undefined) and skipped every retry.
+    it('reconciliation source bypasses dedup, clears stale key, and re-settles a failed payment (LTC payment link)', async () => {
+      seedRedis('processed-tx-ltc-tx-1', { processed: true, status: 'settlement_in_progress' });
+      seedRedis('crypto-ltc1qFailedAddr', createRedisPaymentData({
+        currency: 'LTC', status: 'failed', txId: 'ltc-tx-1', retryCount: '1',
+        lastError: 'UTXO fee mismatch', link_id: 'link-abc', payment_id: 'pay-ltc-1',
+      }));
+
+      await processWebhookJob(createJobData({
+        address: 'ltc1qFailedAddr', txId: 'ltc-tx-1', asset: 'LTC', amount: '0.5', source: 'reconciliation',
+      }));
+
+      expect(deleteRedisItem).toHaveBeenCalledWith('processed-tx-ltc-tx-1');
+      expect(acquireLock).toHaveBeenCalledWith('tatum-webhook-ltc-tx-1', 300, 1, 50);
+      expect(paymentController.cryptoVerification).toHaveBeenCalledWith('ltc1qFailedAddr', true, 'crypto-ltc1qFailedAddr');
+      expect(mockStore['crypto-ltc1qFailedAddr'].status).toBe('successful');
+    });
+
+    it('webhook source still honours the dedup key (no regression)', async () => {
+      seedRedis('processed-tx-tx-test-123', { processed: true });
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData());
+
+      await processWebhookJob(createJobData({ source: 'webhook' }));
+
+      expect(deleteRedisItem).not.toHaveBeenCalled();
+      expect(acquireLock).not.toHaveBeenCalled();
+    });
+
+    it('reconciliation source does NOT double-settle an already-successful payment', async () => {
+      seedRedis('processed-tx-tx-test-123', { processed: true });
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ status: 'successful', txId: 'tx-test-123' }));
+
+      await processWebhookJob(createJobData({ source: 'reconciliation' }));
+
+      expect(acquireLock).toHaveBeenCalled();
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
     });
   });
 
@@ -757,6 +801,8 @@ describe('Webhook Processor — processWebhookJob', () => {
         expect.objectContaining({
           address: '0xTestAddress',
           txId: 'tx-test-123',
+          currency: 'ETH',
+          company_id: 1,
           error: 'server error',
         })
       );

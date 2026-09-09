@@ -15,7 +15,7 @@ import requests
 import json
 from typing import Dict, Any, List
 
-BASE_URL = "https://user-profile-split.preview.emergentagent.com"
+BASE_URL = "https://dynopay-settlement.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

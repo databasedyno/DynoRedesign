@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://user-profile-split.preview.emergentagent.com"
+BASE = "https://dynopay-settlement.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]
