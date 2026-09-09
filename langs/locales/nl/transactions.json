@@ -70,5 +70,9 @@
   "exportScoped": "{{count}} exporteren",
   "exportScopedHint": "Exporteert de {{count}} rijen die overeenkomen met je filters en de actieve status.",
   "exportSettledHint": "Exporteert alleen afgewikkelde betalingen die overeenkomen met je filters.",
-  "exportAllHint": "Exporteert alle rijen die overeenkomen met je filters als CSV."
+  "exportAllHint": "Exporteert alle rijen die overeenkomen met je filters als CSV.",
+  "settlementWallet": "Uitbetalingswallet",
+  "settlementWalletHint": "Geld wordt hier pas naartoe gestuurd nadat de betaling is ontvangen en on-chain bevestigd.",
+  "awaitingPaymentTitle": "Wachten op betaling — nog geen geld ontvangen",
+  "awaitingPaymentBody": "We hebben nog geen on-chain storting voor deze betaling gedetecteerd, dus er is nog niets naar je wallet gestuurd. Dit item wordt automatisch bijgewerkt zodra het geld van de klant binnenkomt en is bevestigd."
 }

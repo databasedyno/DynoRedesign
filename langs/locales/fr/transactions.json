@@ -70,5 +70,9 @@
   "exportScoped": "Exporter {{count}}",
   "exportScopedHint": "Exporte les {{count}} lignes correspondant à vos filtres et au statut actif.",
   "exportSettledHint": "Exporte uniquement les paiements réglés correspondant à vos filtres.",
-  "exportAllHint": "Exporte toutes les lignes correspondant à vos filtres en CSV."
+  "exportAllHint": "Exporte toutes les lignes correspondant à vos filtres en CSV.",
+  "settlementWallet": "Portefeuille de règlement",
+  "settlementWalletHint": "Les fonds ne sont envoyés ici qu'après réception et confirmation du paiement on-chain.",
+  "awaitingPaymentTitle": "En attente de paiement — aucun fonds reçu pour le moment",
+  "awaitingPaymentBody": "Nous n'avons pas détecté de dépôt on-chain pour ce paiement, donc rien n'a encore été envoyé vers votre portefeuille. Cette entrée sera mise à jour automatiquement dès que les fonds du client seront reçus et confirmés."
 }

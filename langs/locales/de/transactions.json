@@ -70,5 +70,9 @@
   "exportScoped": "{{count}} exportieren",
   "exportScopedHint": "Exportiert die {{count}} Zeilen, die Ihren Filtern und dem aktiven Status-Chip entsprechen.",
   "exportSettledHint": "Exportiert nur abgerechnete Zahlungen, die Ihren Filtern entsprechen.",
-  "exportAllHint": "Exportiert alle Zeilen, die Ihren Filtern entsprechen, als CSV."
+  "exportAllHint": "Exportiert alle Zeilen, die Ihren Filtern entsprechen, als CSV.",
+  "settlementWallet": "Auszahlungs-Wallet",
+  "settlementWalletHint": "Gelder werden erst hierher gesendet, nachdem die Zahlung eingegangen und on-chain bestätigt wurde.",
+  "awaitingPaymentTitle": "Warten auf Zahlung – noch keine Gelder eingegangen",
+  "awaitingPaymentBody": "Wir haben für diese Zahlung noch keinen On-Chain-Eingang erkannt, daher wurde noch nichts an Ihre Wallet gesendet. Dieser Eintrag wird automatisch aktualisiert, sobald die Gelder des Kunden eingehen und bestätigt sind."
 }

@@ -70,5 +70,9 @@
   "exportScoped": "Exportar {{count}}",
   "exportScopedHint": "Exporta las {{count}} filas que coinciden con tus filtros y el estado activo.",
   "exportSettledHint": "Exporta solo los pagos liquidados que coinciden con tus filtros.",
-  "exportAllHint": "Exporta todas las filas que coinciden con tus filtros en CSV."
+  "exportAllHint": "Exporta todas las filas que coinciden con tus filtros en CSV.",
+  "settlementWallet": "Billetera de liquidación",
+  "settlementWalletHint": "Los fondos se envían aquí solo después de que el pago se reciba y se confirme on-chain.",
+  "awaitingPaymentTitle": "Esperando el pago: aún no se han recibido fondos",
+  "awaitingPaymentBody": "No hemos detectado un depósito on-chain para este pago, por lo que aún no se ha enviado nada a tu billetera. Esta entrada se actualizará automáticamente cuando los fondos del cliente lleguen y se confirmen."
 }
