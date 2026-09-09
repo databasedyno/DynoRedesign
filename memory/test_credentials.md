@@ -1,4 +1,16 @@
 # ============================================================================
+# 2026-09-09 (pod 0462e6dd) — CURRENT Preview URL: https://0462e6dd-3afc-48cf-bcc4-40328ef3cbdd.preview.emergentagent.com
+# Logins unchanged: super-admin moxxcompany@gmail.com / Katiekendra123@ ; merchant onarrival21@gmail.com / Katiekendra123@
+# 2FA TESTING: never enable 2FA on the real accounts. Use the reversible scratch merchant:
+#   cd backend && node scripts/scratch_2fa_user.js create   -> prints EMAIL (scratch_2fa_test_<ts>@example.com) / PASSWORD Scratch2FA!Test123
+#   EMAIL=... PASSWORD=... bash scripts/e2e_2fa_curl.sh      -> full backend lifecycle (15 checks)
+#   node scripts/scratch_2fa_user.js delete                  -> hard-deletes scratch users + 2fa/session/login rows
+#   TOTP from a secret: node -e "const {generateSync}=require('/app/backend/node_modules/otplib');console.log(generateSync({secret:process.argv[1],strategy:'totp'}))" <SECRET>
+# QA board passcode: QA_PASSCODE in backend/.env (default Dynopay123@); POST /api/quality/comment status awaiting_retest.
+# ============================================================================
+
+
+# ============================================================================
 # 2026-09-09 (pod dbe1c2d6) — CURRENT Preview URL: https://kendra-vault.preview.emergentagent.com
 # Bootstrapped from vault (pass Katiekendra123@). SAFE MODE, prod DB (read-only please), outbound email off.
 # Logins unchanged: super-admin moxxcompany@gmail.com / Katiekendra123@ ; merchant onarrival21@gmail.com / Katiekendra123@

@@ -1,3 +1,23 @@
+# 2026-09-09 (fork, pod 0462e6dd) 2FA (TOTP) ENABLE/DISABLE UI + LOGIN STEP-UP (AUTH-009 / custom::15) — DONE + VERIFIED (curl 15/15 + testing_agent iter_137 8/8).
+#   Finished + tested the previous agent's uncommitted 2FA work. Ran scripts/apply_twofa_i18n.py (profile +37, auth +7 keys x6 langs);
+#   added the missing login2fa* fields to utils/types.ts userReducer type (FE tsc was failing on pages/auth/login.tsx). BE+FE tsc 0.
+#   FLOW: Settings › Profile & Security → "Two-factor authentication" card (Components/Page/Profile/TwoFactorAuth.tsx): Turn on 2FA →
+#     TwoFactorSetupDialog (QR + manual key, 6-digit verify → 10 one-time backup codes, copy/download) · New backup codes / Turn off →
+#     ReauthDialog (password, or TOTP for passwordless accounts). Login (password / email-SMS code / Google / GitHub) → backend
+#     finalizeLogin issues a single-use Redis challenge (2fa_challenge:<hex>, 300s) instead of a session when TOTP is on → saga
+#     USER_LOGIN_2FA_REQUIRED → TwoFactorLoginDialog (TOTP or backup code) → POST /api/user/2fa/validate → session.
+#   VERIFIED on a THROWAWAY scratch merchant (backend/scripts/scratch_2fa_user.js create|delete — bcrypt pw, hard-deleted after,
+#     incl. tbl_user_2fa/session/login rows): backend/scripts/e2e_2fa_curl.sh (setup, wrong verify 400, enable, login→requires_2fa
+#     w/o accessToken, wrong 401, TOTP ok, challenge replay 400, backup code ok + single-use 401, regenerate 401/200, disable
+#     400/401/200, login direct after disable) + browser 8/8 (card OFF/ON, QR/secret, backup codes 10→9→10, wrong-code error,
+#     cancel stays logged out, regenerate/disable reauth, no prompt after disable). No real account touched (onarrival21 untouched).
+#   ALSO: PRD-2 follow-up per user — reworded the last "business/company" phrasings to "brand" in all 6 langs
+#     (scripts/apply_brand_wording_followup.py: settingsPage.companyDesc/accountDetailsDesc, companyDialog.createFirstCompanyBody,
+#     landing v3.why.c7d); scripts/audit_brand_terminology.py now reports 0 mismatches.
+#   QA board: auth::AUTH-009 + custom::15 marked awaiting_retest ([DEV] note, tester "Emergent Dev (E1)"). Committed 674d39bd9.
+#   NOTE: scratch-user emails must use a real TLD (@example.com) — Joi email validation rejects ".invalid". Preview-only; Save to GitHub to ship.
+#
+
 # 2026-09-09 (fork, pod 0462e6dd) INSTANT AVATAR REFRESH (no reload) — DONE + VERIFIED (Playwright real upload, 390px).
 #   ROOT CAUSE: hooks/useTokenData decoded localStorage.token ONCE on mount, so header/drawer kept the stale photo/name
 #   until a full reload even though updateUser returns a fresh JWT that the reducer stores. FIX: useTokenData now
