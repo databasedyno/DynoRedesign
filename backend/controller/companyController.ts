@@ -11,6 +11,7 @@ import { handleControllerError } from "../helper/controllerErrorHandler";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
+import { validateBrandName } from "../utils/brandName";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
 import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel, teamMemberModel } from "../models";
@@ -176,7 +177,16 @@ const addCompany = async (req: express.Request, res: express.Response) => {
     } else {
       return errorResponseHelper(res, 400, "Missing company data. Please provide company_name and email.");
     }
-    
+
+    // Reject brand names containing HTML/markup (raw or xss-escaped) so a name
+    // can never render as literal tags like "<script>1</script>" in the UI.
+    if (data.company_name !== undefined) {
+      const nameCheck = validateBrandName(data.company_name);
+      if (!nameCheck.ok) {
+        return errorResponseHelper(res, 400, nameCheck.message || "Invalid brand name.");
+      }
+    }
+
     let photo;
     if (file) {
       // Durable storage: DO Spaces CDN URL when configured (survives redeploys,
@@ -431,7 +441,15 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
     } else {
       return errorResponseHelper(res, 400, "No data provided for update");
     }
-    
+
+    // Reject brand names containing HTML/markup (raw or xss-escaped).
+    if (data.company_name !== undefined && data.company_name !== null) {
+      const nameCheck = validateBrandName(data.company_name);
+      if (!nameCheck.ok) {
+        return errorResponseHelper(res, 400, nameCheck.message || "Invalid brand name.");
+      }
+    }
+
     // Map incoming first_name/last_name onto the per-company contact columns
     // (Solution B). updateCompany NEVER touches the account-level user.name.
     if (data.first_name !== undefined || data.last_name !== undefined) {
@@ -634,6 +652,8 @@ const upgradeToBusiness = async (req: express.Request, res: express.Response) =>
     const ctry = String(country ?? "").trim();
     if (!name) return errorResponseHelper(res, 400, "Business name is required");
     if (!ctry) return errorResponseHelper(res, 400, "Country is required");
+    const nameCheck = validateBrandName(company_name);
+    if (!nameCheck.ok) return errorResponseHelper(res, 400, nameCheck.message || "Invalid brand name.");
 
     const company = await companyModel.findOne({
       where: { company_id, user_id: userData.user_id },

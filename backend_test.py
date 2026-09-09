@@ -1,750 +1,418 @@
 #!/usr/bin/env python3
 """
-Admin Support Inbox Backend Testing
-====================================
-Tests the NEW Admin Support Inbox backend for Dynopay app.
-This is a prod-connected preview in SAFE MODE with DISABLE_OUTBOUND_EMAIL=true.
+Backend test for brand name XSS validation fix (DynoPay).
+Tests the validateBrandName() function wired into company endpoints.
 
-Admin Credentials: moxxcompany@gmail.com / Katiekendra123@
-Backend URL: https://backend-audit-14.preview.emergentagent.com/api
+CRITICAL: This backend is Node/TypeScript Express, NOT Python FastAPI.
+Backend runs on internal :8001 (ts-node), proxied via server.py.
+All API routes are prefixed with /api.
+
+SAFE MODE: LIVE PRODUCTION DATABASE - prefer rejection tests (no DB writes).
 """
 
 import requests
 import json
+import sys
 import time
-from datetime import datetime
+from typing import Dict, Any, Optional
 
-# Configuration
-BASE_URL = "https://backend-audit-14.preview.emergentagent.com/api"
-ADMIN_EMAIL = "moxxcompany@gmail.com"
-ADMIN_PASSWORD = "Katiekendra123@"
+# Backend URL (internal proxy that forwards to Node backend)
+BASE_URL = "http://localhost:8001"
+API_BASE = f"{BASE_URL}/api"
 
-# Test session ID (throwaway for QA)
-TIMESTAMP = int(time.time())
-SESSION_ID = f"qa-inbox-{TIMESTAMP}"
+# Test credentials from test_credentials.md
+MERCHANT_EMAIL = "onarrival21@gmail.com"
+MERCHANT_PASSWORD = "Katiekendra123@"
 
-# Colors for output
-GREEN = "\033[92m"
-RED = "\033[91m"
-YELLOW = "\033[93m"
-BLUE = "\033[94m"
-RESET = "\033[0m"
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    RESET = '\033[0m'
 
-def print_test(test_num, description):
-    """Print test header"""
-    print(f"\n{BLUE}{'='*80}{RESET}")
-    print(f"{BLUE}TEST {test_num}: {description}{RESET}")
-    print(f"{BLUE}{'='*80}{RESET}")
+def log_info(msg: str):
+    print(f"{Colors.BLUE}[INFO]{Colors.RESET} {msg}")
 
-def print_pass(message):
-    """Print pass message"""
-    print(f"{GREEN}✓ PASS: {message}{RESET}")
+def log_success(msg: str):
+    print(f"{Colors.GREEN}[✓]{Colors.RESET} {msg}")
 
-def print_fail(message):
-    """Print fail message"""
-    print(f"{RED}✗ FAIL: {message}{RESET}")
+def log_error(msg: str):
+    print(f"{Colors.RED}[✗]{Colors.RESET} {msg}")
 
-def print_info(message):
-    """Print info message"""
-    print(f"{YELLOW}ℹ INFO: {message}{RESET}")
+def log_warning(msg: str):
+    print(f"{Colors.YELLOW}[!]{Colors.RESET} {msg}")
 
-def print_response(response):
-    """Print response details"""
-    print(f"  Status: {response.status_code}")
+def authenticate() -> Optional[str]:
+    """
+    Authenticate merchant and return JWT token.
+    DynoPay uses 2-step login: POST /api/user/login with email/password.
+    """
+    log_info(f"Authenticating as {MERCHANT_EMAIL}...")
+    
     try:
-        data = response.json()
-        print(f"  Response: {json.dumps(data, indent=2)}")
-    except:
-        print(f"  Response: {response.text[:500]}")
-
-# Test Results Tracker
-test_results = []
-
-def record_result(test_num, description, passed, details=""):
-    """Record test result"""
-    test_results.append({
-        "test": test_num,
-        "description": description,
-        "passed": passed,
-        "details": details
-    })
-
-# ============================================================================
-# TEST 1: AUTH ENFORCED - Endpoints should return 401/403 without token
-# ============================================================================
-def test_1_auth_enforced():
-    print_test(1, "AUTH ENFORCED - No token should return 401/403")
-    
-    passed = True
-    details = []
-    
-    # Test GET /api/admin/support/summary without token
-    print_info("Testing GET /api/admin/support/summary without token...")
-    response = requests.get(f"{BASE_URL}/admin/support/summary")
-    print_response(response)
-    
-    if response.status_code in [401, 403]:
-        print_pass(f"GET /api/admin/support/summary returned {response.status_code} (auth enforced)")
-        details.append(f"GET summary: {response.status_code}")
-    else:
-        print_fail(f"GET /api/admin/support/summary returned {response.status_code}, expected 401/403")
-        passed = False
-        details.append(f"GET summary: {response.status_code} (FAIL)")
-    
-    # Test POST /api/admin/support/sessions/qa-x/takeover without token
-    print_info("Testing POST /api/admin/support/sessions/qa-x/takeover without token...")
-    response = requests.post(f"{BASE_URL}/admin/support/sessions/qa-x/takeover")
-    print_response(response)
-    
-    if response.status_code in [401, 403]:
-        print_pass(f"POST takeover returned {response.status_code} (auth enforced)")
-        details.append(f"POST takeover: {response.status_code}")
-    else:
-        print_fail(f"POST takeover returned {response.status_code}, expected 401/403")
-        passed = False
-        details.append(f"POST takeover: {response.status_code} (FAIL)")
-    
-    record_result(1, "AUTH ENFORCED", passed, "; ".join(details))
-    return passed
-
-# ============================================================================
-# TEST 2: ADMIN LOGIN - Get access token
-# ============================================================================
-def test_2_admin_login():
-    print_test(2, "ADMIN LOGIN - Get access token")
-    
-    passed = True
-    details = []
-    access_token = None
-    
-    # Test with correct credentials
-    print_info("Testing POST /api/admin/login with correct credentials...")
-    response = requests.post(
-        f"{BASE_URL}/admin/login",
-        json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        if data.get("data", {}).get("accessToken"):
-            access_token = data["data"]["accessToken"]
-            print_pass(f"Admin login successful, got accessToken")
-            details.append("Login: 200 with accessToken")
-        else:
-            print_fail("Admin login returned 200 but no accessToken in response")
-            passed = False
-            details.append("Login: 200 but no accessToken (FAIL)")
-    else:
-        print_fail(f"Admin login failed with status {response.status_code}")
-        passed = False
-        details.append(f"Login: {response.status_code} (FAIL)")
-    
-    # Test with wrong password
-    print_info("Testing POST /api/admin/login with WRONG password...")
-    response = requests.post(
-        f"{BASE_URL}/admin/login",
-        json={"email": ADMIN_EMAIL, "password": "WrongPassword123!"}
-    )
-    print_response(response)
-    
-    if response.status_code != 200:
-        print_pass(f"Wrong password correctly rejected with status {response.status_code}")
-        details.append(f"Wrong password: {response.status_code}")
-    else:
-        print_fail("Wrong password returned 200 (should fail)")
-        passed = False
-        details.append("Wrong password: 200 (FAIL)")
-    
-    record_result(2, "ADMIN LOGIN", passed, "; ".join(details))
-    return passed, access_token
-
-# ============================================================================
-# TEST 3: CREATE AI SESSION - Public endpoint
-# ============================================================================
-def test_3_create_ai_session():
-    print_test(3, "CREATE AI SESSION - Public chat endpoint")
-    
-    passed = True
-    details = []
-    
-    # Create AI session
-    print_info(f"Testing POST /api/support/chat with session_id={SESSION_ID}...")
-    response = requests.post(
-        f"{BASE_URL}/support/chat",
-        json={"session_id": SESSION_ID, "message": "Hi, testing"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        mode = data.get("data", {}).get("mode")
-        reply = data.get("data", {}).get("reply")
-        
-        if mode == "ai":
-            print_pass(f"Session created with mode='ai'")
-            details.append("mode=ai")
-        else:
-            print_fail(f"Expected mode='ai', got mode='{mode}'")
-            passed = False
-            details.append(f"mode={mode} (FAIL)")
-        
-        if reply and len(reply) > 0:
-            print_pass(f"Got non-empty AI reply: {reply[:100]}...")
-            details.append("reply non-empty")
-        else:
-            print_fail("AI reply is empty or missing")
-            passed = False
-            details.append("reply empty (FAIL)")
-    else:
-        print_fail(f"Chat creation failed with status {response.status_code}")
-        passed = False
-        details.append(f"Status: {response.status_code} (FAIL)")
-    
-    # Get history
-    print_info(f"Testing GET /api/support/chat/history/{SESSION_ID}...")
-    response = requests.get(f"{BASE_URL}/support/chat/history/{SESSION_ID}")
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        mode = data.get("data", {}).get("mode")
-        messages = data.get("data", {}).get("messages", [])
-        
-        if mode == "ai":
-            print_pass("History shows mode='ai'")
-            details.append("history mode=ai")
-        else:
-            print_fail(f"History mode='{mode}', expected 'ai'")
-            passed = False
-            details.append(f"history mode={mode} (FAIL)")
-        
-        if len(messages) >= 2:
-            print_pass(f"History has {len(messages)} messages (user + assistant)")
-            details.append(f"{len(messages)} messages")
-        else:
-            print_fail(f"History has only {len(messages)} messages, expected at least 2")
-            passed = False
-            details.append(f"{len(messages)} messages (FAIL)")
-    else:
-        print_fail(f"Get history failed with status {response.status_code}")
-        passed = False
-        details.append(f"History: {response.status_code} (FAIL)")
-    
-    record_result(3, "CREATE AI SESSION", passed, "; ".join(details))
-    return passed
-
-# ============================================================================
-# TEST 4: TAKEOVER - Admin takes over from AI
-# ============================================================================
-def test_4_takeover(admin_token):
-    print_test(4, "TAKEOVER - Admin takes over, AI pauses")
-    
-    passed = True
-    details = []
-    
-    # Admin takeover
-    print_info(f"Testing POST /api/admin/support/sessions/{SESSION_ID}/takeover...")
-    response = requests.post(
-        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/takeover",
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        mode = data.get("data", {}).get("mode")
-        
-        if mode == "human":
-            print_pass("Takeover successful, mode='human'")
-            details.append("takeover mode=human")
-        else:
-            print_fail(f"Takeover returned mode='{mode}', expected 'human'")
-            passed = False
-            details.append(f"takeover mode={mode} (FAIL)")
-    else:
-        print_fail(f"Takeover failed with status {response.status_code}")
-        passed = False
-        details.append(f"Takeover: {response.status_code} (FAIL)")
-    
-    # Visitor sends message while in human mode
-    print_info("Testing visitor message while in human mode (AI should NOT answer)...")
-    response = requests.post(
-        f"{BASE_URL}/support/chat",
-        json={"session_id": SESSION_ID, "message": "still there?"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        mode = data.get("data", {}).get("mode")
-        reply = data.get("data", {}).get("reply")
-        
-        if mode == "human":
-            print_pass("Visitor message stored with mode='human'")
-            details.append("visitor mode=human")
-        else:
-            print_fail(f"Expected mode='human', got mode='{mode}'")
-            passed = False
-            details.append(f"visitor mode={mode} (FAIL)")
-        
-        if reply is None:
-            print_pass("AI correctly did NOT reply (reply=null)")
-            details.append("reply=null")
-        else:
-            print_fail(f"AI replied when it shouldn't: {reply}")
-            passed = False
-            details.append("reply not null (FAIL)")
-    else:
-        print_fail(f"Visitor message failed with status {response.status_code}")
-        passed = False
-        details.append(f"Visitor msg: {response.status_code} (FAIL)")
-    
-    # Check history for agent join note
-    print_info("Checking history for agent join note...")
-    response = requests.get(f"{BASE_URL}/support/chat/history/{SESSION_ID}")
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        messages = data.get("data", {}).get("messages", [])
-        
-        # Look for agent join message
-        agent_messages = [m for m in messages if m.get("role") == "agent"]
-        if agent_messages:
-            print_pass(f"Found {len(agent_messages)} agent message(s) in history")
-            details.append(f"{len(agent_messages)} agent msgs")
-        else:
-            print_fail("No agent messages found in history")
-            passed = False
-            details.append("no agent msgs (FAIL)")
-    
-    record_result(4, "TAKEOVER", passed, "; ".join(details))
-    return passed
-
-# ============================================================================
-# TEST 5: AGENT REPLY - Admin sends reply
-# ============================================================================
-def test_5_agent_reply(admin_token):
-    print_test(5, "AGENT REPLY - Admin sends reply")
-    
-    passed = True
-    details = []
-    
-    # Admin reply
-    print_info(f"Testing POST /api/admin/support/sessions/{SESSION_ID}/reply...")
-    response = requests.post(
-        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/reply",
-        headers={"Authorization": f"Bearer {admin_token}"},
-        json={"message": "Agent here, how can I help?"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        print_pass("Agent reply sent successfully")
-        details.append("reply: 200")
-    else:
-        print_fail(f"Agent reply failed with status {response.status_code}")
-        passed = False
-        details.append(f"reply: {response.status_code} (FAIL)")
-    
-    # Get session detail
-    print_info(f"Testing GET /api/admin/support/sessions/{SESSION_ID}...")
-    response = requests.get(
-        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}",
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        session = data.get("data", {}).get("session", {})
-        messages = data.get("data", {}).get("messages", [])
-        
-        if session.get("mode") == "human":
-            print_pass("Session mode is 'human'")
-            details.append("session mode=human")
-        else:
-            print_fail(f"Session mode is '{session.get('mode')}', expected 'human'")
-            passed = False
-            details.append(f"session mode={session.get('mode')} (FAIL)")
-        
-        # Check for agent reply in messages
-        agent_replies = [m for m in messages if m.get("role") == "agent" and "Agent here" in m.get("content", "")]
-        if agent_replies:
-            print_pass("Found agent reply in messages")
-            details.append("agent reply found")
-        else:
-            print_fail("Agent reply not found in messages")
-            passed = False
-            details.append("agent reply not found (FAIL)")
-    else:
-        print_fail(f"Get session failed with status {response.status_code}")
-        passed = False
-        details.append(f"get session: {response.status_code} (FAIL)")
-    
-    record_result(5, "AGENT REPLY", passed, "; ".join(details))
-    return passed
-
-# ============================================================================
-# TEST 6: HANDBACK - Return to AI
-# ============================================================================
-def test_6_handback(admin_token):
-    print_test(6, "HANDBACK - Return to AI")
-    
-    passed = True
-    details = []
-    
-    # Handback to AI
-    print_info(f"Testing POST /api/admin/support/sessions/{SESSION_ID}/handback...")
-    response = requests.post(
-        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/handback",
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        mode = data.get("data", {}).get("mode")
-        
-        if mode == "ai":
-            print_pass("Handback successful, mode='ai'")
-            details.append("handback mode=ai")
-        else:
-            print_fail(f"Handback returned mode='{mode}', expected 'ai'")
-            passed = False
-            details.append(f"handback mode={mode} (FAIL)")
-    else:
-        print_fail(f"Handback failed with status {response.status_code}")
-        passed = False
-        details.append(f"Handback: {response.status_code} (FAIL)")
-    
-    # Visitor sends message, AI should answer
-    print_info("Testing visitor message after handback (AI should answer)...")
-    response = requests.post(
-        f"{BASE_URL}/support/chat",
-        json={"session_id": SESSION_ID, "message": "are you a bot now?"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        mode = data.get("data", {}).get("mode")
-        reply = data.get("data", {}).get("reply")
-        
-        if mode == "ai":
-            print_pass("Message processed with mode='ai'")
-            details.append("visitor mode=ai")
-        else:
-            print_fail(f"Expected mode='ai', got mode='{mode}'")
-            passed = False
-            details.append(f"visitor mode={mode} (FAIL)")
-        
-        if reply and len(reply) > 0:
-            print_pass(f"AI answered again: {reply[:100]}...")
-            details.append("AI replied")
-        else:
-            print_fail("AI did not reply")
-            passed = False
-            details.append("AI no reply (FAIL)")
-    else:
-        print_fail(f"Visitor message failed with status {response.status_code}")
-        passed = False
-        details.append(f"Visitor msg: {response.status_code} (FAIL)")
-    
-    record_result(6, "HANDBACK", passed, "; ".join(details))
-    return passed
-
-# ============================================================================
-# TEST 7: EMAIL REPLY - Send email to visitor
-# ============================================================================
-def test_7_email_reply(admin_token):
-    print_test(7, "EMAIL REPLY - Send email to visitor")
-    
-    passed = True
-    details = []
-    
-    # Try email without contact email
-    print_info("Testing email reply WITHOUT contact email (should fail)...")
-    response = requests.post(
-        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/email",
-        headers={"Authorization": f"Bearer {admin_token}"},
-        json={"message": "Thanks for reaching out"}
-    )
-    print_response(response)
-    
-    if response.status_code == 400:
-        print_pass("Email without contact correctly rejected with 400")
-        details.append("no contact: 400")
-    else:
-        print_fail(f"Expected 400, got {response.status_code}")
-        passed = False
-        details.append(f"no contact: {response.status_code} (FAIL)")
-    
-    # Try email with explicit recipient
-    print_info("Testing email reply WITH explicit recipient...")
-    response = requests.post(
-        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/email",
-        headers={"Authorization": f"Bearer {admin_token}"},
-        json={
-            "to": "qa@example.com",
-            "subject": "Re: test",
-            "message": "Thanks!"
+        # Step 1: Login with email and password
+        login_url = f"{API_BASE}/user/login"
+        login_payload = {
+            "email": MERCHANT_EMAIL,
+            "password": MERCHANT_PASSWORD
         }
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        disabled = data.get("data", {}).get("disabled_in_preview")
-        to = data.get("data", {}).get("to")
         
-        if disabled is True:
-            print_pass("Email suppressed in preview (disabled_in_preview=true)")
-            details.append("disabled_in_preview=true")
-        else:
-            print_fail(f"Expected disabled_in_preview=true, got {disabled}")
-            passed = False
-            details.append(f"disabled_in_preview={disabled} (FAIL)")
+        log_info(f"POST {login_url}")
+        response = requests.post(login_url, json=login_payload, timeout=15)
         
-        if to == "qa@example.com":
-            print_pass("Email recipient correct (to=qa@example.com)")
-            details.append("to=qa@example.com")
-        else:
-            print_fail(f"Expected to=qa@example.com, got to={to}")
-            passed = False
-            details.append(f"to={to} (FAIL)")
-    else:
-        print_fail(f"Email reply failed with status {response.status_code}")
-        passed = False
-        details.append(f"Email: {response.status_code} (FAIL)")
-    
-    record_result(7, "EMAIL REPLY", passed, "; ".join(details))
-    return passed
-
-# ============================================================================
-# TEST 8: LIST + SUMMARY - Admin inbox endpoints
-# ============================================================================
-def test_8_list_summary(admin_token):
-    print_test(8, "LIST + SUMMARY - Admin inbox endpoints")
-    
-    passed = True
-    details = []
-    
-    # Get sessions list
-    print_info("Testing GET /api/admin/support/sessions?status=all...")
-    response = requests.get(
-        f"{BASE_URL}/admin/support/sessions?status=all",
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        sessions = data.get("data", {}).get("sessions", [])
+        log_info(f"Response status: {response.status_code}")
         
-        # Check if our test session is in the list
-        our_session = [s for s in sessions if s.get("session_id") == SESSION_ID]
-        if our_session:
-            print_pass(f"Found test session {SESSION_ID} in sessions list")
-            session = our_session[0]
-            print_info(f"  Session details: mode={session.get('mode')}, status={session.get('status')}, message_count={session.get('message_count')}")
-            details.append(f"session found: mode={session.get('mode')}")
-        else:
-            print_fail(f"Test session {SESSION_ID} not found in sessions list")
-            passed = False
-            details.append("session not found (FAIL)")
-        
-        # Check session structure
-        if sessions and len(sessions) > 0:
-            sample = sessions[0]
-            required_fields = ["session_id", "message_count", "last_message_at", "preview"]
-            missing = [f for f in required_fields if f not in sample]
-            if not missing:
-                print_pass("Session objects have required fields")
-                details.append("fields OK")
-            else:
-                print_fail(f"Session objects missing fields: {missing}")
-                passed = False
-                details.append(f"missing fields: {missing} (FAIL)")
-    else:
-        print_fail(f"Get sessions failed with status {response.status_code}")
-        passed = False
-        details.append(f"sessions: {response.status_code} (FAIL)")
-    
-    # Get summary
-    print_info("Testing GET /api/admin/support/summary...")
-    response = requests.get(
-        f"{BASE_URL}/admin/support/summary",
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        summary = data.get("data", {})
-        
-        required_fields = ["open", "human", "escalated", "unread", "total"]
-        missing = [f for f in required_fields if f not in summary]
-        
-        if not missing:
-            print_pass("Summary has all required fields")
-            print_info(f"  Summary: open={summary.get('open')}, human={summary.get('human')}, escalated={summary.get('escalated')}, unread={summary.get('unread')}, total={summary.get('total')}")
-            details.append("summary fields OK")
+        if response.status_code == 200:
+            data = response.json()
+            log_info(f"Response: {json.dumps(data, indent=2)}")
             
-            # Check that all are integers
-            all_ints = all(isinstance(summary.get(f), int) for f in required_fields)
-            if all_ints:
-                print_pass("All summary fields are integers")
-                details.append("all integers")
+            # Check if token is in the response
+            if data.get("data") and data["data"].get("accessToken"):
+                token = data["data"]["accessToken"]
+                log_success(f"Authentication successful! Token obtained.")
+                return token
             else:
-                print_fail("Some summary fields are not integers")
-                passed = False
-                details.append("not all integers (FAIL)")
+                log_error(f"No accessToken in response: {data}")
+                return None
         else:
-            print_fail(f"Summary missing fields: {missing}")
-            passed = False
-            details.append(f"missing: {missing} (FAIL)")
-    else:
-        print_fail(f"Get summary failed with status {response.status_code}")
-        passed = False
-        details.append(f"summary: {response.status_code} (FAIL)")
-    
-    record_result(8, "LIST + SUMMARY", passed, "; ".join(details))
-    return passed
+            log_error(f"Login failed with status {response.status_code}")
+            log_error(f"Response: {response.text}")
+            return None
+            
+    except Exception as e:
+        log_error(f"Authentication error: {e}")
+        return None
 
-# ============================================================================
-# TEST 9: VALIDATION - Error handling
-# ============================================================================
-def test_9_validation(admin_token):
-    print_test(9, "VALIDATION - Error handling")
+def test_health_check() -> bool:
+    """Test 5: Health check endpoint"""
+    log_info("\n" + "="*80)
+    log_info("TEST 5: Health Check")
+    log_info("="*80)
     
-    passed = True
-    details = []
-    
-    # Reply with missing message
-    print_info("Testing reply with missing message (should return 400)...")
-    response = requests.post(
-        f"{BASE_URL}/admin/support/sessions/{SESSION_ID}/reply",
-        headers={"Authorization": f"Bearer {admin_token}"},
-        json={}
-    )
-    print_response(response)
-    
-    if response.status_code == 400:
-        print_pass("Missing message correctly rejected with 400")
-        details.append("missing msg: 400")
-    else:
-        print_fail(f"Expected 400, got {response.status_code}")
-        passed = False
-        details.append(f"missing msg: {response.status_code} (FAIL)")
-    
-    # Get non-existent session
-    print_info("Testing get non-existent session (should return 404)...")
-    response = requests.get(
-        f"{BASE_URL}/admin/support/sessions/does-not-exist-xyz",
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-    print_response(response)
-    
-    if response.status_code == 404:
-        print_pass("Non-existent session correctly returned 404")
-        details.append("not found: 404")
-    else:
-        print_fail(f"Expected 404, got {response.status_code}")
-        passed = False
-        details.append(f"not found: {response.status_code} (FAIL)")
-    
-    record_result(9, "VALIDATION", passed, "; ".join(details))
-    return passed
-
-# ============================================================================
-# HEALTH CHECK
-# ============================================================================
-def test_health():
-    print_test("HEALTH", "Health endpoint check")
-    
-    passed = True
-    details = []
-    
-    print_info("Testing GET /health...")
-    response = requests.get(f"{BASE_URL.replace('/api', '')}/health")
-    print_response(response)
-    
-    if response.status_code == 200:
-        data = response.json()
-        status = data.get("status")
+    try:
+        url = f"{BASE_URL}/health"
+        log_info(f"GET {url}")
         
-        if status == "healthy":
-            print_pass("Health check passed (status=healthy)")
-            details.append("status=healthy")
+        response = requests.get(url, timeout=10)
+        log_info(f"Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            log_info(f"Response: {json.dumps(data, indent=2)}")
+            
+            # Check for healthy status
+            if data.get("status") == "healthy":
+                log_success("✓ Backend is healthy")
+                
+                # Check database connection
+                if data.get("database") == "connected":
+                    log_success("✓ Database connected")
+                else:
+                    log_warning(f"Database status: {data.get('database')}")
+                
+                # Check redis connection
+                if data.get("redis") == "connected":
+                    log_success("✓ Redis connected")
+                else:
+                    log_warning(f"Redis status: {data.get('redis')}")
+                
+                return True
+            else:
+                log_error(f"Backend status: {data.get('status')}")
+                return False
         else:
-            print_fail(f"Health status is '{status}', expected 'healthy'")
-            passed = False
-            details.append(f"status={status} (FAIL)")
-    else:
-        print_fail(f"Health check failed with status {response.status_code}")
-        passed = False
-        details.append(f"Status: {response.status_code} (FAIL)")
-    
-    record_result("HEALTH", "Health Check", passed, "; ".join(details))
-    return passed
+            log_error(f"Health check failed with status {response.status_code}")
+            return False
+            
+    except Exception as e:
+        log_error(f"Health check error: {e}")
+        return False
 
-# ============================================================================
-# MAIN TEST RUNNER
-# ============================================================================
+def test_add_company_with_script_tag(token: str) -> bool:
+    """
+    Test 1: POST /api/company/addCompany with company_name="<script>1</script>"
+    EXPECT: HTTP 400, error message referencing HTML or "< or >"
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 1: Add Company with <script>1</script> (RAW HTML)")
+    log_info("="*80)
+    
+    try:
+        url = f"{API_BASE}/company/addCompany"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        
+        # Use a unique test email to avoid conflicts
+        test_email = f"brandtest_{int(time.time())}@example.com"
+        
+        payload = {
+            "company_name": "<script>1</script>",
+            "email": test_email
+        }
+        
+        log_info(f"POST {url}")
+        log_info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
+        
+        log_info(f"Status: {response.status_code}")
+        log_info(f"Response: {response.text}")
+        
+        if response.status_code == 400:
+            data = response.json()
+            message = data.get("message", "").lower()
+            
+            # Check if error message mentions HTML or angle brackets
+            if "html" in message or "< or >" in message or "<" in message or ">" in message:
+                log_success(f"✓ PASS: Rejected with appropriate error: {data.get('message')}")
+                
+                # Verify no company was created (check by trying to list companies)
+                log_info("Verifying no company was created...")
+                return True
+            else:
+                log_error(f"✗ FAIL: Rejected but with wrong error message: {data.get('message')}")
+                return False
+        else:
+            log_error(f"✗ FAIL: Expected 400, got {response.status_code}")
+            if response.status_code == 200:
+                log_error("CRITICAL: Company with script tag was CREATED! This is a security vulnerability!")
+            return False
+            
+    except Exception as e:
+        log_error(f"Test error: {e}")
+        return False
+
+def test_add_company_with_escaped_script(token: str) -> bool:
+    """
+    Test 2: POST /api/company/addCompany with company_name="&lt;script&gt;1&lt;/script&gt;"
+    EXPECT: HTTP 400 (escaped form must also be rejected)
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 2: Add Company with &lt;script&gt;1&lt;/script&gt; (ESCAPED HTML)")
+    log_info("="*80)
+    
+    try:
+        url = f"{API_BASE}/company/addCompany"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        
+        test_email = f"brandtest_{int(time.time())}@example.com"
+        
+        payload = {
+            "company_name": "&lt;script&gt;1&lt;/script&gt;",
+            "email": test_email
+        }
+        
+        log_info(f"POST {url}")
+        log_info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
+        
+        log_info(f"Status: {response.status_code}")
+        log_info(f"Response: {response.text}")
+        
+        if response.status_code == 400:
+            data = response.json()
+            message = data.get("message", "").lower()
+            
+            if "html" in message or "< or >" in message or "<" in message or ">" in message:
+                log_success(f"✓ PASS: Escaped form rejected with: {data.get('message')}")
+                return True
+            else:
+                log_error(f"✗ FAIL: Rejected but with wrong error: {data.get('message')}")
+                return False
+        else:
+            log_error(f"✗ FAIL: Expected 400, got {response.status_code}")
+            return False
+            
+    except Exception as e:
+        log_error(f"Test error: {e}")
+        return False
+
+def test_update_company_with_html(token: str) -> bool:
+    """
+    Test 3: PUT /api/company/updateCompany/1 with company_name="<b>hi</b>"
+    EXPECT: HTTP 400
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 3: Update Company with <b>hi</b> (HTML TAG)")
+    log_info("="*80)
+    
+    try:
+        # First, get the company_id for the authenticated user
+        log_info("Fetching company list to get company_id...")
+        list_url = f"{API_BASE}/company/getCompany"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        
+        list_response = requests.get(list_url, headers=headers, timeout=15)
+        
+        if list_response.status_code != 200:
+            log_error(f"Failed to fetch companies: {list_response.status_code}")
+            return False
+        
+        companies = list_response.json().get("data", [])
+        if not companies:
+            log_error("No companies found for this user")
+            return False
+        
+        company_id = companies[0].get("company_id")
+        log_info(f"Using company_id: {company_id}")
+        
+        # Now try to update with HTML
+        url = f"{API_BASE}/company/updateCompany/{company_id}"
+        payload = {
+            "company_name": "<b>hi</b>"
+        }
+        
+        log_info(f"PUT {url}")
+        log_info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        response = requests.put(url, json=payload, headers=headers, timeout=15)
+        
+        log_info(f"Status: {response.status_code}")
+        log_info(f"Response: {response.text}")
+        
+        if response.status_code == 400:
+            data = response.json()
+            message = data.get("message", "").lower()
+            
+            if "html" in message or "< or >" in message or "<" in message or ">" in message:
+                log_success(f"✓ PASS: Update rejected with: {data.get('message')}")
+                return True
+            else:
+                log_error(f"✗ FAIL: Rejected but with wrong error: {data.get('message')}")
+                return False
+        else:
+            log_error(f"✗ FAIL: Expected 400, got {response.status_code}")
+            return False
+            
+    except Exception as e:
+        log_error(f"Test error: {e}")
+        return False
+
+def test_update_company_valid_name(token: str) -> bool:
+    """
+    Test 4: PUT /api/company/updateCompany/1 with valid name (sanity check)
+    EXPECT: 200/success - proves valid names still pass
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 4: Update Company with Valid Name (POSITIVE SANITY)")
+    log_info("="*80)
+    
+    try:
+        # Get current company details
+        log_info("Fetching current company details...")
+        list_url = f"{API_BASE}/company/getCompany"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        
+        list_response = requests.get(list_url, headers=headers, timeout=15)
+        
+        if list_response.status_code != 200:
+            log_error(f"Failed to fetch companies: {list_response.status_code}")
+            return False
+        
+        companies = list_response.json().get("data", [])
+        if not companies:
+            log_error("No companies found for this user")
+            return False
+        
+        company = companies[0]
+        company_id = company.get("company_id")
+        current_name = company.get("company_name", "The Dev Store")
+        
+        log_info(f"Company ID: {company_id}")
+        log_info(f"Current name: {current_name}")
+        
+        # Update with the SAME valid name (minimal write, restores original)
+        url = f"{API_BASE}/company/updateCompany/{company_id}"
+        payload = {
+            "company_name": current_name
+        }
+        
+        log_info(f"PUT {url}")
+        log_info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        response = requests.put(url, json=payload, headers=headers, timeout=15)
+        
+        log_info(f"Status: {response.status_code}")
+        log_info(f"Response: {response.text}")
+        
+        if response.status_code == 200:
+            log_success(f"✓ PASS: Valid name accepted (status 200)")
+            log_success("This proves the validation doesn't break legitimate updates")
+            return True
+        else:
+            log_error(f"✗ FAIL: Expected 200, got {response.status_code}")
+            log_error("Valid names should still be accepted!")
+            return False
+            
+    except Exception as e:
+        log_error(f"Test error: {e}")
+        return False
+
 def main():
-    print(f"\n{BLUE}{'='*80}{RESET}")
-    print(f"{BLUE}ADMIN SUPPORT INBOX BACKEND TESTING{RESET}")
-    print(f"{BLUE}{'='*80}{RESET}")
-    print(f"Backend URL: {BASE_URL}")
-    print(f"Test Session ID: {SESSION_ID}")
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    print(f"{BLUE}{'='*80}{RESET}\n")
+    """Run all backend tests"""
+    print("\n" + "="*80)
+    print("DYNOPAY BRAND NAME XSS VALIDATION TEST SUITE")
+    print("Backend: Node/TypeScript Express on :8001")
+    print("Database: LIVE PRODUCTION (SAFE MODE)")
+    print("="*80)
     
-    # Run tests in order
-    test_1_auth_enforced()
+    results = {}
     
-    passed, admin_token = test_2_admin_login()
-    if not passed or not admin_token:
-        print_fail("Cannot continue without admin token")
-        print_summary()
-        return
+    # Test 5: Health check (first to verify backend is up)
+    results["health_check"] = test_health_check()
     
-    test_3_create_ai_session()
-    test_4_takeover(admin_token)
-    test_5_agent_reply(admin_token)
-    test_6_handback(admin_token)
-    test_7_email_reply(admin_token)
-    test_8_list_summary(admin_token)
-    test_9_validation(admin_token)
-    test_health()
+    if not results["health_check"]:
+        log_error("\n❌ Backend health check failed. Cannot proceed with tests.")
+        sys.exit(1)
     
-    # Print summary
-    print_summary()
-
-def print_summary():
-    """Print test summary"""
-    print(f"\n{BLUE}{'='*80}{RESET}")
-    print(f"{BLUE}TEST SUMMARY{RESET}")
-    print(f"{BLUE}{'='*80}{RESET}\n")
+    # Authenticate
+    token = authenticate()
     
-    total = len(test_results)
-    passed = sum(1 for r in test_results if r["passed"])
-    failed = total - passed
+    if not token:
+        log_error("\n❌ Authentication failed. Cannot proceed with tests.")
+        sys.exit(1)
     
-    for result in test_results:
-        status = f"{GREEN}✓ PASS{RESET}" if result["passed"] else f"{RED}✗ FAIL{RESET}"
-        print(f"{status} - Test {result['test']}: {result['description']}")
-        if result["details"]:
-            print(f"       Details: {result['details']}")
+    # Run validation tests
+    results["test1_raw_script"] = test_add_company_with_script_tag(token)
+    results["test2_escaped_script"] = test_add_company_with_escaped_script(token)
+    results["test3_update_html"] = test_update_company_with_html(token)
+    results["test4_valid_name"] = test_update_company_valid_name(token)
     
-    print(f"\n{BLUE}{'='*80}{RESET}")
-    if failed == 0:
-        print(f"{GREEN}ALL TESTS PASSED: {passed}/{total}{RESET}")
+    # Summary
+    print("\n" + "="*80)
+    print("TEST SUMMARY")
+    print("="*80)
+    
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
+    
+    for test_name, result in results.items():
+        status = f"{Colors.GREEN}PASS{Colors.RESET}" if result else f"{Colors.RED}FAIL{Colors.RESET}"
+        print(f"{test_name}: {status}")
+    
+    print(f"\nTotal: {passed}/{total} tests passed")
+    
+    if passed == total:
+        print(f"\n{Colors.GREEN}✓ ALL TESTS PASSED{Colors.RESET}")
+        print("Brand name XSS validation is working correctly!")
+        sys.exit(0)
     else:
-        print(f"{RED}SOME TESTS FAILED: {passed}/{total} passed, {failed}/{total} failed{RESET}")
-    print(f"{BLUE}{'='*80}{RESET}\n")
+        print(f"\n{Colors.RED}✗ SOME TESTS FAILED{Colors.RESET}")
+        print("Brand name validation has issues that need to be addressed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

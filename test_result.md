@@ -1,3 +1,38 @@
+# ============================================================================
+# CURRENT SESSION — 2026-09-09 (pod dbe1c2d6): BRAND NAME XSS/HTML BUG — FIX APPLIED
+#
+#   REPORTED (user + screenshot): a brand/company shows as "<Script>1</Script>"
+#   in the brand switcher. Root cause: company_name had NO markup validation on
+#   create/update, so a pasted XSS payload ("<script>1</script>") was stored and
+#   rendered as literal tags (CSS text-transform:capitalize made it "<Script>").
+#
+#   FIX:
+#   - Backend (root cause): new backend/utils/brandName.ts -> validateBrandName().
+#     Rejects names containing HTML/markup (raw `<`/`>` OR xss-escaped
+#     `&lt;`/`&gt;`/numeric forms), empty, or > 120 chars. Wired into
+#     companyController.addCompany, updateCompany, upgradeToBusiness -> returns
+#     HTTP 400 with a clear message BEFORE any DB write.
+#   - Frontend (symptom for legacy rows): utils/brandName.ts -> sanitizeBrandName()
+#     decodes entities + strips tags; applied at every company_name render in
+#     Components/UI/CompanySelector/index.tsx.
+#
+#   BACKEND TEST FOCUS (SAFE — rejection paths do NOT write to the prod DB):
+#   Merchant login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1).
+#   Get a JWT (2-step /api/user login) then:
+#   1) POST /api/company/addCompany with company_name="<script>1</script>" (+ valid
+#      email) -> EXPECT 400, message mentions HTML / "< or >". NO company created.
+#   2) POST /api/company/addCompany with company_name="&lt;script&gt;1&lt;/script&gt;"
+#      -> EXPECT 400 (escaped form also rejected).
+#   3) PUT /api/company/updateCompany/1 with company_name="<b>hi</b>" -> EXPECT 400.
+#   4) Sanity: updateCompany/1 with a normal name (e.g. "The Dev Store") -> EXPECT
+#      200/success (do NOT change other fields; restore original name afterwards).
+#   5) Confirm backend healthy: GET http://localhost:8001/health -> healthy.
+#   NOTE: LIVE prod DB in SAFE MODE. Prefer rejection tests (no writes). For the
+#   positive case, only rename company_id=1 and restore it; do not create junk rows.
+# ============================================================================
+
+
+
 # 2026-09-09 (pod dbe1c2d6) FOLLOW-UP: Notifications page tx drawer showed Pending/awaiting for settled LTC — FIXED.
 #   FE NotificationPage reads notif.data (not meta) + fetches real row via /api/wallet/transaction/<txHash>; BE
 #   getTransactionDetails matches incoming_tx_hash/transaction_reference and no longer mis-parses UUIDs as numeric ids.

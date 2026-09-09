@@ -15,6 +15,7 @@ import {
 import { useCompanySettingsDialog } from "@/Components/UI/CompanySettingsDialog/context";
 import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer } from "@/utils/types";
+import { sanitizeBrandName } from "@/utils/brandName";
 import { Add } from "@mui/icons-material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -172,9 +173,10 @@ export default function CompanySelector() {
   };
 
   function truncateByWords(text: string, maxLength: number) {
-    if (text.length <= maxLength) return text;
+    const clean = sanitizeBrandName(text);
+    if (clean.length <= maxLength) return clean;
 
-    const trimmed = text.slice(0, maxLength);
+    const trimmed = clean.slice(0, maxLength);
     const words = `${trimmed}...`;
     return words;
   }
@@ -205,17 +207,17 @@ export default function CompanySelector() {
           />
           <TriggerText
             data-testid="company-selector-name"
-            title={selected?.company_name || companies[0]?.company_name || ""}
+            title={sanitizeBrandName(selected?.company_name || companies[0]?.company_name || "")}
             sx={{ color: brandFg(theme.palette.mode === "dark") }}
           >
             {selected?.company_name
               ? (windowWidth < 600
                 ? truncateByWords(selected.company_name, count)
-                : selected.company_name)
+                : sanitizeBrandName(selected.company_name))
               : companies.length > 0
                 ? (windowWidth < 600
                   ? truncateByWords(companies[0].company_name, count)
-                  : companies[0].company_name)
+                  : sanitizeBrandName(companies[0].company_name))
                 : ""}
           </TriggerText>
           <KycVerifiedBadge companyId={selected?.company_id} size={16} />
@@ -286,7 +288,7 @@ export default function CompanySelector() {
                 }}
               />
               <TriggerText sx={{ color: brandFg(theme.palette.mode === "dark") }}>
-                {selected?.company_name || (companies.length > 0 ? companies[0].company_name : "Company")}
+                {sanitizeBrandName(selected?.company_name || (companies.length > 0 ? companies[0].company_name : "Company")) || "Company"}
               </TriggerText>
             </Box>
 
@@ -343,7 +345,7 @@ export default function CompanySelector() {
                     <TriggerText sx={{ color: theme.palette.text.primary }}>
                       {isMobile
                         ? truncateByWords(c?.company_name ?? "-", 18)
-                        : (c?.company_name ?? "-")}
+                        : (sanitizeBrandName(c?.company_name ?? "") || "-")}
                     </TriggerText>
                     {/* Individual vs Business — the Account is the tenant; a
                         "Business" is simply an Account with a business profile. */}
