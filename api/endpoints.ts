@@ -169,6 +169,8 @@ export const API_ENDPOINTS = {
 
   transactions: {
     invoice: (transactionId: PathId) => `/transactions/${transactionId}/invoice`,
+    // Accepts DB id, numeric transaction_id, or an on-chain tx hash
+    detail: (idOrHash: PathId) => `/wallet/transaction/${encodeURIComponent(String(idOrHash))}`,
   },
 
   userApi: {

@@ -1,6 +1,6 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { formatWithSeparators } from "@/utils/currencyFormat";
+import { formatWithSeparators, formatDisplayAmount } from "@/utils/currencyFormat";
 import { formatDateI18n, formatDateTimeI18n } from "@/utils/formatDate";
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
@@ -187,6 +187,64 @@ const NotificationPage = () => {
     return type.includes("payment") || type.includes("transaction") || type.includes("received") || type.includes("confirmed") || type.includes("partial");
   };
 
+  const fmtDateTime = (iso: string) =>
+    formatDateTimeI18n(iso, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  // Normalise a backend status (raw DB or deriveTxDisplayStatus output) onto
+  // ExtendedTransaction.status — same buckets as the /transactions list.
+  const normalizeTxStatus = (raw: unknown): ExtendedTransaction["status"] => {
+    const s = String(raw || "").toLowerCase().trim();
+    if (["success", "successful", "completed", "payout_complete", "converted", "recovered", "done", "settled"].includes(s)) return "settled";
+    if (s === "confirmed") return "confirmed";
+    if (s === "processing" || s === "confirming") return "processing";
+    if (s === "unpaid") return "unpaid";
+    if (s === "awaiting_payment" || s === "awaiting") return "awaiting_payment";
+    if (["failed", "expired", "refunded", "settlement_failed"].includes(s)) return "failed";
+    return "pending";
+  };
+
+  // Preferred path: the drawer shows the REAL ledger row (status, hashes, USD
+  // value) looked up by the tx hash carried in the notification payload.
+  const fetchTransactionForNotification = async (txRef: string): Promise<ExtendedTransaction | null> => {
+    try {
+      const url = effectiveCompanyId
+        ? `${API_ENDPOINTS.transactions.detail(txRef)}?company_id=${encodeURIComponent(String(effectiveCompanyId))}`
+        : API_ENDPOINTS.transactions.detail(txRef);
+      const d = (await axiosBaseApi.get(url))?.data?.data;
+      if (!d) return null;
+      const crypto = String(d.cryptocurrency || d.base_currency || "");
+      const amountRaw = Number(d.amount) || 0;
+      const usdRaw = Number(d.usd_value) || 0;
+      const feesTotal = Number(d.fees_breakdown?.total ?? d.fees) || 0;
+      const rate = amountRaw > 0 ? usdRaw / amountRaw : 0;
+      const status = normalizeTxStatus(d.status);
+      const confReq = Number(d.confirmations_detail?.required) || 0;
+      const confCur = Number(d.confirmations_detail?.current ?? d.confirmations) || 0;
+      return {
+        id: String(d.transaction_id || txRef),
+        crypto,
+        amount: `${formatDisplayAmount(amountRaw, crypto)} ${crypto}`,
+        cryptoAmountRaw: amountRaw,
+        usdValue: usdRaw > 0 ? `$${formatWithSeparators(usdRaw, undefined, 2)}` : "—",
+        usdValueRaw: usdRaw,
+        dateTime: fmtDateTime(d.date_time),
+        createdAtTs: d.date_time ? new Date(d.date_time).getTime() || 0 : 0,
+        status,
+        fees: Math.round(feesTotal * rate * 100) / 100,
+        confirmations: status === "settled" || status === "confirmed"
+          ? (confReq > 0 ? `${confReq}/${confReq}` : "Confirmed")
+          : (confReq > 0 ? `${confCur}/${confReq}` : ""),
+        incomingTransactionId: d.incoming_transaction_id || "",
+        outgoingTransactionId: d.outgoing_transaction_id || "",
+        callbackUrl: d.callback_url || "",
+        settlementAddress: d.wallet_address || "",
+        webhookResponse: d.webhook_response || null,
+      };
+    } catch {
+      return null;
+    }
+  };
+
   const handleNotificationClick = async (notif: any) => {
     // Mark as read
     if (!notif.is_read) {
@@ -195,35 +253,39 @@ const NotificationPage = () => {
 
     // If it's a transaction-related notification, try to open transaction modal
     if (isTransactionNotification(notif.type)) {
-      const txRef = notif.meta?.transaction_reference || notif.meta?.tx_ref || notif.meta?.transaction_id;
-      const txAmount = notif.meta?.amount || notif.meta?.base_amount;
-      const txCurrency = notif.meta?.currency || notif.meta?.base_currency || notif.meta?.crypto;
-      const txStatus = notif.meta?.status;
+      // The API exposes the notification payload as `data` (legacy code read `meta`).
+      const meta = notif.data || notif.meta || {};
+      const txRef: string = meta.transaction_id || meta.tx_id || meta.transaction_reference || meta.tx_ref || meta.txid || "";
+      const txAmount = meta.amount || meta.base_amount;
+      const txCurrency = meta.currency || meta.base_currency || meta.crypto || "";
 
-      // Map raw txStatus onto the ExtendedTransaction.status enum
-      // ("failed" | "pending" | "confirmed" | "settled" | "processing").
-      const mappedStatus: "confirmed" | "pending" | "failed" =
-        txStatus === "success" || txStatus === "successful" || txStatus === "confirmed" || txStatus === "Completed" || txStatus === "completed"
-          ? "confirmed"
-          : txStatus === "failed" || txStatus === "expired"
-            ? "failed"
-            : "pending";
+      const fromLedger = txRef ? await fetchTransactionForNotification(txRef) : null;
+      if (fromLedger) {
+        setSelectedTransaction(fromLedger);
+        setTxModalOpen(true);
+        return;
+      }
 
-      // Build transaction from notification meta or notification itself
+      // Fallback: build from the notification payload. A "payment_received" /
+      // "transaction_confirmed" notification is only emitted AFTER settlement,
+      // so never present it as "awaiting payment".
+      const settledType = notif.type === "payment_received" || notif.type === "transaction_confirmed";
       const transaction: ExtendedTransaction = {
         id: txRef || notif.notification_id?.toString() || "",
-        crypto: txCurrency || "",
-        amount: txAmount ? `${txAmount} ${txCurrency || ""}` : "",
+        crypto: txCurrency,
+        amount: txAmount ? `${formatDisplayAmount(Number(txAmount) || 0, txCurrency)} ${txCurrency}` : "",
         cryptoAmountRaw: Number(txAmount) || 0,
-        usdValue: notif.meta?.usd_value ? `$${formatWithSeparators(Number(notif.meta.usd_value), undefined, 2)}` : "",
-        usdValueRaw: Number(notif.meta?.usd_value) || 0,
-        dateTime: formatDateTimeI18n(notif.created_at, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        usdValue: meta.usd_value ? `$${formatWithSeparators(Number(meta.usd_value), undefined, 2)}` : "—",
+        usdValueRaw: Number(meta.usd_value) || 0,
+        dateTime: fmtDateTime(notif.created_at),
         createdAtTs: notif.created_at ? new Date(notif.created_at).getTime() || 0 : 0,
-        status: mappedStatus,
-        fees: notif.meta?.fees || "0",
-        confirmations: notif.meta?.confirmations || "",
-        incomingTransactionId: notif.meta?.incoming_tx_hash || notif.meta?.txid || "",
-        outgoingTransactionId: notif.meta?.outgoing_tx_hash || "",
+        status: settledType ? "settled" : normalizeTxStatus(meta.status),
+        fees: meta.fees || "0",
+        confirmations: meta.current_confirmations != null && meta.required_confirmations
+          ? `${meta.current_confirmations}/${meta.required_confirmations}`
+          : (meta.confirmations || ""),
+        incomingTransactionId: meta.incoming_tx_hash || meta.txid || meta.tx_id || (settledType ? txRef : ""),
+        outgoingTransactionId: meta.outgoing_tx_hash || "",
       };
 
       setSelectedTransaction(transaction);

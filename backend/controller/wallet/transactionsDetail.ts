@@ -88,11 +88,12 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
     const { id } = req.params;
     const { company_id } = req.query;
 
-    // Build parameterized query
+    // Build parameterized query. Only treat the param as a numeric transaction_id
+    // when it is purely digits — parseInt("388e7809-…") would otherwise match row 388.
     const replacements: Record<string, unknown> = {
       user_id: userData.user_id,
       id_str: id,
-      id_num: parseInt(id as string, 10) || 0,
+      id_num: /^\d+$/.test(String(id)) ? parseInt(id as string, 10) : -1,
     };
     let companyFilter = '';
     if (company_id) {
@@ -120,8 +121,10 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
       LEFT JOIN tbl_company cm ON cm.company_id = ut.company_id
       LEFT JOIN tbl_user_wallet uw ON uw.wallet_id = ut.wallet_id
       WHERE ut.user_id = :user_id 
-        AND (ut.id = :id_str OR ut.transaction_id = :id_num)
+        AND (ut.id = :id_str OR ut.transaction_id = :id_num
+             OR ut.incoming_tx_hash = :id_str OR ut.transaction_reference = :id_str)
         ${companyFilter}
+      ORDER BY ut."createdAt" DESC
       LIMIT 1
       `,
       { type: QueryTypes.SELECT, replacements }

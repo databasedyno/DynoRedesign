@@ -1,3 +1,10 @@
+# 2026-09-09 (pod dbe1c2d6) FOLLOW-UP: Notifications page tx drawer showed Pending/awaiting for settled LTC — FIXED.
+#   FE NotificationPage reads notif.data (not meta) + fetches real row via /api/wallet/transaction/<txHash>; BE
+#   getTransactionDetails matches incoming_tx_hash/transaction_reference and no longer mis-parses UUIDs as numeric ids.
+#   Verified via curl (hash/numeric/uuid/404) + Playwright screenshot (Settled, 1.84 LTC, $97.53, 6/6, hashes).
+#
+
+
 # ============================================================================
 # 2026-09-09 (pod dbe1c2d6): RECONCILIATION DEDUP BYPASS BUG — FIXED (backend only)
 #   webhookProcessor.processWebhookJob checked payload.source (undefined) instead of data.source, so reconciliation

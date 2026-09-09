@@ -1,3 +1,19 @@
+# 2026-09-09 (fork, pod dbe1c2d6) FOLLOW-UP: NOTIFICATIONS → "Transaction Details" showed Pending/"Awaiting payment" for the settled LTC — FIXED + VERIFIED (screenshot + curl).
+#   The drawer in the user's screenshot ("Transaction ID 1000", blank currency/amount) was the NOTIFICATIONS page, not the
+#   transactions list: NotificationPage.handleNotificationClick built the modal from `notif.meta`, but the API returns the
+#   payload as `notif.data` → every field undefined → id fell back to notification_id (1000), status "pending", awaiting banner.
+#   FIX (frontend Components/Page/Notification/NotificationPage.tsx): read `notif.data`, then fetch the REAL ledger row via
+#     GET /api/wallet/transaction/<txHash>?company_id= (new API_ENDPOINTS.transactions.detail) and map it (status/amount/USD/
+#     fees/confirmations/hashes/settled-to). Fallback (no ledger row): build from payload; payment_received/transaction_confirmed
+#     → "settled" (never "awaiting payment"). Shared normalizeTxStatus mirrors the /transactions list buckets.
+#   FIX (backend controller/wallet/transactionsDetail.ts getTransactionDetails): also match ut.incoming_tx_hash / ut.transaction_reference
+#     = :id_str (ORDER BY createdAt DESC LIMIT 1); id_num only when the param is all digits (parseInt("388e7809-…")=388 previously
+#     returned the WRONG row for UUID lookups). NOTE: backend runs plain ts-node (no hot reload) → `sudo supervisorctl restart backend`.
+#   VERIFIED: curl by hash/numeric/uuid → correct row, unknown → 404; Playwright: /notifications → click item 1000 → Settled,
+#     1.84 LTC, $97.53, fee $1.95, 6/6, both hashes, no awaiting banner. FE+BE tsc clean. Needs deploy (Save to Github).
+#
+
+
 # 2026-09-09 (fork, pod dbe1c2d6) RECONCILIATION DEDUP BUG (LTC payment-link settlement) — FIXED + VERIFIED (jest 246/246, tsc 0).
 #   Pod set up via `bash scripts/pod-bootstrap.sh --pass '<vault pass>'` (SAFE MODE, prod DB, bg jobs off).
 #   BUG: services/webhookProcessor.ts processWebhookJob dedup-bypass read `payload.source` (always undefined) instead of
