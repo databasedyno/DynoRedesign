@@ -1102,7 +1102,12 @@ const feeEstimation = async (
       chain: currency,
       type: "TRANSFER",
       fromAddress: [fromAddress],
-      to: [{ address: toAddress, value: Number(amount) }],
+      // Tatum's UTXO fee estimator rejects amounts with >8 decimal places
+      // (HTTP 400: "body.to.0.value should be: number and decimal places not
+      // more than 8"). Callers frequently pass float sums like
+      // `Number(receivedAmount) + Number(userAmount)` which drift to values
+      // such as 1.8399999999999999, so round to 8 dp before serialising.
+      to: [{ address: toAddress, value: toNumber(amount, 8) }],
     });
 
     // ── STUCK-TX GUARD (2026-07-17): BTC fee floor from mempool.space ────────────
@@ -1396,7 +1401,8 @@ const batchFeeEstimation = async ({
       fromAddress: fromAddresses.map((address) => address.address),
       to: toAddresses.map((address) => ({
         ...address,
-        value: Number(address.value),
+        // Round to 8 dp — Tatum's UTXO fee estimator 400s on >8 decimal places.
+        value: toNumber(address.value, 8),
       })),
     });
     fees = await tatumSdk.fee.estimateFeeBlockchain({
@@ -1405,7 +1411,8 @@ const batchFeeEstimation = async ({
       fromAddress: fromAddresses.map((address) => address.address),
       to: toAddresses.map((address) => ({
         ...address,
-        value: Number(address.value),
+        // Round to 8 dp — Tatum's UTXO fee estimator 400s on >8 decimal places.
+        value: toNumber(address.value, 8),
       })),
     });
     cronLogger.info("###BTC FEES--->", fees);

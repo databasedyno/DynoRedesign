@@ -1,4 +1,118 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-09 (pod e3232985): BTC/LTC SETTLEMENT WEBHOOK BUG
+#
+#   REPORTED: two payments (LTC + BTC) "came in" but never confirmed / no webhook
+#   to the merchant. Investigated via DigitalOcean prod (app dynopay) + LIVE DB.
+#
+#   ROOT CAUSE (confirmed): crypto settlement to the merchant wallet was aborting
+#   at the FEE-ESTIMATION step. apis/tatumApi.ts feeEstimation() and
+#   batchFeeEstimation() sent the UTXO `to[].value` to Tatum as a RAW float
+#   (`Number(amount)` / `Number(address.value)`). Callers pass float sums like
+#   `Number(receivedAmount)+Number(userAmount)` that drift to >8 decimal places
+#   (e.g. 1.6666666666666667). Tatum rejects with HTTP 400:
+#     "body.to.0.value should be: number and decimal places not more than 8".
+#   That throw propagates as `cryptoVerification error 400`, so the payment
+#   reaches payment.confirmed but then payment.settlement_failed — funds received
+#   on-chain, merchant never settled and no payment.settled webhook fired.
+#   (Evidence: tbl_webhook_delivery_log log 1321, LTC 1.84 payment cd3a3644,
+#    company 1, 2026-09-08 23:57.)
+#
+#   FIX (apis/tatumApi.ts): round the UTXO fee-estimation `to[].value` to 8 dp
+#   via `toNumber(amount, 8)` in BOTH feeEstimation() (BTC/LTC/DOGE branch) and
+#   batchFeeEstimation() (log payload + real call). Centralised so every caller
+#   (settlement, wallet, admin) is protected. Actual transfer math was already
+#   satoshi-safe; only fee estimation was unsanitised.
+#
+#   BACKEND TEST FOCUS (safe — fee estimation moves NO money):
+#   1) Run: cd /app/backend && node_modules/.bin/ts-node --transpile-only \
+#        --compiler-options '{"module":"commonjs"}' repro_fee_fix.ts
+#      EXPECT: step [1] RAW Tatum call with 1.6666666666666667 -> reproduces the
+#      exact 400 "decimal places not more than 8"; step [2] fixed
+#      feeEstimation('LTC',...) with the SAME messy float -> returns fees (no 400).
+#   2) Confirm backend healthy: GET http://localhost:8001/health -> status healthy,
+#      database+redis connected.
+#   3) Confirm fix present: apis/tatumApi.ts has `toNumber(amount, 8)` in
+#      feeEstimation and `toNumber(address.value, 8)` in batchFeeEstimation, and NO
+#      remaining `value: Number(` inside a Tatum `to:` array.
+#   NOTE: LIVE prod DB in SAFE MODE (background jobs off). Read-only checks only.
+#   Do NOT trigger real settlements/transfers or touch merchant data.
+#
+#   ============================================================================
+#   VERIFICATION RESULTS — 2026-09-09 (testing_agent)
+#   ============================================================================
+#
+#   ✅ TEST 1: REPRODUCTION SCRIPT — PASS
+#      Command: cd /app/backend && node_modules/.bin/ts-node --transpile-only \
+#               --compiler-options '{"module":"commonjs"}' repro_fee_fix.ts
+#      
+#      Output:
+#      - MESSY float value = 1.6666666666666667 (decimal places: 16)
+#      - toNumber(MESSY, 8) = 1.66666667 (decimal places: 8)
+#      
+#      [1] RAW Tatum estimate with UNROUNDED value (reproduce bug):
+#          status=400 -> "body.to.0.value should be: number and decimal places not more than 8"
+#          ✅ REPRODUCED the exact production error.
+#      
+#      [2] FIXED tatumApi.feeEstimation('LTC', ...) with the SAME messy float:
+#          ✅ feeEstimation returned (no 400): {"slow":"0.00001390","medium":"0.00001762","fast":"0.00002397"}
+#          FIX VERIFIED — messy float is sanitised to <=8 dp before Tatum.
+#      
+#      Script exited 0 with "DONE"
+#
+#   ✅ TEST 2: SOURCE CODE VERIFICATION — PASS
+#      File: /app/backend/apis/tatumApi.ts
+#      
+#      ✓ Line 1110 in feeEstimation():
+#        to: [{ address: toAddress, value: toNumber(amount, 8) }]
+#      
+#      ✓ Lines 1405 & 1415 in batchFeeEstimation():
+#        to: toAddresses.map((address) => ({
+#          ...address,
+#          value: toNumber(address.value, 8),
+#        }))
+#      
+#      ✓ NO remaining occurrences of `value: Number(` inside Tatum `to:` arrays
+#      
+#      The fix is correctly implemented in BOTH functions as specified.
+#
+#   ✅ TEST 3: BACKEND HEALTH CHECK — PASS
+#      Endpoint: GET http://localhost:8001/health
+#      
+#      Response:
+#      {
+#        "status": "healthy",
+#        "service": "Dynopay Backend",
+#        "database": "connected",
+#        "redis": "connected",
+#        "tatum_api": {
+#          "operational": true,
+#          "circuit_state": "CLOSED",
+#          "failures": 0
+#        }
+#      }
+#      
+#      Backend is running cleanly with the fix in place.
+#
+#   ============================================================================
+#   VERDICT: ALL TESTS PASSED ✅✅✅
+#   ============================================================================
+#   
+#   The bug fix for the LTC/BTC settlement fee-estimation decimal precision issue
+#   has been successfully verified. The reproduction script confirms:
+#   1) The exact production error is reproducible with unrounded float values
+#   2) The fixed code sanitises messy floats to 8 decimal places before calling Tatum
+#   3) Tatum now accepts the fee estimation requests without 400 errors
+#   
+#   The fix is present in both feeEstimation() and batchFeeEstimation() functions,
+#   and the backend is healthy with all services connected.
+#   
+#   This fix will prevent future crypto settlements from aborting at the fee
+#   estimation step due to float precision issues.
+#   ============================================================================
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-08 (pod a99b939f): ADMIN SUPPORT INBOX + bug fixes
 #
 #   CONTEXT: prod-connected preview, SAFE MODE, DISABLE_OUTBOUND_EMAIL=true.
