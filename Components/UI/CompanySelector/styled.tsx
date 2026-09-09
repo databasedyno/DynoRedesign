@@ -59,6 +59,9 @@ export const CompanyItem = styled("div", {
   ({ active, theme }) => ({
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
+    gap: "8px",
+    minWidth: 0,
     padding: "6px",
     borderRadius: "6px",
     cursor: "pointer",
@@ -98,6 +101,9 @@ export const ItemLeft = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
+  flex: "1 1 auto",
+  minWidth: 0,
+  overflow: "hidden",
 }));
 
 export const ItemRight = styled("div", {

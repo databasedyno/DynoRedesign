@@ -146,6 +146,14 @@ export const registerEmailStep1 = async (req: express.Request, res: express.Resp
       return errorResponseHelper(res, 400, "Email is required");
     }
 
+    // Reject malformed addresses BEFORE sending an OTP (bug #6). "test@",
+    // "test", "@x.com" etc. must not proceed to the verification step.
+    const emailForCheck = String(email).trim();
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailForCheck.length > 254 || !EMAIL_RE.test(emailForCheck)) {
+      return errorResponseHelper(res, 400, "Please enter a valid email address.");
+    }
+
     const emailLower = email.toLowerCase().trim();
 
     // Optional SEO attribution — captured on the client from
@@ -224,6 +232,11 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
 
     if (!email || !otp) {
       return errorResponseHelper(res, 400, "Email and verification code are required");
+    }
+
+    const emailForCheck = String(email).trim();
+    if (emailForCheck.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailForCheck)) {
+      return errorResponseHelper(res, 400, "Please enter a valid email address.");
     }
 
     const emailLower = email.toLowerCase().trim();

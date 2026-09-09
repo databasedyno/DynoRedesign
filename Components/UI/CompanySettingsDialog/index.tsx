@@ -105,7 +105,6 @@ export default function CompanySettingsDialog({
   const [formKey, setFormKey] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | undefined>();
   const [mediaFile, setMediaFile] = useState<File | undefined>();
-  const [savingLogo, setSavingLogo] = useState(false);
   const [expanded, setExpanded] = useState<string | false>("company");
   // Account-type choice (individual <-> business). Seeded from the company row;
   // a business account cannot be switched back to individual (no downgrade).
@@ -322,38 +321,24 @@ export default function CompanySettingsDialog({
     handleClose();
   };
 
-  // Upload the (possibly cropped) brand logo — auto-saves, no Save press needed.
-  const uploadLogo = async (file: File, previewUrl?: string) => {
+  // Stage the (possibly cropped) brand logo. It is NOT saved on the spot —
+  // it's persisted only when the user clicks "Save Changes" (handleSubmit
+  // appends mediaFile), and discarded if they Cancel/close (bug #1).
+  const stageLogo = (file: File, previewUrl?: string) => {
     setImagePreview(previewUrl || URL.createObjectURL(file));
     setMediaFile(file);
-    if (!company?.company_id) return;
-    const formData = new FormData();
-    formData.append("data", JSON.stringify({})); // logo-only partial update
-    formData.append("image", file);
-    setSavingLogo(true);
-    try {
-      await companyState.updateCompany({ id: company.company_id, formData });
-      // Persisted — clear the pending file so the main Save won't re-upload it.
-      setMediaFile(undefined);
-    } catch {
-      // error toast is handled inside the store; revert preview to saved logo
-      setImagePreview(company?.photo);
-      setMediaFile(undefined);
-    } finally {
-      setSavingLogo(false);
-    }
   };
 
   const handleFileChange = async (file?: File) => {
     if (!file) return;
     // Crop & zoom step first (sharp logos). SVG/GIF/HEIC bypass the cropper
-    // (vector/animation/undecodable) and upload untouched.
+    // (vector/animation/undecodable) and are staged untouched.
     if (isCroppableImage(file.type)) {
       setLogoCropFile(file);
       setLogoCropSrc(URL.createObjectURL(file));
-      return; // upload happens in handleLogoCropApply
+      return; // staging happens in handleLogoCropApply
     }
-    await uploadLogo(file);
+    stageLogo(file);
   };
 
   // --- Crop & zoom step (brand logo) ---
@@ -368,7 +353,7 @@ export default function CompanySettingsDialog({
 
   const handleLogoCropApply = (file: File, previewUrl: string) => {
     closeLogoCropper();
-    uploadLogo(file, previewUrl);
+    stageLogo(file, previewUrl);
   };
 
   const handleSubmit = async (values: Values) => {
@@ -549,7 +534,7 @@ export default function CompanySettingsDialog({
                     handleFieldsChange={handleFieldsChange}
                     imagePreview={imagePreview}
                     onFileChange={handleFileChange}
-                    uploadingLogo={savingLogo}
+                    logoPending={!!mediaFile}
                     isMobile={isMobile}
                     expanded={expanded === "company"}
                     onAccordionChange={handleAccordionChange("company")}

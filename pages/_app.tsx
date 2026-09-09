@@ -98,7 +98,7 @@ import LanguageBootstrap from "@/helpers/LanguageBootstrap";
 import LanguageOnboardingBar from "@/Components/UI/LanguageOnboardingBar";
 import LanguageSuggestBanner from "@/Components/UI/LanguageSuggestBanner";
 import AttributionTracker from "@/Components/AttributionTracker";
-import { enforceSessionPersistence } from "@/helpers/authPersistence";
+import { enforceSessionPersistence, startSessionHeartbeat } from "@/helpers/authPersistence";
 import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
 import { ThemeProvider as AppThemeProvider, useThemeMode } from "@/contexts/ThemeContext";
@@ -133,6 +133,7 @@ const useIsomorphicLayoutEffect =
 // briefly render an authenticated page or fire API calls with a stale token.
 if (typeof window !== "undefined") {
   enforceSessionPersistence();
+  startSessionHeartbeat();
 }
 
 // ─── Dynamic imports: each layout only loads when its route is hit ───
@@ -257,6 +258,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     const check = () => {
       try {
         enforceSessionPersistence();
+        startSessionHeartbeat();
         setIsAuthed(!!localStorage.getItem("token"));
       } catch {
         setIsAuthed(false);

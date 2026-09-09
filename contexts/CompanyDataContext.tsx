@@ -294,8 +294,8 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
       try {
         const response = await axios.post("company/validateTaxId", {
           companyId,
-          taxId,
-          country,
+          vat_number: taxId,
+          country_code: country,
         });
         const rd = response?.data;
         if (rd?.success === false) {

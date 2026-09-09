@@ -106,7 +106,13 @@ const revokeAllOtherSessionsEndpoint = async (req: express.Request, res: express
     const userData = res.locals.user as IUserType;
     const currentSessionId = req.body.current_session_id;
 
-    const count = await revokeAllOtherSessions(userData.user_id, currentSessionId);
+    // Resolve the caller's CURRENT session server-side from their access-token
+    // fingerprint so "revoke all others" can never sign THIS device out (bug #7).
+    const authHeader = (req.headers.authorization as string) || "";
+    const rawToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    const currentTokenSuffix = rawToken ? rawToken.slice(-32) : null;
+
+    const count = await revokeAllOtherSessions(userData.user_id, currentSessionId, currentTokenSuffix);
 
     successResponseHelper(res, 200, `Revoked ${count} session(s)`, { revoked_count: count });
   } catch (e) {

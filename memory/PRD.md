@@ -1,3 +1,46 @@
+# 2026-09-09 (fork, pod dbe1c2d6) QA GROUP-A BUG BATCH (11 bugs) — DONE + VERIFIED (BE curl + FE Playwright; BE+FE tsc 0; backend healthy).
+#   User: "Let's fix 1 to 10" (+ an 11th flagged mid-task: new tab forces re-login). Approved deferring the logo save (option a).
+#   BACKEND (curl-verified on the live merchant onarrival21@gmail.com):
+#     #5 Tax ID always errored — ROOT CAUSE was a field-name MISMATCH: FE (contexts/CompanyDataContext.validateTax) POSTed
+#        {taxId,country} but backend companyController.validateTaxId read {vat_number,country_code} → guaranteed 400
+#        "required". Fixed FE to send vat_number/country_code AND made the backend accept taxId/country as fallbacks. Both
+#        payloads now 200 (real IDs validate; fake GB123456789 → valid:false, which is correct).
+#     #6 Registration accepted "test@" — registerEmailStep1 (+verify-otp) only checked presence. Added email-format + <=254
+#        length guard BEFORE the OTP send → 400 "Please enter a valid email address." (curl-verified for test@ and test).
+#     #7/#8 Session revocation had NO runtime effect (authMiddleware only verified the JWT; never checked is_active). Per the
+#        integration playbook: sessionService now writes a Redis marker `sess-revoked:{userId}:{tokenSuffix}` (TTL = token
+#        remaining life) on revokeSession AND revokeAllOtherSessions; authMiddleware rejects (401 "Your session was signed
+#        out.") when the caller's access-token fingerprint (last 32 chars) matches a marker. Tokens with NO marker still pass
+#        (backward-compatible). revokeAllOtherSessions now derives the CALLER's current session server-side from the token
+#        suffix (never trusts client current_session_id) so "revoke all others" keeps THIS device signed in.
+#        Verified: TOKB revoked → TOKB 401 / TOKA 200; revoke-all by TOKC → TOKC 200 / TOKA+TOKB 401.
+#     #9 /api/user/onboarding-status 304s — getOnboardingStatus now sets Cache-Control:no-store + Pragma:no-cache (curl-verified).
+#   FRONTEND (Playwright-verified on preview):
+#     #1 Edit-brand logo auto-saved even on cancel — CompanySettingsDialog: uploadLogo→stageLogo (NO network); the logo now
+#        persists only in handleSubmit (Save Changes) and handleClose discards the staged file. Hint copy updated
+#        (CompanyDetailsSection logoPending prop): "Choose a file, then click Save Changes to update your logo."
+#     #2 Long brand name broke the dropdown — CompanySelector/styled (ItemLeft/CompanyItem minWidth:0) + row name/email
+#        ellipsis + badges flexShrink:0 + trigger name ellipsis. Verified: "QA Throwaway ..." truncates cleanly in the dropdown.
+#     #3 Create-brand had a weak/absent logo preview — CreateCompanyModal now shows a 48px preview + "Logo added" check
+#        (testid create-company-logo-preview). Verified present after set_input_files.
+#     #4 Brand-name XSS — already fixed+verified in a prior batch (backend validateBrandName). No change.
+#     #10 Brand-new account showed a blank top area — DashboardLeftSection showEmptyState dropped the hasWallet requirement
+#        (now hasCompany && !hasAnyConfirmedTxn && !loading) so EmptyStatePanel's "finish setup" branch guides new accounts.
+#        No regression on the established account (still renders HeroMetrics).
+#     #11 New tab forced re-login — helpers/authPersistence.ts session-only sentinel moved from PER-TAB sessionStorage to a
+#        SHARED localStorage heartbeat (auth_heartbeat, refreshed every 20s by open tabs; 90s grace). enforceSessionPersistence
+#        keeps the token when the heartbeat is fresh (browser still open, incl. brand-new tabs) and expires it when stale
+#        (browser fully closed). Wired startSessionHeartbeat into pages/_app.tsx. Verified both cases in a 2nd browser tab:
+#        fresh heartbeat → new tab lands on /dashboard; stale heartbeat → "session timed out" → /auth/login.
+#   FILES: backend/{services/sessionService.ts, middleware/authMiddleware.ts, controller/sessionController.ts,
+#     controller/user/registrationEmail.ts, controller/user/onboarding.ts, controller/companyController.ts};
+#     FE {contexts/CompanyDataContext.tsx, Components/UI/CompanySettingsDialog/{index,CompanyDetailsSection}.tsx,
+#     Components/UI/CompanySelector/{index,styled}.tsx, Components/UI/OnboardingFlow/CreateCompanyModal.tsx,
+#     Components/Page/Dashboard/DashboardLeftSection.tsx, helpers/authPersistence.ts, pages/_app.tsx}.
+#   NOTE: backend = ts-node (no hot reload) → restarted via supervisorctl. My curl tests revoked the test merchant's own
+#     sessions (expected; just re-login). NOT deployed to prod yet — use "Save to GitHub".
+#
+
 # 2026-09-09 (fork, pod dbe1c2d6) SETTLEMENT HARDENING — VERIFIED (jest 57/57 webhookProcessor; full suite 667 pass; tsc 0; backend healthy).
 #   Resumed the paused hardening task. The 4 reliability fixes were in place (uncommitted): (1) clear processed-tx Redis
 #   lock on settlement failure so BullMQ retries fire; (2) crash-recovery now records failure + re-throws instead of faking

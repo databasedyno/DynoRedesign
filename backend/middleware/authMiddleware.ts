@@ -6,6 +6,7 @@ import { errorResponseHelper, getErrorMessage } from "../helper";
 import { userModel } from "../models";
 import { IUserType } from "../utils/types";
 import { getRedisItem, setRedisItemWithTTL, deleteRedisItem } from "../utils/redisInstance";
+import { isSessionRevoked } from "../services/sessionService";
 
 // P1 perf: cache the per-request user lookup in Redis (60s TTL) so authenticated
 // requests skip a userModel.findOne DB round-trip. Stores existence PLUS the
@@ -115,7 +116,17 @@ const authMiddleware = async (
       if (!authUser) {
         return errorResponseHelper(res, 401, "User account does not exist. Please login again.");
       }
-      
+
+      // Session revocation enforcement (bugs #7/#8): if THIS device's session
+      // was signed out ("Sign out" / "Sign out all others"), reject on the next
+      // request. Matched by the token fingerprint (last 32 chars). Tokens with
+      // no matching revoked marker are allowed (backward-compatible for tokens
+      // issued before session tracking, and for the caller's own kept session).
+      const tokenSuffix = token.length >= 32 ? token.slice(-32) : token;
+      if (await isSessionRevoked(decoded.user_id, tokenSuffix)) {
+        return errorResponseHelper(res, 401, "Your session was signed out. Please login again.");
+      }
+
       // Store token in res.locals for use in controllers
       res.locals.token = token;
       res.locals.user = decoded;

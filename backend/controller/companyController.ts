@@ -1134,7 +1134,10 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
 const validateTaxId = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { vat_number, country_code } = req.body;
+    // Accept both the canonical names and the older client field names
+    // (taxId/country) so a payload mismatch can never make every ID "error".
+    const vat_number = req.body.vat_number ?? req.body.taxId ?? req.body.vatNumber;
+    const country_code = req.body.country_code ?? req.body.country ?? req.body.countryCode;
 
     if (!vat_number || !country_code) {
       return errorResponseHelper(

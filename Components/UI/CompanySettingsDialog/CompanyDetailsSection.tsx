@@ -169,6 +169,8 @@ export type CompanyDetailsSectionProps = {
   imagePreview?: string;
   onFileChange: (file?: File) => void;
   uploadingLogo?: boolean;
+  /** True when a logo has been chosen but not yet saved (deferred to Save Changes). */
+  logoPending?: boolean;
   isMobile?: boolean;
   expanded: boolean;
   onAccordionChange: (event: React.SyntheticEvent, isExpanded: boolean) => void;
@@ -193,6 +195,7 @@ export default function CompanyDetailsSection({
   imagePreview,
   onFileChange,
   uploadingLogo,
+  logoPending = false,
   isMobile = false,
   expanded,
   onAccordionChange,
@@ -1368,11 +1371,13 @@ export default function CompanyDetailsSection({
             </Box>
             <Typography
               data-testid="logo-autosave-hint"
-              sx={{ mt: 0.75, fontSize: isMobile ? 9 : 12, color: theme.palette.text.secondary, fontWeight: 400 }}
+              sx={{ mt: 0.75, fontSize: isMobile ? 9 : 12, color: logoPending ? theme.palette.primary.main : theme.palette.text.secondary, fontWeight: logoPending ? 600 : 400 }}
             >
               {uploadingLogo
                 ? t("fields.brandLogo.saving", { defaultValue: "Saving…" })
-                : t("fields.brandLogo.autoSaveHint", { defaultValue: "Saved automatically when you choose a file" })}
+                : logoPending
+                  ? t("fields.brandLogo.pendingSaveHint", { defaultValue: "New logo selected — click Save Changes to apply." })
+                  : t("fields.brandLogo.saveHint", { defaultValue: "Choose a file, then click Save Changes to update your logo." })}
             </Typography>
           </Grid>
         </Grid>

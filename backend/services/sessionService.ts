@@ -14,6 +14,7 @@ import { Op } from "sequelize";
 import { IUserType } from "../utils/types";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
+import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 
 // Configuration
 // Login persistence = 7 days. The access token itself lasts 7 days so a user
@@ -26,6 +27,51 @@ const ACCESS_TOKEN_EXPIRY_SECONDS = parseInt(
 ); // default 7 days
 const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(envRaw("REFRESH_TOKEN_EXPIRY_DAYS") || "7", 10);
 const MAX_CONCURRENT_SESSIONS = parseInt(envRaw("MAX_CONCURRENT_SESSIONS") || "10", 10);
+
+/**
+ * Session revocation enforcement (bugs #7/#8).
+ * A session's access token = a self-contained 7-day JWT that authMiddleware can't
+ * "un-sign". To make a revoked device stop working on its NEXT request, we write a
+ * Redis marker keyed by the token fingerprint (last 32 chars of the access token,
+ * the same value stored in tbl_user_session.session_token). authMiddleware checks
+ * this marker and rejects with 401. TTL never outlives the token itself.
+ */
+export const revokedSessionKey = (userId: number | string, tokenSuffix: string) =>
+  `sess-revoked:${userId}:${tokenSuffix}`;
+
+const markSessionRevokedInRedis = async (
+  userId: number | string,
+  tokenSuffix?: string | null,
+  expiresAt?: Date | string | null,
+): Promise<void> => {
+  if (!tokenSuffix) return;
+  try {
+    const now = Date.now();
+    const expMs = expiresAt ? new Date(expiresAt).getTime() : now + ACCESS_TOKEN_EXPIRY_SECONDS * 1000;
+    const ttl = Math.max(1, Math.min(ACCESS_TOKEN_EXPIRY_SECONDS, Math.floor((expMs - now) / 1000)));
+    await setRedisItemWithTTL(revokedSessionKey(userId, tokenSuffix), { revoked: true }, ttl);
+  } catch {
+    // Non-critical: authMiddleware also treats a matching inactive row as revoked.
+  }
+};
+
+/**
+ * True when the token fingerprint has been explicitly revoked. Fails OPEN on a
+ * Redis outage (mirrors the app's other auth caches — never lock users out on
+ * infra hiccups; a revoked token still expires naturally within 7 days).
+ */
+export const isSessionRevoked = async (
+  userId: number | string,
+  tokenSuffix?: string | null,
+): Promise<boolean> => {
+  if (!tokenSuffix) return false;
+  try {
+    const v = await getRedisItem(revokedSessionKey(userId, tokenSuffix));
+    return !!(v && (v.revoked === true || v.revoked === "true"));
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Parse user-agent string into device info
@@ -249,21 +295,55 @@ export const revokeSession = async (sessionId: number, userId: number, reason: s
     revoke_reason: reason,
   });
 
+  // Enforce immediately: the revoked device's token stops working on its next request.
+  await markSessionRevokedInRedis(
+    userId,
+    session.dataValues.session_token as string | undefined,
+    session.dataValues.expires_at as Date | undefined,
+  );
+
   userLogger.info(`[Session] Revoked session ${sessionId} for user ${userId} (reason: ${reason})`);
   return true;
 };
 
 /**
- * Revoke all sessions except the current one
+ * Revoke all sessions except the current one.
+ *
+ * The current session is resolved SERVER-SIDE from the caller's access-token
+ * fingerprint (`currentTokenSuffix`) so a client can never trick us into
+ * revoking someone else's session or logging THIS device out (bug #7). A
+ * legacy numeric `currentSessionId` is still honoured as a fallback.
  */
-export const revokeAllOtherSessions = async (userId: number, currentSessionId?: number): Promise<number> => {
+export const revokeAllOtherSessions = async (
+  userId: number,
+  currentSessionId?: number,
+  currentTokenSuffix?: string | null,
+): Promise<number> => {
+  // Prefer the token-derived current session (authoritative). Fall back to the
+  // legacy client-supplied id only when we couldn't resolve it from the token.
+  let keepSessionId = currentSessionId;
+  if (currentTokenSuffix) {
+    const current = await UserSession.findOne({
+      where: { user_id: userId, session_token: currentTokenSuffix, is_active: true },
+      attributes: ["session_id"],
+    });
+    if (current) keepSessionId = current.dataValues.session_id as number;
+  }
+
   const whereClause: Record<string, unknown> = {
     user_id: userId,
     is_active: true,
   };
-  if (currentSessionId) {
-    whereClause.session_id = { [Op.ne]: currentSessionId };
+  if (keepSessionId) {
+    whereClause.session_id = { [Op.ne]: keepSessionId };
   }
+
+  // Capture the fingerprints BEFORE flipping is_active so we can write the
+  // Redis revocation markers (each device stops working on its next request).
+  const affected = await UserSession.findAll({
+    where: whereClause,
+    attributes: ["session_id", "session_token", "expires_at"],
+  });
 
   const [affectedCount] = await UserSession.update(
     {
@@ -274,7 +354,17 @@ export const revokeAllOtherSessions = async (userId: number, currentSessionId?: 
     { where: whereClause }
   );
 
-  userLogger.info(`[Session] Revoked ${affectedCount} other sessions for user ${userId}`);
+  await Promise.all(
+    affected.map((s) =>
+      markSessionRevokedInRedis(
+        userId,
+        s.dataValues.session_token as string | undefined,
+        s.dataValues.expires_at as Date | undefined,
+      ),
+    ),
+  );
+
+  userLogger.info(`[Session] Revoked ${affectedCount} other sessions for user ${userId} (kept ${keepSessionId ?? "none"})`);
   return affectedCount;
 };
 
@@ -323,4 +413,5 @@ export default {
   revokeAllOtherSessions,
   getLoginHistory,
   cleanupExpiredSessions,
+  isSessionRevoked,
 };

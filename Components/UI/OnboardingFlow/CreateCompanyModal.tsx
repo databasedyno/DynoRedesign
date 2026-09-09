@@ -871,18 +871,36 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               </Typography>
             </Box>
             {imagePreview && (
-              <Box
-                component="img"
-                src={imagePreview}
-                alt="logo preview"
-                sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "8px",
-                  objectFit: "cover",
-                  border: `1px solid ${theme.palette.divider}`,
-                }}
-              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }} data-testid="create-company-logo-preview">
+                <Box
+                  component="img"
+                  src={imagePreview}
+                  alt="logo preview"
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "10px",
+                    objectFit: "cover",
+                    border: `1px solid ${theme.palette.divider}`,
+                    boxShadow: theme.palette.mode === "dark"
+                      ? "0 2px 8px rgba(0,0,0,0.4)"
+                      : "0 2px 8px rgba(15,15,20,0.10)",
+                  }}
+                />
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <CheckRounded sx={{ fontSize: 16, color: "#16A34A" }} />
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      fontFamily: "var(--font-sans)",
+                      fontWeight: 600,
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    {t("createModal.logoAdded", { defaultValue: "Logo added" })}
+                  </Typography>
+                </Box>
+              </Box>
             )}
             {fileName && !imagePreview && (
               <Typography

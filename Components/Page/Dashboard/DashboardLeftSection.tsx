@@ -328,9 +328,12 @@ const DashboardLeftSection = () => {
       return ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status);
     });
   }, [hasAggregatePayments, recentTransactions]);
-  // Show empty state instead of Hero when merchant has set up but hasn't
-  // received any real payment yet. Turns the top-of-dashboard into a guide.
-  const showEmptyState = hasCompany && hasWallet && !hasAnyConfirmedTxn && !loading;
+  // Show the guiding empty-state instead of an empty Hero whenever the merchant
+  // hasn't received a real payment yet — INCLUDING brand-new accounts that
+  // haven't added a wallet (EmptyStatePanel renders the "finish setup" branch in
+  // that case). Previously this required hasWallet, so a fresh account fell
+  // through to a blank HeroMetrics with no zero-state or guidance (bug #10).
+  const showEmptyState = hasCompany && !hasAnyConfirmedTxn && !loading;
 
   // Fetch chart data when period changes
   useEffect(() => {

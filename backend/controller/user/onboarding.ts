@@ -36,7 +36,12 @@ import { clientIp } from "../../middleware/rateLimitMiddleware";
 
 export const getOnboardingStatus = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
-  
+
+  // Never let the browser 304-cache this — onboarding flips as the user sets up
+  // wallets/KYC/keys and a stale ETag hid those changes (bug #9).
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+
   try {
     const userId = userData.user_id;
 

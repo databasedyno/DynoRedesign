@@ -208,7 +208,14 @@ export default function CompanySelector() {
           <TriggerText
             data-testid="company-selector-name"
             title={sanitizeBrandName(selected?.company_name || companies[0]?.company_name || "")}
-            sx={{ color: brandFg(theme.palette.mode === "dark") }}
+            sx={{
+              color: brandFg(theme.palette.mode === "dark"),
+              minWidth: 0,
+              flex: "0 1 auto",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
           >
             {selected?.company_name
               ? (windowWidth < 600
@@ -337,12 +344,22 @@ export default function CompanySelector() {
               >
                 <ItemLeft>
                   <Box
-                    sx={{ display: "flex", alignItems: "center", gap: "6px" }}
+                    sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, maxWidth: "100%", overflow: "hidden" }}
                   >
                     <BusinessCenterIcon
-                      sx={{ fontSize: isMobile ? "16.5px" : "20px", color: theme.palette.text.primary }}
+                      sx={{ fontSize: isMobile ? "16.5px" : "20px", color: theme.palette.text.primary, flexShrink: 0 }}
                     />
-                    <TriggerText sx={{ color: theme.palette.text.primary }}>
+                    <TriggerText
+                      sx={{
+                        color: theme.palette.text.primary,
+                        minWidth: 0,
+                        flex: "0 1 auto",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={sanitizeBrandName(c?.company_name ?? "")}
+                    >
                       {isMobile
                         ? truncateByWords(c?.company_name ?? "-", 18)
                         : (sanitizeBrandName(c?.company_name ?? "") || "-")}
@@ -366,6 +383,7 @@ export default function CompanySelector() {
                             letterSpacing: "0.04em",
                             textTransform: "uppercase",
                             whiteSpace: "nowrap",
+                            flexShrink: 0,
                             color: individual
                               ? theme.palette.text.secondary
                               : brandFg(theme.palette.mode === "dark"),
@@ -395,6 +413,7 @@ export default function CompanySelector() {
                           letterSpacing: "0.04em",
                           textTransform: "uppercase",
                           whiteSpace: "nowrap",
+                          flexShrink: 0,
                           color: BRAND_ACCENT,
                           backgroundColor:
                             theme.palette.mode === "dark"
@@ -415,6 +434,10 @@ export default function CompanySelector() {
                       fontFamily: "var(--font-sans)",
                       fontWeight: 500,
                       color: theme.palette.text.secondary,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: "100%",
                     }}
                   >
                     {c.email}
