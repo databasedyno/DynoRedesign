@@ -4,7 +4,7 @@
 import requests
 import json
 
-BASE_URL = "https://backend-audit-14.preview.emergentagent.com"
+BASE_URL = "https://kendra-vault.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

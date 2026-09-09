@@ -35,7 +35,7 @@
   "paymentReceived": {
     "subject": "Payment received – {{amount}} {{currency}}",
     "heading": "Payment Received",
-    "intro": "Great news! Your company <strong>{{companyName}}</strong> has received a payment.",
+    "intro": "Great news! Your brand <strong>{{companyName}}</strong> has received a payment.",
     "outro": "The funds have been forwarded to your payout wallet. You can view the full transaction details in your dashboard.",
     "cta": "View Transaction",
     "referralCredit": "Referral credit covered {{amount}} of your Dynopay platform fee on this payment — you kept more of it.",
@@ -44,7 +44,7 @@
   "paymentPending": {
     "subject": "Payment detected – confirming on-chain",
     "heading": "Payment Pending",
-    "intro": "A new payment has been detected for your company <strong>{{companyName}}</strong>!",
+    "intro": "A new payment has been detected for your brand <strong>{{companyName}}</strong>!",
     "estimatedTimes": "Estimated Confirmation Times",
     "btcTime": "BTC: 10-60 min ({{confirmations}} confirmations)",
     "ethTime": "ETH/ERC20: 1-5 min",
@@ -72,7 +72,7 @@
   "paymentPartial": {
     "subject": "Partial payment received — action needed",
     "heading": "Partial Payment Received",
-    "intro": "A partial payment has been received for your company <strong>{{companyName}}</strong>.",
+    "intro": "A partial payment has been received for your brand <strong>{{companyName}}</strong>.",
     "actionRequired": "Action Required",
     "actionText": "You have <strong>{{minutes}} minutes</strong> to send the remaining <strong>{{remaining}} {{currency}}</strong> to complete this payment.",
     "sendTo": "Send to:",
@@ -84,8 +84,8 @@
     "subjectExpired": "Partial payment expired",
     "headingCompleted": "Partial Payment Processed",
     "headingExpired": "Payment Grace Period Expired",
-    "introCompleted": "The partial payment for your company <strong>{{companyName}}</strong> has been processed.",
-    "introExpired": "The grace period for the partial payment to your company <strong>{{companyName}}</strong> has expired.",
+    "introCompleted": "The partial payment for your brand <strong>{{companyName}}</strong> has been processed.",
+    "introExpired": "The grace period for the partial payment to your brand <strong>{{companyName}}</strong> has expired.",
     "outroCompleted": "The received amount has been processed with adjusted fees and forwarded to your wallet.",
     "outroExpired": "Since the full payment was not received within the grace period, the partial amount has been processed. Please note that fees may be higher for incomplete payments.",
     "viewDetails": "You can view the transaction details in your Dynopay dashboard.",
@@ -215,7 +215,8 @@
       "expires": "Expires",
       "link": "Link",
       "crypto": "Crypto",
-      "customer": "Customer"
+      "customer": "Customer",
+      "brand": "Brand"
     },
     "badges": {
       "updated": "Updated",
@@ -240,7 +241,7 @@
       "intro2": "Dynopay makes accepting crypto payments simple and secure — funds settle straight to a wallet you control. Whether you're a freelancer, business owner, or developer, we've got you covered.",
       "promo": "Your first payment is on us — we waive our entire platform fee on your first settled payment, any amount.",
       "nextTitle": "Here's what you can do next:",
-      "next1": "1. Complete your company profile",
+      "next1": "1. Complete your brand profile",
       "next2": "2. Add your payout wallet",
       "next3": "3. Start accepting payments",
       "questions": "If you have any questions, our support team is here to help.",
@@ -348,7 +349,7 @@
     "companyCreated": {
       "subject": "Profile complete – One step left",
       "heading": "Profile Complete",
-      "intro1": "Great job! Your company profile for <strong>{{companyName}}</strong> is now complete.",
+      "intro1": "Great job! Your brand profile for <strong>{{companyName}}</strong> is now complete.",
       "intro2": "You're almost ready to start accepting payments. The last step is to add your payout wallet address.",
       "whyTitle": "Why add a wallet?",
       "whyText": "Your wallet is where we'll send the crypto payments you receive. It's quick and secure.",
@@ -362,20 +363,20 @@
       "intro1": "<strong>{{companyName}}</strong> has been registered on Dynopay by {{accountHolderName}}.",
       "intro2": "Dynopay is a non-custodial crypto payment gateway — businesses accept cryptocurrency payments that settle straight to a wallet they control.",
       "meansTitle": "What this means for you:",
-      "means1": "1. Your company can now accept crypto payments",
+      "means1": "1. Your brand can now accept crypto payments",
       "means2": "2. Funds settle straight to a wallet you control",
       "means3": "3. Real-time payment notifications",
       "outro": "If you have any questions about this registration, please contact our support team or reach out to {{accountHolderName}}.",
-      "cta": "Learn More",
+      "cta": "Go to dashboard",
       "preheader": "Your business is registered — welcome aboard."
     },
     "companyUpdated": {
-      "subject": "Your company profile was updated",
+      "subject": "Your brand profile was updated",
       "heading": "Profile Updated",
-      "intro": "Your company profile for <strong>{{companyName}}</strong> has been updated successfully.",
+      "intro": "Your brand profile for <strong>{{companyName}}</strong> has been updated successfully.",
       "outro": "If you didn't make these changes, please contact our support team immediately.",
       "cta": "View Profile",
-      "preheader": "Your company profile details were updated."
+      "preheader": "Your brand profile details were updated."
     },
     "walletVerified": {
       "subject": "Payout wallet active",
@@ -395,7 +396,8 @@
       "heading": "Wallet Removed",
       "intro": "A wallet has been removed from your Dynopay account.",
       "outro": "Payments will no longer be forwarded to this wallet.",
-      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't remove this wallet, please secure your account immediately and contact support."
+      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't remove this wallet, please secure your account immediately and contact support.",
+      "cta": "View Wallets"
     },
     "addWalletReminder": {
       "subject": "You're almost ready to accept payments",
@@ -409,7 +411,7 @@
     "walletAdded": {
       "subject": "Wallet added – {{network}}",
       "heading": "Wallet Added",
-      "intro": "A new payout wallet has been successfully added to your company <strong>{{companyName}}</strong>.",
+      "intro": "A new payout wallet has been successfully added to your brand <strong>{{companyName}}</strong>.",
       "outro": "All payments in {{network}} will be forwarded to this wallet. You can manage your wallets in the dashboard.",
       "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't add this wallet, please secure your account immediately.",
       "cta": "View Wallets"
@@ -453,6 +455,37 @@
       "heading": "Confirm Wallet Deletion",
       "intro": "You're about to <strong>permanently delete</strong> a wallet address. This action cannot be undone.",
       "expiry": "This code expires in <strong>10 minutes</strong>. If you didn't request this, please ignore this email or contact support immediately."
+    },
+    "companyDeleteOtp": {
+      "subject": "Confirm brand deletion – {{companyName}}",
+      "heading": "Confirm Brand Deletion",
+      "intro": "You're about to <strong>permanently delete</strong> the brand <strong>{{companyName}}</strong>. Its payment links, API keys and settings will be removed. Enter the code below to confirm:",
+      "expiry": "This code expires in <strong>10 minutes</strong>. If you didn't request this, ignore this email and secure your account immediately.",
+      "preheader": "Your one-time code to confirm deleting {{companyName}}."
+    },
+    "companyDeleted": {
+      "subject": "Brand deleted – {{companyName}}",
+      "heading": "Brand Deleted",
+      "intro": "The brand <strong>{{companyName}}</strong> has been permanently deleted from your Dynopay account.",
+      "removedTitle": "What was removed",
+      "removed1": "All payment links belonging to this brand",
+      "removed2": "API keys ({{apiKeys}}) — revoked immediately",
+      "removed3": "Brand settings, webhooks and auto-conversion preferences",
+      "note": "Your transaction history is kept for your records. Payout wallets that were assigned to this brand are no longer linked to it.",
+      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't delete this brand, please secure your account immediately and contact support.",
+      "cta": "Go to dashboard",
+      "preheader": "{{companyName}} was removed from your account."
+    },
+    "apiKeyRevoked": {
+      "subject": "API key revoked – {{keyType}} environment",
+      "heading": "API Key Revoked",
+      "intro": "A <strong>{{keyType}}</strong> API key was deleted from <strong>{{companyName}}</strong>. Any integration still using it will stop working immediately.",
+      "nextTitle": "What to do next",
+      "next1": "Update any integration that used this key to a current key",
+      "next2": "If you still need API access, create a new key from the Developers page",
+      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't revoke this API key, please secure your account immediately and contact support.",
+      "cta": "View API keys",
+      "preheader": "A key on {{companyName}} no longer works."
     },
     "largeTransaction": {
       "subject": "Large payment received – {{amount}} {{currency}}",
@@ -610,6 +643,7 @@
     "autoConversion": {
       "subject": "Payout Complete — {{payoutAmount}} {{targetCurrency}} from {{sourceAmount}} {{sourceCurrency}}",
       "heading": "Payout Complete",
+      "cta": "View conversion details",
       "intro": "Your crypto payment has been auto-converted and the payout has been sent to your wallet.",
       "outro": "Auto-conversion ensures you receive stablecoins, protecting your revenue from crypto price swings. View your full transaction history in your Dynopay dashboard.",
       "preheader": "Your crypto was converted and paid out."

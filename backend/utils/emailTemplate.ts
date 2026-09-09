@@ -56,6 +56,18 @@ export const getEmailIconUrl = (name: string): string | null => {
 export const getCurrencySymbol = (currency: string): string =>
   getCurrencySymbolShared(currency, 'email');
 
+/** Per-action hero icon name — PNG served from /api/static/email/hero/<name>.png (see scripts/generate_email_hero_icons.mjs). */
+export type EmailHero = string;
+
+/**
+ * Absolute URL for a hero icon PNG. Same fallback chain as the logo so
+ * background-job emails resolve the same asset as merchant emails.
+ */
+export const getEmailHeroUrl = (icon: string): string => {
+  const base = config.serverUrl || config.frontendUrl || config.publicBaseUrl || DYNOPAY_PROD_BASE;
+  return `${base.replace(/\/+$/, "")}/api/static/email/hero/${icon}.png`;
+};
+
 /**
  * Professional base email template
  * Renders the outer shell: header, content area, footer
@@ -70,11 +82,13 @@ export const baseEmailTemplate = (
     preheader?: string;
     /** Optional language for the shared chrome (sign-off + footer). Defaults to English. */
     lang?: string;
+    /** Optional per-action hero icon above the heading. */
+    hero?: EmailHero;
   }
 ): string => {
   const LOGO_URL = getDynopayLogoUrl();
   const year = new Date().getFullYear();
-  const { showButton = false, buttonText = '', buttonLink = '', preheader = '', lang } = options || {};
+  const { showButton = false, buttonText = '', buttonLink = '', preheader = '', lang, hero } = options || {};
   // <html lang> follows the recipient language (screen readers / client hyphenation).
   const htmlLang = normalizeLang(lang);
   // Localized chrome strings (English when no lang passed → unchanged for all
@@ -122,6 +136,14 @@ export const baseEmailTemplate = (
                     <table role="presentation" cellpadding="0" cellspacing="0"><tr>${socialCells}</tr></table>
                   </td>
                 </tr>` : '';
+
+  // Hero: 72px badge PNG (144px source for retina) above the H1 — the one
+  // visual cue that tells the reader what kind of email this is at a glance.
+  const heroBlock = hero
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 0 18px 0;"><tr><td>
+        <img src="${getEmailHeroUrl(hero)}" alt="" width="72" height="72" style="display: block; width: 72px; height: 72px; border: 0;" />
+      </td></tr></table>`
+    : '';
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="${htmlLang}">
@@ -243,6 +265,7 @@ export const baseEmailTemplate = (
           <!-- Content -->
           <tr>
             <td class="inner msg" style="padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+              ${heroBlock}
               <h1 class="hdg" style="font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;">${heading}</h1>
               ${bodyContent}
               ${buttonBlock}

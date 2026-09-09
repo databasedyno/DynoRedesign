@@ -21,7 +21,7 @@
     },
     "step2": {
       "title": "Step 2. Complete Basic Business Setup",
-      "desc": "Add your business details, such as company name and operating country. Depending on your use case and volume, Dynopay may request additional verification later, but you can start testing payments right away."
+      "desc": "Add your brand details, such as brand name and operating country. Depending on your use case and volume, Dynopay may request additional verification later, but you can start testing payments right away."
     },
     "step3": {
       "title": "Step 3. Choose Supported Cryptocurrencies",

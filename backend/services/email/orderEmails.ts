@@ -156,7 +156,7 @@ export const sendOrderReceiptEmail = async (
 
     // Address the buyer by their real name only — never by their raw email
     // (the greeting template gracefully falls back to a friendly generic).
-    const html = dynoPayGreetingTemplate(buyerName, message, tr('orderReceipt.heading', L), false, L, tr('orderReceipt.preheader', L, { ref: shortRef }));
+    const html = dynoPayGreetingTemplate(buyerName, message, tr('orderReceipt.heading', L), false, L, tr('orderReceipt.preheader', L, { ref: shortRef }), 'receipt');
     await mailTransporter({ to: buyerEmail, name: buyerName || buyerEmail, subject, body: html });
     apiLogger.info(`[email] sent order receipt to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -206,7 +206,7 @@ export const sendOrderReceiptMerchantEmail = async (
       ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">Open in dashboard →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `You just made a sale`, false, undefined, `New sale ${shortRef} · ${formatCents(order.total_cents, order.currency || "USD")} settled to your wallet.`);
+    const html = dynoPayGreetingTemplate(name, message, `You just made a sale`, false, undefined, `New sale ${shortRef} · ${formatCents(order.total_cents, order.currency || "USD")} settled to your wallet.`, 'bag');
     await mailTransporter({ to: merchantEmail, name, subject, body: html });
     apiLogger.info(`[email] sent merchant sale notification to ${merchantEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -242,7 +242,7 @@ export const sendOrderExpiredEmail = async (
       ${p(`<a href="${esc(shopUrl)}" style="color:#05936A;font-weight:600;">Return to the shop →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Order not completed`, false, undefined, `Your order ${shortRef} wasn't paid in time and has been released.`);
+    const html = dynoPayGreetingTemplate(name, message, `Order not completed`, false, undefined, `Your order ${shortRef} wasn't paid in time and has been released.`, 'expired');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent order expired to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -280,7 +280,7 @@ export const sendOrderRefundedEmail = async (
       ${p(`<a href="${esc(orderPublicUrl)}" style="color:${EMAIL_TOKENS.brand};font-weight:600;">View order status →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Refund confirmed`, false, undefined, `Your refund for order ${shortRef} has been confirmed.`);
+    const html = dynoPayGreetingTemplate(name, message, `Refund confirmed`, false, undefined, `Your refund for order ${shortRef} has been confirmed.`, 'refund');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent refund confirmation to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -321,7 +321,7 @@ export const sendOrderShippedEmail = async (
       ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">View order details →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Order shipped`, false, undefined, `Your order ${shortRef} is on its way.`);
+    const html = dynoPayGreetingTemplate(name, message, `Order shipped`, false, undefined, `Your order ${shortRef} is on its way.`, 'truck');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent order shipped to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -356,7 +356,7 @@ export const sendDigitalDownloadReminderEmail = async (
       ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">Refresh download links →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Your downloads expire soon`, false, undefined, `Refresh your download links for order ${shortRef} before they expire.`);
+    const html = dynoPayGreetingTemplate(name, message, `Your downloads expire soon`, false, undefined, `Refresh your download links for order ${shortRef} before they expire.`, 'download');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent download reminder to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {

@@ -23,7 +23,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
  *
  * Which cards render depends on merchant setup state:
  *   1. Always: Refer & earn — 100% match, unlimited                       → /referrals
- *   2. If no company:      "Add your company"                             → /profile
+ *   2. If no company:      "Add your brand"                             → /profile
  *   3. Else if no wallet:  "Add your first wallet"                        → /wallet
  *   4. Else if !hasHandle: "Claim your @handle"                           → /profile#handle
  *   5. Else:               "Explore Creator Page" (still shown as tile)   → /creator
@@ -94,11 +94,11 @@ const AttentionCardsRow: React.FC = () => {
   const setupCard: Card | null = !hasCompany
     ? {
         id: "add-company",
-        title: t("attnAddCompanyTitle", { defaultValue: "Add your company" }),
+        title: t("attnAddCompanyTitle", { defaultValue: "Add your brand" }),
         body: t("attnAddCompanyBody", {
           defaultValue: "Register your business to unlock invoices and payouts.",
         }),
-        cta: t("attnAddCompanyCta", { defaultValue: "Add company" }),
+        cta: t("attnAddCompanyCta", { defaultValue: "Add brand" }),
         icon: <BusinessRounded sx={{ fontSize: 22 }} />,
         href: "/profile",
         gradient: ["#0EA5E9", "#0284C7"],

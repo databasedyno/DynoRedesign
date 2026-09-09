@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://backend-audit-14.preview.emergentagent.com"
+BACKEND_URL = "https://kendra-vault.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

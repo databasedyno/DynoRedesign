@@ -21,7 +21,7 @@
     },
     "step2": {
       "title": "Étape 2. Complétez la configuration de base de votre entreprise",
-      "desc": "Ajoutez les détails de votre entreprise, tels que le nom de la société et le pays d'exploitation. En fonction de votre cas d'utilisation et de votre volume, Dynopay peut demander une vérification supplémentaire plus tard, mais vous pouvez commencer à tester les paiements immédiatement."
+      "desc": "Ajoutez les détails de votre marque, tels que le nom de la marque et le pays d'exploitation. En fonction de votre cas d'utilisation et de votre volume, Dynopay peut demander une vérification supplémentaire plus tard, mais vous pouvez commencer à tester les paiements immédiatement."
     },
     "step3": {
       "title": "Étape 3. Choisissez les cryptomonnaies prises en charge",

@@ -1123,7 +1123,7 @@ const PublishableKeysSection = () => {
             data-testid="pk-no-company"
           >
             <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-              {t("pk.selectCompany", { defaultValue: "Select a company to manage its publishable keys." })}
+              {t("pk.selectCompany", { defaultValue: "Select a brand to manage its publishable keys." })}
             </Typography>
           </Box>
         ) : loading ? (

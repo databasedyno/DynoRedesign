@@ -18,7 +18,8 @@ import { apiModel, companyModel, customerModel, customerWalletModel, userModel, 
 import { companyLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
-import { sendCompanyProfileCreatedEmail, sendCompanyContactWelcomeEmail, sendCompanyProfileUpdatedEmail } from "../services/emailService";
+import { sendCompanyProfileCreatedEmail, sendCompanyContactWelcomeEmail, sendCompanyProfileUpdatedEmail, sendCompanyDeletedEmail } from "../services/emailService";
+import { verifyDeleteCompanyOtp, ONLY_BRAND_MESSAGE } from "./company/deleteCompanyOtp";
 import { finalizeUploadedImage } from "../services/objectStorage";
 import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import crypto from "crypto";
@@ -175,7 +176,7 @@ const addCompany = async (req: express.Request, res: express.Response) => {
       // Remove undefined fields
       Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
     } else {
-      return errorResponseHelper(res, 400, "Missing company data. Please provide company_name and email.");
+      return errorResponseHelper(res, 400, "Missing brand data. Please provide company_name and email.");
     }
 
     // Reject brand names containing HTML/markup (raw or xss-escaped) so a name
@@ -220,7 +221,7 @@ const addCompany = async (req: express.Request, res: express.Response) => {
         return errorResponseHelper(
           res,
           400,
-          `Company country must match VAT country. Your VAT number (${data.vat_number}) is for ${vatCountryName} (${vatCountryCode}), but company country is set to ${companyCountryName} (${companyCountryCode}). Please update your company country to ${vatCountryName} or correct the VAT number.`
+          `Brand country must match VAT country. Your VAT number (${data.vat_number}) is for ${vatCountryName} (${vatCountryCode}), but brand country is set to ${companyCountryName} (${companyCountryCode}). Please update your brand country to ${vatCountryName} or correct the VAT number.`
         );
       }
       
@@ -394,7 +395,7 @@ const addCompany = async (req: express.Request, res: express.Response) => {
       auto_test_key_created,
     };
 
-    successResponseHelper(res, 200, "Company added successfully!", responseData);
+    successResponseHelper(res, 200, "Brand added successfully!", responseData);
   } catch (e) {
 
       handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
@@ -497,7 +498,7 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
           return errorResponseHelper(
             res,
             400,
-            `Company country must match VAT country. Your VAT number is for ${vatCountryName} (${vatCountryCode}), but company country is ${companyCountryName} (${companyCountryCode}). Please update to ensure consistency.`
+            `Brand country must match VAT country. Your VAT number is for ${vatCountryName} (${vatCountryCode}), but brand country is ${companyCountryName} (${companyCountryCode}). Please update to ensure consistency.`
           );
         }
         
@@ -537,7 +538,7 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
           return errorResponseHelper(
             res,
             400,
-            `Company country must match VAT country. Existing VAT number is for ${vatCountryName} (${vatCountryCode}), but you're trying to change country to ${companyCountryName} (${companyCountryCode}). Please update VAT number first or choose ${vatCountryName}.`
+            `Brand country must match VAT country. Existing VAT number is for ${vatCountryName} (${vatCountryCode}), but you're trying to change country to ${companyCountryName} (${companyCountryCode}). Please update VAT number first or choose ${vatCountryName}.`
           );
         }
       }
@@ -590,13 +591,13 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
       if (user) {
         // Track what fields were updated
         const updatedFields = [];
-        if (data.company_name) updatedFields.push('Company Name');
+        if (data.company_name) updatedFields.push('Brand Name');
         if (data.email) updatedFields.push('Email Address');
         if (data.mobile) updatedFields.push('Phone Number');
         if (data.website) updatedFields.push('Website');
         if (data.address_line1 || data.city || data.state || data.country) updatedFields.push('Address');
         if (data.vat_number) updatedFields.push('VAT/Tax ID');
-        if (photo) updatedFields.push('Company Logo');
+        if (photo) updatedFields.push('Brand Logo');
         
         await sendCompanyProfileUpdatedEmail(
           user.dataValues.email,
@@ -622,7 +623,7 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
     successResponseHelper(
       res,
       200,
-      "Company updated successfully!",
+      "Brand updated successfully!",
       finalArray
     );
   } catch (e) {
@@ -659,7 +660,7 @@ const upgradeToBusiness = async (req: express.Request, res: express.Response) =>
       where: { company_id, user_id: userData.user_id },
     });
     if (!company) {
-      return errorResponseHelper(res, 404, "Company not found");
+      return errorResponseHelper(res, 404, "Brand not found");
     }
 
     const currentType = String(company.dataValues.account_type ?? "business").toLowerCase();
@@ -743,11 +744,11 @@ const getCompany = async (_req: express.Request, res: express.Response) => {
     // Provide helpful message based on results
     let message = "";
     if (resData.length === 0) {
-      message = "No companies found. Create your first company using POST /api/company/addCompany";
+      message = "No brands found. Create your first brand using POST /api/company/addCompany";
     } else if (resData.length === 1) {
-      message = `Successfully retrieved 1 company`;
+      message = `Successfully retrieved 1 brand`;
     } else {
-      message = `Successfully retrieved ${resData.length} companies`;
+      message = `Successfully retrieved ${resData.length} brands`;
     }
     
     successResponseHelper(res, 200, message, resData);
@@ -774,10 +775,10 @@ const getCompanyById = async (req: express.Request, res: express.Response) => {
     });
 
     if (!resData) {
-      return errorResponseHelper(res, 404, "Company not found");
+      return errorResponseHelper(res, 404, "Brand not found");
     }
 
-    successResponseHelper(res, 200, "Company retrieved successfully", resData);
+    successResponseHelper(res, 200, "Brand retrieved successfully", resData);
   } catch (e) {
 
       handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
@@ -798,13 +799,19 @@ const deleteCompany = async (req: express.Request, res: express.Response) => {
     });
     
     if (!company) {
-      return errorResponseHelper(res, 404, "Company not found");
+      return errorResponseHelper(res, 404, "Brand not found");
     }
     
-    // Prevent deleting the ONLY company — user must always have at least one
+    // Prevent deleting the ONLY brand — user must always have at least one
     const remainingCount = await companyModel.count({ where: { user_id: userData.user_id } });
     if (remainingCount <= 1) {
-      return errorResponseHelper(res, 400, "Cannot delete your only company. Add another company first, then delete this one.");
+      return errorResponseHelper(res, 400, ONLY_BRAND_MESSAGE);
+    }
+
+    // Second factor: the one-time code emailed by POST /deleteCompany/:id/send-otp
+    const otpCheck = await verifyDeleteCompanyOtp(userData.user_id, company_id, req.body?.otp ?? req.query?.otp);
+    if (!otpCheck.ok) {
+      return errorResponseHelper(res, otpCheck.status || 400, otpCheck.message || "Invalid verification code.");
     }
     
     // Revoke all API keys for this company BEFORE deletion. Rationale: a dpk_live_
@@ -911,11 +918,22 @@ const deleteCompany = async (req: express.Request, res: express.Response) => {
     // to retry or investigate.
     if (rowsDeleted === 0) {
       companyLogger.error(`companyModel.destroy affected 0 rows for company_id=${company_id} user_id=${userData.user_id} — record may be locked by an FK constraint`);
-      return errorResponseHelper(res, 500, "Delete failed — company still exists after operation. Contact support if this persists.");
+      return errorResponseHelper(res, 500, "Delete failed — brand still exists after operation. Contact support if this persists.");
     }
     
-    companyLogger.info(`Company ${company_id} deleted successfully by user ${userData.user_id} (revoked ${revokedApiIds.length} API keys)`);
-    return successResponseHelper(res, 200, "Company deleted successfully!", { rowsDeleted, revokedApiIds });
+    companyLogger.info(`Brand ${company_id} deleted successfully by user ${userData.user_id} (revoked ${revokedApiIds.length} API keys)`);
+
+    try {
+      const owner = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["name", "email"] });
+      const ownerEmail = owner?.dataValues.email || userData.email;
+      if (ownerEmail) {
+        await sendCompanyDeletedEmail(ownerEmail, owner?.dataValues.name || userData.name || "", company.dataValues.company_name || "", revokedApiIds.length);
+      }
+    } catch (emailError) {
+      companyLogger.warn(`Brand deleted email failed for company ${company_id}: ${getErrorMessage(emailError)}`);
+    }
+
+    return successResponseHelper(res, 200, "Brand deleted successfully!", { rowsDeleted, revokedApiIds });
   } catch (e) {
 
       handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
@@ -1204,7 +1222,7 @@ const updateWebhookSettings = async (req: express.Request, res: express.Response
     });
 
     if (!company) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     // Validate webhook URL (format + SSRF guard) so merchants get immediate feedback
@@ -1300,7 +1318,7 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
     ) as Array<Record<string, unknown>>;
 
     if (!result || (Array.isArray(result) && result.length === 0)) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     // Raw sequelize.query with QueryTypes.SELECT returns plain objects (not model instances)
@@ -1373,7 +1391,7 @@ const reenableWebhook = async (req: express.Request, res: express.Response) => {
     );
     const row = (Array.isArray(rows) ? rows[0] : rows) as { webhook_url?: string; webhook_disabled?: boolean } | undefined;
     if (!row) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     // Clear DB flag (idempotent)
@@ -1421,7 +1439,7 @@ const disableWebhook = async (req: express.Request, res: express.Response) => {
     );
     const row = (Array.isArray(rows) ? rows[0] : rows) as { webhook_disabled?: boolean } | undefined;
     if (!row) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     await sequelize.query(
@@ -1463,7 +1481,7 @@ const testWebhook = async (req: express.Request, res: express.Response) => {
     const result = queryResult[0];
 
     if (!result) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     if (!result.webhook_url) {
@@ -1610,7 +1628,7 @@ const getWebhookHistory = async (req: express.Request, res: express.Response) =>
     });
 
     if (!company) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     // Build WHERE clause
@@ -1691,7 +1709,7 @@ const getWebhookDetail = async (req: express.Request, res: express.Response) => 
     });
 
     if (!company) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     // Get webhook log detail
@@ -1730,7 +1748,7 @@ const getWebhookStats = async (req: express.Request, res: express.Response) => {
     });
 
     if (!company) {
-      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+      return errorResponseHelper(res, 404, "Brand not found or unauthorized");
     }
 
     // Get overall stats
@@ -1899,7 +1917,7 @@ const updateDisplayCurrency = async (
       where: { company_id: id, user_id: userData.user_id },
     });
     if (!company) {
-      return errorResponseHelper(res, 404, "Company not found");
+      return errorResponseHelper(res, 404, "Brand not found");
     }
 
     await sequelize.query(

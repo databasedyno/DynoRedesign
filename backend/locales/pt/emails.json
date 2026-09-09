@@ -35,7 +35,7 @@
   "paymentReceived": {
     "subject": "Pagamento recebido – {{amount}} {{currency}}",
     "heading": "Pagamento recebido",
-    "intro": "Ótimas notícias! A sua empresa <strong>{{companyName}}</strong> recebeu um pagamento.",
+    "intro": "Ótimas notícias! A sua marca <strong>{{companyName}}</strong> recebeu um pagamento.",
     "outro": "Os fundos foram encaminhados para a sua carteira de recebimentos. Pode ver todos os detalhes da transação no seu painel.",
     "cta": "Ver transação",
     "referralCredit": "O crédito de indicação cobriu {{amount}} da sua taxa de plataforma da Dynopay neste pagamento — você ficou com mais.",
@@ -44,7 +44,7 @@
   "paymentPending": {
     "subject": "Pagamento detetado – a confirmar na blockchain",
     "heading": "Pagamento pendente",
-    "intro": "Foi detetado um novo pagamento para a sua empresa <strong>{{companyName}}</strong>!",
+    "intro": "Foi detetado um novo pagamento para a sua marca <strong>{{companyName}}</strong>!",
     "estimatedTimes": "Tempos estimados de confirmação",
     "btcTime": "BTC: 10-60 min ({{confirmations}} confirmações)",
     "ethTime": "ETH/ERC20: 1-5 min",
@@ -72,7 +72,7 @@
   "paymentPartial": {
     "subject": "Pagamento parcial recebido — ação necessária",
     "heading": "Pagamento parcial recebido",
-    "intro": "Foi recebido um pagamento parcial para a sua empresa <strong>{{companyName}}</strong>.",
+    "intro": "Foi recebido um pagamento parcial para a sua marca <strong>{{companyName}}</strong>.",
     "actionRequired": "Ação necessária",
     "actionText": "Tem <strong>{{minutes}} minutos</strong> para enviar os restantes <strong>{{remaining}} {{currency}}</strong> e concluir este pagamento.",
     "sendTo": "Enviar para:",
@@ -84,8 +84,8 @@
     "subjectExpired": "Pagamento parcial expirado",
     "headingCompleted": "Pagamento parcial processado",
     "headingExpired": "Período de tolerância do pagamento expirou",
-    "introCompleted": "O pagamento parcial para a sua empresa <strong>{{companyName}}</strong> foi processado.",
-    "introExpired": "O período de tolerância para o pagamento parcial à sua empresa <strong>{{companyName}}</strong> expirou.",
+    "introCompleted": "O pagamento parcial para a sua marca <strong>{{companyName}}</strong> foi processado.",
+    "introExpired": "O período de tolerância para o pagamento parcial à sua marca <strong>{{companyName}}</strong> expirou.",
     "outroCompleted": "O montante recebido foi processado com taxas ajustadas e encaminhado para a sua carteira.",
     "outroExpired": "Como o pagamento total não foi recebido dentro do período de tolerância, o montante parcial foi processado. Tenha em atenção que as taxas podem ser mais elevadas para pagamentos incompletos.",
     "viewDetails": "Pode ver os detalhes da transação no seu painel Dynopay.",
@@ -215,7 +215,8 @@
       "expires": "Expira",
       "link": "Link",
       "crypto": "Cripto",
-      "customer": "Cliente"
+      "customer": "Cliente",
+      "brand": "Marca"
     },
     "badges": {
       "updated": "Atualizado",
@@ -240,7 +241,7 @@
       "intro2": "A Dynopay torna a aceitação de pagamentos em cripto simples e segura — os fundos são liquidados direto em uma carteira que você controla. Seja freelancer, empresário ou programador, temos tudo o que precisa.",
       "promo": "O seu primeiro pagamento é por nossa conta — isentamos toda a nossa taxa de plataforma no seu primeiro pagamento liquidado, seja qual for o valor.",
       "nextTitle": "Veja o que pode fazer a seguir:",
-      "next1": "1. Complete o perfil da sua empresa",
+      "next1": "1. Complete o perfil da sua marca",
       "next2": "2. Adicione a sua carteira de pagamento",
       "next3": "3. Comece a aceitar pagamentos",
       "questions": "Se tiver alguma dúvida, a nossa equipa de suporte está aqui para ajudar.",
@@ -348,7 +349,7 @@
     "companyCreated": {
       "subject": "Perfil concluído – falta um passo",
       "heading": "Perfil concluído",
-      "intro1": "Excelente! O perfil da empresa <strong>{{companyName}}</strong> está agora concluído.",
+      "intro1": "Excelente! O perfil da marca <strong>{{companyName}}</strong> está agora concluído.",
       "intro2": "Está quase pronto para começar a aceitar pagamentos. O último passo é adicionar o endereço da sua carteira de pagamento.",
       "whyTitle": "Porquê adicionar uma carteira?",
       "whyText": "A sua carteira é para onde enviaremos os pagamentos em cripto que receber. É rápido e seguro.",
@@ -362,20 +363,20 @@
       "intro1": "<strong>{{companyName}}</strong> foi registada na Dynopay por {{accountHolderName}}.",
       "intro2": "A Dynopay é um gateway de pagamentos em cripto sem custódia — as empresas aceitam pagamentos em criptomoedas liquidados direto em uma carteira que elas controlam.",
       "meansTitle": "O que isto significa para si:",
-      "means1": "1. A sua empresa pode agora aceitar pagamentos em cripto",
+      "means1": "1. A sua marca pode agora aceitar pagamentos em cripto",
       "means2": "2. Os fundos são liquidados direto em uma carteira que você controla",
       "means3": "3. Notificações de pagamento em tempo real",
       "outro": "Se tiver alguma dúvida sobre este registo, contacte a nossa equipa de suporte ou fale com {{accountHolderName}}.",
-      "cta": "Saber mais",
+      "cta": "Ir para o painel",
       "preheader": "A sua empresa está registada — bem-vindo a bordo."
     },
     "companyUpdated": {
-      "subject": "O perfil da sua empresa foi atualizado",
+      "subject": "O perfil da sua marca foi atualizado",
       "heading": "Perfil atualizado",
-      "intro": "O perfil da empresa <strong>{{companyName}}</strong> foi atualizado com sucesso.",
+      "intro": "O perfil da marca <strong>{{companyName}}</strong> foi atualizado com sucesso.",
       "outro": "Se não fez estas alterações, contacte imediatamente a nossa equipa de suporte.",
       "cta": "Ver perfil",
-      "preheader": "Os dados do perfil da sua empresa foram atualizados."
+      "preheader": "Os dados do perfil da sua marca foram atualizados."
     },
     "walletVerified": {
       "subject": "Carteira de pagamento ativa",
@@ -395,7 +396,8 @@
       "heading": "Carteira removida",
       "intro": "Uma carteira foi removida da sua conta Dynopay.",
       "outro": "Os pagamentos deixarão de ser encaminhados para esta carteira.",
-      "didntDoThis": "<strong>Não foi você?</strong><br />Se não removeu esta carteira, proteja a sua conta imediatamente e contacte o suporte."
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não removeu esta carteira, proteja a sua conta imediatamente e contacte o suporte.",
+      "cta": "Ver carteiras"
     },
     "addWalletReminder": {
       "subject": "Está quase pronto para aceitar pagamentos",
@@ -409,7 +411,7 @@
     "walletAdded": {
       "subject": "Carteira adicionada – {{network}}",
       "heading": "Carteira adicionada",
-      "intro": "Uma nova carteira de pagamento foi adicionada com sucesso à sua empresa <strong>{{companyName}}</strong>.",
+      "intro": "Uma nova carteira de pagamento foi adicionada com sucesso à sua marca <strong>{{companyName}}</strong>.",
       "outro": "Todos os pagamentos em {{network}} serão encaminhados para esta carteira. Pode gerir as suas carteiras no painel.",
       "didntDoThis": "<strong>Não foi você?</strong><br />Se não adicionou esta carteira, proteja a sua conta imediatamente.",
       "cta": "Ver carteiras"
@@ -453,6 +455,37 @@
       "heading": "Confirme a eliminação da carteira",
       "intro": "Está prestes a <strong>eliminar permanentemente</strong> um endereço de carteira. Esta ação não pode ser anulada.",
       "expiry": "Este código expira em <strong>10 minutos</strong>. Se não solicitou isto, ignore este e-mail ou contacte imediatamente o suporte."
+    },
+    "companyDeleteOtp": {
+      "subject": "Confirme a eliminação da marca – {{companyName}}",
+      "heading": "Confirmar eliminação da marca",
+      "intro": "Está prestes a <strong>eliminar permanentemente</strong> a marca <strong>{{companyName}}</strong>. Os seus links de pagamento, chaves API e definições serão removidos. Introduza o código abaixo para confirmar:",
+      "expiry": "Este código expira em <strong>10 minutos</strong>. Se não fez este pedido, ignore este e-mail e proteja a sua conta de imediato.",
+      "preheader": "O seu código único para confirmar a eliminação de {{companyName}}."
+    },
+    "companyDeleted": {
+      "subject": "Marca eliminada – {{companyName}}",
+      "heading": "Marca eliminada",
+      "intro": "A marca <strong>{{companyName}}</strong> foi eliminada permanentemente da sua conta Dynopay.",
+      "removedTitle": "O que foi removido",
+      "removed1": "Todos os links de pagamento desta marca",
+      "removed2": "Chaves API ({{apiKeys}}) — revogadas imediatamente",
+      "removed3": "Definições da marca, webhooks e preferências de conversão automática",
+      "note": "O seu histórico de transações é mantido para os seus registos. As carteiras de pagamento atribuídas a esta marca deixaram de estar associadas a ela.",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não eliminou esta marca, proteja a sua conta de imediato e contacte o suporte.",
+      "cta": "Ir para o painel",
+      "preheader": "{{companyName}} foi removida da sua conta."
+    },
+    "apiKeyRevoked": {
+      "subject": "Chave API revogada – ambiente de {{keyType}}",
+      "heading": "Chave API revogada",
+      "intro": "Uma chave API de <strong>{{keyType}}</strong> foi eliminada de <strong>{{companyName}}</strong>. Qualquer integração que ainda a utilize deixará de funcionar imediatamente.",
+      "nextTitle": "O que fazer a seguir",
+      "next1": "Atualize as integrações que usavam esta chave para uma chave ativa",
+      "next2": "Se ainda precisar de acesso à API, crie uma nova chave na página de programadores",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não revogou esta chave API, proteja a sua conta de imediato e contacte o suporte.",
+      "cta": "Ver chaves API",
+      "preheader": "Uma chave de {{companyName}} deixou de funcionar."
     },
     "largeTransaction": {
       "subject": "Pagamento elevado recebido – {{amount}} {{currency}}",
@@ -610,6 +643,7 @@
     "autoConversion": {
       "subject": "Pagamento concluído — {{payoutAmount}} {{targetCurrency}} de {{sourceAmount}} {{sourceCurrency}}",
       "heading": "Pagamento concluído",
+      "cta": "Ver detalhes da conversão",
       "intro": "O seu pagamento em cripto foi convertido automaticamente e o pagamento foi enviado para a sua carteira.",
       "outro": "A conversão automática garante que recebe stablecoins, protegendo a sua receita das oscilações de preço das criptomoedas. Veja o seu histórico completo de transações no painel da Dynopay.",
       "preheader": "A sua cripto foi convertida e paga."

@@ -38,7 +38,7 @@ export const sendReferralPayoutReadyEmail = async (
         ? p(`Your payout method is set to <strong>USDT (TRC-20) cash-out</strong> — head to your referrals page to withdraw it to your wallet.`)
         : p(`It's currently reducing your own Dynopay fees automatically. Prefer cash? Switch to <strong>USDT (TRC-20) cash-out</strong> on your referrals page and withdraw it to your wallet.`)}`;
 
-    const html = dynoPayEmailTemplate(`Referral rewards ready`, content, true, isCash ? `Cash out now` : `View rewards`, REFERRALS_URL, `You've got ${amount} in referral rewards ready to cash out.`);
+    const html = dynoPayEmailTemplate(`Referral rewards ready`, content, true, isCash ? `Cash out now` : `View rewards`, REFERRALS_URL, `You've got ${amount} in referral rewards ready to cash out.`, undefined, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral payout-ready nudge sent to ${email} (${amount}, mode=${mode})`);
   } catch (e) {
@@ -69,7 +69,7 @@ export const sendReferralAutoPayEnabledEmail = async (
       `, '#05936A')}
       ${p(`You can turn this off or change the amount anytime on your referrals page.`)}`;
 
-    const html = dynoPayEmailTemplate(`Auto cash-out enabled`, content, true, `Manage payouts`, REFERRALS_URL, `We'll auto-send your referral rewards to your USDT wallet at ${min}.`);
+    const html = dynoPayEmailTemplate(`Auto cash-out enabled`, content, true, `Manage payouts`, REFERRALS_URL, `We'll auto-send your referral rewards to your USDT wallet at ${min}.`, undefined, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral auto-pay enabled confirmation sent to ${email} (min=${min})`);
   } catch (e) {
@@ -101,7 +101,7 @@ export const sendReferralPayoutRequestedEmail = async (
       `, '#05936A')}
       ${p(`You'll get another email with the transaction link once it lands on-chain. This usually takes a few minutes.`)}`;
 
-    const html = dynoPayEmailTemplate(`Cash-out requested`, content, true, `View history`, REFERRALS_URL, `${amount} in referral rewards is on the way to your wallet.`);
+    const html = dynoPayEmailTemplate(`Cash-out requested`, content, true, `View history`, REFERRALS_URL, `${amount} in referral rewards is on the way to your wallet.`, undefined, 'payout');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral payout-requested sent to ${email} (${amount}, auto=${viaAuto})`);
   } catch (e) {
@@ -134,7 +134,7 @@ export const sendReferralPayoutFailedEmail = async (
       `, '#f59e0b')}
       ${p(`Your rewards are safe and still in your balance. Please double-check your payout wallet on your referrals page and try again — if it keeps failing, just reply to this email and we'll help.`)}`;
 
-    const html = dynoPayEmailTemplate(`Cash-out failed`, content, true, `Review payout`, REFERRALS_URL, `Your ${amount} cash-out didn't go through — your rewards are safe.`);
+    const html = dynoPayEmailTemplate(`Cash-out failed`, content, true, `Review payout`, REFERRALS_URL, `Your ${amount} cash-out didn't go through — your rewards are safe.`, undefined, 'danger');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral payout-failed sent to ${email} (${amount}, reason="${reason}")`);
   } catch (e) {
@@ -169,7 +169,7 @@ export const sendReferralAccrualEmail = async (
       `, '#12B76A')}
       ${p(`Your rewards keep building for the full 12-month window. Take them as automatic fee credit, or switch to USDT (TRC-20) cash-out anytime on your referrals page.`)}`;
 
-    const html = dynoPayEmailTemplate(`You earned ${earned}`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} processed a payment — you earned ${earned}.`);
+    const html = dynoPayEmailTemplate(`You earned ${earned}`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} processed a payment — you earned ${earned}.`, undefined, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral accrual alert sent to ${email} (+${earned} from ${merchantName}, bal=${balance})`);
   } catch (e) {
@@ -199,7 +199,7 @@ export const sendReferralActivatedEmail = async (
       `, '#12B76A')}
       ${p(`From now on you earn <strong>25% of the platform fees</strong> ${merchant} generates, for a full 12 months. We'll keep you posted as the rewards roll in.`)}`;
 
-    const html = dynoPayEmailTemplate(`${merchant} is now active`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} went live — you now earn 25% of their fees for 12 months.`);
+    const html = dynoPayEmailTemplate(`${merchant} is now active`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} went live — you now earn 25% of their fees for 12 months.`, undefined, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral activation alert sent to ${email} (merchant=${merchantName})`);
   } catch (e) {
@@ -245,7 +245,7 @@ export const sendReferralMonthlyDigestEmail = async (
         : p(`These rewards automatically lower your own Dynopay fees. Prefer cash? Switch to <strong>USDT (TRC-20) cash-out</strong> on your referrals page.`)}
       ${p(`Keep sharing your link to grow next month's total.`)}`;
 
-    const html = dynoPayEmailTemplate(`You earned ${total} in ${monthLabel}`, content, true, `View referral rewards`, REFERRALS_URL, `Your referrals earned you ${total} in ${monthLabel}.`);
+    const html = dynoPayEmailTemplate(`You earned ${total} in ${monthLabel}`, content, true, `View referral rewards`, REFERRALS_URL, `Your referrals earned you ${total} in ${monthLabel}.`, undefined, 'chart');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral monthly digest sent to ${email} (${total}, ${monthLabel}, ${perMerchant.length} merchant(s))`);
   } catch (e) {
@@ -283,7 +283,7 @@ export const sendReferralShareNudgeEmail = async (
       `, '#12B76A')}
       ${p(`Share it once and it keeps earning in the background — no extra work.`)}`;
 
-    const html = dynoPayEmailTemplate(`Start earning with referrals`, content, true, `Share your link`, REFERRALS_URL, `Share your link and earn 25% of referred merchants' fees for a year.`);
+    const html = dynoPayEmailTemplate(`Start earning with referrals`, content, true, `Share your link`, REFERRALS_URL, `Share your link and earn 25% of referred merchants' fees for a year.`, undefined, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral share nudge sent to ${email} (code=${code})`);
   } catch (e) {

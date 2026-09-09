@@ -77,7 +77,7 @@ export interface CompanyStore {
   refetchCompanies: () => Promise<any>;
   addCompany: (formData: any) => Promise<any>;
   updateCompany: (args: { id: number | string; formData: any }) => Promise<any>;
-  deleteCompany: (id: number | string) => Promise<any>;
+  deleteCompany: (id: number | string, otp: string) => Promise<any>;
   validateTax: (args: {
     companyId: number | string;
     taxId: string;
@@ -253,11 +253,11 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
   );
 
   const deleteCompany = useCallback(
-    async (id: number | string) => {
+    async (id: number | string, otp: string) => {
       try {
         const {
           data: { data: d, message },
-        } = await axios.delete("company/deleteCompany/" + id);
+        } = await axios.delete("company/deleteCompany/" + id, { data: { otp } });
         const revokedApiIds =
           (d && (d as { revokedApiIds?: number[] }).revokedApiIds) || [];
         const successMessage =
@@ -273,10 +273,7 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
         await mutate();
         return d;
       } catch (e: any) {
-        const message =
-          e?.response?.data?.message ?? e?.message ?? "An error occurred";
-        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
-        // Recover from any stale optimistic removal
+        // Recover from any stale optimistic removal; the caller surfaces the error inline.
         await mutate();
         throw e;
       }

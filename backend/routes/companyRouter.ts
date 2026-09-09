@@ -1,5 +1,6 @@
 import express, { RequestHandler } from "express";
 import { companyController } from "../controller";
+import { sendDeleteCompanyOtp } from "../controller/company/deleteCompanyOtp";
 import { companyMiddleware, uploadImage, authMiddleware } from "../middleware";
 import { companyOwnershipMiddleware } from "../middleware/authMiddleware";
 import { requirePermission, requireCompanyOwner } from "../middleware/teamPermissionMiddleware";
@@ -44,6 +45,8 @@ companyRouter.get("/getCompany", authMiddleware, companyController.getCompany);
 companyRouter.get("/getCompany/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getCompanyById);
 companyRouter.get("/getTransactions/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_transactions"), companyController.getTransactions);
 companyRouter.delete("/deleteCompany/:id", authMiddleware, companyOwnershipMiddleware, requireCompanyOwner, companyController.deleteCompany);
+// Brand deletion is OTP-gated: request the emailed code here, then send it as `otp` on the DELETE.
+companyRouter.post("/deleteCompany/:id/send-otp", authMiddleware, companyOwnershipMiddleware, requireCompanyOwner, sendDeleteCompanyOtp);
 
 // TAX ID Validation endpoint
 companyRouter.post("/validateTaxId", authMiddleware, companyController.validateTaxId);

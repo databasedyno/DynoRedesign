@@ -66,7 +66,7 @@ import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/curre
 // ─── Extracted checkout modules (Session refactor) ───────────────────────
 import type { Meta, CryptoInfo, Phase, CryptoSplit } from './checkout/checkoutTypes'
 import { PriceBreakdown } from './checkout/PriceBreakdown'
-import { buildFiatRows, buildCryptoRows, buildSuccessRows } from './checkout/breakdownRows'
+import { buildFiatRows, buildSuccessRows } from './checkout/breakdownRows'
 import { toNumber } from '@/utils/money'
 import {
   MONO, LIME, INK, ON_BRAND, PREF_NET_KEY, PREF_CUR_KEY, CRYPTO_INFO,
@@ -907,7 +907,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   const feeIsEstimate = feePayerIsCustomer && !feeExact
   const fmtFiat = (n: number) => `${fiatSymbol}${formatWithSeparators(n, meta_?.base_currency || 'USD')}`
   const fiatRows = meta_
-    ? buildFiatRows({ t, fmtFiat, baseAmt, taxAmt, feePayerIsCustomer, feeFiat: platformFeeAmt, networkFeeFiat: networkFeeAmt, feeIsEstimate, totalFiat: totalAmt, split })
+    ? buildFiatRows({ t, fmtFiat, baseAmt, taxAmt, feePayerIsCustomer, feeFiat: platformFeeAmt, networkFeeFiat: networkFeeAmt, feeIsEstimate, totalFiat: totalAmt, split, code: cryptoInfo?.crypto_base })
     : []
 
   // Fire the opt-in browser alert the instant the payment confirms so a buyer
@@ -1726,23 +1726,6 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             </Box>
           </Box>
           <RateFreshness updatedAt={rateFetchedAt} color={muted} />
-          {/* Exact split for the reserved coin — merchant credit vs Dynopay fee */}
-          {split && (
-            <Box
-              data-testid="clean-checkout-crypto-split"
-              sx={{ mt: 1.25, p: 1.25, borderRadius: '8px', border: `1px dashed ${border}` }}
-            >
-              <PriceBreakdown
-                compact
-                title={t('checkout.breakdownTitle', { defaultValue: 'Payment breakdown' })}
-                rows={buildCryptoRows({ t, fmtFiat, split, code: cryptoInfo.crypto_base, totalFiat: totalAmt, networkFeeFiat: networkFeeAmt })}
-                muted={muted}
-                border={border}
-                textColor={theme.palette.text.primary}
-                mono={MONO}
-              />
-            </Box>
-          )}
         </Box>
       )}
 

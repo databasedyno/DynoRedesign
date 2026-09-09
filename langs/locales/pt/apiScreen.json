@@ -19,11 +19,11 @@
   },
   "createdOn": "Criado em {{date}} às {{time}}",
   "validation": {
-    "selectCompany": "Selecione uma empresa"
+    "selectCompany": "Selecione uma marca"
   },
   "company": {
-    "selectCompany": "Selecionar empresa",
-    "label": "Nome da empresa"
+    "selectCompany": "Selecionar marca",
+    "label": "Nome da marca"
   },
   "currency": {
     "baseCurrency": "Moeda base",
@@ -83,7 +83,7 @@
   "apiKeyTitleLive": "Chave de API em produção",
   "apiKeyTitleTest": "Chave de API de teste",
   "keys": {
-    "liveUnlockHint": "Sua chave em produção é ativada automaticamente assim que você adiciona (ou reutiliza) a primeira carteira nesta empresa.",
+    "liveUnlockHint": "Sua chave em produção é ativada automaticamente assim que você adiciona (ou reutiliza) a primeira carteira nesta marca.",
     "testAutoCreatedBadge": "Criada automaticamente · Sandbox",
     "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox",
     "tryFirstPaymentTitle": "Experimente seu primeiro pagamento",
@@ -171,7 +171,7 @@
     "sectionDescPost": "caminho é o fluxo canónico estilo Stripe — como o montante reside no servidor, os compradores não podem alterar o preço no seu HTML.",
     "create": "Criar",
     "createBuyButton": "Criar botão de compra",
-    "selectCompany": "Selecione uma empresa para gerir os seus botões de compra.",
+    "selectCompany": "Selecione uma marca para gerir os seus botões de compra.",
     "empty": "Ainda não há botões de compra. Crie um para incorporar um checkout à prova de adulteração no seu site.",
     "deleteTitle": "Arquivar botão de compra",
     "deleteMessage": "Uma vez arquivado, este botão de compra não pode mais criar sessões de checkout. Qualquer página no seu site que o utilize deixará de funcionar até que o reative (ou substitua o ID do botão por um novo).",
@@ -235,7 +235,7 @@
     "sectionDescription": "Chaves seguras para o navegador para o <dynopay-buy-button>. Cada chave é bloqueada por domínio e limitada em valor. Requer uma chave secreta ativa do mesmo ambiente.",
     "createShort": "Criar",
     "createLong": "Criar chave publicável",
-    "selectCompany": "Selecione uma empresa para gerenciar suas chaves publicáveis.",
+    "selectCompany": "Selecione uma marca para gerenciar suas chaves publicáveis.",
     "emptyTitle": "Ainda não há chaves publicáveis",
     "emptyBody": "As chaves publicáveis permitem que você incorpore um Botão de Compra ou checkout no seu próprio site. Crie uma para obter seu primeiro snippet incorporável.",
     "revokeModalTitle": "Revogar chave publicável",
@@ -296,9 +296,9 @@
     "settingsSubtitle": "Configure a sua URL de endpoint, segredo de assinatura e eventos de teste",
     "allSubtitle": "Receba eventos em tempo real e inspecione tentativas recentes de entrega",
     "refresh": "Atualizar",
-    "selectCompany": "Selecione uma empresa para configurar webhooks.",
+    "selectCompany": "Selecione uma marca para configurar webhooks.",
     "deliveryOff": "A entrega do webhook está desativada",
-    "pausedManual": "Você pausou as entregas de webhook para a sua URL da empresa",
+    "pausedManual": "Você pausou as entregas de webhook para a URL da sua marca",
     "pausedManualHint": "Reative as entregas sempre que estiver pronto — as URLs de webhook por solicitação não são afetadas.",
     "pausedAuto": "Parámos de enviar eventos porque o seu endpoint falhou repetidamente em responder",
     "locationAbove": "acima",
@@ -306,8 +306,8 @@
     "reenabling": "Reativando…",
     "reenable": "Reativar",
     "deliverEvents": "Entregar eventos de webhook",
-    "deliverPaused": "Pausado — eventos não estão a ser enviados para a sua URL da empresa.",
-    "deliverActive": "Ativo — eventos são enviados para a sua URL da empresa.",
+    "deliverPaused": "Pausado — eventos não estão a ser enviados para a URL da sua marca.",
+    "deliverActive": "Ativo — eventos são enviados para a URL da sua marca.",
     "toggleAria": "Alternar entrega de webhook",
     "endpointUrl": "URL do endpoint",
     "endpointUrlAria": "URL do endpoint do webhook",

@@ -95,7 +95,7 @@ const CompanyEmailRoutingCard: React.FC<Props> = ({
     <PanelCard
       headerSx={{ fontSize: { xs: "15px", md: "20px" } }}
       subTitleSx={{ fontSize: { xs: "13px", md: "15px" }, color: theme.palette.text.primary }}
-      title={t("companyRoutingTitle", { defaultValue: "Company email routing" })}
+      title={t("companyRoutingTitle", { defaultValue: "Brand email routing" })}
       subTitle={t("companyRoutingSubtitle", {
         defaultValue:
           "Where your business emails (payments, payouts, orders) are delivered — separate from your personal account security emails.",
@@ -117,7 +117,7 @@ const CompanyEmailRoutingCard: React.FC<Props> = ({
               mb: 1,
             }}
           >
-            {t("companyEmailLabel", { defaultValue: "Company notification email" })}
+            {t("companyEmailLabel", { defaultValue: "Brand notification email" })}
           </Typography>
           <InputBase
             data-testid="company-notification-email-input"
@@ -206,7 +206,7 @@ const CompanyEmailRoutingCard: React.FC<Props> = ({
                   mt: 0.5,
                 }}
               >
-                {t("categoriesHelper", { defaultValue: "Choose which kinds of company emails are sent. All on by default." })}
+                {t("categoriesHelper", { defaultValue: "Choose which kinds of brand emails are sent. All on by default." })}
               </Typography>
             </Box>
             <ExpandMoreRounded

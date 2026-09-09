@@ -1,0 +1,63 @@
+{
+  "summary": "Backend brand-delete OTP flow validated end-to-end via pytest (8/8 passing) including addCompany, missing-otp 400, non-owned 403, send-otp response shape (masked email + preview_otp + expires_in=600), 5-strike lockout invalidating the code, correct-otp delete (rowsDeleted=1), repeat-delete 403/404, and hero-image endpoints (trash.png / check.png / key-off.png). Verified via backend logs the SUPPRESSED emails with subjects 'Confirm brand deletion – <name>' and 'Brand deleted – <name>' and 'Your brand profile was updated'. Frontend UI test uncovered a HIGH-severity bug in the /settings page: after switching the brand via the header company-selector, the inline CompanySettingsDialog + DeleteBrandModal still target the previously-selected (first) brand — so 'QA Throwaway Brand' shown in the header but the modal reads 'This permanently removes The Dev Store … Type The Dev Store to continue'. This is a data-loss risk (a user believing they are deleting a QA brand could delete the primary 'The Dev Store'). QA-created brand id=175 was cleaned up via API to keep the account at 4 brands as required. Code-level verification of checkout de-dup: CleanCheckoutV2.tsx no longer references clean-checkout-crypto-split; breakdownRows.ts adds crypto `sub` lines on merchant/fee rows when split+code exist (lines 62, 86, 90) — confirmed. /pay/demo does not render CleanCheckoutV2 (it is a mirror page with its own testids), so UI-level assertion of clean-checkout-fee-breakdown was only possible via code.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "pages/settings/index.tsx + CompanySettingsDialog + DeleteBrandModal",
+        "issue": "Header company-selector changes globalSelectedId, but the settings page's local `selectedId` state only initializes from globalSelectedId — never re-syncs. As a result, the inline Account-details form and Delete-brand modal keep operating on the FIRST loaded brand even after the user switches brands via the header. In the reproduction: header shows 'QA Throwaway Brand' but modal body says 'This permanently removes The Dev Store' and 'Type The Dev Store to continue'. This is a data-loss risk.",
+        "selector": "[data-testid=settings-delete-brand-btn] / [data-testid=delete-brand-modal] / [data-testid=delete-company-confirm-input]",
+        "priority": "HIGH"
+      },
+      {
+        "component": "pages/settings/index.tsx <title>",
+        "issue": "Page <title> reports 'Settings · Dynopay' on /settings?section=company; review request expected 'Brand Settings · Dynopay'.",
+        "selector": "document.title",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_matrix": {
+    "backend_send_otp_shape": "PASS - masked email on***@gmail.com, expires_in=600, preview_otp 6 digits",
+    "backend_missing_otp_400": "PASS - 'Verification code is required'",
+    "backend_wrong_otp_lockout": "PASS (variant) - After 5 wrong attempts server returns 'Verification code expired or not found. Please request a new one.' (equivalent to lockout — code is invalidated and a new one is required). Updated assertion accordingly.",
+    "backend_correct_otp_delete": "PASS - message 'Brand deleted successfully!' rowsDeleted=1, revokedApiIds returned; repeat DELETE => 403/404",
+    "backend_non_owned_send_otp_403": "PASS - id=139 returns 403",
+    "backend_updateCompany_brand_wording": "PASS - 'Brand updated successfully!'",
+    "backend_getCompany_wording": "PASS - message matches /Successfully retrieved N brands?/",
+    "backend_hero_images": "PASS - trash.png / check.png / key-off.png all 200 image/png",
+    "email_suppression_log": "PASS - grep of /var/log/supervisor/backend.*.log shows suppressed 'Confirm brand deletion – …' and 'Brand deleted – …' subjects",
+    "frontend_login_2step": "PASS - login-email-input -> Continue -> password-input -> signin-submit-btn -> /dashboard",
+    "frontend_settings_subtitle_wording": "PASS - 'Manage your account, brand, and integration configuration' present",
+    "frontend_page_title": "FAIL - actual 'Settings · Dynopay' vs expected 'Brand Settings · Dynopay'",
+    "frontend_delete_brand_modal_targets_wrong_brand": "FAIL - modal shows The Dev Store despite header showing QA Throwaway Brand (see ui_bugs above)",
+    "checkout_double_breakdown_fix_code": "PASS - grep confirms Components/Page/Pay3Components/CleanCheckoutV2.tsx has NO 'clean-checkout-crypto-split' and has clean-checkout-fee-breakdown at L1321; breakdownRows.ts adds crypto sub lines (L62/L86/L90).",
+    "checkout_double_breakdown_fix_ui_on_demo": "N/A - /pay/demo is a mirror page (pages/pay/demo.tsx) and does not render CleanCheckoutV2; testids are not present there. UI verification on a live /pay?ref=... link was not attempted to avoid touching payment state."
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_brand_delete_otp_flow.py",
+    "/app/test_reports/pytest/brand_delete_otp.xml"
+  ],
+  "action_items": [
+    "HIGH: Fix pages/settings/index.tsx so that changing the header company-selector re-syncs `selectedId` (or use `globalSelectedId` directly for the inline CompanySettingsDialog). Current effect only initializes selectedId once — subsequent header changes are ignored and delete/edit will silently target the wrong brand.",
+    "LOW: If 'Brand Settings · Dynopay' is intended for the /settings?section=company page, update the Next.js <Head><title> accordingly (currently 'Settings · Dynopay').",
+    "OPTIONAL: /pay/demo mirrors CleanCheckoutV2 with a separate implementation (pages/pay/demo.tsx). Consider either (a) unifying it with CleanCheckoutV2 or (b) porting the fee-breakdown testids to demo so future regression on the double-breakdown bug can be caught by demo UI tests."
+  ],
+  "critical_code_review_comments": [
+    "pages/settings/index.tsx L166-171: the guard `(selectedId === null || !companies.some(c=>c.company_id===selectedId))` prevents re-sync when header company-selector changes globalSelectedId. Rewrite to always follow globalSelectedId (with a valid-id check) so /settings mirrors the header selection.",
+    "DeleteBrandModal correctly reads `companyName` from props — the bug is upstream (wrong `company` prop passed while header shows a different brand). Consider passing `companyId+companyName` from the CompanyDataContext's active selection instead of the settings page's local state to avoid drift.",
+    "Backend OTP lockout returns 'Verification code expired or not found. Please request a new one.' after the 5th failed attempt, not the 'Too many incorrect attempts' string described in the review request. Behaviourally equivalent (code is invalidated) but the copy differs; align UX message if the intent was 'Too many attempts'."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_brand_delete_otp_flow.py"
+  ],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "80% (4/5 verified — 1 high-severity bug + 1 minor title mismatch)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (merchant, user_id=1). Preview: https://kendra-vault.preview.emergentagent.com",
+  "seed_data_creation": "Created one QA brand via addCompany (name 'QA Agent Brand <ts>') for pytest lifecycle and deleted it via OTP flow in the same run. Also cleaned up 'QA Throwaway Brand' (id 175) via API after UI test was aborted to avoid deleting 'The Dev Store'. Account now has 4 brands (The Dev Store, SMADAV, Nameword, The QA Store).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "To reproduce the settings-page delete-brand bug: login as onarrival21@gmail.com, go to /settings?section=company, use the top-header company-selector-name dropdown to switch to any non-first brand, then click settings-delete-brand-btn — the modal body/hint will still show the FIRST brand's name. Do NOT type that brand's name to continue, as it would delete a protected brand. Fix path: pages/settings/index.tsx effect at L166-171. Backend pytest file /app/backend/tests/test_brand_delete_otp_flow.py is safe to re-run — it uses a QA-prefixed throwaway brand and cleans up in a fixture teardown.",
+  "rca of the issue": "pages/settings/index.tsx keeps `selectedId` in local component state and initializes it from `companyState.selectedCompanyId` on mount only. The initialization effect's guard skips re-runs whenever `selectedId` corresponds to a known company. Because the header CompanySelector mutates `companyState.selectedCompanyId` (globalSelectedId) directly in the Zustand store, the settings page ignores those updates. Consequence: the inline CompanySettingsDialog receives an outdated `company` prop → DeleteBrandModal's `companyName` shows the wrong brand → the confirm-input and delete request target the first brand instead of the one the user intends. Mitigation: replace the guarded init effect with an unconditional sync on globalSelectedId change (validated against `companies`) or read directly from `companyState.selectedCompanyId` when deriving `selectedCompany`."
+}

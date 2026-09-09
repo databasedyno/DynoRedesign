@@ -604,7 +604,7 @@
     "title": "Settings",
     "planFees": "Plan & fees",
     "referrals": "Referrals",
-    "description": "Manage your account, company, and integration configuration",
+    "description": "Manage your account, brand, and integration configuration",
     "profile": "Profile & Security",
     "profileDesc": "Personal info, password, and login security",
     "company": "Brand",
@@ -694,7 +694,7 @@
     "vatDesc": "Shown on receipts. Enables EU reverse-charge validation when your buyers provide their own VAT ID.",
     "vatInvalidHint": "This doesn't match a known EU/GB VAT format — it will still be saved as entered.",
     "save": "Save tax settings",
-    "inheritNote": "Showing your account-wide defaults — saving here creates tax settings specific to the selected company."
+    "inheritNote": "Showing your account-wide defaults — saving here creates tax settings specific to the selected brand."
   },
   "accountTypeIndividual": "Individual",
   "accountTypeBusiness": "Business",
@@ -713,7 +713,7 @@
   "EmptyTxChipProducts": "Sell products",
   "EmptyTxChipCrowdfund": "Crowdfund a cause",
   "loading": "Loading…",
-  "appliesToThisCompanyOnly": "Applies to this company only",
+  "appliesToThisCompanyOnly": "Applies to this brand only",
   "langSuggest": {
     "title": "Prefer {{lang}}?",
     "body": "Your browser is set to {{lang}}.",
@@ -810,14 +810,14 @@
     },
     "compare": {
       "title": "Compare storefronts",
-      "subtitle": "Views, tips and product sales per company — last 30 days.",
-      "colCompany": "Company",
+      "subtitle": "Views, tips and product sales per brand — last 30 days.",
+      "colCompany": "Brand",
       "colViews": "Views · 30d trend",
       "colTips": "Tips",
       "colSales": "Sales",
       "colRevenue": "Revenue",
       "noStorefront": "No storefront yet",
-      "companyN": "Company {{n}}"
+      "companyN": "Brand {{n}}"
     },
     "analytics": {
       "tipsSupporters": "Tips & supporters",
@@ -992,7 +992,7 @@
     "subtitle": "Enter the verification code sent to your email"
   },
   "setupPrompt": {
-    "createCompany": "Create a Company",
+    "createCompany": "Create a brand",
     "addWallet": "Add a Wallet Address"
   },
   "payouts": {

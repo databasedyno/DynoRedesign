@@ -35,7 +35,7 @@
   "paymentReceived": {
     "subject": "Betaling ontvangen – {{amount}} {{currency}}",
     "heading": "Betaling ontvangen",
-    "intro": "Goed nieuws! Uw bedrijf <strong>{{companyName}}</strong> heeft een betaling ontvangen.",
+    "intro": "Goed nieuws! Uw merk <strong>{{companyName}}</strong> heeft een betaling ontvangen.",
     "outro": "De middelen zijn doorgestuurd naar uw uitbetaalwallet. U kunt alle transactiedetails bekijken in uw dashboard.",
     "cta": "Transactie bekijken",
     "referralCredit": "Referral-tegoed dekte {{amount}} van uw Dynopay-platformkosten voor deze betaling — u hield er meer aan over.",
@@ -44,7 +44,7 @@
   "paymentPending": {
     "subject": "Betaling gedetecteerd – wordt on-chain bevestigd",
     "heading": "Betaling in behandeling",
-    "intro": "Er is een nieuwe betaling gedetecteerd voor uw bedrijf <strong>{{companyName}}</strong>!",
+    "intro": "Er is een nieuwe betaling gedetecteerd voor uw merk <strong>{{companyName}}</strong>!",
     "estimatedTimes": "Geschatte bevestigingstijden",
     "btcTime": "BTC: 10-60 min ({{confirmations}} bevestigingen)",
     "ethTime": "ETH/ERC20: 1-5 min",
@@ -72,7 +72,7 @@
   "paymentPartial": {
     "subject": "Gedeeltelijke betaling ontvangen — actie vereist",
     "heading": "Gedeeltelijke betaling ontvangen",
-    "intro": "Er is een gedeeltelijke betaling ontvangen voor uw bedrijf <strong>{{companyName}}</strong>.",
+    "intro": "Er is een gedeeltelijke betaling ontvangen voor uw merk <strong>{{companyName}}</strong>.",
     "actionRequired": "Actie vereist",
     "actionText": "U heeft <strong>{{minutes}} minuten</strong> om de resterende <strong>{{remaining}} {{currency}}</strong> te sturen om deze betaling te voltooien.",
     "sendTo": "Stuur naar:",
@@ -84,8 +84,8 @@
     "subjectExpired": "Gedeeltelijke betaling verlopen",
     "headingCompleted": "Gedeeltelijke betaling verwerkt",
     "headingExpired": "Respijtperiode van de betaling verlopen",
-    "introCompleted": "De gedeeltelijke betaling voor uw bedrijf <strong>{{companyName}}</strong> is verwerkt.",
-    "introExpired": "De respijtperiode voor de gedeeltelijke betaling aan uw bedrijf <strong>{{companyName}}</strong> is verlopen.",
+    "introCompleted": "De gedeeltelijke betaling voor uw merk <strong>{{companyName}}</strong> is verwerkt.",
+    "introExpired": "De respijtperiode voor de gedeeltelijke betaling aan uw merk <strong>{{companyName}}</strong> is verlopen.",
     "outroCompleted": "Het ontvangen bedrag is verwerkt met aangepaste kosten en doorgestuurd naar uw wallet.",
     "outroExpired": "Omdat de volledige betaling niet binnen de respijtperiode is ontvangen, is het gedeeltelijke bedrag verwerkt. Houd er rekening mee dat de kosten voor onvolledige betalingen hoger kunnen zijn.",
     "viewDetails": "U kunt de transactiedetails bekijken in uw Dynopay-dashboard.",
@@ -215,7 +215,8 @@
       "expires": "Verloopt",
       "link": "Link",
       "crypto": "Crypto",
-      "customer": "Klant"
+      "customer": "Klant",
+      "brand": "Merk"
     },
     "badges": {
       "updated": "Bijgewerkt",
@@ -240,7 +241,7 @@
       "intro2": "Dynopay maakt het accepteren van cryptobetalingen eenvoudig en veilig — tegoeden komen rechtstreeks terecht in een wallet die u beheert. Of u nu freelancer, ondernemer of ontwikkelaar bent, wij hebben alles voor u.",
       "promo": "Uw eerste betaling is van ons — we schelden onze volledige platformkosten kwijt op uw eerste afgewikkelde betaling, ongeacht het bedrag.",
       "nextTitle": "Dit kunt u nu doen:",
-      "next1": "1. Vul uw bedrijfsprofiel in",
+      "next1": "1. Vul uw merkprofiel in",
       "next2": "2. Voeg uw uitbetalingswallet toe",
       "next3": "3. Begin met het accepteren van betalingen",
       "questions": "Als u vragen heeft, staat ons supportteam voor u klaar.",
@@ -348,7 +349,7 @@
     "companyCreated": {
       "subject": "Profiel compleet – nog één stap",
       "heading": "Profiel compleet",
-      "intro1": "Goed gedaan! Het bedrijfsprofiel voor <strong>{{companyName}}</strong> is nu compleet.",
+      "intro1": "Goed gedaan! Het merkprofiel voor <strong>{{companyName}}</strong> is nu compleet.",
       "intro2": "U bent bijna klaar om betalingen te accepteren. De laatste stap is het toevoegen van uw uitbetalingswalletadres.",
       "whyTitle": "Waarom een wallet toevoegen?",
       "whyText": "Naar uw wallet sturen we de cryptobetalingen die u ontvangt. Het is snel en veilig.",
@@ -362,20 +363,20 @@
       "intro1": "<strong>{{companyName}}</strong> is door {{accountHolderName}} geregistreerd bij Dynopay.",
       "intro2": "Dynopay is een non-custodial crypto-betaalgateway — bedrijven accepteren cryptobetalingen die rechtstreeks terechtkomen in een wallet die zij beheren.",
       "meansTitle": "Wat dit voor u betekent:",
-      "means1": "1. Uw bedrijf kan nu cryptobetalingen accepteren",
+      "means1": "1. Uw merk kan nu cryptobetalingen accepteren",
       "means2": "2. Tegoeden komen rechtstreeks terecht in een wallet die u beheert",
       "means3": "3. Realtime betalingsmeldingen",
       "outro": "Als u vragen heeft over deze registratie, neem dan contact op met ons supportteam of met {{accountHolderName}}.",
-      "cta": "Meer informatie",
+      "cta": "Naar het dashboard",
       "preheader": "Uw bedrijf is geregistreerd — welkom aan boord."
     },
     "companyUpdated": {
-      "subject": "Uw bedrijfsprofiel is bijgewerkt",
+      "subject": "Uw merkprofiel is bijgewerkt",
       "heading": "Profiel bijgewerkt",
-      "intro": "Het bedrijfsprofiel voor <strong>{{companyName}}</strong> is succesvol bijgewerkt.",
+      "intro": "Het merkprofiel voor <strong>{{companyName}}</strong> is succesvol bijgewerkt.",
       "outro": "Als u deze wijzigingen niet heeft aangebracht, neem dan onmiddellijk contact op met ons supportteam.",
       "cta": "Profiel bekijken",
-      "preheader": "De gegevens van uw bedrijfsprofiel zijn bijgewerkt."
+      "preheader": "De gegevens van uw merkprofiel zijn bijgewerkt."
     },
     "walletVerified": {
       "subject": "Uitbetalingswallet actief",
@@ -395,7 +396,8 @@
       "heading": "Wallet verwijderd",
       "intro": "Er is een wallet verwijderd uit uw Dynopay-account.",
       "outro": "Betalingen worden niet langer naar deze wallet doorgestuurd.",
-      "didntDoThis": "<strong>Niet u?</strong><br />Als u deze wallet niet heeft verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support."
+      "didntDoThis": "<strong>Niet u?</strong><br />Als u deze wallet niet heeft verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support.",
+      "cta": "Wallets bekijken"
     },
     "addWalletReminder": {
       "subject": "U bent bijna klaar om betalingen te accepteren",
@@ -409,7 +411,7 @@
     "walletAdded": {
       "subject": "Wallet toegevoegd – {{network}}",
       "heading": "Wallet toegevoegd",
-      "intro": "Er is succesvol een nieuwe uitbetalingswallet toegevoegd aan uw bedrijf <strong>{{companyName}}</strong>.",
+      "intro": "Er is succesvol een nieuwe uitbetalingswallet toegevoegd aan uw merk <strong>{{companyName}}</strong>.",
       "outro": "Alle betalingen in {{network}} worden naar deze wallet doorgestuurd. U kunt uw wallets beheren in het dashboard.",
       "didntDoThis": "<strong>Niet u?</strong><br />Als u deze wallet niet heeft toegevoegd, beveilig dan onmiddellijk uw account.",
       "cta": "Wallets bekijken"
@@ -453,6 +455,37 @@
       "heading": "Bevestig walletverwijdering",
       "intro": "U staat op het punt een walletadres <strong>permanent te verwijderen</strong>. Deze actie kan niet ongedaan worden gemaakt.",
       "expiry": "Deze code verloopt over <strong>10 minuten</strong>. Als u dit niet heeft aangevraagd, negeer dan deze e-mail of neem onmiddellijk contact op met support."
+    },
+    "companyDeleteOtp": {
+      "subject": "Bevestig merkverwijdering – {{companyName}}",
+      "heading": "Merkverwijdering bevestigen",
+      "intro": "U staat op het punt het merk <strong>{{companyName}}</strong> <strong>definitief te verwijderen</strong>. De betaallinks, API-sleutels en instellingen worden verwijderd. Voer de onderstaande code in om te bevestigen:",
+      "expiry": "Deze code verloopt over <strong>10 minuten</strong>. Als u dit niet hebt aangevraagd, negeer dan deze e-mail en beveilig uw account onmiddellijk.",
+      "preheader": "Uw eenmalige code om het verwijderen van {{companyName}} te bevestigen."
+    },
+    "companyDeleted": {
+      "subject": "Merk verwijderd – {{companyName}}",
+      "heading": "Merk verwijderd",
+      "intro": "Het merk <strong>{{companyName}}</strong> is definitief uit uw Dynopay-account verwijderd.",
+      "removedTitle": "Wat er is verwijderd",
+      "removed1": "Alle betaallinks van dit merk",
+      "removed2": "API-sleutels ({{apiKeys}}) – direct ingetrokken",
+      "removed3": "Merkinstellingen, webhooks en voorkeuren voor automatische omzetting",
+      "note": "Uw transactiegeschiedenis blijft bewaard voor uw administratie. Uitbetaalwallets die aan dit merk waren toegewezen, zijn er niet langer aan gekoppeld.",
+      "didntDoThis": "<strong>Was u dit niet?</strong><br />Als u dit merk niet hebt verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support.",
+      "cta": "Naar het dashboard",
+      "preheader": "{{companyName}} is uit uw account verwijderd."
+    },
+    "apiKeyRevoked": {
+      "subject": "API-sleutel ingetrokken – {{keyType}}-omgeving",
+      "heading": "API-sleutel ingetrokken",
+      "intro": "Een <strong>{{keyType}}</strong>-API-sleutel is verwijderd van <strong>{{companyName}}</strong>. Integraties die deze sleutel nog gebruiken, werken per direct niet meer.",
+      "nextTitle": "Wat nu te doen",
+      "next1": "Werk integraties die deze sleutel gebruikten bij naar een actieve sleutel",
+      "next2": "Hebt u nog API-toegang nodig? Maak dan een nieuwe sleutel aan op de pagina Ontwikkelaars",
+      "didntDoThis": "<strong>Was u dit niet?</strong><br />Als u deze API-sleutel niet hebt ingetrokken, beveilig dan onmiddellijk uw account en neem contact op met support.",
+      "cta": "API-sleutels bekijken",
+      "preheader": "Een sleutel van {{companyName}} werkt niet meer."
     },
     "largeTransaction": {
       "subject": "Grote betaling ontvangen – {{amount}} {{currency}}",
@@ -610,6 +643,7 @@
     "autoConversion": {
       "subject": "Uitbetaling voltooid — {{payoutAmount}} {{targetCurrency}} uit {{sourceAmount}} {{sourceCurrency}}",
       "heading": "Uitbetaling voltooid",
+      "cta": "Omzettingsdetails bekijken",
       "intro": "Uw cryptobetaling is automatisch omgezet en de uitbetaling is naar uw wallet verzonden.",
       "outro": "Automatische omzetting zorgt ervoor dat u stablecoins ontvangt en beschermt uw omzet tegen prijsschommelingen van crypto. Bekijk uw volledige transactiegeschiedenis in uw Dynopay-dashboard.",
       "preheader": "Uw crypto is omgezet en uitbetaald."

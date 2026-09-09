@@ -20,7 +20,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Environment configuration
-BASE_URL = "https://backend-audit-14.preview.emergentagent.com"
+BASE_URL = "https://kendra-vault.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials (hostbay merchant account)

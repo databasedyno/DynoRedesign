@@ -18,7 +18,7 @@ import requests
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 if not BASE_URL:
     # Fallback to public preview URL from the task
-    BASE_URL = "https://backend-audit-14.preview.emergentagent.com"
+    BASE_URL = "https://kendra-vault.preview.emergentagent.com"
 
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"

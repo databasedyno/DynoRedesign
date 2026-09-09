@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://backend-audit-14.preview.emergentagent.com"
+BASE = "https://kendra-vault.preview.emergentagent.com"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]

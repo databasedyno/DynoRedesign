@@ -162,11 +162,18 @@ const CompanyConfigSection = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Pick default company: globally selected one, else the first
+  // Follow the header brand selector: whenever the global selection changes to a
+  // brand we can see, the inline settings (and the delete flow) target THAT brand.
+  // Falls back to the first brand only when nothing valid is selected.
   useEffect(() => {
-    if (companies.length > 0 && (selectedId === null || !companies.some((c) => c.company_id === selectedId))) {
-      const preferred = companies.find((c) => c.company_id === globalSelectedId);
-      setSelectedId((preferred || companies[0]).company_id);
+    if (companies.length === 0) return;
+    const preferred = companies.find((c) => c.company_id === globalSelectedId);
+    if (preferred) {
+      if (preferred.company_id !== selectedId) setSelectedId(preferred.company_id);
+      return;
+    }
+    if (selectedId === null || !companies.some((c) => c.company_id === selectedId)) {
+      setSelectedId(companies[0].company_id);
     }
   }, [companies, globalSelectedId, selectedId]);
 
@@ -246,7 +253,11 @@ const CompanyConfigSection = ({
             value={selectedId ?? ""}
             size="small"
             data-testid="settings-company-picker"
-            onChange={(e) => setSelectedId(Number(e.target.value))}
+            onChange={(e) => {
+              const id = Number(e.target.value);
+              setSelectedId(id);
+              companyState.selectCompany(id);
+            }}
             sx={{
               minWidth: 220,
               borderRadius: "10px",
@@ -353,7 +364,7 @@ const SettingsPage = ({
               defaultValue: "Your public name, logo, and account information",
             })
           : t("settingsPage.accountDetailsDesc", {
-              defaultValue: "Business profile, logo, and company details",
+              defaultValue: "Business profile, logo, and brand details",
             }),
         icon: <BusinessRounded sx={{ fontSize: 19 }} />,
         scope: "company" as const,
@@ -724,11 +735,11 @@ const SettingsPage = ({
               >
                 {activeMeta.scope === "company"
                   ? t("settingsPage.scopeCompany", {
-                      defaultValue: `Applies to ${scopeCompanyName || "the selected company"}`,
+                      defaultValue: `Applies to ${scopeCompanyName || "the selected brand"}`,
                       company:
                         scopeCompanyName ||
                         t("settingsPage.selectedCompanyFallback", {
-                          defaultValue: "the selected company",
+                          defaultValue: "the selected brand",
                         }),
                     })
                   : t("settingsPage.scopeAccount", {

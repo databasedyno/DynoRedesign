@@ -124,16 +124,9 @@ export const sendCustomerPaymentConfirmationEmail = async (
     ${isContribution ? p(t('contributionThankYou.outro', L)) : ''}
     ${p(`<span style="font-size: 13px; color: #6b7280;">${t('common.securedBy', L)}</span>`)}`;
 
-    const html = dynoPayEmailTemplate(
-      isContribution
+    const html = dynoPayEmailTemplate(isContribution
         ? t('contributionThankYou.heading', L, { campaignName })
-        : t('customerPaymentConfirmation.heading', L),
-      content,
-      !!receiptUrl,
-      receiptUrl ? t('customerPaymentConfirmation.viewOnlineCta', L) : "",
-      receiptUrl || "",
-      isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L), L
-    );
+        : t('customerPaymentConfirmation.heading', L), content, !!receiptUrl, receiptUrl ? t('customerPaymentConfirmation.viewOnlineCta', L) : "", receiptUrl || "", isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L), L, 'check');
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
     apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);
   } catch (e) {

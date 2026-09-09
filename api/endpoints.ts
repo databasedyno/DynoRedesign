@@ -98,6 +98,7 @@ export const API_ENDPOINTS = {
   },
 
   company: {
+    deleteSendOtp: (companyId: PathId) => `/company/deleteCompany/${companyId}/send-otp`,
     autoConvert: (companyId: PathId) => `/company/auto-convert/${companyId}`,
     upgradeToBusiness: (companyId: PathId) => `/company/upgrade-to-business/${companyId}`,
     webhookHistory: (companyId: PathId, q: string = "") =>

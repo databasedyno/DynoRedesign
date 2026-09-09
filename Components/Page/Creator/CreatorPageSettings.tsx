@@ -614,7 +614,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 color={theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5"}
               />
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
-                {t("appliesToThisCompanyOnly", { defaultValue: "Applies to this company only" })}
+                {t("appliesToThisCompanyOnly", { defaultValue: "Applies to this brand only" })}
               </Typography>
             </Box>
           </Box>

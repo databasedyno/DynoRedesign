@@ -604,7 +604,7 @@
     "title": "Paramètres",
     "planFees": "Forfait et frais",
     "referrals": "Parrainage",
-    "description": "Gérez votre compte, votre entreprise et vos intégrations",
+    "description": "Gérez votre compte, votre marque et vos intégrations",
     "profile": "Profil et sécurité",
     "profileDesc": "Informations personnelles, mot de passe et sécurité de connexion",
     "company": "Marque",
@@ -694,7 +694,7 @@
     "vatDesc": "Affiché sur les reçus. Permet la validation du reverse-charge dans l'UE lorsque vos acheteurs fournissent leur propre ID TVA.",
     "vatInvalidHint": "Cela ne correspond pas à un format de TVA connu de l'UE/GB — il sera tout de même enregistré tel qu'entré.",
     "save": "Enregistrer les paramètres de taxe",
-    "inheritNote": "Affichage de vos paramètres par défaut de compte — enregistrer ici crée des paramètres fiscaux spécifiques à l'entreprise sélectionnée."
+    "inheritNote": "Affichage de vos paramètres par défaut de compte — enregistrer ici crée des paramètres fiscaux spécifiques à la marque sélectionnée."
   },
   "accountTypeIndividual": "Individuel",
   "accountTypeBusiness": "Entreprise",
@@ -713,7 +713,7 @@
   "EmptyTxChipProducts": "Vendre des produits",
   "EmptyTxChipCrowdfund": "Financer une cause",
   "loading": "Chargement…",
-  "appliesToThisCompanyOnly": "S'applique uniquement à cette entreprise",
+  "appliesToThisCompanyOnly": "S'applique uniquement à cette marque",
   "langSuggest": {
     "title": "Vous préférez {{lang}} ?",
     "body": "Votre navigateur est en {{lang}}.",
@@ -810,14 +810,14 @@
     },
     "compare": {
       "title": "Comparer les vitrines",
-      "subtitle": "Vues, pourboires et ventes de produits par entreprise — 30 derniers jours.",
-      "colCompany": "Entreprise",
+      "subtitle": "Vues, pourboires et ventes de produits par marque — 30 derniers jours.",
+      "colCompany": "Marque",
       "colViews": "Vues · tendance 30 j",
       "colTips": "Pourboires",
       "colSales": "Ventes",
       "colRevenue": "Revenus",
       "noStorefront": "Pas encore de vitrine",
-      "companyN": "Entreprise {{n}}"
+      "companyN": "Marque {{n}}"
     },
     "analytics": {
       "tipsSupporters": "Pourboires et soutiens",
@@ -992,7 +992,7 @@
     "subtitle": "Saisissez le code de vérification envoyé à votre e-mail"
   },
   "setupPrompt": {
-    "createCompany": "Créer une entreprise",
+    "createCompany": "Créer une marque",
     "addWallet": "Ajouter une adresse de portefeuille"
   },
   "payouts": {

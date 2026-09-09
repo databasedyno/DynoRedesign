@@ -19,11 +19,11 @@
   },
   "createdOn": "Creado el {{date}} a las {{time}}",
   "validation": {
-    "selectCompany": "Por favor, selecciona una empresa"
+    "selectCompany": "Por favor, selecciona una marca"
   },
   "company": {
-    "selectCompany": "Seleccionar Empresa",
-    "label": "Nombre de la Empresa"
+    "selectCompany": "Seleccionar marca",
+    "label": "Nombre de la marca"
   },
   "currency": {
     "baseCurrency": "Moneda Base",
@@ -83,7 +83,7 @@
   "apiKeyTitleLive": "Clave API en vivo",
   "apiKeyTitleTest": "Clave API de prueba",
   "keys": {
-    "liveUnlockHint": "Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera billetera en esta empresa.",
+    "liveUnlockHint": "Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera billetera en esta marca.",
     "testAutoCreatedBadge": "Creada automáticamente · Sandbox",
     "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox",
     "tryFirstPaymentTitle": "Prueba tu primer pago",
@@ -171,7 +171,7 @@
     "sectionDescPost": "ruta es el flujo canónico estilo Stripe — dado que el monto vive del lado del servidor, los compradores no pueden manipular el precio en tu HTML.",
     "create": "Crear",
     "createBuyButton": "Crear botón de compra",
-    "selectCompany": "Selecciona una empresa para gestionar sus botones de compra.",
+    "selectCompany": "Selecciona una marca para gestionar sus botones de compra.",
     "empty": "Aún no hay botones de compra. Crea uno para incrustar un pago a prueba de manipulaciones en tu sitio.",
     "deleteTitle": "Archivar botón de compra",
     "deleteMessage": "Una vez archivado, este botón de compra ya no podrá crear sesiones de pago. Cualquier página en tu sitio que lo use dejará de funcionar hasta que lo reactives (o reemplaces el ID del botón por uno nuevo).",
@@ -235,7 +235,7 @@
     "sectionDescription": "Claves seguras para el navegador para <dynopay-buy-button>. Cada clave está bloqueada por dominio y limitada por monto. Requiere una clave secreta activa del mismo entorno.",
     "createShort": "Crear",
     "createLong": "Crear clave publicable",
-    "selectCompany": "Selecciona una empresa para gestionar sus claves publicables.",
+    "selectCompany": "Selecciona una marca para gestionar sus claves publicables.",
     "emptyTitle": "Aún no hay claves publicables",
     "emptyBody": "Las claves publicables te permiten incrustar un Botón de compra o realizar pagos en tu propio sitio. Crea una para obtener tu primer fragmento incrustable.",
     "revokeModalTitle": "Revocar clave publicable",
@@ -296,9 +296,9 @@
     "settingsSubtitle": "Configura tu URL de endpoint, secreto de firma y eventos de prueba",
     "allSubtitle": "Recibe eventos en tiempo real e inspecciona los intentos de entrega recientes",
     "refresh": "Actualizar",
-    "selectCompany": "Selecciona una empresa para configurar webhooks.",
+    "selectCompany": "Selecciona una marca para configurar webhooks.",
     "deliveryOff": "La entrega del webhook está desactivada",
-    "pausedManual": "Has pausado las entregas de webhook a la URL de tu empresa",
+    "pausedManual": "Has pausado las entregas de webhook a la URL de tu marca",
     "pausedManualHint": "Reactiva las entregas cuando estés listo — las URL de webhook por solicitud no se ven afectadas.",
     "pausedAuto": "Dejamos de enviar eventos porque tu endpoint falló en responder repetidamente",
     "locationAbove": "arriba",
@@ -306,8 +306,8 @@
     "reenabling": "Reactivando…",
     "reenable": "Reactivar",
     "deliverEvents": "Entregar eventos de webhook",
-    "deliverPaused": "Pausado — los eventos no se envían a la URL de tu empresa.",
-    "deliverActive": "Activo — los eventos se envían a la URL de tu empresa.",
+    "deliverPaused": "Pausado — los eventos no se envían a la URL de tu marca.",
+    "deliverActive": "Activo — los eventos se envían a la URL de tu marca.",
     "toggleAria": "Alternar entrega de webhook",
     "endpointUrl": "URL de endpoint",
     "endpointUrlAria": "URL de endpoint de webhook",

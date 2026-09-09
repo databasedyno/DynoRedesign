@@ -19,11 +19,11 @@
   },
   "createdOn": "Créé le {{date}} à {{time}}",
   "validation": {
-    "selectCompany": "Veuillez sélectionner une entreprise"
+    "selectCompany": "Veuillez sélectionner une marque"
   },
   "company": {
-    "selectCompany": "Sélectionner une Entreprise",
-    "label": "Nom de l'Entreprise"
+    "selectCompany": "Sélectionner une marque",
+    "label": "Nom de la marque"
   },
   "currency": {
     "baseCurrency": "Devise de Base",
@@ -83,7 +83,7 @@
   "apiKeyTitleLive": "Clé API en direct",
   "apiKeyTitleTest": "Clé API de test",
   "keys": {
-    "liveUnlockHint": "Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre premier portefeuille sur cette entreprise.",
+    "liveUnlockHint": "Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre premier portefeuille sur cette marque.",
     "testAutoCreatedBadge": "Créée automatiquement · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · mode sandbox",
     "tryFirstPaymentTitle": "Essayez votre premier paiement",
@@ -171,7 +171,7 @@
     "sectionDescPost": "chemin est le flux de style Stripe canonique — comme le montant est côté serveur, les acheteurs ne peuvent pas modifier le prix dans votre HTML.",
     "create": "Créer",
     "createBuyButton": "Créer un bouton d'achat",
-    "selectCompany": "Sélectionnez une entreprise pour gérer ses boutons d'achat.",
+    "selectCompany": "Sélectionnez une marque pour gérer ses boutons d'achat.",
     "empty": "Pas encore de boutons d'achat. Créez-en un pour intégrer un paiement à l'épreuve des falsifications sur votre site.",
     "deleteTitle": "Archiver le bouton d'achat",
     "deleteMessage": "Une fois archivé, ce bouton d'achat ne peut plus créer de sessions de paiement. Toutes les pages de votre site l'utilisant cesseront de fonctionner jusqu'à ce que vous le réactiviez (ou remplaciez l'identifiant du bouton par un nouveau).",
@@ -235,7 +235,7 @@
     "sectionDescription": "Clés sécurisées pour le bouton d'achat <dynopay-buy-button>. Chaque clé est verrouillée par domaine et limitée par montant. Nécessite une clé secrète active du même environnement.",
     "createShort": "Créer",
     "createLong": "Créer une clé publiable",
-    "selectCompany": "Sélectionnez une entreprise pour gérer ses clés publiables.",
+    "selectCompany": "Sélectionnez une marque pour gérer ses clés publiables.",
     "emptyTitle": "Aucune clé publiable pour l'instant",
     "emptyBody": "Les clés publiables vous permettent d'intégrer un bouton d'achat ou un paiement sur votre propre site. Créez-en une pour obtenir votre premier extrait intégrable.",
     "revokeModalTitle": "Révoquer la clé publiable",
@@ -296,9 +296,9 @@
     "settingsSubtitle": "Configurez votre URL de point de terminaison, secret de signature et événements de test",
     "allSubtitle": "Recevez des événements en temps réel et inspectez les tentatives de livraison récentes",
     "refresh": "Rafraîchir",
-    "selectCompany": "Sélectionnez une entreprise pour configurer les webhooks.",
+    "selectCompany": "Sélectionnez une marque pour configurer les webhooks.",
     "deliveryOff": "La livraison des webhooks est désactivée",
-    "pausedManual": "Vous avez mis en pause les livraisons de webhook vers l'URL de votre entreprise",
+    "pausedManual": "Vous avez mis en pause les livraisons de webhook vers l'URL de votre marque",
     "pausedManualHint": "Réactivez les livraisons quand vous êtes prêt — les URL de webhook par demande ne sont pas affectées.",
     "pausedAuto": "Nous avons arrêté d'envoyer des événements car votre point de terminaison a échoué à répondre plusieurs fois",
     "locationAbove": "au-dessus",
@@ -306,8 +306,8 @@
     "reenabling": "Réactivation…",
     "reenable": "Réactiver",
     "deliverEvents": "Livrer les événements de webhook",
-    "deliverPaused": "Mise en pause — les événements ne sont pas envoyés à l'URL de votre entreprise.",
-    "deliverActive": "Actif — les événements sont envoyés à l'URL de votre entreprise.",
+    "deliverPaused": "Mise en pause — les événements ne sont pas envoyés à l'URL de votre marque.",
+    "deliverActive": "Actif — les événements sont envoyés à l'URL de votre marque.",
     "toggleAria": "Basculer la livraison des webhooks",
     "endpointUrl": "URL de point de terminaison",
     "endpointUrlAria": "URL de point de terminaison de webhook",

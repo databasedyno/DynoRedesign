@@ -29,7 +29,7 @@ export const sendCompanyProfileCreatedEmail = async (
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyText', L)}</p>
     `)}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyCreated.heading', L), content, true, t('merchant.companyCreated.cta', L), `${FRONTEND_BASE_URL}/wallet`, t('merchant.companyCreated.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.companyCreated.heading', L), content, true, t('merchant.companyCreated.cta', L), `${FRONTEND_BASE_URL}/wallet`, t('merchant.companyCreated.preheader', L), L, 'store');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile created email sent to ${email}`);
   } catch (e) {
@@ -62,7 +62,7 @@ export const sendCompanyContactWelcomeEmail = async (
     `)}
     ${p(t('merchant.companyContactWelcome.outro', L, { accountHolderName }))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyContactWelcome.heading', L), content, true, t('merchant.companyContactWelcome.cta', L), `${FRONTEND_BASE_URL}`, t('merchant.companyContactWelcome.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.companyContactWelcome.heading', L), content, true, t('merchant.companyContactWelcome.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.companyContactWelcome.preheader', L), L, 'store');
     await mailTransporter({ to: companyContactEmail, name: companyName, subject, body: html });
     apiLogger.info(`Company contact welcome email sent to ${companyContactEmail}`);
   } catch (e) {
@@ -96,7 +96,7 @@ export const sendCompanyProfileUpdatedEmail = async (
     `, '#12B76A')}
     ${p(t('merchant.companyUpdated.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`, t('merchant.companyUpdated.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`, t('merchant.companyUpdated.preheader', L), L, 'store');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile updated email sent to ${email}`);
   } catch (e) {
@@ -129,11 +129,85 @@ export const sendTeamMemberJoinedEmail = async (
     `, '#12B76A')}
     ${p(`They now have the access you granted. You can review or change their permissions anytime from Settings → Team.`)}`;
 
-    const html = dynoPayEmailTemplate(`A teammate joined`, content, true, `Manage your team`, `${FRONTEND_BASE_URL}/settings?section=team`, `${who} now has access to ${escapeHtml(companyName)}.`);
+    const html = dynoPayEmailTemplate(`A teammate joined`, content, true, `Manage your team`, `${FRONTEND_BASE_URL}/settings?section=team`, `${who} now has access to ${escapeHtml(companyName)}.`, undefined, 'team');
     await mailTransporter({ to: ownerEmail, name: ownerName, subject, body: html });
     apiLogger.info(`[Email] Teammate-joined notice sent to owner ${ownerEmail} (${memberEmail} -> ${companyName})`);
   } catch (e) {
     captureError(e, 'email', { extraContext: 'sendTeamMemberJoinedEmail' });
+  }
+};
+
+// ============================================================
+// SECTION 4b: BRAND DELETION (OTP + confirmation)
+// ============================================================
+
+/**
+ * Brand deletion — step 1: one-time code to confirm the delete.
+ */
+export const sendCompanyDeleteOTPEmail = async (
+  email: string,
+  name: string,
+  otpCode: string,
+  companyName: string,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const brand = escapeHtml(companyName);
+    const subject = t('merchant.companyDeleteOtp.subject', L, { companyName: brand });
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.companyDeleteOtp.intro', L, { companyName: brand }))}
+    ${otpBlock(otpCode)}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow(t('merchant.labels.brand', L), `<strong>${brand}</strong>`)}
+        ${dataRow(t('merchant.labels.action', L), statusBadge(t('merchant.badges.permanentDeletion', L), 'error'), true)}
+      </table>
+    `, '#ef4444')}
+    ${warnText(t('merchant.companyDeleteOtp.expiry', L))}`;
+
+    const html = dynoPayEmailTemplate(t('merchant.companyDeleteOtp.heading', L), content, false, "", "", t('merchant.companyDeleteOtp.preheader', L, { companyName: brand }), L, 'lock-red');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Brand delete OTP email sent to ${email}`);
+  } catch (e) {
+    apiLogger.error("Brand delete OTP email error:", e);
+  }
+};
+
+/**
+ * Brand deletion — step 2: confirmation + security net after the delete ran.
+ */
+export const sendCompanyDeletedEmail = async (
+  email: string,
+  name: string,
+  companyName: string,
+  revokedApiKeys: number,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const brand = escapeHtml(companyName);
+    const subject = t('merchant.companyDeleted.subject', L, { companyName: brand });
+    const li = (text: string) =>
+      `<tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">• ${text}</td></tr>`;
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.companyDeleted.intro', L, { companyName: brand }))}
+    ${infoBox(`
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyDeleted.removedTitle', L)}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${li(t('merchant.companyDeleted.removed1', L))}
+        ${li(t('merchant.companyDeleted.removed2', L, { apiKeys: revokedApiKeys }))}
+        ${li(t('merchant.companyDeleted.removed3', L))}
+      </table>
+    `, '#ef4444')}
+    ${p(t('merchant.companyDeleted.note', L))}
+    ${p(t('merchant.companyDeleted.didntDoThis', L))}`;
+
+    const html = dynoPayEmailTemplate(t('merchant.companyDeleted.heading', L), content, true, t('merchant.companyDeleted.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.companyDeleted.preheader', L, { companyName: brand }), L, 'trash');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Brand deleted email sent to ${email} (${companyName})`);
+  } catch (e) {
+    apiLogger.error("Brand deleted email error:", e);
   }
 };
 

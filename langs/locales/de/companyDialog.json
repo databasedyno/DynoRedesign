@@ -29,7 +29,7 @@
       "placeholder": "Ihre Mobilnummer eingeben"
     },
     "brandLogo": {
-      "label": "Firmenlogo",
+      "label": "Markenlogo",
       "uploadCta": "Klicken zum Hochladen oder per Drag & Drop",
       "uploadHint": "SVG, PNG, JPG (max. 2MB)",
       "saving": "Speichern…",

@@ -86,7 +86,7 @@ const StorefrontComparePanel: React.FC = () => {
     <Box sx={{ mt: 3 }} data-testid="storefront-compare-panel">
       <PanelCard
         title={t("storefront.compare.title", { defaultValue: "Compare storefronts" })}
-        subTitle={t("storefront.compare.subtitle", { defaultValue: "Views, tips and product sales per company — last 30 days." })}
+        subTitle={t("storefront.compare.subtitle", { defaultValue: "Views, tips and product sales per brand — last 30 days." })}
       >
         {!data ? (
           <Skeleton
@@ -99,7 +99,7 @@ const StorefrontComparePanel: React.FC = () => {
           <Box sx={{ overflowX: "auto" }}>
             <Box sx={{ minWidth: 620 }}>
               <Box sx={{ display: "grid", gridTemplateColumns: GRID, gap: 1.5, px: 1.5, pb: 1 }}>
-                <Typography sx={HEAD_SX}>{t("storefront.compare.colCompany", { defaultValue: "Company" })}</Typography>
+                <Typography sx={HEAD_SX}>{t("storefront.compare.colCompany", { defaultValue: "Brand" })}</Typography>
                 <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>{t("storefront.compare.colViews", { defaultValue: "Views · 30d trend" })}</Typography>
                 <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>{t("storefront.compare.colTips", { defaultValue: "Tips" })}</Typography>
                 <Typography sx={{ ...HEAD_SX, textAlign: "right" }}>{t("storefront.compare.colSales", { defaultValue: "Sales" })}</Typography>

@@ -58,7 +58,7 @@ export const sendWeeklySummaryEmail = async (
     `)}
     ${contextMessage}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.weeklySummary.heading', L), content, true, t('merchant.weeklySummary.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.weeklySummary.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.weeklySummary.heading', L), content, true, t('merchant.weeklySummary.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.weeklySummary.preheader', L), L, 'chart');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Weekly summary email sent to ${email}`);
   } catch (e) {
@@ -102,7 +102,7 @@ export const sendInvoiceGeneratedEmail = async (
     `)}
     ${p(t('merchant.invoice.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.invoice.heading', L), content, true, t('merchant.invoice.cta', L), invoiceData.invoice_url, t('merchant.invoice.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.invoice.heading', L), content, true, t('merchant.invoice.cta', L), invoiceData.invoice_url, t('merchant.invoice.preheader', L), L, 'receipt');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Invoice email sent to ${email} for invoice ${invoiceData.invoice_number}`);
   } catch (error) {
@@ -140,11 +140,54 @@ export const sendApiKeyCreatedEmail = async (
     ${keyType === 'production' ? warnText(t('merchant.apiKey.productionWarn', L)) : ''}
     ${p(action === 'created' ? t('merchant.apiKey.didntCreate', L) : t('merchant.apiKey.didntRegenerate', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.apiKey.heading', L), content, true, t('merchant.apiKey.cta', L), `${FRONTEND_BASE_URL}/developer-keys`, t('merchant.apiKey.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.apiKey.heading', L), content, true, t('merchant.apiKey.cta', L), `${FRONTEND_BASE_URL}/developer-keys`, t('merchant.apiKey.preheader', L), L, 'key');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] API key ${action} notification sent to ${email} for ${keyType} environment`);
   } catch (e) {
     apiLogger.error("API key created email error:", e);
+  }
+};
+
+/**
+ * API key deleted / revoked — security confirmation (audit gap: only "created" existed).
+ */
+export const sendApiKeyRevokedEmail = async (
+  email: string, name: string, keyType: 'development' | 'production',
+  companyName: string, keyPreview: string, date: string, time: string,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const keyTypeWord = keyType === 'production' ? t('merchant.typeProduction', L) : t('merchant.typeDevelopment', L);
+    const brand = escapeHtml(companyName);
+    const subject = t('merchant.apiKeyRevoked.subject', L, { keyType: keyTypeWord });
+    const li = (text: string) =>
+      `<tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">• ${text}</td></tr>`;
+
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.apiKeyRevoked.intro', L, { keyType: keyTypeWord, companyName: brand }))}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow(t('merchant.labels.brand', L), `<strong>${brand}</strong>`)}
+        ${dataRow(t('merchant.labels.environment', L), keyType === 'production' ? statusBadge(t('merchant.badges.production', L), 'error') : statusBadge(t('merchant.badges.development', L), 'pending'))}
+        ${keyPreview ? dataRow(t('merchant.labels.keyPreview', L), `<span style="font-family: monospace; font-size: 13px;">${escapeHtml(keyPreview)}...</span>`) : ''}
+        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
+      </table>
+    `, '#ef4444')}
+    ${alertBox(`
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.apiKeyRevoked.nextTitle', L)}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${li(t('merchant.apiKeyRevoked.next1', L))}
+        ${li(t('merchant.apiKeyRevoked.next2', L))}
+      </table>
+    `)}
+    ${p(t('merchant.apiKeyRevoked.didntDoThis', L))}`;
+
+    const html = dynoPayEmailTemplate(t('merchant.apiKeyRevoked.heading', L), content, true, t('merchant.apiKeyRevoked.cta', L), `${FRONTEND_BASE_URL}/developer-keys`, t('merchant.apiKeyRevoked.preheader', L, { companyName: brand }), L, 'key-off');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] API key revoked notification sent to ${email} for ${keyType} environment`);
+  } catch (e) {
+    apiLogger.error("API key revoked email error:", e);
   }
 };
 
@@ -169,7 +212,7 @@ export const sendSubscriptionCreatedEmail = async (
     `, '#12B76A')}
     ${p(t('merchant.subscriptionCreated.custOutro', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent, false, "", "", t('merchant.subscriptionCreated.custPreheader', CL), CL);
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent, false, "", "", t('merchant.subscriptionCreated.custPreheader', CL), CL, 'receipt');
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionCreated.merchSubject', ML, { planName });
@@ -184,7 +227,7 @@ export const sendSubscriptionCreatedEmail = async (
       </table>
     `, '#12B76A')}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCreated.merchPreheader', ML), ML);
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCreated.merchPreheader', ML), ML, 'receipt');
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription created notifications sent for ${planName}`);
   } catch (e) {
@@ -214,7 +257,7 @@ export const sendSubscriptionCancelledEmail = async (
     ${p(t('merchant.subscriptionCancelled.custOutro1', CL, { effectiveDate }))}
     ${p(t('merchant.subscriptionCancelled.custOutro2', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', CL), customerContent, false, "", "", t('merchant.subscriptionCancelled.custPreheader', CL), CL);
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', CL), customerContent, false, "", "", t('merchant.subscriptionCancelled.custPreheader', CL), CL, 'expired');
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionCancelled.merchSubject', ML, { name: displayName });
@@ -229,7 +272,7 @@ export const sendSubscriptionCancelledEmail = async (
       </table>
     `, '#f59e0b')}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCancelled.merchPreheader', ML), ML);
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCancelled.merchPreheader', ML), ML, 'expired');
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription cancelled notifications sent for ${planName}`);
   } catch (e) {
@@ -259,7 +302,7 @@ export const sendSubscriptionPaymentFailedEmail = async (
     ${p(t('merchant.subscriptionPaymentFailed.custSteps', CL))}
     ${warnText(t('merchant.subscriptionPaymentFailed.custWarn', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.custHeading', CL), customerContent, true, t('merchant.subscriptionPaymentFailed.custCta', CL), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.custPreheader', CL), CL);
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.custHeading', CL), customerContent, true, t('merchant.subscriptionPaymentFailed.custCta', CL), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.custPreheader', CL), CL, 'danger');
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionPaymentFailed.merchSubject', ML, { name: displayName });
@@ -276,7 +319,7 @@ export const sendSubscriptionPaymentFailedEmail = async (
     `, '#f59e0b')}
     ${p(t('merchant.subscriptionPaymentFailed.merchOutro', ML))}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.merchHeading', ML), merchantContent, true, t('merchant.subscriptionPaymentFailed.merchCta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.merchPreheader', ML), ML);
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.merchHeading', ML), merchantContent, true, t('merchant.subscriptionPaymentFailed.merchCta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionPaymentFailed.merchPreheader', ML), ML, 'danger');
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription payment failed notifications sent for ${planName}`);
   } catch (e) {

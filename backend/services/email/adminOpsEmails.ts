@@ -42,7 +42,7 @@ export const sendLargeTransactionAlertEmail = async (
     ${p(t('merchant.largeTransaction.outro1', L))}
     ${p(t('merchant.largeTransaction.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.largeTransaction.heading', L), content, true, t('merchant.largeTransaction.cta', L), `${FRONTEND_BASE_URL}/transactions`, "", L);
+    const html = dynoPayEmailTemplate(t('merchant.largeTransaction.heading', L), content, true, t('merchant.largeTransaction.cta', L), `${FRONTEND_BASE_URL}/transactions`, "", L, 'alert');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Large transaction alert sent to ${email} - ${amount} ${currency}`);
   } catch (e) {
@@ -91,7 +91,7 @@ export const sendWebhookDisabledEmail = async (
       ${p(`If you don't recognize this endpoint or believe this is a mistake, please reply to this email and we'll investigate immediately.`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name || 'there', message, `Webhook auto-disabled`, false, undefined, `We paused webhook delivery after ${failureCount} failed attempts — action needed.`);
+    const html = dynoPayGreetingTemplate(name || 'there', message, `Webhook auto-disabled`, false, undefined, `We paused webhook delivery after ${failureCount} failed attempts — action needed.`, 'webhook');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Webhook auto-disabled alert sent to ${email} (company="${companyName}" url="${displayUrl}" failures=${failureCount})`);
   } catch (e) {
@@ -139,7 +139,7 @@ export const sendWebhookRedirectEmail = async (
       ${p(`Nothing is broken and no action is strictly required — this is just a recommendation to keep your integration fast and resilient.`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name || 'there', message, `Your webhook URL redirects`, false, undefined, `We're auto-following an HTTP ${status} redirect on your webhook — please update the URL.`);
+    const html = dynoPayGreetingTemplate(name || 'there', message, `Your webhook URL redirects`, false, undefined, `We're auto-following an HTTP ${status} redirect on your webhook — please update the URL.`, 'webhook');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Webhook redirect notice sent to ${email} (company="${companyName}" ${fromUrl} → ${toUrl} status=${status})`);
   } catch (e) {
@@ -219,7 +219,7 @@ export const sendAdminFeeReceivedEmail = async (
       ${noticeBlock}
       ${p(`The fee has been credited to the admin ${currency} wallet.`)}`;
 
-    const htmlBody = dynoPayEmailTemplate("Platform Fee Received", `${p(`Hey ${firstNameOnly(name)},`)}\n${htmlContent}`);
+    const htmlBody = dynoPayEmailTemplate("Platform Fee Received", `${p(`Hey ${firstNameOnly(name)},`)}\n${htmlContent}`, false, "", "", "", undefined, 'check');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: htmlBody });
     return info;
   } catch (e) {
@@ -265,7 +265,7 @@ export const sendAdminFeeSweepEmail = async (
       `, EMAIL_TOKENS.brand)}
       ${p(`The admin fees have been transferred to the admin ${currency} wallet. You can verify the transaction on the blockchain explorer.`)}`;
 
-    const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey Dynopay Admin,`)}\n${htmlContent}`);
+    const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey Dynopay Admin,`)}\n${htmlContent}`, false, "", "", "", undefined, 'payout');
     const info = await mailTransporter({
       to: recipientEmail,
       name: "Dynopay Admin",
@@ -307,7 +307,7 @@ export const sendTreasuryLowAlertEmail = async (
       ${p(`The affected payout is <strong>safely waiting</strong> and will retry automatically once the Binance ${escapeHtml(asset)} balance is topped up. No funds were lost and nothing was marked failed.`)}
       ${p(`<strong>Action:</strong> top up the Binance ${escapeHtml(asset)} balance to at least ${toFixedStr(need, 2)} ${escapeHtml(asset)}.`)}`;
 
-    const html = dynoPayEmailTemplate(`Low ${asset} treasury`, `${p(`Hey Dynopay Admin,`)}\n${content}`);
+    const html = dynoPayEmailTemplate(`Low ${asset} treasury`, `${p(`Hey Dynopay Admin,`)}\n${content}`, false, "", "", "", undefined, 'danger');
     await mailTransporter({ to: recipientEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Treasury-low alert sent to ${recipientEmail} (${asset}: have ${have}, need ${need}, ${context})`);
   } catch (e) {

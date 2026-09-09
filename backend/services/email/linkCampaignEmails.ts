@@ -50,7 +50,7 @@ export const sendPaymentLinkCreatedEmail = async (
     `)}
     ${p(t('merchant.paymentLinkCreated.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.paymentLinkCreated.heading', L), content, true, t('merchant.paymentLinkCreated.cta', L), paymentLink, t('merchant.paymentLinkCreated.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.paymentLinkCreated.heading', L), content, true, t('merchant.paymentLinkCreated.cta', L), paymentLink, t('merchant.paymentLinkCreated.preheader', L), L, 'link');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Payment link created email sent to ${email}`);
   } catch (e) {
@@ -110,7 +110,7 @@ export const sendCrowdfundingCampaignCreatedEmail = async (
     `)}
     ${p(t('merchant.crowdfundingCreated.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.crowdfundingCreated.heading', L), content, true, t('merchant.crowdfundingCreated.cta', L), campaignLink, t('merchant.crowdfundingCreated.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.crowdfundingCreated.heading', L), content, true, t('merchant.crowdfundingCreated.cta', L), campaignLink, t('merchant.crowdfundingCreated.preheader', L), L, 'campaign');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Crowdfunding campaign created email sent to ${email}`);
   } catch (e) {
@@ -176,14 +176,7 @@ export const sendCrowdfundingUpdateEmail = async (
     `)}
     ${p(t('contributor.crowdfundingUpdate.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(
-      t('contributor.crowdfundingUpdate.heading', L, { campaign: safeCampaign }),
-      content,
-      true,
-      t('contributor.crowdfundingUpdate.cta', L),
-      campaignLink,
-      t('contributor.crowdfundingUpdate.preheader', L, { campaign: safeCampaign }), L
-    );
+    const html = dynoPayEmailTemplate(t('contributor.crowdfundingUpdate.heading', L, { campaign: safeCampaign }), content, true, t('contributor.crowdfundingUpdate.cta', L), campaignLink, t('contributor.crowdfundingUpdate.preheader', L, { campaign: safeCampaign }), L, 'campaign');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Crowdfunding update email sent to ${email}`);
   } catch (e) {
@@ -251,7 +244,7 @@ export const sendRefereeCodeReminderEmail = async (
     `.trim();
 
     const recipientName = recipientEmail.split('@')[0] || "there";
-    const htmlBody = dynoPayEmailTemplate(t('referral.reminder.heading', L), `${p(t('common.greeting', L, { name: recipientName }))}\n${message}`, false, "", "", "", L);
+    const htmlBody = dynoPayEmailTemplate(t('referral.reminder.heading', L), `${p(t('common.greeting', L, { name: recipientName }))}\n${message}`, false, "", "", "", L, 'gift');
 
     const info = await mailTransporter({
       to: recipientEmail,
@@ -317,7 +310,7 @@ export const sendRefereeInviteEmail = async (
 ${unsubscribeLine}
     `.trim();
 
-    const htmlBody = dynoPayEmailTemplate(t('referral.invite.heading', L), `${p(t('common.greeting', L, { name: recipientName }))}\n${message}`, false, "", "", "", L);
+    const htmlBody = dynoPayEmailTemplate(t('referral.invite.heading', L), `${p(t('common.greeting', L, { name: recipientName }))}\n${message}`, false, "", "", "", L, 'gift');
 
     const info = await mailTransporter({
       to: recipientEmail,
@@ -427,7 +420,7 @@ export const sendPaymentLinkReminderEmail = async (
     `.trim();
 
     const recipientName = recipientEmail.split('@')[0] || "there";
-    const htmlBody = dynoPayEmailTemplate(headerText, `${p(`Hey ${firstNameOnly(recipientName)},`)}\n${message}`);
+    const htmlBody = dynoPayEmailTemplate(headerText, `${p(`Hey ${firstNameOnly(recipientName)},`)}\n${message}`, false, "", "", "", undefined, 'link');
 
     const info = await mailTransporter({
       to: recipientEmail,

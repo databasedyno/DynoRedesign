@@ -2,7 +2,7 @@
 ## DynoPay Application
 
 **Audit Date:** August 3, 2026  
-**Preview URL:** https://backend-audit-14.preview.emergentagent.com  
+**Preview URL:** https://kendra-vault.preview.emergentagent.com  
 **Merchant Test Account:** hostbay@moxx.co / Katiekendra123@
 
 ---

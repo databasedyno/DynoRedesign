@@ -1122,7 +1122,7 @@ const BuyButtonsSection = () => {
             data-testid="bb-no-company"
           >
             <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-              {t("buyButtons.selectCompany", { defaultValue: "Select a company to manage its buy buttons." })}
+              {t("buyButtons.selectCompany", { defaultValue: "Select a brand to manage its buy buttons." })}
             </Typography>
           </Box>
         ) : loading ? (

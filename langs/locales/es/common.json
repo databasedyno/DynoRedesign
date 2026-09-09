@@ -604,7 +604,7 @@
     "title": "Configuración",
     "planFees": "Plan y comisiones",
     "referrals": "Referidos",
-    "description": "Gestione su cuenta, empresa y configuración de integraciones",
+    "description": "Gestione su cuenta, marca y configuración de integraciones",
     "profile": "Perfil y seguridad",
     "profileDesc": "Datos personales, contraseña y seguridad de acceso",
     "company": "Marca",
@@ -694,7 +694,7 @@
     "vatDesc": "Mostrado en los recibos. Habilita la validación del cargo inverso en la UE cuando tus compradores proporcionan su propio ID de IVA.",
     "vatInvalidHint": "Esto no coincide con un formato de IVA conocido de la UE/GB; aún así se guardará como se ingresó.",
     "save": "Guardar ajustes de impuestos",
-    "inheritNote": "Mostrando tus valores predeterminados de cuenta — guardar aquí crea configuraciones fiscales específicas para la empresa seleccionada."
+    "inheritNote": "Mostrando tus valores predeterminados de cuenta — guardar aquí crea configuraciones fiscales específicas para la marca seleccionada."
   },
   "accountTypeIndividual": "Individual",
   "accountTypeBusiness": "Negocio",
@@ -713,7 +713,7 @@
   "EmptyTxChipProducts": "Vender productos",
   "EmptyTxChipCrowdfund": "Financia una causa",
   "loading": "Cargando…",
-  "appliesToThisCompanyOnly": "Se aplica solo a esta empresa",
+  "appliesToThisCompanyOnly": "Se aplica solo a esta marca",
   "langSuggest": {
     "title": "¿Prefieres {{lang}}?",
     "body": "Tu navegador está en {{lang}}.",
@@ -810,14 +810,14 @@
     },
     "compare": {
       "title": "Comparar tiendas",
-      "subtitle": "Vistas, propinas y ventas de productos por empresa — últimos 30 días.",
-      "colCompany": "Empresa",
+      "subtitle": "Vistas, propinas y ventas de productos por marca — últimos 30 días.",
+      "colCompany": "Marca",
       "colViews": "Vistas · tendencia 30 d",
       "colTips": "Propinas",
       "colSales": "Ventas",
       "colRevenue": "Ingresos",
       "noStorefront": "Aún sin tienda",
-      "companyN": "Empresa {{n}}"
+      "companyN": "Marca {{n}}"
     },
     "analytics": {
       "tipsSupporters": "Propinas y seguidores",
@@ -992,7 +992,7 @@
     "subtitle": "Introduce el código de verificación enviado a tu correo"
   },
   "setupPrompt": {
-    "createCompany": "Crear una empresa",
+    "createCompany": "Crear una marca",
     "addWallet": "Añadir una dirección de billetera"
   },
   "payouts": {

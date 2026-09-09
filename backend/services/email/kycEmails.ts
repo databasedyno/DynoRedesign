@@ -41,7 +41,7 @@ export const sendKYCRequiredEmail = async (
     `)}
     ${p(t('merchant.kycRequired.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycRequired.heading', L), content, true, t('merchant.kycRequired.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycRequired.preheader', L, { threshold: thresholdAmount }), L);
+    const html = dynoPayEmailTemplate(t('merchant.kycRequired.heading', L), content, true, t('merchant.kycRequired.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycRequired.preheader', L, { threshold: thresholdAmount }), L, 'id-card');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC required email sent to ${email}`);
   } catch (e) {
@@ -62,7 +62,7 @@ export const sendKYCApprovedEmail = async (email: string, name: string, lang?: s
     `, '#12B76A')}
     ${p(t('merchant.kycApproved.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycApproved.heading', L), content, true, t('merchant.kycApproved.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycApproved.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.kycApproved.heading', L), content, true, t('merchant.kycApproved.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycApproved.preheader', L), L, 'id-card-green');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC approved email sent to ${email}`);
   } catch (e) {
@@ -84,7 +84,7 @@ export const sendKYCRejectedEmail = async (email: string, name: string, rejectio
     ${p(t('merchant.kycRejected.outro2', L))}
     ${p(t('merchant.kycRejected.outro3', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycRejected.heading', L), content, true, t('merchant.kycRejected.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycRejected.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.kycRejected.heading', L), content, true, t('merchant.kycRejected.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycRejected.preheader', L), L, 'id-card-red');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC rejected email sent to ${email}`);
   } catch (e) {
@@ -108,7 +108,7 @@ export const sendKYCStartedEmail = async (email: string, name: string, verificat
     `)}
     ${p(t('merchant.kycStarted.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycStarted.heading', L), content, true, t('merchant.kycStarted.cta', L), verificationUrl, t('merchant.kycStarted.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.kycStarted.heading', L), content, true, t('merchant.kycStarted.cta', L), verificationUrl, t('merchant.kycStarted.preheader', L), L, 'id-card');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC started email sent to ${email}`);
   } catch (e) {
@@ -129,7 +129,7 @@ export const sendKYCResubmissionRequiredEmail = async (email: string, name: stri
     ${p(t('merchant.kycResubmission.outro1', L))}
     ${p(t('merchant.kycResubmission.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.kycResubmission.heading', L), content, true, t('merchant.kycResubmission.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycResubmission.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('merchant.kycResubmission.heading', L), content, true, t('merchant.kycResubmission.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.kycResubmission.preheader', L), L, 'id-card-red');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC resubmission required email sent to ${email}`);
   } catch (e) {

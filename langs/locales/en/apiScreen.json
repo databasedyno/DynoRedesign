@@ -19,11 +19,11 @@
   },
   "createdOn": "Created on {{date}} at {{time}}",
   "validation": {
-    "selectCompany": "Please select a company"
+    "selectCompany": "Please select a brand"
   },
   "company": {
-    "selectCompany": "Select Company",
-    "label": "Company Name"
+    "selectCompany": "Select brand",
+    "label": "Brand name"
   },
   "currency": {
     "baseCurrency": "Base Currency",
@@ -83,7 +83,7 @@
   "apiKeyTitleLive": "Live API Key",
   "apiKeyTitleTest": "Test API Key",
   "keys": {
-    "liveUnlockHint": "Your live key activates automatically once you add (or reuse) your first wallet on this company.",
+    "liveUnlockHint": "Your live key activates automatically once you add (or reuse) your first wallet on this brand.",
     "testAutoCreatedBadge": "Auto-created · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox mode",
     "tryFirstPaymentTitle": "Try your first payment",
@@ -171,7 +171,7 @@
     "sectionDescPost": "path is the canonical Stripe-style flow — because the amount lives server-side, shoppers can’t tamper with the price in your HTML.",
     "create": "Create",
     "createBuyButton": "Create buy button",
-    "selectCompany": "Select a company to manage its buy buttons.",
+    "selectCompany": "Select a brand to manage its buy buttons.",
     "empty": "No buy buttons yet. Create one to embed a tamper-proof checkout on your site.",
     "deleteTitle": "Archive buy button",
     "deleteMessage": "Once archived, this buy button can no longer create checkout sessions. Any pages on your site using it will stop working until you reactivate it (or replace the button-id with a new one).",
@@ -235,7 +235,7 @@
     "sectionDescription": "Browser-safe keys for drop-in <dynopay-buy-button>. Each key is domain-locked and amount-capped. Requires an active secret key of the same environment.",
     "createShort": "Create",
     "createLong": "Create publishable key",
-    "selectCompany": "Select a company to manage its publishable keys.",
+    "selectCompany": "Select a brand to manage its publishable keys.",
     "emptyTitle": "No publishable keys yet",
     "emptyBody": "Publishable keys let you embed a Buy Button or checkout on your own site. Create one to get your first embeddable snippet.",
     "revokeModalTitle": "Revoke publishable key",
@@ -296,9 +296,9 @@
     "settingsSubtitle": "Configure your endpoint URL, signing secret and test events",
     "allSubtitle": "Receive real-time events and inspect recent delivery attempts",
     "refresh": "Refresh",
-    "selectCompany": "Select a company to configure webhooks.",
+    "selectCompany": "Select a brand to configure webhooks.",
     "deliveryOff": "Webhook delivery is turned off",
-    "pausedManual": "You paused webhook deliveries to your company URL",
+    "pausedManual": "You paused webhook deliveries to your brand's webhook URL",
     "pausedManualHint": "Turn deliveries back on whenever you're ready — per-request webhook URLs are unaffected.",
     "pausedAuto": "We stopped sending events because your endpoint repeatedly failed to respond",
     "locationAbove": "above",
@@ -306,8 +306,8 @@
     "reenabling": "Re-enabling…",
     "reenable": "Re-enable",
     "deliverEvents": "Deliver webhook events",
-    "deliverPaused": "Paused — events are not being sent to your company URL.",
-    "deliverActive": "Active — events are sent to your company URL.",
+    "deliverPaused": "Paused — events are not being sent to your brand's webhook URL.",
+    "deliverActive": "Active — events are sent to your brand's webhook URL.",
     "toggleAria": "Toggle webhook delivery",
     "endpointUrl": "Endpoint URL",
     "endpointUrlAria": "Webhook endpoint URL",

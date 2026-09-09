@@ -19,11 +19,11 @@
   },
   "createdOn": "Erstellt am {{date}} um {{time}}",
   "validation": {
-    "selectCompany": "Bitte wählen Sie ein Unternehmen aus"
+    "selectCompany": "Bitte wählen Sie eine Marke aus"
   },
   "company": {
-    "selectCompany": "Unternehmen auswählen",
-    "label": "Firmenname"
+    "selectCompany": "Marke auswählen",
+    "label": "Markenname"
   },
   "currency": {
     "baseCurrency": "Basiswährung",
@@ -83,7 +83,7 @@
   "apiKeyTitleLive": "Live-API-Schlüssel",
   "apiKeyTitleTest": "Test-API-Schlüssel",
   "keys": {
-    "liveUnlockHint": "Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Wallet für dieses Unternehmen hinzufügen (oder wiederverwenden).",
+    "liveUnlockHint": "Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Wallet für diese Marke hinzufügen (oder wiederverwenden).",
     "testAutoCreatedBadge": "Automatisch erstellt · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · Sandbox-Modus",
     "tryFirstPaymentTitle": "Probieren Sie Ihre erste Zahlung aus",
@@ -171,7 +171,7 @@
     "sectionDescPost": "Pfad ist der kanonische Stripe-ähnliche Ablauf — da der Betrag serverseitig gespeichert ist, können Käufer den Preis in Ihrem HTML nicht manipulieren.",
     "create": "Erstellen",
     "createBuyButton": "Kauf-Button erstellen",
-    "selectCompany": "Wählen Sie ein Unternehmen aus, um dessen Kauf-Buttons zu verwalten.",
+    "selectCompany": "Wählen Sie eine Marke aus, um deren Kauf-Buttons zu verwalten.",
     "empty": "Noch keine Kauf-Buttons. Erstellen Sie einen, um einen manipulationssicheren Checkout auf Ihrer Website einzubetten.",
     "deleteTitle": "Kauf-Button archivieren",
     "deleteMessage": "Einmal archiviert, kann dieser Kauf-Button keine Checkout-Sitzungen mehr erstellen. Alle Seiten auf Ihrer Website, die ihn verwenden, funktionieren nicht mehr, bis Sie ihn reaktivieren (oder die Button-ID durch eine neue ersetzen).",
@@ -235,7 +235,7 @@
     "sectionDescription": "Browser-sichere Schlüssel für den Drop-in <dynopay-buy-button>. Jeder Schlüssel ist domänengebunden und betragsbegrenzt. Erfordert einen aktiven geheimen Schlüssel derselben Umgebung.",
     "createShort": "Erstellen",
     "createLong": "Veröffentlichbaren Schlüssel erstellen",
-    "selectCompany": "Wählen Sie ein Unternehmen aus, um dessen veröffentlichbare Schlüssel zu verwalten.",
+    "selectCompany": "Wählen Sie eine Marke aus, um deren veröffentlichbare Schlüssel zu verwalten.",
     "emptyTitle": "Noch keine veröffentlichten Schlüssel",
     "emptyBody": "Veröffentlichbare Schlüssel ermöglichen es Ihnen, einen Kauf-Button oder Checkout auf Ihrer eigenen Website einzubetten. Erstellen Sie einen, um Ihren ersten einbettbaren Snippet zu erhalten.",
     "revokeModalTitle": "Veröffentlichbaren Schlüssel widerrufen",
@@ -296,9 +296,9 @@
     "settingsSubtitle": "Konfigurieren Sie Ihre Endpunkt-URL, das Signaturgeheimnis und Testereignisse",
     "allSubtitle": "Erhalten Sie Echtzeitevents und überprüfen Sie kürzliche Zustellversuche",
     "refresh": "Aktualisieren",
-    "selectCompany": "Wählen Sie ein Unternehmen aus, um Webhooks zu konfigurieren.",
+    "selectCompany": "Wählen Sie eine Marke aus, um Webhooks zu konfigurieren.",
     "deliveryOff": "Webhook-Zustellung ist deaktiviert",
-    "pausedManual": "Sie haben die Webhook-Zustellungen an Ihre Unternehmens-URL pausiert",
+    "pausedManual": "Sie haben die Webhook-Zustellungen an die Webhook-URL Ihrer Marke pausiert",
     "pausedManualHint": "Aktivieren Sie die Zustellungen wieder, wann immer Sie bereit sind — die Webhook-URLs pro Anfrage sind nicht betroffen.",
     "pausedAuto": "Wir haben das Senden von Ereignissen gestoppt, da Ihr Endpunkt wiederholt nicht geantwortet hat",
     "locationAbove": "oben",
@@ -306,8 +306,8 @@
     "reenabling": "Wiederaktivierung…",
     "reenable": "Wieder aktivieren",
     "deliverEvents": "Webhook-Ereignisse zustellen",
-    "deliverPaused": "Pausiert — Ereignisse werden nicht an Ihre Unternehmens-URL gesendet.",
-    "deliverActive": "Aktiv — Ereignisse werden an Ihre Unternehmens-URL gesendet.",
+    "deliverPaused": "Pausiert — Ereignisse werden nicht an die Webhook-URL Ihrer Marke gesendet.",
+    "deliverActive": "Aktiv — Ereignisse werden an die Webhook-URL Ihrer Marke gesendet.",
     "toggleAria": "Webhook-Zustellung umschalten",
     "endpointUrl": "Endpunkt-URL",
     "endpointUrlAria": "Webhook-Endpunkt-URL",

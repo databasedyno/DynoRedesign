@@ -181,7 +181,7 @@ const companyOwnershipMiddleware = async (
     // No such company -> no access (preserves the prior 403 semantics).
     if (!company) {
       apiLogger.info(`[CompanyOwnership] ❌ User ${userData.user_id} does not have access to company ${parsedCompanyId}`);
-      return errorResponseHelper(res, 403, "You do not have access to this company");
+      return errorResponseHelper(res, 403, "You do not have access to this brand");
     }
     
     const uid = Number(userData.user_id);
@@ -211,7 +211,7 @@ const companyOwnershipMiddleware = async (
     }
     
     apiLogger.info(`[CompanyOwnership] ❌ User ${uid} does not have access to company ${parsedCompanyId}`);
-    return errorResponseHelper(res, 403, "You do not have access to this company");
+    return errorResponseHelper(res, 403, "You do not have access to this brand");
     
   } catch (e: unknown) {
     apiLogger.info("Company Ownership Middleware Error:", e);

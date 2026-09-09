@@ -453,13 +453,38 @@ const deleteApi = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     const api_id = req.params.id;
+    const existing = await apiModel.findOne({ where: { user_id: userData.user_id, api_id } });
     const resData = await apiModel.destroy({
       where: {
         user_id: userData.user_id,
         api_id,
       },
     });
-    successResponseHelper(res, 200, "Api deleted successfully!", resData);
+
+    if (existing && resData > 0) {
+      try {
+        const { sendApiKeyRevokedEmail } = await import("../services/emailService");
+        const company = existing.dataValues.company_id
+          ? await companyModel.findOne({ where: { company_id: existing.dataValues.company_id }, attributes: ["company_name"] })
+          : null;
+        const now = new Date();
+        const keyType: "production" | "development" =
+          existing.dataValues.environment === "development" ? "development" : "production";
+        await sendApiKeyRevokedEmail(
+          userData.email,
+          userData.name || "User",
+          keyType,
+          company?.dataValues.company_name || "your brand",
+          String(existing.dataValues.apiKey || "").substring(0, 12),
+          now.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }),
+          now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
+        );
+      } catch (emailError) {
+        apiLogger.error("[ApiKey] Failed to send revoke notification:", emailError);
+      }
+    }
+
+    successResponseHelper(res, 200, "API key deleted successfully!", resData);
   } catch (e) {
 
       handleControllerError(res, e, apiLogger, { user_id: userData.user_id, email: userData.email });

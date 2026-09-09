@@ -215,7 +215,7 @@ const AdminTransactions: React.FC = () => {
                   <TableHead>
                     <TableRow sx={{ "& th": { fontWeight: 700, backgroundColor: theme.palette.action.hover } }}>
                       <TableCell>Date</TableCell>
-                      <TableCell>Company</TableCell>
+                      <TableCell>Brand</TableCell>
                       <TableCell>Customer</TableCell>
                       <TableCell align="right">Amount</TableCell>
                       <TableCell align="right">Crypto</TableCell>

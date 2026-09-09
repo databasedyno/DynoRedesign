@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://backend-audit-14.preview.emergentagent.com
+- **Pod URL**: https://kendra-vault.preview.emergentagent.com
 
 ---
 

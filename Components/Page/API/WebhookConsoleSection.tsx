@@ -451,7 +451,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       >
         {!companyId ? (
           <Typography sx={{ fontSize: 13, color: t.secondary, py: 2 }}>
-            {tr("webhook.selectCompany", { defaultValue: "Select a company to configure webhooks." })}
+            {tr("webhook.selectCompany", { defaultValue: "Select a brand to configure webhooks." })}
           </Typography>
         ) : (
           <Box data-testid="webhook-console">
@@ -474,7 +474,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                   <Typography sx={{ fontSize: 12.5, color: t.primary, mt: 0.5 }}>
                     {(disabledInfo.reason || "").toLowerCase().includes("manual") ? (
                       <>
-                        {tr("webhook.pausedManual", { defaultValue: "You paused webhook deliveries to your company URL" })}
+                        {tr("webhook.pausedManual", { defaultValue: "You paused webhook deliveries to your brand's webhook URL" })}
                         {disabledInfo.at ? ` (${tr("webhook.since", { defaultValue: "since {{time}}", time: fmtTime(disabledInfo.at) })})` : ""}
                         {". "}
                         {tr("webhook.pausedManualHint", { defaultValue: "Turn deliveries back on whenever you're ready — per-request webhook URLs are unaffected." })}
@@ -584,8 +584,8 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 </Typography>
                 <Typography sx={{ fontSize: 12, color: t.secondary }}>
                   {disabledInfo.disabled
-                    ? tr("webhook.deliverPaused", { defaultValue: "Paused — events are not being sent to your company URL." })
-                    : tr("webhook.deliverActive", { defaultValue: "Active — events are sent to your company URL." })}
+                    ? tr("webhook.deliverPaused", { defaultValue: "Paused — events are not being sent to your brand's webhook URL." })
+                    : tr("webhook.deliverActive", { defaultValue: "Active — events are sent to your brand's webhook URL." })}
                 </Typography>
               </Box>
               <Switch

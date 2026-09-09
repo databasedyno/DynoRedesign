@@ -604,7 +604,7 @@
     "title": "Configurações",
     "planFees": "Plano e taxas",
     "referrals": "Indicações",
-    "description": "Gerencie sua conta, empresa e configurações de integração",
+    "description": "Gerencie sua conta, marca e configurações de integração",
     "profile": "Perfil e segurança",
     "profileDesc": "Dados pessoais, senha e segurança de login",
     "company": "Marca",
@@ -694,7 +694,7 @@
     "vatDesc": "Mostrado nos recibos. Permite a validação do reverse-charge da UE quando os seus compradores fornecem o seu próprio ID de IVA.",
     "vatInvalidHint": "Isto não corresponde a um formato de IVA conhecido da UE/GB — será guardado como inserido.",
     "save": "Guardar definições de imposto",
-    "inheritNote": "A mostrar os seus padrões de conta — salvar aqui cria definições fiscais específicas para a empresa selecionada."
+    "inheritNote": "A mostrar os seus padrões de conta — salvar aqui cria definições fiscais específicas para a marca selecionada."
   },
   "accountTypeIndividual": "Individual",
   "accountTypeBusiness": "Empresa",
@@ -713,7 +713,7 @@
   "EmptyTxChipProducts": "Vender produtos",
   "EmptyTxChipCrowdfund": "Financie uma causa",
   "loading": "A carregar…",
-  "appliesToThisCompanyOnly": "Aplica-se apenas a esta empresa",
+  "appliesToThisCompanyOnly": "Aplica-se apenas a esta marca",
   "langSuggest": {
     "title": "Prefere {{lang}}?",
     "body": "Seu navegador está em {{lang}}.",
@@ -810,14 +810,14 @@
     },
     "compare": {
       "title": "Comparar vitrines",
-      "subtitle": "Visualizações, gorjetas e vendas de produtos por empresa — últimos 30 dias.",
-      "colCompany": "Empresa",
+      "subtitle": "Visualizações, gorjetas e vendas de produtos por marca — últimos 30 dias.",
+      "colCompany": "Marca",
       "colViews": "Visualizações · tendência 30d",
       "colTips": "Gorjetas",
       "colSales": "Vendas",
       "colRevenue": "Receita",
       "noStorefront": "Ainda sem vitrine",
-      "companyN": "Empresa {{n}}"
+      "companyN": "Marca {{n}}"
     },
     "analytics": {
       "tipsSupporters": "Gorjetas e apoiadores",
@@ -992,7 +992,7 @@
     "subtitle": "Introduza o código de verificação enviado para o seu e-mail"
   },
   "setupPrompt": {
-    "createCompany": "Criar uma empresa",
+    "createCompany": "Criar uma marca",
     "addWallet": "Adicionar um endereço de carteira"
   },
   "payouts": {

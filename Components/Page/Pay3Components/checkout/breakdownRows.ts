@@ -24,6 +24,8 @@ export type FiatBreakdownInput = {
   /** What the customer pays in fiat (base + tax [+ Dynopay fee + network fee when customer pays]) */
   totalFiat: number
   split: CryptoSplit | null
+  /** Reserved coin code — when set with `split`, rows also show the exact crypto amounts */
+  code?: string | null
 }
 
 /** Fiat value of a crypto part, proportional to the customer's total (display-only, marked ≈). */
@@ -49,6 +51,7 @@ export const buildFiatRows = (i: FiatBreakdownInput): BreakdownRow[] => {
       : toNumber(i.baseAmt + i.taxAmt - i.feeFiat, 2)
   const est = !exact && (i.feeIsEstimate || !i.feePayerIsCustomer)
   const feeLabel = withEst(t, t('checkout.dynopayFee', { defaultValue: 'Dynopay fee' }), est)
+  const cryptoSub = (pick: (s: CryptoSplit) => number) => (split && i.code ? `${formatCryptoAmount(pick(split), i.code)} ${i.code}` : undefined)
   const rows: BreakdownRow[] = [
     { key: 'base', label: t('checkout.amount', { defaultValue: 'Amount' }), value: fmtFiat(i.baseAmt), testId: 'clean-checkout-breakdown-base' },
   ]
@@ -56,7 +59,7 @@ export const buildFiatRows = (i: FiatBreakdownInput): BreakdownRow[] => {
     rows.push({ key: 'tax', label: t('checkout.tax', { defaultValue: 'Tax' }), value: `+${fmtFiat(i.taxAmt)}`, testId: 'clean-checkout-breakdown-tax' })
   }
   if (i.feePayerIsCustomer) {
-    rows.push({ key: 'fee', label: feeLabel, note: feeNote(t, true), value: `+${fmtFiat(feeFiat)}`, testId: 'clean-checkout-breakdown-fee' })
+    rows.push({ key: 'fee', label: feeLabel, note: feeNote(t, true), value: `+${fmtFiat(feeFiat)}`, sub: cryptoSub((s) => s.fee), testId: 'clean-checkout-breakdown-fee' })
     if (i.networkFeeFiat > 0) {
       rows.push({
         key: 'network',
@@ -80,43 +83,14 @@ export const buildFiatRows = (i: FiatBreakdownInput): BreakdownRow[] => {
     label: withEst(t, t('checkout.merchantReceives', { defaultValue: 'Merchant receives' }), est && !i.feePayerIsCustomer),
     note: i.feePayerIsCustomer && i.networkFeeFiat > 0 ? t('checkout.plusNetworkCover', { defaultValue: '+ network fee cover' }) : undefined,
     value: fmtFiat(merchantFiat),
+    sub: cryptoSub((s) => s.merchant),
     testId: 'clean-checkout-breakdown-merchant',
   })
   if (!i.feePayerIsCustomer) {
-    rows.push({ key: 'fee', label: feeLabel, note: feeNote(t, false), value: fmtFiat(feeFiat), testId: 'clean-checkout-breakdown-fee' })
+    rows.push({ key: 'fee', label: feeLabel, note: feeNote(t, false), value: fmtFiat(feeFiat), sub: cryptoSub((s) => s.fee), testId: 'clean-checkout-breakdown-fee' })
   }
   return rows
 }
-
-export type CryptoBreakdownInput = {
-  t: Tr
-  fmtFiat: (n: number) => string
-  split: CryptoSplit
-  code: string
-  totalFiat: number
-  /** Network-fee buffer in fiat (customer-pays) — flagged on the merchant row */
-  networkFeeFiat?: number
-}
-
-/** Exact crypto split shown next to the amount to send (after address reservation). */
-export const buildCryptoRows = ({ t, fmtFiat, split, code, totalFiat, networkFeeFiat = 0 }: CryptoBreakdownInput): BreakdownRow[] => [
-  {
-    key: 'merchant',
-    label: t('checkout.merchantReceives', { defaultValue: 'Merchant receives' }),
-    note: split.feePayer === 'customer' && networkFeeFiat > 0 ? t('checkout.inclNetworkCover', { defaultValue: 'incl. network fee cover' }) : undefined,
-    value: `${formatCryptoAmount(split.merchant, code)} ${code}`,
-    sub: `≈ ${fmtFiat(fiatOf(totalFiat, split, split.merchant))}`,
-    testId: 'clean-checkout-crypto-merchant',
-  },
-  {
-    key: 'fee',
-    label: t('checkout.dynopayFee', { defaultValue: 'Dynopay fee' }),
-    note: feeNote(t, split.feePayer === 'customer'),
-    value: `${formatCryptoAmount(split.fee, code)} ${code}`,
-    sub: `≈ ${fmtFiat(fiatOf(totalFiat, split, split.fee))}`,
-    testId: 'clean-checkout-crypto-fee',
-  },
-]
 
 export type SuccessBreakdownInput = {
   t: Tr

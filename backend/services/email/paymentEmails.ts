@@ -60,14 +60,7 @@ export const sendPaymentReceivedEmail = async (
         : t('paymentReceived.outro', L)
     )}`;
 
-    const html = dynoPayEmailTemplate(
-      isContribution ? t('contributionReceived.heading', L) : t('paymentReceived.heading', L),
-      content,
-      true,
-      isContribution ? t('contributionReceived.cta', L) : t('paymentReceived.cta', L),
-      `${FRONTEND_BASE_URL}/transactions`,
-      isContribution ? t('contributionReceived.preheader', L) : t('paymentReceived.preheader', L), L
-    );
+    const html = dynoPayEmailTemplate(isContribution ? t('contributionReceived.heading', L) : t('paymentReceived.heading', L), content, true, isContribution ? t('contributionReceived.cta', L) : t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, isContribution ? t('contributionReceived.preheader', L) : t('paymentReceived.preheader', L), L, 'check');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`${isContribution ? 'Contribution' : 'Payment'} received email sent to ${email}`);
   } catch (e) {
@@ -115,7 +108,7 @@ export const sendPaymentPendingEmail = async (
     `, '#f59e0b')}
     ${p(t('paymentPending.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content, false, "", "", t('paymentPending.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('paymentPending.preheader', L), L, 'hourglass');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -168,7 +161,7 @@ export const sendPaymentConfirmingEmail = async (
         ? t('paymentConfirming.completeMsg', L)
         : t('paymentConfirming.pendingMsg', L, { remaining }))}`;
 
-    const html = dynoPayEmailTemplate(t('paymentConfirming.heading', L), htmlContent, false, "", "", t('paymentConfirming.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('paymentConfirming.heading', L), htmlContent, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('paymentConfirming.preheader', L), L, 'hourglass');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -204,7 +197,7 @@ export const sendTransactionConfirmedEmail = async (
     `)}
     ${p(t('transactionConfirmed.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('transactionConfirmed.heading', L, { status }), content, false, "", "", t('transactionConfirmed.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('transactionConfirmed.heading', L, { status }), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('transactionConfirmed.preheader', L), L, 'check');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -252,7 +245,7 @@ export const sendPaymentPartialEmail = async (
     </table>
     ${p(t('paymentPartial.graceNote', L, { minutes: gracePeriodMinutes }), `font-size: 14px; color: #6b7280;`)}`;
 
-    const html = dynoPayEmailTemplate(t('paymentPartial.heading', L), content, false, "", "", t('paymentPartial.preheader', L), L);
+    const html = dynoPayEmailTemplate(t('paymentPartial.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('paymentPartial.preheader', L), L, 'alert');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -302,7 +295,7 @@ export const sendPaymentPartialExpiredEmail = async (
       : t('paymentPartialExpired.outroExpired', L)
     )} ${p(t('paymentPartialExpired.viewDetails', L))}`;
 
-    const html = dynoPayEmailTemplate(heading, content, false, "", "", isCompleted ? t('paymentPartialExpired.preheaderCompleted', L) : t('paymentPartialExpired.preheaderExpired', L), L);
+    const html = dynoPayEmailTemplate(heading, content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, isCompleted ? t('paymentPartialExpired.preheaderCompleted', L) : t('paymentPartialExpired.preheaderExpired', L), L, 'expired');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -356,7 +349,7 @@ export const sendPaymentFailedEmail = async (
     ${reason === 'underpaid' ? p(t('paymentFailed.underpaidNote', CL, { companyName })) : ''}
     ${reason === 'expired' || reason === 'timeout' ? p(t('paymentFailed.expiredNote', CL, { companyName })) : ''}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('paymentFailed.heading', CL), customerContent, false, "", "", t('paymentFailed.preheader', CL), CL);
+    const customerHtml = dynoPayEmailTemplate(t('paymentFailed.heading', CL), customerContent, false, "", "", t('paymentFailed.preheader', CL), CL, 'danger');
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: customerHtml });
     apiLogger.info(`[Email] Payment failed notification sent to customer ${customerEmail} - reason: ${reason}`);
 
@@ -384,7 +377,7 @@ export const sendPaymentFailedEmail = async (
       `)}
       ${reason === 'underpaid' ? p(t('paymentFailed.merchantUnderpaidNote', ML)) : ''}`;
 
-      const merchantHtml = dynoPayEmailTemplate(t('paymentFailed.merchantHeading', ML), merchantContent, true, t('paymentFailed.cta', ML), `${FRONTEND_BASE_URL}/transactions`, t('paymentFailed.merchantPreheader', ML), ML);
+      const merchantHtml = dynoPayEmailTemplate(t('paymentFailed.merchantHeading', ML), merchantContent, true, t('paymentFailed.cta', ML), `${FRONTEND_BASE_URL}/transactions`, t('paymentFailed.merchantPreheader', ML), ML, 'danger');
       await mailTransporter({ to: merchantEmail, name: merchantDisplayName, subject: merchantSubject, body: merchantHtml });
       apiLogger.info(`[Email] Payment failed notification sent to merchant ${merchantEmail} - reason: ${reason}`);
     }

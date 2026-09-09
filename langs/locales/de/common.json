@@ -604,7 +604,7 @@
     "title": "Einstellungen",
     "planFees": "Tarif & Gebühren",
     "referrals": "Empfehlungen",
-    "description": "Verwalten Sie Konto, Unternehmen und Integrations-Konfiguration",
+    "description": "Verwalten Sie Konto, Marke und Integrations-Konfiguration",
     "profile": "Profil & Sicherheit",
     "profileDesc": "Persönliche Daten, Passwort und Login-Sicherheit",
     "company": "Marke",
@@ -694,7 +694,7 @@
     "vatDesc": "Auf Quittungen angezeigt. Ermöglicht die Validierung der EU-Umkehrbesteuerung, wenn Ihre Käufer ihre eigene VAT-ID angeben.",
     "vatInvalidHint": "Dies entspricht nicht einem bekannten EU/GB VAT-Format – es wird dennoch wie eingegeben gespeichert.",
     "save": "Steuereinstellungen speichern",
-    "inheritNote": "Zeigt Ihre kontoweitigen Standardwerte an – Änderungen hier erstellen steuerliche Einstellungen, die spezifisch für das ausgewählte Unternehmen sind."
+    "inheritNote": "Zeigt Ihre kontoweiten Standardwerte an – Änderungen hier erstellen steuerliche Einstellungen, die spezifisch für die ausgewählte Marke sind."
   },
   "accountTypeIndividual": "Einzelperson",
   "accountTypeBusiness": "Unternehmen",
@@ -713,7 +713,7 @@
   "EmptyTxChipProducts": "Produkte verkaufen",
   "EmptyTxChipCrowdfund": "Crowdfund eine Sache",
   "loading": "Lade…",
-  "appliesToThisCompanyOnly": "Gilt nur für dieses Unternehmen",
+  "appliesToThisCompanyOnly": "Gilt nur für diese Marke",
   "langSuggest": {
     "title": "Lieber {{lang}}?",
     "body": "Ihr Browser ist auf {{lang}} eingestellt.",
@@ -810,14 +810,14 @@
     },
     "compare": {
       "title": "Schaufenster vergleichen",
-      "subtitle": "Aufrufe, Trinkgelder und Produktverkäufe pro Unternehmen — letzte 30 Tage.",
-      "colCompany": "Unternehmen",
+      "subtitle": "Aufrufe, Trinkgelder und Produktverkäufe pro Marke — letzte 30 Tage.",
+      "colCompany": "Marke",
       "colViews": "Aufrufe · 30-Tage-Trend",
       "colTips": "Trinkgelder",
       "colSales": "Verkäufe",
       "colRevenue": "Umsatz",
       "noStorefront": "Noch kein Schaufenster",
-      "companyN": "Unternehmen {{n}}"
+      "companyN": "Marke {{n}}"
     },
     "analytics": {
       "tipsSupporters": "Trinkgelder & Unterstützer",
@@ -992,7 +992,7 @@
     "subtitle": "Gib den Bestätigungscode ein, den wir dir per E-Mail gesendet haben"
   },
   "setupPrompt": {
-    "createCompany": "Unternehmen anlegen",
+    "createCompany": "Marke anlegen",
     "addWallet": "Wallet-Adresse hinzufügen"
   },
   "payouts": {

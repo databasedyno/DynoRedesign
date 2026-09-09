@@ -19,11 +19,11 @@
   },
   "createdOn": "Aangemaakt op {{date}} om {{time}}",
   "validation": {
-    "selectCompany": "Selecteer een bedrijf"
+    "selectCompany": "Selecteer een merk"
   },
   "company": {
-    "selectCompany": "Bedrijf selecteren",
-    "label": "Bedrijfsnaam"
+    "selectCompany": "Merk selecteren",
+    "label": "Merknaam"
   },
   "currency": {
     "baseCurrency": "Basisvaluta",
@@ -83,7 +83,7 @@
   "apiKeyTitleLive": "Live API-sleutel",
   "apiKeyTitleTest": "Test-API-sleutel",
   "keys": {
-    "liveUnlockHint": "Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste wallet aan dit bedrijf toevoegt (of hergebruikt).",
+    "liveUnlockHint": "Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste wallet aan dit merk toevoegt (of hergebruikt).",
     "testAutoCreatedBadge": "Automatisch aangemaakt · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox-modus",
     "tryFirstPaymentTitle": "Probeer uw eerste betaling",
@@ -171,7 +171,7 @@
     "sectionDescPost": "route is de canonieke Stripe-stijl flow — omdat het bedrag server-side leeft, kunnen kopers de prijs in je HTML niet manipuleren.",
     "create": "Maken",
     "createBuyButton": "Koopknop maken",
-    "selectCompany": "Selecteer een bedrijf om de koopknoppen te beheren.",
+    "selectCompany": "Selecteer een merk om de koopknoppen te beheren.",
     "empty": "Nog geen koopknoppen. Maak er een om een manipulatievrije checkout op je site in te voegen.",
     "deleteTitle": "Koopknop archiveren",
     "deleteMessage": "Eenmaal gearchiveerd, kan deze koopknop geen checkout-sessies meer creëren. Pagina's op je site die deze gebruiken, zullen stoppen met werken totdat je deze heractiveert (of de button-id vervangt door een nieuwe).",
@@ -235,7 +235,7 @@
     "sectionDescription": "Browser-veilige sleutels voor drop-in <dynopay-buy-button>. Elke sleutel is domeingebonden en bedragbeperkt. Vereist een actieve geheime sleutel van dezelfde omgeving.",
     "createShort": "Aanmaken",
     "createLong": "Publiceerbare sleutel aanmaken",
-    "selectCompany": "Selecteer een bedrijf om de publiceerbare sleutels te beheren.",
+    "selectCompany": "Selecteer een merk om de publiceerbare sleutels te beheren.",
     "emptyTitle": "Nog geen publiceerbare sleutels",
     "emptyBody": "Publiceerbare sleutels stellen je in staat om een Koopknop of checkout op je eigen site in te voegen. Maak er een om je eerste in te voegen snippet te krijgen.",
     "revokeModalTitle": "Publiceerbare sleutel intrekken",
@@ -296,9 +296,9 @@
     "settingsSubtitle": "Configureer uw eindpunt-URL, ondertekeningsgeheim en testevenementen",
     "allSubtitle": "Ontvang realtime evenementen en inspecteer recente leveringspogingen",
     "refresh": "Vernieuwen",
-    "selectCompany": "Selecteer een bedrijf om webhooks te configureren.",
+    "selectCompany": "Selecteer een merk om webhooks te configureren.",
     "deliveryOff": "Webhooklevering is uitgeschakeld",
-    "pausedManual": "U heeft de webhookleveringen naar uw bedrijfs-URL gepauzeerd",
+    "pausedManual": "U heeft de webhookleveringen naar de webhook-URL van uw merk gepauzeerd",
     "pausedManualHint": "Schakel leveringen weer in wanneer u er klaar voor bent — per-verzoek webhook-URL's zijn niet beïnvloed.",
     "pausedAuto": "We zijn gestopt met het verzenden van evenementen omdat uw eindpunt herhaaldelijk niet reageerde",
     "locationAbove": "boven",
@@ -306,8 +306,8 @@
     "reenabling": "Herinschakelen…",
     "reenable": "Herinschakelen",
     "deliverEvents": "Verzend webhook-evenementen",
-    "deliverPaused": "Gepauzeerd — evenementen worden niet naar uw bedrijfs-URL verzonden.",
-    "deliverActive": "Actief — evenementen worden naar uw bedrijfs-URL verzonden.",
+    "deliverPaused": "Gepauzeerd — evenementen worden niet naar de webhook-URL van uw merk verzonden.",
+    "deliverActive": "Actief — evenementen worden naar de webhook-URL van uw merk verzonden.",
     "toggleAria": "Schakel webhooklevering in of uit",
     "endpointUrl": "Eindpunt-URL",
     "endpointUrlAria": "Webhook-eindpunt-URL",

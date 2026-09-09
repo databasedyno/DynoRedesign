@@ -1,7 +1,7 @@
 import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
-import { baseEmailTemplate, getCurrencySymbol, p } from "../../utils/emailTemplate";
+import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero } from "../../utils/emailTemplate";
 import { t as tr, firstNameOnly } from "../../utils/emailI18n";
 import { toFixedStr } from "../../utils/money";
 
@@ -44,9 +44,11 @@ export const dynoPayEmailTemplate = (
   buttonLink: string = "",
   preheader: string = "",
   /** Recipient language — localizes the shared sign-off/footer chrome. Omit for English. */
-  lang?: string | null
+  lang?: string | null,
+  /** Per-action hero icon above the heading (see utils/emailTemplate EmailHero). */
+  hero?: EmailHero
 ) => {
-  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader, lang: lang || undefined });
+  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader, lang: lang || undefined, hero });
 };
 
 /**
@@ -60,7 +62,9 @@ export const dynoPayGreetingTemplate = (
   heading: string,
   _showImage: boolean = false,
   lang?: string,
-  preheader?: string
+  preheader?: string,
+  hero?: EmailHero,
+  cta?: { text: string; link: string }
 ) => {
   const cleanName = (name || '').trim();
   // Never greet someone by their raw email address: if we only know the email
@@ -73,7 +77,14 @@ export const dynoPayGreetingTemplate = (
       : tr('common.greetingDefault', lang)
   );
   const bodyContent = `${greeting}<div style="font-size: 15px; color: #374151; line-height: 1.65; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${message}</div>`;
-  return baseEmailTemplate(heading, bodyContent, { lang, preheader });
+  return baseEmailTemplate(heading, bodyContent, {
+    lang,
+    preheader,
+    hero,
+    showButton: !!cta,
+    buttonText: cta?.text,
+    buttonLink: cta?.link,
+  });
 };
 
 export const formatAmountWithCurrency = (amount: number, currency: string = 'USD'): string => {

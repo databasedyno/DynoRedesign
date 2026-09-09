@@ -604,7 +604,7 @@
     "title": "Instellingen",
     "planFees": "Pakket & kosten",
     "referrals": "Verwijzingen",
-    "description": "Beheer uw account, bedrijf en integratie-instellingen",
+    "description": "Beheer uw account, merk en integratie-instellingen",
     "profile": "Profiel & beveiliging",
     "profileDesc": "Persoonlijke gegevens, wachtwoord en inlogbeveiliging",
     "company": "Merk",
@@ -694,7 +694,7 @@
     "vatDesc": "Weergegeven op ontvangstbewijzen. Maakt EU omgekeerde belastingvalidatie mogelijk wanneer jouw kopers hun eigen BTW-ID verstrekken.",
     "vatInvalidHint": "Dit komt niet overeen met een bekend EU/GB BTW-formaat — het zal nog steeds worden opgeslagen zoals ingevoerd.",
     "save": "Belastinginstellingen opslaan",
-    "inheritNote": "Toont uw accountbrede standaardinstellingen — opslaan hier creëert belastinginstellingen specifiek voor het geselecteerde bedrijf."
+    "inheritNote": "Toont uw accountbrede standaardinstellingen — opslaan hier creëert belastinginstellingen specifiek voor het geselecteerde merk."
   },
   "accountTypeIndividual": "Individu",
   "accountTypeBusiness": "Bedrijf",
@@ -713,7 +713,7 @@
   "EmptyTxChipProducts": "Verkoop producten",
   "EmptyTxChipCrowdfund": "Crowdfund een doel",
   "loading": "Laden…",
-  "appliesToThisCompanyOnly": "Geldt alleen voor dit bedrijf",
+  "appliesToThisCompanyOnly": "Geldt alleen voor dit merk",
   "langSuggest": {
     "title": "Liever {{lang}}?",
     "body": "Je browser staat op {{lang}}.",
@@ -810,14 +810,14 @@
     },
     "compare": {
       "title": "Etalages vergelijken",
-      "subtitle": "Weergaven, fooien en productverkopen per bedrijf — laatste 30 dagen.",
-      "colCompany": "Bedrijf",
+      "subtitle": "Weergaven, fooien en productverkopen per merk — laatste 30 dagen.",
+      "colCompany": "Merk",
       "colViews": "Weergaven · 30d-trend",
       "colTips": "Fooien",
       "colSales": "Verkopen",
       "colRevenue": "Omzet",
       "noStorefront": "Nog geen etalage",
-      "companyN": "Bedrijf {{n}}"
+      "companyN": "Merk {{n}}"
     },
     "analytics": {
       "tipsSupporters": "Fooien & supporters",
@@ -992,7 +992,7 @@
     "subtitle": "Voer de verificatiecode in die naar je e-mail is gestuurd"
   },
   "setupPrompt": {
-    "createCompany": "Bedrijf aanmaken",
+    "createCompany": "Merk aanmaken",
     "addWallet": "Walletadres toevoegen"
   },
   "payouts": {

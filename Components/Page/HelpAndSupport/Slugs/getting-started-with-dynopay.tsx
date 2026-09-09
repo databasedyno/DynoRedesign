@@ -24,7 +24,7 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
         },
         {
             title: t("gettingStarted.step2.title", { defaultValue: "Step 2. Complete Basic Business Setup" }),
-            description: t("gettingStarted.step2.desc", { defaultValue: "Add your business details, such as company name and operating country. Depending on your use case and volume, Dynopay may request additional verification later, but you can start testing payments right away." })
+            description: t("gettingStarted.step2.desc", { defaultValue: "Add your brand details, such as brand name and operating country. Depending on your use case and volume, Dynopay may request additional verification later, but you can start testing payments right away." })
         },
         {
             title: t("gettingStarted.step3.title", { defaultValue: "Step 3. Choose Supported Cryptocurrencies" }),
