@@ -33,39 +33,51 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { redeemUserReferralCode } from "../../services/referralService";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, requires2FAChallenge, getAccessToken, sendEmailOTP, sendTelnyxSMS, sendTelnyxVerification, SMS_UNSUPPORTED_MESSAGE } from "./userShared";
+import { normalizeMobile, INVALID_MOBILE_MESSAGE } from "../../utils/phoneNumber";
 
 export const phoneTypeCheck = async (req: express.Request, res: express.Response) => {
   try {
-    let { mobile } = req.body;
+    const { mobile: rawMobile } = req.body;
 
-    if (!mobile) {
+    if (!rawMobile) {
       return errorResponseHelper(res, 400, "Phone number is required");
     }
 
-    mobile = mobile.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '');
+    const normalized = normalizeMobile(rawMobile);
+    if (!normalized) {
+      return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
+    }
+    const mobile = normalized.digits;
 
     const telnyxApiKey = envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN");
 
     try {
+      // `type=carrier` is what makes Telnyx return carrier.type (mobile/landline/voip);
+      // without it the lookup never classifies the line and every check read "unknown".
       const response = await axios.get(
-        `https://api.telnyx.com/v2/number_lookup/+${mobile}`,
+        `https://api.telnyx.com/v2/number_lookup/+${mobile}?type=carrier`,
         {
           headers: {
             Authorization: "Bearer " + telnyxApiKey,
           },
+          timeout: 8000,
         }
       );
 
       const data = response.data?.data;
+      if (data?.valid_number === false) {
+        return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
+      }
       const phoneType = data?.carrier?.type || "unknown";
-      const countryCode = data?.country_code || null;
+      const countryCode = data?.country_code || normalized.country;
 
       return successResponseHelper(res, 200, "Phone type retrieved", {
         phone_type: phoneType,
-        is_mobile: phoneType === "mobile",
+        is_mobile: phoneType === "mobile" || phoneType === "unknown",
         country_code: countryCode,
         carrier_name: data?.carrier?.name || null,
+        normalized: mobile,
       });
 
     } catch (lookupErr: any) {
@@ -76,8 +88,9 @@ export const phoneTypeCheck = async (req: express.Request, res: express.Response
       return successResponseHelper(res, 200, "Phone type check unavailable", {
         phone_type: "unknown",
         is_mobile: true, // Default to allowing
-        country_code: null,
+        country_code: normalized.country,
         carrier_name: null,
+        normalized: mobile,
       });
     }
 
@@ -93,21 +106,19 @@ export const phoneTypeCheck = async (req: express.Request, res: express.Response
  */
 export const registerPhoneStep1 = async (req: express.Request, res: express.Response) => {
   try {
-    let { mobile } = req.body;
+    const { mobile: rawMobile } = req.body;
     const { referral_code, attribution, purpose_vertical } = req.body;
     
-    if (!mobile) {
+    if (!rawMobile) {
       return errorResponseHelper(res, 400, "Mobile number is required");
     }
     
-    // Strip + prefix if present
-    mobile = mobile.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '');
-    
-    // Validate mobile format (digits only, 10-15 chars)
-    const phoneRegex = /^\d{10,15}$/;
-    if (!phoneRegex.test(mobile)) {
-      return errorResponseHelper(res, 400, "Invalid mobile number format. Use 10-15 digits with country code (e.g. 13025141000)");
+    // Canonicalise to E.164 digits (handles "+", spaces and a trunk "0" typed after the country code)
+    const normalized = normalizeMobile(rawMobile);
+    if (!normalized) {
+      return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
     }
+    const mobile = normalized.digits;
 
     const attrStr = _formatAttribution(attribution);
 
@@ -126,12 +137,12 @@ export const registerPhoneStep1 = async (req: express.Request, res: express.Resp
     });
     
     if (mobileExists) {
-      const smsLoginSent = await sendTelnyxSMS(mobile);
-      if (!smsLoginSent) {
-        return errorResponseHelper(res, 503, "Failed to send verification code. Please try again.");
+      const smsLogin = await sendTelnyxVerification(mobile);
+      if (!smsLogin.ok) {
+        return errorResponseHelper(res, smsLogin.reason === "error" ? 503 : 400, smsLogin.reason === "unsupported_destination" ? SMS_UNSUPPORTED_MESSAGE : smsLogin.reason === "invalid_number" ? INVALID_MOBILE_MESSAGE : "Failed to send verification code. Please try again.");
       }
       userLogger.info(`[RegisterPhone] Existing account — login OTP sent: ${mobile}${attrStr}`);
-      return successResponseHelper(res, 200, "You already have an account — we've sent a code to log you in.", { account_exists: true });
+      return successResponseHelper(res, 200, "This number is already registered — we've texted you a code to log in to your existing account instead.", { account_exists: true, mobile });
     }
 
     // Store referral code in Redis for later use
@@ -156,11 +167,13 @@ export const registerPhoneStep1 = async (req: express.Request, res: express.Resp
     }
     
     // Send OTP via Telnyx
-    const smsSent = await sendTelnyxSMS(mobile);
-    if (smsSent) {
+    const sms = await sendTelnyxVerification(mobile);
+    if (sms.ok) {
       userLogger.info(`[RegisterPhone] OTP sent for registration: ${mobile}${attrStr}${purposeVertical ? " · vertical=" + purposeVertical : ""}`);
-      return successResponseHelper(res, 200, "Verification code sent to your phone number.", { account_exists: false });
+      return successResponseHelper(res, 200, "Verification code sent to your phone number.", { account_exists: false, mobile });
     }
+    if (sms.reason === "unsupported_destination") return errorResponseHelper(res, 400, SMS_UNSUPPORTED_MESSAGE);
+    if (sms.reason === "invalid_number") return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
     return errorResponseHelper(res, 503, "Failed to send verification code. Please try again.");
     
   } catch (e) {
@@ -176,14 +189,18 @@ export const registerPhoneStep1 = async (req: express.Request, res: express.Resp
 export const registerPhoneStep2 = async (req: express.Request, res: express.Response) => {
   try {
     const { otp } = req.body;
-    let { mobile } = req.body;
+    const { mobile: rawMobile } = req.body;
     
-    if (!mobile || !otp) {
+    if (!rawMobile || !otp) {
       return errorResponseHelper(res, 400, "Mobile number and verification code are required");
     }
     
-    // Strip + prefix
-    mobile = mobile.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '');
+    // Same canonical form as step 1 so the Telnyx lookup + Redis keys line up
+    const normalized = normalizeMobile(rawMobile);
+    if (!normalized) {
+      return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
+    }
+    const mobile = normalized.digits;
     
     // Verify OTP with Telnyx
     try {
@@ -213,6 +230,7 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     // issue tokens and sign the user in (proceed as usual).
     const mobileExists = await userModel.findOne({ where: { mobile } });
     if (mobileExists) {
+      if (await requires2FAChallenge(res, mobileExists.dataValues.user_id)) return;
       const loginData = await getAccessToken(mobileExists.dataValues.user_id);
       const existingAttr = _formatAttribution(req.body?.attribution);
       userLogger.info(`[RegisterPhone] Existing account logged in via OTP: ${mobile}${existingAttr}`);

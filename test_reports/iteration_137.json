@@ -1,0 +1,36 @@
+{
+  "summary": "AUTH-009 2FA lifecycle end-to-end UI test on scratch merchant (user_id 176). Executed 8 of 9 planned tests (T3 skipped per instructions). All 2FA UI flows functionally verified: settings card OFF/ON states, setup dialog with QR + base32 secret, TOTP verify enables 2FA, 10 backup codes displayed, login now requires 2FA challenge, wrong TOTP shows error and keeps dialog, backup-code login decrements counter to 9, cancel returns to /auth/login not logged in, regenerate requires re-auth (wrong pw error + correct pw resets to 10 codes), disable via re-auth flips back to OFF, and post-disable login goes straight to /dashboard with no 2FA prompt. Scratch account left with 2FA DISABLED as required.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "login_2step": "PASS (welcome modal dismissed via 'Got it, thanks!')",
+    "test1_settings_off": "PASS (data-enabled=false, chip 'Off', 'Turn on 2FA' visible)",
+    "test2_enable_flow": "PASS (QR data:image/png, base32 secret 32 chars, TOTP auto-submits on 6th digit, 10 backup codes rendered, copy+download buttons present, row switches to data-enabled=true / chip 'On' / 'On since Sep 09, 2026 · 10 backup codes left' / regenerate + disable buttons visible)",
+    "test3_wrong_code_setup": "SKIPPED per instructions (dialog not re-openable once enabled)",
+    "test4_login_requires_2fa": "FUNCTIONALLY PASS, script-level FAIL. Wrong code 000000 correctly surfaced 'Invalid 2FA code. Please try again' inline error and dialog remained open (verified via screenshot). Script assertion failed only because it selected an empty OtpInputPanel helper span (contained U+200B zero-width space) instead of [data-testid=login-2fa-error]. Valid-TOTP login path (T4b) proven separately by TEST 6 (login->2FA dialog->valid TOTP->/dashboard).",
+    "test5_backup_code_login": "PASS (toggle-mode -> backup input visible -> paste XXXX-XXXX -> /dashboard, settings shows '9 backup codes left')",
+    "test6_cancel_dialog": "PASS (login-2fa-cancel closes dialog, stays on /auth/login, then valid TOTP relogin succeeds -> /dashboard)",
+    "test7_regenerate": "PASS (wrong pw -> twofa-reauth-error 'Invalid password'; correct pw -> new 10 backup codes; row -> '10 backup codes left')",
+    "test8_disable": "PASS (re-auth with correct password -> chip 'Off', data-enabled=false, 'Turn on 2FA' visible)",
+    "test9_login_after_disable": "PASS (direct redirect to /dashboard, no login-2fa-dialog)"
+  },
+  "console_observations": "Only expected 401s during wrong-code / wrong-password negative paths. No React hydration or runtime errors related to 2FA components.",
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: [data-testid=login-2fa-error] element appears to remain in DOM containing a zero-width space when no error is active, which can confuse automated tests. Consider unmounting it or emitting empty string only when hasError is true.",
+    "Row inner text 'On since Sep 09, 2026' correctly uses local date; verified across regenerate and disable flows."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% functional (8/8 executed tests pass; TEST 4 script assertion is a test-only false negative — behavior verified via screenshot + downstream tests)"},
+  "test_credentials": "scratch_2fa_test_1788963707477@example.com / Scratch2FA!Test123 (scratch merchant, 2FA left DISABLED)",
+  "seed_data_creation": "None (no other write flows executed)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "AUTH-009 2FA (TOTP) enable/disable/regenerate/backup-code/disable lifecycle is fully working in the UI. Scratch account left with 2FA disabled and ready for hard-delete. If re-running, note that OtpInputPanel exposes 6 single-digit inputs and auto-submits on 6th char; and that the [data-testid=login-2fa-error] node may contain a U+200B placeholder when idle — assert on visible text or on the specific message string instead of raw inner_text.",
+  "rca of the issue": "TEST 4 assertion mismatch RCA: OtpInputPanel renders a persistent error slot (data-testid=login-2fa-error) even when there is no error, populated with a zero-width space (U+200B) so layout doesn't jump. Test used .first inner_text and got '\\u200b'. The visible red error string 'Invalid 2FA code. Please try again' is rendered by a separate element. Mitigation on app side: keep the slot but empty its text (or return null when no error). Mitigation on test side: match on substring 'Invalid 2FA code' in whole dialog text."
+}

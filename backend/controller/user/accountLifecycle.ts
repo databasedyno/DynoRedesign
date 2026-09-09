@@ -30,6 +30,7 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { sendAccountDeletedEmail } from "../../services/email/securityEmails";
 
 export const deleteAccount = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -113,6 +114,9 @@ export const deleteAccount = async (req: express.Request, res: express.Response)
     await userModel.destroy({ where: { user_id: userId } });
 
     userLogger.info(`User account deleted: ${userData.email}`);
+    if (user.dataValues.email) {
+      void sendAccountDeletedEmail(user.dataValues.email, user.dataValues.name || "", user.dataValues.language);
+    }
 
     return successResponseHelper(res, 200, "Account deleted successfully", {
       message: "Your account and all associated data have been permanently deleted"

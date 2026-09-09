@@ -17,6 +17,9 @@ import {
   USER_LOGIN_OTP_RESET,
   USER_VERIFY_LOGIN_OTP,
   USER_RESEND_LOGIN_OTP,
+  USER_LOGIN_2FA_REQUIRED,
+  USER_LOGIN_2FA_RESET,
+  USER_VERIFY_2FA,
 } from "../Actions/UserAction";
 import { applyPersistence } from "@/helpers/authPersistence";
 import { syncAttribution } from "@/utils/attribution";
@@ -51,6 +54,11 @@ const userInitialState = {
   loginOtpMaskedEmail: "",
   loginOtpLoading: false,
   loginOtpError: null as string | null,
+  // TOTP 2FA step-up state
+  login2faRequired: false,
+  login2faChallenge: "",
+  login2faRemember: false,
+  login2faLoading: false,
 };
 
 const userReducer = (state = userInitialState, action: ReducerAction) => {
@@ -139,6 +147,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         ...state,
         loading: false,
         profileLoading: false,
+        login2faLoading: false,
         error: action.payload || null,
       };
     case USER_SEND_RESET_LINK:
@@ -191,6 +200,35 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         ...state,
         loginOtpLoading: true,
         loginOtpError: null,
+      };
+
+    case USER_LOGIN_2FA_REQUIRED:
+      return {
+        ...state,
+        loading: false,
+        loginOtpRequired: false,
+        loginOtpLoading: false,
+        login2faRequired: true,
+        login2faChallenge: payload.challenge_token,
+        login2faRemember: !!payload.remember,
+        login2faLoading: false,
+        error: null,
+      };
+
+    case USER_LOGIN_2FA_RESET:
+      return {
+        ...state,
+        login2faRequired: false,
+        login2faChallenge: "",
+        login2faRemember: false,
+        login2faLoading: false,
+      };
+
+    case USER_VERIFY_2FA:
+      return {
+        ...state,
+        login2faLoading: true,
+        error: null,
       };
 
     default:

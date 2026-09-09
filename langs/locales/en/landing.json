@@ -473,7 +473,7 @@
       "c6t": "Built for developers",
       "c6d": "A clean REST API, sandbox keys and webhooks for every payment event. No SDK lock-in.",
       "c7t": "One account, every brand",
-      "c7d": "Run multiple businesses or brands from a single login — each with its own checkout, wallets and settlement. Switch between them in one click."
+      "c7d": "Run multiple brands from a single login — each with its own checkout, wallets and settlement. Switch between them in one click."
     },
     "developer": {
       "eyebrow": "For developers",

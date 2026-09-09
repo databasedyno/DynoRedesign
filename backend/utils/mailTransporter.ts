@@ -40,6 +40,22 @@ const isValidEmail = (email: string): boolean => {
 /**
  * Send email using Brevo (formerly Sendinblue) API
  */
+/** Preview-only: when EMAIL_DUMP_DIR is set, suppressed emails are written as HTML for review. */
+const dumpForReview = (to: string, subject: string, body: string) => {
+  const dir = envRaw("EMAIL_DUMP_DIR");
+  if (!dir) return;
+  try {
+    const fs = require("fs") as typeof import("fs");
+    const path = require("path") as typeof import("path");
+    fs.mkdirSync(dir, { recursive: true });
+    const slug = String(subject).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+    const file = path.join(dir, `${Date.now()}_${slug}.html`);
+    fs.writeFileSync(file, `<!-- to: ${to} | subject: ${subject} -->\n${body}`);
+  } catch (e) {
+    log(`[Email] dump failed: ${(e as Error).message}`);
+  }
+};
+
 const mailTransporter = async ({ to, subject, body, name, attachments }: mailOptions) => {
   // --- PREVIEW/SANDBOX SAFETY: never send real email from a non-prod pod ---
   // When DISABLE_OUTBOUND_EMAIL=true (the Emergent preview is wired to the LIVE
@@ -59,6 +75,7 @@ const mailTransporter = async ({ to, subject, body, name, attachments }: mailOpt
     const recipient = String(to || "").trim().toLowerCase();
     if (!allowlist.includes(recipient)) {
       log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=${to} | subject=${subject}`);
+      dumpForReview(to, subject, body);
       return { suppressed: true } as unknown;
     }
     log(`[Email] TEST-ALLOWLISTED (DISABLE_OUTBOUND_EMAIL bypassed) -> to=${to} | subject=${subject}`);

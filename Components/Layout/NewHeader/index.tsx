@@ -34,15 +34,14 @@ import {
 } from "./styled";
 import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
 import { API_ENDPOINTS } from "@/api/endpoints";
-import useTokenData from "@/hooks/useTokenData";
+import useDisplayIdentity from "@/hooks/useDisplayIdentity";
 import UserAvatar from "@/Components/UI/UserAvatar";
 import { brandFg } from "@/constants/theme";
 
 const NewHeader = () => {
   const router = useRouter();
   const muiTheme = useMuiTheme();
-  const tokenData = useTokenData();
-  const drawerUserName = tokenData?.name || "";
+  const { name: drawerUserName, photo: drawerUserPhoto } = useDisplayIdentity();
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const namespaces = ["dashboardLayout", "walletScreen"];
   const { t } = useTranslation(namespaces);
@@ -332,7 +331,7 @@ const NewHeader = () => {
           >
             <UserAvatar
               name={drawerUserName}
-              photo={tokenData?.photo}
+              photo={drawerUserPhoto}
               size={40}
               fontSize={15}
               data-testid="mobile-drawer-avatar"

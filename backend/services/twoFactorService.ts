@@ -16,6 +16,10 @@ const BACKUP_CODE_COUNT = parseInt(envRaw("BACKUP_CODE_COUNT") || "10", 10);
 const MAX_2FA_FAILED_ATTEMPTS = parseInt(envRaw("MAX_2FA_FAILED_ATTEMPTS") || "5", 10);
 const LOCKOUT_DURATION_MINUTES = parseInt(envRaw("LOCKOUT_DURATION_MINUTES") || "15", 10);
 
+/** Login step-up challenge (Redis) — minted after the first factor, consumed by /2fa/validate. */
+export const TWO_FA_CHALLENGE_TTL = 300;
+export const twoFAChallengeKey = (token: string) => `2fa_challenge:${token}`;
+
 /**
  * Generate backup codes
  */

@@ -33,7 +33,7 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { redeemUserReferralCode } from "../../services/referralService";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, requires2FAChallenge, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 import { generateOtpCode, recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
 import { clientIp } from "../../middleware/rateLimitMiddleware";
 
@@ -285,6 +285,7 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
     // issue tokens and sign the user in (proceed as usual).
     const existing = await userModel.findOne({ where: { email: emailLower } });
     if (existing) {
+      if (await requires2FAChallenge(res, existing.dataValues.user_id)) return;
       const loginData = await getAccessToken(existing.dataValues.user_id);
       const existingAttr = _formatAttribution(req.body?.attribution);
       userLogger.info(`[RegisterEmail] Existing account logged in via OTP: ${emailLower}${existingAttr}`);

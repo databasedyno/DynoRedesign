@@ -88,7 +88,7 @@ export const sendWalletBatchSummaryEmail = async (
     ${p(`Your payout wallets for ${escapeHtml(changes.companyName || "your brand")} were just updated.`)}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`)}
     ${warnText("If you didn't make these changes, contact support immediately.")}`;
-    const html = dynoPayEmailTemplate(subject, content, false, "", "", "A summary of the payout wallet changes you just made.", undefined, 'wallet');
+    const html = dynoPayEmailTemplate(subject, content, true, "View payout wallets", `${FRONTEND_BASE_URL}/wallet`, "A summary of the payout wallet changes you just made.", undefined, 'wallet');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet batch summary email sent to ${email}`);
   } catch (e) {

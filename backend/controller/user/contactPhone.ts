@@ -30,22 +30,24 @@ import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS, sendTelnyxVerification, SMS_UNSUPPORTED_MESSAGE } from "./userShared";
+import { normalizeMobile, INVALID_MOBILE_MESSAGE } from "../../utils/phoneNumber";
+import { sendPhoneChangedEmail } from "../../services/email/securityEmails";
 
 export const changePhone = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { newPhone, password } = req.body;
+    const { newPhone: rawNewPhone, password } = req.body;
     
-    if (!newPhone || !password) {
+    if (!rawNewPhone || !password) {
       return errorResponseHelper(res, 400, "Phone number and password are required");
     }
     
-    // Validate phone format (basic - digits only, 10-15 chars)
-    const phoneRegex = /^\d{10,15}$/;
-    if (!phoneRegex.test(newPhone)) {
-      return errorResponseHelper(res, 400, "Invalid phone number format. Use digits only (10-15 digits)");
+    const normalizedNew = normalizeMobile(rawNewPhone);
+    if (!normalizedNew) {
+      return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
     }
+    const newPhone = normalizedNew.digits;
     
     // Verify password using bcrypt (with SHA-256 migration)
     const user = await userModel.findOne({
@@ -101,6 +103,9 @@ export const changePhone = async (req: express.Request, res: express.Response) =
     }
     
     userLogger.info(`Phone number updated for user ${userData.user_id}`);
+    if (user.dataValues.email) {
+      void sendPhoneChangedEmail(user.dataValues.email, user.dataValues.name || "", { action: "changed", phone: newPhone }, user.dataValues.language);
+    }
     
     successResponseHelper(res, 200, "Phone number updated successfully!", updatedUser);
   } catch (e) {
@@ -158,6 +163,9 @@ export const removePhone = async (req: express.Request, res: express.Response) =
     );
     
     userLogger.info(`Phone removed for user ${userData.user_id}`);
+    if (hasEmail) {
+      void sendPhoneChangedEmail(user.dataValues.email, user.dataValues.name || "", { action: "removed" }, user.dataValues.language);
+    }
     
     successResponseHelper(res, 200, "Phone number removed successfully. You can still login using your email or social accounts.");
     
@@ -177,15 +185,15 @@ export const removePhone = async (req: express.Request, res: express.Response) =
 export const addPhone = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    let { phone } = req.body;
-    if (!phone) {
+    const { phone: rawPhone } = req.body;
+    if (!rawPhone) {
       return errorResponseHelper(res, 400, "Phone number is required");
     }
-    phone = phone.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '');
-    const phoneRegex = /^\d{10,15}$/;
-    if (!phoneRegex.test(phone)) {
-      return errorResponseHelper(res, 400, "Invalid phone number format. Use 10-15 digits with country code.");
+    const normalizedAdd = normalizeMobile(rawPhone);
+    if (!normalizedAdd) {
+      return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
     }
+    const phone = normalizedAdd.digits;
 
     // Check if phone is already in use by another user
     const phoneExists = await userModel.findOne({
@@ -199,10 +207,12 @@ export const addPhone = async (req: express.Request, res: express.Response) => {
     }
 
     // Send OTP via Telnyx SMS
-    const smsSent = await sendTelnyxSMS(phone);
-    if (smsSent) {
-      return successResponseHelper(res, 200, "Verification OTP sent to your phone number.");
+    const sms = await sendTelnyxVerification(phone);
+    if (sms.ok) {
+      return successResponseHelper(res, 200, "Verification OTP sent to your phone number.", { mobile: phone });
     }
+    if (sms.reason === "unsupported_destination") return errorResponseHelper(res, 400, SMS_UNSUPPORTED_MESSAGE);
+    if (sms.reason === "invalid_number") return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
     return errorResponseHelper(res, 503, "Failed to send SMS OTP. Please try again shortly.");
   } catch (e) {
     handleControllerError(res, e, userLogger);
@@ -217,11 +227,15 @@ export const addPhone = async (req: express.Request, res: express.Response) => {
 export const verifyAddPhone = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    let { phone, otp } = req.body;
-    if (!phone || !otp) {
+    const { phone: rawVerifyPhone, otp } = req.body;
+    if (!rawVerifyPhone || !otp) {
       return errorResponseHelper(res, 400, "Phone number and OTP are required");
     }
-    phone = phone.replace(/^\+/, '').replace(/\s/g, '').replace(/-/g, '');
+    const normalizedVerify = normalizeMobile(rawVerifyPhone);
+    if (!normalizedVerify) {
+      return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
+    }
+    const phone = normalizedVerify.digits;
 
     // Verify OTP with Telnyx
     try {
@@ -265,6 +279,9 @@ export const verifyAddPhone = async (req: express.Request, res: express.Response
 
     // Generate new token with updated data
     const token = await getAccessToken(userData.user_id);
+    if (token?.userData?.email) {
+      void sendPhoneChangedEmail(token.userData.email, token.userData.name || "", { action: "added", phone }, (token.userData as { language?: string }).language);
+    }
 
     userLogger.info(`Phone added for user ${userData.user_id}: ${phone}`);
     successResponseHelper(res, 200, "Phone number added and verified successfully!", token);

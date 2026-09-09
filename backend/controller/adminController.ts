@@ -34,6 +34,7 @@ import {
   userModel,
 } from "../models/userModels";
 import { adminUnlockAccount } from "../services/accountLockoutService";
+import { sendAccountStatusEmail } from "../services/email/securityEmails";
 
 const BCRYPT_ROUNDS = 12;
 import crypto from "crypto";
@@ -989,6 +990,14 @@ const banUser = async (req: express.Request, res: express.Response) => {
     );
 
     adminLogger.info(`[Admin] User ${userId} status changed to '${newStatus}' by admin. Reason: ${reason || "N/A"}`);
+    if (user.dataValues.email && user.dataValues.status !== newStatus) {
+      void sendAccountStatusEmail(
+        user.dataValues.email,
+        user.dataValues.name || "",
+        { status: newStatus as "suspended" | "banned" | "active", reason: typeof reason === "string" ? reason.slice(0, 500) : null },
+        user.dataValues.language,
+      );
+    }
 
     successResponseHelper(res, 200, `User ${selectedAction}${selectedAction === "activate" ? "d" : "ned"} successfully`, {
       user_id: userId,

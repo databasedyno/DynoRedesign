@@ -32,6 +32,11 @@ export interface userReducer {
   loginOtpMaskedEmail?: string;
   loginOtpSession?: string;
   loginOtpLoading?: boolean;
+  // TOTP 2FA step-up after the first factor.
+  login2faRequired?: boolean;
+  login2faChallenge?: string;
+  login2faRemember?: boolean;
+  login2faLoading?: boolean;
   // Email-verification banner state (populated after profile fetch).
   email_verified?: boolean;
 }

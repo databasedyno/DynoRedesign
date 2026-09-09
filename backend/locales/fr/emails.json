@@ -865,5 +865,90 @@
     "inclusive": "incl.",
     "reverseCharge": "Autoliquidation (B2B UE). L'acheteur déclare la taxe.",
     "merchantTaxId": "N° {{label}} du marchand :"
+  },
+  "security": {
+    "twoFaEnabled": {
+      "subject": "L'authentification à deux facteurs est activée",
+      "heading": "Authentification à deux facteurs activée",
+      "intro": "L'authentification à deux facteurs (2FA) protège désormais votre compte Dynopay. À chaque connexion, un code de votre application d'authentification vous sera demandé.",
+      "tip": "Conservez vos codes de secours en lieu sûr : ils sont le seul moyen d'accéder à votre compte si vous perdez votre application d'authentification.",
+      "preheader": "Un code d'authentification est désormais requis pour vous connecter."
+    },
+    "twoFaDisabled": {
+      "subject": "Authentification à deux facteurs désactivée",
+      "heading": "Authentification à deux facteurs désactivée",
+      "intro": "L'authentification à deux facteurs (2FA) vient d'être désactivée sur votre compte Dynopay. Votre mot de passe suffit désormais pour accéder à votre compte.",
+      "cta": "Réactiver la 2FA",
+      "preheader": "La 2FA a été désactivée sur votre compte : était-ce vous ?"
+    },
+    "backupCodes": {
+      "subject": "Nouveaux codes de secours 2FA générés",
+      "heading": "Codes de secours régénérés",
+      "intro": "Un nouveau jeu de codes de secours pour l'authentification à deux facteurs a été généré pour votre compte Dynopay. Vos anciens codes ne fonctionnent plus.",
+      "tip": "Conservez les nouveaux codes en lieu sûr et ne les partagez jamais.",
+      "preheader": "Vos anciens codes de secours ne fonctionnent plus."
+    },
+    "phoneAdded": {
+      "subject": "Numéro de téléphone ajouté à votre compte",
+      "heading": "Numéro de téléphone ajouté",
+      "intro": "Un numéro de téléphone vient d'être ajouté à votre compte Dynopay. Vous pouvez désormais vous connecter et recevoir des codes de vérification par SMS.",
+      "preheader": "Vous pouvez désormais recevoir des codes de vérification par SMS."
+    },
+    "phoneChanged": {
+      "subject": "Numéro de téléphone mis à jour sur votre compte",
+      "heading": "Numéro de téléphone mis à jour",
+      "intro": "Le numéro de téléphone de votre compte Dynopay vient d'être modifié. Les codes de vérification et les alertes de sécurité seront désormais envoyés au nouveau numéro.",
+      "preheader": "Les codes et alertes sont désormais envoyés à votre nouveau numéro."
+    },
+    "phoneRemoved": {
+      "subject": "Numéro de téléphone retiré de votre compte",
+      "heading": "Numéro de téléphone retiré",
+      "intro": "Le numéro de téléphone vient d'être retiré de votre compte Dynopay. La connexion par SMS ne sera plus disponible jusqu'à l'ajout d'un nouveau numéro.",
+      "preheader": "La connexion par SMS n'est plus disponible sur votre compte."
+    },
+    "phoneLabel": "Numéro de téléphone",
+    "accountDeleted": {
+      "subject": "Votre compte Dynopay a été supprimé",
+      "heading": "Compte supprimé",
+      "intro": "Comme demandé, votre compte Dynopay et toutes ses données (marques, liens de paiement, clés API, portefeuilles de versement et paramètres) ont été définitivement supprimés.",
+      "outro": "Nous sommes désolés de vous voir partir. Si vous souhaitez un jour accepter à nouveau des paiements en crypto, vous serez toujours le bienvenu.",
+      "notice": "<strong>Vous n'avez pas demandé cette suppression ?</strong> Contactez immédiatement notre équipe support.",
+      "preheader": "Votre compte et vos données ont été définitivement supprimés."
+    },
+    "accountSuspended": {
+      "subject": "Votre compte Dynopay a été suspendu",
+      "heading": "Compte suspendu",
+      "intro": "Votre compte Dynopay a été temporairement suspendu. Vous ne pourrez ni vous connecter ni traiter de paiements pendant la suspension.",
+      "outro": "Si vous pensez qu'il s'agit d'une erreur, ou si vous souhaitez régulariser la situation, répondez à cet e-mail ou contactez notre support.",
+      "preheader": "La connexion et les paiements sont suspendus sur votre compte."
+    },
+    "accountBanned": {
+      "subject": "Votre compte Dynopay a été fermé",
+      "heading": "Compte fermé",
+      "intro": "Votre compte Dynopay a été définitivement fermé pour non-respect de nos conditions d'utilisation. La connexion et le traitement des paiements ne sont plus disponibles.",
+      "outro": "Si vous pensez que cette décision est erronée, contactez notre support et nous la réexaminerons.",
+      "preheader": "Votre compte a été fermé pour non-respect des conditions d'utilisation."
+    },
+    "accountReactivated": {
+      "subject": "Votre compte Dynopay est de nouveau actif",
+      "heading": "Bon retour : votre compte est actif",
+      "intro": "Bonne nouvelle : votre compte Dynopay a été réactivé. Vous pouvez vous connecter et accepter des paiements comme d'habitude.",
+      "preheader": "Vous pouvez de nouveau vous connecter et accepter des paiements."
+    },
+    "reasonLabel": "Motif",
+    "didntDoThis": "<strong>Ce n'était pas vous ?</strong> Quelqu'un d'autre a peut-être accès à votre compte. Changez immédiatement votre mot de passe et contactez notre support.",
+    "reviewCta": "Vérifier la sécurité",
+    "supportCta": "Contacter le support",
+    "profileCta": "Voir le profil",
+    "dashboardCta": "Accéder au tableau de bord"
+  },
+  "paymentRequest": {
+    "subject": "{{companyName}} vous a envoyé une demande de paiement – {{amount}} {{currency}}",
+    "heading": "Demande de paiement de {{companyName}}",
+    "intro": "<strong>{{companyName}}</strong> vous demande un paiement. Vérifiez les détails ci-dessous et payez en toute sécurité en crypto.",
+    "expires": "Expire le",
+    "outro": "La page de paiement affiche le montant exact en crypto et les cryptomonnaies acceptées. Si vous n'attendiez pas cette demande, vous pouvez simplement ignorer cet e-mail.",
+    "cta": "Payer maintenant",
+    "preheader": "{{companyName}} vous demande {{amount}} {{currency}}. Payez en toute sécurité en crypto."
   }
 }

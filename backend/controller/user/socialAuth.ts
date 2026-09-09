@@ -30,7 +30,7 @@ import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, requires2FAChallenge, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 import { getClientIp, captureSignupContext } from "../../utils/clientContext";
 import { deriveNameParts } from "../../utils/nameUtils";
 
@@ -126,6 +126,7 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
       });
 
       // Create session with refresh token (same as OTP login)
+      if (await requires2FAChallenge(res, user.dataValues.user_id)) return;
       const sessionData = await createSession(user.dataValues, req as any);
       const { password: _pw, telegram_id: _tid, ...userDataClean } = user.dataValues;
       const resData = {
@@ -318,6 +319,7 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
         { where: { user_id: user.dataValues.user_id } }
       );
 
+      if (await requires2FAChallenge(res, user.dataValues.user_id)) return;
       const sessionData = await createSession(user.dataValues, req as any);
       const { password: _pw, telegram_id: _tid, ...userDataClean } = user.dataValues;
       const resData = {

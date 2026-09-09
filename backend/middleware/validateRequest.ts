@@ -68,13 +68,14 @@ export const registerSchema = Joi.object({
 });
 
 export const twoFAValidateSchema = Joi.object({
-  user_id: Joi.number().integer().positive().required().messages({
-    "any.required": "user_id is required",
-    "number.base": "user_id must be a number",
+  challenge_token: Joi.string().hex().length(64).required().messages({
+    "any.required": "challenge_token is required",
+    "string.hex": "challenge_token is invalid",
+    "string.length": "challenge_token is invalid",
   }),
-  token: Joi.string().min(4).max(20).required().messages({
+  token: Joi.string().trim().min(6).max(20).required().messages({
     "any.required": "token is required",
-    "string.min": "Token must be at least 4 characters",
+    "string.min": "Token must be at least 6 characters",
   }),
 });
 

@@ -30,7 +30,7 @@ import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, requires2FAChallenge, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 import { generateOtpCode, recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
 import { clientIp } from "../../middleware/rateLimitMiddleware";
 
@@ -370,6 +370,7 @@ export const confirmOTP = async (req: express.Request, res: express.Response) =>
           // Stay generic even if the code verified but there's no local account.
           return errorResponseHelper(res, 400, "OTP did not match!");
         }
+        if (await requires2FAChallenge(res, userData.dataValues.user_id)) return;
         const resData = await getAccessToken(userData.dataValues.user_id);
         return successResponseHelper(res, 200, "Login Successful!", resData);
       } else {
@@ -398,6 +399,7 @@ export const confirmOTP = async (req: express.Request, res: express.Response) =>
               // Stay generic — never reveal that the account is missing.
               return errorResponseHelper(res, 400, "OTP did not match!");
             }
+            if (await requires2FAChallenge(res, userData.dataValues.user_id)) return;
             const resData = await getAccessToken(userData.dataValues.user_id);
             successResponseHelper(res, 200, "Login Successful!", resData);
           } else {

@@ -36,6 +36,7 @@ export * from "./email/adminNotificationEmails";
 export * from "./email/orderEmails";
 export * from "./email/referralEmails";
 export * from "./email/walletSecurityEmails";
+export * from "./email/securityEmails";
 
 import {
   dynoPayEmailTemplate,

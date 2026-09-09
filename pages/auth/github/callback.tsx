@@ -1,7 +1,7 @@
 import axiosBaseApi from "@/axiosConfig";
 import Loading from "@/Components/UI/Loading";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_LOGIN } from "@/Redux/Actions/UserAction";
+import { USER_LOGIN, USER_LOGIN_2FA_REQUIRED } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef } from "react";
@@ -69,6 +69,13 @@ const GithubCallback = () => {
         const {
           data: { data, message },
         } = await axiosBaseApi.post("user/github-signin", { code, redirectUri });
+
+        if (data?.requires_2fa) {
+          // Account has TOTP enabled — the login page hosts the 2FA prompt.
+          dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+          router.replace("/auth/login");
+          return;
+        }
 
         if (data?.userData && data?.accessToken) {
           dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });

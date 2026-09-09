@@ -15,7 +15,7 @@ import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_LOGIN } from "@/Redux/Actions/UserAction";
+import { USER_LOGIN, USER_LOGIN_2FA_REQUIRED } from "@/Redux/Actions/UserAction";
 import axiosBaseApi from "@/axiosConfig";
 import confetti from "canvas-confetti";
 import Image from "next/image";
@@ -32,7 +32,7 @@ import {
   Divider,
   Link,
 } from "@mui/material";
-import { ArrowBack, CheckCircleOutline, MailOutline, SmartphoneOutlined } from "@mui/icons-material";
+import { ArrowBack, CheckCircleOutline, InfoOutlined, MailOutline, SmartphoneOutlined } from "@mui/icons-material";
 import Head from "next/head";
 import Script from "next/script";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
@@ -269,6 +269,11 @@ const Register = () => {
               accessToken: tokenResponse.access_token,
             });
             const { data, message } = res?.data || {};
+            if (data?.requires_2fa) {
+              dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+              router.push("/auth/login");
+              return;
+            }
             if (data?.userData && data?.accessToken) {
               dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
               dispatch({
@@ -462,6 +467,12 @@ const Register = () => {
       }
 
       const data = response?.data?.data;
+      if (data?.requires_2fa) {
+        // Existing account with TOTP enabled — finish on the login page's 2FA prompt.
+        dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+        router.push("/auth/login");
+        return;
+      }
       if (data?.accessToken) {
         const isLogin = accountExists || data?.account_exists === true;
         // Store token and redirect
@@ -923,8 +934,8 @@ const Register = () => {
                         <SmartphoneOutlined sx={{ fontSize: 28, color: "#fff" }} />
                       )}
                     </Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)" }}>
-                      {accountExists ? t("welcomeBack") : method === "email" ? t("verifyYourEmail") : t("verifyYourPhone")}
+                    <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)" }} data-testid="register-otp-title">
+                      {accountExists ? t("alreadyHaveAccountTitle", { defaultValue: "You already have an account" }) : method === "email" ? t("verifyYourEmail") : t("verifyYourPhone")}
                     </Typography>
                     <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, lineHeight: 1.5 }}>
                       {t("enterSixDigitCodeSentTo")}{" "}
@@ -937,17 +948,23 @@ const Register = () => {
                     {accountExists && (
                       <Box
                         data-testid="account-exists-banner"
+                        role="status"
                         sx={{
                           mt: 1.5,
                           mx: "auto",
-                          maxWidth: "360px",
+                          maxWidth: "380px",
                           px: 1.5,
-                          py: 1,
+                          py: 1.25,
                           borderRadius: "10px",
-                          background: theme.palette.mode === "dark" ? "rgba(79,70,229,0.18)" : "rgba(79,70,229,0.08)",
-                          border: `1px solid ${theme.palette.mode === "dark" ? "rgba(124,58,237,0.4)" : "rgba(79,70,229,0.2)"}`,
+                          display: "flex",
+                          gap: 1,
+                          alignItems: "flex-start",
+                          textAlign: "left",
+                          background: theme.palette.mode === "dark" ? "rgba(245,158,11,0.14)" : "rgba(245,158,11,0.10)",
+                          border: `1px solid ${theme.palette.mode === "dark" ? "rgba(245,158,11,0.45)" : "rgba(180,83,9,0.3)"}`,
                         }}
                       >
+                        <InfoOutlined sx={{ fontSize: 18, mt: "1px", flexShrink: 0, color: theme.palette.mode === "dark" ? "#FBBF24" : "#B45309" }} />
                         <Typography sx={{ fontSize: "13px", color: "text.primary", fontFamily: "var(--font-sans)", lineHeight: 1.5 }}>
                           {method === "email" ? t("emailAlreadyHasAccount") : t("phoneAlreadyHasAccount")}
                         </Typography>

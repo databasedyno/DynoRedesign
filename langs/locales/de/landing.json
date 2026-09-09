@@ -473,7 +473,7 @@
       "c6t": "Für Entwickler gebaut",
       "c6d": "Eine saubere REST-API, Sandbox-Keys und Webhooks für jedes Zahlungsereignis. Kein SDK-Lock-in.",
       "c7t": "Ein Konto, alle Marken",
-      "c7d": "Verwalte mehrere Unternehmen oder Marken mit einem einzigen Login — jede mit eigenem Checkout, Wallets und Auszahlung. Wechsle mit einem Klick."
+      "c7d": "Verwalte mehrere Marken mit einem einzigen Login — jede mit eigenem Checkout, Wallets und Auszahlung. Wechsle mit einem Klick."
     },
     "developer": {
       "eyebrow": "Für Entwickler",

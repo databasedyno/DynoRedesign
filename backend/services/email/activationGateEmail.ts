@@ -101,7 +101,7 @@ export async function sendActivationGateEmail(
       ${videoBlock}
       ${footer}`;
 
-    const html = dynoPayEmailTemplate(heading, content, true, ctaLabel, ctaUrl, "", L);
+    const html = dynoPayEmailTemplate(heading, content, true, ctaLabel, ctaUrl, "", L, "rocket");
     await mailTransporter({ to: email, name, subject, body: html });
     await setRedisItemWithTTL(dedupKey, { sent: true, at: Date.now() }, DEDUP_TTL_SEC);
     apiLogger.info(`[ActivationGate] ${gate} email sent to ${email}`);

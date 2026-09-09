@@ -1,0 +1,31 @@
+{
+  "summary": "Iteration 136: Fully validated (a) phone E.164 normalisation + duplicate-account UX, (b) branded security email refactor (hero icons, password-reset confirmation, locale catalogs, render/typecheck/file-size gates), and (c) avatar cross-device sync via server profile. All 24 pytest cases pass and all frontend Playwright assertions pass.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_phone_email_hardening.py",
+    "/app/test_reports/pytest/iter136_backend.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Playwright route mock note (informational, not a bug): the /api/user/profile request is fired asynchronously after the dashboard mounts (via useDisplayIdentity one-shot fetch). A 5-8s wait after navigation is needed before asserting avatar photo. This is expected because the hook prefers the JWT snapshot first, then hydrates from GET /api/user/profile once — behaviour is correct.",
+    "One 403 console error observed after login (likely a background/customer-scope endpoint) — pre-existing, unrelated to this iteration. Not blocking."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_phone_email_hardening.py (new)"
+  ],
+  "success_rate": {"backend": "100% (24/24)", "frontend": "100% (all specified assertions)"},
+  "test_credentials": "Merchant: onarrival21@gmail.com / Katiekendra123@ (per /app/memory/test_credentials.md). SAFE MODE prod DB.",
+  "seed_data_creation": "None. Password-reset flow used idempotent reset to SAME password Katiekendra123@ as instructed.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression suite covers: phone-type-check (BD trunk-zero, US, invalid), registerPhone/verify invalid-only paths (never sends real SMS), registerEmail duplicate account_exists, hero-icon PNG assets, password-reset branded email flow (idempotent to same password, verifies suppressed subject 'Password updated successfully', hero/lock.png + View Account Settings CTA in /app/memory/email_outbox, login still works), TS typecheck, file-size gate, verify_security_emails_render.ts (29/0), and all 6 locale catalogs have security.* and paymentRequest.cta keys. Frontend covered: register duplicate-account OTP UI (register-otp-title='You already have an account' + account-exists-banner) and avatar cross-device sync via Playwright route mock of /api/user/profile (header/dropdown/mobile-drawer all pick up mocked photo & name).",
+  "rca of the issue": "N/A — no issues found."
+}

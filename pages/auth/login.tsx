@@ -16,6 +16,7 @@ import ForgotPasswordDialog from "@/Components/UI/ForgotPasswordDialog";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import OtpDialog from "@/Components/UI/OtpDialog";
+import TwoFactorLoginDialog from "@/Components/UI/TwoFactorLoginDialog";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import CustomRadio from "@/Components/UI/RadioGroup";
 import {
@@ -38,6 +39,9 @@ import {
   USER_VERIFY_LOGIN_OTP,
   USER_RESEND_LOGIN_OTP,
   USER_LOGIN_OTP_RESET,
+  USER_LOGIN_2FA_REQUIRED,
+  USER_LOGIN_2FA_RESET,
+  USER_VERIFY_2FA,
   UserAction,
 } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
@@ -206,6 +210,9 @@ export default function Login() {
       // Reset login OTP state on successful login
       if (userState.loginOtpRequired) {
         dispatch({ type: USER_LOGIN_OTP_RESET });
+      }
+      if (userState.login2faRequired) {
+        dispatch({ type: USER_LOGIN_2FA_RESET });
       }
       setTimeout(() => {
         // Only navigate once the token is actually persisted — guards against
@@ -505,6 +512,20 @@ export default function Login() {
   // Handle login OTP dialog close
   const handleLoginOtpClose = () => {
     dispatch({ type: USER_LOGIN_OTP_RESET });
+  };
+
+  // TOTP 2FA step-up (password / code / social login on an account with 2FA on)
+  const handle2FAVerify = (code: string) => {
+    dispatch(
+      UserAction(USER_VERIFY_2FA, {
+        challenge_token: userState.login2faChallenge,
+        token: code,
+        remember: userState.login2faRemember || rememberMe,
+      })
+    );
+  };
+  const handle2FAClose = () => {
+    dispatch({ type: USER_LOGIN_2FA_RESET });
   };
 
   // Validate email (only called on button click)
@@ -918,7 +939,9 @@ export default function Login() {
               accessToken: tokenResponse.access_token,
             });
             const { data, message } = res?.data || {};
-            if (data?.userData && data?.accessToken) {
+            if (data?.requires_2fa) {
+              dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token, remember: rememberMe } });
+            } else if (data?.userData && data?.accessToken) {
               dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
               dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken } });
             } else {
@@ -1939,6 +1962,19 @@ export default function Login() {
             ? userState.error.message
             : undefined
         }
+      />
+
+      {/* TOTP 2FA step-up — shown when the first factor succeeded on an account with 2FA enabled */}
+      <TwoFactorLoginDialog
+        open={!!userState.login2faRequired}
+        loading={!!userState.login2faLoading}
+        error={
+          userState.error && userState.error.actionType === USER_VERIFY_2FA
+            ? userState.error.message
+            : undefined
+        }
+        onVerify={handle2FAVerify}
+        onClose={handle2FAClose}
       />
 
       {/* Forgot Password Dialog */}

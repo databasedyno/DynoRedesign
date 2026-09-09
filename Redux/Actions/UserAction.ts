@@ -17,6 +17,10 @@ export const USER_LOGIN_OTP_REQUIRED = "USER_LOGIN_OTP_REQUIRED";
 export const USER_VERIFY_LOGIN_OTP = "USER_VERIFY_LOGIN_OTP";
 export const USER_RESEND_LOGIN_OTP = "USER_RESEND_LOGIN_OTP";
 export const USER_LOGIN_OTP_RESET = "USER_LOGIN_OTP_RESET";
+// TOTP 2FA step-up after the first factor (password / code / social)
+export const USER_LOGIN_2FA_REQUIRED = "USER_LOGIN_2FA_REQUIRED";
+export const USER_LOGIN_2FA_RESET = "USER_LOGIN_2FA_RESET";
+export const USER_VERIFY_2FA = "USER_VERIFY_2FA";
 
 export const UserAction = (type?: string, data?: any) => {
   return { type: USER_INIT, payload: data, crudType: type };

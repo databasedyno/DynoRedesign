@@ -59,6 +59,8 @@ export const sendWalletChangeAlertEmail = async (
       "This wasn't me — undo & lock",
       revertUrl,
       "If this wasn't you, undo it in one tap and lock wallet changes.",
+      undefined,
+      "shield-alert",
     );
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Wallet change alert sent to ${email} (${rows.length} row(s))`);
@@ -93,6 +95,8 @@ export const sendWalletSecuredEmail = async (
       "Contact support",
       `${FRONTEND_BASE_URL}/help-support`,
       "We've undone the wallet change and locked further edits on your account.",
+      undefined,
+      "shield-green",
     );
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Wallet secured notice sent to ${email}`);

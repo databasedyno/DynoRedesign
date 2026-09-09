@@ -865,5 +865,90 @@
     "inclusive": "incl.",
     "reverseCharge": "Inversión del sujeto pasivo (B2B UE). El comprador liquida el impuesto.",
     "merchantTaxId": "ID de {{label}} del comercio:"
+  },
+  "security": {
+    "twoFaEnabled": {
+      "subject": "La autenticación en dos pasos está activada",
+      "heading": "Autenticación en dos pasos activada",
+      "intro": "La autenticación en dos pasos (2FA) ya protege su cuenta de Dynopay. A partir de ahora necesitará un código de su aplicación de autenticación cada vez que inicie sesión.",
+      "tip": "Guarde sus códigos de respaldo en un lugar seguro: son la única forma de entrar si pierde el acceso a su aplicación de autenticación.",
+      "preheader": "Su cuenta ahora requiere un código de autenticación para iniciar sesión."
+    },
+    "twoFaDisabled": {
+      "subject": "Autenticación en dos pasos desactivada",
+      "heading": "Autenticación en dos pasos desactivada",
+      "intro": "La autenticación en dos pasos (2FA) acaba de desactivarse en su cuenta de Dynopay. Ahora su contraseña por sí sola desbloquea la cuenta.",
+      "cta": "Volver a activar 2FA",
+      "preheader": "Se desactivó la 2FA en su cuenta. ¿Fue usted?"
+    },
+    "backupCodes": {
+      "subject": "Nuevos códigos de respaldo 2FA generados",
+      "heading": "Códigos de respaldo regenerados",
+      "intro": "Se generó un nuevo conjunto de códigos de respaldo para la autenticación en dos pasos de su cuenta de Dynopay. Los códigos anteriores ya no funcionan.",
+      "tip": "Guarde los nuevos códigos en un lugar seguro y no los comparta con nadie.",
+      "preheader": "Sus códigos de respaldo anteriores ya no funcionan."
+    },
+    "phoneAdded": {
+      "subject": "Número de teléfono añadido a su cuenta",
+      "heading": "Número de teléfono añadido",
+      "intro": "Se acaba de añadir un número de teléfono a su cuenta de Dynopay. Ahora puede iniciar sesión y recibir códigos de verificación por SMS.",
+      "preheader": "Ahora puede recibir códigos de verificación por SMS."
+    },
+    "phoneChanged": {
+      "subject": "Número de teléfono actualizado en su cuenta",
+      "heading": "Número de teléfono actualizado",
+      "intro": "El número de teléfono de su cuenta de Dynopay acaba de cambiar. Los códigos de verificación y las alertas de seguridad se enviarán ahora al nuevo número.",
+      "preheader": "Los códigos y alertas ahora van a su nuevo número."
+    },
+    "phoneRemoved": {
+      "subject": "Número de teléfono eliminado de su cuenta",
+      "heading": "Número de teléfono eliminado",
+      "intro": "El número de teléfono acaba de eliminarse de su cuenta de Dynopay. El inicio de sesión por SMS no estará disponible hasta que añada un nuevo número.",
+      "preheader": "El inicio de sesión por SMS ya no está disponible en su cuenta."
+    },
+    "phoneLabel": "Número de teléfono",
+    "accountDeleted": {
+      "subject": "Su cuenta de Dynopay ha sido eliminada",
+      "heading": "Cuenta eliminada",
+      "intro": "Como solicitó, su cuenta de Dynopay y todos sus datos (marcas, enlaces de pago, claves API, monederos de cobro y configuración) se han eliminado de forma permanente.",
+      "outro": "Lamentamos que se vaya. Si alguna vez quiere volver a aceptar pagos en cripto, será bienvenido en cualquier momento.",
+      "notice": "<strong>¿No solicitó esto?</strong> Contacte de inmediato con nuestro equipo de soporte.",
+      "preheader": "Su cuenta y sus datos se eliminaron de forma permanente."
+    },
+    "accountSuspended": {
+      "subject": "Su cuenta de Dynopay ha sido suspendida",
+      "heading": "Cuenta suspendida",
+      "intro": "Su cuenta de Dynopay ha sido suspendida temporalmente. No podrá iniciar sesión ni procesar pagos mientras esté suspendida.",
+      "outro": "Si cree que se trata de un error o desea resolverlo, responda a este correo o contacte con nuestro equipo de soporte.",
+      "preheader": "El inicio de sesión y los pagos están en pausa en su cuenta."
+    },
+    "accountBanned": {
+      "subject": "Su cuenta de Dynopay ha sido cerrada",
+      "heading": "Cuenta cerrada",
+      "intro": "Su cuenta de Dynopay ha sido cerrada de forma permanente por infringir nuestros términos de servicio. El inicio de sesión y el procesamiento de pagos ya no están disponibles.",
+      "outro": "Si cree que esta decisión es incorrecta, contacte con nuestro equipo de soporte y la revisaremos.",
+      "preheader": "Su cuenta se cerró por infringir los términos de servicio."
+    },
+    "accountReactivated": {
+      "subject": "Su cuenta de Dynopay está activa de nuevo",
+      "heading": "Bienvenido de nuevo: su cuenta está activa",
+      "intro": "Buenas noticias: su cuenta de Dynopay ha sido reactivada. Puede iniciar sesión y aceptar pagos con normalidad.",
+      "preheader": "Ya puede iniciar sesión y aceptar pagos de nuevo."
+    },
+    "reasonLabel": "Motivo",
+    "didntDoThis": "<strong>¿No fue usted?</strong> Es posible que otra persona tenga acceso a su cuenta. Cambie su contraseña de inmediato y contacte con nuestro equipo de soporte.",
+    "reviewCta": "Revisar la seguridad",
+    "supportCta": "Contactar con soporte",
+    "profileCta": "Ver perfil",
+    "dashboardCta": "Ir al panel"
+  },
+  "paymentRequest": {
+    "subject": "{{companyName}} le ha enviado una solicitud de pago – {{amount}} {{currency}}",
+    "heading": "Solicitud de pago de {{companyName}}",
+    "intro": "<strong>{{companyName}}</strong> le solicita un pago. Revise los detalles a continuación y pague de forma segura con cripto.",
+    "expires": "Vence",
+    "outro": "La página de pago muestra el importe exacto en cripto y las monedas con las que puede pagar. Si no esperaba esta solicitud, puede ignorar este correo.",
+    "cta": "Pagar ahora",
+    "preheader": "{{companyName}} solicita {{amount}} {{currency}}. Pague de forma segura con cripto."
   }
 }

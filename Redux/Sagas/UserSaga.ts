@@ -18,6 +18,8 @@ import {
   USER_LOGIN_OTP_REQUIRED,
   USER_VERIFY_LOGIN_OTP,
   USER_RESEND_LOGIN_OTP,
+  USER_LOGIN_2FA_REQUIRED,
+  USER_VERIFY_2FA,
 } from "../Actions/UserAction";
 import axios from "@/axiosConfig";
 import { TOAST_SHOW } from "../Actions/ToastAction";
@@ -26,6 +28,14 @@ import { unAuthorizedHelper } from "@/helpers";
 interface IUserAction {
   crudType: string;
   payload: any;
+}
+
+/** Login response for an account with TOTP enabled: hand the challenge to the 2FA dialog. */
+function* handle2FAChallenge(data: any, remember?: boolean): unknown {
+  yield put({
+    type: USER_LOGIN_2FA_REQUIRED,
+    payload: { challenge_token: data.challenge_token, remember: !!remember },
+  });
 }
 
 export function* UserSaga(action: IUserAction): unknown {
@@ -68,6 +78,9 @@ export function* UserSaga(action: IUserAction): unknown {
       break;
     case USER_RESEND_LOGIN_OTP:
       yield resendLoginOTP(action.payload);
+      break;
+    case USER_VERIFY_2FA:
+      yield verify2FA(action.payload);
       break;
     default:
       yield put({ type: USER_API_ERROR });
@@ -114,6 +127,11 @@ export function* userLogin(payload: any): unknown {
       return;
     }
 
+    if (data.requires_2fa) {
+      yield handle2FAChallenge(data, payload?.remember);
+      return;
+    }
+
     if (!data.userData || !data.accessToken) {
       throw new Error(
         "Invalid response structure: missing userData or accessToken",
@@ -147,6 +165,38 @@ export function* userLogin(payload: any): unknown {
   }
 }
 
+export function* verify2FA(payload: any): unknown {
+  try {
+    const { remember, ...apiPayload } = payload || {};
+    const response = yield call(axios.post, "user/2fa/validate", apiPayload);
+    const responseData = response?.data;
+
+    if (!responseData || responseData.success === false) {
+      throw new Error(responseData?.message || "2FA verification failed");
+    }
+
+    const { data, message } = responseData;
+    if (!data?.userData || !data?.accessToken) {
+      throw new Error("Invalid response structure");
+    }
+
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message: message || "Login successful" },
+    });
+    yield put({
+      type: USER_LOGIN,
+      payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken, remember },
+    });
+  } catch (e: any) {
+    const message = e.response?.data?.message ?? e.message ?? "2FA verification failed";
+    yield put({
+      type: USER_API_ERROR,
+      payload: { message, actionType: USER_VERIFY_2FA },
+    });
+  }
+}
+
 
 export function* verifyLoginOTP(payload: any): unknown {
   try {
@@ -162,6 +212,11 @@ export function* verifyLoginOTP(payload: any): unknown {
     }
 
     const { data, message } = responseData;
+
+    if (data?.requires_2fa) {
+      yield handle2FAChallenge(data, payload?.remember);
+      return;
+    }
 
     if (!data || !data.userData || !data.accessToken) {
       throw new Error("Invalid response structure");
@@ -382,6 +437,11 @@ export function* confirmOTP(payload: any): unknown {
     // Validate that data exists and has the required properties
     if (!data) {
       throw new Error("Response data is missing");
+    }
+
+    if (data.requires_2fa) {
+      yield handle2FAChallenge(data, remember);
+      return;
     }
 
     if (!data.userData || !data.accessToken) {

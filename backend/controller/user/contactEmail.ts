@@ -70,24 +70,22 @@ export const changeEmail = async (req: express.Request, res: express.Response) =
       return errorResponseHelper(res, 400, "Email address already in use");
     }
     
+    const oldEmail = String(user.dataValues.email || "").toLowerCase();
+
     // Update email
     await userModel.update(
       { email: newEmail.toLowerCase() },
       { where: { user_id: userData.user_id } }
     );
     
-    // Send confirmation email to new address
+    // Branded, localized notice to the NEW address + security alert to the OLD address
     try {
-      await sendEmail(
-        newEmail,
-        user.dataValues.name || "User",
-        "Email Address Changed - Dynopay",
-        `Your Dynopay account email has been successfully changed to this address.
-
-If you didn't make this change, please contact support immediately.
-
-Best regards,
-Dynopay Team`
+      await emailService.sendUserProfileUpdatedEmail(
+        newEmail.toLowerCase(),
+        user.dataValues.name || "",
+        ["Email address: Updated"],
+        oldEmail && oldEmail !== newEmail.toLowerCase() ? oldEmail : undefined,
+        user.dataValues.language,
       );
     } catch (emailError) {
       userLogger.error("Failed to send email change confirmation", emailError);

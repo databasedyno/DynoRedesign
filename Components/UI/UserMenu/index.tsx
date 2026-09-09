@@ -6,7 +6,7 @@ import LogoutIcon from "@/assets/Icons/logout-icon.svg";
 import UserAvatar from "@/Components/UI/UserAvatar";
 import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import useIsMobile from "@/hooks/useIsMobile";
-import useTokenData from "@/hooks/useTokenData";
+import useDisplayIdentity from "@/hooks/useDisplayIdentity";
 import useWindow from "@/hooks/useWindow";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { useThemeMode } from "@/contexts/ThemeContext";
@@ -35,7 +35,7 @@ export default function UserMenu() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const triggerWidth = anchorEl?.clientWidth || 180;
-  const tokenData = useTokenData();
+  const { name: userName, photo: userPhoto } = useDisplayIdentity();
   const router = useRouter();
   const customWindow = useWindow();
   const { t } = useTranslation("dashboardLayout");
@@ -74,8 +74,6 @@ export default function UserMenu() {
     }
   };
 
-  const userName = tokenData?.name || "";
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -110,7 +108,7 @@ export default function UserMenu() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <UserAvatar
             name={userName}
-            photo={tokenData?.photo}
+            photo={userPhoto}
             size={isMobile ? 24 : 32}
             fontSize={isMobile ? 10 : 12}
             data-testid="user-menu-avatar"
@@ -170,7 +168,7 @@ export default function UserMenu() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <UserAvatar
                 name={userName}
-                photo={tokenData?.photo}
+                photo={userPhoto}
                 size={isMobile ? 24 : 32}
                 fontSize={isMobile ? 10 : 12}
                 data-testid="user-menu-dropdown-avatar"

@@ -473,7 +473,7 @@
       "c6t": "Hecho para desarrolladores",
       "c6d": "Una API REST clara, claves sandbox y webhooks para cada evento de pago. Sin ataduras a un SDK.",
       "c7t": "Una cuenta, todas tus marcas",
-      "c7d": "Gestiona varios negocios o marcas desde un solo inicio de sesión: cada uno con su propio checkout, monederos y liquidación. Cambia entre ellos con un clic."
+      "c7d": "Gestiona varias marcas desde un solo inicio de sesión: cada una con su propio checkout, monederos y liquidación. Cambia entre ellas con un clic."
     },
     "developer": {
       "eyebrow": "Para desarrolladores",

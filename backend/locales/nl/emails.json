@@ -865,5 +865,90 @@
     "inclusive": "incl.",
     "reverseCharge": "Verlegging (EU B2B). Koper draagt de belasting af.",
     "merchantTaxId": "{{label}}-ID van verkoper:"
+  },
+  "security": {
+    "twoFaEnabled": {
+      "subject": "Tweestapsverificatie staat aan",
+      "heading": "Tweestapsverificatie ingeschakeld",
+      "intro": "Tweestapsverificatie (2FA) beschermt nu uw Dynopay-account. Vanaf nu heeft u bij elke aanmelding een code uit uw authenticator-app nodig.",
+      "tip": "Bewaar uw back-upcodes op een veilige plek: ze zijn de enige toegang als u uw authenticator-app verliest.",
+      "preheader": "Voor aanmelden is nu een authenticator-code vereist."
+    },
+    "twoFaDisabled": {
+      "subject": "Tweestapsverificatie uitgeschakeld",
+      "heading": "Tweestapsverificatie uitgeschakeld",
+      "intro": "Tweestapsverificatie (2FA) is zojuist uitgeschakeld voor uw Dynopay-account. Alleen uw wachtwoord geeft nu toegang tot uw account.",
+      "cta": "2FA weer inschakelen",
+      "preheader": "2FA is uitgeschakeld voor uw account – was dit u?"
+    },
+    "backupCodes": {
+      "subject": "Nieuwe 2FA-back-upcodes aangemaakt",
+      "heading": "Back-upcodes opnieuw aangemaakt",
+      "intro": "Er is een nieuwe set back-upcodes voor tweestapsverificatie aangemaakt voor uw Dynopay-account. Uw vorige back-upcodes werken niet meer.",
+      "tip": "Bewaar de nieuwe codes op een veilige plek en deel ze met niemand.",
+      "preheader": "Uw oude back-upcodes werken niet meer."
+    },
+    "phoneAdded": {
+      "subject": "Telefoonnummer toegevoegd aan uw account",
+      "heading": "Telefoonnummer toegevoegd",
+      "intro": "Er is zojuist een telefoonnummer toegevoegd aan uw Dynopay-account. U kunt nu aanmelden en verificatiecodes ontvangen via sms.",
+      "preheader": "U kunt nu verificatiecodes via sms ontvangen."
+    },
+    "phoneChanged": {
+      "subject": "Telefoonnummer van uw account bijgewerkt",
+      "heading": "Telefoonnummer bijgewerkt",
+      "intro": "Het telefoonnummer van uw Dynopay-account is zojuist gewijzigd. Verificatiecodes en beveiligingsmeldingen gaan vanaf nu naar het nieuwe nummer.",
+      "preheader": "Codes en meldingen gaan nu naar uw nieuwe nummer."
+    },
+    "phoneRemoved": {
+      "subject": "Telefoonnummer verwijderd van uw account",
+      "heading": "Telefoonnummer verwijderd",
+      "intro": "Het telefoonnummer is zojuist verwijderd van uw Dynopay-account. Aanmelden via sms is pas weer mogelijk als u een nieuw nummer toevoegt.",
+      "preheader": "Aanmelden via sms is niet meer beschikbaar voor uw account."
+    },
+    "phoneLabel": "Telefoonnummer",
+    "accountDeleted": {
+      "subject": "Uw Dynopay-account is verwijderd",
+      "heading": "Account verwijderd",
+      "intro": "Zoals gevraagd zijn uw Dynopay-account en alle bijbehorende gegevens – merken, betaallinks, API-sleutels, uitbetalingswallets en instellingen – permanent verwijderd.",
+      "outro": "We vinden het jammer dat u weggaat. Wilt u ooit weer cryptobetalingen accepteren, dan bent u altijd welkom.",
+      "notice": "<strong>Heeft u dit niet aangevraagd?</strong> Neem direct contact op met onze support.",
+      "preheader": "Uw account en gegevens zijn permanent verwijderd."
+    },
+    "accountSuspended": {
+      "subject": "Uw Dynopay-account is geschorst",
+      "heading": "Account geschorst",
+      "intro": "Uw Dynopay-account is tijdelijk geschorst. Zolang de schorsing duurt, kunt u niet aanmelden en geen betalingen verwerken.",
+      "outro": "Denkt u dat dit een vergissing is, of wilt u dit oplossen? Beantwoord deze e-mail of neem contact op met onze support.",
+      "preheader": "Aanmelden en betalingen zijn gepauzeerd voor uw account."
+    },
+    "accountBanned": {
+      "subject": "Uw Dynopay-account is gesloten",
+      "heading": "Account gesloten",
+      "intro": "Uw Dynopay-account is permanent gesloten wegens een schending van onze servicevoorwaarden. Aanmelden en betalingen verwerken zijn niet meer mogelijk.",
+      "outro": "Vindt u deze beslissing onterecht? Neem contact op met onze support, dan bekijken we het opnieuw.",
+      "preheader": "Uw account is gesloten wegens een schending van de servicevoorwaarden."
+    },
+    "accountReactivated": {
+      "subject": "Uw Dynopay-account is weer actief",
+      "heading": "Welkom terug – uw account is actief",
+      "intro": "Goed nieuws: uw Dynopay-account is opnieuw geactiveerd. U kunt zoals gewoonlijk aanmelden en betalingen accepteren.",
+      "preheader": "U kunt weer aanmelden en betalingen accepteren."
+    },
+    "reasonLabel": "Reden",
+    "didntDoThis": "<strong>Was dit niet u?</strong> Mogelijk heeft iemand anders toegang tot uw account. Wijzig direct uw wachtwoord en neem contact op met onze support.",
+    "reviewCta": "Beveiliging controleren",
+    "supportCta": "Contact met support",
+    "profileCta": "Profiel bekijken",
+    "dashboardCta": "Naar het dashboard"
+  },
+  "paymentRequest": {
+    "subject": "{{companyName}} heeft u een betaalverzoek gestuurd – {{amount}} {{currency}}",
+    "heading": "Betaalverzoek van {{companyName}}",
+    "intro": "<strong>{{companyName}}</strong> vraagt u om een betaling. Controleer de gegevens hieronder en betaal veilig met crypto.",
+    "expires": "Verloopt op",
+    "outro": "De betaalpagina toont het exacte cryptobedrag en de munten waarmee u kunt betalen. Verwachtte u dit verzoek niet, dan kunt u deze e-mail negeren.",
+    "cta": "Nu betalen",
+    "preheader": "{{companyName}} vraagt {{amount}} {{currency}}. Betaal veilig met crypto."
   }
 }

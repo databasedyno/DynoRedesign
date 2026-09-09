@@ -15,6 +15,7 @@ import {
   sendEmail,
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
+import { sendPaymentRequestEmail } from "../../services/email/securityEmails";
 import { getRedisItem, setRedisItem, deleteRedisItem, redis } from "../../utils/redisInstance";
 import { formatAmountForDisplay, getCurrencyInfo } from "../../utils/currencyUtils";
 import { companyModel, paymentLinkModel, userModel, userWalletModel } from "../../models";
@@ -995,27 +996,15 @@ export const createPaymentLink = async (
           }
         }
 
-        const paymentMessage = `
-You have received a payment request from <strong>${companyName}</strong>.
-
-<div style="margin: 20px 0; padding: 20px; background: #f8f9ff; border-radius: 8px;">
-  <p style="margin: 0 0 8px 0;"><strong>Amount:</strong> ${normalizedAmount} ${normalizedCurrency}</p>
-  ${description ? `<p style="margin: 0 0 8px 0;"><strong>Description:</strong> ${description}</p>` : ''}
-  ${expires_at ? `<p style="margin: 0;"><strong>Expires:</strong> ${new Date(expires_at).toLocaleDateString()}</p>` : ''}
-</div>
-
-<div style="text-align: center; margin: 24px 0;">
-  <a href="${brandedShortLink}" style="display: inline-block; background: linear-gradient(135deg, #f47323 0%, #e05a00 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">Pay Now</a>
-</div>
-        `.trim();
-
-        await sendEmail(
-          email,                                                                          // recipientEmail
-          email.split('@')[0] || "Customer",                                              // name (extract from email)
-          `Payment Request from ${companyName} - ${normalizedAmount} ${normalizedCurrency}`, // subject
-          paymentMessage,                                                                 // message body
-          false                                                                           // showImage
-        );
+        await sendPaymentRequestEmail(email, {
+          companyName,
+          amount: String(normalizedAmount),
+          currency: String(normalizedCurrency),
+          description: description || null,
+          expiresAt: expires_at || null,
+          payUrl: brandedShortLink,
+          lang: (req.body as { language?: string })?.language || null,
+        });
 
         cronLogger.info(`[PaymentLink] Payment request email sent to ${email}`);
       } catch (emailError) {

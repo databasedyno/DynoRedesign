@@ -28,7 +28,7 @@ import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemW
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../../services/accountLockoutService";
 import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
-import { is2FARequired } from "../../services/twoFactorService";
+import { is2FARequired, TWO_FA_CHALLENGE_TTL, twoFAChallengeKey } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { generateOtpCode } from "../../helper/otpGuard";
 
@@ -125,6 +125,29 @@ export const generateReferralCode = () => {
  * Only requires email — no password, no name
  */
 
+// ── TOTP 2FA step-up ──────────────────────────────────────────────────────
+// After the FIRST factor succeeds (password / email code / SMS / social), an
+// account with TOTP enabled gets a short-lived, single-use challenge token
+// instead of a session. POST /user/2fa/validate consumes it. The raw user_id is
+// never accepted by the validate endpoint (it used to be — see twoFactorController).
+export const issue2FAChallenge = async (res: express.Response, userId: number) => {
+  const challenge = crypto.randomBytes(32).toString("hex");
+  await setRedisItemWithTTL(twoFAChallengeKey(challenge), { user_id: userId, issued_at: Date.now() }, TWO_FA_CHALLENGE_TTL);
+  return successResponseHelper(res, 200, "2FA verification required", {
+    requires_2fa: true,
+    challenge_token: challenge,
+    expires_in: TWO_FA_CHALLENGE_TTL,
+    message: "Enter the 6-digit code from your authenticator app to finish signing in.",
+  });
+};
+
+/** Responds with a 2FA challenge when the account has TOTP enabled. Returns true if it did (caller must return). */
+export const requires2FAChallenge = async (res: express.Response, userId: number): Promise<boolean> => {
+  if (!(await is2FARequired(userId))) return false;
+  await issue2FAChallenge(res, userId);
+  return true;
+};
+
 export const finalizeLogin = async (
   userData: any,
   req: express.Request,
@@ -132,14 +155,7 @@ export const finalizeLogin = async (
   logPrefix: string
 ) => {
   // Check if 2FA is required (TOTP)
-  const needs2FA = await is2FARequired(userData.dataValues.user_id);
-  if (needs2FA) {
-    return successResponseHelper(res, 200, "2FA verification required", {
-      requires_2fa: true,
-      user_id: userData.dataValues.user_id,
-      message: "Please provide your 2FA code to complete login.",
-    });
-  }
+  if (await requires2FAChallenge(res, userData.dataValues.user_id)) return;
 
   // Parse request context (sync, cheap) — needed for the deferred bookkeeping below.
   const rawIp = req.headers['x-forwarded-for'] as string || req.ip || 'Unknown';
@@ -368,12 +384,17 @@ export const sendEmailOTP = async (
   }
 };
 
+export type TelnyxSendResult = { ok: boolean; reason?: "unsupported_destination" | "invalid_number" | "error"; detail?: string };
+
+export const SMS_UNSUPPORTED_MESSAGE =
+  "We can't deliver SMS codes to this number's country yet. Please sign up with your email address instead.";
+
 /**
- * Helper: Send OTP via Telnyx SMS with retry.
- * Retries once after 1s delay on 401/5xx errors.
- * Returns true on success, false on failure.
+ * Helper: Send OTP via Telnyx Verify (SMS) with retry, returning WHY it failed so
+ * callers can show an actionable message instead of a generic "try again".
+ * Retries once after 1s delay on 401/429/5xx errors.
  */
-export const sendTelnyxSMS = async (mobile: string, maxRetries: number = 1): Promise<boolean> => {
+export const sendTelnyxVerification = async (mobile: string, maxRetries: number = 1): Promise<TelnyxSendResult> => {
   const telnyxApiKey = envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN");
   const verifyProfileId = envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID");
 
@@ -393,13 +414,15 @@ export const sendTelnyxSMS = async (mobile: string, maxRetries: number = 1): Pro
           timeout: 10000, // 10s timeout
         }
       );
-      return true; // Success
+      return { ok: true };
     } catch (err: any) {
       const status = err?.response?.status;
-      const errMsg = err?.response?.data?.errors?.[0]?.detail || err?.message || "Unknown error";
+      const first = err?.response?.data?.errors?.[0];
+      const errMsg: string = first?.detail || first?.title || err?.message || "Unknown error";
       userLogger.error(`[generateOTP] Telnyx SMS attempt ${attempt + 1}/${maxRetries + 1} failed`, {
         mobile: mobile.slice(0, 4) + "****", // Mask PII
         status,
+        code: first?.code,
         error: errMsg,
       });
 
@@ -408,9 +431,20 @@ export const sendTelnyxSMS = async (mobile: string, maxRetries: number = 1): Pro
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // 1s, 2s backoff
         continue;
       }
-      return false; // Non-retryable or exhausted retries
+      if (status && status < 500 && /destination|whitelist|not allowed|unsupported|country|blocked/i.test(errMsg)) {
+        return { ok: false, reason: "unsupported_destination", detail: errMsg };
+      }
+      if (status && status < 500 && /invalid|phone_number|not a valid/i.test(errMsg)) {
+        return { ok: false, reason: "invalid_number", detail: errMsg };
+      }
+      return { ok: false, reason: "error", detail: errMsg };
     }
   }
-  return false;
+  return { ok: false, reason: "error", detail: "Retries exhausted" };
 };
+
+/** Boolean wrapper kept for existing call sites. */
+export const sendTelnyxSMS = async (mobile: string, maxRetries: number = 1): Promise<boolean> =>
+  (await sendTelnyxVerification(mobile, maxRetries)).ok;
+
 

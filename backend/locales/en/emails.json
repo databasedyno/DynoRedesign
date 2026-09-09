@@ -865,5 +865,90 @@
     "inclusive": "incl.",
     "reverseCharge": "Reverse-charge (EU B2B). Buyer accounts for tax.",
     "merchantTaxId": "Merchant {{label}} ID:"
+  },
+  "security": {
+    "twoFaEnabled": {
+      "subject": "Two-factor authentication is on",
+      "heading": "Two-factor authentication enabled",
+      "intro": "Two-factor authentication (2FA) is now protecting your Dynopay account. From now on you'll need a code from your authenticator app each time you sign in.",
+      "tip": "Keep your backup codes somewhere safe — they're the only way in if you lose access to your authenticator app.",
+      "preheader": "Your account now requires an authenticator code to sign in."
+    },
+    "twoFaDisabled": {
+      "subject": "Two-factor authentication turned off",
+      "heading": "Two-factor authentication disabled",
+      "intro": "Two-factor authentication (2FA) was just turned off on your Dynopay account. Your password alone now unlocks your account.",
+      "cta": "Turn 2FA back on",
+      "preheader": "2FA was turned off on your account — was that you?"
+    },
+    "backupCodes": {
+      "subject": "New 2FA backup codes generated",
+      "heading": "Backup codes regenerated",
+      "intro": "A new set of two-factor backup codes was generated for your Dynopay account. Your previous backup codes no longer work.",
+      "tip": "Store the new codes somewhere safe and never share them with anyone.",
+      "preheader": "Your old backup codes no longer work."
+    },
+    "phoneAdded": {
+      "subject": "Phone number added to your account",
+      "heading": "Phone number added",
+      "intro": "A phone number was just added to your Dynopay account. You can now sign in and receive verification codes by SMS.",
+      "preheader": "You can now receive verification codes by SMS."
+    },
+    "phoneChanged": {
+      "subject": "Phone number updated on your account",
+      "heading": "Phone number updated",
+      "intro": "The phone number on your Dynopay account was just changed. Verification codes and security alerts will now go to the new number.",
+      "preheader": "Codes and alerts now go to your new number."
+    },
+    "phoneRemoved": {
+      "subject": "Phone number removed from your account",
+      "heading": "Phone number removed",
+      "intro": "The phone number was just removed from your Dynopay account. SMS sign-in is no longer available until you add a new number.",
+      "preheader": "SMS sign-in is no longer available on your account."
+    },
+    "phoneLabel": "Phone number",
+    "accountDeleted": {
+      "subject": "Your Dynopay account has been deleted",
+      "heading": "Account deleted",
+      "intro": "As requested, your Dynopay account and all of its data — brands, payment links, API keys, payout wallets and settings — have been permanently deleted.",
+      "outro": "We're sorry to see you go. If you ever want to accept crypto payments again, you're welcome back any time.",
+      "notice": "<strong>Didn't request this?</strong> Contact our support team immediately.",
+      "preheader": "Your account and its data were permanently removed."
+    },
+    "accountSuspended": {
+      "subject": "Your Dynopay account has been suspended",
+      "heading": "Account suspended",
+      "intro": "Your Dynopay account has been temporarily suspended. You won't be able to sign in or process payments while it's suspended.",
+      "outro": "If you believe this is a mistake, or you'd like to resolve it, reply to this email or contact our support team.",
+      "preheader": "Sign-in and payments are paused on your account."
+    },
+    "accountBanned": {
+      "subject": "Your Dynopay account has been closed",
+      "heading": "Account closed",
+      "intro": "Your Dynopay account has been permanently closed for violating our terms of service. Sign-in and payment processing are no longer available.",
+      "outro": "If you believe this decision is wrong, contact our support team and we'll review it.",
+      "preheader": "Your account was closed for a terms-of-service violation."
+    },
+    "accountReactivated": {
+      "subject": "Your Dynopay account is active again",
+      "heading": "Welcome back — your account is active",
+      "intro": "Good news: your Dynopay account has been reactivated. You can sign in and accept payments as usual.",
+      "preheader": "You can sign in and accept payments again."
+    },
+    "reasonLabel": "Reason",
+    "didntDoThis": "<strong>Didn't do this?</strong> Someone else may have access to your account. Change your password right away and contact our support team.",
+    "reviewCta": "Review security settings",
+    "supportCta": "Contact support",
+    "profileCta": "View profile",
+    "dashboardCta": "Go to dashboard"
+  },
+  "paymentRequest": {
+    "subject": "{{companyName}} sent you a payment request – {{amount}} {{currency}}",
+    "heading": "Payment request from {{companyName}}",
+    "intro": "<strong>{{companyName}}</strong> is requesting a payment from you. Review the details below and pay securely with crypto.",
+    "expires": "Expires",
+    "outro": "The payment page shows the exact crypto amount and the coins you can pay with. If you weren't expecting this request, you can simply ignore this email.",
+    "cta": "Pay now",
+    "preheader": "{{companyName}} is requesting {{amount}} {{currency}}. Pay securely with crypto."
   }
 }

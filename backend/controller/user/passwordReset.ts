@@ -298,12 +298,7 @@ export const resetPassword = async (req: express.Request, res: express.Response)
         const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
         const userEmail2 = user.dataValues.email;
         if (userEmail2) {
-          await sendEmail(
-            userEmail2,
-            user.dataValues.name || "User",
-            "Password Changed Successfully - Dynopay",
-            `Your Dynopay account password was successfully changed on ${date} at ${time}.\n\nIf you did not make this change, please contact support immediately.`
-          );
+          await emailService.sendPasswordChangedEmail(userEmail2, user.dataValues.name || "", date, time, user.dataValues.language);
         }
       } catch (emailErr) {
         userLogger.warn("[resetPassword] Confirmation email failed", { error: (emailErr as Error).message });
@@ -345,12 +340,7 @@ export const resetPassword = async (req: express.Request, res: express.Response)
       const now = new Date();
       const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
       const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      await sendEmail(
-        email.toLowerCase(),
-        user.dataValues.name || "User",
-        "Password Changed Successfully - Dynopay",
-        `Your Dynopay account password was successfully changed on ${date} at ${time}.\n\nIf you did not make this change, please contact support immediately.`
-      );
+      await emailService.sendPasswordChangedEmail(email.toLowerCase(), user.dataValues.name || "", date, time, user.dataValues.language);
     } catch (emailErr) {
       userLogger.warn("[resetPassword] Confirmation email failed", { error: (emailErr as Error).message });
     }

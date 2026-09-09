@@ -6,6 +6,7 @@ import UpdatePassword from "./UpdatePassword";
 import AddContactInfo from "./AddContactInfo";
 import LoginActivity from "./LoginActivity";
 import ActiveSessions from "./ActiveSessions";
+import TwoFactorAuth from "./TwoFactorAuth";
 
 const ProfilePage = ({ tokenData }: { tokenData: TokenData }) => {
   return (
@@ -15,6 +16,9 @@ const ProfilePage = ({ tokenData }: { tokenData: TokenData }) => {
       </Grid>
       <Grid item md={5.11} xs={12}>
         <UpdatePassword />
+      </Grid>
+      <Grid item xs={12}>
+        <TwoFactorAuth />
       </Grid>
       <Grid item xs={12}>
         <AddContactInfo tokenData={tokenData} />
