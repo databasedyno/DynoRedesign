@@ -20,6 +20,7 @@ import {
 } from "../Actions/UserAction";
 import { applyPersistence } from "@/helpers/authPersistence";
 import { syncAttribution } from "@/utils/attribution";
+import { notifyTokenUpdated } from "@/hooks/useTokenData";
 
 // Fire the first-touch signup-attribution beacon the INSTANT an auth token is
 // stored — for EVERY flow (email login, register, Google sign-in). Previously
@@ -65,6 +66,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
 
     case USER_LOGIN:
       localStorage.setItem("token", payload.accessToken);
+      notifyTokenUpdated();
       fireAttribution();
       if (payload.refreshToken) {
         localStorage.setItem("refreshToken", payload.refreshToken);
@@ -85,6 +87,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
       };
     case USER_REGISTER:
       localStorage.setItem("token", payload.accessToken);
+      notifyTokenUpdated();
       fireAttribution();
       if (payload.refreshToken) {
         localStorage.setItem("refreshToken", payload.refreshToken);
@@ -99,6 +102,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
       };
     case USER_UPDATE:
       localStorage.setItem("token", payload.accessToken);
+      notifyTokenUpdated();
       fireAttribution();
       if (payload.refreshToken) {
         localStorage.setItem("refreshToken", payload.refreshToken);

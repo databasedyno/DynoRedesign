@@ -119,7 +119,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     setUserPhoto(normalized);
     setInitialPhoto(normalized);
     setImageError(false);
-  }, [tokenData]);
+  }, [tokenData.photo]);
 
   // OTP countdown timers
   useEffect(() => {
@@ -156,6 +156,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       if (respData?.accessToken) {
         dispatch({ type: USER_UPDATE, payload: respData });
       }
+      dispatch(UserAction(USER_PROFILE_FETCH));
       setInitialPhoto(opts.remove ? "" : (opts.previewUrl ?? ""));
       setMedia(undefined);
       dispatch({

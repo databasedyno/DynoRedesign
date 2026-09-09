@@ -1,3 +1,16 @@
+# 2026-09-09 (fork, pod 0462e6dd) INSTANT AVATAR REFRESH (no reload) — DONE + VERIFIED (Playwright real upload, 390px).
+#   ROOT CAUSE: hooks/useTokenData decoded localStorage.token ONCE on mount, so header/drawer kept the stale photo/name
+#   until a full reload even though updateUser returns a fresh JWT that the reducer stores. FIX: useTokenData now
+#   re-decodes on a window event `dynopay:token-updated` (exported notifyTokenUpdated(), fired by userReducer after every
+#   localStorage token write: USER_LOGIN / USER_REGISTER / USER_UPDATE) and on cross-tab `storage` events for key "token".
+#   AccountSetting: autoSavePhoto now also dispatches USER_PROFILE_FETCH (so pages/settings ProfileSection's merged
+#   profile.photo doesn't stay stale) and its token→preview sync effect keys on tokenData.photo (string) instead of the
+#   object, so the local blob preview is no longer clobbered on unrelated re-renders. Name saves also refresh instantly.
+#   VERIFIED: header src media_vbo4qbny25 → media_2oa0nlkicgh without reload; settings preview + mobile drawer show the
+#   same new file. (Re-uploaded the merchant's EXISTING photo so the live account looks identical; old file orphaned in Spaces.)
+#
+
+
 # 2026-09-09 (fork, pod 0462e6dd) MOBILE DRAWER AVATAR = UPLOADED PHOTO + CLICKABLE "VIEW ACCOUNT" — DONE + VERIFIED (Playwright 390px).
 #   User screenshot: header avatar showed the uploaded photo but the mobile nav drawer account row showed gradient
 #   initials ("JD") — and "View account" was dead text. Fix: NEW shared Components/UI/UserAvatar (photo w/ onError
