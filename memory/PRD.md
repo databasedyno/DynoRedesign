@@ -1,3 +1,21 @@
+# 2026-09-09 (fork, pod dbe1c2d6) COMMIT + QA RETEST-READY MARKING — DONE.
+#   - Pre-commit file-size gate (backend/scripts/check-file-size.mjs: NEW backend .ts must be <=500 lines; legacy
+#     grandfathered) was BLOCKING because profileSecurity.ts hit 522 lines after the new-device work. Fixed by extracting
+#     the one-tap handlers into controller/user/signoutEverywhere.ts (154 lines); profileSecurity.ts back to 377.
+#     userController now imports the 2 handlers from ./user/signoutEverywhere. tsc 0; file-size gate OK (57 legacy grandfathered).
+#     Re-verified the moved flow end-to-end via curl w/ a real DB token: GET confirm page → POST → active session 200→401.
+#     Committed: 42a644fed. (Contrast guardrail is warn-only in the hook — never blocks commit/Save-to-GitHub.)
+#   - QA Quality Center (passcode-gated /api/quality, tbl_qa_comment; "retest ready" = status 'awaiting_retest'): marked the
+#     recently-fixed, still-open items awaiting_retest with [DEV] fix notes (tester "Emergent Dev (E1)"):
+#       * custom::18  (Brand logo auto-updates without Save)         → my bug #1 fix
+#       * custom::17  (Long brand name overflows dropdown)           → my bug #2 fix
+#       * dashboard::DASH-003 (onboarding-status HTTP 304 sub-issue) → my bug #9 fix (noted sub-step 5 payment-link is a
+#         separate, unrelated blocker not addressed here)
+#     The rest of this session's fixes were ALREADY 'pass' on the board so no marking was needed: tax id (company::COMP-003),
+#     test@ registration (auth::AUTH-001), session revoke both cases (auth::AUTH-010), empty state (dashboard::DASH-005),
+#     brand-name <script>/logo-preview (company::COMP-001). Verified all three flips reflect awaiting_retest.
+#
+
 # 2026-09-09 (fork, pod dbe1c2d6) NEW-DEVICE SIGN-IN ALERT + ONE-TAP "SIGN OUT EVERYWHERE" — DONE + VERIFIED (BE tsc 0; curl + email render).
 #   User picked this Next Action Item. Built on the existing login-activity/security-token infra + the session-revocation
 #   enforcement added earlier this session (Redis revoked markers checked in authMiddleware).
