@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { MenuItemRow, UserName, UserTrigger } from "./styled";
 
 import LogoutIcon from "@/assets/Icons/logout-icon.svg";
-import { getInitials } from "@/helpers";
-import { avatarGradient } from "@/helpers/avatarGradient";
+import UserAvatar from "@/Components/UI/UserAvatar";
 import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
@@ -34,7 +33,6 @@ export default function UserMenu() {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [imageError, setImageError] = useState(false);
 
   const triggerWidth = anchorEl?.clientWidth || 180;
   const tokenData = useTokenData();
@@ -76,19 +74,7 @@ export default function UserMenu() {
     }
   };
 
-  // Safely get firstName, handle cases where name might be undefined
-  const firstName = tokenData?.name?.split(" ")[0] || "";
-  const lastName = tokenData?.name?.split(" ")[1] || "";
   const userName = tokenData?.name || "";
-  // Colourful, deterministic gradient for the initials avatar (no photo).
-  const avatarBg = avatarGradient(userName || firstName);
-  const rawPhoto = tokenData?.photo || "";
-  const userPhoto = rawPhoto && !rawPhoto.startsWith("/") && !rawPhoto.startsWith("http") && !rawPhoto.startsWith("blob:") ? `/${rawPhoto}` : rawPhoto;
-
-  // Reset error state when photo changes
-  useEffect(() => {
-    setImageError(false);
-  }, [userPhoto]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -122,54 +108,13 @@ export default function UserMenu() {
       {/* Trigger */}
       <UserTrigger onClick={(e) => setAnchorEl(e.currentTarget)} data-testid="user-menu-trigger">
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Box
-            sx={{
-              position: "relative",
-              width: isMobile ? 24 : 32,
-              height: isMobile ? 24 : 32,
-              borderRadius: "50%",
-              overflow: "hidden",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background:
-                userPhoto && !imageError
-                  ? "transparent"
-                  : avatarBg,
-              boxShadow:
-                userPhoto && !imageError
-                  ? "none"
-                  : theme.palette.mode === "dark"
-                    ? "0 2px 8px rgba(0,0,0,0.35)"
-                    : "0 2px 8px rgba(10,10,15,0.18)",
-              flexShrink: 0,
-            }}
-          >
-            {userPhoto && !imageError ? (
-              <Image
-                src={userPhoto as string}
-                alt="user"
-                width={isMobile ? 24 : 32}
-                height={isMobile ? 24 : 32}
-                style={{ borderRadius: "50%", objectFit: "cover" }}
-                draggable={false}
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <Typography
-                sx={{
-                  fontSize: isMobile ? "10px" : "12px",
-                  fontWeight: 700,
-                  color: "#FFFFFF",
-                  fontFamily: "var(--font-sans)",
-                  textTransform: "uppercase",
-                  lineHeight: 1,
-                }}
-              >
-                {getInitials(firstName, lastName)}
-              </Typography>
-            )}
-          </Box>
+          <UserAvatar
+            name={userName}
+            photo={tokenData?.photo}
+            size={isMobile ? 24 : 32}
+            fontSize={isMobile ? 10 : 12}
+            data-testid="user-menu-avatar"
+          />
 
           {/* Profile trigger shows the avatar ONLY (no name text) on every
               breakpoint. The merchant's name + email live inside the dropdown.
@@ -223,54 +168,13 @@ export default function UserMenu() {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <Box
-                sx={{
-                  position: "relative",
-                  width: isMobile ? 24 : 32,
-                  height: isMobile ? 24 : 32,
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background:
-                    userPhoto && !imageError
-                      ? "transparent"
-                      : avatarBg,
-                  boxShadow:
-                    userPhoto && !imageError
-                      ? "none"
-                      : theme.palette.mode === "dark"
-                        ? "0 2px 8px rgba(0,0,0,0.35)"
-                        : "0 2px 8px rgba(10,10,15,0.18)",
-                  flexShrink: 0,
-                }}
-              >
-                {userPhoto && !imageError ? (
-                  <Image
-                    src={userPhoto as string}
-                    alt="user"
-                    width={isMobile ? 24 : 32}
-                    height={isMobile ? 24 : 32}
-                    style={{ borderRadius: "50%", objectFit: "cover" }}
-                    draggable={false}
-                    onError={() => setImageError(true)}
-                  />
-                ) : (
-                  <Typography
-                    sx={{
-                      fontSize: isMobile ? "10px" : "12px",
-                      fontWeight: 700,
-                      color: "#FFFFFF",
-                      fontFamily: "var(--font-sans)",
-                      textTransform: "uppercase",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {getInitials(firstName, lastName)}
-                  </Typography>
-                )}
-              </Box>
+              <UserAvatar
+                name={userName}
+                photo={tokenData?.photo}
+                size={isMobile ? 24 : 32}
+                fontSize={isMobile ? 10 : 12}
+                data-testid="user-menu-dropdown-avatar"
+              />
 
               <UserName sx={{ fontSize: isMobile ? 13 : 15 }}>
                 {userName || "User"}

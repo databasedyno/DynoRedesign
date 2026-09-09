@@ -1,3 +1,13 @@
+# 2026-09-09 (fork, pod 0462e6dd) MOBILE DRAWER AVATAR = UPLOADED PHOTO + CLICKABLE "VIEW ACCOUNT" — DONE + VERIFIED (Playwright 390px).
+#   User screenshot: header avatar showed the uploaded photo but the mobile nav drawer account row showed gradient
+#   initials ("JD") — and "View account" was dead text. Fix: NEW shared Components/UI/UserAvatar (photo w/ onError
+#   fallback → deterministic gradient + initials; resolveUserPhoto normalises stored paths; data-avatar-kind=photo|initials).
+#   Used in NewHeader drawer row (testids mobile-drawer-avatar / mobile-drawer-account-row → Link /settings?section=profile,
+#   hover bg, closes drawer) AND replaced the 2 duplicated avatar blocks in UserMenu (user-menu-avatar /
+#   user-menu-dropdown-avatar) so all three stay in sync. FE tsc 0. Verified: header + drawer both kind=photo, href correct.
+#
+
+
 # 2026-09-09 (fork, pod 0462e6dd) QA P0 FIXES — DASH-001 (auto-convert banner) + AUTH-003 (set password) — DONE + VERIFIED (testing_agent iter_135 + iter_134).
 #   DASH-001 (Auto-convert enable/disable missing on dashboard): the previous agent had injected <ConversionBanner/>
 #     into the LEGACY Components/Page/Dashboard/DashboardLeftSection.tsx, which is NOT rendered on /dashboard — the live

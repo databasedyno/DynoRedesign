@@ -35,8 +35,7 @@ import {
 import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import useTokenData from "@/hooks/useTokenData";
-import { getInitials } from "@/helpers";
-import { avatarGradient } from "@/helpers/avatarGradient";
+import UserAvatar from "@/Components/UI/UserAvatar";
 import { brandFg } from "@/constants/theme";
 
 const NewHeader = () => {
@@ -44,8 +43,6 @@ const NewHeader = () => {
   const muiTheme = useMuiTheme();
   const tokenData = useTokenData();
   const drawerUserName = tokenData?.name || "";
-  const drawerFirstName = drawerUserName.split(" ")[0] || "";
-  const drawerLastName = drawerUserName.split(" ")[1] || "";
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const namespaces = ["dashboardLayout", "walletScreen"];
   const { t } = useTranslation(namespaces);
@@ -307,12 +304,25 @@ const NewHeader = () => {
             (matches the top-bar avatar + the Emergent reference). */}
         {drawerUserName && (
           <Box
+            component={Link}
+            href="/settings?section=profile"
+            data-testid="mobile-drawer-account-row"
+            onClick={() => setDrawerOpen(false)}
             sx={{
               display: "flex",
               alignItems: "center",
               gap: 1.25,
               px: 2,
               py: 1.5,
+              textDecoration: "none",
+              cursor: "pointer",
+              transition: "background-color 160ms ease",
+              "&:hover, &:focus-visible": {
+                backgroundColor:
+                  muiTheme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.04)"
+                    : "rgba(10,10,15,0.04)",
+              },
               borderBottom: `1px solid ${
                 muiTheme.palette.mode === "dark"
                   ? "rgba(255,255,255,0.06)"
@@ -320,29 +330,13 @@ const NewHeader = () => {
               }`,
             }}
           >
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: avatarGradient(drawerUserName),
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#FFFFFF",
-                fontWeight: 700,
-                fontSize: 15,
-                fontFamily: "var(--font-sans)",
-                textTransform: "uppercase",
-                flexShrink: 0,
-                boxShadow:
-                  muiTheme.palette.mode === "dark"
-                    ? "0 2px 8px rgba(0,0,0,0.35)"
-                    : "0 2px 8px rgba(10,10,15,0.18)",
-              }}
-            >
-              {getInitials(drawerFirstName, drawerLastName)}
-            </Box>
+            <UserAvatar
+              name={drawerUserName}
+              photo={tokenData?.photo}
+              size={40}
+              fontSize={15}
+              data-testid="mobile-drawer-avatar"
+            />
             <Box sx={{ minWidth: 0 }}>
               <Typography
                 sx={{
