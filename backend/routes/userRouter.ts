@@ -106,6 +106,11 @@ userRouter.get("/login-activity", authMiddleware, userController.getLoginActivit
 // Security: Flag suspicious login (public — uses security token from email)
 userRouter.post("/security/flag-login", userController.flagLogin);
 
+// Security: One-tap "sign out everywhere" from the new-device alert email.
+// GET renders a confirm page (prefetch-safe); POST performs the revocation.
+userRouter.get("/security/signout-everywhere", userController.signOutEverywhereConfirmPage);
+userRouter.post("/security/signout-everywhere", express.urlencoded({ extended: false, limit: "4kb" }) as unknown as RequestHandler, userController.signOutEverywhereAction);
+
 // Last company persistence (requires auth)
 userRouter.put("/last-company", authMiddleware, userController.updateLastCompany);
 

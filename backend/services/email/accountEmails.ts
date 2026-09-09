@@ -402,7 +402,71 @@ export const sendFailedLoginAttemptsEmail = async (
   }
 };
 
+/**
+ * New-Device Sign-in Alert (security)
+ * Fired the FIRST time a merchant signs in from a given (ip, browser, os)
+ * fingerprint. Primary CTA is a one-tap "This wasn't me — sign out everywhere"
+ * link (opens a backend confirm page → POST revokes every session). Reuses the
+ * per-login security_token stored in tbl_login_activity as the capability.
+ */
+export const sendNewDeviceAlertEmail = async (
+  email: string,
+  name: string,
+  opts: {
+    ipAddress: string;
+    device: string;
+    browser: string;
+    os: string;
+    location: string | null;
+    date: string;
+    time: string;
+    securityToken: string;
+    lang?: string;
+  }
+) => {
+  try {
+    const { ipAddress, device, browser, os, location, date, time, securityToken } = opts;
+    const L = await resolveEmailLang(opts.lang, email);
+
+    // The one-tap link opens a backend-rendered confirm page on our own origin.
+    const base = (config.serverUrl || config.frontendUrl || FRONTEND_BASE_URL).replace(/\/+$/, "");
+    const signOutUrl = `${base}/api/user/security/signout-everywhere?token=${encodeURIComponent(securityToken)}`;
+
+    const deviceDisplay =
+      [device, browser, os].filter((x) => x && x !== "Unknown").join(" · ") || "Unknown device";
+    const locationDisplay = location || "Unknown location";
+    const greeting = name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,";
+    const subject = "New device signed in to your Dynopay account";
+
+    const content = `${p(greeting)}
+    ${p("Your Dynopay account was just accessed from a device we haven't seen before. If this was you, no action is needed.")}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow("Device", escapeHtml(deviceDisplay))}
+        ${dataRow("Location", escapeHtml(locationDisplay))}
+        ${dataRow("IP address", `<span style="font-family: monospace; font-size: 13px;">${escapeHtml(ipAddress)}</span>`)}
+        ${dataRow("When", `${escapeHtml(date)} at ${escapeHtml(time)}`, true)}
+      </table>
+    `)}
+    ${warnText("Don't recognize this? Tap the button below to sign out of every device right away, then change your password.")}`;
+
+    const html = dynoPayEmailTemplate(
+      "New device signed in",
+      content,
+      true,
+      "This wasn't me — sign out everywhere",
+      signOutUrl,
+      "A new device just signed in to your Dynopay account.",
+      L,
+      "device"
+    );
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] New-device alert sent to ${email} (${deviceDisplay}, ${locationDisplay})`);
+  } catch (e) {
+    apiLogger.error("New-device alert email error:", e);
+  }
+};
+
 // ============================================================
 // SECTION 4: COMPANY EMAILS
 // ============================================================
-

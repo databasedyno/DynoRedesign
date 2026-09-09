@@ -232,50 +232,63 @@ export const finalizeLogin = async (
             const fp = `${userData.dataValues.user_id}|${ipAddress}|${(browser||'').toLowerCase()}|${(os||'').toLowerCase()}`;
             const fpHash = crypto.createHash('sha256').update(fp).digest('hex').substring(0, 24);
             const throttleKey = `login-notif:${userData.dataValues.user_id}:${fpHash}`;
-            const throttled = await getRedisItem(throttleKey);
+            const seenKey = `login-notif-seen:${userData.dataValues.user_id}:${fpHash}`;
+            const alreadySeen = await getRedisItem(seenKey);
+            const now = new Date();
+            const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-            // Optional preference: only email when the (ip, browser, os) tuple is genuinely new.
-            // Default = false (email every distinct fingerprint per 15 min).
-            let shouldSend = !throttled;
-            try {
-              const prefs = await notificationPreferencesModel.findOne({ where: { user_id: userData.dataValues.user_id } });
-              const prefsData = (prefs?.dataValues || {}) as { notify_new_device_only?: boolean };
-              if (prefsData.notify_new_device_only === true) {
-                // Look up the seen-device key (30-day TTL) — only send if unseen.
-                const seenKey = `login-notif-seen:${userData.dataValues.user_id}:${fpHash}`;
-                const seen = await getRedisItem(seenKey);
-                shouldSend = !seen;
-                if (shouldSend) {
-                  await setRedisItemWithTTL(seenKey, { at: new Date().toISOString() }, 30 * 24 * 60 * 60);
-                }
-              }
-            } catch (_prefErr) {
-              // Prefs lookup failure is non-fatal — fall through to default throttle.
-            }
-
-            if (!shouldSend) {
-              userLogger.info(`${logPrefix} Skipping login-notification email — throttled (fp=${fpHash}) or already-known device`);
-            } else {
-              // Record throttle marker (15 min TTL)
-              await setRedisItemWithTTL(throttleKey, { at: new Date().toISOString() }, 15 * 60);
-
-              const { sendLoginNotificationEmail } = await import("../../services/emailService");
-              const now = new Date();
-              const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-              const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            if (!alreadySeen) {
+              // ── Brand-new device ──────────────────────────────────────────
+              // First sign-in from this (ip, browser, os) for the user. Send the
+              // security-focused NEW-DEVICE alert whose one-tap CTA ("This wasn't
+              // me — sign out everywhere") revokes every session in one tap.
+              await setRedisItemWithTTL(seenKey, { at: now.toISOString() }, 30 * 24 * 60 * 60);
+              await setRedisItemWithTTL(throttleKey, { at: now.toISOString() }, 15 * 60);
+              const { sendNewDeviceAlertEmail } = await import("../../services/emailService");
               // Fire and forget — don't block the login response
-              sendLoginNotificationEmail(
+              sendNewDeviceAlertEmail(
                 userData.dataValues.email,
                 userData.dataValues.name || 'User',
-                ipAddress,
-                device,
-                browser,
-                os,
-                location,
-                date,
-                time,
-                securityToken
-              ).catch(err => userLogger.error(`${logPrefix} Login notification email failed:`, err));
+                { ipAddress, device, browser, os, location, date, time, securityToken }
+              ).catch(err => userLogger.error(`${logPrefix} New-device alert email failed:`, err));
+              userLogger.info(`${logPrefix} New-device alert email queued (fp=${fpHash})`);
+            } else {
+              // ── Known device ──────────────────────────────────────────────
+              // Existing throttled login notification. Respects the optional
+              // notify_new_device_only preference (which now means: alert on new
+              // devices only — handled by the branch above).
+              const throttled = await getRedisItem(throttleKey);
+              let shouldSend = !throttled;
+              try {
+                const prefs = await notificationPreferencesModel.findOne({ where: { user_id: userData.dataValues.user_id } });
+                const prefsData = (prefs?.dataValues || {}) as { notify_new_device_only?: boolean };
+                if (prefsData.notify_new_device_only === true) shouldSend = false;
+              } catch (_prefErr) {
+                // Prefs lookup failure is non-fatal — fall through to default throttle.
+              }
+
+              if (!shouldSend) {
+                userLogger.info(`${logPrefix} Skipping login-notification email — throttled (fp=${fpHash}) or new-device-only pref`);
+              } else {
+                // Record throttle marker (15 min TTL)
+                await setRedisItemWithTTL(throttleKey, { at: now.toISOString() }, 15 * 60);
+
+                const { sendLoginNotificationEmail } = await import("../../services/emailService");
+                // Fire and forget — don't block the login response
+                sendLoginNotificationEmail(
+                  userData.dataValues.email,
+                  userData.dataValues.name || 'User',
+                  ipAddress,
+                  device,
+                  browser,
+                  os,
+                  location,
+                  date,
+                  time,
+                  securityToken
+                ).catch(err => userLogger.error(`${logPrefix} Login notification email failed:`, err));
+              }
             }
           }
         }

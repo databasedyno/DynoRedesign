@@ -51,6 +51,7 @@ import { connectSocial, facebookSignIn } from "./user/socialConnect";
 import { googleSignIn, githubSignIn } from "./user/socialAuth";
 import { forgotPassword, forgotPasswordPhone, forgotPasswordVerifyOtp, forgotPasswordPhoneVerifyOtp, resetPassword } from "./user/passwordReset";
 import { changePassword, requestPasswordOtp, setPasswordWithOtp, getLoginActivity, flagLogin } from "./user/profileSecurity";
+import { signOutEverywhereConfirmPage, signOutEverywhereAction } from "./user/signoutEverywhere";
 import { updateUser, getProfile, updateProfile, updateDashboardQuickActions, updateLastCompany } from "./user/profile";
 import { changeEmail, removeEmail, addEmail, verifyAddEmail } from "./user/contactEmail";
 import { changePhone, removePhone, addPhone, verifyAddPhone } from "./user/contactPhone";
@@ -110,6 +111,8 @@ export default {
   setPasswordWithOtp,
   getLoginActivity,
   flagLogin,
+  signOutEverywhereConfirmPage,
+  signOutEverywhereAction,
   checkHandle,
   checkHandlePublic,
   reserveHandle,

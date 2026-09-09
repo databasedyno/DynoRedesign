@@ -368,6 +368,10 @@ export const flagLogin = async (req: express.Request, res: express.Response) => 
   }
 };
 
+// One-tap "sign out everywhere" (new-device alert email) lives in
+// ./signoutEverywhere.ts — kept separate so this file stays within the
+// 500-line budget (R2). Exported to the router via userController.
+
 // ── Creator vanity page (dynopay.com/{handle}) ──
 // Handles reserved so a user can't shadow an app route.
 

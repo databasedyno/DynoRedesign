@@ -369,6 +369,37 @@ export const revokeAllOtherSessions = async (
 };
 
 /**
+ * Revoke EVERY active session for a user — used by the emailed one-tap
+ * "sign out everywhere" link. Every device, including the one that just
+ * signed in, is signed out on its next request (Redis revoked markers).
+ */
+export const revokeAllUserSessions = async (
+  userId: number,
+  reason: string = "signout_everywhere",
+): Promise<number> => {
+  const whereClause = { user_id: userId, is_active: true };
+  const affected = await UserSession.findAll({
+    where: whereClause,
+    attributes: ["session_id", "session_token", "expires_at"],
+  });
+  const [affectedCount] = await UserSession.update(
+    { is_active: false, revoked_at: new Date(), revoke_reason: reason },
+    { where: whereClause }
+  );
+  await Promise.all(
+    affected.map((s) =>
+      markSessionRevokedInRedis(
+        userId,
+        s.dataValues.session_token as string | undefined,
+        s.dataValues.expires_at as Date | undefined,
+      ),
+    ),
+  );
+  userLogger.info(`[Session] Revoked ALL ${affectedCount} sessions for user ${userId} (reason: ${reason})`);
+  return affectedCount;
+};
+
+/**
  * Get login history for a user
  */
 export const getLoginHistory = async (userId: number, limit: number = 20): Promise<Record<string, unknown>[]> => {
@@ -411,6 +442,7 @@ export default {
   getUserSessions,
   revokeSession,
   revokeAllOtherSessions,
+  revokeAllUserSessions,
   getLoginHistory,
   cleanupExpiredSessions,
   isSessionRevoked,

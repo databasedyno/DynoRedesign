@@ -1,3 +1,36 @@
+# 2026-09-09 (fork, pod dbe1c2d6) NEW-DEVICE SIGN-IN ALERT + ONE-TAP "SIGN OUT EVERYWHERE" — DONE + VERIFIED (BE tsc 0; curl + email render).
+#   User picked this Next Action Item. Built on the existing login-activity/security-token infra + the session-revocation
+#   enforcement added earlier this session (Redis revoked markers checked in authMiddleware).
+#   WHAT:
+#     - New-device detection: userShared.ts post-login bookkeeping now branches on a 30-day "seen device" Redis key
+#       (login-notif-seen:{userId}:{fpHash}, fp = user|ip|browser|os). FIRST time a fingerprint is seen → send the new
+#       sendNewDeviceAlertEmail (security-focused). KNOWN devices → existing throttled login-notification (unchanged;
+#       still respects notify_new_device_only). Fire-and-forget so login isn't delayed. (Bots/internal IPs still skipped.)
+#     - Email sendNewDeviceAlertEmail (backend/services/email/accountEmails.ts): dynoPayEmailTemplate + hero 'device',
+#       infoBox with Device/Location/IP/When, warn text, and primary CTA "This wasn't me — sign out everywhere" linking to
+#       {SERVER_URL}/api/user/security/signout-everywhere?token={per-login security_token}. Rendered + screenshot-verified
+#       (hero device.png serves 200 on the backend static route).
+#     - One-tap action (backend/controller/user/profileSecurity.ts, PUBLIC, token-authorized by the per-login
+#       security_token in tbl_login_activities):
+#         GET  /api/user/security/signout-everywhere?token=  → prefetch-SAFE branded confirm page (device info + POST button).
+#         POST /api/user/security/signout-everywhere          → atomic single-use consume (flagged guard) + revokeAllUserSessions
+#                                                                → EVERY device 401s on next request. Idempotent. Sends a
+#                                                                confirming security-alert email. HTML pages set no-store /
+#                                                                no-referrer / CSP / nosniff / DENY.
+#     - sessionService.revokeAllUserSessions(userId) added (revokes ALL active sessions + writes Redis revoked markers).
+#     - CSRF: added "/api/user/security/signout-everywhere" to csrfMiddleware EXEMPT_PATHS (same precedent as
+#       /api/wallet-security/revert-change — opened from an inbox, no session cookie; the 256-bit token is the capability).
+#       Token valid 7 days (enforced via login_at window).
+#   VERIFIED (curl w/ a real token from tbl_login_activities): GET confirm page shows "Desktop · Chrome · Linux" + button;
+#     POST → "You're signed out everywhere" and an active access token flips 200 → 401; replay is idempotent; a flagged GET
+#     shows "already signed out"; bad/expired/unknown tokens render the invalid page (400/404).
+#   FILES: backend/{services/sessionService.ts, services/email/accountEmails.ts, controller/user/{userShared.ts,
+#     profileSecurity.ts}, controller/userController.ts, routes/userRouter.ts, middleware/csrfMiddleware.ts}.
+#   NOTE: in preview, outbound email is disabled and bot/internal-IP logins skip the alert, so the email itself can't be
+#     triggered here via curl — the trigger path, email HTML, and the whole one-tap action were verified instead. Not
+#     deployed — use "Save to GitHub".
+#
+
 # 2026-09-09 (fork, pod dbe1c2d6) SESSION-PANEL + REMEMBER-ME ENHANCEMENTS — DONE + VERIFIED (FE tsc 0; Playwright).
 #   Follow-up to the QA Group-A batch, from the user picking two Next Action Items.
 #   SESSION PANEL (Components/Page/Profile/ActiveSessions.tsx):
