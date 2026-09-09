@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://dynopay-settlement.preview.emergentagent.com"
+BASE_URL = "https://backend-audit-14.preview.emergentagent.com"
 
 def test_3a_login():
     """Test 3a: Login flow with CSRF + credentials"""

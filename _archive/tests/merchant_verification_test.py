@@ -15,7 +15,7 @@ from typing import Dict, Any, Optional
 from urllib.parse import quote
 
 # Configuration
-BASE_URL = "https://dynopay-settlement.preview.emergentagent.com"
+BASE_URL = "https://backend-audit-14.preview.emergentagent.com"
 OWNER_EMAIL = "onarrival21@gmail.com"
 OWNER_PASSWORD = "Katiekendra123@"
 

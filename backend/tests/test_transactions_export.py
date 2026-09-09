@@ -15,7 +15,7 @@ BASE_URL = (
     os.environ.get("PREVIEW_BASE_URL")
     or os.environ.get("REACT_APP_BACKEND_URL")
     or _env.get("REACT_APP_BACKEND_URL")
-    or "https://dynopay-settlement.preview.emergentagent.com"
+    or "https://backend-audit-14.preview.emergentagent.com"
 ).rstrip("/")
 
 COMPANY_ID = 1
