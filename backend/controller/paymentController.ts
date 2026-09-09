@@ -374,13 +374,25 @@ const addPayment = async (req: express.Request, res: express.Response) => {
               cronLogger.info(`[addPayment] 🎉 Fee-free promotion applied for user ${items.adm_id}`);
             }
             
-            // Customer-pays: the quote also charged a network-fee buffer. It rides with the
-            // merchant share (forwarding gas is deducted from the merchant transfer), so read
-            // the cached quote first and fall back to a live estimate if it expired.
+            // Customer-pays: reuse the EXACT figures the customer was quoted so the
+            // settled merchant/fee split matches the checkout breakdown to the cent.
+            // getCurrencyRates caches base_amount_usd, platform_fee_usd AND
+            // network_fee_usd for this ref+currency; recomputing base/fee here with
+            // pay-time FX drifted the split by cents vs the quote. Fall back to the
+            // freshly-computed values only when the quote has expired.
+            let splitBaseUSD = baseAmountUSD;
+            let splitFeeFiat: number = toNumber(totalDeduction, 8);
             if (fee_payer === 'customer') {
               const quote = await getRedisItem(quoteKey(userData.ref, value.currency));
               if (quote && Number.isFinite(Number(quote.network_fee_usd))) {
                 networkFeeUSD = Number(quote.network_fee_usd) || 0;
+                if (Number.isFinite(Number(quote.base_amount_usd)) && Number(quote.base_amount_usd) > 0) {
+                  splitBaseUSD = Number(quote.base_amount_usd);
+                }
+                if (Number.isFinite(Number(quote.platform_fee_usd))) {
+                  splitFeeFiat = Number(quote.platform_fee_usd);
+                }
+                cronLogger.info(`[addPayment] Using cached quote for split: base=$${toFixedStr(splitBaseUSD, 2)}, platformFee=$${toFixedStr(splitFeeFiat, 2)}, networkBuffer=$${toFixedStr(networkFeeUSD, 2)}`);
               } else {
                 try {
                   networkFeeUSD = toNumber(Number((await getBlockchainNetworkFee(feeChainFor(value.currency))).feeInUSD) || 0, 2);
@@ -389,16 +401,16 @@ const addPayment = async (req: express.Request, res: express.Response) => {
                 }
               }
             }
-            platformFeeUSD = toNumber(totalDeduction, 2);
+            platformFeeUSD = toNumber(splitFeeFiat, 2);
             
             // Exact split (decimal.js): merchant + fees === crypto_amount at 8 dp.
             // customer pays → merchant gets base+tax+network share, Dynopay fee is the complement
             // company pays  → fee taken from the base share only (tax passes through)
             const split = computeInclusiveSplit({
               cryptoAmount: crypto_amount,
-              baseAmount: baseAmountUSD,
+              baseAmount: splitBaseUSD,
               taxAmount,
-              feeFiat: totalDeduction,
+              feeFiat: splitFeeFiat,
               networkFeeFiat: networkFeeUSD,
               feePayer: fee_payer === 'customer' ? 'customer' : 'company',
             });

@@ -1,4 +1,41 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-09 (pod dbe1c2d6): PAYMENT MONEY-PATH AUDIT (getCurrencyRates <-> addPayment)
+#
+#   AUDIT FINDINGS (read-only):
+#   - Split math (controller/payment/checkoutMath.ts computeInclusiveSplit) is
+#     SOUND: Decimal.js (precision 40, HALF_UP), invariant merchantAmount +
+#     feesAmount === cryptoAmount ALWAYS holds (fee is the exact complement;
+#     merchant rounded DOWN). No sub-unit residue / no funds created or lost.
+#   - Quote-cache key aliasing MATCHES across getCurrencyRates and addPayment for
+#     USDC (USDC->USDC-ERC20) and RLUSD (RLUSD-XRPL->RLUSD): both resolve to the
+#     same `quote-<ref>-<ALIAS>` key. No cache-miss drift.
+#
+#   DRIFT FIXED (controller/paymentController.ts addPayment, customer-pays):
+#   - BEFORE: addPayment read ONLY network_fee_usd from the cached quote but
+#     RECOMPUTED base_amount_usd (pay-time FX) and platform fee, so the settled
+#     merchant/Dynopay-fee split could differ by cents from the breakdown the
+#     customer was shown at checkout (total crypto unchanged; allocation drifted).
+#   - AFTER: when the quote exists it now also reuses the cached base_amount_usd
+#     and platform_fee_usd (getCurrencyRates already caches both), so the settled
+#     split matches the customer-facing quote to the cent. Falls back to the
+#     recomputed values only when the quote expired. Company-pays unchanged.
+#   - Verified: tsc clean; computeInclusiveSplit invariant unit check passes
+#     (base=$100, fee=$1.65, net=$0.40, 0.5 LTC/USD -> merchant 50.2 + fee 0.825
+#     == 51.025 crypto).
+#
+#   BACKEND TEST FOCUS (SAFE — pure function + static + health; LIVE prod DB, READ-ONLY):
+#   1) Unit-test computeInclusiveSplit invariant with several random inputs from
+#      /app/backend via ts-node: for feePayer 'customer' and 'company', assert
+#      merchantAmount + feesAmount === cryptoAmount (rounded 8dp) and all >= 0.
+#   2) Static: confirm addPayment (controller/paymentController.ts) reads
+#      quote.base_amount_usd, quote.platform_fee_usd AND quote.network_fee_usd,
+#      and that getCurrencyRates caches those same fields (setRedisItemWithTTL).
+#   3) GET http://localhost:8001/health -> healthy. Do NOT create checkouts/payments.
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-09 (pod dbe1c2d6): 3 FIXES (log scrub, checkout status, admin missing tx)
 #
 #   (A) PRIVATE KEY LOG SCRUB — apis/tatumApi.ts
