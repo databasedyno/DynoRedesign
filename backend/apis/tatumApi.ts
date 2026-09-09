@@ -2875,6 +2875,44 @@ const getPaymentStatusFallback = async (address: string, currency: string, expec
   
   return result;
 };
+/**
+ * Raw address transaction history for UTXO chains (BTC/LTC/DOGE/BCH), inputs
+ * included — used by settlement on-chain verification to find the tx that
+ * SPENT a specific incoming UTXO from a pool address.
+ */
+export interface UtxoAddressTx {
+  hash?: string;
+  time?: number;
+  inputs?: Array<{ prevout?: { hash?: string; index?: number }; coin?: { address?: string; value?: string | number } }>;
+  outputs?: Array<{ address?: string; value?: string | number }>;
+}
+const getUtxoAddressTransactions = async (
+  address: string,
+  currency: string,
+  limit: number = 20
+): Promise<UtxoAddressTx[]> => {
+  const tatumSdk = await getTatumSDK();
+  if (currency === "BTC") {
+    return ((await tatumSdk.blockchain.bitcoin.btcGetTxByAddress(address, limit, 0)) as UtxoAddressTx[]) || [];
+  }
+  if (currency === "LTC") {
+    return ((await tatumSdk.blockchain.ltc.ltcGetTxByAddress(address, limit, 0)) as UtxoAddressTx[]) || [];
+  }
+  if (currency === "DOGE") {
+    return ((await tatumSdk.blockchain.doge.dogeGetTxByAddress(address, limit, 0)) as UtxoAddressTx[]) || [];
+  }
+  if (currency === "BCH") {
+    const headers = await getTatumHeaders();
+    const { data } = await axios.get(
+      `https://api.tatum.io/v3/bcash/transaction/address/${address}`,
+      { headers, params: { pageSize: Math.min(limit, 50), skip: 0 }, timeout: 15000 }
+    );
+    return (data as UtxoAddressTx[]) || [];
+  }
+  throw new Error(`getUtxoAddressTransactions: unsupported currency ${currency}`);
+};
+
+
 const getIncomingTransactions = async (
   address: string, 
   currency: string,
@@ -4119,6 +4157,7 @@ export default {
   validateTronAddress,
   getCurrentPaymentStatus,
   getIncomingTransactions,
+  getUtxoAddressTransactions,
   getTransactionConfirmations,
   encryptSymmetric,
   decryptSymmetric,

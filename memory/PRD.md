@@ -1,3 +1,21 @@
+# 2026-09-09 (fork, pod dbe1c2d6) SETTLEMENT HARDENING — VERIFIED (jest 57/57 webhookProcessor; full suite 667 pass; tsc 0; backend healthy).
+#   Resumed the paused hardening task. The 4 reliability fixes were in place (uncommitted): (1) clear processed-tx Redis
+#   lock on settlement failure so BullMQ retries fire; (2) crash-recovery now records failure + re-throws instead of faking
+#   a "recovered" success when settlement did NOT move funds; (3) dedup bypass for explicit recovery sources; (4) DLQ alert
+#   email rate-limiting. Modified (uncommitted): services/webhookProcessor.ts, paymentReliability.ts, webhookQueue.ts,
+#   controller/payment/settlement/settleTransaction.ts (+ chainVerification.ts, reconciliation.ts, apis/tatumApi.ts).
+#   REGRESSION FOUND + FIXED: __tests__/webhookProcessor.test.ts still asserted the OLD "falls back to direct webhook when
+#   recovery cryptoVerification fails" (faked payment.confirmed/recovered:true, status 'recovered') — the exact fake-success
+#   behaviour fix #2 removed. Rewrote that test to assert the correct new behaviour: processWebhookJob REJECTS, NO faked
+#   confirmed webhook, Redis row → status 'failed', failed-payment-<txId> marker written, processed-tx-<txId> deleted. Now 57/57.
+#   TESTING NOTE: did NOT run testing_agent — this pod is the LIVE PRODUCTION DB (SAFE MODE); a settlement/webhook test could
+#   mutate real merchant rows or trigger real payouts. Verified via the mocked jest suite instead (dedup bug already had
+#   246/246; webhookProcessor now 57/57; whole suite 667 pass — the 4 remaining failures are pre-existing env-only suites
+#   [ledgerPaymentMapper/paymentWalletFlows/authFlows] that need a live DB/server: proven to fail identically on the committed
+#   baseline via git stash). tsc --noEmit = 0. Backend restarted → /health healthy, database+redis connected.
+#   ACTION NEEDED: use "Save to Github" so DigitalOcean auto-deploys — all settlement fixes + this test fix are preview-only until then.
+#
+
 # 2026-09-09 (fork, pod dbe1c2d6) FOLLOW-UP: NOTIFICATIONS → "Transaction Details" showed Pending/"Awaiting payment" for the settled LTC — FIXED + VERIFIED (screenshot + curl).
 #   The drawer in the user's screenshot ("Transaction ID 1000", blank currency/amount) was the NOTIFICATIONS page, not the
 #   transactions list: NotificationPage.handleNotificationClick built the modal from `notif.meta`, but the API returns the

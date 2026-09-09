@@ -127,7 +127,7 @@ export const settleCryptoTransaction = async ({
       journalStateTransition,
     } = require("../../../services/paymentReliability");
 
-    const idempotencyCheck = await checkSettlementIdempotency(paymentId, fromAddress, currency);
+    const idempotencyCheck = await checkSettlementIdempotency(paymentId, fromAddress, currency, transactionId || null);
     if (idempotencyCheck.alreadySettled) {
       cronLogger.warn(
         `[settleCryptoTransaction] ⛔ Idempotency guard: Settlement already exists for payment ${paymentId}. ` +

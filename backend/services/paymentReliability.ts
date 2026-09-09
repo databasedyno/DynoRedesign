@@ -37,13 +37,17 @@ export async function verifySettlementOnChain(
   currency: string,
   expectedMerchantWallet: string | null,
   paymentId: string,
+  incomingTxId: string | null = null,
 ): Promise<{ settled: boolean; outgoingTxId: string | null; amount: number }> {
   try {
     const isTronBased = currency.includes("TRC20") || currency === "TRX";
     const isEthBased = currency.includes("ERC20") || currency === "ETH" || currency.includes("POLYGON");
+    const isUtxo = ["BTC", "LTC", "DOGE", "BCH"].includes(currency);
 
     if (isTronBased) {
       return await verifyTronSettlement(poolAddress, currency, expectedMerchantWallet, paymentId);
+    } else if (isUtxo) {
+      return await verifyUtxoSettlement(poolAddress, currency, expectedMerchantWallet, paymentId, incomingTxId);
     } else if (isEthBased) {
       // For ETH-based, use Tatum API to check recent outgoing TRC20/ERC20 transfers
       // Less critical since ETH settlements rarely have this issue, but still covered
@@ -56,6 +60,54 @@ export async function verifySettlementOnChain(
     cronLogger.warn(`[SettlementVerify] On-chain verification failed for ${paymentId}: ${(err as Error).message}`);
     return { settled: false, outgoingTxId: null, amount: 0 };
   }
+}
+
+/**
+ * UTXO chains: settlement is the tx that SPENDS the customer's incoming UTXO.
+ * Requires the incoming txId — pool addresses are recycled, so matching on
+ * "any outgoing tx from the address" could pick up an older payment's sweep.
+ */
+async function verifyUtxoSettlement(
+  poolAddress: string,
+  currency: string,
+  expectedMerchantWallet: string | null,
+  paymentId: string,
+  incomingTxId: string | null,
+): Promise<{ settled: boolean; outgoingTxId: string | null; amount: number }> {
+  if (!incomingTxId) {
+    cronLogger.info(`[SettlementVerify] ${currency} verification for ${paymentId} skipped — no incoming txId to match`);
+    return { settled: false, outgoingTxId: null, amount: 0 };
+  }
+  const tatumApi = (await import("../apis/tatumApi")).default;
+  const txs = await tatumApi.getUtxoAddressTransactions(poolAddress, currency, 25);
+  const wantTx = incomingTxId.toLowerCase();
+
+  for (const tx of txs) {
+    const spendsIncoming = (tx.inputs || []).some(
+      (inp) => (inp.prevout?.hash || "").toLowerCase() === wantTx &&
+        (!inp.coin?.address || inp.coin.address === poolAddress)
+    );
+    if (!spendsIncoming) continue;
+
+    let amount = 0;
+    for (const out of tx.outputs || []) {
+      if (!out.address || out.address === poolAddress) continue;
+      if (expectedMerchantWallet && out.address !== expectedMerchantWallet) continue;
+      amount += Number(out.value) || 0;
+    }
+    if (amount <= 0) continue;
+
+    cronLogger.info(
+      `[SettlementVerify] ✅ Found on-chain ${currency} settlement for payment ${paymentId}: ` +
+      `${amount} ${currency} spent from ${poolAddress} (incoming ${incomingTxId.slice(0, 12)}…) TX: ${tx.hash}`
+    );
+    return { settled: true, outgoingTxId: tx.hash || null, amount };
+  }
+
+  cronLogger.info(
+    `[SettlementVerify] No ${currency} tx spending ${incomingTxId.slice(0, 12)}… found from ${poolAddress} for payment ${paymentId}`
+  );
+  return { settled: false, outgoingTxId: null, amount: 0 };
 }
 
 /**
@@ -157,7 +209,8 @@ async function verifyTronSettlement(
 export async function checkSettlementIdempotency(
   paymentId: string,
   address: string,
-  currency: string
+  currency: string,
+  incomingTxId: string | null = null
 ): Promise<{ alreadySettled: boolean; existingTxId: string | null }> {
   // Fast path: Redis check
   const redisKey = `settlement-lock-${paymentId}`;
@@ -191,7 +244,7 @@ export async function checkSettlementIdempotency(
       // executed but the DB/Redis update failed (crash, timeout, etc).
       // Without this check, the system endlessly retries a payment that's already settled.
       try {
-        const onChainResult = await verifySettlementOnChain(address, currency, null, paymentId);
+        const onChainResult = await verifySettlementOnChain(address, currency, null, paymentId, incomingTxId);
         if (onChainResult.settled && onChainResult.outgoingTxId) {
           cronLogger.warn(
             `[SettlementIdempotency] 🔄 AUTO-RECOVERY: Settlement for ${paymentId} was already completed on-chain! ` +

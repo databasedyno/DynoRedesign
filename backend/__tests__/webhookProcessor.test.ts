@@ -470,7 +470,10 @@ describe('Webhook Processor — processWebhookJob', () => {
       expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
     });
 
-    it('falls back to direct webhook when recovery cryptoVerification fails', async () => {
+    it('records failure and re-throws (NEVER fakes success) when recovery cryptoVerification fails', async () => {
+      // HARDENING (2026-09): crash recovery must never fake a "recovered" success
+      // when settlement actually failed on-chain. It records the failure, clears
+      // the dedup lock and re-throws so BullMQ + reconciliation can re-attempt.
       const staleTime = new Date(Date.now() - 120_000).toISOString();
       seedRedis('crypto-0xTestAddress', createRedisPaymentData({
         status: 'processing',
@@ -485,16 +488,25 @@ describe('Webhook Processor — processWebhookJob', () => {
         message: 'Settlement failed',
       });
 
-      await processWebhookJob(createJobData());
+      await expect(processWebhookJob(createJobData())).rejects.toThrow(/Settlement failed/);
 
-      expect(callMerchantWebhook).toHaveBeenCalledWith(
+      // Must NOT fake a confirmed/recovered merchant webhook
+      expect(callMerchantWebhook).not.toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({ event: 'payment.confirmed', recovered: true })
       );
+      // Redis payment row marked failed (awaiting retry), not "recovered"
       expect(setRedisItem).toHaveBeenCalledWith(
         'crypto-0xTestAddress',
-        expect.objectContaining({ status: 'recovered' })
+        expect.objectContaining({ status: 'failed' })
       );
+      // failed-payment marker written so reconciliation Strategy 2 can re-queue
+      expect(setRedisItem).toHaveBeenCalledWith(
+        'failed-payment-tx-test-123',
+        expect.objectContaining({ txId: 'tx-test-123' })
+      );
+      // dedup lock cleared so a retry is not skipped as "already processed"
+      expect(deleteRedisItem).toHaveBeenCalledWith('processed-tx-tx-test-123');
     });
   });
 

@@ -853,7 +853,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               const merchantAddr = walletData?.dataValues?.wallet_address || null;
               const pId = tempData?.payment_id || transactionId;
               
-              const onChainResult = await verifySettlementOnChain(poolAddr, tempCurrency, merchantAddr, pId);
+              const onChainResult = await verifySettlementOnChain(poolAddr, tempCurrency, merchantAddr, pId, transactionId || null);
               
               if (onChainResult.settled && onChainResult.outgoingTxId) {
                 cronLogger.warn(

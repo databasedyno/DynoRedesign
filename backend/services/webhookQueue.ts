@@ -32,6 +32,7 @@ function parseRedisUrl(url: string) {
 }
 
 const redisConnection = parseRedisUrl(REDIS_URL);
+const DLQ_ALERT_COOLDOWN_SEC = 6 * 60 * 60;
 
 // ── Queue Definition ──────────────────────────────────────────────────────────
 export const webhookQueue = new Queue("tatum-webhooks", {
@@ -151,13 +152,16 @@ export function startWebhookWorker(
       webhookLogs.error(`[WebhookQueue] Job ${job.id} EXHAUSTED all retries. Moving to DLQ.`);
       
       try {
+        const txId = job.data.payload?.txId || job.id;
+        // One DLQ entry per tx: BullMQ ignores adds with an existing jobId, so
+        // reconciliation re-queues of the same stuck payment don't pile up.
         await deadLetterQueue.add("failed-webhook", {
           ...job.data,
           failedAt: new Date().toISOString(),
           error: error.message,
           attempts: job.attemptsMade,
           originalJobId: job.id,
-        });
+        }, { jobId: `dlq-${txId}` });
         
         captureError(error, "webhook", {
           severity: "high",
@@ -165,8 +169,15 @@ export function startWebhookWorker(
           extraContext: `Job ${job.id} failed after ${job.attemptsMade} attempts`,
         });
 
-        // Send dedicated DLQ alert email with payment details and retry instructions
-        sendDLQAlert(job.data, job.id, job.attemptsMade, error.message).catch(() => {});
+        // One alert email per tx per 6h — the recovery sweep re-queues a stuck
+        // payment every 10 min, which must not turn into an email every 10 min.
+        const { acquireLock } = await import("../utils/redisInstance");
+        const canAlert = await acquireLock(`dlq-alert-${txId}`, DLQ_ALERT_COOLDOWN_SEC, 1, 0);
+        if (canAlert) {
+          sendDLQAlert(job.data, job.id, job.attemptsMade, error.message).catch(() => {});
+        } else {
+          webhookLogs.warn(`[WebhookQueue] DLQ alert for tx ${txId} suppressed (cooldown active)`);
+        }
       } catch (dlqError) {
         webhookLogs.error(`[WebhookQueue] Failed to add job to DLQ: ${(dlqError as Error).message}`);
       }

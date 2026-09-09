@@ -403,13 +403,14 @@ export async function reconcileFailedStatePayments(): Promise<number> {
         // the blockchain TX succeeded but the DB was never updated.
         const currency = data.currency || "";
         const paymentId = data.payment_id || data.paymentId || "";
-        const isTronOrEth = currency.includes("TRC20") || currency === "TRX" ||
-                            currency.includes("ERC20") || currency === "ETH";
+        const canVerifyOnChain = currency.includes("TRC20") || currency === "TRX" ||
+                            currency.includes("ERC20") || currency === "ETH" ||
+                            ["BTC", "LTC", "DOGE", "BCH"].includes(currency);
         
-        if (isTronOrEth && address && retryCount >= 2) {
+        if (canVerifyOnChain && address && retryCount >= 2) {
           try {
             const onChainResult = await verifySettlementOnChain(
-              address, currency, null, paymentId || address
+              address, currency, null, paymentId || address, data.txId || null
             );
             if (onChainResult.settled && onChainResult.outgoingTxId) {
               webhookLogs.info(

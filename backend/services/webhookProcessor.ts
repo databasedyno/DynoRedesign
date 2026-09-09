@@ -216,6 +216,10 @@ const INTERNAL_WALLETS = new Set(
     .map((addr) => addr.toLowerCase())
 );
 
+// Job sources that are explicit re-queues of a known-stuck payment. They must
+// bypass the processed-tx dedup marker (which may be stale from a failed attempt).
+const RECOVERY_SOURCES = new Set<string | undefined>(["reconciliation", "watchdog-recovery", "admin-replay"]);
+
 // Hard failures that should NOT be retried
 // NOTE: "403" removed — Tatum returns 403 for temporary gas-related "Insufficient funds" on ERC-20 transfers.
 // These are retryable when gas funding TX is in-flight. "401" kept (auth errors are permanent).
@@ -341,7 +345,8 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
   // NOTE: `source` lives on the job wrapper (data.source), NOT on the Tatum payload —
   // checking payload.source was always undefined and blocked every reconciliation retry.
   const processedTxKey = `processed-tx-${payload.txId}`;
-  if (data.source !== 'reconciliation') {
+  const isRecoveryReplay = RECOVERY_SOURCES.has(data.source);
+  if (!isRecoveryReplay) {
     const alreadyProcessed = await getRedisItem(processedTxKey);
     if (alreadyProcessed && Object.keys(alreadyProcessed).length > 0) {
       webhookLogs.info("[WebhookProcessor] Transaction already processed, skipping:", payload.txId);
@@ -350,7 +355,7 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
   } else {
     // Clear stale dedup key so settlement can proceed
     await deleteRedisItem(processedTxKey);
-    webhookLogs.info("[WebhookProcessor] Reconciliation source — cleared dedup key for retry:", payload.txId);
+    webhookLogs.info(`[WebhookProcessor] ${data.source} source — cleared dedup key for retry:`, payload.txId);
   }
 
   // ── 2. Atomic lock to prevent race conditions ─────────────────────────────
@@ -770,66 +775,29 @@ async function handleCrashRecovery(
   } catch (recoveryError: unknown) {
     const err = recoveryError as { message?: string };
     webhookLogs.error("[WebhookProcessor] Recovery cryptoVerification failed:", err.message);
-    webhookLogs.info("[WebhookProcessor] Attempting direct webhook delivery as recovery fallback...");
 
-    try {
-      let customerData = items?.ref ? await getRedisItem(items.ref) : null;
-      if (!customerData || Object.keys(customerData).length === 0) customerData = items;
-
-      if (customerData && customerData !== items) {
-        if (!customerData.webhook_url && items?.webhook_url) customerData.webhook_url = items.webhook_url;
-        if (!customerData.callback_url && items?.callback_url) customerData.callback_url = items.callback_url;
-        if (!customerData.webhook_secret && items?.webhook_secret) customerData.webhook_secret = items.webhook_secret;
-        if (!customerData.company_id && items?.company_id) customerData.company_id = items.company_id;
-        if (!customerData.link_id && items?.link_id) customerData.link_id = items.link_id;
-      }
-
-      if (customerData) {
-        const linkId = customerData?.link_id || items?.link_id || null;
-        const paymentType = linkId ? "payment_link" : "direct_api";
-
-        await deliverMerchantWebhook(customerData, {
-          event: "payment.confirmed",
-          payment_type: paymentType,
-          payment_id: items?.payment_id || items?.unique_tx_id,
-          transaction_reference: items.txId,
-          status: "successful",
-          payment_status: "confirmed",
-          amount: parseFloat(items.receivedAmount as string) || incomingAmount,
-          currency: items?.currency || payload.asset,
-          base_amount: customerData?.base_amount || items?.base_amount_usd || null,
-          base_currency: customerData?.base_currency || "USD",
-          customer_name: customerData?.customer_name || null,
-          customer_email: customerData?.email || null,
-          description: customerData?.description || null,
-          link_id: linkId,
-          fee_payer: customerData?.fee_payer || items?.fee_payer || "company",
-          recovered: true,
-          created_at: new Date().toISOString(),
-          completed_at: new Date().toISOString(),
-        });
-      }
-    } catch (webhookErr) {
-      webhookLogs.error("[WebhookProcessor] Recovery direct webhook error:", webhookErr);
-    }
-
-    // Soft-enforce: processing → recovered (PROCESSING → PAYOUT_COMPLETE via legacy map)
-    softValidate(items.status, "recovered", paymentId, "crash-recovery-fallback");
-
+    // cryptoVerification has DB-level duplicate detection and (via the settlement
+    // idempotency store) on-chain verification, so a thrown error here means the
+    // funds did NOT move. Never fake success — record the failure so BullMQ retries
+    // and the reconciliation sweep can re-attempt the settlement.
+    softValidate(items.status, "failed", paymentId, "crash-recovery-failed");
     await setRedisItem(redisKey, {
       ...items,
-      status: "recovered",
-      recoveredAt: new Date().toISOString(),
-      recoveryNote: "Settlement completed on-chain, direct webhook sent as fallback",
+      status: "failed",
+      lastError: err.message,
+      lastAttempt: new Date().toISOString(),
+      failedAt: new Date().toISOString(),
+      recoveryNote: "Crash-recovery settlement attempt failed — awaiting retry",
     });
-    await setRedisTTL(redisKey, 1800);
-
-    await setRedisItem(`processed-tx-${payload.txId}`, {
+    await setRedisItem(`failed-payment-${payload.txId}`, {
       address, payment_id: items.payment_id || items.ref,
-      amount: items.receivedAmount || incomingAmount,
-      processed_at: new Date().toISOString(), recovered: true,
+      amount: incomingAmount, txId: payload.txId,
+      currency: items?.currency || payload.asset,
+      company_id: items?.company_id || undefined,
+      error: err.message, failed_at: new Date().toISOString(),
     });
-    await setRedisTTL(`processed-tx-${payload.txId}`, 172800);
+    await deleteRedisItem(`processed-tx-${payload.txId}`);
+    throw recoveryError;
   }
 }
 
@@ -1350,6 +1318,7 @@ async function handleNewTransaction(
         ...items, status: "gas_pending", receivedAmount: incomingAmount,
         txId: payload.txId, deferredAt: new Date().toISOString(), lastError: err.message,
       });
+      await deleteRedisItem(`processed-tx-${payload.txId}`);
       throw verifyError; // let BullMQ / reconciliation retry once gas is topped up
     }
 
@@ -1419,6 +1388,9 @@ async function handleNewTransaction(
       webhookLogs.error("[WebhookProcessor] Error sending payment.failed webhook:", webhookErr);
     }
 
+    // Release the dedup marker set at settlement start — otherwise BullMQ's own
+    // 30s/60s retries hit "already processed" and silently do nothing.
+    await deleteRedisItem(`processed-tx-${payload.txId}`);
     throw verifyError; // Let BullMQ retry the entire job
   }
 }
