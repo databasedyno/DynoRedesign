@@ -44,6 +44,25 @@ export const mapRedisStatus = (raw: unknown): CheckoutStreamStatus => {
   }
 };
 
+/**
+ * Compute the public checkout-stream snapshot from a Redis `crypto-<address>`
+ * record. Redis `status:"pending"` means "invoice created, awaiting the
+ * on-chain deposit" until a real transaction is seen (txId attached). Mapping
+ * that bare 'pending' to the public 'pending' made the checkout show
+ * "Payment detected — confirming…" the instant the page connected, before any
+ * funds were sent. Mirror verifyCryptoPayment: pending-without-txId is
+ * 'waiting'. Exported for unit testing.
+ */
+export const snapshotFromRedis = (
+  data: { status?: unknown; txId?: unknown } | null | undefined
+): CheckoutStreamStatus => {
+  const rawStatus = String(data?.status || "").toLowerCase();
+  const hasTxId =
+    data?.txId !== undefined && data?.txId !== null && String(data?.txId).trim() !== "";
+  if (rawStatus === "pending" && !hasTxId) return "waiting";
+  return mapRedisStatus(data?.status);
+};
+
 export const checkoutStatusStream = async (req: express.Request, res: express.Response) => {
   const address = String(req.query.address || "").trim();
   const tagRaw = req.query.destination_tag ? String(req.query.destination_tag) : "";
@@ -75,7 +94,7 @@ export const checkoutStatusStream = async (req: express.Request, res: express.Re
   try {
     const key = destinationTag ? getCryptoRedisKey(address, destinationTag) : `crypto-${address}`;
     const data = await getRedisItem(key);
-    snapshot = mapRedisStatus(data?.status);
+    snapshot = snapshotFromRedis(data);
   } catch {
     /* keep "waiting" */
   }

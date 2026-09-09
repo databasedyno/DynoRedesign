@@ -724,8 +724,8 @@ const getAllTransactions = async (
 
     let adminQuery = `
       select ut.*,c.customer_name,c.email,cm.company_name,cm.company_id from tbl_user_transaction ut 
-      join tbl_customer c on c.customer_id=ut.customer_id
-      join tbl_company cm on cm.company_id=c.company_id
+      left join tbl_customer c on c.customer_id=ut.customer_id
+      left join tbl_company cm on cm.company_id=c.company_id
       order by ${safeCol} ${safeSort}`;
     const adminReplacements: Record<string, unknown> = {};
     if (offset !== -1 && limit) {
@@ -770,7 +770,10 @@ const getAdminAnalytics = async (
     } = req.body;
     // Statuses that represent money actually received/settled — NOT pending or
     // unpaid payment intents (which inflate volume with amounts never paid).
-    const SETTLED_STATUSES = ["successful", "completed", "settled"];
+    // Must match the canonical SETTLED_RAW set (utils/transactionDisplayStatus)
+    // so settled crypto payments (e.g. LTC written as 'payout_complete'/
+    // 'recovered'/'converted') aren't dropped from admin dashboard totals.
+    const SETTLED_STATUSES = ["success", "successful", "completed", "payout_complete", "converted", "recovered", "done", "settled"];
     const activeUsers = (
       await userModel.findAndCountAll({
         where: {
@@ -1061,10 +1064,11 @@ const getUserDetail = async (req: express.Request, res: express.Response) => {
       { replacements: { userId }, type: QueryTypes.SELECT }
     );
 
-    // Settled (money actually received/forwarded) figures — excludes pending intents
+    // Settled (money actually received/forwarded) figures — excludes pending intents.
+    // Canonical settled set (matches utils/transactionDisplayStatus SETTLED_RAW).
     const [settled] = await sequelize.query<{ paid_n: string; settled_usd: string }>(
       `SELECT COUNT(*) AS paid_n, COALESCE(SUM(usd_value),0) AS settled_usd
-       FROM tbl_user_transaction WHERE user_id = :userId AND status IN ('successful','completed','settled')`,
+       FROM tbl_user_transaction WHERE user_id = :userId AND status IN ('success','successful','completed','payout_complete','converted','recovered','done','settled')`,
       { replacements: { userId }, type: QueryTypes.SELECT }
     );
 

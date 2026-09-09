@@ -1,4 +1,58 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-09 (pod dbe1c2d6): 3 FIXES (log scrub, checkout status, admin missing tx)
+#
+#   (A) PRIVATE KEY LOG SCRUB — apis/tatumApi.ts
+#       - New backend/utils/redactSecrets.ts (non-mutating deep-copy masker for
+#         privateKey/fromPrivateKey/mnemonic/xpub/seed).
+#       - Wrapped all 7 chain "PAYLOAD" debug logs (BTC/TRX/USDT/BSC/DOGE/LTC/BCH)
+#         in redactSecrets() so private keys never hit logs; SDK calls untouched
+#         (still receive the real key — verified original object not mutated).
+#       - Also redacted 8 `cronLogger.info("Mnemonic:", mnemonic)` lines -> "***REDACTED***".
+#       - Verified: unit check masks keys + leaves original intact; tsc clean; no
+#         remaining cleartext key/mnemonic value logs in backend.
+#
+#   (B) CHECKOUT STATUS ACCURACY — controller/payment/settlement/checkoutStream.ts
+#       - BUG: fresh crypto invoice stores Redis crypto-<addr> status="pending"
+#         (no txId = "awaiting deposit"). SSE `ready` snapshot mapped that bare
+#         'pending' -> public 'pending', and the checkout treats 'pending' as
+#         "payment detected", so it showed "Payment detected — confirming…" the
+#         instant the page loaded, before any funds were sent (e.g. link dEX0Bq).
+#       - FIX: new exported snapshotFromRedis() — pending WITHOUT a txId maps to
+#         'waiting' (mirrors verifyCryptoPayment's own PENDING&&!txId branch);
+#         pending WITH txId still 'pending'. Live webhook 'status' pushes all
+#         carry a real txId, so they're unaffected.
+#       - Verified: snapshotFromRedis unit table 8/8 PASS; tsc clean.
+#       BACKEND TEST FOCUS (safe): import snapshotFromRedis from
+#         controller/payment/settlement/checkoutStream and assert:
+#         {status:'pending'}->'waiting'; {status:'pending',txId:'0xabc'}->'pending';
+#         {status:'processing',txId:'0xabc'}->'processing'; {status:'confirmed'}->'confirmed';
+#         null->'waiting'. Optionally GET the SSE endpoint for a random valid-format
+#         address (no Redis data) and confirm the `ready` event status == 'waiting'.
+#
+#   (C) ADMIN MISSING TRANSACTION / DASHBOARD — controller/adminController.ts
+#       - BUG1 (admin tx UI): getAllTransactions used INNER JOINs to tbl_customer
+#         and tbl_company, so any tx without a matching customer/company row
+#         (e.g. anonymous hosted-checkout crypto payments like the ~$100 LTC) was
+#         silently dropped. FIX: INNER JOIN -> LEFT JOIN (both).
+#       - BUG2 (admin dashboard totals): SETTLED_STATUSES was
+#         ['successful','completed','settled'], omitting payout_complete/converted/
+#         recovered/etc, so settled crypto (LTC) undercounted. FIX: broadened to the
+#         canonical SETTLED_RAW set in getAdminAnalytics (settledWhere) AND the
+#         per-user settled query (status IN (...)).
+#       - Verified: tsc clean; backend healthy.
+#       BACKEND TEST FOCUS: admin login moxxcompany@gmail.com / Katiekendra123@ via
+#         POST /api/admin/login (token -> localStorage 'admin_token', Bearer header).
+#         1) POST /api/admin/getAllTransactions {page:1,rowsPerPage:50} -> 200, returns
+#            customers_transactions (now includes rows with null customer/company).
+#         2) POST /api/admin/getAdminAnalytics {periodType:'YEAR'} -> 200, settled
+#            volume reflects LTC/settled crypto. READ-ONLY (no writes).
+#   NOTE: LIVE prod DB, SAFE MODE. Read-only checks only; do NOT create data or
+#   trigger settlements.
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-09 (pod dbe1c2d6): BRAND NAME XSS/HTML BUG — FIX APPLIED
 #
 #   REPORTED (user + screenshot): a brand/company shows as "<Script>1</Script>"

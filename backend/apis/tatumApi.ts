@@ -1,3 +1,4 @@
+import { redactSecrets } from "../utils/redactSecrets";
 import {
   FeeEvmBased,
   PrivKey,
@@ -299,7 +300,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -321,7 +322,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -342,7 +343,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -364,7 +365,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -386,7 +387,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -407,7 +408,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -428,7 +429,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -467,7 +468,7 @@ const generateWallet = async (currency) => {
       mnemonic = wallet.mnemonic;
       xpub = wallet.xpub;
 
-      cronLogger.info("Mnemonic:", mnemonic);
+      cronLogger.info("Mnemonic: ***REDACTED***");
       cronLogger.info("xPub:", xpub);
 
       const index = 0;
@@ -1869,7 +1870,7 @@ const assetBatchAddressesToOtherAddress = async ({
   const destinationAddress = toAddress[0].address;
 
   if (currency === "BTC") {
-    cronLogger.info("#######BTC PAYLOAD ####", {
+    cronLogger.info("#######BTC PAYLOAD ####", redactSecrets({
       fromAddress: fromAddress.map((address) => ({
         address: address.address,
         privateKey: address.privateKey,
@@ -1882,7 +1883,7 @@ const assetBatchAddressesToOtherAddress = async ({
       changeAddress: permanentUserWalletAddress
         ? permanentUserWalletAddress
         : destinationAddress,
-    });
+    }));
 
     // Send assets to address and handle extra assets in user's paremanent address
     const result = await tatumSdk.blockchain.bitcoin.btcTransferBlockchain(
@@ -1985,11 +1986,11 @@ const assetBatchAddressesToOtherAddress = async ({
     await Promise.allSettled(
       fromAddress.map(async (fromAddr) => {
         try {
-          cronLogger.info("###TRX PAYLOAD: ", {
+          cronLogger.info("###TRX PAYLOAD: ", redactSecrets({
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
             amount: toAmountStr(fromAddr.value, 8),
-          });
+          }));
           const result = await tatumSdk.blockchain.tron.tronTransfer({
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
@@ -2045,13 +2046,13 @@ const assetBatchAddressesToOtherAddress = async ({
     await Promise.allSettled(
       fromAddress.map(async (fromAddr) => {
         try {
-          cronLogger.info("###USDT-TRC20 PAYLOAD: ", {
+          cronLogger.info("###USDT-TRC20 PAYLOAD: ", redactSecrets({
             amount: toAmountStr(fromAddr.value, 2),
             feeLimit: batchFeeLimit,
             fromPrivateKey: fromAddr.privateKey,
             to: destinationAddress,
             tokenAddress: process.env.TRX_CONTRACT,
-          });
+          }));
           const result = await tatumSdk.blockchain.tron.tronTransferTrc20({
             amount: toAmountStr(fromAddr.value, 2),
             feeLimit: batchFeeLimit,
@@ -2090,7 +2091,7 @@ const assetBatchAddressesToOtherAddress = async ({
     await Promise.allSettled(
       fromAddress.map(async (fromAddr) => {
         try {
-          cronLogger.info("#######BSC PAYLOAD ####", {
+          cronLogger.info("#######BSC PAYLOAD ####", redactSecrets({
             currency,
             amount: toAmountStr(fromAddr.value, 8),
             fromPrivateKey: fromAddr.privateKey,
@@ -2099,7 +2100,7 @@ const assetBatchAddressesToOtherAddress = async ({
               gasPrice: Math.ceil(fee?.gasPrice).toString(),
               gasLimit: fee?.gasLimit.toString(),
             },
-          });
+          }));
           const result = await tatumSdk.blockchain.bsc.bscBlockchainTransfer({
               currency,
               amount: toAmountStr(fromAddr.value, 8),
@@ -2137,7 +2138,7 @@ const assetBatchAddressesToOtherAddress = async ({
     );
     transactions = transactionResponse;
   } else if (currency === "DOGE") {
-    cronLogger.info("###DODGE Payload ###", {
+    cronLogger.info("###DODGE Payload ###", redactSecrets({
       fromAddress: fromAddress.map((address) => ({
         address: address.address,
         privateKey: address.privateKey,
@@ -2150,7 +2151,7 @@ const assetBatchAddressesToOtherAddress = async ({
       changeAddress: permanentUserWalletAddress
         ? permanentUserWalletAddress
         : destinationAddress,
-    });
+    }));
     const result = await tatumSdk.blockchain.doge.dogeTransferBlockchain({
       fromAddress: fromAddress.map((address) => ({
         address: address.address,
@@ -2175,7 +2176,7 @@ const assetBatchAddressesToOtherAddress = async ({
       });
     });
   } else if (currency === "LTC") {
-    cronLogger.info("#####LTC Payload", {
+    cronLogger.info("#####LTC Payload", redactSecrets({
       fromAddress: fromAddress.map((address) => ({
         address: address.address,
         privateKey: address.privateKey,
@@ -2188,7 +2189,7 @@ const assetBatchAddressesToOtherAddress = async ({
       changeAddress: permanentUserWalletAddress
         ? permanentUserWalletAddress
         : destinationAddress,
-    });
+    }));
     const result = await tatumSdk.blockchain.ltc.ltcTransferBlockchain({
       fromAddress: fromAddress.map((address) => ({
         address: address.address,
@@ -2213,7 +2214,7 @@ const assetBatchAddressesToOtherAddress = async ({
       });
     });
   } else if (currency === "BCH") {
-    cronLogger.info("###BCH Payload###", {
+    cronLogger.info("###BCH Payload###", redactSecrets({
       fromUTXO,
       to: toUTXO,
       fee: fee,
@@ -2222,7 +2223,7 @@ const assetBatchAddressesToOtherAddress = async ({
         : destinationAddress?.includes("bitcoincash")
         ? destinationAddress
         : "bitcoincash:" + destinationAddress,
-    });
+    }));
     const result = await tatumSdk.blockchain.bcash.bchTransferBlockchain({
       fromUTXO,
       to: toUTXO,

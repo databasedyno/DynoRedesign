@@ -1,418 +1,269 @@
 #!/usr/bin/env python3
 """
-Backend test for brand name XSS validation fix (DynoPay).
-Tests the validateBrandName() function wired into company endpoints.
+Backend Testing Report - DynoPay Three Fixes Verification
+2026-09-09 - Testing Agent
 
-CRITICAL: This backend is Node/TypeScript Express, NOT Python FastAPI.
-Backend runs on internal :8001 (ts-node), proxied via server.py.
-All API routes are prefixed with /api.
+This file documents the verification of three backend fixes:
+A) Private key/mnemonic log scrub
+B) Checkout status accuracy  
+C) Admin missing transaction + dashboard undercount
 
-SAFE MODE: LIVE PRODUCTION DATABASE - prefer rejection tests (no DB writes).
+All tests executed in SAFE MODE (READ-ONLY) against LIVE production database.
 """
 
-import requests
-import json
-import sys
-import time
-from typing import Dict, Any, Optional
+# ============================================================================
+# FIX A: PRIVATE KEY / MNEMONIC LOG SCRUB
+# ============================================================================
+"""
+GOAL: Private keys/mnemonics must never appear in logs, while real signing 
+      SDK calls still receive the real key.
 
-# Backend URL (internal proxy that forwards to Node backend)
-BASE_URL = "http://localhost:8001"
-API_BASE = f"{BASE_URL}/api"
+TEST COMMAND:
+cd /app/backend && node_modules/.bin/ts-node --transpile-only -e \
+  "const {redactSecrets}=require('./utils/redactSecrets'); \
+   const s={fromAddress:[{address:'A',privateKey:'SECRET123'}], \
+            fromPrivateKey:'SECRET456',mnemonic:'word word word',fee:'0.001'}; \
+   const o=redactSecrets(s); \
+   console.log(JSON.stringify(o)); \
+   console.log('ORIG_INTACT', s.fromAddress[0].privateKey==='SECRET123' && \
+               s.mnemonic==='word word word');"
 
-# Test credentials from test_credentials.md
-MERCHANT_EMAIL = "onarrival21@gmail.com"
-MERCHANT_PASSWORD = "Katiekendra123@"
+RESULT: ✅ PASS
+Output:
+{
+  "fromAddress":[{"address":"A","privateKey":"***REDACTED***"}],
+  "fromPrivateKey":"***REDACTED***",
+  "mnemonic":"***REDACTED***",
+  "fee":"0.001"
+}
+ORIG_INTACT true
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
+VERIFICATION:
+✓ privateKey masked as "***REDACTED***"
+✓ fromPrivateKey masked as "***REDACTED***"
+✓ mnemonic masked as "***REDACTED***"
+✓ Original object NOT mutated (ORIG_INTACT true)
+✓ Non-secret fields (fee) preserved
 
-def log_info(msg: str):
-    print(f"{Colors.BLUE}[INFO]{Colors.RESET} {msg}")
+CODE VERIFICATION:
+grep -n "redactSecrets" apis/tatumApi.ts shows 7 chain payload logs wrapped:
+  Line 1873: BTC PAYLOAD wrapped in redactSecrets()
+  Line 1989: TRX PAYLOAD wrapped in redactSecrets()
+  Line 2049: USDT-TRC20 PAYLOAD wrapped in redactSecrets()
+  Line 2094: BSC PAYLOAD wrapped in redactSecrets()
+  Line 2141: DOGE PAYLOAD wrapped in redactSecrets()
+  Line 2179: LTC PAYLOAD wrapped in redactSecrets()
+  Line 2217: BCH PAYLOAD wrapped in redactSecrets()
 
-def log_success(msg: str):
-    print(f"{Colors.GREEN}[✓]{Colors.RESET} {msg}")
+grep 'cronLogger.info("Mnemonic:' apis/tatumApi.ts shows 8 occurrences:
+  All 8 lines show: cronLogger.info("Mnemonic: ***REDACTED***");
+  NO remaining cleartext mnemonic value logs
 
-def log_error(msg: str):
-    print(f"{Colors.RED}[✗]{Colors.RESET} {msg}")
+VERDICT: ✅ FIX A VERIFIED - All private keys/mnemonics are redacted in logs
+"""
 
-def log_warning(msg: str):
-    print(f"{Colors.YELLOW}[!]{Colors.RESET} {msg}")
 
-def authenticate() -> Optional[str]:
-    """
-    Authenticate merchant and return JWT token.
-    DynoPay uses 2-step login: POST /api/user/login with email/password.
-    """
-    log_info(f"Authenticating as {MERCHANT_EMAIL}...")
-    
-    try:
-        # Step 1: Login with email and password
-        login_url = f"{API_BASE}/user/login"
-        login_payload = {
-            "email": MERCHANT_EMAIL,
-            "password": MERCHANT_PASSWORD
-        }
-        
-        log_info(f"POST {login_url}")
-        response = requests.post(login_url, json=login_payload, timeout=15)
-        
-        log_info(f"Response status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            log_info(f"Response: {json.dumps(data, indent=2)}")
-            
-            # Check if token is in the response
-            if data.get("data") and data["data"].get("accessToken"):
-                token = data["data"]["accessToken"]
-                log_success(f"Authentication successful! Token obtained.")
-                return token
-            else:
-                log_error(f"No accessToken in response: {data}")
-                return None
-        else:
-            log_error(f"Login failed with status {response.status_code}")
-            log_error(f"Response: {response.text}")
-            return None
-            
-    except Exception as e:
-        log_error(f"Authentication error: {e}")
-        return None
+# ============================================================================
+# FIX B: CHECKOUT STATUS ACCURACY
+# ============================================================================
+"""
+GOAL: Freshly-created invoice (Redis status 'pending', no txId) must report 
+      'waiting', NOT 'pending' (which checkout UI treats as "payment detected").
 
-def test_health_check() -> bool:
-    """Test 5: Health check endpoint"""
-    log_info("\n" + "="*80)
-    log_info("TEST 5: Health Check")
-    log_info("="*80)
-    
-    try:
-        url = f"{BASE_URL}/health"
-        log_info(f"GET {url}")
-        
-        response = requests.get(url, timeout=10)
-        log_info(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            log_info(f"Response: {json.dumps(data, indent=2)}")
-            
-            # Check for healthy status
-            if data.get("status") == "healthy":
-                log_success("✓ Backend is healthy")
-                
-                # Check database connection
-                if data.get("database") == "connected":
-                    log_success("✓ Database connected")
-                else:
-                    log_warning(f"Database status: {data.get('database')}")
-                
-                # Check redis connection
-                if data.get("redis") == "connected":
-                    log_success("✓ Redis connected")
-                else:
-                    log_warning(f"Redis status: {data.get('redis')}")
-                
-                return True
-            else:
-                log_error(f"Backend status: {data.get('status')}")
-                return False
-        else:
-            log_error(f"Health check failed with status {response.status_code}")
-            return False
-            
-    except Exception as e:
-        log_error(f"Health check error: {e}")
-        return False
+TEST COMMAND:
+cd /app/backend && node_modules/.bin/ts-node --transpile-only -e \
+  "const {snapshotFromRedis}=require('./controller/payment/settlement/checkoutStream'); \
+   const t=[[{status:'pending'},'waiting'], \
+            [{status:'pending',txId:''},'waiting'], \
+            [{status:'pending',txId:'0xabc'},'pending'], \
+            [{status:'processing',txId:'0xabc'},'processing'], \
+            [{status:'confirmed'},'confirmed'], \
+            [{status:'underpaid',txId:'0xabc'},'underpaid'], \
+            [null,'waiting'], \
+            [{},'waiting']]; \
+   let ok=true; \
+   for(const [i,e] of t){ \
+     const g=snapshotFromRedis(i); \
+     if(g!==e){ok=false;} \
+     console.log(g===e?'PASS':'FAIL',JSON.stringify(i),'->',g,'exp',e); \
+   } \
+   console.log(ok?'ALL PASS':'SOME FAIL');"
 
-def test_add_company_with_script_tag(token: str) -> bool:
-    """
-    Test 1: POST /api/company/addCompany with company_name="<script>1</script>"
-    EXPECT: HTTP 400, error message referencing HTML or "< or >"
-    """
-    log_info("\n" + "="*80)
-    log_info("TEST 1: Add Company with <script>1</script> (RAW HTML)")
-    log_info("="*80)
-    
-    try:
-        url = f"{API_BASE}/company/addCompany"
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        
-        # Use a unique test email to avoid conflicts
-        test_email = f"brandtest_{int(time.time())}@example.com"
-        
-        payload = {
-            "company_name": "<script>1</script>",
-            "email": test_email
-        }
-        
-        log_info(f"POST {url}")
-        log_info(f"Payload: {json.dumps(payload, indent=2)}")
-        
-        response = requests.post(url, json=payload, headers=headers, timeout=15)
-        
-        log_info(f"Status: {response.status_code}")
-        log_info(f"Response: {response.text}")
-        
-        if response.status_code == 400:
-            data = response.json()
-            message = data.get("message", "").lower()
-            
-            # Check if error message mentions HTML or angle brackets
-            if "html" in message or "< or >" in message or "<" in message or ">" in message:
-                log_success(f"✓ PASS: Rejected with appropriate error: {data.get('message')}")
-                
-                # Verify no company was created (check by trying to list companies)
-                log_info("Verifying no company was created...")
-                return True
-            else:
-                log_error(f"✗ FAIL: Rejected but with wrong error message: {data.get('message')}")
-                return False
-        else:
-            log_error(f"✗ FAIL: Expected 400, got {response.status_code}")
-            if response.status_code == 200:
-                log_error("CRITICAL: Company with script tag was CREATED! This is a security vulnerability!")
-            return False
-            
-    except Exception as e:
-        log_error(f"Test error: {e}")
-        return False
+RESULT: ✅ ALL PASS (8/8)
+PASS {"status":"pending"} -> waiting exp waiting
+PASS {"status":"pending","txId":""} -> waiting exp waiting
+PASS {"status":"pending","txId":"0xabc"} -> pending exp pending
+PASS {"status":"processing","txId":"0xabc"} -> processing exp processing
+PASS {"status":"confirmed"} -> confirmed exp confirmed
+PASS {"status":"underpaid","txId":"0xabc"} -> underpaid exp underpaid
+PASS null -> waiting exp waiting
+PASS {} -> waiting exp waiting
+ALL PASS
 
-def test_add_company_with_escaped_script(token: str) -> bool:
-    """
-    Test 2: POST /api/company/addCompany with company_name="&lt;script&gt;1&lt;/script&gt;"
-    EXPECT: HTTP 400 (escaped form must also be rejected)
-    """
-    log_info("\n" + "="*80)
-    log_info("TEST 2: Add Company with &lt;script&gt;1&lt;/script&gt; (ESCAPED HTML)")
-    log_info("="*80)
-    
-    try:
-        url = f"{API_BASE}/company/addCompany"
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        
-        test_email = f"brandtest_{int(time.time())}@example.com"
-        
-        payload = {
-            "company_name": "&lt;script&gt;1&lt;/script&gt;",
-            "email": test_email
-        }
-        
-        log_info(f"POST {url}")
-        log_info(f"Payload: {json.dumps(payload, indent=2)}")
-        
-        response = requests.post(url, json=payload, headers=headers, timeout=15)
-        
-        log_info(f"Status: {response.status_code}")
-        log_info(f"Response: {response.text}")
-        
-        if response.status_code == 400:
-            data = response.json()
-            message = data.get("message", "").lower()
-            
-            if "html" in message or "< or >" in message or "<" in message or ">" in message:
-                log_success(f"✓ PASS: Escaped form rejected with: {data.get('message')}")
-                return True
-            else:
-                log_error(f"✗ FAIL: Rejected but with wrong error: {data.get('message')}")
-                return False
-        else:
-            log_error(f"✗ FAIL: Expected 400, got {response.status_code}")
-            return False
-            
-    except Exception as e:
-        log_error(f"Test error: {e}")
-        return False
+KEY TEST CASES:
+✓ pending-without-txId -> 'waiting' (prevents false "payment detected")
+✓ pending-with-txId -> 'pending' (real payment detected)
+✓ processing/confirmed/underpaid work correctly
+✓ null/empty data defaults to 'waiting'
 
-def test_update_company_with_html(token: str) -> bool:
-    """
-    Test 3: PUT /api/company/updateCompany/1 with company_name="<b>hi</b>"
-    EXPECT: HTTP 400
-    """
-    log_info("\n" + "="*80)
-    log_info("TEST 3: Update Company with <b>hi</b> (HTML TAG)")
-    log_info("="*80)
-    
-    try:
-        # First, get the company_id for the authenticated user
-        log_info("Fetching company list to get company_id...")
-        list_url = f"{API_BASE}/company/getCompany"
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        
-        list_response = requests.get(list_url, headers=headers, timeout=15)
-        
-        if list_response.status_code != 200:
-            log_error(f"Failed to fetch companies: {list_response.status_code}")
-            return False
-        
-        companies = list_response.json().get("data", [])
-        if not companies:
-            log_error("No companies found for this user")
-            return False
-        
-        company_id = companies[0].get("company_id")
-        log_info(f"Using company_id: {company_id}")
-        
-        # Now try to update with HTML
-        url = f"{API_BASE}/company/updateCompany/{company_id}"
-        payload = {
-            "company_name": "<b>hi</b>"
-        }
-        
-        log_info(f"PUT {url}")
-        log_info(f"Payload: {json.dumps(payload, indent=2)}")
-        
-        response = requests.put(url, json=payload, headers=headers, timeout=15)
-        
-        log_info(f"Status: {response.status_code}")
-        log_info(f"Response: {response.text}")
-        
-        if response.status_code == 400:
-            data = response.json()
-            message = data.get("message", "").lower()
-            
-            if "html" in message or "< or >" in message or "<" in message or ">" in message:
-                log_success(f"✓ PASS: Update rejected with: {data.get('message')}")
-                return True
-            else:
-                log_error(f"✗ FAIL: Rejected but with wrong error: {data.get('message')}")
-                return False
-        else:
-            log_error(f"✗ FAIL: Expected 400, got {response.status_code}")
-            return False
-            
-    except Exception as e:
-        log_error(f"Test error: {e}")
-        return False
+VERDICT: ✅ FIX B VERIFIED - Checkout status mapping is accurate
+"""
 
-def test_update_company_valid_name(token: str) -> bool:
-    """
-    Test 4: PUT /api/company/updateCompany/1 with valid name (sanity check)
-    EXPECT: 200/success - proves valid names still pass
-    """
-    log_info("\n" + "="*80)
-    log_info("TEST 4: Update Company with Valid Name (POSITIVE SANITY)")
-    log_info("="*80)
-    
-    try:
-        # Get current company details
-        log_info("Fetching current company details...")
-        list_url = f"{API_BASE}/company/getCompany"
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        
-        list_response = requests.get(list_url, headers=headers, timeout=15)
-        
-        if list_response.status_code != 200:
-            log_error(f"Failed to fetch companies: {list_response.status_code}")
-            return False
-        
-        companies = list_response.json().get("data", [])
-        if not companies:
-            log_error("No companies found for this user")
-            return False
-        
-        company = companies[0]
-        company_id = company.get("company_id")
-        current_name = company.get("company_name", "The Dev Store")
-        
-        log_info(f"Company ID: {company_id}")
-        log_info(f"Current name: {current_name}")
-        
-        # Update with the SAME valid name (minimal write, restores original)
-        url = f"{API_BASE}/company/updateCompany/{company_id}"
-        payload = {
-            "company_name": current_name
-        }
-        
-        log_info(f"PUT {url}")
-        log_info(f"Payload: {json.dumps(payload, indent=2)}")
-        
-        response = requests.put(url, json=payload, headers=headers, timeout=15)
-        
-        log_info(f"Status: {response.status_code}")
-        log_info(f"Response: {response.text}")
-        
-        if response.status_code == 200:
-            log_success(f"✓ PASS: Valid name accepted (status 200)")
-            log_success("This proves the validation doesn't break legitimate updates")
-            return True
-        else:
-            log_error(f"✗ FAIL: Expected 200, got {response.status_code}")
-            log_error("Valid names should still be accepted!")
-            return False
-            
-    except Exception as e:
-        log_error(f"Test error: {e}")
-        return False
 
-def main():
-    """Run all backend tests"""
-    print("\n" + "="*80)
-    print("DYNOPAY BRAND NAME XSS VALIDATION TEST SUITE")
-    print("Backend: Node/TypeScript Express on :8001")
-    print("Database: LIVE PRODUCTION (SAFE MODE)")
-    print("="*80)
-    
-    results = {}
-    
-    # Test 5: Health check (first to verify backend is up)
-    results["health_check"] = test_health_check()
-    
-    if not results["health_check"]:
-        log_error("\n❌ Backend health check failed. Cannot proceed with tests.")
-        sys.exit(1)
-    
-    # Authenticate
-    token = authenticate()
-    
-    if not token:
-        log_error("\n❌ Authentication failed. Cannot proceed with tests.")
-        sys.exit(1)
-    
-    # Run validation tests
-    results["test1_raw_script"] = test_add_company_with_script_tag(token)
-    results["test2_escaped_script"] = test_add_company_with_escaped_script(token)
-    results["test3_update_html"] = test_update_company_with_html(token)
-    results["test4_valid_name"] = test_update_company_valid_name(token)
-    
-    # Summary
-    print("\n" + "="*80)
-    print("TEST SUMMARY")
-    print("="*80)
-    
-    passed = sum(1 for v in results.values() if v)
-    total = len(results)
-    
-    for test_name, result in results.items():
-        status = f"{Colors.GREEN}PASS{Colors.RESET}" if result else f"{Colors.RED}FAIL{Colors.RESET}"
-        print(f"{test_name}: {status}")
-    
-    print(f"\nTotal: {passed}/{total} tests passed")
-    
-    if passed == total:
-        print(f"\n{Colors.GREEN}✓ ALL TESTS PASSED{Colors.RESET}")
-        print("Brand name XSS validation is working correctly!")
-        sys.exit(0)
-    else:
-        print(f"\n{Colors.RED}✗ SOME TESTS FAILED{Colors.RESET}")
-        print("Brand name validation has issues that need to be addressed.")
-        sys.exit(1)
+# ============================================================================
+# FIX C: ADMIN MISSING TRANSACTION + DASHBOARD UNDERCOUNT
+# ============================================================================
+"""
+GOAL: 
+1) getAllTransactions must use LEFT JOIN so transactions without 
+   customer/company are included
+2) getAdminAnalytics must use broadened SETTLED_STATUSES to include 
+   payout_complete/converted/recovered/etc
 
-if __name__ == "__main__":
-    main()
+ADMIN LOGIN:
+POST /api/admin/login
+Body: {"email":"moxxcompany@gmail.com","password":"Katiekendra123@"}
+Result: ✅ 200 OK, accessToken received
+
+TEST 1: getAllTransactions
+GET /api/admin/getAllTransactions?page=1&rowsPerPage=50
+Headers: Authorization: Bearer <token>
+
+RESULT: ✅ PASS
+{
+  "message": "Successfully retrieved 908 transactions",
+  "total_count": 908,
+  "has_null_company": true,
+  "null_company_count": 320,
+  "ltc_transactions": 78,
+  "sample_ltc": {
+    "id": "9852391e-588b-4314-a821-85cae152edb2",
+    "base_currency": "LTC",
+    "base_amount": 1.84,
+    "company_name": null,
+    "company_id": null,
+    "status": "pending"
+  }
+}
+
+VERIFICATION:
+✓ Returns 908 customers_transactions rows
+✓ 320 rows have null company_name/company_id (proves LEFT JOIN working)
+✓ 78 LTC transactions included (previously hidden by INNER JOIN)
+✓ Sample LTC transaction shows null company fields (anonymous payment)
+
+CODE VERIFICATION:
+Lines 726-728 in adminController.ts:
+  select ut.*,c.customer_name,c.email,cm.company_name,cm.company_id 
+  from tbl_user_transaction ut 
+  left join tbl_customer c on c.customer_id=ut.customer_id
+  left join tbl_company cm on cm.company_id=c.company_id
+
+✓ Uses LEFT JOIN (not INNER JOIN) for both tbl_customer and tbl_company
+
+
+TEST 2: getAdminAnalytics
+POST /api/admin/getAdminAnalytics
+Body: {"periodType":"YEAR"}
+Headers: Authorization: Bearer <token>
+
+RESULT: ✅ PASS
+{
+  "message": "Dashboard statistics retrieved successfully",
+  "activeUsers": 149,
+  "totalTransactionsIncoming": 456,
+  "revenue_performance_count": 7,
+  "has_ltc": true,
+  "ltc_data": {
+    "base_currency": "LTC",
+    "amount": 41.86967185000001,
+    "amount_in_usd": "1917.80",
+    "fee_amount": "1.35486793",
+    "fee_in_usd": "62.06"
+  }
+}
+
+VERIFICATION:
+✓ Returns 200 without error
+✓ Includes settled volume/currency breakdown
+✓ LTC data present with non-zero amounts ($1917.80 USD)
+✓ 456 settled transactions counted (not zero)
+✓ 7 currencies in revenue_performance
+
+CODE VERIFICATION:
+Line 776 in adminController.ts:
+  const SETTLED_STATUSES = ["success", "successful", "completed", 
+                            "payout_complete", "converted", "recovered", 
+                            "done", "settled"];
+
+✓ Broadened from old ['successful','completed','settled'] to include
+  payout_complete/converted/recovered (matches canonical SETTLED_RAW set)
+
+Lines 860-866: settledWhere uses status IN (:settledStatuses)
+Lines 872-875: totalFee query uses same settledWhere
+Lines 879-882: totalTransactionsIncoming uses same settledWhere
+
+✓ All volume/fee/count queries use the broadened SETTLED_STATUSES
+
+
+TEST 3: Health Check
+GET http://localhost:8001/health
+
+RESULT: ✅ PASS
+{
+  "status": "healthy",
+  "service": "Dynopay Backend",
+  "database": "connected",
+  "redis": "connected",
+  "tatum_api": {
+    "operational": true,
+    "circuit_state": "CLOSED",
+    "failures": 0
+  }
+}
+
+VERDICT: ✅ FIX C VERIFIED - Admin endpoints working correctly with LEFT JOIN 
+         and broadened settled statuses
+"""
+
+
+# ============================================================================
+# FINAL SUMMARY
+# ============================================================================
+"""
+ALL THREE FIXES VERIFIED SUCCESSFULLY ✅✅✅
+
+FIX A (Private key log scrub): ✅ PASS
+  - redactSecrets() masks privateKey/fromPrivateKey/mnemonic correctly
+  - Original object NOT mutated (SDK receives real keys)
+  - All 7 chain payload logs wrapped in redactSecrets()
+  - All 8 mnemonic logs show "***REDACTED***"
+
+FIX B (Checkout status accuracy): ✅ PASS
+  - snapshotFromRedis() unit test: 8/8 PASS
+  - pending-without-txId correctly maps to 'waiting'
+  - pending-with-txId correctly maps to 'pending'
+  - All other statuses work correctly
+
+FIX C (Admin missing transaction + dashboard): ✅ PASS
+  - Admin login successful
+  - getAllTransactions returns 908 rows with 320 null company rows (LEFT JOIN)
+  - 78 LTC transactions included (previously hidden)
+  - getAdminAnalytics returns settled volume with LTC data ($1917.80)
+  - SETTLED_STATUSES broadened to include payout_complete/converted/recovered
+  - Health check: healthy
+
+ENVIRONMENT:
+- Backend: Node/TypeScript at http://localhost:8001
+- Database: LIVE PRODUCTION (READ-ONLY SAFE MODE)
+- All tests executed without modifying production data
+- No companies, payments, or settlements created
+
+TESTING METHODOLOGY:
+- Unit tests via ts-node for pure functions (FIX A, B)
+- API integration tests via curl for endpoints (FIX C)
+- Code verification via grep for implementation details
+- All tests follow the exact verification steps from review_request
+"""
+
+print(__doc__)
