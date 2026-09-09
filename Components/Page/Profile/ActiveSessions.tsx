@@ -73,10 +73,20 @@ const ActiveSessions = () => {
     const current = sessions.find((s) => s.is_current);
     setRevokingAll(true);
     try {
-      await axiosBaseApi.delete("user/sessions", {
+      const res = await axiosBaseApi.delete("user/sessions", {
         data: { current_session_id: current?.session_id },
       });
-      setToast({ msg: t("otherSessionsSignedOut", { defaultValue: "All other devices signed out" }), sev: "success" });
+      const n = Number(res?.data?.data?.revoked_count ?? 0);
+      setToast({
+        msg:
+          n > 0
+            ? t("otherSessionsSignedOutCount", {
+                count: n,
+                defaultValue: `Signed out on ${n} other device${n === 1 ? "" : "s"} — you're still signed in here.`,
+              })
+            : t("noOtherSessions", { defaultValue: "No other devices to sign out." }),
+        sev: "success",
+      });
       await mutate();
     } catch {
       setToast({ msg: t("sessionSignOutFailed", { defaultValue: "Couldn't sign out other devices" }), sev: "error" });
@@ -84,6 +94,13 @@ const ActiveSessions = () => {
       setRevokingAll(false);
     }
   };
+
+  // Live count of devices currently signed in (updates as sessions are revoked).
+  const deviceCount = sessions.length;
+  const deviceCountLabel = t("devicesSignedIn", {
+    count: deviceCount,
+    defaultValue: `${deviceCount} device${deviceCount === 1 ? "" : "s"} signed in`,
+  });
 
   const relativeTime = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -122,6 +139,7 @@ const ActiveSessions = () => {
       <PanelCard
         bodyPadding={isMobile ? `${theme.spacing(1.5, 2, 2, 2)}` : `${theme.spacing(2, 2.5, 2.5, 2.5)}`}
         title={t("activeSessions", { defaultValue: "Active devices" })}
+        subTitle={loading ? undefined : deviceCountLabel}
         showHeaderBorder={false}
         headerAction={
           hasOthers ? (

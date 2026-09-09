@@ -640,6 +640,7 @@ export default function Login() {
       UserAction(USER_CONFIRM_CODE, {
         email: verifiedEmail,
         otp: otp.trim(),
+        remember: rememberMe,
       }),
     );
   };
@@ -759,6 +760,7 @@ export default function Login() {
         email: verifiedEmail,
         otp: otp.trim(),
         mobile: mobileToUse,
+        remember: rememberMe,
       }),
     );
   };
@@ -1658,6 +1660,31 @@ export default function Login() {
                     </Box>
                   </Box>
                 )}
+
+                {/* Keep me signed in — code login honours this too, so the
+                    choice controls tab/session persistence on every path. */}
+                <Box sx={{ marginTop: isMobile ? "12px" : "16px", display: "flex", justifyContent: "flex-start" }}>
+                  <FormControlLabel
+                    data-testid="remember-me-toggle-code"
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        sx={{ py: 0, color: theme.palette.text.secondary }}
+                      />
+                    }
+                    label={t("keepMeSignedIn")}
+                    sx={{
+                      m: 0,
+                      "& .MuiFormControlLabel-label": {
+                        fontSize: "13px",
+                        color: theme.palette.text.secondary,
+                        fontFamily: "var(--font-sans)",
+                      },
+                    }}
+                  />
+                </Box>
 
                 {/* Inline OTP block — auto-sends on entering code mode
                     (see handleUseCodeInstead), auto-verifies on 6 digits. */}

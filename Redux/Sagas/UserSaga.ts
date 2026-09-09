@@ -361,7 +361,9 @@ export function* generateOTP(payload: any): unknown {
 
 export function* confirmOTP(payload: any): unknown {
   try {
-    const response = yield call(axios.post, "user/confirmOTP", payload);
+    // `remember` is a client-only persistence flag — keep it out of the API call.
+    const { remember, ...apiPayload } = payload || {};
+    const response = yield call(axios.post, "user/confirmOTP", apiPayload);
     const responseData = response?.data;
 
     // Check if response has the expected structure
@@ -394,7 +396,7 @@ export function* confirmOTP(payload: any): unknown {
     });
     yield put({
       type: USER_LOGIN,
-      payload: { ...data.userData, accessToken: data.accessToken },
+      payload: { ...data.userData, accessToken: data.accessToken, remember },
     });
   } catch (e: any) {
     const message =

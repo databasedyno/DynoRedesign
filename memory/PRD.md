@@ -1,3 +1,20 @@
+# 2026-09-09 (fork, pod dbe1c2d6) SESSION-PANEL + REMEMBER-ME ENHANCEMENTS — DONE + VERIFIED (FE tsc 0; Playwright).
+#   Follow-up to the QA Group-A batch, from the user picking two Next Action Items.
+#   SESSION PANEL (Components/Page/Profile/ActiveSessions.tsx):
+#     - Live device count as the card subtitle ("N device(s) signed in") that updates as sessions are revoked
+#       (SWR mutate). Verified 6 → 1 after "Sign out all others".
+#     - Count-aware, reassuring confirmation from the backend revoked_count: "Signed out on N other device(s) —
+#       you're still signed in here." (0 → "No other devices to sign out."). Uses the existing subtle bottom snackbar.
+#   REMEMBER-ME (pages/auth/login.tsx + Redux/Sagas/UserSaga.ts):
+#     - A "Keep me signed in for 7 days" toggle already existed on the PASSWORD path only; the CODE/OTP path
+#       (email + SMS login, USER_CONFIRM_CODE) silently dropped `remember` so it ALWAYS persisted. Added the same
+#       toggle to code mode (testid remember-me-toggle-code, placed above the OTP input so it's set before auto-verify),
+#       threaded `remember: rememberMe` through both handleEmailOtpVerify/handleSmsOtpVerify, and in confirmOTP the
+#       flag is stripped from the API payload and forwarded into the USER_LOGIN put → reducer applyPersistence.
+#       Verified both toggles render; label "Keep me signed in for 7 days". (Password-2FA path already threaded remember.)
+#   No backend changes this round. FE tsc 0. Not deployed — use "Save to GitHub".
+#
+
 # 2026-09-09 (fork, pod dbe1c2d6) QA GROUP-A BUG BATCH (11 bugs) — DONE + VERIFIED (BE curl + FE Playwright; BE+FE tsc 0; backend healthy).
 #   User: "Let's fix 1 to 10" (+ an 11th flagged mid-task: new tab forces re-login). Approved deferring the logo save (option a).
 #   BACKEND (curl-verified on the live merchant onarrival21@gmail.com):
