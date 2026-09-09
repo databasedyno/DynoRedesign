@@ -1,3 +1,30 @@
+# 2026-09-09 (fork, pod 0462e6dd) QA P0 FIXES — DASH-001 (auto-convert banner) + AUTH-003 (set password) — DONE + VERIFIED (testing_agent iter_135 + iter_134).
+#   DASH-001 (Auto-convert enable/disable missing on dashboard): the previous agent had injected <ConversionBanner/>
+#     into the LEGACY Components/Page/Dashboard/DashboardLeftSection.tsx, which is NOT rendered on /dashboard — the live
+#     dashboard is Dashboard2026 (Components/Page/Dashboard/v2026/index.tsx). Fix: (1) mounted <ConversionBanner/> in
+#     v2026/index.tsx right after <ActionsRow/> in the established-merchant branch; (2) hardened ConversionBanner.tsx to
+#     resolve the company via `companyId = selectedCompanyId ?? company?.company_id` (selectedCompanyId is seeded from
+#     localStorage before the /company/getCompany SWR resolves — same source the dashboard stats use), so it no longer
+#     returns null / skips the fetch while companyList is still hydrating; (3) added data-testids auto-convert-banner /
+#     -toggle / -configure; (4) removed the banner's legacy px/mb so it aligns in the v2026 gap column.
+#     VERIFIED (testing_agent iter_135, 100%): banner visible on /dashboard, GET /api/company/auto-convert/{id} fires,
+#     toggle renders OFF + interactive. (Toggle NOT flipped ON — SAFE MODE / live prod DB.)
+#   AUTH-003 (couldn't set/update password from Profile > Security): ROOT CAUSE was the shared password InputField
+#     (Components/UI/AuthLayout/InputFields/index.tsx ~L315): its onChange rebuilt the change event via {...e, target:
+#     {...e.target, value}} — spreading a DOM node DROPS its name/id (they live on the prototype), so Formik/FormManager
+#     couldn't identify the field and the password inputs never updated (fields appeared to reject all input). Fix:
+#     onChange now mutates the real input's value to strip spaces and forwards the ORIGINAL event, preserving name/id.
+#     Backend flow (POST /api/user/profile/request-password-otp -> set-password) was already correct — verified E2E via
+#     curl (read OTP from Redis db /1 via backend/scripts/read_otp.cjs since outbound email is off).
+#     VERIFIED (testing_agent iter_134): request OTP -> enter code -> set password -> 'Password updated successfully!'.
+#   QA board: marked dashboard::DASH-001 and auth::AUTH-003 'awaiting_retest' (tester "Emergent Dev (E1)", POST
+#     /api/quality/comment, passcode-gated). NEW helper backend/scripts/read_otp.cjs (reads otp:{email}:json from Redis /1).
+#   Preview-only (NOT deployed) — use "Save to GitHub" to ship. All writes idempotent (password re-set to same value).
+#   STILL OPEN on the QA board (per user, tackle next): custom::15/AUTH-009 (2FA enable/disable UI), original PRD items
+#     (OTP-before-deleting-a-brand, Company->Brand rename, email action audit, double fee breakdown on checkout),
+#     AUTH-002 (phone-registration duplicate-check / BD number OTP).
+#
+
 # 2026-09-09 (fork, pod dbe1c2d6) COMMIT + QA RETEST-READY MARKING — DONE.
 #   - Pre-commit file-size gate (backend/scripts/check-file-size.mjs: NEW backend .ts must be <=500 lines; legacy
 #     grandfathered) was BLOCKING because profileSecurity.ts hit 522 lines after the new-device work. Fixed by extracting

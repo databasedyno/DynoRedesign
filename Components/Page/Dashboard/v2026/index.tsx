@@ -20,6 +20,7 @@ import ActivationChecklist from "./ActivationChecklist";
 import RecentTransactionsWidget from "../RecentTransactionsWidget";
 import GrowSlot from "./GrowSlot";
 import ReferralCodeCard from "../ReferralCodeCard";
+import ConversionBanner from "../ConversionBanner";
 
 // Dashboard Diet: VolumeChart and KpiStrip both pull in `recharts` (a large
 // dependency). Loading them via next/dynamic (ssr:false) moves recharts into
@@ -282,6 +283,12 @@ const Dashboard2026: React.FC = () => {
 
           {/* Row 1½ — quick actions */}
           <ActionsRow />
+
+          {/* Auto-convert status + inline enable/disable (QA DASH-001):
+              surfaces whether incoming crypto is auto-converted to a
+              stablecoin, with a quick toggle. Self-guards (renders null while
+              loading / no company). Shown for established merchants only. */}
+          <ConversionBanner />
 
           {/* Rows 2-5 — one grid: the LEFT column (chart → KPIs → activity →
               assets) flows beside the RIGHT rail (fee tier · grow · referral).

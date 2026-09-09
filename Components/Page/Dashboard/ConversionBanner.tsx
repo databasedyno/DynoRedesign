@@ -54,6 +54,14 @@ const ConversionBanner = () => {
     ) ??
     companyState.companyList?.[0] ??
     null;
+  // Resolve the company id the SAME way the rest of the dashboard does: prefer
+  // selectedCompanyId (seeded from localStorage before the /company/getCompany
+  // SWR resolves) so the banner renders + fetches even while companyList is
+  // still hydrating. Previously we keyed off the full company OBJECT, so the
+  // banner silently returned null (and never fired the status request) whenever
+  // the list hadn't populated yet (QA DASH-001).
+  const companyId: number | null =
+    selectedCompanyId ?? company?.company_id ?? null;
 
   const [enabled, setEnabled] = useState(false);
   const [stablecoin, setStablecoin] = useState("");
@@ -65,13 +73,13 @@ const ConversionBanner = () => {
   const [showStablecoinPicker, setShowStablecoinPicker] = useState(false);
 
   const fetchStatus = useCallback(async () => {
-    if (!company?.company_id) {
+    if (!companyId) {
       setLoading(false);
       return;
     }
     try {
       const res = await axiosBaseApi.get(
-        API_ENDPOINTS.company.autoConvert(company.company_id)
+        API_ENDPOINTS.company.autoConvert(companyId)
       );
       const data = res?.data?.data;
       if (data) {
@@ -97,14 +105,14 @@ const ConversionBanner = () => {
     } finally {
       setLoading(false);
     }
-  }, [company?.company_id]);
+  }, [companyId]);
 
   useEffect(() => {
     fetchStatus();
   }, [fetchStatus]);
 
   const handleToggle = async () => {
-    if (!company?.company_id || toggling) return;
+    if (!companyId || toggling) return;
 
     // Case 1: Disabling — always allowed
     if (enabled) {
@@ -112,7 +120,7 @@ const ConversionBanner = () => {
       setEnabled(false);
       try {
         await axiosBaseApi.put(
-          API_ENDPOINTS.company.autoConvert(company.company_id),
+          API_ENDPOINTS.company.autoConvert(companyId),
           { auto_convert_enabled: false }
         );
       } catch {
@@ -145,7 +153,7 @@ const ConversionBanner = () => {
   };
 
   const enableAutoConvert = async (walletType: string) => {
-    if (!company?.company_id) return;
+    if (!companyId) return;
     setToggling(true);
     setEnabled(true); // Optimistic
 
@@ -156,7 +164,7 @@ const ConversionBanner = () => {
 
     try {
       await axiosBaseApi.put(
-        API_ENDPOINTS.company.autoConvert(company.company_id),
+        API_ENDPOINTS.company.autoConvert(companyId),
         {
           auto_convert_enabled: true,
           settlement_currency: currency,
@@ -177,7 +185,7 @@ const ConversionBanner = () => {
     enableAutoConvert(walletType);
   };
 
-  if (loading || !company) return null;
+  if (loading || !companyId) return null;
 
   const stablecoinLabel =
     STABLECOIN_LABELS[stablecoin] || stablecoin || "Stablecoin";
@@ -186,9 +194,9 @@ const ConversionBanner = () => {
 
   return (
     <Box
+      data-testid="auto-convert-banner"
       sx={{
-        mb: 2.5,
-        px: { xs: "16px", md: "0px" },
+        width: "100%",
       }}
     >
       <Box
@@ -339,6 +347,7 @@ const ConversionBanner = () => {
                 onChange={handleToggle}
                 disabled={toggleDisabled}
                 size="small"
+                data-testid="auto-convert-toggle"
                 sx={{
                   "& .MuiSwitch-switchBase.Mui-checked": {
                     color: "#22C55E",
@@ -351,6 +360,7 @@ const ConversionBanner = () => {
             </span>
           </Tooltip>
           <Typography
+            data-testid="auto-convert-configure"
             onClick={() => {
               if (company) openCompanySettings(company);
             }}

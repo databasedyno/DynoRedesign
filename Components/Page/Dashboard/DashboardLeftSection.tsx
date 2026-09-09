@@ -522,6 +522,13 @@ const DashboardLeftSection = () => {
         </Box>
       )}
 
+      {/* Auto-convert status + inline enable/disable (QA DASH-001): surfaces
+          whether incoming crypto is auto-converted to a stablecoin, with a
+          quick toggle. Self-guards (renders null while loading / no company).
+          Shown once the merchant has activity so a brand-new account still
+          sees the clean empty-state guide first. */}
+      {!showEmptyState && <ConversionBanner />}
+
       {/* Recent transactions — trust/retention signal. Renders empty-state
           copy internally when the list is empty. */}
       <RecentTransactionsWidget

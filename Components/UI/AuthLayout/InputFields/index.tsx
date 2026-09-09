@@ -314,17 +314,16 @@ const InputField: React.FC<InputFieldProps> = ({
             name={name}
             onChange={(e) => {
               if (type === "password") {
-                // Strip spaces from password input
+                // Strip spaces from password input. IMPORTANT: mutate the real
+                // input's value instead of spreading e.target — spreading a DOM
+                // node drops its `name`/`id` (they live on the prototype), which
+                // broke Formik's handleChange (couldn't identify the field) so
+                // password fields inside FormManager never updated (QA AUTH-003).
                 const newValue = e.target.value.replace(/\s/g, "");
-                if (onChange) {
-                  onChange({
-                    ...e,
-                    target: {
-                      ...e.target,
-                      value: newValue,
-                    },
-                  } as React.ChangeEvent<HTMLInputElement>);
+                if (e.target.value !== newValue) {
+                  e.target.value = newValue;
                 }
+                onChange?.(e as React.ChangeEvent<HTMLInputElement>);
               } else {
                 onChange?.(e as React.ChangeEvent<HTMLInputElement>);
               }
