@@ -69,7 +69,7 @@ export const authThemeDark = createTheme(themeDark, {
       contrastText: "#FFFFFF",
     },
     background: { default: "#0B0F19", paper: "#111827" },
-    text: { primary: "#F8FAFC", secondary: "#94A3B8", disabled: "#8592A6" },
+    text: { primary: "#F8FAFC", secondary: "#A1A1AA", disabled: "#8B8B93" },
     divider: "rgba(255,255,255,0.10)",
     border: {
       main: "rgba(255,255,255,0.14)",

@@ -59,7 +59,7 @@ const SecureAccountPage = () => {
   const goToLogin = { label: t("secureAccount.goToLogin"), onClick: () => router.push("/auth/login"), testId: "secure-account-login-btn" };
 
   return (
-    <AuthShell title={`${t("secureAccount.headTitle", { defaultValue: "Secure your account" })} · Dynopay`} testId="secure-account-page">
+    <AuthShell brand title={`${t("secureAccount.headTitle", { defaultValue: "Secure your account" })} · Dynopay`} testId="secure-account-page">
       <Box data-testid="secure-account-card" data-status={status}>
         <AuthStatus tone={c.tone} icon={c.icon} title={c.title} description={c.subtitle} titleTestId="secure-account-title" descriptionTestId="secure-account-message" action={status === "loading" ? undefined : goToLogin} testId="secure-account-status">
           {status === "success" && (

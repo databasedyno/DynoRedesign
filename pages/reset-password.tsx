@@ -135,7 +135,7 @@ const ResetPasswordPage = () => {
   if (!allowed) return null;
 
   return (
-    <AuthShell title={`${t("setNewPassword")} · Dynopay`} testId="reset-password-page">
+    <AuthShell brand title={`${t("setNewPassword")} · Dynopay`} testId="reset-password-page">
         <TitleDescription
           title={t("setNewPassword")}
           description={t("setNewPasswordDescription", { defaultValue: "Pick a strong password for {{email}} — you'll use it the next time you log in.", email: String(email || "") })}

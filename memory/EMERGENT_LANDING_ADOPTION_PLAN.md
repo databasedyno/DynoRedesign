@@ -85,8 +85,10 @@ PHASE 1 — Universal (theme-level, cascades):
       lift + shadow to match dark), MuiButton root transition + gentle translateY(-1px)
       on hover ~200ms. Keep dashboard subtle.  [DONE ✅ 2026-09-14 — MuiCard translateY(-1px)+shadow
       both themes; MuiButton lift scoped to contained/outlined so inline text links stay flat]
-- [ ] (Decide) neutralize LIGHT greys: constants/theme.ts LIGHT.textSecondary
-      #475569 / textMuted #64748B → zinc neutrals — OR leave (many hardcoded refs).
+- [x] neutralize LIGHT greys: constants/theme.ts LIGHT.textSecondary/textMuted are
+      now zinc (#52525B / #71717A); globals.css light --text-* are zinc; authThemeLight
+      already zinc (#3F3F46). Also neutralized authThemeDark secondary #94A3B8 → #A1A1AA
+      for both-theme consistency.  [DONE ✅ 2026-06]
 
 PHASE 2 — Expressive AUTH split-screen (matches Emergent reference the user shared):
   Current auth is a single CENTERED card (Coinbase-clean 2025-07 pass) — the
@@ -108,12 +110,20 @@ PHASE 2 — Expressive AUTH split-screen (matches Emergent reference the user sh
         Hidden < lg; TrustStrip shows below the form on mobile. NOTE: reset-password/
         secure-account/accept-invite still use the plain centered AuthShell (unchanged).]
   - [x] Keep every data-testid (login-email-input, signin-submit-btn, etc.).  [DONE ✅ verified]
+  - [x] Extend the split to reset-password, secure-account, accept-invite via a new
+        `brand` prop on AuthShell (SplitScreenWrapper + SplitFormColumn + AuthBrandPanel,
+        hidden < lg; TrustStrip below the form on mobile). Default AuthShell stays centered
+        for any other consumer.  [DONE ✅ 2026-06 — testing_agent iteration_175 = 100%,
+        brand panel visible @1920, hidden @768/390, both themes, zero console errors.]
 
 PHASE 3 — Expressive LANDING hero (respect existing Swiss design; subtle):
   - Entry: pages/index.tsx → Components/Page/Home/v5/HeroV5.tsx (+ HeroCheckoutDemo,
     PublicPageHero). Theme: styles/homeTheme.ts, styles/homeBento.ts.
-  - [ ] Hero headline: subtle text glow + tighter tracking (Manrope) + pill primary
-        CTA + reserved indigo→violet gradient accent. Do NOT overhaul the whole page.
+  - [x] Hero headline: subtle text glow + tighter tracking (Manrope) + pill primary
+        CTA + reserved indigo→violet gradient accent. Did NOT overhaul the page.
+        [DONE ✅ 2026-06 — HeadlineXL is Manrope @ -0.035em with a dark textShadow glow;
+        GradientInk accent word + violet mesh; PrimaryBtn is a pill w/ glow+lift and now
+        a hero-scoped indigo→violet gradient (linear 135° #4F46E5→#7C5CFF). Verified light+dark.]
 
 GUARDRAILS: dark-first, no light regression, keep data-testids, verify screenshots
 (dark+light, desktop+390+768), then MANDATORY run the frontend testing agent.

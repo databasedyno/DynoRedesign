@@ -64,7 +64,19 @@ const HeroV5: React.FC = () => {
             <Body sx={{ color: s.ink2, maxWidth: 540, mb: 4.5, fontSize: { xs: 16, md: 18 }, ...enter(0.16) }}>{t("v5.hero.body")}</Body>
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap", ...enter(0.24) }}>
-              <PrimaryBtn data-testid="hero-primary-cta" onClick={() => goStart(router, "hero")} endIcon={<ArrowForward sx={{ fontSize: 18 }} />}>
+              <PrimaryBtn
+                data-testid="hero-primary-cta"
+                onClick={() => goStart(router, "hero")}
+                endIcon={<ArrowForward sx={{ fontSize: 18 }} />}
+                sx={{
+                  background: "linear-gradient(135deg, #4F46E5 0%, #7C5CFF 100%)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #4338CA 0%, #6D4EF0 100%)",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 18px 38px -12px rgba(124,92,255,0.5)",
+                  },
+                }}
+              >
                 {t("v5.hero.primary")}
               </PrimaryBtn>
               <SecondaryBtn data-testid="hero-secondary-cta" href="/pay/demo" startIcon={<PlayArrowRounded sx={{ fontSize: 20 }} />}>

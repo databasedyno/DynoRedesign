@@ -144,7 +144,7 @@ const AcceptInvitePage = () => {
   );
 
   return (
-    <AuthShell title={headTitle} testId="accept-invite-page">
+    <AuthShell brand title={headTitle} testId="accept-invite-page">
       {loading ? (
         <AuthStatus
           tone="loading"
